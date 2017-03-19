@@ -79,16 +79,23 @@ import sh.isaac.provider.taxonomy.TypeStampTaxonomyRecords.TypeStampTaxonomyReco
  * Created by kec on 11/8/14.
  */
 public class TaxonomyRecordUnpacked {
-   /**
-    * key = origin concept sequence; value = TypeStampTaxonomyRecords
-    */
+   
+   /** key = origin concept sequence; value = TypeStampTaxonomyRecords. */
    private final OpenIntObjectHashMap<TypeStampTaxonomyRecords> conceptSequenceRecordMap =
       new OpenIntObjectHashMap<>(11);
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new taxonomy record unpacked.
+    */
    public TaxonomyRecordUnpacked() {}
 
+   /**
+    * Instantiates a new taxonomy record unpacked.
+    *
+    * @param recordArray the record array
+    */
    public TaxonomyRecordUnpacked(int[] recordArray) {
       if (recordArray != null) {
          int index = 0;
@@ -106,6 +113,12 @@ public class TaxonomyRecordUnpacked {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the concept sequence stamp records.
+    *
+    * @param conceptSequence the concept sequence
+    * @param newRecord the new record
+    */
    public void addConceptSequenceStampRecords(int conceptSequence, TypeStampTaxonomyRecords newRecord) {
       if (this.conceptSequenceRecordMap.containsKey(conceptSequence)) {
          final TypeStampTaxonomyRecords oldRecord = this.conceptSequenceRecordMap.get(conceptSequence);
@@ -116,6 +129,14 @@ public class TaxonomyRecordUnpacked {
       }
    }
 
+   /**
+    * Adds the stamp record.
+    *
+    * @param destinationSequence the destination sequence
+    * @param typeSequence the type sequence
+    * @param stamp the stamp
+    * @param recordFlags the record flags
+    */
    public void addStampRecord(int destinationSequence, int typeSequence, int stamp, int recordFlags) {
       if (destinationSequence < 0) {
          destinationSequence = Get.identifierService()
@@ -139,6 +160,13 @@ public class TaxonomyRecordUnpacked {
       conceptSequenceStampRecordsUnpacked.addStampRecord(typeSequence, stamp, recordFlags);
    }
 
+   /**
+    * Concept satisfies stamp.
+    *
+    * @param conceptSequence the concept sequence
+    * @param stampCoordinate the stamp coordinate
+    * @return true, if successful
+    */
    public boolean conceptSatisfiesStamp(int conceptSequence, StampCoordinate stampCoordinate) {
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(stampCoordinate);
 
@@ -152,10 +180,23 @@ public class TaxonomyRecordUnpacked {
       return false;
    }
 
+   /**
+    * Conection count.
+    *
+    * @return the int
+    */
    public int conectionCount() {
       return this.conceptSequenceRecordMap.size();
    }
 
+   /**
+    * Contains concept sequence via type.
+    *
+    * @param conceptSequence the concept sequence
+    * @param typeSequenceSet the type sequence set
+    * @param flags the flags
+    * @return true, if successful
+    */
    public boolean containsConceptSequenceViaType(int conceptSequence, ConceptSequenceSet typeSequenceSet, int flags) {
       if (this.conceptSequenceRecordMap.containsKey(conceptSequence)) {
          return this.conceptSequenceRecordMap.get(conceptSequence)
@@ -165,6 +206,14 @@ public class TaxonomyRecordUnpacked {
       return false;
    }
 
+   /**
+    * Contains concept sequence via type.
+    *
+    * @param conceptSequence the concept sequence
+    * @param typeSequenceSet the type sequence set
+    * @param tc the tc
+    * @return true, if successful
+    */
    public boolean containsConceptSequenceViaType(int conceptSequence,
          ConceptSequenceSet typeSequenceSet,
          TaxonomyCoordinate tc) {
@@ -178,6 +227,14 @@ public class TaxonomyRecordUnpacked {
       return false;
    }
 
+   /**
+    * Contains concept sequence via type.
+    *
+    * @param conceptSequence the concept sequence
+    * @param typeSequence the type sequence
+    * @param tc the tc
+    * @return true, if successful
+    */
    public boolean containsConceptSequenceViaType(int conceptSequence, int typeSequence, TaxonomyCoordinate tc) {
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
 
@@ -189,6 +246,15 @@ public class TaxonomyRecordUnpacked {
       return false;
    }
 
+   /**
+    * Contains concept sequence via type.
+    *
+    * @param conceptSequence the concept sequence
+    * @param typeSequenceSet the type sequence set
+    * @param tc the tc
+    * @param flags the flags
+    * @return true, if successful
+    */
    public boolean containsConceptSequenceViaType(int conceptSequence,
          ConceptSequenceSet typeSequenceSet,
          TaxonomyCoordinate tc,
@@ -203,6 +269,15 @@ public class TaxonomyRecordUnpacked {
       return false;
    }
 
+   /**
+    * Contains concept sequence via type.
+    *
+    * @param conceptSequence the concept sequence
+    * @param typeSequence the type sequence
+    * @param tc the tc
+    * @param flags the flags
+    * @return true, if successful
+    */
    public boolean containsConceptSequenceViaType(int conceptSequence,
          int typeSequence,
          TaxonomyCoordinate tc,
@@ -217,6 +292,14 @@ public class TaxonomyRecordUnpacked {
       return false;
    }
 
+   /**
+    * Contains sequence via type with flags.
+    *
+    * @param conceptSequence the concept sequence
+    * @param typeSequence the type sequence
+    * @param flags the flags
+    * @return true, if successful
+    */
    public boolean containsSequenceViaTypeWithFlags(int conceptSequence, int typeSequence, int flags) {
       if (this.conceptSequenceRecordMap.containsKey(conceptSequence)) {
          return this.conceptSequenceRecordMap.get(conceptSequence)
@@ -226,6 +309,12 @@ public class TaxonomyRecordUnpacked {
       return false;
    }
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
@@ -241,11 +330,21 @@ public class TaxonomyRecordUnpacked {
       return Objects.equals(this.conceptSequenceRecordMap, other.conceptSequenceRecordMap);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       throw new UnsupportedOperationException("May change values, can't put in a tree or set");
    }
 
+   /**
+    * Length.
+    *
+    * @return the int
+    */
    public int length() {
       int length = 0;
 
@@ -256,6 +355,11 @@ public class TaxonomyRecordUnpacked {
       return length;
    }
 
+   /**
+    * Merge.
+    *
+    * @param newRecord the new record
+    */
    public void merge(TaxonomyRecordUnpacked newRecord) {
       newRecord.conceptSequenceRecordMap.forEachPair((int key,
             TypeStampTaxonomyRecords value) -> {
@@ -270,6 +374,11 @@ public class TaxonomyRecordUnpacked {
             });
    }
 
+   /**
+    * Pack.
+    *
+    * @return the int[]
+    */
    public int[] pack() {
       final PackConceptSequenceStampRecords packer = new PackConceptSequenceStampRecords();
 
@@ -277,6 +386,11 @@ public class TaxonomyRecordUnpacked {
       return packer.taxonomyRecordArray;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final IntArrayList theKeys = this.conceptSequenceRecordMap.keys();
@@ -315,11 +429,19 @@ public class TaxonomyRecordUnpacked {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the concept sequence stamp records.
+    *
+    * @param conceptSequence the concept sequence
+    * @return the concept sequence stamp records
+    */
    public Optional<TypeStampTaxonomyRecords> getConceptSequenceStampRecords(int conceptSequence) {
       return Optional.ofNullable(this.conceptSequenceRecordMap.get(conceptSequence));
    }
 
    /**
+    * Gets the concept sequences for type.
+    *
     * @param typeSequence typeSequence to match, or Integer.MAX_VALUE if a
     * wildcard.
     * @return active concepts identified by their sequence value.
@@ -347,6 +469,8 @@ public class TaxonomyRecordUnpacked {
    }
 
    /**
+    * Gets the concept sequences for type.
+    *
     * @param typeSequence typeSequence to match, or Integer.MAX_VALUE if a
     * wildcard.
     * @param tc used to determine if a concept is active.
@@ -382,6 +506,11 @@ public class TaxonomyRecordUnpacked {
       return conceptSequenceIntStream.build();
    }
 
+   /**
+    * Gets the destination concept sequences.
+    *
+    * @return the destination concept sequences
+    */
    public IntStream getDestinationConceptSequences() {
       final IntStream.Builder conceptSequenceIntStream = IntStream.builder();
 
@@ -393,6 +522,13 @@ public class TaxonomyRecordUnpacked {
       return conceptSequenceIntStream.build();
    }
 
+   /**
+    * Gets the destination concept sequences not of type.
+    *
+    * @param typeSet the type set
+    * @param tc the tc
+    * @return the destination concept sequences not of type
+    */
    public IntStream getDestinationConceptSequencesNotOfType(ConceptSequenceSet typeSet, TaxonomyCoordinate tc) {
       final int                  flags                    = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
@@ -425,6 +561,12 @@ public class TaxonomyRecordUnpacked {
       return conceptSequenceIntStream.build();
    }
 
+   /**
+    * Gets the destination concept sequences of type.
+    *
+    * @param typeSet the type set
+    * @return the destination concept sequences of type
+    */
    public IntStream getDestinationConceptSequencesOfType(ConceptSequenceSet typeSet) {
       final IntStream.Builder conceptSequenceIntStream = IntStream.builder();
 
@@ -441,6 +583,13 @@ public class TaxonomyRecordUnpacked {
       return conceptSequenceIntStream.build();
    }
 
+   /**
+    * Gets the destination concept sequences of type.
+    *
+    * @param typeSet the type set
+    * @param tc the tc
+    * @return the destination concept sequences of type
+    */
    public IntStream getDestinationConceptSequencesOfType(ConceptSequenceSet typeSet, TaxonomyCoordinate tc) {
       final int                  flags                    = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
@@ -473,6 +622,11 @@ public class TaxonomyRecordUnpacked {
       return conceptSequenceIntStream.build();
    }
 
+   /**
+    * Gets the parent concept sequences.
+    *
+    * @return the parent concept sequences
+    */
    public IntStream getParentConceptSequences() {
       final int               isaSequence              = TermAux.IS_A.getConceptSequence();
       final IntStream.Builder conceptSequenceIntStream = IntStream.builder();
@@ -489,6 +643,13 @@ public class TaxonomyRecordUnpacked {
       return conceptSequenceIntStream.build();
    }
 
+   /**
+    * Gets the types for relationship.
+    *
+    * @param destinationId the destination id
+    * @param tc the tc
+    * @return the types for relationship
+    */
    IntStream getTypesForRelationship(int destinationId, TaxonomyCoordinate tc) {
       final int                  flags                 = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
@@ -527,13 +688,27 @@ public class TaxonomyRecordUnpacked {
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class PackConceptSequenceStampRecords.
+    */
    private class PackConceptSequenceStampRecords
             implements IntObjectProcedure<TypeStampTaxonomyRecords> {
+      
+      /** The taxonomy record array. */
       int[] taxonomyRecordArray = new int[length()];
+      
+      /** The destination position. */
       int   destinationPosition = 0;
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Apply.
+       *
+       * @param conceptSequence the concept sequence
+       * @param stampRecordsUnpacked the stamp records unpacked
+       * @return true, if successful
+       */
       @Override
       public boolean apply(int conceptSequence, TypeStampTaxonomyRecords stampRecordsUnpacked) {
          stampRecordsUnpacked.addToIntArray(conceptSequence, this.taxonomyRecordArray, this.destinationPosition);

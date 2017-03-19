@@ -51,60 +51,130 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class SequenceSet.
  *
  * @author kec
- * @param <T>
+ * @param <T> the generic type
  */
 public class SequenceSet<T extends SequenceSet<T>>
         extends AbstractIntSet<T> {
+   
+   /**
+    * Instantiates a new sequence set.
+    */
    public SequenceSet() {}
 
+   /**
+    * Instantiates a new sequence set.
+    *
+    * @param readOnly the read only
+    */
    protected SequenceSet(boolean readOnly) {
       super(readOnly);
    }
 
+   /**
+    * Instantiates a new sequence set.
+    *
+    * @param concurrency the concurrency
+    */
    protected SequenceSet(Concurrency concurrency) {
       super(concurrency);
    }
 
+   /**
+    * Instantiates a new sequence set.
+    *
+    * @param members the members
+    */
    protected SequenceSet(int... members) {
       super(members);
    }
 
+   /**
+    * Instantiates a new sequence set.
+    *
+    * @param memberStream the member stream
+    */
    protected SequenceSet(IntStream memberStream) {
       super(memberStream);
    }
 
+   /**
+    * Instantiates a new sequence set.
+    *
+    * @param members the members
+    */
    protected SequenceSet(OpenIntHashSet members) {
       super(members);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Concurrent.
+    *
+    * @return the sequence set
+    */
    public static SequenceSet concurrent() {
       return new SequenceSet(Concurrency.THREAD_SAFE);
    }
 
+   /**
+    * Of.
+    *
+    * @param members the members
+    * @return the sequence set
+    */
    public static SequenceSet<?> of(Collection<Integer> members) {
       return new SequenceSet<>(members.stream().mapToInt(i -> i));
    }
 
+   /**
+    * Of.
+    *
+    * @param members the members
+    * @return the sequence set
+    */
    public static SequenceSet<?> of(int... members) {
       return new SequenceSet<>(members);
    }
 
+   /**
+    * Of.
+    *
+    * @param memberStream the member stream
+    * @return the sequence set
+    */
    public static SequenceSet<?> of(IntStream memberStream) {
       return new SequenceSet<>(memberStream);
    }
 
+   /**
+    * Of.
+    *
+    * @param members the members
+    * @return the sequence set
+    */
    public static SequenceSet<?> of(OpenIntHashSet members) {
       return new SequenceSet<>(members);
    }
 
+   /**
+    * Of.
+    *
+    * @param other the other
+    * @return the sequence set
+    */
    public static SequenceSet<?> of(StampSequenceSet other) {
       return new SequenceSet<>(other.stream());
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString((sequence) -> Integer.toString(sequence));

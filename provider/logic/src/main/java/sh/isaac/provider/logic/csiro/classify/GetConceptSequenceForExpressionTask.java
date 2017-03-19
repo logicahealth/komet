@@ -71,19 +71,37 @@ import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class GetConceptSequenceForExpressionTask.
  *
  * @author kec
  */
 public class GetConceptSequenceForExpressionTask
         extends Task<Integer> {
+   
+   /** The expression. */
    LogicalExpression  expression;
+   
+   /** The classifier provider. */
    ClassifierProvider classifierProvider;
+   
+   /** The stamp coordinate. */
    StampCoordinate    stampCoordinate;
+   
+   /** The logic coordinate. */
    LogicCoordinate    logicCoordinate;
+   
+   /** The stated edit coordinate. */
    EditCoordinate     statedEditCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new gets the concept sequence for expression task.
+    *
+    * @param expression the expression
+    * @param classifierProvider the classifier provider
+    * @param statedEditCoordinate the stated edit coordinate
+    */
    private GetConceptSequenceForExpressionTask(LogicalExpression expression,
          ClassifierProvider classifierProvider,
          EditCoordinate statedEditCoordinate) {
@@ -98,6 +116,14 @@ public class GetConceptSequenceForExpressionTask
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Creates the.
+    *
+    * @param expression the expression
+    * @param classifierProvider the classifier provider
+    * @param statedEditCoordinate the stated edit coordinate
+    * @return the gets the concept sequence for expression task
+    */
    public static GetConceptSequenceForExpressionTask create(LogicalExpression expression,
          ClassifierProvider classifierProvider,
          EditCoordinate statedEditCoordinate) {
@@ -114,6 +140,12 @@ public class GetConceptSequenceForExpressionTask
       return task;
    }
 
+   /**
+    * Call.
+    *
+    * @return the integer
+    * @throws Exception the exception
+    */
    @Override
    protected Integer call()
             throws Exception {

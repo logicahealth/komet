@@ -92,19 +92,28 @@ import sh.isaac.provider.query.clauses.RelRestriction;
    factoryMethod = "createQuery"
 )
 public abstract class Query {
+   
+   /** The Constant currentTaxonomyCoordinateKey. */
    public static final String currentTaxonomyCoordinateKey = "Current taxonomy coordinate";
 
    //~--- fields --------------------------------------------------------------
 
+   /** The for collection types. */
    @XmlElementWrapper(name = "for")
    @XmlElement(name = "component")
    protected List<ComponentCollectionTypes> forCollectionTypes = new ArrayList<>();
+   
+   /** The custom collection. */
    @XmlElementWrapper(name = "custom-for")
    @XmlElement(name = "uuid")
    protected Set<UUID>                      customCollection   = new HashSet<>();
+   
+   /** The root clause. */
    @XmlElementWrapper(name = "where")
    @XmlElement(name = "clause")
    protected Clause[]                       rootClause         = new Clause[1];
+   
+   /** The return types. */
    @XmlElementWrapper(name = "return")
    @XmlElement(name = "type")
    private final EnumSet<ReturnTypes>       returnTypes        = EnumSet.of(ReturnTypes.NIDS);
@@ -118,7 +127,11 @@ public abstract class Query {
     * The steps required to compute the query clause.
     */
    private final EnumSet<ClauseComputeType> computeTypes = EnumSet.noneOf(ClauseComputeType.class);
+   
+   /** The premise type. */
    private PremiseType                      premiseType  = PremiseType.INFERRED;
+   
+   /** The let declarations. */
    @XmlElementWrapper(name = "let")
    private HashMap<String, Object>          letDeclarations;
 
@@ -147,7 +160,7 @@ public abstract class Query {
     * Constructor for <code>Query</code>. If a <code>ViewCoordinate</code> is
     * not specified, the default is the Snomed inferred latest.
     *
-    * @param taxonomyCoordinate
+    * @param taxonomyCoordinate the taxonomy coordinate
     */
    public Query(TaxonomyCoordinate taxonomyCoordinate) {
       this.taxonomyCoordinate = taxonomyCoordinate;
@@ -155,8 +168,17 @@ public abstract class Query {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Let.
+    */
    public abstract void Let();
 
+   /**
+    * Not.
+    *
+    * @param clause the clause
+    * @return the not
+    */
    public Not Not(Clause clause) {
       return new Not(this, clause);
    }
@@ -213,10 +235,19 @@ public abstract class Query {
       return this.rootClause[0].computeComponents(possibleComponents);
    }
 
+   /**
+    * Let.
+    *
+    * @param key the key
+    * @param object the object
+    */
    public void let(String key, Object object) {
       this.letDeclarations.put(key, object);
    }
 
+   /**
+    * Setup.
+    */
    public void setup() {
       getLetDeclarations();
       this.rootClause[0] = Where();
@@ -227,14 +258,32 @@ public abstract class Query {
       this.customCollection   = forSetSpec.getCustomCollection();
    }
 
+   /**
+    * And.
+    *
+    * @param clauses the clauses
+    * @return the and
+    */
    protected And And(Clause... clauses) {
       return new And(this, clauses);
    }
 
+   /**
+    * And not.
+    *
+    * @param clauses the clauses
+    * @return the and not
+    */
    protected AndNot AndNot(Clause... clauses) {
       return new AndNot(this, clauses);
    }
 
+   /**
+    * Changed from previous version.
+    *
+    * @param previousCoordinateKey the previous coordinate key
+    * @return the changed from previous version
+    */
    protected ChangedFromPreviousVersion ChangedFromPreviousVersion(String previousCoordinateKey) {
       return new ChangedFromPreviousVersion(this, previousCoordinateKey);
    }
@@ -242,13 +291,19 @@ public abstract class Query {
    /**
     * Creates <code>ConceptForComponent</code> clause with input child clause.
     *
-    * @param child
-    * @return
+    * @param child the child
+    * @return the concept for component
     */
    protected ConceptForComponent ConceptForComponent(Clause child) {
       return new ConceptForComponent(this, child);
    }
 
+   /**
+    * Concept is.
+    *
+    * @param conceptSpecKey the concept spec key
+    * @return the concept is
+    */
    protected ConceptIs ConceptIs(String conceptSpecKey) {
       return new ConceptIs(this, conceptSpecKey, currentTaxonomyCoordinateKey);
    }
@@ -257,14 +312,20 @@ public abstract class Query {
     * Creates <code>ConceptIs</code> clause with input
     * <code>ViewCoordinate</code>.
     *
-    * @param conceptSpecKey
-    * @param viewCoordinateKey
-    * @return
+    * @param conceptSpecKey the concept spec key
+    * @param viewCoordinateKey the view coordinate key
+    * @return the concept is
     */
    protected ConceptIs ConceptIs(String conceptSpecKey, String viewCoordinateKey) {
       return new ConceptIs(this, conceptSpecKey, viewCoordinateKey);
    }
 
+   /**
+    * Concept is child of.
+    *
+    * @param conceptSpecKey the concept spec key
+    * @return the concept is child of
+    */
    protected ConceptIsChildOf ConceptIsChildOf(String conceptSpecKey) {
       return new ConceptIsChildOf(this, conceptSpecKey, currentTaxonomyCoordinateKey);
    }
@@ -273,14 +334,20 @@ public abstract class Query {
     * Creates <code>ConceptIsChildOf</code> clause with input
     * <code>ViewCoordinate</code>.
     *
-    * @param conceptSpecKey
-    * @param viewCoordinateKey
-    * @return
+    * @param conceptSpecKey the concept spec key
+    * @param viewCoordinateKey the view coordinate key
+    * @return the concept is child of
     */
    protected ConceptIsChildOf ConceptIsChildOf(String conceptSpecKey, String viewCoordinateKey) {
       return new ConceptIsChildOf(this, conceptSpecKey, viewCoordinateKey);
    }
 
+   /**
+    * Concept is descendent of.
+    *
+    * @param conceptSpecKey the concept spec key
+    * @return the concept is descendent of
+    */
    protected ConceptIsDescendentOf ConceptIsDescendentOf(String conceptSpecKey) {
       return new ConceptIsDescendentOf(this, conceptSpecKey, currentTaxonomyCoordinateKey);
    }
@@ -289,9 +356,9 @@ public abstract class Query {
     * Creates <code>ConceptIsDescendentOf</code> clause with input
     * <code>ViewCoordinate</code>.
     *
-    * @param conceptSpecKey
-    * @param viewCoordinateKey
-    * @return
+    * @param conceptSpecKey the concept spec key
+    * @param viewCoordinateKey the view coordinate key
+    * @return the concept is descendent of
     */
    protected ConceptIsDescendentOf ConceptIsDescendentOf(String conceptSpecKey, String viewCoordinateKey) {
       return new ConceptIsDescendentOf(this, conceptSpecKey, viewCoordinateKey);
@@ -301,8 +368,8 @@ public abstract class Query {
     * Creates <code>ConceptIsKindOf</code> clause with default
     * <code>ViewCoordinate</code>.
     *
-    * @param conceptSpecKey
-    * @return
+    * @param conceptSpecKey the concept spec key
+    * @return the concept is kind of
     */
    protected ConceptIsKindOf ConceptIsKindOf(String conceptSpecKey) {
       return new ConceptIsKindOf(this, conceptSpecKey, currentTaxonomyCoordinateKey);
@@ -312,38 +379,83 @@ public abstract class Query {
     * Creates <code>ConceptIsKindOf</code> clause with input
     * <code>ViewCoordinate</code>.
     *
-    * @param conceptSpecKey
-    * @param viewCoordinateKey
-    * @return
+    * @param conceptSpecKey the concept spec key
+    * @param viewCoordinateKey the view coordinate key
+    * @return the concept is kind of
     */
    protected ConceptIsKindOf ConceptIsKindOf(String conceptSpecKey, String viewCoordinateKey) {
       return new ConceptIsKindOf(this, conceptSpecKey, viewCoordinateKey);
    }
 
+   /**
+    * Description active lucene match.
+    *
+    * @param queryTextKey the query text key
+    * @return the description active lucene match
+    */
    protected DescriptionActiveLuceneMatch DescriptionActiveLuceneMatch(String queryTextKey) {
       return new DescriptionActiveLuceneMatch(this, queryTextKey, currentTaxonomyCoordinateKey);
    }
 
+   /**
+    * Description active lucene match.
+    *
+    * @param queryTextKey the query text key
+    * @param viewCoordinateKey the view coordinate key
+    * @return the description active lucene match
+    */
    protected DescriptionActiveLuceneMatch DescriptionActiveLuceneMatch(String queryTextKey, String viewCoordinateKey) {
       return new DescriptionActiveLuceneMatch(this, queryTextKey, viewCoordinateKey);
    }
 
+   /**
+    * Description active regex match.
+    *
+    * @param regexKey the regex key
+    * @return the description active regex match
+    */
    protected DescriptionActiveRegexMatch DescriptionActiveRegexMatch(String regexKey) {
       return new DescriptionActiveRegexMatch(this, regexKey, currentTaxonomyCoordinateKey);
    }
 
+   /**
+    * Description active regex match.
+    *
+    * @param regexKey the regex key
+    * @param viewCoordinateKey the view coordinate key
+    * @return the description active regex match
+    */
    protected DescriptionActiveRegexMatch DescriptionActiveRegexMatch(String regexKey, String viewCoordinateKey) {
       return new DescriptionActiveRegexMatch(this, regexKey, viewCoordinateKey);
    }
 
+   /**
+    * Description lucene match.
+    *
+    * @param queryTextKey the query text key
+    * @return the description lucene match
+    */
    protected DescriptionLuceneMatch DescriptionLuceneMatch(String queryTextKey) {
       return new DescriptionLuceneMatch(this, queryTextKey, currentTaxonomyCoordinateKey);
    }
 
+   /**
+    * Description regex match.
+    *
+    * @param regexKey the regex key
+    * @return the description regex match
+    */
    protected DescriptionRegexMatch DescriptionRegexMatch(String regexKey) {
       return new DescriptionRegexMatch(this, regexKey, currentTaxonomyCoordinateKey);
    }
 
+   /**
+    * Description regex match.
+    *
+    * @param regexKey the regex key
+    * @param viewCoordinateKey the view coordinate key
+    * @return the description regex match
+    */
    protected DescriptionRegexMatch DescriptionRegexMatch(String regexKey, String viewCoordinateKey) {
       return new DescriptionRegexMatch(this, regexKey, viewCoordinateKey);
    }
@@ -385,62 +497,157 @@ public abstract class Query {
       return this.forSet;
    }
 
+   /**
+    * For set specification.
+    *
+    * @return the for set specification
+    */
    protected abstract ForSetSpecification ForSetSpecification();
 
+   /**
+    * Fully specified name for concept.
+    *
+    * @param clause the clause
+    * @return the fully specified name for concept
+    */
    protected FullySpecifiedNameForConcept FullySpecifiedNameForConcept(Clause clause) {
       return new FullySpecifiedNameForConcept(this, clause);
    }
 
+   /**
+    * Intersection.
+    *
+    * @param clauses the clauses
+    * @return the and
+    */
    protected And Intersection(Clause... clauses) {
       return new And(this, clauses);
    }
 
+   /**
+    * Or.
+    *
+    * @param clauses the clauses
+    * @return the or
+    */
    protected Or Or(Clause... clauses) {
       return new Or(this, clauses);
    }
 
+   /**
+    * Preferred name for concept.
+    *
+    * @param clause the clause
+    * @return the preferred name for concept
+    */
    protected PreferredNameForConcept PreferredNameForConcept(Clause clause) {
       return new PreferredNameForConcept(this, clause);
    }
 
+   /**
+    * Refset contains concept.
+    *
+    * @param refsetSpecKey the refset spec key
+    * @param conceptSpecKey the concept spec key
+    * @return the refset contains concept
+    */
    protected RefsetContainsConcept RefsetContainsConcept(String refsetSpecKey, String conceptSpecKey) {
       return new RefsetContainsConcept(this, refsetSpecKey, conceptSpecKey, currentTaxonomyCoordinateKey);
    }
 
+   /**
+    * Refset contains concept.
+    *
+    * @param refsetSpecKey the refset spec key
+    * @param conceptSpecKey the concept spec key
+    * @param viewCoordinateKey the view coordinate key
+    * @return the refset contains concept
+    */
    protected RefsetContainsConcept RefsetContainsConcept(String refsetSpecKey,
          String conceptSpecKey,
          String viewCoordinateKey) {
       return new RefsetContainsConcept(this, refsetSpecKey, conceptSpecKey, viewCoordinateKey);
    }
 
+   /**
+    * Refset contains kind of concept.
+    *
+    * @param refsetSpecKey the refset spec key
+    * @param conceptSpecKey the concept spec key
+    * @return the refset contains kind of concept
+    */
    protected RefsetContainsKindOfConcept RefsetContainsKindOfConcept(String refsetSpecKey, String conceptSpecKey) {
       return new RefsetContainsKindOfConcept(this, refsetSpecKey, conceptSpecKey, currentTaxonomyCoordinateKey);
    }
 
+   /**
+    * Refset contains kind of concept.
+    *
+    * @param refsetSpecKey the refset spec key
+    * @param conceptSpecKey the concept spec key
+    * @param viewCoordinateKey the view coordinate key
+    * @return the refset contains kind of concept
+    */
    protected RefsetContainsKindOfConcept RefsetContainsKindOfConcept(String refsetSpecKey,
          String conceptSpecKey,
          String viewCoordinateKey) {
       return new RefsetContainsKindOfConcept(this, refsetSpecKey, conceptSpecKey, viewCoordinateKey);
    }
 
+   /**
+    * Refset contains string.
+    *
+    * @param refsetSpecKey the refset spec key
+    * @param stringMatchKey the string match key
+    * @return the refset contains string
+    */
    protected RefsetContainsString RefsetContainsString(String refsetSpecKey, String stringMatchKey) {
       return new RefsetContainsString(this, refsetSpecKey, stringMatchKey, currentTaxonomyCoordinateKey);
    }
 
+   /**
+    * Refset contains string.
+    *
+    * @param refsetSpecKey the refset spec key
+    * @param stringMatchKey the string match key
+    * @param viewCoordinateKey the view coordinate key
+    * @return the refset contains string
+    */
    protected RefsetContainsString RefsetContainsString(String refsetSpecKey,
          String stringMatchKey,
          String viewCoordinateKey) {
       return new RefsetContainsString(this, refsetSpecKey, stringMatchKey, viewCoordinateKey);
    }
 
+   /**
+    * Refset lucene match.
+    *
+    * @param queryString the query string
+    * @return the refset lucene match
+    */
    protected RefsetLuceneMatch RefsetLuceneMatch(String queryString) {
       return new RefsetLuceneMatch(this, queryString, currentTaxonomyCoordinateKey);
    }
 
+   /**
+    * Rel restriction.
+    *
+    * @param relTypeKey the rel type key
+    * @param destinationSpecKey the destination spec key
+    * @return the rel restriction
+    */
    protected RelRestriction RelRestriction(String relTypeKey, String destinationSpecKey) {
       return new RelRestriction(this, relTypeKey, destinationSpecKey, currentTaxonomyCoordinateKey, null, null);
    }
 
+   /**
+    * Rel restriction.
+    *
+    * @param relTypeKey the rel type key
+    * @param destinationSpecKey the destination spec key
+    * @param key the key
+    * @return the rel restriction
+    */
    protected RelRestriction RelRestriction(String relTypeKey, String destinationSpecKey, String key) {
       if (this.letDeclarations.get(key) instanceof Boolean) {
          return new RelRestriction(this, relTypeKey, destinationSpecKey, currentTaxonomyCoordinateKey, key, null);
@@ -449,6 +656,15 @@ public abstract class Query {
       }
    }
 
+   /**
+    * Rel restriction.
+    *
+    * @param relTypeKey the rel type key
+    * @param destinatonSpecKey the destinaton spec key
+    * @param relTypeSubsumptionKey the rel type subsumption key
+    * @param targetSubsumptionKey the target subsumption key
+    * @return the rel restriction
+    */
    protected RelRestriction RelRestriction(String relTypeKey,
          String destinatonSpecKey,
          String relTypeSubsumptionKey,
@@ -461,6 +677,16 @@ public abstract class Query {
                                 targetSubsumptionKey);
    }
 
+   /**
+    * Rel restriction.
+    *
+    * @param relTypeKey the rel type key
+    * @param destinationSpecKey the destination spec key
+    * @param viewCoordinateKey the view coordinate key
+    * @param relTypeSubsumptionKey the rel type subsumption key
+    * @param targetSubsumptionKey the target subsumption key
+    * @return the rel restriction
+    */
    protected RelRestriction RelRestriction(String relTypeKey,
          String destinationSpecKey,
          String viewCoordinateKey,
@@ -474,10 +700,22 @@ public abstract class Query {
                                 targetSubsumptionKey);
    }
 
+   /**
+    * Union.
+    *
+    * @param clauses the clauses
+    * @return the or
+    */
    protected Or Union(Clause... clauses) {
       return new Or(this, clauses);
    }
 
+   /**
+    * Xor.
+    *
+    * @param clauses the clauses
+    * @return the xor
+    */
    protected Xor Xor(Clause... clauses) {
       return new Xor(this, clauses);
    }
@@ -503,10 +741,20 @@ public abstract class Query {
       return this.forSet;
    }
 
+   /**
+    * Gets the language coordinate.
+    *
+    * @return the language coordinate
+    */
    public LanguageCoordinate getLanguageCoordinate() {
       return this.taxonomyCoordinate.getLanguageCoordinate();
    }
 
+   /**
+    * Gets the let declarations.
+    *
+    * @return the let declarations
+    */
    public HashMap<String, Object> getLetDeclarations() {
       if (this.letDeclarations == null) {
          this.letDeclarations = new HashMap<>();
@@ -527,20 +775,40 @@ public abstract class Query {
       return this.letDeclarations;
    }
 
+   /**
+    * Gets the logic coordinate.
+    *
+    * @return the logic coordinate
+    */
    public LogicCoordinate getLogicCoordinate() {
       return this.taxonomyCoordinate.getLogicCoordinate();
    }
 
+   /**
+    * Gets the premise type.
+    *
+    * @return the premise type
+    */
    public PremiseType getPremiseType() {
       return this.premiseType;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the premise type.
+    *
+    * @param premiseType the new premise type
+    */
    public void setPremiseType(PremiseType premiseType) {
       this.premiseType = premiseType;
    }
 
+   /**
+    * Set number of Components output in the returnResultSet method.
+    *
+    * @param limit the new number of Components output in the returnResultSet method
+    */
    public void setResultSetLimit(int limit) {
       this.resultSetLimit = limit;
    }
@@ -548,6 +816,7 @@ public abstract class Query {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the stamp coordinate.
     *
     * @return the <code>StampCoordinate</code> in the query
     */
@@ -557,6 +826,11 @@ public abstract class Query {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set <code>TaxonomyCoordinate</code> used in the query.
+    *
+    * @param taxonomyCoordinate the new <code>TaxonomyCoordinate</code> used in the query
+    */
    public void setTaxonomyCoordinate(TaxonomyCoordinate taxonomyCoordinate) {
       this.taxonomyCoordinate = taxonomyCoordinate;
    }

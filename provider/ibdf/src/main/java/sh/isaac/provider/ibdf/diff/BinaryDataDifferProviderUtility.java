@@ -102,20 +102,44 @@ import sh.isaac.model.sememe.version.StringSememeImpl;
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 public class BinaryDataDifferProviderUtility {
+   
+   /** The component change found. */
    static boolean componentChangeFound = false;
+   
+   /** The new import date. */
    static long    newImportDate;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The diff on status. */
    boolean                         diffOnStatus;
+   
+   /** The diff on timestamp. */
    boolean                         diffOnTimestamp;
+   
+   /** The diff on author. */
    boolean                         diffOnAuthor;
+   
+   /** The diff on module. */
    boolean                         diffOnModule;
+   
+   /** The diff on path. */
    boolean                         diffOnPath;
+   
+   /** The sememe builder service. */
    private final SememeBuilderService<?> sememeBuilderService_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new binary data differ provider utility.
+    *
+    * @param diffOnStatus the diff on status
+    * @param diffOnTimestamp the diff on timestamp
+    * @param diffOnAuthor the diff on author
+    * @param diffOnModule the diff on module
+    * @param diffOnPath the diff on path
+    */
    public BinaryDataDifferProviderUtility(Boolean diffOnStatus,
          Boolean diffOnTimestamp,
          Boolean diffOnAuthor,
@@ -131,6 +155,14 @@ public class BinaryDataDifferProviderUtility {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the new inactive version.
+    *
+    * @param oldChron the old chron
+    * @param type the type
+    * @param inactiveStampSeq the inactive stamp seq
+    * @return the ochre externalizable
+    */
    public OchreExternalizable addNewInactiveVersion(OchreExternalizable oldChron,
          OchreExternalizableObjectType type,
          int inactiveStampSeq) {
@@ -155,6 +187,15 @@ public class BinaryDataDifferProviderUtility {
       return oldChron;
    }
 
+   /**
+    * Diff.
+    *
+    * @param oldChron the old chron
+    * @param newChron the new chron
+    * @param stampSeq the stamp seq
+    * @param type the type
+    * @return the ochre externalizable
+    */
    public OchreExternalizable diff(ObjectChronology<?> oldChron,
                                    ObjectChronology<?> newChron,
                                    int stampSeq,
@@ -194,6 +235,14 @@ public class BinaryDataDifferProviderUtility {
       return oldChron;
    }
 
+   /**
+    * Adds the new active version.
+    *
+    * @param oldChron the old chron
+    * @param newVersion the new version
+    * @param type the type
+    * @param activeStampSeq the active stamp seq
+    */
    private void addNewActiveVersion(ObjectChronology<?> oldChron,
                                     StampedVersion newVersion,
                                     OchreExternalizableObjectType type,
@@ -213,6 +262,14 @@ public class BinaryDataDifferProviderUtility {
       }
    }
 
+   /**
+    * Creates the new chronology.
+    *
+    * @param newChron the new chron
+    * @param type the type
+    * @param stampSeq the stamp seq
+    * @return the ochre externalizable
+    */
    private OchreExternalizable createNewChronology(ObjectChronology<?> newChron,
          OchreExternalizableObjectType type,
          int stampSeq) {
@@ -240,6 +297,14 @@ public class BinaryDataDifferProviderUtility {
       return null;
    }
 
+   /**
+    * Populate data.
+    *
+    * @param newVer the new ver
+    * @param originalVersion the original version
+    * @param inactiveStampSeq the inactive stamp seq
+    * @return the sememe version
+    */
    private SememeVersion<?> populateData(SememeVersion<?> newVer,
          SememeVersion<?> originalVersion,
          int inactiveStampSeq) {
@@ -300,6 +365,12 @@ public class BinaryDataDifferProviderUtility {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the builder.
+    *
+    * @param version the version
+    * @return the builder
+    */
    private SememeBuilder<?> getBuilder(SememeVersion<?> version) {
       SememeBuilder<?> builder = null;
 
@@ -370,6 +441,14 @@ public class BinaryDataDifferProviderUtility {
       return builder;
    }
 
+   /**
+    * Checks if equivalent.
+    *
+    * @param ov the ov
+    * @param nv the nv
+    * @param type the type
+    * @return true, if equivalent
+    */
    private boolean isEquivalent(StampedVersion ov, StampedVersion nv, OchreExternalizableObjectType type) {
       if ((this.diffOnStatus && (ov.getState() != nv.getState())) ||
             (this.diffOnTimestamp && (ov.getTime() != nv.getTime())) ||
@@ -390,12 +469,22 @@ public class BinaryDataDifferProviderUtility {
       }
    }
 
+   /**
+    * Gets the new import date.
+    *
+    * @return the new import date
+    */
    public long getNewImportDate() {
       return newImportDate;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the new import date.
+    *
+    * @param importDate the new new import date
+    */
    public void setNewImportDate(String importDate) {
       // Must be in format of 2005-10-06
       try {
@@ -412,6 +501,12 @@ public class BinaryDataDifferProviderUtility {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the sememe class.
+    *
+    * @param sememe the sememe
+    * @return the sememe class
+    */
    private Class<?> getSememeClass(SememeVersion<?> sememe) {
       {
          switch (sememe.getChronology()
@@ -447,6 +542,12 @@ public class BinaryDataDifferProviderUtility {
       }
    }
 
+   /**
+    * Gets the sememe data.
+    *
+    * @param sememe the sememe
+    * @return the sememe data
+    */
    private DynamicSememeData[] getSememeData(SememeVersion<?> sememe) {
       {
          switch (sememe.getChronology()
@@ -484,6 +585,13 @@ public class BinaryDataDifferProviderUtility {
       }
    }
 
+   /**
+    * Checks if sememe data equivalent.
+    *
+    * @param oldData the old data
+    * @param newData the new data
+    * @return true, if sememe data equivalent
+    */
    private boolean isSememeDataEquivalent(DynamicSememeData[] oldData, DynamicSememeData[] newData) {
       // Verify same values
       if (oldData.length != newData.length) {

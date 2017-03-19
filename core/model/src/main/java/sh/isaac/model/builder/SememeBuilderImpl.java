@@ -76,21 +76,40 @@ import sh.isaac.model.sememe.version.StringSememeImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class SememeBuilderImpl.
  *
  * @author kec
- * @param <C>
+ * @param <C> the generic type
  */
 public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersion<?>>>
         extends ComponentBuilder<C>
          implements SememeBuilder<C> {
+   
+   /** The referenced component nid. */
    int                        referencedComponentNid = Integer.MAX_VALUE;
+   
+   /** The referenced component builder. */
    IdentifiedComponentBuilder referencedComponentBuilder;
+   
+   /** The assemblage concept sequence. */
    int                        assemblageConceptSequence;
+   
+   /** The sememe type. */
    SememeType                 sememeType;
+   
+   /** The parameters. */
    Object[]                   parameters;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new sememe builder impl.
+    *
+    * @param referencedComponentBuilder the referenced component builder
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param sememeType the sememe type
+    * @param paramaters the paramaters
+    */
    public SememeBuilderImpl(IdentifiedComponentBuilder referencedComponentBuilder,
                             int assemblageConceptSequence,
                             SememeType sememeType,
@@ -101,6 +120,14 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
       this.parameters                 = paramaters;
    }
 
+   /**
+    * Instantiates a new sememe builder impl.
+    *
+    * @param referencedComponentNid the referenced component nid
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param sememeType the sememe type
+    * @param paramaters the paramaters
+    */
    public SememeBuilderImpl(int referencedComponentNid,
                             int assemblageConceptSequence,
                             SememeType sememeType,
@@ -113,6 +140,14 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Builds the.
+    *
+    * @param stampSequence the stamp sequence
+    * @param builtObjects the built objects
+    * @return the c
+    * @throws IllegalStateException the illegal state exception
+    */
    @Override
    public C build(int stampSequence,
                   List<ObjectChronology<? extends StampedVersion>> builtObjects)
@@ -219,6 +254,15 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
       return (C) sememeChronicle;
    }
 
+   /**
+    * Builds the.
+    *
+    * @param editCoordinate the edit coordinate
+    * @param changeCheckerMode the change checker mode
+    * @param builtObjects the built objects
+    * @return the optional wait task
+    * @throws IllegalStateException the illegal state exception
+    */
    @Override
    public OptionalWaitTask<C> build(EditCoordinate editCoordinate,
                                     ChangeCheckerMode changeCheckerMode,

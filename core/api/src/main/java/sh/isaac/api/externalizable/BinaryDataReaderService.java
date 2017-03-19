@@ -46,16 +46,19 @@ import java.util.stream.Stream;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface BinaryDataReaderService.
  *
  * @author kec
  */
 public interface BinaryDataReaderService
         extends AutoCloseable {
+   
    /**
     * Return a stream of the ochreExternlizables, already parsed
+    * 
+    * The implementation behind this guarantees order, but it slow (single threaded).
     *
-    * The implementation behind this guarantees order, but it slow (single threaded)
-    * @return
+    * @return the stream
     */
    Stream<OchreExternalizable> getStream();
 }

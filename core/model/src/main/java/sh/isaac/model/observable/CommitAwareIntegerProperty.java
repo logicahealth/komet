@@ -49,17 +49,32 @@ import sh.isaac.api.commit.CommittableComponent;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class CommitAwareIntegerProperty.
  *
  * @author kec
  */
 public class CommitAwareIntegerProperty
         extends SimpleIntegerProperty {
+   
+   /**
+    * Instantiates a new commit aware integer property.
+    *
+    * @param bean the bean
+    * @param name the name
+    * @param initialValue the initial value
+    */
    public CommitAwareIntegerProperty(Object bean, String name, int initialValue) {
       super(bean, name, initialValue);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Check changes allowed.
+    *
+    * @param bean the bean
+    * @throws RuntimeException the runtime exception
+    */
    public static void checkChangesAllowed(Object bean)
             throws RuntimeException {
       if (bean instanceof CommittableComponent) {
@@ -73,12 +88,22 @@ public class CommitAwareIntegerProperty
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set.
+    *
+    * @param newValue the new value
+    */
    @Override
    public void set(int newValue) {
       checkChangesAllowed(getBean());
       super.set(newValue);
    }
 
+   /**
+    * Sets the value.
+    *
+    * @param v the new value
+    */
    @Override
    public void setValue(Number v) {
       checkChangesAllowed(getBean());

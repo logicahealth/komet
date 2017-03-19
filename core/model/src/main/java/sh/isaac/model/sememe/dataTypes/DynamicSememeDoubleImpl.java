@@ -54,22 +54,33 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeDoubleImpl}
+ * {@link DynamicSememeDoubleImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeDoubleImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeDouble {
+   
+   /** The property. */
    private ObjectProperty<Double> property_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe double impl.
+    *
+    * @param data the data
+    */
    protected DynamicSememeDoubleImpl(byte[] data) {
       super(data);
    }
 
+   /**
+    * Instantiates a new dynamic sememe double impl.
+    *
+    * @param d the d
+    */
    public DynamicSememeDoubleImpl(double d) {
       super();
       this.data_ = ByteBuffer.allocate(8)
@@ -77,6 +88,13 @@ public class DynamicSememeDoubleImpl
                         .array();
    }
 
+   /**
+    * Instantiates a new dynamic sememe double impl.
+    *
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    protected DynamicSememeDoubleImpl(byte[] data, int assemblageSequence, int columnNumber) {
       super(data, assemblageSequence, columnNumber);
    }
@@ -84,6 +102,9 @@ public class DynamicSememeDoubleImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data double.
+    *
+    * @return the data double
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI#getDataDouble()
     */
    @Override
@@ -93,6 +114,9 @@ public class DynamicSememeDoubleImpl
    }
 
    /**
+    * Gets the data double property.
+    *
+    * @return the data double property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI#getDataDoubleProperty()
     */
    @Override
@@ -105,6 +129,9 @@ public class DynamicSememeDoubleImpl
    }
 
    /**
+    * Gets the data object.
+    *
+    * @return the data object
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
     */
    @Override
@@ -113,6 +140,9 @@ public class DynamicSememeDoubleImpl
    }
 
    /**
+    * Gets the data object property.
+    *
+    * @return the data object property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
     */
    @Override

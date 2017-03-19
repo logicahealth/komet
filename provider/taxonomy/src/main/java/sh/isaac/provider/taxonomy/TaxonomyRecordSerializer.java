@@ -52,11 +52,19 @@ import sh.isaac.model.waitfree.WaitFreeMergeSerializer;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class TaxonomyRecordSerializer.
  *
  * @author kec
  */
 public class TaxonomyRecordSerializer
          implements WaitFreeMergeSerializer<TaxonomyRecordPrimitive> {
+   
+   /**
+    * Deserialize.
+    *
+    * @param di the di
+    * @return the taxonomy record primitive
+    */
    @Override
    public TaxonomyRecordPrimitive deserialize(ByteArrayDataBuffer di) {
       final int   writeSequence = di.getInt();
@@ -65,6 +73,14 @@ public class TaxonomyRecordSerializer
       return new TaxonomyRecordPrimitive(result, writeSequence);
    }
 
+   /**
+    * Merge.
+    *
+    * @param a the a
+    * @param b the b
+    * @param writeSequence the write sequence
+    * @return the taxonomy record primitive
+    */
    @Override
    public TaxonomyRecordPrimitive merge(TaxonomyRecordPrimitive a, TaxonomyRecordPrimitive b, int writeSequence) {
       final TaxonomyRecordUnpacked aRecords = a.getTaxonomyRecordUnpacked();
@@ -74,6 +90,12 @@ public class TaxonomyRecordSerializer
       return new TaxonomyRecordPrimitive(aRecords.pack(), writeSequence);
    }
 
+   /**
+    * Serialize.
+    *
+    * @param d the d
+    * @param a the a
+    */
    @Override
    public void serialize(ByteArrayDataBuffer d, TaxonomyRecordPrimitive a) {
       d.putInt(a.writeSequence);

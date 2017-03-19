@@ -46,23 +46,42 @@ import javafx.beans.property.SimpleLongProperty;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class CommitAwareLongProperty.
  *
  * @author kec
  */
 public class CommitAwareLongProperty
         extends SimpleLongProperty {
+   
+   /**
+    * Instantiates a new commit aware long property.
+    *
+    * @param bean the bean
+    * @param name the name
+    * @param initialValue the initial value
+    */
    public CommitAwareLongProperty(Object bean, String name, long initialValue) {
       super(bean, name, initialValue);
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set.
+    *
+    * @param newValue the new value
+    */
    @Override
    public void set(long newValue) {
       CommitAwareIntegerProperty.checkChangesAllowed(getBean());
       super.set(newValue);
    }
 
+   /**
+    * Sets the value.
+    *
+    * @param v the new value
+    */
    @Override
    public void setValue(Number v) {
       CommitAwareIntegerProperty.checkChangesAllowed(getBean());

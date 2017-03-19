@@ -81,12 +81,15 @@ import sh.isaac.pombuilder.artifacts.SDOSourceContent;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ContentConverterCreator {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 
    /**
     * Create a source conversion project which is executable via maven.
+    *
     * @param sourceContent - The artifact information for the content to be converted.  The artifact information must follow known naming conventions - group id should
     * be sh.isaac.terminology.source.  Currently supported artifactIds are 'loinc-src-data', 'loinc-src-data-tech-preview', 'rf2-src-data-*', 'vhat'
     * @param converterVersion - The version number of the content converter code to utilize.  The jar file for this converter must be available to the
@@ -101,7 +104,7 @@ public class ContentConverterCreator {
     * @param gitUsername - The username to utilize to publish this project
     * @param gitPassword - the password to utilize to publish this project
     * @return the tag created in the repository that carries the created project
-    * @throws Exception
+    * @throws Exception the exception
     */
    public static String createContentConverter(SDOSourceContent sourceContent,
          String converterVersion,
@@ -401,6 +404,14 @@ public class ContentConverterCreator {
    }
 
    /**
+    * Gets the converter options.
+    *
+    * @param converter the converter
+    * @param repositoryBaseURL the repository base URL
+    * @param repositoryUsername the repository username
+    * @param repositoryPassword the repository password
+    * @return the converter options
+    * @throws Exception the exception
     * @see {@link ConverterOptionParam#fromArtifact(Converter, String, String, String)};
     */
    public static ConverterOptionParam[] getConverterOptions(Converter converter,
@@ -411,6 +422,12 @@ public class ContentConverterCreator {
       return ConverterOptionParam.fromArtifact(converter, repositoryBaseURL, repositoryUsername, repositoryPassword);
    }
 
+   /**
+    * Gets the converter type.
+    *
+    * @param artifactId the artifact id
+    * @return the converter type
+    */
    private static Pair<SupportedConverterTypes, String> getConverterType(String artifactId) {
       SupportedConverterTypes conversionType  = null;
       String                  extensionSuffix = "";
@@ -448,7 +465,8 @@ public class ContentConverterCreator {
    /**
     * Return information about all of the supported conversion types, including all of the information types
     * that must be supplied with each converter.
-    * @return
+    *
+    * @return the supported conversions
     */
    public static SupportedConverterTypes[] getSupportedConversions() {
       return SupportedConverterTypes.values();

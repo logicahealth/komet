@@ -56,6 +56,12 @@ import sh.isaac.api.collections.ConceptSequenceSet;
  */
 public interface LogicNode
         extends Comparable<LogicNode> {
+   
+   /**
+    * Adds the children.
+    *
+    * @param children the children
+    */
    void addChildren(LogicNode... children);
 
    /**
@@ -68,6 +74,7 @@ public interface LogicNode
    void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet);
 
    /**
+    * Fragment to string.
     *
     * @return A string representing the fragment of the expression
     * rooted in this node.
@@ -84,7 +91,7 @@ public interface LogicNode
    String fragmentToString(String nodeIdSuffix);
 
    /**
-    * Sort the children of this node
+    * Sort the children of this node.
     */
    void sort();
 
@@ -98,24 +105,60 @@ public interface LogicNode
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the bytes.
+    *
+    * @param dataTarget the data target
+    * @return the bytes
+    */
    byte[] getBytes(DataTarget dataTarget);
 
+   /**
+    * Gets the child stream.
+    *
+    * @return the child stream
+    */
    default Stream<LogicNode> getChildStream() {
       return Arrays.stream(getChildren());
    }
 
+   /**
+    * Gets the children.
+    *
+    * @return the children
+    */
    LogicNode[] getChildren();
 
+   /**
+    * Gets the descendents.
+    *
+    * @return the descendents
+    */
    LogicNode[] getDescendents();
 
+   /**
+    * Gets the node index.
+    *
+    * @return the node index
+    */
    short getNodeIndex();
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the node index.
+    *
+    * @param nodeIndex the new node index
+    */
    void setNodeIndex(short nodeIndex);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the node semantic.
+    *
+    * @return the node semantic
+    */
    NodeSemantic getNodeSemantic();
 
    ;

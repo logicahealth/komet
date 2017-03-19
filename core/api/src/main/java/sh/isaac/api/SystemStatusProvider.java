@@ -55,13 +55,21 @@ import sh.isaac.api.SystemStatusService;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class SystemStatusProvider.
+ */
 @Service
 public class SystemStatusProvider
          implements SystemStatusService {
+   
+   /** The configuration failures. */
    private List<Pair<String, Exception>> configurationFailures = null;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new system status provider.
+    */
    private SystemStatusProvider() {
       // for HK2
    }
@@ -69,6 +77,10 @@ public class SystemStatusProvider
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Notify service configuration failure.
+    *
+    * @param serviceName the service name
+    * @param failureDetails the failure details
     * @see sh.isaac.api.SystemStatusService#notifyServiceConfigurationFailure(java.lang.String, java.lang.Exception)
     */
    @Override
@@ -83,7 +95,9 @@ public class SystemStatusProvider
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the service configuration failures.
     *
+    * @return the service configuration failures
     * @see sh.isaac.api.SystemStatusService#getServiceConfigurationFailures()
     */
    @Override

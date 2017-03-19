@@ -49,6 +49,7 @@ import sh.isaac.api.logic.LogicalExpression;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ClassifierService.
  *
  * @author kec
  */

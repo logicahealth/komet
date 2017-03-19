@@ -61,16 +61,25 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  */
 public class ConceptProxy
          implements ConceptSpecification {
-   /** Universal identifiers for the concept proxied by the is object */
+   
+   /**  Universal identifiers for the concept proxied by the is object. */
    protected UUID[] uuids;
 
-   /** A description of the concept proxied by this object */
+   /**  A description of the concept proxied by this object. */
    protected String description;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concept proxy.
+    */
    public ConceptProxy() {}
 
+   /**
+    * Instantiates a new concept proxy.
+    *
+    * @param conceptSequenceOrNid the concept sequence or nid
+    */
    public ConceptProxy(int conceptSequenceOrNid) {
       final ConceptChronology<?> cc = Get.conceptService()
                                    .getConcept(conceptSequenceOrNid);
@@ -80,6 +89,11 @@ public class ConceptProxy
       this.description = cc.getConceptDescriptionText();
    }
 
+   /**
+    * Instantiates a new concept proxy.
+    *
+    * @param externalString the external string
+    */
    public ConceptProxy(String externalString) {
       final String[] parts = externalString.split(FIELD_SEPARATOR);
 
@@ -98,6 +112,12 @@ public class ConceptProxy
       this.uuids = uuidList.toArray(new UUID[uuidList.size()]);
    }
 
+   /**
+    * Instantiates a new concept proxy.
+    *
+    * @param description the description
+    * @param uuidStrings the uuid strings
+    */
    public ConceptProxy(String description, String... uuidStrings) {
       this.uuids       = Arrays.stream(uuidStrings)
                                .map(uuidString -> UUID.fromString(uuidString))
@@ -105,6 +125,12 @@ public class ConceptProxy
       this.description = description;
    }
 
+   /**
+    * Instantiates a new concept proxy.
+    *
+    * @param description the description
+    * @param uuids the uuids
+    */
    public ConceptProxy(String description, UUID... uuids) {
       this.uuids       = uuids;
       this.description = description;
@@ -112,6 +138,12 @@ public class ConceptProxy
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
@@ -131,6 +163,11 @@ public class ConceptProxy
                              });
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int hash = 5;
@@ -141,10 +178,9 @@ public class ConceptProxy
    }
 
    /**
+    * To string.
     *
-    *
-    *
-    * @return
+    * @return the string
     */
    @Override
    public String toString() {
@@ -158,16 +194,21 @@ public class ConceptProxy
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the concept description text.
     *
-    *
-    *
-    * @return
+    * @return the concept description text
     */
    @Override
    public String getConceptDescriptionText() {
       return this.description;
    }
 
+   /**
+    * Gets the concept sequence.
+    *
+    * @param nid the nid
+    * @return the concept sequence
+    */
    protected static int getConceptSequence(int nid) {
       return Get.identifierService()
                 .getConceptSequence(nid);
@@ -176,10 +217,9 @@ public class ConceptProxy
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Set a description of the concept proxied by this object.
     *
-    *
-    *
-    * @param description
+    * @param description the new a description of the concept proxied by this object
     */
    public void setDescription(String description) {
       this.description = description;
@@ -187,6 +227,11 @@ public class ConceptProxy
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the nid.
+    *
+    * @return the nid
+    */
    @Override
 public int getNid() {
       return Get.identifierService()
@@ -209,16 +254,20 @@ public int getNid() {
       }
    }
 
+   /**
+    * Gets the uuid list.
+    *
+    * @return the uuid list
+    */
    @Override
    public List<UUID> getUuidList() {
       return Arrays.asList(this.uuids);
    }
 
    /**
+    * Gets the universal identifiers for the concept proxied by the is object.
     *
-    *
-    *
-    * @return
+    * @return the universal identifiers for the concept proxied by the is object
     */
    @Override
 @XmlTransient
@@ -229,10 +278,9 @@ public int getNid() {
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Set universal identifiers for the concept proxied by the is object.
     *
-    *
-    *
-    * @param uuids
+    * @param uuids the new universal identifiers for the concept proxied by the is object
     */
    public void setUuids(UUID[] uuids) {
       this.uuids = uuids;
@@ -243,9 +291,9 @@ public int getNid() {
    /**
     * added as an alternative way to get the uuids as strings rather than UUID
     * objects
-    * this was done to help with Maven making use of this class
+    * this was done to help with Maven making use of this class.
     *
-    * @return
+    * @return the uuids as string
     */
    public String[] getUuidsAsString() {
       final String[] returnVal = new String[this.uuids.length];
@@ -266,7 +314,7 @@ public int getNid() {
     * This allows the ConceptSpec class to be embedded into a object to be configured
     * by Maven POM configuration.
     *
-    * @param uuids
+    * @param uuids the new uuids as string
     */
    public void setUuidsAsString(String[] uuids) {
       this.uuids = new UUID[uuids.length];

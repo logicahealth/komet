@@ -49,11 +49,17 @@ import sh.isaac.api.util.ChecksumGenerator;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link ChecksumGeneratorTest}
+ * {@link ChecksumGeneratorTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ChecksumGeneratorTest {
+   
+   /**
+    * Checksum test one.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void checksumTestOne()
             throws Exception {
@@ -62,6 +68,11 @@ public class ChecksumGeneratorTest {
       Assert.assertTrue(hash.equals("b08f254d76b1c6a7ad924708c0032251"));
    }
 
+   /**
+    * Checksum test two.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void checksumTestTwo()
             throws Exception {

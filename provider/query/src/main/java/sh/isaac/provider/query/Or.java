@@ -66,12 +66,24 @@ public class Or
       super();
    }
 
+   /**
+    * Instantiates a new or.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param clauses the clauses
+    */
    public Or(Query enclosingQuery, Clause... clauses) {
       super(enclosingQuery, clauses);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute components.
+    *
+    * @param incomingComponents the incoming components
+    * @return the nid set
+    */
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
       final NidSet results = new NidSet();
@@ -82,6 +94,12 @@ public class Or
       return results;
    }
 
+   /**
+    * Compute possible components.
+    *
+    * @param searchSpace the search space
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet searchSpace) {
       final NidSet results = new NidSet();
@@ -94,6 +112,11 @@ public class Or
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();

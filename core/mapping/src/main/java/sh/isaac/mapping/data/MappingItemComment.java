@@ -51,19 +51,33 @@ import sh.isaac.api.component.sememe.version.DynamicSememe;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link MappingItemComment}
+ * {@link MappingItemComment}.
  *
  * @author David Triglianos
  */
 public class MappingItemComment
         extends StampedItem {
+   
+   /** The comment text. */
    private String commentText;
+   
+   /** The comment context. */
    private String commentContext;
+   
+   /** The mapping item UUID. */
    private UUID   mappingItemUUID;
+   
+   /** The primoridal UUID. */
    private UUID   primoridalUUID;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new mapping item comment.
+    *
+    * @param comment the comment
+    * @throws RuntimeException the runtime exception
+    */
    protected MappingItemComment(DynamicSememe<?> comment)
             throws RuntimeException {
       read(comment);
@@ -71,6 +85,12 @@ public class MappingItemComment
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read.
+    *
+    * @param commentRefex the comment refex
+    * @throws RuntimeException the runtime exception
+    */
    private void read(DynamicSememe<?> commentRefex)
             throws RuntimeException {
       this.commentText = commentRefex.getData()[0]
@@ -91,6 +111,8 @@ public class MappingItemComment
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the comment context.
+    *
     * @return the commentContext
     */
    public String getCommentContext() {
@@ -100,6 +122,8 @@ public class MappingItemComment
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the comment context.
+    *
     * @param commentContext the commentContext to set - optional field on a comment used for arbitrary purposed by an editor.
     */
    public void setCommentContext(String commentContext) {
@@ -109,6 +133,8 @@ public class MappingItemComment
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the comment text.
+    *
     * @return the commentText
     */
    public String getCommentText() {
@@ -118,6 +144,8 @@ public class MappingItemComment
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the comment text.
+    *
     * @param commentText the commentText to set
     */
    public void setCommentText(String commentText) {
@@ -127,6 +155,8 @@ public class MappingItemComment
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the mapping item UUID.
+    *
     * @return the mappingItemUUID - which is the identifier of the thing that the comment is attached to
     */
    public UUID getMappingItemUUID() {
@@ -134,6 +164,8 @@ public class MappingItemComment
    }
 
    /**
+    * Gets the primordial UUID.
+    *
     * @return the primoridalUUID - the identifier of this comment - which I'll note isn't globally unique - If you edit this comment,
     * it will retain the same UUID - but the DB will now contain two versions of the comment - the old and the new - you would need
     * this variable and the creationDate to be globally unique.

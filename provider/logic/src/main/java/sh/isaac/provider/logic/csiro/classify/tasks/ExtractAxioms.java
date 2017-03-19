@@ -57,16 +57,27 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ExtractAxioms.
  *
  * @author kec
  */
 public class ExtractAxioms
         extends TimedTaskWithProgressTracker<Void> {
+   
+   /** The stamp coordinate. */
    StampCoordinate stampCoordinate;
+   
+   /** The logic coordinate. */
    LogicCoordinate logicCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new extract axioms.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param logicCoordinate the logic coordinate
+    */
    public ExtractAxioms(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
       this.stampCoordinate = stampCoordinate;
       this.logicCoordinate = logicCoordinate;
@@ -75,6 +86,12 @@ public class ExtractAxioms
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Call.
+    *
+    * @return the void
+    * @throws Exception the exception
+    */
    @Override
    protected Void call()
             throws Exception {
@@ -91,6 +108,14 @@ public class ExtractAxioms
       return null;
    }
 
+   /**
+    * Process all stated axioms.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param logicCoordinate the logic coordinate
+    * @param cd the cd
+    * @param logicGraphMembers the logic graph members
+    */
    protected void processAllStatedAxioms(StampCoordinate stampCoordinate,
          LogicCoordinate logicCoordinate,
          ClassifierData cd,

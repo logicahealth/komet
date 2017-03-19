@@ -87,10 +87,17 @@ import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY
  */
 @HK2("model")
 public class ConceptSuite {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Tear down suite.
+    *
+    * @throws Exception the exception
+    */
    @AfterGroups(groups = { "services" })
    public void tearDownSuite()
             throws Exception {
@@ -100,6 +107,9 @@ public class ConceptSuite {
       HeapUseTicker.stop();
    }
 
+   /**
+    * Test from builder.
+    */
    @Test(groups = { "services" })
    public void testFromBuilder() {
       final String                conceptName  = "Test concept";
@@ -124,6 +134,11 @@ public class ConceptSuite {
       testConcept3.toString();
    }
 
+   /**
+    * Test serialization no versions.
+    *
+    * @throws Exception the exception
+    */
    @Test(groups = { "services" })
    public void testSerializationNoVersions()
             throws Exception {
@@ -163,11 +178,26 @@ public class ConceptSuite {
       Assert.assertEquals(conceptChronology, conceptChronology3);
    }
 
+   /**
+    * Creates the concept.
+    *
+    * @param spec the spec
+    * @param time the time
+    * @return the concept chronology
+    */
    private ConceptChronology createConcept(ConceptSpecification spec, long time) {
       return createConcept(spec.getConceptDescriptionText(), spec.getUuids()[0]
             .toString(), time);
    }
 
+   /**
+    * Creates the concept.
+    *
+    * @param conceptName the concept name
+    * @param uuidString the uuid string
+    * @param time the time
+    * @return the concept chronology
+    */
    private ConceptChronology createConcept(String conceptName, String uuidString, long time) {
       final String               semanticTag                             = "unit test";
       final ConceptSpecification defaultLanguageForDescriptions          = TermAux.ENGLISH_LANGUAGE;
@@ -212,6 +242,9 @@ public class ConceptSuite {
       return concept;
    }
 
+   /**
+    * Setup concepts.
+    */
    private void setupConcepts() {
       final long time = System.currentTimeMillis();
 
@@ -228,6 +261,11 @@ public class ConceptSuite {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set up suite.
+    *
+    * @throws Exception the exception
+    */
    @BeforeGroups(groups = { "services" })
    public void setUpSuite()
             throws Exception {

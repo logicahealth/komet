@@ -72,16 +72,23 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
  * @author kec
  */
 public class TypeStampTaxonomyRecords {
-   /**
-    * int (the map key) is a stampSequence TaxonomyFlags (the map value) are
-    * the flags associated with the stampSequence;
-    */
+   
+   /** int (the map key) is a stampSequence TaxonomyFlags (the map value) are the flags associated with the stampSequence;. */
    private final OpenLongHashSet typeStampFlagsSet = new OpenLongHashSet(7);
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new type stamp taxonomy records.
+    */
    public TypeStampTaxonomyRecords() {}
 
+   /**
+    * Instantiates a new type stamp taxonomy records.
+    *
+    * @param sourceArray the source array
+    * @param sourcePosition the source position
+    */
    public TypeStampTaxonomyRecords(int[] sourceArray, int sourcePosition) {
       final int length    = sourceArray[sourcePosition] >>> 24;
       final int recordEnd = sourcePosition + length;
@@ -95,18 +102,39 @@ public class TypeStampTaxonomyRecords {
       }
    }
 
+   /**
+    * Instantiates a new type stamp taxonomy records.
+    *
+    * @param typeSequence the type sequence
+    * @param stampSequence the stamp sequence
+    * @param flag the flag
+    */
    public TypeStampTaxonomyRecords(int typeSequence, int stampSequence, TaxonomyFlags flag) {
       this.typeStampFlagsSet.add(convertToLong(typeSequence, stampSequence, flag.bits));
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the stamp record.
+    *
+    * @param typeSequence the type sequence
+    * @param stampSequence the stamp sequence
+    * @param taxonomyFlags the taxonomy flags
+    */
    public void addStampRecord(int typeSequence, int stampSequence, int taxonomyFlags) {
       final long record = convertToLong(typeSequence, stampSequence, taxonomyFlags);
 
       this.typeStampFlagsSet.add(record);
    }
 
+   /**
+    * Adds the to int array.
+    *
+    * @param conceptSequence the concept sequence
+    * @param destinationArray the destination array
+    * @param destinationPosition the destination position
+    */
    public void addToIntArray(int conceptSequence, int[] destinationArray, int destinationPosition) {
       final int length = length();
       final int index  = destinationPosition + 1;
@@ -118,6 +146,14 @@ public class TypeStampTaxonomyRecords {
       this.typeStampFlagsSet.forEachKey(addToArrayIntObjectProcedure);
    }
 
+   /**
+    * Contains concept sequence via type.
+    *
+    * @param typeSequenceSet the type sequence set
+    * @param flags the flags
+    * @param computer the computer
+    * @return true, if successful
+    */
    public boolean containsConceptSequenceViaType(ConceptSequenceSet typeSequenceSet,
          int flags,
          RelativePositionCalculator computer) {
@@ -127,6 +163,14 @@ public class TypeStampTaxonomyRecords {
       return !latestStamps.isEmpty();
    }
 
+   /**
+    * Contains concept sequence via type.
+    *
+    * @param typeSequenceSet the type sequence set
+    * @param tc the tc
+    * @param computer the computer
+    * @return true, if successful
+    */
    public boolean containsConceptSequenceViaType(ConceptSequenceSet typeSequenceSet,
          TaxonomyCoordinate tc,
          RelativePositionCalculator computer) {
@@ -135,6 +179,14 @@ public class TypeStampTaxonomyRecords {
       return containsConceptSequenceViaType(typeSequenceSet, flags, computer);
    }
 
+   /**
+    * Contains concept sequence via type.
+    *
+    * @param typeSequence the type sequence
+    * @param flags the flags
+    * @param computer the computer
+    * @return true, if successful
+    */
    public boolean containsConceptSequenceViaType(int typeSequence, int flags, RelativePositionCalculator computer) {
       final StampSequenceSet latestStamps = computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeSequence,
                                                                                                      flags));
@@ -142,6 +194,14 @@ public class TypeStampTaxonomyRecords {
       return !latestStamps.isEmpty();
    }
 
+   /**
+    * Contains concept sequence via type.
+    *
+    * @param typeSequence the type sequence
+    * @param tc the tc
+    * @param computer the computer
+    * @return true, if successful
+    */
    public boolean containsConceptSequenceViaType(int typeSequence,
          TaxonomyCoordinate tc,
          RelativePositionCalculator computer) {
@@ -151,9 +211,10 @@ public class TypeStampTaxonomyRecords {
    }
 
    /**
+    * Contains stamp of type with flags.
     *
     * @param typeSequenceSet An empty set is a wildcard and will match all types.
-    * @param flags
+    * @param flags the flags
     * @return true if found.
     */
    public boolean containsStampOfTypeWithFlags(ConceptSequenceSet typeSequenceSet, int flags) {
@@ -175,9 +236,10 @@ public class TypeStampTaxonomyRecords {
    }
 
    /**
+    * Contains stamp of type with flags.
     *
     * @param typeSequence Integer.MAX_VALUE is a wildcard and will match all types.
-    * @param flags
+    * @param flags the flags
     * @return true if found.
     */
    public boolean containsStampOfTypeWithFlags(int typeSequence, int flags) {
@@ -202,6 +264,14 @@ public class TypeStampTaxonomyRecords {
       return found;
    }
 
+   /**
+    * Convert to long.
+    *
+    * @param typeSequence the type sequence
+    * @param stampSequence the stamp sequence
+    * @param taxonomyFlags the taxonomy flags
+    * @return the long
+    */
    public static long convertToLong(int typeSequence, int stampSequence, int taxonomyFlags) {
       long record = stampSequence;
 
@@ -217,6 +287,7 @@ public class TypeStampTaxonomyRecords {
    }
 
    /**
+    * Length.
     *
     * @return the number of integers this stampSequence record will occupy when
     * packed.
@@ -227,6 +298,11 @@ public class TypeStampTaxonomyRecords {
       return 1 + (this.typeStampFlagsSet.size() * 2);
    }
 
+   /**
+    * Merge.
+    *
+    * @param newRecords the new records
+    */
    public void merge(TypeStampTaxonomyRecords newRecords) {
       newRecords.typeStampFlagsSet.forEachKey((long recordAsLong) -> {
                this.typeStampFlagsSet.add(recordAsLong);
@@ -234,6 +310,11 @@ public class TypeStampTaxonomyRecords {
             });
    }
 
+   /**
+    * Stream.
+    *
+    * @return the stream
+    */
    public Stream<TypeStampTaxonomyRecord> stream() {
       final Stream.Builder<TypeStampTaxonomyRecord> builder = Stream.builder();
 
@@ -244,6 +325,11 @@ public class TypeStampTaxonomyRecords {
       return builder.build();
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();
@@ -259,10 +345,24 @@ public class TypeStampTaxonomyRecords {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if present.
+    *
+    * @param typeSequenceSet the type sequence set
+    * @param flags the flags
+    * @return true, if present
+    */
    public boolean isPresent(ConceptSequenceSet typeSequenceSet, int flags) {
       return containsStampOfTypeWithFlags(typeSequenceSet, flags);
    }
 
+   /**
+    * Gets the stamps of type with flags.
+    *
+    * @param typeSequenceSet the type sequence set
+    * @param flags the flags
+    * @return the stamps of type with flags
+    */
    public IntStream getStampsOfTypeWithFlags(ConceptSequenceSet typeSequenceSet, int flags) {
       final Builder intStreamBuilder = IntStream.builder();
 
@@ -287,6 +387,13 @@ public class TypeStampTaxonomyRecords {
       return intStreamBuilder.build();
    }
 
+   /**
+    * Gets the stamps of type with flags.
+    *
+    * @param typeSequence the type sequence
+    * @param flags the flags
+    * @return the stamps of type with flags
+    */
    public IntStream getStampsOfTypeWithFlags(int typeSequence, int flags) {
       final Builder intStreamBuilder = IntStream.builder();
 
@@ -310,6 +417,11 @@ public class TypeStampTaxonomyRecords {
       return intStreamBuilder.build();
    }
 
+   /**
+    * Gets the type stamp flag stream.
+    *
+    * @return the type stamp flag stream
+    */
    public LongStream getTypeStampFlagStream() {
       return LongStream.of(this.typeStampFlagsSet.keys()
             .elements());
@@ -317,13 +429,26 @@ public class TypeStampTaxonomyRecords {
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class AddToArrayProcedure.
+    */
    private static class AddToArrayProcedure
             implements LongProcedure {
+      
+      /** The index. */
       int index;
+      
+      /** The destination array. */
       int destinationArray[];
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new adds the to array procedure.
+       *
+       * @param index the index
+       * @param destinationArray the destination array
+       */
       public AddToArrayProcedure(int index, int[] destinationArray) {
          this.index            = index;
          this.destinationArray = destinationArray;
@@ -334,7 +459,8 @@ public class TypeStampTaxonomyRecords {
       /**
        * Adds the combined typeSequence + stampSequence + flags to the index location in the
        * destination array defined in the procedure constructor.
-       * @param record
+       *
+       * @param record the record
        * @return true to continue.
        */
       @Override
@@ -348,13 +474,27 @@ public class TypeStampTaxonomyRecords {
    }
 
 
+   /**
+    * The Class TypeStampTaxonomyRecord.
+    */
    public static class TypeStampTaxonomyRecord {
+      
+      /** The type sequence. */
       int typeSequence;
+      
+      /** The stamp sequence. */
       int stampSequence;
+      
+      /** The taxonomy flags. */
       int taxonomyFlags;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new type stamp taxonomy record.
+       *
+       * @param record the record
+       */
       public TypeStampTaxonomyRecord(long record) {
          this.typeSequence  = (int) record & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK;
          record             = record >>> 32;
@@ -362,6 +502,13 @@ public class TypeStampTaxonomyRecords {
          this.taxonomyFlags = (int) record & TaxonomyRecordPrimitive.FLAGS_BIT_MASK;
       }
 
+      /**
+       * Instantiates a new type stamp taxonomy record.
+       *
+       * @param typeSequence the type sequence
+       * @param stampSequence the stamp sequence
+       * @param taxonomyFlags the taxonomy flags
+       */
       public TypeStampTaxonomyRecord(int typeSequence, int stampSequence, int taxonomyFlags) {
          this.typeSequence  = typeSequence;
          this.stampSequence = stampSequence;
@@ -370,6 +517,12 @@ public class TypeStampTaxonomyRecords {
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Equals.
+       *
+       * @param obj the obj
+       * @return true, if successful
+       */
       @Override
       public boolean equals(Object obj) {
          if (obj == null) {
@@ -393,6 +546,11 @@ public class TypeStampTaxonomyRecords {
          return this.taxonomyFlags == other.taxonomyFlags;
       }
 
+      /**
+       * Hash code.
+       *
+       * @return the int
+       */
       @Override
       public int hashCode() {
          int hash = 7;
@@ -401,6 +559,11 @@ public class TypeStampTaxonomyRecords {
          return hash;
       }
 
+      /**
+       * To string.
+       *
+       * @return the string
+       */
       @Override
       public String toString() {
          final StringBuilder sb = new StringBuilder();
@@ -425,22 +588,47 @@ public class TypeStampTaxonomyRecords {
 
       //~--- get methods ------------------------------------------------------
 
+      /**
+       * Gets the as long.
+       *
+       * @return the as long
+       */
       public long getAsLong() {
          return convertToLong(this.typeSequence, this.stampSequence, this.taxonomyFlags);
       }
 
+      /**
+       * Gets the stamp sequence.
+       *
+       * @return the stamp sequence
+       */
       public int getStampSequence() {
          return this.stampSequence;
       }
 
+      /**
+       * Gets the taxonomy flags.
+       *
+       * @return the taxonomy flags
+       */
       public int getTaxonomyFlags() {
          return this.taxonomyFlags;
       }
 
+      /**
+       * Gets the taxonomy flags as enum.
+       *
+       * @return the taxonomy flags as enum
+       */
       public EnumSet<TaxonomyFlags> getTaxonomyFlagsAsEnum() {
          return TaxonomyFlags.getTaxonomyFlags(this.taxonomyFlags);
       }
 
+      /**
+       * Gets the type sequence.
+       *
+       * @return the type sequence
+       */
       public int getTypeSequence() {
          return this.typeSequence;
       }

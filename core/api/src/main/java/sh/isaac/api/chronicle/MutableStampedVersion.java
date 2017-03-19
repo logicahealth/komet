@@ -46,17 +46,39 @@ import sh.isaac.api.identity.StampedVersion;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface MutableStampedVersion.
  *
  * @author kec
  */
 public interface MutableStampedVersion
         extends StampedVersion {
+   
+   /**
+    * Sets the author sequence.
+    *
+    * @param authorSequence the new author sequence
+    */
    void setAuthorSequence(int authorSequence);
 
+   /**
+    * Sets the module sequence.
+    *
+    * @param moduleSequence the new module sequence
+    */
    void setModuleSequence(int moduleSequence);
 
+   /**
+    * Sets the path sequence.
+    *
+    * @param pathSequence the new path sequence
+    */
    void setPathSequence(int pathSequence);
 
+   /**
+    * Sets the time.
+    *
+    * @param time the new time
+    */
    void setTime(long time);
 }
 

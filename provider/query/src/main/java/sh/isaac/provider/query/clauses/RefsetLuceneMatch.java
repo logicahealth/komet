@@ -74,15 +74,29 @@ import sh.isaac.provider.query.lucene.indexers.SememeIndexer;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class RefsetLuceneMatch
         extends LeafClause {
+   
+   /** The lucene match key. */
    @XmlElement
    String luceneMatchKey;
+   
+   /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new refset lucene match.
+    */
    protected RefsetLuceneMatch() {}
 
+   /**
+    * Instantiates a new refset lucene match.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param luceneMatchKey the lucene match key
+    * @param viewCoordinateKey the view coordinate key
+    */
    public RefsetLuceneMatch(Query enclosingQuery, String luceneMatchKey, String viewCoordinateKey) {
       super(enclosingQuery);
       this.luceneMatchKey    = luceneMatchKey;
@@ -91,6 +105,12 @@ public class RefsetLuceneMatch
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       this.enclosingQuery.getLetDeclarations()
@@ -130,14 +150,30 @@ public class RefsetLuceneMatch
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {}
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();

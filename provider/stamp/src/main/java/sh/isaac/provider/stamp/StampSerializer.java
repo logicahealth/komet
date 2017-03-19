@@ -55,16 +55,22 @@ import sh.isaac.api.commit.Stamp;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StampSerializer.
  *
  * @author kec
  */
 public class StampSerializer
          implements DataSerializer<Stamp>, Serializable {
-   /**
-	 * 
-	 */
+   
+   /** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
+/**
+ * Deserialize.
+ *
+ * @param in the in
+ * @return the stamp
+ */
 @Override
    public Stamp deserialize(DataInput in) {
       try {
@@ -78,6 +84,12 @@ public class StampSerializer
       }
    }
 
+   /**
+    * Serialize.
+    *
+    * @param out the out
+    * @param stamp the stamp
+    */
    @Override
    public void serialize(DataOutput out, Stamp stamp) {
       try {

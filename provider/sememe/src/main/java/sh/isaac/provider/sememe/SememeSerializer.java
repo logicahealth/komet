@@ -49,16 +49,32 @@ import sh.isaac.model.waitfree.WaitFreeMergeSerializer;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class SememeSerializer.
  *
  * @author kec
  */
 public class SememeSerializer
          implements WaitFreeMergeSerializer<SememeChronologyImpl<? extends SememeVersion<?>>> {
+   
+   /**
+    * Deserialize.
+    *
+    * @param db the db
+    * @return the sememe chronology impl
+    */
    @Override
    public SememeChronologyImpl<?> deserialize(ByteArrayDataBuffer db) {
       return SememeChronologyImpl.make(db);
    }
 
+   /**
+    * Merge.
+    *
+    * @param a the a
+    * @param b the b
+    * @param writeSequence the write sequence
+    * @return the sememe chronology impl
+    */
    @Override
    public SememeChronologyImpl<?> merge(SememeChronologyImpl<? extends SememeVersion<?>> a,
          SememeChronologyImpl<? extends SememeVersion<?>> b,
@@ -69,6 +85,12 @@ public class SememeSerializer
       return SememeChronologyImpl.make(db);
    }
 
+   /**
+    * Serialize.
+    *
+    * @param d the d
+    * @param a the a
+    */
    @Override
    public void serialize(ByteArrayDataBuffer d, SememeChronologyImpl<? extends SememeVersion<?>> a) {
       final byte[] data = a.getDataToWrite();

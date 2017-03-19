@@ -61,13 +61,18 @@ import sh.isaac.api.ticker.Ticker;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class TimedTask.
  *
  * @author kec
- * @param <T>
+ * @param <T> the generic type
  */
 public abstract class TimedTask<T>
         extends Task<T> {
+   
+   /** The Constant log. */
    protected static final Logger log                          = LogManager.getLogger();
+   
+   /** The progress update interval in secs. */
    public static int             progressUpdateIntervalInSecs = 2;
 
    /**
@@ -87,14 +92,26 @@ public abstract class TimedTask<T>
 
    //~--- fields --------------------------------------------------------------
 
+   /** The update ticker. */
    private final Ticker   updateTicker = new Ticker();
+   
+   /** The start time. */
    private Instant        startTime;
+   
+   /** The end time. */
    private Instant        endTime;
+   
+   /** The complete message generator. */
    Consumer<TimedTask<T>> completeMessageGenerator;
+   
+   /** The progress message generator. */
    Consumer<TimedTask<T>> progressMessageGenerator;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Done.
+    */
    @Override
    protected void done() {
       super.done();
@@ -113,11 +130,17 @@ public abstract class TimedTask<T>
                         });
    }
 
+   /**
+    * Failed.
+    */
    @Override
    protected void failed() {
       log.warn("Timed task failed!", this.getException());
    }
 
+   /**
+    * Running.
+    */
    @Override
    protected void running() {
       super.running();
@@ -134,6 +157,12 @@ public abstract class TimedTask<T>
                          });
    }
 
+   /**
+    * Format duration.
+    *
+    * @param d the d
+    * @return the string
+    */
    private String formatDuration(Duration d) {
       final StringBuilder builder = new StringBuilder();
       final long          seconds = d.getSeconds();
@@ -182,12 +211,22 @@ public abstract class TimedTask<T>
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the complete message generator.
+    *
+    * @param consumer the new complete message generator
+    */
    public void setCompleteMessageGenerator(Consumer<TimedTask<T>> consumer) {
       this.completeMessageGenerator = consumer;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the duration.
+    *
+    * @return the duration
+    */
    public Duration getDuration() {
       if (this.startTime == null) {
          return Duration.ZERO;
@@ -200,16 +239,29 @@ public abstract class TimedTask<T>
       return Duration.between(this.startTime, this.endTime);
    }
 
+   /**
+    * Gets the formatted duration.
+    *
+    * @return the formatted duration
+    */
    public String getFormattedDuration() {
       return formatDuration(getDuration());
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the progress message generator.
+    *
+    * @param consumer the new progress message generator
+    */
    public void setProgressMessageGenerator(Consumer<TimedTask<T>> consumer) {
       this.progressMessageGenerator = consumer;
    }
 
+   /**
+    * Set start time.
+    */
    protected void setStartTime() {
       this.startTime = Instant.now();
    }

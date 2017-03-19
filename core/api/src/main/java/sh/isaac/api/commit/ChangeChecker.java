@@ -58,15 +58,31 @@ import sh.isaac.api.component.sememe.version.SememeVersion;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ChangeChecker.
  *
  * @author kec
  */
 public interface ChangeChecker
         extends Comparable<ChangeChecker> {
+   
+   /**
+    * Check.
+    *
+    * @param cc the cc
+    * @param alertCollection the alert collection
+    * @param checkPhase the check phase
+    */
    void check(ConceptChronology<? extends ConceptVersion<?>> cc,
               Collection<Alert> alertCollection,
               CheckPhase checkPhase);
 
+   /**
+    * Check.
+    *
+    * @param sc the sc
+    * @param alertCollection the alert collection
+    * @param checkPhase the check phase
+    */
    void check(SememeChronology<? extends SememeVersion<?>> sc,
               Collection<Alert> alertCollection,
               CheckPhase checkPhase);

@@ -61,24 +61,32 @@ import sh.isaac.provider.query.lucene.LuceneIndexer;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link TopDocsFilteredCollector}
+ * {@link TopDocsFilteredCollector}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class TopDocsFilteredCollector
         extends Collector {
+   
+   /** The collector. */
    TopScoreDocCollector collector_;
+   
+   /** The searcher. */
    IndexSearcher        searcher_;
+   
+   /** The filter. */
    Predicate<Integer>   filter_;
 
    //~--- constructors --------------------------------------------------------
 
    /**
+    * Instantiates a new top docs filtered collector.
+    *
     * @param numHits - how many results to return
     * @param query - needed to setup the TopScoreDocCollector properly
     * @param searcher - needed to read the nids out of the matching documents
     * @param filter - a predicate that should return true, if the given nid should be allowed in the results, false, if not.
-    * @throws IOException
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public TopDocsFilteredCollector(int numHits,
                                    Query query,
@@ -95,11 +103,22 @@ public class TopDocsFilteredCollector
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Accepts docs out of order.
+    *
+    * @return true, if successful
+    */
    @Override
    public boolean acceptsDocsOutOfOrder() {
       return this.collector_.acceptsDocsOutOfOrder();
    }
 
+   /**
+    * Collect.
+    *
+    * @param docId the doc id
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void collect(int docId)
             throws IOException {
@@ -115,12 +134,24 @@ public class TopDocsFilteredCollector
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the next reader.
+    *
+    * @param context the new next reader
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void setNextReader(AtomicReaderContext context)
             throws IOException {
       this.collector_.setNextReader(context);
    }
 
+   /**
+    * Sets the scorer.
+    *
+    * @param scorer the new scorer
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void setScorer(Scorer scorer)
             throws IOException {
@@ -129,6 +160,11 @@ public class TopDocsFilteredCollector
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the top docs.
+    *
+    * @return the top docs
+    */
    public TopDocs getTopDocs() {
       return this.collector_.topDocs();
    }

@@ -70,14 +70,33 @@ import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
 //TODO move to CSIRO specific module
 public class AxiomAccumulator
          implements BiConsumer<Set<Axiom>, LogicalExpressionOchreImpl> {
+   
+   /** The concept sequences. */
    BitSet                     conceptSequences;
+   
+   /** The concepts. */
    Concept[]                  concepts;
+   
+   /** The roles. */
    OpenIntObjectHashMap<Role> roles;
+   
+   /** The never group role sequences. */
    OpenIntHashSet             neverGroupRoleSequences;
+   
+   /** The role group concept sequence. */
    int                        roleGroupConceptSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new axiom accumulator.
+    *
+    * @param concepts the concepts
+    * @param conceptSequences the concept sequences
+    * @param roles the roles
+    * @param neverGroupRoleSequences the never group role sequences
+    * @param roleGroupConceptSequence the role group concept sequence
+    */
    public AxiomAccumulator(Concept[] concepts,
                            BitSet conceptSequences,
                            OpenIntObjectHashMap<Role> roles,
@@ -92,6 +111,12 @@ public class AxiomAccumulator
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Accept.
+    *
+    * @param axioms the axioms
+    * @param logicGraphVersion the logic graph version
+    */
    @Override
    public void accept(Set<Axiom> axioms, LogicalExpressionOchreImpl logicGraphVersion) {
       if (this.conceptSequences.get(logicGraphVersion.getConceptSequence())) {
@@ -99,6 +124,12 @@ public class AxiomAccumulator
       }
    }
 
+   /**
+    * Generate axioms.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @return the set
+    */
    public Set<Axiom> generateAxioms(LogicalExpressionOchreImpl logicGraphVersion) {
       final Concept    thisConcept = this.concepts[logicGraphVersion.getConceptSequence()];
       final Set<Axiom> axioms      = new HashSet<>();
@@ -156,6 +187,16 @@ public class AxiomAccumulator
       return axioms;
    }
 
+   /**
+    * Process role.
+    *
+    * @param roleNodeSome the role node some
+    * @param concepts the concepts
+    * @param roles the roles
+    * @param neverGroupRoleSequences the never group role sequences
+    * @param roleGroupConceptSequence the role group concept sequence
+    * @return the concept
+    */
    private Concept processRole(RoleNodeSomeWithSequences roleNodeSome,
                                Concept[] concepts,
                                OpenIntObjectHashMap<Role> roles,
@@ -181,6 +222,16 @@ public class AxiomAccumulator
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the concept.
+    *
+    * @param logicNode the logic node
+    * @param concepts the concepts
+    * @param roles the roles
+    * @param neverGroupRoleSequences the never group role sequences
+    * @param roleGroupConceptSequence the role group concept sequence
+    * @return the concept
+    */
    private Concept getConcept(LogicNode logicNode,
                               Concept[] concepts,
                               OpenIntObjectHashMap<Role> roles,
@@ -213,6 +264,16 @@ public class AxiomAccumulator
       throw new UnsupportedOperationException("Can't handle " + logicNode + " as child of ROLE_SOME.");
    }
 
+   /**
+    * Gets the concepts.
+    *
+    * @param logicNodes the logic nodes
+    * @param concepts the concepts
+    * @param roles the roles
+    * @param neverGroupRoleSequences the never group role sequences
+    * @param roleGroupConceptSequence the role group concept sequence
+    * @return the concepts
+    */
    private Concept[] getConcepts(LogicNode[] logicNodes,
                                  Concept[] concepts,
                                  OpenIntObjectHashMap<Role> roles,

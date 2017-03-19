@@ -75,6 +75,7 @@ import sh.isaac.model.observable.ObservableFields;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableLanguageCoordinateImpl.
  *
  * @author kec
  */
@@ -83,26 +84,47 @@ import sh.isaac.model.observable.ObservableFields;
 public final class ObservableLanguageCoordinateImpl
         extends ObservableCoordinateImpl
          implements ObservableLanguageCoordinate {
+   
+   /** The language concept sequence property. */
    @XmlTransient
    IntegerProperty                        languageConceptSequenceProperty         = null;
+   
+   /** The dialect assemblage preference list property. */
    @XmlTransient
    ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty = null;
+   
+   /** The description type preference list property. */
    @XmlTransient
    ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty   = null;
+   
+   /** The language coordinate. */
    private LanguageCoordinateImpl         languageCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new observable language coordinate impl.
+    */
    private ObservableLanguageCoordinateImpl() {
       // for jaxb
    }
 
+   /**
+    * Instantiates a new observable language coordinate impl.
+    *
+    * @param languageCoordinate the language coordinate
+    */
    public ObservableLanguageCoordinateImpl(LanguageCoordinate languageCoordinate) {
       this.languageCoordinate = (LanguageCoordinateImpl) languageCoordinate;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Description type preference list property.
+    *
+    * @return the object property
+    */
    @Override
    public ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty() {
       if (this.descriptionTypePreferenceListProperty == null) {
@@ -116,6 +138,11 @@ public final class ObservableLanguageCoordinateImpl
       return this.descriptionTypePreferenceListProperty;
    }
 
+   /**
+    * Dialect assemblage preference list property.
+    *
+    * @return the object property
+    */
    @Override
    public ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty() {
       if (this.dialectAssemblagePreferenceListProperty == null) {
@@ -129,6 +156,11 @@ public final class ObservableLanguageCoordinateImpl
       return this.dialectAssemblagePreferenceListProperty;
    }
 
+   /**
+    * Language concept sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty languageConceptSequenceProperty() {
       if (this.languageConceptSequenceProperty == null) {
@@ -141,6 +173,11 @@ public final class ObservableLanguageCoordinateImpl
       return this.languageConceptSequenceProperty;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "ObservableLanguageCoordinateImpl{" + this.languageCoordinate + '}';
@@ -148,6 +185,13 @@ public final class ObservableLanguageCoordinateImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the description.
+    *
+    * @param descriptionList the description list
+    * @param stampCoordinate the stamp coordinate
+    * @return the description
+    */
    @Override
    public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(
            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
@@ -155,6 +199,11 @@ public final class ObservableLanguageCoordinateImpl
       return this.languageCoordinate.getDescription(descriptionList, stampCoordinate);
    }
 
+   /**
+    * Gets the description type preference list.
+    *
+    * @return the description type preference list
+    */
    @Override
    public int[] getDescriptionTypePreferenceList() {
       if (this.descriptionTypePreferenceListProperty != null) {
@@ -165,6 +214,11 @@ public final class ObservableLanguageCoordinateImpl
       return this.languageCoordinate.getDescriptionTypePreferenceList();
    }
 
+   /**
+    * Gets the dialect assemblage preference list.
+    *
+    * @return the dialect assemblage preference list
+    */
    @Override
    public int[] getDialectAssemblagePreferenceList() {
       if (this.dialectAssemblagePreferenceListProperty != null) {
@@ -175,6 +229,13 @@ public final class ObservableLanguageCoordinateImpl
       return this.languageCoordinate.getDialectAssemblagePreferenceList();
    }
 
+   /**
+    * Gets the fully specified description.
+    *
+    * @param descriptionList the description list
+    * @param stampCoordinate the stamp coordinate
+    * @return the fully specified description
+    */
    @Override
    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
@@ -182,6 +243,11 @@ public final class ObservableLanguageCoordinateImpl
       return this.languageCoordinate.getFullySpecifiedDescription(descriptionList, stampCoordinate);
    }
 
+   /**
+    * Gets the language concept sequence.
+    *
+    * @return the language concept sequence
+    */
    @Override
    public int getLanguageConceptSequence() {
       if (this.languageConceptSequenceProperty != null) {
@@ -191,6 +257,13 @@ public final class ObservableLanguageCoordinateImpl
       return this.languageCoordinate.getLanguageConceptSequence();
    }
 
+   /**
+    * Gets the preferred description.
+    *
+    * @param descriptionList the description list
+    * @param stampCoordinate the stamp coordinate
+    * @return the preferred description
+    */
    @Override
    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(
            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,

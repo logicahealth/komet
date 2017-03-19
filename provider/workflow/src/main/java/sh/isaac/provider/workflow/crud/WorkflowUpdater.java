@@ -103,10 +103,15 @@ import sh.isaac.provider.workflow.model.contents.ProcessHistory;
 @Service
 @Singleton
 public class WorkflowUpdater {
+   
+   /** The workflow provider. */
    private final WorkflowProvider workflowProvider_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new workflow updater.
+    */
    // For HK2
    private WorkflowUpdater() {
       this.workflowProvider_ = LookupService.get()
@@ -176,16 +181,12 @@ public class WorkflowUpdater {
    /**
     * Associates a component with a process. If the comoponent has already been associated, nothing to do. Otherwise, add the component and the
     * timestamp of the edit to know the last version prior to editing
-    *
+    * 
     * Note: Made public to enable unit testing
     *
-    * @param process
-    * The process to which a component/stamp pair is being added
-    * @param compNid
-    * The component being added
-    * @param commitRecord
-    * @param stampSeq
-    * The stamp being added
+    * @param process The process to which a component/stamp pair is being added
+    * @param compNid The component being added
+    * @param commitRecord the commit record
     */
    public void addComponentToWorkflow(ProcessDetail process, int compNid, CommitRecord commitRecord) {
       if (!process.getComponentToInitialEditMap()
@@ -216,24 +217,17 @@ public class WorkflowUpdater {
    /**
     * Advance an existing process with the specified action. In doing so, the
     * user must add an advancement comment.
-    *
+    * 
     * Used by filling in the information prompted for after selecting a
     * Transition Workflow action.
     *
-    * @param processId
-    * The process being advanced.
-    * @param userId
-    * The user advancing the process.
-    * @param actionRequested
-    * The advancement action the user requested.
-    * @param comment
-    * The comment added by the user in advancing the process.
-    * @param editCoordinate
-    *
+    * @param processId The process being advanced.
+    * @param userId The user advancing the process.
+    * @param actionRequested The advancement action the user requested.
+    * @param comment The comment added by the user in advancing the process.
+    * @param editCoordinate the edit coordinate
     * @return True if the advancement attempt was successful
-    *
-    * @throws Exception
-    * Thrown if the requested action was to launch or end a process
+    * @throws Exception Thrown if the requested action was to launch or end a process
     * and while updating the process accordingly, an execption
     * occurred
     */
@@ -333,17 +327,14 @@ public class WorkflowUpdater {
     * component attributes are identical prior to any modification associated
     * with the process. Note that nothing prevents future edits to be performed
     * upon the component associated with the same process.
-    *
+    * 
     * Used when component is removed from the process's component details panel
     *
-    * @param processId
-    *            The process from which the component is to be removed
-    * @param compNid
-    *            The component whose changes are to be reverted and removed
+    * @param processId            The process from which the component is to be removed
+    * @param compNid            The component whose changes are to be reverted and removed
     *            from the process
-    * @param editCoordinate
-    * @throws Exception
-    *             Thrown if the component has been found to not be currently
+    * @param editCoordinate the edit coordinate
+    * @throws Exception             Thrown if the component has been found to not be currently
     *             associated with the process
     */
    public void removeComponentFromWorkflow(UUID processId,
@@ -370,6 +361,14 @@ public class WorkflowUpdater {
       }
    }
 
+   /**
+    * Revert changes.
+    *
+    * @param compNidSet the comp nid set
+    * @param processId the process id
+    * @param editCoordinate the edit coordinate
+    * @throws Exception the exception
+    */
    protected void revertChanges(Collection<Integer> compNidSet,
                                 UUID processId,
                                 EditCoordinate editCoordinate)
@@ -431,6 +430,14 @@ public class WorkflowUpdater {
       }
    }
 
+   /**
+    * Populate data.
+    *
+    * @param newVer the new ver
+    * @param originalVersion the original version
+    * @return the sememe version
+    * @throws Exception the exception
+    */
    private SememeVersion<?> populateData(SememeVersion<?> newVer, SememeVersion<?> originalVersion)
             throws Exception {
       switch (newVer.getChronology()

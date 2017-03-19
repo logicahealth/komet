@@ -109,6 +109,13 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
 @Singleton
 public class DynamicSememeUtilityImpl
          implements DynamicSememeUtility {
+   
+   /**
+    * Configure column index info.
+    *
+    * @param columns the columns
+    * @return the dynamic sememe array
+    */
    @Override
    public DynamicSememeArray<DynamicSememeData> configureColumnIndexInfo(DynamicSememeColumnInfo[] columns) {
       final ArrayList<DynamicSememeIntegerImpl> temp = new ArrayList<>();
@@ -131,6 +138,12 @@ public class DynamicSememeUtilityImpl
       return null;
    }
 
+   /**
+    * Configure dynamic sememe definition data for column.
+    *
+    * @param ci the ci
+    * @return the dynamic sememe data[]
+    */
    @Override
    public DynamicSememeData[] configureDynamicSememeDefinitionDataForColumn(DynamicSememeColumnInfo ci) {
       final DynamicSememeData[] data = new DynamicSememeData[7];
@@ -175,6 +188,13 @@ public class DynamicSememeUtilityImpl
       return data;
    }
 
+   /**
+    * Configure dynamic sememe restriction data.
+    *
+    * @param referencedComponentRestriction the referenced component restriction
+    * @param referencedComponentSubRestriction the referenced component sub restriction
+    * @return the dynamic sememe data[]
+    */
    @Override
    public DynamicSememeData[] configureDynamicSememeRestrictionData(ObjectChronologyType referencedComponentRestriction,
          SememeType referencedComponentSubRestriction) {
@@ -200,18 +220,33 @@ public class DynamicSememeUtilityImpl
       return null;
    }
 
+   /**
+    * Creates the dynamic string data.
+    *
+    * @param value the value
+    * @return the dynamic sememe string
+    */
    @Override
    public DynamicSememeString createDynamicStringData(String value) {
       return new DynamicSememeStringImpl(value);
    }
 
+   /**
+    * Creates the dynamic UUID data.
+    *
+    * @param value the value
+    * @return the dynamic sememe UUID
+    */
    @Override
    public DynamicSememeUUID createDynamicUUIDData(UUID value) {
       return new DynamicSememeUUIDImpl(value);
    }
 
    /**
-    * Read the {@link DynamicSememeUsageDescription} for the specified assemblage concept
+    * Read the {@link DynamicSememeUsageDescription} for the specified assemblage concept.
+    *
+    * @param assemblageNidOrSequence the assemblage nid or sequence
+    * @return the dynamic sememe usage description
     */
    @Override
    public DynamicSememeUsageDescription readDynamicSememeUsageDescription(int assemblageNidOrSequence) {
@@ -219,8 +254,10 @@ public class DynamicSememeUtilityImpl
    }
 
    /**
+    * To string.
+    *
     * @param data DynamicSememeData[]
-    * @return
+    * @return the string
     */
    public static String toString(DynamicSememeData[] data) {
       final StringBuilder sb = new StringBuilder();
@@ -245,6 +282,13 @@ public class DynamicSememeUtilityImpl
       return sb.toString();
    }
 
+   /**
+    * Convert polymorphic data column.
+    *
+    * @param defaultValue the default value
+    * @param columnType the column type
+    * @return the dynamic sememe data
+    */
    private static DynamicSememeData convertPolymorphicDataColumn(DynamicSememeData defaultValue,
          DynamicSememeDataType columnType) {
       DynamicSememeData result;

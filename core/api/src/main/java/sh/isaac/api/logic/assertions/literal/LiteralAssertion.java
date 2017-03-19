@@ -46,6 +46,7 @@ import sh.isaac.api.logic.assertions.Assertion;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface LiteralAssertion.
  *
  * @author kec
  */

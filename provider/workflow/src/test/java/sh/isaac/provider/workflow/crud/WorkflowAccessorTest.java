@@ -83,6 +83,10 @@ import sh.isaac.provider.workflow.user.RoleConfigurator;
  */
 public class WorkflowAccessorTest
         extends AbstractWorkflowProviderTestPackage {
+   
+   /**
+    * Before test.
+    */
    @Before
    public void beforeTest() {
       wp_.getProcessDetailStore()
@@ -91,6 +95,11 @@ public class WorkflowAccessorTest
          .clear();
    }
 
+   /**
+    * Tear down class.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @AfterClass
    public static void tearDownClass()
             throws IOException {
@@ -100,10 +109,9 @@ public class WorkflowAccessorTest
 
    /**
     * Test that as advance workflow, different process information is
-    * associated with the process
+    * associated with the process.
     *
-    * @throws Exception
-    *             Thrown if test fails
+    * @throws Exception             Thrown if test fails
     */
    @Test
    public void testGetAdvanceableProcessInformation()
@@ -387,10 +395,9 @@ public class WorkflowAccessorTest
 
    /**
     * Test that as advance workflow, different users are able to advance
-    * workflow based on the user roles and the process's current state
+    * workflow based on the user roles and the process's current state.
     *
-    * @throws Exception
-    *             Thrown if test fails
+    * @throws Exception             Thrown if test fails
     */
    @Test
    public void testGetUserPermissibleActionsForProcess()

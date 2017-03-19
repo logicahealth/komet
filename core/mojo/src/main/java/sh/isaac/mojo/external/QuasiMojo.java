@@ -98,17 +98,33 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public abstract class QuasiMojo {
+   
+   /** The log. */
    protected Log    log_ = null;
+   
+   /** The project version. */
    protected String projectVersion;
+   
+   /** The output directory. */
    protected File   outputDirectory;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    public abstract void execute()
             throws MojoExecutionException;
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the log.
+    *
+    * @return the log
+    */
    public Log getLog() {
       return this.log_;
    }

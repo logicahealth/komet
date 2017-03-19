@@ -40,14 +40,29 @@
 package sh.isaac.api;
 
 /**
+ * The Interface ProgressTracker.
  *
  * @author kec
  */
 public interface ProgressTracker {
+   
+   /**
+    * Adds the to total work.
+    *
+    * @param amountOfWork the amount of work
+    */
    void addToTotalWork(long amountOfWork);
 
+   /**
+    * Completed unit of work.
+    */
    void completedUnitOfWork();
 
+   /**
+    * Completed units of work.
+    *
+    * @param unitsCompleted the units completed
+    */
    void completedUnitsOfWork(long unitsCompleted);
 }
 

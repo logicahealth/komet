@@ -60,21 +60,34 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeArrayImpl}
+ * {@link DynamicSememeArrayImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ * @param <T> the generic type
  */
 public class DynamicSememeArrayImpl<T extends DynamicSememeData>
         extends DynamicSememeDataImpl
          implements DynamicSememeArray<T> {
+   
+   /** The property. */
    private ReadOnlyObjectProperty<T[]> property_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe array impl.
+    *
+    * @param data the data
+    */
    protected DynamicSememeArrayImpl(byte[] data) {
       super(data);
    }
 
+   /**
+    * Instantiates a new dynamic sememe array impl.
+    *
+    * @param dataArray the data array
+    */
    public DynamicSememeArrayImpl(T[] dataArray) {
       super();
 
@@ -111,6 +124,13 @@ public class DynamicSememeArrayImpl<T extends DynamicSememeData>
       }
    }
 
+   /**
+    * Instantiates a new dynamic sememe array impl.
+    *
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    protected DynamicSememeArrayImpl(byte[] data, int assemblageSequence, int columnNumber) {
       super(data, assemblageSequence, columnNumber);
    }
@@ -118,6 +138,9 @@ public class DynamicSememeArrayImpl<T extends DynamicSememeData>
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data array.
+    *
+    * @return the data array
     * @see org.ihtsdo.otf.tcc.api.DynamicSememe.data.dataTypes.DynamicSememeArrayBI#getDataArray()
     */
    @SuppressWarnings("unchecked")
@@ -149,6 +172,9 @@ public class DynamicSememeArrayImpl<T extends DynamicSememeData>
    }
 
    /**
+    * Gets the data array property.
+    *
+    * @return the data array property
     * @see org.ihtsdo.otf.tcc.api.DynamicSememe.data.dataTypes.DynamicSememeArrayBI#getDataArrayProperty()
     */
    @Override
@@ -161,6 +187,9 @@ public class DynamicSememeArrayImpl<T extends DynamicSememeData>
    }
 
    /**
+    * Gets the data object.
+    *
+    * @return the data object
     * @see org.ihtsdo.otf.tcc.api.DynamicSememe.data.DynamicSememeDataBI#getDataObject()
     */
    @Override
@@ -169,6 +198,9 @@ public class DynamicSememeArrayImpl<T extends DynamicSememeData>
    }
 
    /**
+    * Gets the data object property.
+    *
+    * @return the data object property
     * @see org.ihtsdo.otf.tcc.api.DynamicSememe.data.DynamicSememeDataBI#getDataObjectProperty()
     */
    @Override

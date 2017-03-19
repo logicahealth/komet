@@ -50,17 +50,24 @@ import sh.isaac.api.util.AlphanumComparator;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link SimpleDisplayConceptComparator}
+ * {@link SimpleDisplayConceptComparator}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class SimpleDisplayConceptComparator
          implements Comparator<SimpleDisplayConcept> {
+   
+   /** The ac. */
    private static AlphanumComparator ac = new AlphanumComparator(true);
 
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Compare.
+    *
+    * @param o1 the o 1
+    * @param o2 the o 2
+    * @return the int
     * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
     */
    @Override

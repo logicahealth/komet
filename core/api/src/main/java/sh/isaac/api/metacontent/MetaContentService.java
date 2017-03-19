@@ -61,8 +61,9 @@ import sh.isaac.api.metacontent.userPrefs.StorableUserPreferences;
  */
 @Contract
 public interface MetaContentService {
+   
    /**
-    * Call prior to JVM exit for safe shutdown
+    * Call prior to JVM exit for safe shutdown.
     */
    public void close();
 
@@ -70,23 +71,28 @@ public interface MetaContentService {
     * Open or create a new data store.  The type of the key and value must be specified.
     * Not being consistent with the Key/Value types for a particular store name will result in
     * a runtime class cast exception.  For example, this will fail at runtime:
-    *
+    * 
     * <Long,String>openStore("myStore").put(54l, "fred")
     * ...
     * <Long,Integer>openStore("myStore").get(54l)
-    *
+    * 
     *  Data added to the ConcurrentMap is automatically flushed to disk, and is safe after the flush interval, or as long as {@link #close()} is
     *  called prior to JVM exit.  Note that it is typically not the job of the caller of this method to call close on the overall MetaContentService.
-    *
+    * 
     *  Any object can be utilized for the Key and Value - however, for types outside of the basic types, java serialization will be utilized,
     *  which is quite inefficient.  For storing large objects, it is recommended you make your Value a byte[], and handle the serialization
     *  yourself.
     *
+    * @param <K> the key type
+    * @param <V> the value type
     * @param storeName the name of the store.
+    * @return the concurrent map
     */
    public <K, V> ConcurrentMap<K, V> openStore(String storeName);
 
    /**
+    * Put user prefs.
+    *
     * @param userId - the nid or sequence of the concept that identifies the user
     * @param userPrefs - user preference data to store
     * @return the old value, or null, if no old value
@@ -94,18 +100,24 @@ public interface MetaContentService {
    public byte[] putUserPrefs(int userId, StorableUserPreferences userPrefs);
 
    /**
-    * Erase the named store
+    * Erase the named store.
+    *
+    * @param storeName the store name
     */
    public void removeStore(String storeName);
 
    /**
-    * Erase any stored user prefs
+    * Erase any stored user prefs.
+    *
+    * @param userId the user id
     */
    public void removeUserPrefs(int userId);
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the user prefs.
+    *
     * @param userId - the nid or sequence of the concept that identifies the user
     * @return the byte[] that stores the user preferences, which was obtained by calling {@link StorableUserPreferences#serialize()}
     * This value should be able to be passed into the concrete implementation constructor of a class that implements {@link StorableUserPreferences}

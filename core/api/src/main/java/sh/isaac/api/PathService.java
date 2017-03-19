@@ -55,23 +55,62 @@ import sh.isaac.api.snapshot.calculator.RelativePosition;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface PathService.
  *
  * @author kec
  */
 @Contract
 public interface PathService {
+   
+   /**
+    * Exists.
+    *
+    * @param pathConceptId the path concept id
+    * @return true, if successful
+    */
    boolean exists(int pathConceptId);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the origins.
+    *
+    * @param stampPathSequence the stamp path sequence
+    * @return the origins
+    */
    Collection<? extends StampPosition> getOrigins(int stampPathSequence);
 
+   /**
+    * Gets the paths.
+    *
+    * @return the paths
+    */
    Collection<? extends StampPath> getPaths();
 
+   /**
+    * Gets the relative position.
+    *
+    * @param stampSequence1 the stamp sequence 1
+    * @param stampSequence2 the stamp sequence 2
+    * @return the relative position
+    */
    RelativePosition getRelativePosition(int stampSequence1, int stampSequence2);
 
+   /**
+    * Gets the relative position.
+    *
+    * @param v1 the v 1
+    * @param v2 the v 2
+    * @return the relative position
+    */
    RelativePosition getRelativePosition(StampedVersion v1, StampedVersion v2);
 
+   /**
+    * Gets the stamp path.
+    *
+    * @param stampPathSequence the stamp path sequence
+    * @return the stamp path
+    */
    StampPath getStampPath(int stampPathSequence);
 }
 

@@ -60,6 +60,7 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LogicCoordinateImpl.
  *
  * @author kec
  */
@@ -67,17 +68,36 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LogicCoordinateImpl
          implements LogicCoordinate {
+   
+   /** The stated assemblage sequence. */
    int statedAssemblageSequence;
+   
+   /** The inferred assemblage sequence. */
    int inferredAssemblageSequence;
+   
+   /** The description logic profile sequence. */
    int descriptionLogicProfileSequence;
+   
+   /** The classifier sequence. */
    int classifierSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new logic coordinate impl.
+    */
    protected LogicCoordinateImpl() {
       // for jaxb and subclass
    }
 
+   /**
+    * Instantiates a new logic coordinate impl.
+    *
+    * @param statedAssemblageSequence the stated assemblage sequence
+    * @param inferredAssemblageSequence the inferred assemblage sequence
+    * @param descriptionLogicProfileSequence the description logic profile sequence
+    * @param classifierSequence the classifier sequence
+    */
    public LogicCoordinateImpl(int statedAssemblageSequence,
                               int inferredAssemblageSequence,
                               int descriptionLogicProfileSequence,
@@ -90,6 +110,12 @@ public class LogicCoordinateImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
@@ -114,6 +140,11 @@ public class LogicCoordinateImpl
       return this.classifierSequence == other.getClassifierSequence();
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int hash = 3;
@@ -125,6 +156,11 @@ public class LogicCoordinateImpl
       return hash;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "LogicCoordinateImpl{" + Get.conceptDescriptionText(this.statedAssemblageSequence) + "<" +
@@ -136,6 +172,11 @@ public class LogicCoordinateImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the classifier sequence.
+    *
+    * @return the classifier sequence
+    */
    @Override
    public int getClassifierSequence() {
       return this.classifierSequence;
@@ -143,6 +184,12 @@ public class LogicCoordinateImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set classifier sequence property.
+    *
+    * @param classifierSequenceProperty the classifier sequence property
+    * @return the change listener
+    */
    public ChangeListener<Number> setClassifierSequenceProperty(IntegerProperty classifierSequenceProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                          Number oldValue,
@@ -156,6 +203,11 @@ public class LogicCoordinateImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the description logic profile sequence.
+    *
+    * @return the description logic profile sequence
+    */
    @Override
    public int getDescriptionLogicProfileSequence() {
       return this.descriptionLogicProfileSequence;
@@ -163,6 +215,12 @@ public class LogicCoordinateImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set description logic profile sequence property.
+    *
+    * @param descriptionLogicProfileSequenceProperty the description logic profile sequence property
+    * @return the change listener
+    */
    public ChangeListener<Number> setDescriptionLogicProfileSequenceProperty(
            IntegerProperty descriptionLogicProfileSequenceProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
@@ -177,6 +235,11 @@ public class LogicCoordinateImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the inferred assemblage sequence.
+    *
+    * @return the inferred assemblage sequence
+    */
    @Override
    public int getInferredAssemblageSequence() {
       return this.inferredAssemblageSequence;
@@ -184,6 +247,12 @@ public class LogicCoordinateImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set inferred assemblage sequence property.
+    *
+    * @param inferredAssemblageSequenceProperty the inferred assemblage sequence property
+    * @return the change listener
+    */
    public ChangeListener<Number> setInferredAssemblageSequenceProperty(
            IntegerProperty inferredAssemblageSequenceProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
@@ -198,6 +267,11 @@ public class LogicCoordinateImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the stated assemblage sequence.
+    *
+    * @return the stated assemblage sequence
+    */
    @Override
    public int getStatedAssemblageSequence() {
       return this.statedAssemblageSequence;
@@ -205,6 +279,12 @@ public class LogicCoordinateImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set stated assemblage sequence property.
+    *
+    * @param statedAssemblageSequenceProperty the stated assemblage sequence property
+    * @return the change listener
+    */
    public ChangeListener<Number> setStatedAssemblageSequenceProperty(IntegerProperty statedAssemblageSequenceProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                          Number oldValue,

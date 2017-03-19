@@ -40,10 +40,18 @@
 package sh.isaac.api.collections.uuidnidmap;
 
 /**
+ * The Interface UuidProcedure.
  *
  * @author kec
  */
 public interface UuidProcedure {
+   
+   /**
+    * Apply.
+    *
+    * @param uuid the uuid
+    * @return true, if successful
+    */
    boolean apply(long[] uuid);
 }
 

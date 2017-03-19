@@ -52,25 +52,44 @@ import sh.isaac.model.observable.ObservableFields;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableEditCoordinateImpl.
  *
  * @author kec
  */
 public class ObservableEditCoordinateImpl
         extends ObservableCoordinateImpl
          implements ObservableEditCoordinate {
+   
+   /** The author sequence property. */
    private IntegerProperty          authorSequenceProperty = null;
+   
+   /** The module sequence property. */
    private IntegerProperty          moduleSequenceProperty = null;
+   
+   /** The path sequence property. */
    private IntegerProperty          pathSequenceProperty   = null;
+   
+   /** The edit coordinate. */
    private final EditCoordinateImpl editCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new observable edit coordinate impl.
+    *
+    * @param editCoordinate the edit coordinate
+    */
    public ObservableEditCoordinateImpl(EditCoordinate editCoordinate) {
       this.editCoordinate = (EditCoordinateImpl) editCoordinate;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Author sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty authorSequenceProperty() {
       if (this.authorSequenceProperty == null) {
@@ -83,6 +102,11 @@ public class ObservableEditCoordinateImpl
       return this.authorSequenceProperty;
    }
 
+   /**
+    * Module sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty moduleSequenceProperty() {
       if (this.moduleSequenceProperty == null) {
@@ -95,6 +119,11 @@ public class ObservableEditCoordinateImpl
       return this.moduleSequenceProperty;
    }
 
+   /**
+    * Path sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty pathSequenceProperty() {
       if (this.pathSequenceProperty == null) {
@@ -107,6 +136,11 @@ public class ObservableEditCoordinateImpl
       return this.pathSequenceProperty;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "ObservableEditCoordinateImpl{" + this.editCoordinate + '}';
@@ -114,6 +148,11 @@ public class ObservableEditCoordinateImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the author sequence.
+    *
+    * @return the author sequence
+    */
    @Override
    public int getAuthorSequence() {
       if (this.authorSequenceProperty != null) {
@@ -123,6 +162,11 @@ public class ObservableEditCoordinateImpl
       return this.editCoordinate.getAuthorSequence();
    }
 
+   /**
+    * Gets the module sequence.
+    *
+    * @return the module sequence
+    */
    @Override
    public int getModuleSequence() {
       if (this.moduleSequenceProperty != null) {
@@ -132,6 +176,11 @@ public class ObservableEditCoordinateImpl
       return this.editCoordinate.getModuleSequence();
    }
 
+   /**
+    * Gets the path sequence.
+    *
+    * @return the path sequence
+    */
    @Override
    public int getPathSequence() {
       if (this.pathSequenceProperty != null) {

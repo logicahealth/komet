@@ -100,6 +100,7 @@ public interface ChronologyChangeListener {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the listener uuid.
     *
     * @return a unique UUID for this listener.
     */

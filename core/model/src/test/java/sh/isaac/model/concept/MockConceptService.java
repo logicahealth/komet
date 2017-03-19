@@ -72,16 +72,28 @@ import sh.isaac.api.coordinate.StampCoordinate;
 @Service
 public class MockConceptService
          implements ConceptService {
+   
+   /** The concepts map. */
    ConcurrentHashMap<Integer, ConceptChronology<? extends ConceptVersion<?>>> conceptsMap = new ConcurrentHashMap<>();
+   
+   /** The db id. */
    UUID                                                                       dbId        = UUID.randomUUID();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Clear database validity value.
+    */
    @Override
    public void clearDatabaseValidityValue() {
       // Placeholder as databaseFolderExists always returns true.
    }
 
+   /**
+    * Write concept.
+    *
+    * @param concept the concept
+    */
    @Override
    public void writeConcept(ConceptChronology<? extends ConceptVersion<?>> concept) {
       this.conceptsMap.put(concept.getConceptSequence(), concept);
@@ -89,12 +101,24 @@ public class MockConceptService
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the concept.
+    *
+    * @param conceptId the concept id
+    * @return the concept
+    */
    @Override
    public ConceptChronology<? extends ConceptVersion<?>> getConcept(int conceptId) {
       return this.conceptsMap.get(Get.identifierService()
                                 .getConceptSequence(conceptId));
    }
 
+   /**
+    * Gets the concept.
+    *
+    * @param conceptUuids the concept uuids
+    * @return the concept
+    */
    @Override
    public ConceptChronology<? extends ConceptVersion<?>> getConcept(UUID... conceptUuids) {
       final int conceptNid      = Get.identifierService()
@@ -117,34 +141,68 @@ public class MockConceptService
       return concept;
    }
 
+   /**
+    * Checks for concept.
+    *
+    * @param conceptId the concept id
+    * @return true, if successful
+    */
    @Override
    public boolean hasConcept(int conceptId) {
       return this.conceptsMap.containsKey(Get.identifierService()
                                         .getConceptSequence(conceptId));
    }
 
+   /**
+    * Checks if concept active.
+    *
+    * @param conceptSequence the concept sequence
+    * @param stampCoordinate the stamp coordinate
+    * @return true, if concept active
+    */
    @Override
    public boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate) {
       return false;
    }
 
+   /**
+    * Gets the concept chronology stream.
+    *
+    * @return the concept chronology stream
+    */
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream() {
       return this.conceptsMap.values()
                         .stream();
    }
 
+   /**
+    * Gets the concept chronology stream.
+    *
+    * @param conceptSequences the concept sequences
+    * @return the concept chronology stream
+    */
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream(
            ConceptSequenceSet conceptSequences) {
       throw new UnsupportedOperationException();
    }
 
+   /**
+    * Gets the concept count.
+    *
+    * @return the concept count
+    */
    @Override
    public int getConceptCount() {
       return this.conceptsMap.size();
    }
 
+   /**
+    * Gets the concept key parallel stream.
+    *
+    * @return the concept key parallel stream
+    */
    @Override
    public IntStream getConceptKeyParallelStream() {
       return this.conceptsMap.keySet()
@@ -152,6 +210,11 @@ public class MockConceptService
                         .mapToInt(i -> i);
    }
 
+   /**
+    * Gets the concept key stream.
+    *
+    * @return the concept key stream
+    */
    @Override
    public IntStream getConceptKeyStream() {
       return this.conceptsMap.keySet()
@@ -159,43 +222,88 @@ public class MockConceptService
                         .mapToInt(i -> i);
    }
 
+   /**
+    * Gets the data store id.
+    *
+    * @return the data store id
+    */
    @Override
    public UUID getDataStoreId() {
       return this.dbId;
    }
 
+   /**
+    * Gets the database folder.
+    *
+    * @return the database folder
+    */
    @Override
    public Path getDatabaseFolder() {
       return null;
    }
 
+   /**
+    * Gets the database validity status.
+    *
+    * @return the database validity status
+    */
    @Override
    public DatabaseValidity getDatabaseValidityStatus() {
       return null;
    }
 
+   /**
+    * Gets the optional concept.
+    *
+    * @param conceptId the concept id
+    * @return the optional concept
+    */
    @Override
    public Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(int conceptId) {
       return Optional.ofNullable(getConcept(conceptId));
    }
 
+   /**
+    * Gets the optional concept.
+    *
+    * @param conceptUuids the concept uuids
+    * @return the optional concept
+    */
    @Override
    public Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(UUID... conceptUuids) {
       return Optional.ofNullable(getConcept(conceptUuids));
    }
 
+   /**
+    * Gets the parallel concept chronology stream.
+    *
+    * @return the parallel concept chronology stream
+    */
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream() {
       return this.conceptsMap.values()
                         .parallelStream();
    }
 
+   /**
+    * Gets the parallel concept chronology stream.
+    *
+    * @param conceptSequences the concept sequences
+    * @return the parallel concept chronology stream
+    */
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream(
            ConceptSequenceSet conceptSequences) {
       throw new UnsupportedOperationException();
    }
 
+   /**
+    * Gets the snapshot.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param languageCoordinate the language coordinate
+    * @return the snapshot
+    */
    @Override
    public ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
       throw new UnsupportedOperationException();

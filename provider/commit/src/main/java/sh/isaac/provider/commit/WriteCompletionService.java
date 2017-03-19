@@ -70,17 +70,29 @@ import org.apache.logging.log4j.Logger;
  */
 public class WriteCompletionService
          implements Runnable {
+   
+   /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The run. */
    private boolean                         run = false;
+   
+   /** The write concept completion service thread. */
    private ExecutorService                 writeConceptCompletionServiceThread;
+   
+   /** The conversion service. */
    private ExecutorCompletionService<Void> conversionService;
+   
+   /** The worker pool. */
    private ExecutorService                 workerPool;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Run.
+    */
    @Override
    public void run() {
       log.info("WriteCompletionService starting");
@@ -105,6 +117,9 @@ public class WriteCompletionService
       log.info("WriteCompletionService closed");
    }
 
+   /**
+    * Start.
+    */
    public void start() {
       log.info("Starting WriteCompletionService");
       this.run        = true;
@@ -119,6 +134,9 @@ public class WriteCompletionService
       this.writeConceptCompletionServiceThread.submit(this);
    }
 
+   /**
+    * Stop.
+    */
    public void stop() {
       log.info("Stopping WriteCompletionService");
       this.run = false;
@@ -126,6 +144,12 @@ public class WriteCompletionService
       this.workerPool.shutdown();
    }
 
+   /**
+    * Submit.
+    *
+    * @param task the task
+    * @return the future
+    */
    protected Future<Void> submit(Task<Void> task) {
       return this.conversionService.submit(task, null);
    }

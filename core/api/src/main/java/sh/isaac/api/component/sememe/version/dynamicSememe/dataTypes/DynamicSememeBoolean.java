@@ -48,15 +48,25 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeBoolean}
+ * {@link DynamicSememeBoolean}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface DynamicSememeBoolean
         extends DynamicSememeData {
+   
+   /**
+    * Gets the data boolean.
+    *
+    * @return the data boolean
+    */
    public boolean getDataBoolean();
 
+   /**
+    * Gets the data boolean property.
+    *
+    * @return the data boolean property
+    */
    public ReadOnlyObjectProperty<Boolean> getDataBooleanProperty();
 }
 

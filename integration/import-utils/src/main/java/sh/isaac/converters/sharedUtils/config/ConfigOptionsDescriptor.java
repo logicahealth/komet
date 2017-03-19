@@ -58,13 +58,18 @@ import sh.isaac.pombuilder.converter.ConverterOptionParam;
  */
 @Contract
 public interface ConfigOptionsDescriptor {
+   
    /**
-    * Which options are applicable for this converter
+    * Which options are applicable for this converter.
+    *
+    * @return the config options
     */
    public ConverterOptionParam[] getConfigOptions();
 
    /**
     * What converter is this converter describing.  Recommend returning the artifactId here of the containing project
+    *
+    * @return the name
     */
    public String getName();
 }

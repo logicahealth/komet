@@ -115,6 +115,7 @@ import sh.isaac.provider.taxonomy.graph.GraphCollector;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class TaxonomyProvider.
  *
  * @author kec
  */
@@ -122,22 +123,47 @@ import sh.isaac.provider.taxonomy.graph.GraphCollector;
 @RunLevel(value = 1)
 public class TaxonomyProvider
          implements TaxonomyService, ConceptActiveService, ChronologyChangeListener {
+   
+   /** The Constant LOG. */
    private static final Logger LOG                    = LogManager.getLogger();
+   
+   /** The Constant TAXONOMY. */
    private static final String TAXONOMY               = "taxonomy";
+   
+   /** The Constant ORIGIN_DESTINATION_MAP. */
    private static final String ORIGIN_DESTINATION_MAP = "origin-destination.map";
 
    //~--- fields --------------------------------------------------------------
 
+   /** The destination origin record set. */
    private final ConcurrentSkipListSet<DestinationOriginRecord> destinationOriginRecordSet =
       new ConcurrentSkipListSet<>();
+   
+   /** The load required. */
    private final AtomicBoolean                  loadRequired                       = new AtomicBoolean();
+   
+   /** The logic coordinate. */
    private final LogicCoordinate                logicCoordinate = LogicCoordinates.getStandardElProfile();
+   
+   /** The isa sequence. */
    private final int                            isaSequence                        = TermAux.IS_A.getConceptSequence();
+   
+   /** The role group sequence. */
    private final int                            roleGroupSequence = TermAux.ROLE_GROUP.getConceptSequence();
+   
+   /** The provider uuid. */
    private final UUID                           providerUuid                       = UUID.randomUUID();
+   
+   /** The sememe sequences for unhandled changes. */
    private final ConcurrentSkipListSet<Integer> sememeSequencesForUnhandledChanges = new ConcurrentSkipListSet<>();
+   
+   /** The stamped lock. */
    private final StampedLock                    stampedLock                        = new StampedLock();
+   
+   /** The database validity. */
    private DatabaseValidity                     databaseValidity                   = DatabaseValidity.NOT_SET;
+   
+   /** The tree cache. */
    private final LruCache<Integer, Tree>              treeCache                          = new LruCache<>(5);
 
    /**
@@ -146,17 +172,34 @@ public class TaxonomyProvider
     * flags for parent and child concepts.
     */
    private final CasSequenceObjectMap<TaxonomyRecordPrimitive> originDestinationTaxonomyRecordMap;
+   
+   /** The folder path. */
    private final Path                                          folderPath;
+   
+   /** The taxonomy provider folder. */
    private final Path                                          taxonomyProviderFolder;
+   
+   /** The identifier service. */
    private IdentifierService                                   identifierService;
 
    //~--- constant enums ------------------------------------------------------
 
-   private enum AllowedRelTypes { HIERARCHICAL_ONLY,
+   /**
+    * The Enum AllowedRelTypes.
+    */
+   private enum AllowedRelTypes { /** The hierarchical only. */
+ HIERARCHICAL_ONLY,
+                                  
+                                  /** The all rels. */
                                   ALL_RELS; }
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new taxonomy provider.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private TaxonomyProvider()
             throws IOException {
       this.folderPath             = LookupService.getService(ConfigurationService.class)
@@ -178,17 +221,30 @@ public class TaxonomyProvider
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Clear database validity value.
+    */
    @Override
    public void clearDatabaseValidityValue() {
       // Reset to enforce analysis
       this.databaseValidity = DatabaseValidity.NOT_SET;
    }
 
+   /**
+    * Handle change.
+    *
+    * @param cc the cc
+    */
    @Override
    public void handleChange(ConceptChronology<? extends StampedVersion> cc) {
       // not interested on concept changes
    }
 
+   /**
+    * Handle change.
+    *
+    * @param sc the sc
+    */
    @Override
    public void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
       if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {
@@ -196,6 +252,11 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Handle commit.
+    *
+    * @param commitRecord the commit record
+    */
    @Override
    public void handleCommit(CommitRecord commitRecord) {
       // If a logic graph changed, clear our cache.
@@ -206,6 +267,11 @@ public class TaxonomyProvider
       UpdateTaxonomyAfterCommitTask.get(this, commitRecord, this.sememeSequencesForUnhandledChanges, this.stampedLock);
    }
 
+   /**
+    * Update status.
+    *
+    * @param conceptChronology the concept chronology
+    */
    @Override
    public void updateStatus(ConceptChronology<?> conceptChronology) {
       final int                     conceptSequence = conceptChronology.getConceptSequence();
@@ -228,6 +294,11 @@ public class TaxonomyProvider
       this.originDestinationTaxonomyRecordMap.put(conceptSequence, parentTaxonomyRecord);
    }
 
+   /**
+    * Update taxonomy.
+    *
+    * @param logicGraphChronology the logic graph chronology
+    */
    @Override
    public void updateTaxonomy(SememeChronology<LogicGraphSememe<?>> logicGraphChronology) {
       final int conceptSequence = this.identifierService.getConceptSequence(logicGraphChronology.getReferencedComponentNid());
@@ -256,6 +327,13 @@ public class TaxonomyProvider
       this.originDestinationTaxonomyRecordMap.put(conceptSequence, parentTaxonomyRecord);
    }
 
+   /**
+    * Was ever kind of.
+    *
+    * @param childId the child id
+    * @param parentId the parent id
+    * @return true, if successful
+    */
    @Override
    public boolean wasEverKindOf(int childId, int parentId) {
       childId  = Get.identifierService()
@@ -283,6 +361,14 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Filter origin sequences.
+    *
+    * @param origins the origins
+    * @param parentSequence the parent sequence
+    * @param typeSequenceSet the type sequence set
+    * @return the int stream
+    */
    private IntStream filterOriginSequences(IntStream origins, int parentSequence, ConceptSequenceSet typeSequenceSet) {
       return origins.filter((originSequence) -> {
                                final Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional =
@@ -300,6 +386,15 @@ public class TaxonomyProvider
                             });
    }
 
+   /**
+    * Filter origin sequences.
+    *
+    * @param origins the origins
+    * @param parentSequence the parent sequence
+    * @param typeSequenceSet the type sequence set
+    * @param tc the tc
+    * @return the int stream
+    */
    private IntStream filterOriginSequences(IntStream origins,
          int parentSequence,
          ConceptSequenceSet typeSequenceSet,
@@ -323,6 +418,15 @@ public class TaxonomyProvider
                             });
    }
 
+   /**
+    * Filter origin sequences.
+    *
+    * @param origins the origins
+    * @param parentSequence the parent sequence
+    * @param typeSequence the type sequence
+    * @param flags the flags
+    * @return the int stream
+    */
    private IntStream filterOriginSequences(IntStream origins, int parentSequence, int typeSequence, int flags) {
       return origins.filter((originSequence) -> {
                                final Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional =
@@ -340,6 +444,16 @@ public class TaxonomyProvider
                             });
    }
 
+   /**
+    * Filter origin sequences.
+    *
+    * @param origins the origins
+    * @param parentSequence the parent sequence
+    * @param typeSequence the type sequence
+    * @param tc the tc
+    * @param allowedRelTypes the allowed rel types
+    * @return the int stream
+    */
    private IntStream filterOriginSequences(IntStream origins,
          int parentSequence,
          int typeSequence,
@@ -368,6 +482,13 @@ public class TaxonomyProvider
                             });
    }
 
+   /**
+    * Process new logic graph.
+    *
+    * @param firstVersion the first version
+    * @param parentTaxonomyRecord the parent taxonomy record
+    * @param taxonomyFlags the taxonomy flags
+    */
    private void processNewLogicGraph(LogicGraphSememe firstVersion,
                                      TaxonomyRecordPrimitive parentTaxonomyRecord,
                                      TaxonomyFlags taxonomyFlags) {
@@ -385,6 +506,15 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Process relationship root.
+    *
+    * @param logicalLogicNode the logical logic node
+    * @param parentTaxonomyRecord the parent taxonomy record
+    * @param taxonomyFlags the taxonomy flags
+    * @param stampSequence the stamp sequence
+    * @param comparisonExpression the comparison expression
+    */
    private void processRelationshipRoot(LogicNode logicalLogicNode,
          TaxonomyRecordPrimitive parentTaxonomyRecord,
          TaxonomyFlags taxonomyFlags,
@@ -417,6 +547,13 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Process version node.
+    *
+    * @param node the node
+    * @param parentTaxonomyRecord the parent taxonomy record
+    * @param taxonomyFlags the taxonomy flags
+    */
    private void processVersionNode(Node<? extends LogicGraphSememe> node,
                                    TaxonomyRecordPrimitive parentTaxonomyRecord,
                                    TaxonomyFlags taxonomyFlags) {
@@ -460,6 +597,14 @@ public class TaxonomyProvider
                    });
    }
 
+   /**
+    * Recursive find ancestor.
+    *
+    * @param childSequence the child sequence
+    * @param parentSequence the parent sequence
+    * @param examined the examined
+    * @return true, if successful
+    */
    private boolean recursiveFindAncestor(int childSequence, int parentSequence, HashSet<Integer> examined) {
       // currently unpacking from array to object.
       // TODO operate directly on array if unpacking is a performance bottleneck.
@@ -490,6 +635,14 @@ public class TaxonomyProvider
       return false;
    }
 
+   /**
+    * Recursive find ancestor.
+    *
+    * @param childSequence the child sequence
+    * @param parentSequence the parent sequence
+    * @param tc the tc
+    * @return true, if successful
+    */
    private boolean recursiveFindAncestor(int childSequence, int parentSequence, TaxonomyCoordinate tc) {
       // currently unpacking from array to object.
       // TODO operate directly on array if unpacking is a performance bottleneck.
@@ -514,6 +667,13 @@ public class TaxonomyProvider
       return false;
    }
 
+   /**
+    * Recursive find ancestors.
+    *
+    * @param childSequence the child sequence
+    * @param ancestors the ancestors
+    * @param tc the tc
+    */
    private void recursiveFindAncestors(int childSequence, ConceptSequenceSet ancestors, TaxonomyCoordinate tc) {
       // currently unpacking from array to object.
       // TODO operate directly on array if unpacking is a performance bottleneck.
@@ -533,6 +693,9 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       try {
@@ -567,6 +730,9 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       LOG.info("Writing taxonomy.");
@@ -592,6 +758,15 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Update isa rel.
+    *
+    * @param conceptNode the concept node
+    * @param parentTaxonomyRecord the parent taxonomy record
+    * @param taxonomyFlags the taxonomy flags
+    * @param stampSequence the stamp sequence
+    * @param originSequence the origin sequence
+    */
    private void updateIsaRel(ConceptNodeWithSequences conceptNode,
                              TaxonomyRecordPrimitive parentTaxonomyRecord,
                              TaxonomyFlags taxonomyFlags,
@@ -605,6 +780,15 @@ public class TaxonomyProvider
       this.destinationOriginRecordSet.add(new DestinationOriginRecord(conceptNode.getConceptSequence(), originSequence));
    }
 
+   /**
+    * Update some role.
+    *
+    * @param someNode the some node
+    * @param parentTaxonomyRecord the parent taxonomy record
+    * @param taxonomyFlags the taxonomy flags
+    * @param stampSequence the stamp sequence
+    * @param originSequence the origin sequence
+    */
    private void updateSomeRole(RoleNodeSomeWithSequences someNode,
                                TaxonomyRecordPrimitive parentTaxonomyRecord,
                                TaxonomyFlags taxonomyFlags,
@@ -644,6 +828,12 @@ public class TaxonomyProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the all circular relationship origin sequences.
+    *
+    * @param tc the tc
+    * @return the all circular relationship origin sequences
+    */
    @Override
    public IntStream getAllCircularRelationshipOriginSequences(TaxonomyCoordinate tc) {
       final ConceptService  conceptService  = Get.conceptService();
@@ -661,6 +851,13 @@ public class TaxonomyProvider
                         });
    }
 
+   /**
+    * Gets the all circular relationship type sequences.
+    *
+    * @param originId the origin id
+    * @param tc the tc
+    * @return the all circular relationship type sequences
+    */
    @Override
    public IntStream getAllCircularRelationshipTypeSequences(int originId, TaxonomyCoordinate tc) {
       final int                originSequence = Get.identifierService()
@@ -683,6 +880,12 @@ public class TaxonomyProvider
       return typeSequenceBuilder.build();
    }
 
+   /**
+    * Gets the all relationship destination sequences.
+    *
+    * @param originId the origin id
+    * @return the all relationship destination sequences
+    */
    @Override
    public IntStream getAllRelationshipDestinationSequences(int originId) {
       originId = Get.identifierService()
@@ -716,12 +919,27 @@ public class TaxonomyProvider
       return IntStream.empty();
    }
 
+   /**
+    * Gets the all relationship destination sequences.
+    *
+    * @param originId the origin id
+    * @param tc the tc
+    * @return the all relationship destination sequences
+    */
    @Override
    public IntStream getAllRelationshipDestinationSequences(int originId, TaxonomyCoordinate tc) {
       // lock handled by called method
       return getAllRelationshipDestinationSequencesOfType(originId, new ConceptSequenceSet(), tc);
    }
 
+   /**
+    * Gets the all relationship destination sequences not of type.
+    *
+    * @param originId the origin id
+    * @param typeSequenceSet the type sequence set
+    * @param tc the tc
+    * @return the all relationship destination sequences not of type
+    */
    @Override
    public IntStream getAllRelationshipDestinationSequencesNotOfType(int originId,
          ConceptSequenceSet typeSequenceSet,
@@ -757,6 +975,13 @@ public class TaxonomyProvider
       return IntStream.empty();
    }
 
+   /**
+    * Gets the all relationship destination sequences of type.
+    *
+    * @param originId the origin id
+    * @param typeSequenceSet the type sequence set
+    * @return the all relationship destination sequences of type
+    */
    @Override
    public IntStream getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet) {
       originId = Get.identifierService()
@@ -790,6 +1015,14 @@ public class TaxonomyProvider
       return IntStream.empty();
    }
 
+   /**
+    * Gets the all relationship destination sequences of type.
+    *
+    * @param originId the origin id
+    * @param typeSequenceSet the type sequence set
+    * @param tc the tc
+    * @return the all relationship destination sequences of type
+    */
    @Override
    public IntStream getAllRelationshipDestinationSequencesOfType(int originId,
          ConceptSequenceSet typeSequenceSet,
@@ -825,12 +1058,25 @@ public class TaxonomyProvider
       return IntStream.empty();
    }
 
+   /**
+    * Gets the all relationship origin sequences.
+    *
+    * @param destination the destination
+    * @return the all relationship origin sequences
+    */
    @Override
    public IntStream getAllRelationshipOriginSequences(int destination) {
       // lock handled by getOriginSequenceStream
       return getOriginSequenceStream(destination);
    }
 
+   /**
+    * Gets the all relationship origin sequences.
+    *
+    * @param destination the destination
+    * @param tc the tc
+    * @return the all relationship origin sequences
+    */
    @Override
    public IntStream getAllRelationshipOriginSequences(int destination, TaxonomyCoordinate tc) {
       // Set of all concept sequences that point to the parent.
@@ -840,6 +1086,13 @@ public class TaxonomyProvider
       return filterOriginSequences(origins, destination, this.isaSequence, tc, AllowedRelTypes.ALL_RELS);
    }
 
+   /**
+    * Gets the all relationship origin sequences of type.
+    *
+    * @param destinationId the destination id
+    * @param typeSequenceSet the type sequence set
+    * @return the all relationship origin sequences of type
+    */
    @Override
    public IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet) {
       destinationId = Get.identifierService()
@@ -864,6 +1117,14 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Gets the all relationship origin sequences of type.
+    *
+    * @param destinationId the destination id
+    * @param typeSequenceSet the type sequence set
+    * @param tc the tc
+    * @return the all relationship origin sequences of type
+    */
    @Override
    public IntStream getAllRelationshipOriginSequencesOfType(int destinationId,
          ConceptSequenceSet typeSequenceSet,
@@ -890,6 +1151,14 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Gets the all types for relationship.
+    *
+    * @param originId the origin id
+    * @param destinationId the destination id
+    * @param tc the tc
+    * @return the all types for relationship
+    */
    @Override
    public IntStream getAllTypesForRelationship(int originId, int destinationId, TaxonomyCoordinate tc) {
       originId = Get.identifierService()
@@ -923,6 +1192,13 @@ public class TaxonomyProvider
       return IntStream.empty();
    }
 
+   /**
+    * Gets the ancestor of sequence set.
+    *
+    * @param childId the child id
+    * @param tc the tc
+    * @return the ancestor of sequence set
+    */
    @Override
    public ConceptSequenceSet getAncestorOfSequenceSet(int childId, TaxonomyCoordinate tc) {
       final ConceptSequenceSet ancestors = new ConceptSequenceSet();
@@ -932,6 +1208,14 @@ public class TaxonomyProvider
       return ancestors;
    }
 
+   /**
+    * Checks if child of.
+    *
+    * @param childId the child id
+    * @param parentId the parent id
+    * @param tc the tc
+    * @return true, if child of
+    */
    @Override
    public boolean isChildOf(int childId, int parentId, TaxonomyCoordinate tc) {
       childId  = Get.identifierService()
@@ -991,6 +1275,13 @@ public class TaxonomyProvider
       return false;
    }
 
+   /**
+    * Gets the child of sequence set.
+    *
+    * @param parentId the parent id
+    * @param tc the tc
+    * @return the child of sequence set
+    */
    @Override
    public ConceptSequenceSet getChildOfSequenceSet(int parentId, TaxonomyCoordinate tc) {
       // Set of all concept sequences that point to the parent.
@@ -1004,6 +1295,13 @@ public class TaxonomyProvider
             AllowedRelTypes.HIERARCHICAL_ONLY));
    }
 
+   /**
+    * Checks if concept active.
+    *
+    * @param conceptSequence the concept sequence
+    * @param stampCoordinate the stamp coordinate
+    * @return true, if concept active
+    */
    @Override
    public boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate) {
       long                              stamp                  = this.stampedLock.tryOptimisticRead();
@@ -1035,20 +1333,43 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Gets the database folder.
+    *
+    * @return the database folder
+    */
    @Override
    public Path getDatabaseFolder() {
       return this.taxonomyProviderFolder;
    }
 
+   /**
+    * Gets the database validity status.
+    *
+    * @return the database validity status
+    */
    @Override
    public DatabaseValidity getDatabaseValidityStatus() {
       return this.databaseValidity;
    }
 
+   /**
+    * Gets the destination origin record set.
+    *
+    * @return the destination origin record set
+    */
    public ConcurrentSkipListSet<DestinationOriginRecord> getDestinationOriginRecordSet() {
       return this.destinationOriginRecordSet;
    }
 
+   /**
+    * Checks if kind of.
+    *
+    * @param childId the child id
+    * @param parentId the parent id
+    * @param tc the tc
+    * @return true, if kind of
+    */
    @Override
    public boolean isKindOf(int childId, int parentId, TaxonomyCoordinate tc) {
       childId  = Get.identifierService()
@@ -1076,6 +1397,13 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Gets the kind of sequence set.
+    *
+    * @param rootId the root id
+    * @param tc the tc
+    * @return the kind of sequence set
+    */
    @Override
    public ConceptSequenceSet getKindOfSequenceSet(int rootId, TaxonomyCoordinate tc) {
       rootId = Get.identifierService()
@@ -1115,15 +1443,31 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Gets the listener uuid.
+    *
+    * @return the listener uuid
+    */
    @Override
    public UUID getListenerUuid() {
       return this.providerUuid;
    }
 
+   /**
+    * Gets the origin destination taxonomy records.
+    *
+    * @return the origin destination taxonomy records
+    */
    public CasSequenceObjectMap<TaxonomyRecordPrimitive> getOriginDestinationTaxonomyRecords() {
       return this.originDestinationTaxonomyRecordMap;
    }
 
+   /**
+    * Gets the origin sequence stream.
+    *
+    * @param parentId the parent id
+    * @return the origin sequence stream
+    */
    private IntStream getOriginSequenceStream(int parentId) {
       // Set of all concept sequences that point to the parent.
       parentId = Get.identifierService()
@@ -1153,6 +1497,12 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Gets the roots.
+    *
+    * @param tc the tc
+    * @return the roots
+    */
    @Override
    public IntStream getRoots(TaxonomyCoordinate tc) {
       long stamp = this.stampedLock.tryOptimisticRead();
@@ -1171,11 +1521,23 @@ public class TaxonomyProvider
       return tree.getRootSequenceStream();
    }
 
+   /**
+    * Gets the snapshot.
+    *
+    * @param tc the tc
+    * @return the snapshot
+    */
    @Override
    public TaxonomySnapshotService getSnapshot(TaxonomyCoordinate tc) {
       return new TaxonomySnapshotProvider(tc);
    }
 
+   /**
+    * Gets the taxonomy child sequences.
+    *
+    * @param parentId the parent id
+    * @return the taxonomy child sequences
+    */
    @Override
    public IntStream getTaxonomyChildSequences(int parentId) {
       // Set of all concept sequences that point to the parent.
@@ -1185,6 +1547,13 @@ public class TaxonomyProvider
       return filterOriginSequences(origins, parentId, this.isaSequence, TaxonomyFlags.ALL_RELS);
    }
 
+   /**
+    * Gets the taxonomy child sequences.
+    *
+    * @param parentId the parent id
+    * @param tc the tc
+    * @return the taxonomy child sequences
+    */
    @Override
    public IntStream getTaxonomyChildSequences(int parentId, TaxonomyCoordinate tc) {
       // Set of all concept sequences that point to the parent.
@@ -1194,6 +1563,12 @@ public class TaxonomyProvider
       return filterOriginSequences(origins, parentId, this.isaSequence, tc, AllowedRelTypes.HIERARCHICAL_ONLY);
    }
 
+   /**
+    * Gets the taxonomy parent sequences.
+    *
+    * @param childId the child id
+    * @return the taxonomy parent sequences
+    */
    @Override
    public IntStream getTaxonomyParentSequences(int childId) {
       childId = Get.identifierService()
@@ -1231,6 +1606,13 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Gets the taxonomy parent sequences.
+    *
+    * @param childId the child id
+    * @param tc the tc
+    * @return the taxonomy parent sequences
+    */
    @Override
    public IntStream getTaxonomyParentSequences(int childId, TaxonomyCoordinate tc) {
       childId = Get.identifierService()
@@ -1266,6 +1648,12 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Gets the taxonomy tree.
+    *
+    * @param tc the tc
+    * @return the taxonomy tree
+    */
    @Override
    public Tree getTaxonomyTree(TaxonomyCoordinate tc) {
       // TODO determine if the returned tree is thread safe for multiple accesses in parallel, if not, may need a pool of these.
@@ -1306,68 +1694,146 @@ public class TaxonomyProvider
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class TaxonomySnapshotProvider.
+    */
    private class TaxonomySnapshotProvider
             implements TaxonomySnapshotService {
+      
+      /** The tc. */
       TaxonomyCoordinate tc;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new taxonomy snapshot provider.
+       *
+       * @param tc the tc
+       */
       public TaxonomySnapshotProvider(TaxonomyCoordinate tc) {
          this.tc = tc;
       }
 
       //~--- get methods ------------------------------------------------------
 
+      /**
+       * Gets the all relationship destination sequences.
+       *
+       * @param originId the origin id
+       * @return the all relationship destination sequences
+       */
       @Override
       public IntStream getAllRelationshipDestinationSequences(int originId) {
          return TaxonomyProvider.this.getAllRelationshipDestinationSequences(originId, this.tc);
       }
 
+      /**
+       * Gets the all relationship destination sequences of type.
+       *
+       * @param originId the origin id
+       * @param typeSequenceSet the type sequence set
+       * @return the all relationship destination sequences of type
+       */
       @Override
       public IntStream getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet) {
          return TaxonomyProvider.this.getAllRelationshipDestinationSequencesOfType(originId, typeSequenceSet, this.tc);
       }
 
+      /**
+       * Gets the all relationship origin sequences.
+       *
+       * @param destination the destination
+       * @return the all relationship origin sequences
+       */
       @Override
       public IntStream getAllRelationshipOriginSequences(int destination) {
          return TaxonomyProvider.this.getAllRelationshipOriginSequences(destination, this.tc);
       }
 
+      /**
+       * Gets the all relationship origin sequences of type.
+       *
+       * @param destinationId the destination id
+       * @param typeSequenceSet the type sequence set
+       * @return the all relationship origin sequences of type
+       */
       @Override
       public IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet) {
          return TaxonomyProvider.this.getAllRelationshipOriginSequencesOfType(destinationId, typeSequenceSet, this.tc);
       }
 
+      /**
+       * Checks if child of.
+       *
+       * @param childId the child id
+       * @param parentId the parent id
+       * @return true, if child of
+       */
       @Override
       public boolean isChildOf(int childId, int parentId) {
          return TaxonomyProvider.this.isChildOf(childId, parentId, this.tc);
       }
 
+      /**
+       * Checks if kind of.
+       *
+       * @param childId the child id
+       * @param parentId the parent id
+       * @return true, if kind of
+       */
       @Override
       public boolean isKindOf(int childId, int parentId) {
          return TaxonomyProvider.this.isKindOf(childId, parentId, this.tc);
       }
 
+      /**
+       * Gets the kind of sequence set.
+       *
+       * @param rootId the root id
+       * @return the kind of sequence set
+       */
       @Override
       public ConceptSequenceSet getKindOfSequenceSet(int rootId) {
          return TaxonomyProvider.this.getKindOfSequenceSet(rootId, this.tc);
       }
 
+      /**
+       * Gets the roots.
+       *
+       * @return the roots
+       */
       @Override
       public IntStream getRoots() {
          return TaxonomyProvider.this.getRoots(this.tc);
       }
 
+      /**
+       * Gets the taxonomy child sequences.
+       *
+       * @param parentId the parent id
+       * @return the taxonomy child sequences
+       */
       @Override
       public IntStream getTaxonomyChildSequences(int parentId) {
          return TaxonomyProvider.this.getTaxonomyChildSequences(parentId, this.tc);
       }
 
+      /**
+       * Gets the taxonomy parent sequences.
+       *
+       * @param childId the child id
+       * @return the taxonomy parent sequences
+       */
       @Override
       public IntStream getTaxonomyParentSequences(int childId) {
          return TaxonomyProvider.this.getTaxonomyParentSequences(childId, this.tc);
       }
 
+      /**
+       * Gets the taxonomy tree.
+       *
+       * @return the taxonomy tree
+       */
       @Override
       public Tree getTaxonomyTree() {
          return TaxonomyProvider.this.getTaxonomyTree(this.tc);

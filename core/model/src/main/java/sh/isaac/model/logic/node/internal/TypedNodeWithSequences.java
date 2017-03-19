@@ -65,16 +65,30 @@ import sh.isaac.model.logic.node.external.TypedNodeWithUuids;
  */
 public abstract class TypedNodeWithSequences
         extends ConnectorNode {
+   
+   /** The type concept sequence. */
    int typeConceptSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new typed node with sequences.
+    *
+    * @param externalForm the external form
+    */
    public TypedNodeWithSequences(TypedNodeWithUuids externalForm) {
       super(externalForm);
       this.typeConceptSequence = Get.identifierService()
                                     .getConceptSequenceForUuids(externalForm.getTypeConceptUuid());
    }
 
+   /**
+    * Instantiates a new typed node with sequences.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public TypedNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
                                  DataInputStream dataInputStream)
             throws IOException {
@@ -82,6 +96,13 @@ public abstract class TypedNodeWithSequences
       this.typeConceptSequence = dataInputStream.readInt();
    }
 
+   /**
+    * Instantiates a new typed node with sequences.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param typeConceptId the type concept id
+    * @param child the child
+    */
    public TypedNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
                                  int typeConceptId,
                                  AbstractLogicNode child) {
@@ -92,12 +113,23 @@ public abstract class TypedNodeWithSequences
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the concepts referenced by node.
+    *
+    * @param conceptSequenceSet the concept sequence set
+    */
    @Override
    public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
       super.addConceptsReferencedByNode(conceptSequenceSet);
       conceptSequenceSet.add(this.typeConceptSequence);
    }
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
@@ -117,6 +149,11 @@ public abstract class TypedNodeWithSequences
       return super.equals(obj);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int hash = 3;
@@ -125,17 +162,34 @@ public abstract class TypedNodeWithSequences
       return hash;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
       return " " + Get.conceptDescriptionText(this.typeConceptSequence) + " <" +
              Get.identifierService().getConceptSequence(this.typeConceptSequence) + ">" + super.toString(nodeIdSuffix);
    }
 
+   /**
+    * Compare node fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    protected final int compareNodeFields(LogicNode o) {
       // node semantic already determined equals.
@@ -148,8 +202,21 @@ public abstract class TypedNodeWithSequences
       return compareTypedNodeFields(o);
    }
 
+   /**
+    * Compare typed node fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    protected abstract int compareTypedNodeFields(LogicNode o);
 
+   /**
+    * Write node data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    protected void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
@@ -159,6 +226,11 @@ public abstract class TypedNodeWithSequences
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the only child.
+    *
+    * @return the only child
+    */
    public LogicNode getOnlyChild() {
       final LogicNode[] children = getChildren();
 
@@ -169,6 +241,11 @@ public abstract class TypedNodeWithSequences
       throw new IllegalStateException("Typed nodes can have only one child. Found: " + Arrays.toString(children));
    }
 
+   /**
+    * Gets the type concept sequence.
+    *
+    * @return the type concept sequence
+    */
    public int getTypeConceptSequence() {
       return this.typeConceptSequence;
    }

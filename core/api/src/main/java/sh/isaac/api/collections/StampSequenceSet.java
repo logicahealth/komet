@@ -53,55 +53,120 @@ import sh.isaac.api.Get;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StampSequenceSet.
  *
  * @author kec
  */
 public class StampSequenceSet
         extends SequenceSet<StampSequenceSet> {
+   
+   /**
+    * Instantiates a new stamp sequence set.
+    */
    public StampSequenceSet() {}
 
+   /**
+    * Instantiates a new stamp sequence set.
+    *
+    * @param concurrency the concurrency
+    */
    protected StampSequenceSet(Concurrency concurrency) {
       super(concurrency);
    }
 
+   /**
+    * Instantiates a new stamp sequence set.
+    *
+    * @param members the members
+    */
    protected StampSequenceSet(int[] members) {
       super(members);
    }
 
+   /**
+    * Instantiates a new stamp sequence set.
+    *
+    * @param memberStream the member stream
+    */
    protected StampSequenceSet(IntStream memberStream) {
       super(memberStream);
    }
 
+   /**
+    * Instantiates a new stamp sequence set.
+    *
+    * @param members the members
+    */
    protected StampSequenceSet(OpenIntHashSet members) {
       super(members);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Concurrent.
+    *
+    * @return the stamp sequence set
+    */
    public static StampSequenceSet concurrent() {
       return new StampSequenceSet(Concurrency.THREAD_SAFE);
    }
 
+   /**
+    * Of.
+    *
+    * @param members the members
+    * @return the stamp sequence set
+    */
    public static StampSequenceSet of(Collection<Integer> members) {
       return new StampSequenceSet(members.stream().mapToInt(i -> i));
    }
 
+   /**
+    * Of.
+    *
+    * @param members the members
+    * @return the stamp sequence set
+    */
    public static StampSequenceSet of(int... members) {
       return new StampSequenceSet(members);
    }
 
+   /**
+    * Of.
+    *
+    * @param memberStream the member stream
+    * @return the stamp sequence set
+    */
    public static StampSequenceSet of(IntStream memberStream) {
       return new StampSequenceSet(memberStream);
    }
 
+   /**
+    * Of.
+    *
+    * @param members the members
+    * @return the stamp sequence set
+    */
    public static StampSequenceSet of(OpenIntHashSet members) {
       return new StampSequenceSet(members);
    }
 
+   /**
+    * Of.
+    *
+    * @param other the other
+    * @return the stamp sequence set
+    */
    public static StampSequenceSet of(StampSequenceSet other) {
       return new StampSequenceSet(other.stream());
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString((stampSequence) -> Get.stampService()

@@ -47,6 +47,7 @@ import sh.isaac.api.identity.StampedVersion;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface IdentifiedStampedVersion.
  *
  * @author kec
  */

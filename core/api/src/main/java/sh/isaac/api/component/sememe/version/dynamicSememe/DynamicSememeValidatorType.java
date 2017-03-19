@@ -110,37 +110,73 @@ import sh.isaac.api.util.NumericUtils;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public enum DynamicSememeValidatorType {
+   
+   /** The less than. */
    LESS_THAN("<"),
+   
+   /** The greater than. */
    GREATER_THAN(">"),
+   
+   /** The less than or equal. */
    LESS_THAN_OR_EQUAL("<="),
-   GREATER_THAN_OR_EQUAL(">="),   // Standard math stuff
-   INTERVAL("Interval"),          // math interval notation - such as [5,10)
-   REGEXP("Regular Expression"),  // http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html
-   EXTERNAL("External"),          // see class docs above - implemented by an ExternalValidatorBI
+   
+   /** The greater than or equal. */
+   GREATER_THAN_OR_EQUAL(">="),   
+   /** The interval. */
+   // Standard math stuff
+   INTERVAL("Interval"),          
+          /** The regexp. */
+          // math interval notation - such as [5,10)
+   REGEXP("Regular Expression"),  
+  /** The external. */
+  // http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html
+   EXTERNAL("External"),          
+          /** The is child of. */
+          // see class docs above - implemented by an ExternalValidatorBI
    IS_CHILD_OF(
-      "Is Child Of"),             // OTF is child of - which only includes immediate (not recursive) children on the 'Is A' relationship.
+      "Is Child Of"),             
+             /** The is kind of. */
+             // OTF is child of - which only includes immediate (not recursive) children on the 'Is A' relationship.
    IS_KIND_OF(
-      "Is Kind Of"),  // OTF kind of - which is child of - but recursive, and self (heart disease is a kind-of heart disease);
-   COMPONENT_TYPE("Component Type Restriction"),  // specify which type of nid can be put into a UUID or nid column
+      "Is Kind Of"),  
+  /** The component type. */
+  // OTF kind of - which is child of - but recursive, and self (heart disease is a kind-of heart disease);
+   COMPONENT_TYPE("Component Type Restriction"),  
+  /** The unknown. */
+  // specify which type of nid can be put into a UUID or nid column
    UNKNOWN(
       "Unknown");  // Not a real validator, only exists to allow GUI convenience, or potentially store other validator data that we don't support in OTF
 
    // but we may need to store / retreive
 
-   private static Logger logger = Logger.getLogger(DynamicSememeValidatorType.class.getName());
+   /** The logger. */
+  private static Logger logger = Logger.getLogger(DynamicSememeValidatorType.class.getName());
 
    //~--- fields --------------------------------------------------------------
 
+   /** The display name. */
    private String displayName_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe validator type.
+    *
+    * @param displayName the display name
+    */
    private DynamicSememeValidatorType(String displayName) {
       this.displayName_ = displayName;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Parses the.
+    *
+    * @param nameOrEnumId the name or enum id
+    * @param exceptionOnParseFail the exception on parse fail
+    * @return the dynamic sememe validator type
+    */
    public static DynamicSememeValidatorType parse(String nameOrEnumId, boolean exceptionOnParseFail) {
       if (nameOrEnumId == null) {
          return null;
@@ -174,6 +210,13 @@ public enum DynamicSememeValidatorType {
       }
    }
 
+   /**
+    * Parses the.
+    *
+    * @param nameOrEnumId the name or enum id
+    * @param exceptionOnParseFail the exception on parse fail
+    * @return the dynamic sememe validator type[]
+    */
    public static DynamicSememeValidatorType[] parse(String[] nameOrEnumId, boolean exceptionOnParseFail) {
       if (nameOrEnumId == null) {
          return null;
@@ -193,13 +236,14 @@ public enum DynamicSememeValidatorType {
     * These are all defined from the perspective of the userData - so for passesValidator to return true -
     * userData must be LESS_THAN validatorDefinitionData, for example.
     *
-    * @param userData
-    * @param validatorDefinitionData
+    * @param userData the user data
+    * @param validatorDefinitionData the validator definition data
     * @param sc The Stamp Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
     *   {@link IllegalArgumentException} will be thrown if the coordinate was required for the validator (but it wasn't supplied)
     * @param tc The Taxonomy Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
     *    {@link IllegalArgumentException} will be thrown if the coordinate was required for the validator (but it wasn't supplied)
-    * @return
+    * @return true, if successful
+    * @throws IllegalArgumentException the illegal argument exception
     */
    @SuppressWarnings("unchecked")
    public boolean passesValidator(DynamicSememeData userData,
@@ -425,12 +469,12 @@ public enum DynamicSememeValidatorType {
    /**
     * A convenience wrapper of {@link #passesValidator(DynamicSememeDataBI, DynamicSememeDataBI, ViewCoordinate)} that just returns a string - never
     * throws an error
-    *
+    * 
     * These are all defined from the perspective of the userData - so for passesValidator to return true -
     * userData must be LESS_THAN validatorDefinitionData, for example.
     *
-    * @param userData
-    * @param validatorDefinitionData
+    * @param userData the user data
+    * @param validatorDefinitionData the validator definition data
     * @param sc - The Stamp Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
     * @param tc - The Taxonomy Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
     * @return - empty string if valid, an error message otherwise.
@@ -450,6 +494,12 @@ public enum DynamicSememeValidatorType {
       }
    }
 
+   /**
+    * Validator supports type.
+    *
+    * @param type the type
+    * @return true, if successful
+    */
    public boolean validatorSupportsType(DynamicSememeDataType type) {
       // These are supported by all types - external specifies itself, what it supports, and we always include UNKNOWN.
       if ((this == UNKNOWN) || (this == EXTERNAL)) {
@@ -515,6 +565,11 @@ public enum DynamicSememeValidatorType {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the display name.
+    *
+    * @return the display name
+    */
    public String getDisplayName() {
       return this.displayName_;
    }

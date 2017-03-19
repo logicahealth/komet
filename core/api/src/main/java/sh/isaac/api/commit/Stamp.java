@@ -59,17 +59,38 @@ import sh.isaac.api.util.Hashcode;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class Stamp.
+ */
 public class Stamp
          implements Comparable<Stamp> {
+   
+   /** The hash code. */
    public int          hashCode = Integer.MAX_VALUE;
+   
+   /** The author sequence. */
    private final int   authorSequence;
+   
+   /** The path sequence. */
    private final int   pathSequence;
+   
+   /** The status. */
    private final State status;
+   
+   /** The module sequence. */
    private final int   moduleSequence;
+   
+   /** The time. */
    private final long  time;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new stamp.
+    *
+    * @param in the in
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public Stamp(DataInput in)
             throws IOException {
       super();
@@ -95,6 +116,15 @@ public class Stamp
              this.pathSequence;
    }
 
+   /**
+    * Instantiates a new stamp.
+    *
+    * @param status the status
+    * @param time the time
+    * @param authorSequence the author sequence
+    * @param moduleSequence the module sequence
+    * @param pathSequence the path sequence
+    */
    public Stamp(State status, long time, int authorSequence, int moduleSequence, int pathSequence) {
       super();
       this.status         = status;
@@ -121,6 +151,12 @@ public class Stamp
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(Stamp o) {
       if (this.time > o.time) {
@@ -146,6 +182,12 @@ public class Stamp
       return this.pathSequence - o.pathSequence;
    }
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (Stamp.class.isAssignableFrom(obj.getClass())) {
@@ -155,6 +197,11 @@ public class Stamp
       return false;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       if (this.hashCode == Integer.MAX_VALUE) {
@@ -164,6 +211,12 @@ public class Stamp
       return this.hashCode;
    }
 
+   /**
+    * Stamp array to string.
+    *
+    * @param stampSet the stamp set
+    * @return the string
+    */
    public static String stampArrayToString(AbstractIntSet stampSet) {
       final StringBuilder sb = setupToString();
 
@@ -176,6 +229,12 @@ public class Stamp
       return sb.toString();
    }
 
+   /**
+    * Stamp array to string.
+    *
+    * @param stampCollection the stamp collection
+    * @return the string
+    */
    public static String stampArrayToString(Collection<Integer> stampCollection) {
       final StringBuilder sb = setupToString();
 
@@ -191,6 +250,12 @@ public class Stamp
       return sb.toString();
    }
 
+   /**
+    * Stamp array to string.
+    *
+    * @param stampArray the stamp array
+    * @return the string
+    */
    public static String stampArrayToString(int[] stampArray) {
       final StringBuilder sb = setupToString();
 
@@ -203,6 +268,12 @@ public class Stamp
       return sb.toString();
    }
 
+   /**
+    * Stamp from int stamp.
+    *
+    * @param stamp the stamp
+    * @return the stamp
+    */
    public static Stamp stampFromIntStamp(int stamp) {
       final State status         = Get.stampService()
                                 .getStatusForStamp(stamp);
@@ -218,6 +289,11 @@ public class Stamp
       return new Stamp(status, time, authorSequence, moduleSequence, pathSequence);
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();
@@ -236,6 +312,12 @@ public class Stamp
       return sb.toString();
    }
 
+   /**
+    * Write.
+    *
+    * @param out the out
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void write(DataOutput out)
             throws IOException {
       out.writeInt(this.status.ordinal());
@@ -245,6 +327,11 @@ public class Stamp
       out.writeInt(this.pathSequence);
    }
 
+   /**
+    * Finish to string.
+    *
+    * @param sb the sb
+    */
    private static void finishToString(StringBuilder sb) {
       final int lastIndexOf = sb.lastIndexOf(",");
 
@@ -252,6 +339,11 @@ public class Stamp
       sb.append("]");
    }
 
+   /**
+    * Setup to string.
+    *
+    * @return the string builder
+    */
    private static StringBuilder setupToString() {
       final StringBuilder sb = new StringBuilder();
 
@@ -261,26 +353,56 @@ public class Stamp
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the author sequence.
+    *
+    * @return the author sequence
+    */
    public int getAuthorSequence() {
       return this.authorSequence;
    }
 
+   /**
+    * Gets the module sequence.
+    *
+    * @return the module sequence
+    */
    public int getModuleSequence() {
       return this.moduleSequence;
    }
 
+   /**
+    * Gets the path sequence.
+    *
+    * @return the path sequence
+    */
    public int getPathSequence() {
       return this.pathSequence;
    }
 
+   /**
+    * Gets the status.
+    *
+    * @return the status
+    */
    public State getStatus() {
       return this.status;
    }
 
+   /**
+    * Gets the time.
+    *
+    * @return the time
+    */
    public long getTime() {
       return this.time;
    }
 
+   /**
+    * Gets the time as instant.
+    *
+    * @return the time as instant
+    */
    public Instant getTimeAsInstant() {
       return Instant.ofEpochMilli(this.time);
    }

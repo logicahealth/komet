@@ -56,11 +56,18 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeArrayTest}
+ * {@link DynamicSememeArrayTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeArrayTest {
+   
+   /**
+    * Test serialization one.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testSerializationOne()
             throws PropertyVetoException, IOException {
@@ -93,6 +100,12 @@ public class DynamicSememeArrayTest {
                           .getDynamicSememeDataType(), DynamicSememeDataType.INTEGER);
    }
 
+   /**
+    * Test serialization two.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testSerializationTwo()
             throws PropertyVetoException, IOException {

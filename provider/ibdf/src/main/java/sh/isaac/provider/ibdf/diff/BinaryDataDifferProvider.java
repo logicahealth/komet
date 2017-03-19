@@ -111,26 +111,48 @@ import sh.isaac.api.externalizable.json.JsonDataWriterService;
 //TODO there are some serious thread-safety issues in this class
 public class BinaryDataDifferProvider
          implements BinaryDataDifferService {
+   
+   /** The log. */
    private final Logger log                = LogManager.getLogger();
+   
+   /** The text input file name. */
    private final String textInputFileName  = "bothVersions.txt";
+   
+   /** The json output file name. */
    private final String jsonOutputFileName = "allChangedComponents.json";
+   
+   /** The text output file name. */
    private final String textOutputFileName = "allChangedComponents.txt";
 
+   /** The component CS writer. */
    // Changeset File Writer
    private DataWriterService               componentCSWriter = null;
+   
+   /** The skipped items. */
    HashSet<Integer>                        skippedItems      = new HashSet<>();
+   
+   /** The diff util. */
    private BinaryDataDifferProviderUtility diffUtil;
 
+   /** The item count. */
    // Stream hack
    private int conceptCount, sememeCount, itemCount;
 
+   /** The analysis files output dir. */
    // Analysis File Readers/Writers
    private String analysisFilesOutputDir;
+   
+   /** The ibdf file output dir. */
    private String ibdfFileOutputDir;
+   
+   /** The changeset file name. */
    private String changesetFileName;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new binary data differ provider.
+    */
    public BinaryDataDifferProvider() {
       // For HK2
       this.log.info("binary data differ constructed");
@@ -138,6 +160,12 @@ public class BinaryDataDifferProvider
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Generate diffed ibdf file.
+    *
+    * @param changedComponents the changed components
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void generateDiffedIbdfFile(Map<ChangeType, List<OchreExternalizable>> changedComponents)
             throws IOException {
@@ -152,6 +180,13 @@ public class BinaryDataDifferProvider
       this.componentCSWriter.close();
    }
 
+   /**
+    * Identify version changes.
+    *
+    * @param oldContentMap the old content map
+    * @param newContentMap the new content map
+    * @return the map
+    */
    @Override
    public Map<ChangeType, List<OchreExternalizable>> identifyVersionChanges(Map<OchreExternalizableObjectType,
               Set<OchreExternalizable>> oldContentMap,
@@ -242,6 +277,20 @@ public class BinaryDataDifferProvider
       return retMap;
    }
 
+   /**
+    * Initialize.
+    *
+    * @param analysisFilesOutputDir the analysis files output dir
+    * @param ibdfFileOutputDir the ibdf file output dir
+    * @param changesetFileName the changeset file name
+    * @param createAnalysisFiles the create analysis files
+    * @param diffOnStatus the diff on status
+    * @param diffOnTimestamp the diff on timestamp
+    * @param diffOnAuthor the diff on author
+    * @param diffOnModule the diff on module
+    * @param diffOnPath the diff on path
+    * @param importDate the import date
+    */
    @Override
    public void initialize(String analysisFilesOutputDir,
                           String ibdfFileOutputDir,
@@ -276,6 +325,13 @@ public class BinaryDataDifferProvider
       f.mkdirs();
    }
 
+   /**
+    * Process version.
+    *
+    * @param versionFile the version file
+    * @return the map
+    * @throws Exception the exception
+    */
    @Override
    public Map<OchreExternalizableObjectType, Set<OchreExternalizable>> processVersion(File versionFile)
             throws Exception {
@@ -351,6 +407,15 @@ public class BinaryDataDifferProvider
       return retMap;
    }
 
+   /**
+    * Write files for analysis.
+    *
+    * @param oldContentMap the old content map
+    * @param newContentMap the new content map
+    * @param changedComponents the changed components
+    * @param ibdfFileOutputDir the ibdf file output dir
+    * @param analysisFilesOutputDir the analysis files output dir
+    */
    @Override
    public void writeFilesForAnalysis(Map<OchreExternalizableObjectType, Set<OchreExternalizable>> oldContentMap,
                                      Map<OchreExternalizableObjectType, Set<OchreExternalizable>> newContentMap,
@@ -384,14 +449,12 @@ public class BinaryDataDifferProvider
 
    /**
     * Set up all the boilerplate stuff.
-    *
+    * 
     * Create a stamp in current database... create seq... then when
     * serializing, point it
     *
-    * @param state
-    *            - state or null (for current)
-    * @param time
-    *            - time or null (for default)
+    * @param state            - state or null (for current)
+    * @return the int
     */
    private int createStamp(State state) {
       return LookupService.getService(StampService.class)
@@ -411,16 +474,28 @@ public class BinaryDataDifferProvider
       // PATH
    }
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       this.log.info("Starting BinaryDataDifferProvider.");
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       this.log.info("Stopping BinaryDataDifferProvider.");
    }
 
+   /**
+    * Write change set for analysis.
+    *
+    * @param changedComponents the changed components
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private void writeChangeSetForAnalysis(Map<ChangeType, List<OchreExternalizable>> changedComponents)
             throws IOException {
       int counter = 1;
@@ -470,6 +545,11 @@ public class BinaryDataDifferProvider
       }
    }
 
+   /**
+    * Write change set for verification.
+    *
+    * @throws FileNotFoundException the file not found exception
+    */
    private void writeChangeSetForVerification()
             throws FileNotFoundException {
       int ic = 0;
@@ -535,6 +615,14 @@ public class BinaryDataDifferProvider
             : ""));
    }
 
+   /**
+    * Write input files for analysis.
+    *
+    * @param contentMap the content map
+    * @param version the version
+    * @param jsonInputFileName the json input file name
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private void writeInputFilesForAnalysis(Map<OchreExternalizableObjectType, Set<OchreExternalizable>> contentMap,
          String version,
          String jsonInputFileName)

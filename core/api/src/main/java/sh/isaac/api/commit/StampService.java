@@ -76,8 +76,9 @@ public interface StampService
     * Used by the commit manger when committing a pending stamp.
     * Should only be used by developers creating their own commit
     * service.
-    * @param stamp
-    * @param stampSequence
+    *
+    * @param stamp the stamp
+    * @param stampSequence the stamp sequence
     */
    void addStamp(Stamp stamp, int stampSequence);
 
@@ -86,14 +87,15 @@ public interface StampService
     * author. Should only be used by developers creating their own commit
     * service.
     *
-    * @param authorSequence
-    * @return
+    * @param authorSequence the author sequence
+    * @return the task
     */
    Task<Void> cancel(int authorSequence);
 
    /**
+    * Describe stamp sequence.
     *
-    * @param stampSequence
+    * @param stampSequence the stamp sequence
     * @return a textual representation of the stamp sequence.
     */
    String describeStampSequence(int stampSequence);
@@ -103,8 +105,8 @@ public interface StampService
     * content is equal, see if their stampSequences indicate a semantic
     * difference (change in status, module, or path).
     *
-    * @param stampSequence1
-    * @param stampSequence2
+    * @param stampSequence1 the stamp sequence 1
+    * @param stampSequence2 the stamp sequence 2
     * @return true if stampSequences are equal without considering the author
     * and time.
     */
@@ -113,6 +115,7 @@ public interface StampService
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the activated stamp sequence.
     *
     * @param stampSequence a stamp sequence to create an analog of
     * @return a stampSequence with a State of {@link State#ACTIVE}, but the
@@ -120,21 +123,46 @@ public interface StampService
     */
    int getActivatedStampSequence(int stampSequence);
 
+   /**
+    * Gets the author sequence for stamp.
+    *
+    * @param stampSequence the stamp sequence
+    * @return the author sequence for stamp
+    */
    int getAuthorSequenceForStamp(int stampSequence);
 
    /**
+    * Gets the instant for stamp.
     *
-    * @param stampSequence
+    * @param stampSequence the stamp sequence
     * @return the Instant represented by this stampSequence
     */
    default Instant getInstantForStamp(int stampSequence) {
       return Instant.ofEpochMilli(getTimeForStamp(stampSequence));
    }
 
+   /**
+    * Gets the module sequence for stamp.
+    *
+    * @param stampSequence the stamp sequence
+    * @return the module sequence for stamp
+    */
    int getModuleSequenceForStamp(int stampSequence);
 
+   /**
+    * Checks if not canceled.
+    *
+    * @param stampSequence the stamp sequence
+    * @return true, if not canceled
+    */
    boolean isNotCanceled(int stampSequence);
 
+   /**
+    * Gets the path sequence for stamp.
+    *
+    * @param stampSequence the stamp sequence
+    * @return the path sequence for stamp
+    */
    int getPathSequenceForStamp(int stampSequence);
 
    /**
@@ -142,7 +170,7 @@ public interface StampService
     * definitive list if items in the commit. Should only be used by developers
     * creating their own commit service.
     *
-    * @return
+    * @return the pending stamps for commit
     */
    Map<UncommittedStamp, Integer> getPendingStampsForCommit();
 
@@ -154,13 +182,14 @@ public interface StampService
     * (will not work) to undo a successful commit. Should only be used by
     * developers creating their own commit service.
     *
-    * @param pendingStamps
+    * @param pendingStamps the pending stamps
     */
    void setPendingStampsForCommit(Map<UncommittedStamp, Integer> pendingStamps);
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the retired stamp sequence.
     *
     * @param stampSequence a stamp sequence to create an analog of
     * @return a stampSequence with a State of {@link State#INACTIVE}, but the
@@ -175,24 +204,44 @@ public interface StampService
     * returned. If no sequence has this combination, a new sequence will be
     * created and returned.
     *
-    * @param status
-    * @param time
-    * @param authorSequence
-    * @param moduleSequence
-    * @param pathSequence
+    * @param status the status
+    * @param time the time
+    * @param authorSequence the author sequence
+    * @param moduleSequence the module sequence
+    * @param pathSequence the path sequence
     * @return the stampSequence
     */
    int getStampSequence(State status, long time, int authorSequence, int moduleSequence, int pathSequence);
 
    /**
+    * Gets the stamp sequences.
+    *
     * @return an IntStream of all stamp sequences known to the commit service.
     */
    IntStream getStampSequences();
 
+   /**
+    * Gets the status for stamp.
+    *
+    * @param stampSequence the stamp sequence
+    * @return the status for stamp
+    */
    State getStatusForStamp(int stampSequence);
 
+   /**
+    * Gets the time for stamp.
+    *
+    * @param stampSequence the stamp sequence
+    * @return the time for stamp
+    */
    long getTimeForStamp(int stampSequence);
 
+   /**
+    * Checks if uncommitted.
+    *
+    * @param stampSequence the stamp sequence
+    * @return true, if uncommitted
+    */
    boolean isUncommitted(int stampSequence);
 }
 

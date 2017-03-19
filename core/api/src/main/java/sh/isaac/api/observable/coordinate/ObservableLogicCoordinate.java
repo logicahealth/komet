@@ -48,17 +48,39 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ObservableLogicCoordinate.
  *
  * @author kec
  */
 public interface ObservableLogicCoordinate
         extends LogicCoordinate {
+   
+   /**
+    * Classifier sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty classifierSequenceProperty();
 
+   /**
+    * Description logic profile sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty descriptionLogicProfileSequenceProperty();
 
+   /**
+    * Inferred assemblage sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty inferredAssemblageSequenceProperty();
 
+   /**
+    * Stated assemblage sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty statedAssemblageSequenceProperty();
 }
 

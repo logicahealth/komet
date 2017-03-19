@@ -40,6 +40,7 @@
 package sh.isaac.api.logic.assertions;
 
 /**
+ * The Interface AllRole.
  *
  * @author kec
  */

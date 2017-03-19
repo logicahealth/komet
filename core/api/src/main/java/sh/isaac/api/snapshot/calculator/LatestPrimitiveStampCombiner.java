@@ -51,21 +51,35 @@ import sh.isaac.api.collections.StampSequenceSet;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LatestPrimitiveStampCombiner.
  *
  * @author kec
  */
 public class LatestPrimitiveStampCombiner
          implements BiConsumer<StampSequenceSet, StampSequenceSet> {
+   
+   /** The computer. */
    private final RelativePositionCalculator computer;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new latest primitive stamp combiner.
+    *
+    * @param computer the computer
+    */
    public LatestPrimitiveStampCombiner(RelativePositionCalculator computer) {
       this.computer = computer;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Accept.
+    *
+    * @param t the t
+    * @param uStampSet the u stamp set
+    */
    @Override
    public void accept(StampSequenceSet t, StampSequenceSet uStampSet) {
       final StampSequenceSet tStampSet = StampSequenceSet.of(t.stream());

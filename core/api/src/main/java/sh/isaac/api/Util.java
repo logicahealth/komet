@@ -55,10 +55,21 @@ import sh.isaac.api.progress.ActiveTasks;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class Util.
  *
  * @author kec
  */
 public class Util {
+   
+   /**
+    * Adds the to task set and wait till done.
+    *
+    * @param <T> the generic type
+    * @param task the task
+    * @return the t
+    * @throws InterruptedException the interrupted exception
+    * @throws ExecutionException the execution exception
+    */
    public static <T> T addToTaskSetAndWaitTillDone(Task<T> task)
             throws InterruptedException, ExecutionException {
       LookupService.get()
@@ -78,6 +89,12 @@ public class Util {
       }
    }
 
+   /**
+    * String array to path array.
+    *
+    * @param strings the strings
+    * @return the path[]
+    */
    public static Path[] stringArrayToPathArray(String... strings) {
       final Path[] paths = new Path[strings.length];
 

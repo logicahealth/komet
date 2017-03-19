@@ -64,10 +64,19 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public class LiteralNodeInstant
         extends LiteralNode {
+   
+   /** The literal value. */
    Instant literalValue;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new literal node instant.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public LiteralNodeInstant(LogicalExpressionOchreImpl logicGraphVersion,
                              DataInputStream dataInputStream)
             throws IOException {
@@ -75,6 +84,12 @@ public class LiteralNodeInstant
       this.literalValue = Instant.ofEpochSecond(dataInputStream.readLong());
    }
 
+   /**
+    * Instantiates a new literal node instant.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param literalValue the literal value
+    */
    public LiteralNodeInstant(LogicalExpressionOchreImpl logicGraphVersion, Instant literalValue) {
       super(logicGraphVersion);
       this.literalValue = literalValue;
@@ -82,6 +97,12 @@ public class LiteralNodeInstant
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -101,6 +122,11 @@ public class LiteralNodeInstant
       return this.literalValue.equals(that.literalValue);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int result = super.hashCode();
@@ -109,16 +135,33 @@ public class LiteralNodeInstant
       return result;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
       return "Instant literal[" + getNodeIndex() + nodeIdSuffix + "]" + this.literalValue + super.toString(nodeIdSuffix);
    }
 
+   /**
+    * Compare fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    protected int compareFields(LogicNode o) {
       final LiteralNodeInstant that = (LiteralNodeInstant) o;
@@ -126,11 +169,23 @@ public class LiteralNodeInstant
       return this.literalValue.compareTo(that.literalValue);
    }
 
+   /**
+    * Inits the node uuid.
+    *
+    * @return the uuid
+    */
    @Override
    protected UUID initNodeUuid() {
       return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), this.literalValue.toString());
    }
 
+   /**
+    * Write node data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    protected void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
@@ -140,10 +195,20 @@ public class LiteralNodeInstant
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the literal value.
+    *
+    * @return the literal value
+    */
    public Instant getLiteralValue() {
       return this.literalValue;
    }
 
+   /**
+    * Gets the node semantic.
+    *
+    * @return the node semantic
+    */
    @Override
    public NodeSemantic getNodeSemantic() {
       return NodeSemantic.LITERAL_INSTANT;

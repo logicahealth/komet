@@ -53,14 +53,14 @@ import sh.isaac.api.util.UUIDUtil;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class AbstractUuidToIntHashMap.
  *
  * @author kec
  */
 public abstract class AbstractUuidToIntHashMap
         extends AbstractSet {
-   /**
-    *
-    */
+   
+   /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 1L;
 
    //~--- constructors --------------------------------------------------------
@@ -77,6 +77,7 @@ public abstract class AbstractUuidToIntHashMap
    /**
     * Returns {@code true} if the receiver contains the specified key.
     *
+    * @param key the key
     * @return {@code true} if the receiver contains the specified key.
     */
    public boolean containsKey(final long[] key) {
@@ -88,6 +89,7 @@ public abstract class AbstractUuidToIntHashMap
     * {@code clone()} and casts the result.
     *
     * @return a deep copy of the receiver.
+    * @throws CloneNotSupportedException the clone not supported exception
     */
    public AbstractUuidToIntHashMap copy()
             throws CloneNotSupportedException {
@@ -268,6 +270,13 @@ public abstract class AbstractUuidToIntHashMap
     */
    public abstract boolean put(long[] key, int value);
 
+   /**
+    * Put.
+    *
+    * @param key the key
+    * @param value the value
+    * @return true, if successful
+    */
    public boolean put(UUID key, int value) {
       return put(UUIDUtil.convert(key), value);
    }
@@ -283,6 +292,8 @@ public abstract class AbstractUuidToIntHashMap
    /**
     * Returns a string representation of the receiver, containing the String representation of each key-value
     * pair, sorted ascending by key.
+    *
+    * @return the string
     */
    @Override
    public String toString() {

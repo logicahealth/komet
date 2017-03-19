@@ -58,6 +58,7 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LogicCoordinateLazyBinding.
  *
  * @author kec
  */
@@ -65,21 +66,40 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LogicCoordinateLazyBinding
         extends LogicCoordinateImpl {
+   
+   /** The stated assemblage proxy. */
    @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
    private ConceptSpecification statedAssemblageProxy        = null;
+   
+   /** The inferred assemblage proxy. */
    @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
    private ConceptSpecification inferredAssemblageProxy      = null;
+   
+   /** The description logic profile proxy. */
    @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
    private ConceptSpecification descriptionLogicProfileProxy = null;
+   
+   /** The classifier proxy. */
    @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
    private ConceptSpecification classifierProxy              = null;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new logic coordinate lazy binding.
+    */
    private LogicCoordinateLazyBinding() {
       // for jaxb
    }
 
+   /**
+    * Instantiates a new logic coordinate lazy binding.
+    *
+    * @param statedAssemblageProxy the stated assemblage proxy
+    * @param inferredAssemblageProxy the inferred assemblage proxy
+    * @param descriptionLogicProfileProxy the description logic profile proxy
+    * @param classifierProxy the classifier proxy
+    */
    public LogicCoordinateLazyBinding(ConceptSpecification statedAssemblageProxy,
                                      ConceptSpecification inferredAssemblageProxy,
                                      ConceptSpecification descriptionLogicProfileProxy,
@@ -93,6 +113,12 @@ public class LogicCoordinateLazyBinding
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
@@ -117,6 +143,11 @@ public class LogicCoordinateLazyBinding
       return this.getClassifierSequence() == other.getClassifierSequence();
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int hash = 5;
@@ -128,6 +159,11 @@ public class LogicCoordinateLazyBinding
       return hash;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "LogicCoordinateLazyBinding{" + "statedAssemblageProxy=" + this.statedAssemblageProxy +
@@ -137,6 +173,11 @@ public class LogicCoordinateLazyBinding
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the classifier sequence.
+    *
+    * @return the classifier sequence
+    */
    @Override
    public int getClassifierSequence() {
       if (this.classifierSequence == Integer.MAX_VALUE) {
@@ -146,6 +187,11 @@ public class LogicCoordinateLazyBinding
       return this.classifierSequence;
    }
 
+   /**
+    * Gets the description logic profile sequence.
+    *
+    * @return the description logic profile sequence
+    */
    @Override
    public int getDescriptionLogicProfileSequence() {
       if (this.descriptionLogicProfileSequence == Integer.MAX_VALUE) {
@@ -155,6 +201,11 @@ public class LogicCoordinateLazyBinding
       return this.descriptionLogicProfileSequence;
    }
 
+   /**
+    * Gets the inferred assemblage sequence.
+    *
+    * @return the inferred assemblage sequence
+    */
    @Override
    public int getInferredAssemblageSequence() {
       if (this.inferredAssemblageSequence == Integer.MAX_VALUE) {
@@ -164,6 +215,11 @@ public class LogicCoordinateLazyBinding
       return this.inferredAssemblageSequence;
    }
 
+   /**
+    * Gets the stated assemblage sequence.
+    *
+    * @return the stated assemblage sequence
+    */
    @Override
    public int getStatedAssemblageSequence() {
       if (this.statedAssemblageSequence == Integer.MAX_VALUE) {
@@ -175,14 +231,31 @@ public class LogicCoordinateLazyBinding
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class ConceptProxyAdapter.
+    */
    private static class ConceptProxyAdapter
            extends XmlAdapter<UUID[], ConceptProxy> {
+      
+      /**
+       * Marshal.
+       *
+       * @param c the c
+       * @return the UUI d[]
+       */
       @Override
 	public UUID[] marshal(ConceptProxy c) {
          return c.getUuidList()
                  .toArray(new UUID[c.getUuidList().size()]);
       }
 
+      /**
+       * Unmarshal.
+       *
+       * @param v the v
+       * @return the concept proxy
+       * @throws Exception the exception
+       */
       @Override
       public ConceptProxy unmarshal(UUID[] v)
                throws Exception {

@@ -99,23 +99,42 @@ import sh.isaac.model.logic.node.internal.TemplateNodeWithSequences;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LogicalExpressionBuilderOchreImpl.
  *
  * @author kec
  */
 public class LogicalExpressionBuilderOchreImpl
          implements LogicalExpressionBuilder {
+   
+   /** The built. */
    private boolean                                         built           = false;
+   
+   /** The next axiom id. */
    private short                                           nextAxiomId     = 0;
+   
+   /** The root sets. */
    private final Set<GenericAxiom>                         rootSets        = new HashSet<>();
+   
+   /** The definition tree. */
    private final HashMap<GenericAxiom, List<GenericAxiom>> definitionTree  = new HashMap<>(20);
+   
+   /** The axiom parameters. */
    private final OpenShortObjectHashMap<Object>            axiomParameters = new OpenShortObjectHashMap<>(20);
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new logical expression builder ochre impl.
+    */
    public LogicalExpressionBuilderOchreImpl() {}
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the to root.
+    *
+    * @param logicalSet the logical set
+    */
    @Override
    public void addToRoot(LogicalSet logicalSet) {
       checkNotBuilt();
@@ -132,6 +151,13 @@ public class LogicalExpressionBuilderOchreImpl
       addToDefinitionTree(axiom, logicalSet);
    }
 
+   /**
+    * All role.
+    *
+    * @param roleTypeChronology the role type chronology
+    * @param roleRestriction the role restriction
+    * @return the all role
+    */
    @Override
    public AllRole allRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction) {
       checkNotBuilt();
@@ -143,6 +169,13 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * All role.
+    *
+    * @param roleTypeSpecification the role type specification
+    * @param roleRestriction the role restriction
+    * @return the all role
+    */
    @Override
    public AllRole allRole(ConceptSpecification roleTypeSpecification, Assertion roleRestriction) {
       checkNotBuilt();
@@ -154,6 +187,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * And.
+    *
+    * @param assertions the assertions
+    * @return the and
+    */
    @Override
    public And and(Assertion... assertions) {
       checkNotBuilt();
@@ -164,6 +203,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Boolean literal.
+    *
+    * @param booleanLiteral the boolean literal
+    * @return the boolean literal
+    */
    @Override
    public BooleanLiteral booleanLiteral(boolean booleanLiteral) {
       checkNotBuilt();
@@ -174,6 +219,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Boolean substitution.
+    *
+    * @param fieldSpecification the field specification
+    * @return the boolean substitution
+    */
    @Override
    public BooleanSubstitution booleanSubstitution(SubstitutionFieldSpecification fieldSpecification) {
       checkNotBuilt();
@@ -184,6 +235,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Builds the.
+    *
+    * @return the logical expression
+    * @throws IllegalStateException the illegal state exception
+    */
    @Override
    public LogicalExpression build()
             throws IllegalStateException {
@@ -198,11 +255,23 @@ public class LogicalExpressionBuilderOchreImpl
       return definition;
    }
 
+   /**
+    * Clone sub tree.
+    *
+    * @param subTreeRoot the sub tree root
+    * @return the assertion
+    */
    @Override
    public Assertion cloneSubTree(LogicNode subTreeRoot) {
       return makeAssertionFromNode(subTreeRoot);
    }
 
+   /**
+    * Concept assertion.
+    *
+    * @param conceptChronology the concept chronology
+    * @return the concept assertion
+    */
    @Override
    public ConceptAssertion conceptAssertion(ConceptChronology<?> conceptChronology) {
       checkNotBuilt();
@@ -213,6 +282,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Concept assertion.
+    *
+    * @param conceptSpecification the concept specification
+    * @return the concept assertion
+    */
    @Override
    public ConceptAssertion conceptAssertion(ConceptSpecification conceptSpecification) {
       checkNotBuilt();
@@ -223,6 +298,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Concept assertion.
+    *
+    * @param conceptNid the concept nid
+    * @return the concept assertion
+    */
    @Override
    public ConceptAssertion conceptAssertion(Integer conceptNid) {
       checkNotBuilt();
@@ -233,6 +314,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Concept substitution.
+    *
+    * @param fieldSpecification the field specification
+    * @return the concept substitution
+    */
    @Override
    public ConceptSubstitution conceptSubstitution(SubstitutionFieldSpecification fieldSpecification) {
       checkNotBuilt();
@@ -243,6 +330,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Disjoint with.
+    *
+    * @param conceptChronology the concept chronology
+    * @return the disjoint with
+    */
    @Override
    public DisjointWith disjointWith(ConceptChronology<?> conceptChronology) {
       checkNotBuilt();
@@ -253,6 +346,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Disjoint with.
+    *
+    * @param conceptSpecification the concept specification
+    * @return the disjoint with
+    */
    @Override
    public DisjointWith disjointWith(ConceptSpecification conceptSpecification) {
       checkNotBuilt();
@@ -263,6 +362,13 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Feature.
+    *
+    * @param featureTypeChronology the feature type chronology
+    * @param literal the literal
+    * @return the feature
+    */
    @Override
    public Feature feature(ConceptChronology<?> featureTypeChronology, LiteralAssertion literal) {
       checkNotBuilt();
@@ -274,6 +380,13 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Feature.
+    *
+    * @param featureTypeSpecification the feature type specification
+    * @param literal the literal
+    * @return the feature
+    */
    @Override
    public Feature feature(ConceptSpecification featureTypeSpecification, LiteralAssertion literal) {
       checkNotBuilt();
@@ -285,6 +398,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Float literal.
+    *
+    * @param floatLiteral the float literal
+    * @return the float literal
+    */
    @Override
    public FloatLiteral floatLiteral(float floatLiteral) {
       checkNotBuilt();
@@ -295,6 +414,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Float substitution.
+    *
+    * @param fieldSpecification the field specification
+    * @return the float substitution
+    */
    @Override
    public FloatSubstitution floatSubstitution(SubstitutionFieldSpecification fieldSpecification) {
       checkNotBuilt();
@@ -305,6 +430,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Instant literal.
+    *
+    * @param literalValue the literal value
+    * @return the instant literal
+    */
    @Override
    public InstantLiteral instantLiteral(Instant literalValue) {
       checkNotBuilt();
@@ -315,6 +446,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Instant substitution.
+    *
+    * @param fieldSpecification the field specification
+    * @return the instant substitution
+    */
    @Override
    public InstantSubstitution instantSubstitution(SubstitutionFieldSpecification fieldSpecification) {
       checkNotBuilt();
@@ -325,6 +462,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Integer literal.
+    *
+    * @param literalValue the literal value
+    * @return the integer literal
+    */
    @Override
    public IntegerLiteral integerLiteral(int literalValue) {
       checkNotBuilt();
@@ -335,6 +478,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Integer substitution.
+    *
+    * @param fieldSpecification the field specification
+    * @return the integer substitution
+    */
    @Override
    public IntegerSubstitution integerSubstitution(SubstitutionFieldSpecification fieldSpecification) {
       checkNotBuilt();
@@ -345,6 +494,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Necessary set.
+    *
+    * @param connector the connector
+    * @return the necessary set
+    */
    @Override
    public NecessarySet necessarySet(Connector... connector) {
       checkNotBuilt();
@@ -356,6 +511,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Or.
+    *
+    * @param assertions the assertions
+    * @return the or
+    */
    @Override
    public Or or(Assertion... assertions) {
       checkNotBuilt();
@@ -366,6 +527,13 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Some role.
+    *
+    * @param roleTypeChronology the role type chronology
+    * @param roleRestriction the role restriction
+    * @return the some role
+    */
    @Override
    public SomeRole someRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction) {
       checkNotBuilt();
@@ -377,6 +545,13 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Some role.
+    *
+    * @param roleTypeSpecification the role type specification
+    * @param roleRestriction the role restriction
+    * @return the some role
+    */
    @Override
    public SomeRole someRole(ConceptSpecification roleTypeSpecification, Assertion roleRestriction) {
       checkNotBuilt();
@@ -388,6 +563,13 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Some role.
+    *
+    * @param roleTypeConceptNid the role type concept nid
+    * @param roleRestriction the role restriction
+    * @return the some role
+    */
    @Override
    public SomeRole someRole(Integer roleTypeConceptNid, Assertion roleRestriction) {
       checkNotBuilt();
@@ -399,6 +581,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * String literal.
+    *
+    * @param literalValue the literal value
+    * @return the string literal
+    */
    @Override
    public StringLiteral stringLiteral(String literalValue) {
       checkNotBuilt();
@@ -409,6 +597,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * String substitution.
+    *
+    * @param fieldSpecification the field specification
+    * @return the string substitution
+    */
    @Override
    public StringSubstitution stringSubstitution(SubstitutionFieldSpecification fieldSpecification) {
       checkNotBuilt();
@@ -419,6 +613,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Sufficient set.
+    *
+    * @param connector the connector
+    * @return the sufficient set
+    */
    @Override
    public SufficientSet sufficientSet(Connector... connector) {
       checkNotBuilt();
@@ -430,6 +630,13 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Template.
+    *
+    * @param templateChronology the template chronology
+    * @param assemblageToPopulateTemplateConcept the assemblage to populate template concept
+    * @return the template
+    */
    @Override
    public Template template(ConceptChronology<?> templateChronology,
                             ConceptChronology<?> assemblageToPopulateTemplateConcept) {
@@ -441,6 +648,13 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Template.
+    *
+    * @param templateSpecification the template specification
+    * @param assemblageToPopulateTemplateSpecification the assemblage to populate template specification
+    * @return the template
+    */
    @Override
    public Template template(ConceptSpecification templateSpecification,
                             ConceptSpecification assemblageToPopulateTemplateSpecification) {
@@ -453,10 +667,24 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Adds the to definition tree.
+    *
+    * @param axiom the axiom
+    * @param connectors the connectors
+    */
    protected void addToDefinitionTree(GenericAxiom axiom, Assertion... connectors) {
       this.definitionTree.put(axiom, asList(connectors));
    }
 
+   /**
+    * Adds the to definition.
+    *
+    * @param axiom the axiom
+    * @param definition the definition
+    * @return the abstract logic node
+    * @throws IllegalStateException the illegal state exception
+    */
    private AbstractLogicNode addToDefinition(GenericAxiom axiom,
          LogicalExpressionOchreImpl definition)
             throws IllegalStateException {
@@ -644,6 +872,13 @@ public class LogicalExpressionBuilderOchreImpl
       }
    }
 
+   /**
+    * All role.
+    *
+    * @param roleTypeNid the role type nid
+    * @param roleRestriction the role restriction
+    * @return the all role
+    */
    private AllRole allRole(Integer roleTypeNid, Assertion roleRestriction) {
       checkNotBuilt();
 
@@ -654,6 +889,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * As list.
+    *
+    * @param assertions the assertions
+    * @return the list
+    */
    private List<GenericAxiom> asList(Assertion... assertions) {
       final ArrayList<GenericAxiom> list = new ArrayList<>(assertions.length);
 
@@ -662,6 +903,11 @@ public class LogicalExpressionBuilderOchreImpl
       return list;
    }
 
+   /**
+    * Check not built.
+    *
+    * @throws IllegalStateException the illegal state exception
+    */
    private void checkNotBuilt()
             throws IllegalStateException {
       if (this.built) {
@@ -669,6 +915,13 @@ public class LogicalExpressionBuilderOchreImpl
       }
    }
 
+   /**
+    * Feature.
+    *
+    * @param featureTypeNid the feature type nid
+    * @param literal the literal
+    * @return the feature
+    */
    private Feature feature(Integer featureTypeNid, LiteralAssertion literal) {
       checkNotBuilt();
 
@@ -679,6 +932,12 @@ public class LogicalExpressionBuilderOchreImpl
       return axiom;
    }
 
+   /**
+    * Make assertion from node.
+    *
+    * @param logicNode the logic node
+    * @return the assertion
+    */
    private Assertion makeAssertionFromNode(LogicNode logicNode) {
       switch (logicNode.getNodeSemantic()) {
       case DEFINITION_ROOT:
@@ -784,12 +1043,25 @@ public class LogicalExpressionBuilderOchreImpl
       throw new UnsupportedOperationException("Can't handle: " + logicNode.getNodeSemantic());
    }
 
+   /**
+    * Make assertions from node descendants.
+    *
+    * @param logicNode the logic node
+    * @return the list<? extends assertion>
+    */
    private List<? extends Assertion> makeAssertionsFromNodeDescendants(LogicNode logicNode) {
       return logicNode.getChildStream()
                       .map((childNode) -> makeAssertionFromNode(childNode))
                       .collect(Collectors.toList());
    }
 
+   /**
+    * Template.
+    *
+    * @param templateChronologyId the template chronology id
+    * @param assemblageToPopulateTemplateConceptId the assemblage to populate template concept id
+    * @return the template
+    */
    private Template template(Integer templateChronologyId, Integer assemblageToPopulateTemplateConceptId) {
       checkNotBuilt();
 
@@ -802,6 +1074,13 @@ public class LogicalExpressionBuilderOchreImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the children.
+    *
+    * @param axiom the axiom
+    * @param definition the definition
+    * @return the children
+    */
    protected AbstractLogicNode[] getChildren(GenericAxiom axiom, LogicalExpressionOchreImpl definition) {
       final List<GenericAxiom>      childrenAxioms = this.definitionTree.get(axiom);
       final List<AbstractLogicNode> children       = new ArrayList<>(childrenAxioms.size());
@@ -810,6 +1089,11 @@ public class LogicalExpressionBuilderOchreImpl
       return children.toArray(new AbstractLogicNode[children.size()]);
    }
 
+   /**
+    * Gets the next axiom index.
+    *
+    * @return the next axiom index
+    */
    public short getNextAxiomIndex() {
       return this.nextAxiomId++;
    }

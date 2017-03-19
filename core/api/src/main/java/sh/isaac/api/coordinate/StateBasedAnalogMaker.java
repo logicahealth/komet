@@ -52,7 +52,10 @@ import sh.isaac.api.State;
  * @param <T> The type of object to make a time-based analog from.
  */
 public interface StateBasedAnalogMaker<T> {
+   
    /**
+    * Make analog.
+    *
     * @param state the allowed states for the resulting analog
     * @return a new {@code <T>} with the specified allowed states.
     */

@@ -70,14 +70,22 @@ import org.slf4j.LoggerFactory;
  */
 public class SearchResultsIntersectionFilter
          implements Function<List<CompositeSearchResult>, List<CompositeSearchResult>> {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LoggerFactory.getLogger(SearchResultsIntersectionFilter.class);
 
    //~--- fields --------------------------------------------------------------
 
+   /** The filters. */
    List<Function<List<CompositeSearchResult>, List<CompositeSearchResult>>> filters = new ArrayList<>();
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new search results intersection filter.
+    *
+    * @param passedFilters the passed filters
+    */
    @SafeVarargs
    public SearchResultsIntersectionFilter(Function<List<CompositeSearchResult>,
          List<CompositeSearchResult>>... passedFilters) {
@@ -88,6 +96,11 @@ public class SearchResultsIntersectionFilter
       }
    }
 
+   /**
+    * Instantiates a new search results intersection filter.
+    *
+    * @param passedFilters the passed filters
+    */
    public SearchResultsIntersectionFilter(List<Function<List<CompositeSearchResult>,
          List<CompositeSearchResult>>> passedFilters) {
       this.filters.addAll(passedFilters);
@@ -96,6 +109,10 @@ public class SearchResultsIntersectionFilter
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Apply.
+    *
+    * @param results the results
+    * @return the list
     * @see java.util.function.Function#apply(java.lang.Object)
     */
    @Override
@@ -114,6 +131,11 @@ public class SearchResultsIntersectionFilter
       return filteredResults;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "SearchResultsIntersectionFilter [filters=" + Arrays.toString(this.filters.toArray()) + "]";
@@ -121,6 +143,11 @@ public class SearchResultsIntersectionFilter
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the filters.
+    *
+    * @return the filters
+    */
    public Collection<Function<List<CompositeSearchResult>, List<CompositeSearchResult>>> getFilters() {
       return this.filters;
    }

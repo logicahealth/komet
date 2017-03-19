@@ -65,12 +65,19 @@ import sh.isaac.mojo.external.QuasiMojo;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class FullClassification.
  *
  * @author kec
  */
 @Service(name = "full-classification")
 public class FullClassification
         extends QuasiMojo {
+   
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException {

@@ -74,18 +74,37 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class RelationshipIsCircular
         extends LeafClause {
+   
+   /** The rel type key. */
    @XmlElement
    String             relTypeKey;
+   
+   /** The view coordinate key. */
    @XmlElement
    String             viewCoordinateKey;
+   
+   /** The rel type subsumption key. */
    @XmlElement
    String             relTypeSubsumptionKey;
+   
+   /** The rel type set. */
    ConceptSequenceSet relTypeSet;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new relationship is circular.
+    */
    protected RelationshipIsCircular() {}
 
+   /**
+    * Instantiates a new relationship is circular.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param relTypeKey the rel type key
+    * @param viewCoordinateKey the view coordinate key
+    * @param relTypeSubsumptionKey the rel type subsumption key
+    */
    public RelationshipIsCircular(Query enclosingQuery,
                                  String relTypeKey,
                                  String viewCoordinateKey,
@@ -98,6 +117,12 @@ public class RelationshipIsCircular
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
 //    System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
@@ -126,11 +151,22 @@ public class RelationshipIsCircular
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_ITERATION_AND_ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
       throw new UnsupportedOperationException();
@@ -147,6 +183,11 @@ public class RelationshipIsCircular
        */
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();

@@ -53,18 +53,26 @@ import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ObservableSememeChronology.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public interface ObservableSememeChronology<V extends ObservableSememeVersion>
         extends ObservableChronology<V>, SememeObject {
+   
+   /**
+    * Assemblage sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty assemblageSequenceProperty();
 
    /**
     * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
     * add persist the chronicle when changes to the mutable version are complete .
-    * @param <M>
+    *
+    * @param <M> the generic type
     * @param type SememeVersion type
     * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version.
     * @return the mutable version
@@ -76,7 +84,8 @@ public interface ObservableSememeChronology<V extends ObservableSememeVersion>
     * the version is uncommitted. It is the responsibility of the caller to
     * add the mutable version to the commit manager when changes are complete
     * prior to committing the component.
-    * @param <M>
+    *
+    * @param <M> the generic type
     * @param type SememeVersion type
     * @param state state of the created mutable version
     * @param ec edit coordinate to provide the author, module, and path for the mutable version
@@ -84,12 +93,27 @@ public interface ObservableSememeChronology<V extends ObservableSememeVersion>
     */
    <M extends V> M createMutableVersion(Class<M> type, State state, EditCoordinate ec);
 
+   /**
+    * Referenced component nid property.
+    *
+    * @return the integer property
+    */
    IntegerProperty referencedComponentNidProperty();
 
+   /**
+    * Sememe sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty sememeSequenceProperty();
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    SememeType getSememeType();
 }
 

@@ -40,17 +40,19 @@
 package sh.isaac.api.util;
 
 /**
- * {@link StringUtils}
+ * {@link StringUtils}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class StringUtils
         extends org.apache.commons.lang3.StringUtils {
+   
    /**
-    * Null-safe string compare
-    * @param s1
-    * @param s2
-    * @return
+    * Null-safe string compare.
+    *
+    * @param s1 the s 1
+    * @param s2 the s 2
+    * @return the int
     */
    public static int compareStringsIgnoreCase(String s1, String s2) {
       int rval = 0;

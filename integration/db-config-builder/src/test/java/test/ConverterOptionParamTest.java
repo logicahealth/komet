@@ -56,11 +56,17 @@ import sh.isaac.pombuilder.converter.ConverterOptionParamSuggestedValue;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link ConverterOptionParamTest}
+ * {@link ConverterOptionParamTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ConverterOptionParamTest {
+   
+   /**
+    * Test changeset URL rewrite.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testChangesetURLRewrite()
             throws IOException {
@@ -77,6 +83,11 @@ public class ConverterOptionParamTest {
                           GitPublish.constructChangesetRepositoryURL("https://git.isaac.sh/git/r/foo.git"));
    }
 
+   /**
+    * Test json.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void testJson()
             throws Exception {

@@ -58,22 +58,45 @@ import sh.isaac.api.DataSerializer;
 
 /**
  * Created by kec on 12/18/14.
+ *
+ * @param <T> the generic type
  */
 public class ConcurrentIntObjectMap<T> {
+   
+   /** The rwl. */
    private final ReentrantReadWriteLock rwl     = new ReentrantReadWriteLock();
+   
+   /** The read. */
    private final Lock                   read    = this.rwl.readLock();
+   
+   /** The write. */
    private final Lock                   write   = this.rwl.writeLock();
+   
+   /** The map. */
    OpenIntObjectHashMap<byte[]>         map     = new OpenIntObjectHashMap<>();
+   
+   /** The serializer. */
    DataSerializer<T>                    serializer;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concurrent int object map.
+    *
+    * @param serializer the serializer
+    */
    public ConcurrentIntObjectMap(DataSerializer<T> serializer) {
       this.serializer = serializer;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Contains key.
+    *
+    * @param key the key
+    * @return true, if successful
+    */
    public boolean containsKey(int key) {
       try {
          this.read.lock();
@@ -85,6 +108,12 @@ public class ConcurrentIntObjectMap<T> {
       }
    }
 
+   /**
+    * For each pair.
+    *
+    * @param procedure the procedure
+    * @return true, if successful
+    */
    public boolean forEachPair(IntObjectProcedure<T> procedure) {
       this.map.forEachPair((int first,
                        byte[] data) -> {
@@ -97,6 +126,13 @@ public class ConcurrentIntObjectMap<T> {
       return true;
    }
 
+   /**
+    * Put.
+    *
+    * @param key the key
+    * @param value the value
+    * @return true, if successful
+    */
    public boolean put(int key, T value) {
       try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
          this.serializer.serialize(new DataOutputStream(baos), value);
@@ -113,12 +149,23 @@ public class ConcurrentIntObjectMap<T> {
       }
    }
 
+   /**
+    * Size.
+    *
+    * @return the int
+    */
    public int size() {
       return this.map.size();
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the.
+    *
+    * @param key the key
+    * @return the optional
+    */
    public Optional<T> get(int key) {
       byte[] data;
 

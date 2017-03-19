@@ -63,26 +63,55 @@ import sh.isaac.api.DataSerializer;
 /**
  * Created by kec on 12/18/14.
  *
- * @param <T>
+ * @param <T> the generic type
  */
 public class ConcurrentSequenceSerializedObjectMap<T> {
+   
+   /** The Constant storeObjects. */
    private static final boolean storeObjects = false;
+   
+   /** The Constant SEGMENT_SIZE. */
    private static final int     SEGMENT_SIZE = 12800;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The lock. */
    ReentrantLock                  lock           = new ReentrantLock();
+   
+   /** The object byte list. */
    byte[][][]                     objectByteList = new byte[1][][];
+   
+   /** The object list list. */
    CopyOnWriteArrayList<Object[]> objectListList = new CopyOnWriteArrayList<>();
+   
+   /** The changed. */
    boolean[]                      changed        = new boolean[1];
+   
+   /** The max sequence. */
    AtomicInteger                  maxSequence    = new AtomicInteger(-1);
+   
+   /** The serializer. */
    DataSerializer<T>              serializer;
+   
+   /** The db folder path. */
    Path                           dbFolderPath;
+   
+   /** The folder. */
    String                         folder;
+   
+   /** The suffix. */
    String                         suffix;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concurrent sequence serialized object map.
+    *
+    * @param serializer the serializer
+    * @param dbFolderPath the db folder path
+    * @param folder the folder
+    * @param suffix the suffix
+    */
    public ConcurrentSequenceSerializedObjectMap(DataSerializer<T> serializer,
          Path dbFolderPath,
          String folder,
@@ -98,6 +127,12 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Contains key.
+    *
+    * @param sequence the sequence
+    * @return true, if successful
+    */
    public boolean containsKey(int sequence) {
       final int segmentIndex   = sequence / SEGMENT_SIZE;
       final int indexInSegment = sequence % SEGMENT_SIZE;
@@ -109,6 +144,13 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
       return this.objectByteList[segmentIndex][indexInSegment] != null;
    }
 
+   /**
+    * Put.
+    *
+    * @param sequence the sequence
+    * @param value the value
+    * @return true, if successful
+    */
    public boolean put(int sequence, T value) {
       this.maxSequence.set(Math.max(sequence, this.maxSequence.get()));
 
@@ -133,6 +175,9 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
       }
    }
 
+   /**
+    * Read.
+    */
    public void read() {
       int segment  = 0;
       int segments = 1;
@@ -165,8 +210,18 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
       }
    }
 
+   /**
+    * Read segment.
+    *
+    * @param dbFolderPath the db folder path
+    * @param folder the folder
+    * @param suffix the suffix
+    */
    public void readSegment(Path dbFolderPath, String folder, String suffix) {}
 
+   /**
+    * Write.
+    */
    public void write() {
       final int segments = this.objectByteList.length;
 
@@ -198,8 +253,20 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
       }
    }
 
+   /**
+    * Write segment.
+    *
+    * @param dbFolderPath the db folder path
+    * @param folder the folder
+    * @param suffix the suffix
+    */
    public void writeSegment(Path dbFolderPath, String folder, String suffix) {}
 
+   /**
+    * Expand map.
+    *
+    * @param segmentIndex the segment index
+    */
    private void expandMap(int segmentIndex) {
       if (segmentIndex >= this.objectByteList.length) {
          this.lock.lock();
@@ -221,6 +288,13 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
       }
    }
 
+   /**
+    * Put.
+    *
+    * @param sequence the sequence
+    * @param value the value
+    * @return true, if successful
+    */
    private boolean put(int sequence, byte[] value) {
       this.maxSequence.set(Math.max(sequence, this.maxSequence.get()));
 
@@ -236,6 +310,12 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the.
+    *
+    * @param sequence the sequence
+    * @return the optional
+    */
    public Optional<T> get(int sequence) {
       final int segmentIndex = sequence / SEGMENT_SIZE;
 
@@ -262,6 +342,11 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
       return Optional.empty();
    }
 
+   /**
+    * Gets the parallel stream.
+    *
+    * @return the parallel stream
+    */
    public Stream<T> getParallelStream() {
       final IntStream sequences = IntStream.rangeClosed(0, this.maxSequence.get())
                                      .parallel();
@@ -270,6 +355,12 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
                       .mapToObj(sequence -> getQuick(sequence));
    }
 
+   /**
+    * Gets the parallel stream.
+    *
+    * @param sequenceFilter the sequence filter
+    * @return the parallel stream
+    */
    public Stream<T> getParallelStream(IntPredicate sequenceFilter) {
       final IntStream sequences = IntStream.rangeClosed(0, this.maxSequence.get())
                                      .parallel();
@@ -283,8 +374,8 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
     * Provides no range or null checking. For use with a stream that already
     * filters out null values and out of range sequences.
     *
-    * @param sequence
-    * @return
+    * @param sequence the sequence
+    * @return the quick
     */
    public T getQuick(int sequence) {
       final int segmentIndex   = sequence / SEGMENT_SIZE;
@@ -311,10 +402,20 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
       }
    }
 
+   /**
+    * Gets the size.
+    *
+    * @return the size
+    */
    public int getSize() {
       return this.maxSequence.get() + 1;  // sequences start at zero, so size = max + 1...
    }
 
+   /**
+    * Gets the stream.
+    *
+    * @return the stream
+    */
    public Stream<T> getStream() {
       final IntStream sequences = IntStream.rangeClosed(0, this.maxSequence.get());
 
@@ -322,6 +423,12 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
                       .mapToObj(sequence -> getQuick(sequence));
    }
 
+   /**
+    * Gets the stream.
+    *
+    * @param sequenceFilter the sequence filter
+    * @return the stream
+    */
    public Stream<T> getStream(IntPredicate sequenceFilter) {
       final IntStream sequences = IntStream.rangeClosed(0, this.maxSequence.get());
 

@@ -74,13 +74,17 @@ import sh.isaac.provider.workflow.model.contents.ProcessDetail.EndWorkflowType;
 
 /**
  * Test the Bpmn2FileImporter class
- *
- * {@link Bpmn2FileImporter} {@link AbstractWorkflowProviderTestPackage}
+ * 
+ * {@link Bpmn2FileImporter} {@link AbstractWorkflowProviderTestPackage}.
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 public class Bpmn2FileImporterTest
         extends AbstractWorkflowProviderTestPackage {
+   
+   /**
+    * Before test.
+    */
    @Before
    public void beforeTest() {
       wp_.getProcessDetailStore()
@@ -89,6 +93,11 @@ public class Bpmn2FileImporterTest
          .clear();
    }
 
+   /**
+    * Tear down class.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @AfterClass
    public static void tearDownClass()
             throws IOException {
@@ -97,10 +106,9 @@ public class Bpmn2FileImporterTest
    }
 
    /**
-    * Test proper definition metadata following import of a bpmn2 file
+    * Test proper definition metadata following import of a bpmn2 file.
     *
-    * @throws Exception
-    *             Thrown if test fails
+    * @throws Exception             Thrown if test fails
     */
    @Test
    public void testImportBpmn2FileMetadata()
@@ -131,10 +139,9 @@ public class Bpmn2FileImporterTest
    }
 
    /**
-    * Test proper available actions following import of a bpmn2 file
+    * Test proper available actions following import of a bpmn2 file.
     *
-    * @throws Exception
-    *             Thrown if test fails
+    * @throws Exception             Thrown if test fails
     */
    @Test
    public void testStaticBpmnAvailableActions()
@@ -167,10 +174,9 @@ public class Bpmn2FileImporterTest
    }
 
    /**
-    * Test proper definition nodes following import of a bpmn2 file
+    * Test proper definition nodes following import of a bpmn2 file.
     *
-    * @throws Exception
-    *             Thrown if test fails
+    * @throws Exception             Thrown if test fails
     */
    @Test
    public void testStaticBpmnSetNodes()
@@ -269,6 +275,11 @@ public class Bpmn2FileImporterTest
                           identifiedEditingActions);
    }
 
+   /**
+    * Assert assigned actions.
+    *
+    * @param actions the actions
+    */
    private void assertAssignedActions(Set<AvailableAction> actions) {
       Assert.assertEquals(1, actions.size());
       Assert.assertEquals("Create Workflow Process", actions.iterator()
@@ -282,6 +293,11 @@ public class Bpmn2FileImporterTest
             .getRole());
    }
 
+   /**
+    * Assert ready for approval actions.
+    *
+    * @param actions the actions
+    */
    private void assertReadyForApprovalActions(Set<AvailableAction> actions) {
       Assert.assertEquals(4, actions.size());
 
@@ -306,6 +322,11 @@ public class Bpmn2FileImporterTest
       }
    }
 
+   /**
+    * Assert ready for edit actions.
+    *
+    * @param actions the actions
+    */
    private void assertReadyForEditActions(Set<AvailableAction> actions) {
       Assert.assertEquals(2, actions.size());
 
@@ -324,6 +345,11 @@ public class Bpmn2FileImporterTest
       }
    }
 
+   /**
+    * Assert ready for review actions.
+    *
+    * @param actions the actions
+    */
    private void assertReadyForReviewActions(Set<AvailableAction> actions) {
       Assert.assertEquals(3, actions.size());
 

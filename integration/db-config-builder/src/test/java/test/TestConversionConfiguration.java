@@ -57,7 +57,17 @@ import sh.isaac.pombuilder.converter.ConverterOptionParam;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class TestConversionConfiguration.
+ */
 public class TestConversionConfiguration {
+   
+   /**
+    * The main method.
+    *
+    * @param args the arguments
+    * @throws Exception the exception
+    */
    public static void main(String[] args)
             throws Exception {
       final String gitTestURL    = "https://git.isaac.sh/git/";

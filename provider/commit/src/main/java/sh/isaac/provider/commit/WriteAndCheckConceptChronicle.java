@@ -64,26 +64,41 @@ import sh.isaac.api.progress.ActiveTasks;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class WriteAndCheckConceptChronicle.
  *
  * @author kec
  */
 public class WriteAndCheckConceptChronicle
         extends Task<Void> {
+   
+   /** The cc. */
    private final ConceptChronology                                              cc;
+   
+   /** The checkers. */
    private final ConcurrentSkipListSet<ChangeChecker>                           checkers;
+   
+   /** The alert collection. */
    private final ConcurrentSkipListSet<Alert>                                   alertCollection;
+   
+   /** The write semaphore. */
    private final Semaphore                                                      writeSemaphore;
+   
+   /** The change listeners. */
    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
+   
+   /** The uncommitted tracking. */
    private final BiConsumer<ObjectChronology, Boolean>                          uncommittedTracking;
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    * @param cc
-    * @param checkers
-    * @param alertCollection
-    * @param writeSemaphore
-    * @param changeListeners
+    * Instantiates a new write and check concept chronicle.
+    *
+    * @param cc the cc
+    * @param checkers the checkers
+    * @param alertCollection the alert collection
+    * @param writeSemaphore the write semaphore
+    * @param changeListeners the change listeners
     * @param uncommittedTracking A handle to call back to the caller to notify it that the concept has been
     * written to the ConceptService.  Parameter 1 is the Concept, Parameter two is true to indicate that the
     * change checker is active for this implementation.
@@ -113,6 +128,12 @@ public class WriteAndCheckConceptChronicle
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Call.
+    *
+    * @return the void
+    * @throws Exception the exception
+    */
    @Override
    public Void call()
             throws Exception {

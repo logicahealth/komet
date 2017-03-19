@@ -58,18 +58,28 @@ import se.liu.imt.mi.snomedct.expression.tools.SNOMEDCTParserUtil;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link ExpressionReader}
+ * {@link ExpressionReader}.
  *
  * @author Tony Weida
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ExpressionReader {
+   
+   /** The Constant necessarySctid. */
    private static final String necessarySctid  = "900000000000074008";
+   
+   /** The Constant sufficientSctid. */
    private static final String sufficientSctid = "900000000000073002";
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read.
+    *
+    * @param file the file
+    * @return the stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static Stream<ParseTree> read(File file)
             throws IOException {
       final AtomicInteger lineCount = new AtomicInteger(0);

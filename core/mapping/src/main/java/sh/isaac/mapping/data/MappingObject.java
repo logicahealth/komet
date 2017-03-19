@@ -56,19 +56,37 @@ import sh.isaac.api.util.StringUtils;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class MappingObject.
+ */
 public class MappingObject
         extends StampedItem {
+   
+   /** The Constant editorStatusComparator. */
    public static final Comparator<MappingObject> editorStatusComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getEditorStatusName(), o2.getEditorStatusName());
 
    //~--- fields --------------------------------------------------------------
 
+   /** The editor status concept. */
    protected UUID                       editorStatusConcept         = null;
+   
+   /** The editor status concept nid. */
    protected int                        editorStatusConceptNid      = 0;
+   
+   /** The editor status concept property. */
    protected final SimpleStringProperty editorStatusConceptProperty = new SimpleStringProperty();
+   
+   /** The cached values. */
    protected HashMap<UUID, String>      cachedValues                = new HashMap<>();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Property lookup.
+    *
+    * @param uuid the uuid
+    * @param property the property
+    */
    protected void propertyLookup(UUID uuid, SimpleStringProperty property) {
       if (uuid == null) {
          property.set(null);
@@ -95,6 +113,8 @@ public class MappingObject
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the editor status concept.
+    *
     * @return the editorStatusConcept
     */
    public UUID getEditorStatusConcept() {
@@ -104,6 +124,8 @@ public class MappingObject
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the editor status concept.
+    *
     * @param editorStatusConcept the editorStatusConcept to set
     */
    public void setEditorStatusConcept(UUID editorStatusConcept) {
@@ -114,18 +136,39 @@ public class MappingObject
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the editor status concept nid.
+    *
+    * @return the editor status concept nid
+    */
    public int getEditorStatusConceptNid() {
       return this.editorStatusConceptNid;
    }
 
+   /**
+    * Gets the editor status concept property.
+    *
+    * @return the editor status concept property
+    */
    public SimpleStringProperty getEditorStatusConceptProperty() {
       return this.editorStatusConceptProperty;
    }
 
+   /**
+    * Gets the editor status name.
+    *
+    * @return the editor status name
+    */
    public String getEditorStatusName() {
       return this.editorStatusConceptProperty.get();
    }
 
+   /**
+    * Gets the nid for uuid safe.
+    *
+    * @param uuid the uuid
+    * @return the nid for uuid safe
+    */
    public static int getNidForUuidSafe(UUID uuid) {
       return (uuid == null) ? 0
                             : Get.identifierService()

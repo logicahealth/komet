@@ -93,16 +93,16 @@ public class Setup
    @Parameter(required = true)
    private File dataStoreLocation;
 
-   /**
-    * Location of the folder that contains the user profiles
-    */
+   /** Location of the folder that contains the user profiles. */
    @Parameter(required = false)
    private File userProfileFolderLocation;
 
    //~--- methods -------------------------------------------------------------
 
    /**
-    * @throws org.apache.maven.plugin.MojoExecutionException
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
     * @see org.apache.maven.plugin.Mojo#execute()
     */
    @Override
@@ -148,10 +148,20 @@ public class Setup
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set see {@link ConfigurationService#setDataStoreFolderPath(java.nio.file.Path) for details on what should be in the passed in folder location.  Note that the value passed in here is also passed through {@link DBLocator#findDBFolder(File)}.
+    *
+    * @param inputBdbFolderlocation the new see {@link ConfigurationService#setDataStoreFolderPath(java
+    */
    public void setDataStoreLocation(File inputBdbFolderlocation) {
       this.dataStoreLocation = inputBdbFolderlocation;
    }
 
+   /**
+    * Set location of the folder that contains the user profiles.
+    *
+    * @param inputUserProfileLocation the new location of the folder that contains the user profiles
+    */
    public void setUserProfileFolderLocation(File inputUserProfileLocation) {
       this.userProfileFolderLocation = inputUserProfileLocation;
    }

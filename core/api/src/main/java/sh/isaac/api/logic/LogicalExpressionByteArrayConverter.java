@@ -53,11 +53,20 @@ import sh.isaac.api.DataTarget;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface LogicalExpressionByteArrayConverter.
  *
  * @author kec
  */
 @Contract
 public interface LogicalExpressionByteArrayConverter {
+   
+   /**
+    * Convert logic graph form.
+    *
+    * @param logicGraphBytes the logic graph bytes
+    * @param dataTarget the data target
+    * @return the byte[][]
+    */
    byte[][] convertLogicGraphForm(byte[][] logicGraphBytes, DataTarget dataTarget);
 }
 

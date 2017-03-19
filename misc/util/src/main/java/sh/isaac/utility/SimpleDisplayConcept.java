@@ -56,36 +56,64 @@ import sh.isaac.api.component.concept.ConceptVersion;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
  * {@link SimpleDisplayConcept}
- *
+ * 
  * A very simple concept container, useful for things like ComboBoxes, or lists
  * where we want to display workbench concepts, and still have a link to the underlying
- * concept (via the nid)
+ * concept (via the nid).
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class SimpleDisplayConcept
          implements Comparable<SimpleDisplayConcept> {
+   
+   /** The uncommitted. */
    private boolean           uncommitted_ = false;
+   
+   /** The description. */
    protected String          description_;
+   
+   /** The nid. */
    private int               nid_;
+   
+   /** The custom logic. */
    private Supplier<Boolean> customLogic_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new simple display concept.
+    *
+    * @param c the c
+    */
    public SimpleDisplayConcept(ConceptSnapshot c) {
       this(c.getChronology(), null);
    }
 
+   /**
+    * Instantiates a new simple display concept.
+    *
+    * @param conceptId the concept id
+    */
    public SimpleDisplayConcept(Integer conceptId) {
       this(conceptId, null);
    }
 
+   /**
+    * Instantiates a new simple display concept.
+    *
+    * @param description the description
+    */
    public SimpleDisplayConcept(String description) {
       this(description, 0);
    }
 
+   /**
+    * Instantiates a new simple display concept.
+    *
+    * @param c the c
+    * @param descriptionReader the description reader
+    */
    public SimpleDisplayConcept(ConceptChronology<? extends ConceptVersion<?>> c,
                                Function<ConceptChronology<? extends ConceptVersion<?>>, String> descriptionReader) {
       final Function<ConceptChronology<? extends ConceptVersion<?>>, String> dr = ((descriptionReader == null)
@@ -103,6 +131,8 @@ public class SimpleDisplayConcept
    }
 
    /**
+    * Instantiates a new simple display concept.
+    *
     * @param conceptId nid or sequence
     * @param descriptionReader - optional
     */
@@ -113,14 +143,21 @@ public class SimpleDisplayConcept
                                      .getConcept(conceptId)), descriptionReader);
    }
 
+   /**
+    * Instantiates a new simple display concept.
+    *
+    * @param description the description
+    * @param nid the nid
+    */
    public SimpleDisplayConcept(String description, int nid) {
       this(description, nid, null);
    }
 
    /**
+    * Instantiates a new simple display concept.
     *
-    * @param description
-    * @param nid
+    * @param description the description
+    * @param nid the nid
     * @param customLogic - typically used to allow a changeListener to ignore a change.
     * See {@link #shouldIgnoreChange()}
     */
@@ -132,12 +169,21 @@ public class SimpleDisplayConcept
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Clone.
+    *
+    * @return the simple display concept
+    */
    @Override
    public SimpleDisplayConcept clone() {
       return new SimpleDisplayConcept(this.description_, this.nid_, this.customLogic_);
    }
 
    /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
     * @see java.lang.Comparable#compareTo(java.lang.Object)
     */
    @Override
@@ -146,13 +192,19 @@ public class SimpleDisplayConcept
    }
 
    /**
-    * Return back whatever customLogic supplier was passed in
+    * Return back whatever customLogic supplier was passed in.
+    *
+    * @return the supplier
     */
    public Supplier<Boolean> customLogic() {
       return this.customLogic_;
    }
 
    /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
     * @see java.lang.Object#equals(java.lang.Object)
     */
    @Override
@@ -171,6 +223,9 @@ public class SimpleDisplayConcept
    }
 
    /**
+    * Hash code.
+    *
+    * @return the int
     * @see java.lang.Object#hashCode()
     */
    @Override
@@ -184,6 +239,11 @@ public class SimpleDisplayConcept
       return result;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return this.description_;
@@ -191,28 +251,53 @@ public class SimpleDisplayConcept
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the description.
+    *
+    * @return the description
+    */
    public String getDescription() {
       return this.description_;
    }
 
+   /**
+    * Gets the nid.
+    *
+    * @return the nid
+    */
    public int getNid() {
       return this.nid_;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the nid.
+    *
+    * @param nid the new nid
+    */
    public void setNid(int nid) {
       this.nid_ = nid;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if uncommitted.
+    *
+    * @return true, if uncommitted
+    */
    public boolean isUncommitted() {
       return this.uncommitted_;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the uncommitted.
+    *
+    * @param val the new uncommitted
+    */
    public void setUncommitted(boolean val) {
       this.uncommitted_ = val;
    }

@@ -52,6 +52,7 @@ import java.io.DataOutput;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface DataSerializer.
  *
  * @author kec
  * @param <T> The class of object to serialize.
@@ -66,7 +67,7 @@ public interface DataSerializer<T> {
    public T deserialize(DataInput in);
 
    /**
-    * Serialize the content of an object into a DataOutput
+    * Serialize the content of an object into a DataOutput.
     *
     * @param out DataOutput to save object into
     * @param value Object to serialize

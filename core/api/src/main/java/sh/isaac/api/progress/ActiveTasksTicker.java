@@ -60,11 +60,20 @@ import sh.isaac.api.ticker.Ticker;
  * Created by kec on 4/9/15.
  */
 public class ActiveTasksTicker {
+   
+   /** The Constant log. */
    private static final Logger log    = LogManager.getLogger();
+   
+   /** The Constant ticker. */
    private static final Ticker ticker = new Ticker();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Start.
+    *
+    * @param intervalInSeconds the interval in seconds
+    */
    public static void start(int intervalInSeconds) {
       ticker.start(intervalInSeconds,
                    (tick) -> {
@@ -87,6 +96,9 @@ public class ActiveTasksTicker {
                    });
    }
 
+   /**
+    * Stop.
+    */
    public static void stop() {
       ticker.stop();
    }

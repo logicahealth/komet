@@ -93,35 +93,68 @@ import sh.isaac.api.coordinate.TaxonomyCoordinate;
  */
 @Contract
 public interface DynamicSememeUtility {
+   
    /**
     * This will return the column index configuration that will mark each supplied column that is indexable, for indexing.
     * Returns null, if no columns need indexing.
+    *
+    * @param columns the columns
+    * @return the dynamic sememe array
     */
    public DynamicSememeArray<DynamicSememeData> configureColumnIndexInfo(DynamicSememeColumnInfo[] columns);
 
+   /**
+    * Configure dynamic sememe definition data for column.
+    *
+    * @param ci the ci
+    * @return the dynamic sememe data[]
+    */
    public DynamicSememeData[] configureDynamicSememeDefinitionDataForColumn(DynamicSememeColumnInfo ci);
 
+   /**
+    * Configure dynamic sememe restriction data.
+    *
+    * @param referencedComponentRestriction the referenced component restriction
+    * @param referencedComponentSubRestriction the referenced component sub restriction
+    * @return the dynamic sememe data[]
+    */
    public DynamicSememeData[] configureDynamicSememeRestrictionData(ObjectChronologyType referencedComponentRestriction,
          SememeType referencedComponentSubRestriction);
 
+   /**
+    * Creates the dynamic string data.
+    *
+    * @param value the value
+    * @return the dynamic sememe string
+    */
    public DynamicSememeString createDynamicStringData(String value);
 
+   /**
+    * Creates the dynamic UUID data.
+    *
+    * @param value the value
+    * @return the dynamic sememe UUID
+    */
    public DynamicSememeUUID createDynamicUUIDData(UUID value);
 
    /**
-    * Convenience method to read all of the extended details of a DynamicSememeAssemblage
-    * @param assemblageNidOrSequence
+    * Convenience method to read all of the extended details of a DynamicSememeAssemblage.
+    *
+    * @param assemblageNidOrSequence the assemblage nid or sequence
+    * @return the dynamic sememe usage description
     */
    public DynamicSememeUsageDescription readDynamicSememeUsageDescription(int assemblageNidOrSequence);
 
    /**
     * validate that the proposed dynamicSememeData aligns with the definition.  This also fills in default values,
     * as necessary, if the data[] contains 'nulls' and the column is specified with a default value.
-    * @param dsud
-    * @param data
-    * @param referencedComponentNid
+    *
+    * @param dsud the dsud
+    * @param data the data
+    * @param referencedComponentNid the referenced component nid
     * @param stampCoordinate - optional - column specific validators may be skipped if this is not provided
     * @param taxonomyCoordinate - optional - column specific validators may be skipped if this is not provided
+    * @throws IllegalArgumentException the illegal argument exception
     * @throws InvalidParameterException - if anything fails validation
     */
    public default void validate(DynamicSememeUsageDescription dsud,

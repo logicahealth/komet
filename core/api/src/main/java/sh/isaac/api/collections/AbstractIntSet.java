@@ -61,27 +61,40 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class AbstractIntSet.
  *
  * @author kec
- * @param <T>
+ * @param <T> the generic type
  */
 public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
+   
+   /** The read only. */
    boolean readOnly = false;
+   
+   /** The int set. */
    IntSet  intSet;
 
    //~--- constant enums ------------------------------------------------------
 
-   protected enum Concurrency { THREAD_SAFE }
+   /**
+    * The Enum Concurrency.
+    */
+   protected enum Concurrency { /** The thread safe. */
+ THREAD_SAFE }
 
    ;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new abstract int set.
+    */
    protected AbstractIntSet() {
       this.intSet = new RoaringIntSet();
    }
 
    /**
+    * Instantiates a new abstract int set.
     *
     * @param readOnly true if the set is read only.
     */
@@ -90,6 +103,11 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
       this.readOnly = readOnly;
    }
 
+   /**
+    * Instantiates a new abstract int set.
+    *
+    * @param concurrency the concurrency
+    */
    protected AbstractIntSet(Concurrency concurrency) {
       if (concurrency == Concurrency.THREAD_SAFE) {
          this.intSet = new ConcurrentSkipListIntegerSet();
@@ -98,14 +116,29 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
       }
    }
 
+   /**
+    * Instantiates a new abstract int set.
+    *
+    * @param members the members
+    */
    protected AbstractIntSet(int... members) {
       this.intSet = new RoaringIntSet(members);
    }
 
+   /**
+    * Instantiates a new abstract int set.
+    *
+    * @param memberStream the member stream
+    */
    protected AbstractIntSet(IntStream memberStream) {
       this.intSet = new RoaringIntSet(memberStream);
    }
 
+   /**
+    * Instantiates a new abstract int set.
+    *
+    * @param members the members
+    */
    protected AbstractIntSet(OpenIntHashSet members) {
       this.intSet = new RoaringIntSet();
       members.forEachKey((int element) -> {
@@ -117,6 +150,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Adds the.
     *
     * @param item to add to set.
     */
@@ -128,6 +162,11 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
       this.intSet.add(item);
    }
 
+   /**
+    * Adds the all.
+    *
+    * @param intStream the int stream
+    */
    public void addAll(IntStream intStream) {
       if (this.readOnly) {
          throw new UnsupportedOperationException("Read only set");
@@ -136,6 +175,12 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
       intStream.forEach((anInt) -> this.intSet.add(anInt));
    }
 
+   /**
+    * And.
+    *
+    * @param otherSet the other set
+    * @return the t
+    */
    public T and(T otherSet) {
       if (this.readOnly) {
          throw new UnsupportedOperationException("Read only set");
@@ -145,6 +190,12 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
       return (T) this;
    }
 
+   /**
+    * And not.
+    *
+    * @param otherSet the other set
+    * @return the t
+    */
    public T andNot(T otherSet) {
       if (this.readOnly) {
          throw new UnsupportedOperationException("Read only set");
@@ -154,10 +205,20 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
       return (T) this;
    }
 
+   /**
+    * As array.
+    *
+    * @return the int[]
+    */
    public int[] asArray() {
       return stream().toArray();
    }
 
+   /**
+    * As open int hash set.
+    *
+    * @return the open int hash set
+    */
    public OpenIntHashSet asOpenIntHashSet() {
       final OpenIntHashSet set = new OpenIntHashSet();
 
@@ -165,10 +226,19 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
       return set;
    }
 
+   /**
+    * Clear.
+    */
    public void clear() {
       this.intSet.clear();
    }
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    public int compareTo(T o) {
       int comparison = Integer.compare(this.intSet.size(), o.intSet.size());
 
@@ -191,6 +261,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
    }
 
    /**
+    * Contains.
     *
     * @param item to test for containment in set.
     * @return true if item is contained in set.
@@ -199,6 +270,12 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
       return this.intSet.contains(item);
    }
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
@@ -227,10 +304,20 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
       return !(itr1.hasNext() || itr2.hasNext());
    }
 
+   /**
+    * Find first.
+    *
+    * @return the optional int
+    */
    public OptionalInt findFirst() {
       return stream().findFirst();
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int                     result = 1;
@@ -243,6 +330,12 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
       return result;
    }
 
+   /**
+    * Or.
+    *
+    * @param otherSet the other set
+    * @return the t
+    */
    public T or(T otherSet) {
       if (this.readOnly) {
          throw new UnsupportedOperationException("Read only set");
@@ -253,6 +346,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
    }
 
    /**
+    * Parallel stream.
     *
     * @return the set members as an {@code IntStream}
     */
@@ -270,8 +364,8 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
    /**
     * Reads a size, then each of the members from DataInput.
     *
-    * @param input
-    * @throws IOException
+    * @param input the input
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public void read(DataInput input)
             throws IOException {
@@ -283,6 +377,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
    }
 
    /**
+    * Removes the.
     *
     * @param item to remove from set.
     */
@@ -295,6 +390,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
    }
 
    /**
+    * Size.
     *
     * @return the number of elements in this set.
     */
@@ -303,6 +399,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
    }
 
    /**
+    * Stream.
     *
     * @return the set members as an {@code IntStream}
     */
@@ -317,12 +414,23 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
             .characteristics(), false);
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return this.getClass()
                  .getSimpleName() + " size: " + size() + " elements: " + this.intSet;
    }
 
+   /**
+    * To string.
+    *
+    * @param function the function
+    * @return the string
+    */
    public String toString(IntFunction<String> function) {
       final StringBuilder sb = new StringBuilder();
 
@@ -352,8 +460,8 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
    /**
     * Writes a size then each of the members to the DataOutput.
     *
-    * @param output
-    * @throws IOException
+    * @param output the output
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public void write(DataOutput output)
             throws IOException {
@@ -367,6 +475,12 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
                        });
    }
 
+   /**
+    * Xor.
+    *
+    * @param otherSet the other set
+    * @return the t
+    */
    public T xor(T otherSet) {
       if (this.readOnly) {
          throw new UnsupportedOperationException("Read only set");
@@ -379,6 +493,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Checks if empty.
     *
     * @return true if the set is empty.
     */
@@ -386,51 +501,95 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
       return this.intSet.isEmpty();
    }
 
+   /**
+    * Gets the.
+    *
+    * @return the supplier<? extends spliterator. of int>
+    */
    protected Supplier<? extends Spliterator.OfInt> get() {
       return new SpliteratorSupplier();
    }
 
+   /**
+    * Gets the int iterator.
+    *
+    * @return the int iterator
+    */
    public PrimitiveIterator.OfInt getIntIterator() {
       return this.intSet.getIntIterator();
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set read only.
+    */
    public void setReadOnly() {
       this.readOnly = true;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the reverse int iterator.
+    *
+    * @return the reverse int iterator
+    */
    public PrimitiveIterator.OfInt getReverseIntIterator() {
       return this.intSet.getReverseIntIterator();
    }
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class BitSetSpliterator.
+    */
    private class BitSetSpliterator
             implements Spliterator.OfInt {
+      
+      /** The int iterator. */
       PrimitiveIterator.OfInt intIterator = AbstractIntSet.this.intSet.getIntIterator();
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Characteristics.
+       *
+       * @return the int
+       */
       @Override
       public int characteristics() {
          return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED
                 | Spliterator.SIZED | Spliterator.SORTED;
       }
 
+      /**
+       * Estimate size.
+       *
+       * @return the long
+       */
       @Override
       public long estimateSize() {
          return AbstractIntSet.this.size();
       }
 
+      /**
+       * Try advance.
+       *
+       * @param action the action
+       * @return true, if successful
+       */
       @Override
       public boolean tryAdvance(IntConsumer action) {
          action.accept(this.intIterator.next());
          return this.intIterator.hasNext();
       }
 
+      /**
+       * Try split.
+       *
+       * @return the spliterator. of int
+       */
       @Override
       public Spliterator.OfInt trySplit() {
          return null;
@@ -438,8 +597,17 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
    }
 
 
+   /**
+    * The Class SpliteratorSupplier.
+    */
    private class SpliteratorSupplier
             implements Supplier<Spliterator.OfInt> {
+      
+      /**
+       * Gets the.
+       *
+       * @return the spliterator. of int
+       */
       @Override
       public Spliterator.OfInt get() {
          return new BitSetSpliterator();

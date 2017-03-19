@@ -45,12 +45,19 @@
 package sh.isaac.api.tree;
 
 /**
+ * The Enum NodeStatus.
  *
  * @author kec
  */
 public enum NodeStatus {
+   
+   /** The undiscovered. */
    UNDISCOVERED,
+   
+   /** The processing. */
    PROCESSING,
+   
+   /** The finished. */
    FINISHED
 }
 

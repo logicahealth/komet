@@ -50,6 +50,7 @@ import sh.isaac.api.collections.NidSet;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class AndNot.
  *
  * @author dylangrald
  */
@@ -63,12 +64,24 @@ public class AndNot
       super();
    }
 
+   /**
+    * Instantiates a new and not.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param clauses the clauses
+    */
    public AndNot(Query enclosingQuery, Clause... clauses) {
       super(enclosingQuery, clauses);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute components.
+    *
+    * @param incomingComponents the incoming components
+    * @return the nid set
+    */
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
       final NidSet results = NidSet.of(incomingComponents.stream());
@@ -79,6 +92,12 @@ public class AndNot
       return results;
    }
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       final NidSet results = NidSet.of(incomingPossibleComponents.stream());
@@ -91,6 +110,11 @@ public class AndNot
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();

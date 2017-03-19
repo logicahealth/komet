@@ -91,16 +91,27 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ProcessClassificationResults.
  *
  * @author kec
  */
 public class ProcessClassificationResults
         extends TimedTask<ClassifierResults> {
+   
+   /** The stamp coordinate. */
    StampCoordinate stampCoordinate;
+   
+   /** The logic coordinate. */
    LogicCoordinate logicCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new process classification results.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param logicCoordinate the logic coordinate
+    */
    public ProcessClassificationResults(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
       this.stampCoordinate = stampCoordinate;
       this.logicCoordinate = logicCoordinate;
@@ -109,6 +120,12 @@ public class ProcessClassificationResults
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Call.
+    *
+    * @return the classifier results
+    * @throws Exception the exception
+    */
    @Override
    protected ClassifierResults call()
             throws Exception {
@@ -119,6 +136,13 @@ public class ProcessClassificationResults
       return classifierResults;
    }
 
+   /**
+    * Collect results.
+    *
+    * @param classifiedResult the classified result
+    * @param affectedConcepts the affected concepts
+    * @return the classifier results
+    */
    private ClassifierResults collectResults(Ontology classifiedResult, ConceptSequenceSet affectedConcepts) {
       final HashSet<ConceptSequenceSet> equivalentSets = new HashSet<>();
 
@@ -160,6 +184,15 @@ public class ProcessClassificationResults
                                    writeBackInferred(classifiedResult, affectedConcepts));
    }
 
+   /**
+    * Test for proper set size.
+    *
+    * @param inferredSememeSequences the inferred sememe sequences
+    * @param conceptSequence the concept sequence
+    * @param statedSememeSequences the stated sememe sequences
+    * @param sememeService the sememe service
+    * @throws IllegalStateException the illegal state exception
+    */
    private void testForProperSetSize(SememeSequenceSet inferredSememeSequences,
                                      int conceptSequence,
                                      SememeSequenceSet statedSememeSequences,
@@ -201,6 +234,13 @@ public class ProcessClassificationResults
       }
    }
 
+   /**
+    * Write back inferred.
+    *
+    * @param inferredAxioms the inferred axioms
+    * @param affectedConcepts the affected concepts
+    * @return the optional
+    */
    private Optional<CommitRecord> writeBackInferred(Ontology inferredAxioms, ConceptSequenceSet affectedConcepts) {
       final SememeService                   sememeService                   = Get.sememeService();
       final IdentifierService               idService                       = Get.identifierService();

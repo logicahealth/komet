@@ -51,14 +51,19 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeLongImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link NumberUtilities}
+ * {@link NumberUtilities}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class NumberUtilities
         extends NumericUtils {
+   
    /**
-    * Return the wrapped number, or throw an exception if not parseable as an integer, long, float or double
+    * Return the wrapped number, or throw an exception if not parseable as an integer, long, float or double.
+    *
+    * @param value the value
+    * @return the dynamic sememe data
+    * @throws NumberFormatException the number format exception
     */
    public static DynamicSememeData wrapIntoRefexHolder(Number value)
             throws NumberFormatException {

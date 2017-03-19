@@ -78,15 +78,15 @@ import sh.isaac.provider.sync.git.gitblit.GitBlitException.UnknownRequestExcepti
  *
  */
 public class JsonUtils {
+   
    /**
     * Reads a gson object from the specified url.
     *
-    * @param url
-    * @param type
-    * @param username
-    * @param password
+    * @param url the url
+    * @param username the username
+    * @param password the password
     * @return the deserialized object
-    * @throws {@link IOException}
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    @SuppressWarnings("unchecked")
    public static JsonObject<String, Map<String, ?>> retrieveJson(String url,
@@ -112,9 +112,11 @@ public class JsonUtils {
    /**
     * Retrieves a JSON message.
     *
-    * @param url
+    * @param url the url
+    * @param username the username
+    * @param password the password
     * @return the JSON message as a string
-    * @throws {@link IOException}
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static String retrieveJsonString(String url, String username, char[] password)
             throws IOException {
@@ -159,14 +161,12 @@ public class JsonUtils {
    /**
     * Sends a JSON message.
     *
-    * @param url
-    * the url to write to
-    * @param json
-    * the json message to send
-    * @param username
-    * @param password
+    * @param url the url to write to
+    * @param json the json message to send
+    * @param username the username
+    * @param password the password
     * @return the http request result code
-    * @throws {@link IOException}
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static int sendJsonString(String url, String json, String username, char[] password)
             throws IOException {
@@ -211,7 +211,7 @@ public class JsonUtils {
    /**
     * Creates JSON from the specified object.
     *
-    * @param o
+    * @param o the o
     * @return json
     */
    public static String toJsonString(Object o) {

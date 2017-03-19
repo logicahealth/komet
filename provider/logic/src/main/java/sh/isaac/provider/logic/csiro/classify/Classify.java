@@ -65,6 +65,15 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
 //TODO move to CSIRO specific module
 //Create a classifier service...
 public class Classify {
+   
+   /**
+    * Execute.
+    *
+    * @param conceptSequences the concept sequences
+    * @param roleSequences the role sequences
+    * @param neverGroupRoleSequences the never group role sequences
+    * @param roleGroupConceptSequence the role group concept sequence
+    */
    public static void execute(BitSet conceptSequences,
                               OpenIntHashSet roleSequences,
                               OpenIntHashSet neverGroupRoleSequences,

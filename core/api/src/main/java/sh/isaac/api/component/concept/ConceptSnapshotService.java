@@ -53,6 +53,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ConceptSnapshotService.
  *
  * @author kec
  */
@@ -72,14 +73,16 @@ public interface ConceptSnapshotService {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Checks if concept active.
     *
     * @param conceptId nid or sequence of the concept to determine if it is active
     * according to the {@code StampCoordinate} of this snapshot service
-    * @return
+    * @return true, if concept active
     */
    boolean isConceptActive(int conceptId);
 
    /**
+    * Gets the concept snapshot.
     *
     * @param conceptId nid or sequence of the concept to get the {@code ConceptSnapshot} for
     * @return a concept that internally uses the {@code StampCoordinate}
@@ -98,6 +101,7 @@ public interface ConceptSnapshotService {
    Optional<LatestVersion<DescriptionSememe<?>>> getDescriptionOptional(int conceptId);
 
    /**
+    * Gets the fully specified description.
     *
     * @param conceptId nid or sequence of the concept to get the description for
     * @return The fully specified description for this concept. Optional in case
@@ -107,12 +111,14 @@ public interface ConceptSnapshotService {
    Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(int conceptId);
 
    /**
-    * 
-    *  @return the {@code LanguageCoordinate} associated with this snapshot.
+    * Gets the language coordinate.
+    *
+    * @return the {@code LanguageCoordinate} associated with this snapshot.
     */
    LanguageCoordinate getLanguageCoordinate();
 
    /**
+    * Gets the preferred description.
     *
     * @param conceptId nid or sequence of the concept to get the description for
     * @return The preferred description for this concept. Optional in case
@@ -122,6 +128,7 @@ public interface ConceptSnapshotService {
    Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(int conceptId);
 
    /**
+    * Gets the stamp coordinate.
     *
     * @return the {@code StampCoordinate} associated with this snapshot.
     */

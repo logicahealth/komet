@@ -49,14 +49,33 @@ import sh.isaac.api.constants.DynamicSememeConstants;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class PropertyAssociation.
+ */
 public class PropertyAssociation
         extends Property {
+   
+   /** The association inverse name. */
    private final String               associationInverseName_;
+   
+   /** The association component type restriction. */
    private final ObjectChronologyType associationComponentTypeRestriction_;
+   
+   /** The association component type sub restriction. */
    private final SememeType           associationComponentTypeSubRestriction_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new property association.
+    *
+    * @param owner the owner
+    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyAltName the source property alt name
+    * @param associationInverseName the association inverse name
+    * @param associationDescription the association description
+    * @param disabled the disabled
+    */
    public PropertyAssociation(PropertyType owner,
                               String sourcePropertyNameFSN,
                               String sourcePropertyAltName,
@@ -73,6 +92,18 @@ public class PropertyAssociation
            null);
    }
 
+   /**
+    * Instantiates a new property association.
+    *
+    * @param owner the owner
+    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyAltName the source property alt name
+    * @param associationInverseName the association inverse name
+    * @param associationDescription the association description
+    * @param disabled the disabled
+    * @param associationComponentTypeRestriction the association component type restriction
+    * @param associationComponentTypeSubRestriction the association component type sub restriction
+    */
    public PropertyAssociation(PropertyType owner,
                               String sourcePropertyNameFSN,
                               String sourcePropertyAltName,
@@ -100,18 +131,38 @@ public class PropertyAssociation
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the association component type restriction.
+    *
+    * @return the association component type restriction
+    */
    public ObjectChronologyType getAssociationComponentTypeRestriction() {
       return this.associationComponentTypeRestriction_;
    }
 
+   /**
+    * Gets the association component type sub restriction.
+    *
+    * @return the association component type sub restriction
+    */
    public SememeType getAssociationComponentTypeSubRestriction() {
       return this.associationComponentTypeSubRestriction_;
    }
 
+   /**
+    * Gets the association inverse name.
+    *
+    * @return the association inverse name
+    */
    public String getAssociationInverseName() {
       return this.associationInverseName_;
    }
 
+   /**
+    * Gets the data columns for dynamic refex.
+    *
+    * @return the data columns for dynamic refex
+    */
    @Override
    public DynamicSememeColumnInfo[] getDataColumnsForDynamicRefex() {
       final DynamicSememeColumnInfo[] columns = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,

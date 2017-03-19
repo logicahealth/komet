@@ -48,12 +48,19 @@ import sh.isaac.api.identity.StampedVersion;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface SememeVersion.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public interface SememeVersion<V extends SememeVersion<V>>
         extends StampedVersion, SememeObject {
+   
+   /**
+    * Gets the chronology.
+    *
+    * @return the chronology
+    */
    SememeChronology<V> getChronology();
 }
 

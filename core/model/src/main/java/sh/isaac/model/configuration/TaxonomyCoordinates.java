@@ -52,15 +52,18 @@ import sh.isaac.model.coordinate.TaxonomyCoordinateImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class TaxonomyCoordinates.
  *
  * @author kec
  */
 public class TaxonomyCoordinates {
+   
    /**
     * Uses the default logic coordinate.
-    * @param stampCoordinate
-    * @param languageCoordinate
-    * @return
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param languageCoordinate the language coordinate
+    * @return the inferred taxonomy coordinate
     */
    public static TaxonomyCoordinate getInferredTaxonomyCoordinate(StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate) {
@@ -70,6 +73,14 @@ public class TaxonomyCoordinates {
                                         Get.configurationService().getDefaultLogicCoordinate());
    }
 
+   /**
+    * Gets the inferred taxonomy coordinate.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param languageCoordinate the language coordinate
+    * @param logicCoordinate the logic coordinate
+    * @return the inferred taxonomy coordinate
+    */
    public static TaxonomyCoordinate getInferredTaxonomyCoordinate(StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate,
          LogicCoordinate logicCoordinate) {
@@ -78,9 +89,10 @@ public class TaxonomyCoordinates {
 
    /**
     * Uses the default logic coordinate.
-    * @param stampCoordinate
-    * @param languageCoordinate
-    * @return
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param languageCoordinate the language coordinate
+    * @return the stated taxonomy coordinate
     */
    public static TaxonomyCoordinate getStatedTaxonomyCoordinate(StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate) {
@@ -90,6 +102,14 @@ public class TaxonomyCoordinates {
                                         Get.configurationService().getDefaultLogicCoordinate());
    }
 
+   /**
+    * Gets the stated taxonomy coordinate.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param languageCoordinate the language coordinate
+    * @param logicCoordinate the logic coordinate
+    * @return the stated taxonomy coordinate
+    */
    public static TaxonomyCoordinate getStatedTaxonomyCoordinate(StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate,
          LogicCoordinate logicCoordinate) {

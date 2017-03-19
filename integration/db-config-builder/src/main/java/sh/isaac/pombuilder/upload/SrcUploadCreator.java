@@ -69,36 +69,39 @@ import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
  * {@link SrcUploadCreator}
- * Create a new maven pom project which when executed, will upload a set of SDO input files
+ * Create a new maven pom project which when executed, will upload a set of SDO input files.
+ *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class SrcUploadCreator {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Creates the src upload configuration.
+    *
     * @param uploadType - What type of content is being uploaded.
     * @param version - What version number does the passed in content represent
     * @param extensionName - optional - If the upload type is a type such as {@link SupportedConverterTypes#SCT_EXTENSION} which contains a
     * wildcard '*' in its {@link SupportedConverterTypes#getArtifactId()} value, this parameter must be provided, and is the string to use to
     * replace the wildcard.  This would typically be a value such as "en" or "fr", when used for snomed extension content.
-    * @param folderContainingContent - The folder that contains the required data files - these files will be zipped into an artifact and uploaded
-    * to the artifactRepositoryURL.
+    * @param filesToUpload the files to upload
     * @param gitRepositoryURL - The URL to publish this built project to
     * @param gitUsername - The username to utilize to publish this project
-    * @param getPassword - The password to utilize to publish this project
-    * @return the tag created in the repository that carries the created project
+    * @param gitPassword the git password
     * @param artifactRepositoryURL - The artifact server path where the created artifact should be transferred.  This path should go all the way down to
     * a specific repository, such as http://artifactory.isaac.sh/artifactory/libs-release-local or http://artifactory.isaac.sh/artifactory/termdata-release-local
     * This should not point to a URL that represents a 'group' repository view.
     * @param repositoryUsername - The username to utilize to upload the artifact to the artifact server
     * @param repositoryPassword - The passwordto utilize to upload the artifact to the artifact server
-    * @return - the task handle - which will return the tag that was created in the git repository upon completion.  Note that the task is NOT yet started, when
+    * @return the tag created in the repository that carries the created project
+    * - the task handle - which will return the tag that was created in the git repository upon completion.  Note that the task is NOT yet started, when
     * it is returned.
-    * @throws Throwable
+    * @throws Throwable the throwable
     */
    public static Task<String> createSrcUploadConfiguration(SupportedConverterTypes uploadType,
          String version,

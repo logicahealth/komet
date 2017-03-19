@@ -69,26 +69,41 @@ import net.lingala.zip4j.progress.ProgressMonitor;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DownloadUnzipTask}
+ * {@link DownloadUnzipTask}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DownloadUnzipTask
         extends Task<File> {
+   
+   /** The log. */
    private static Logger log = LoggerFactory.getLogger(DownloadUnzipTask.class);
 
    //~--- fields --------------------------------------------------------------
 
+   /** The cancel. */
    private boolean cancel_ = false;
+   
+   /** The psswrd. */
    String          username_, psswrd_;
+   
+   /** The url. */
    URL             url_;
+   
+   /** The unzip. */
    private final boolean unzip_;
+   
+   /** The fail on bad cheksum. */
    private final boolean failOnBadCheksum_;
+   
+   /** The target folder. */
    private File    targetFolder_;
 
    //~--- constructors --------------------------------------------------------
 
    /**
+    * Instantiates a new download unzip task.
+    *
     * @param username (optional) used if provided
     * @param psswrd (optional) used if provided
     * @param url The URL to download from
@@ -97,7 +112,7 @@ public class DownloadUnzipTask
     * (If no checksum file is found on the repository, this option is ignored and the download succeeds)
     * @param targetFolder (optional) download and/or extract into this folder.  If not provided, a folder
     * will be created in the system temp folder for this purpose.
-    * @throws IOException
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public DownloadUnzipTask(String username,
                             String psswrd,
@@ -126,6 +141,10 @@ public class DownloadUnzipTask
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Cancel.
+    *
+    * @param mayInterruptIfRunning the may interrupt if running
+    * @return true, if successful
     * @see javafx.concurrent.Task#cancel(boolean)
     */
    @Override
@@ -136,6 +155,10 @@ public class DownloadUnzipTask
    }
 
    /**
+    * Call.
+    *
+    * @return the file
+    * @throws Exception the exception
     * @see javafx.concurrent.Task#call()
     */
    @Override
@@ -225,6 +248,13 @@ public class DownloadUnzipTask
       }
    }
 
+   /**
+    * Download.
+    *
+    * @param url the url
+    * @return the file
+    * @throws Exception the exception
+    */
    private File download(URL url)
             throws Exception {
       log.debug("Beginning download from " + url);

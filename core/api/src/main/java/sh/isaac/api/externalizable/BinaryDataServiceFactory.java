@@ -53,34 +53,39 @@ import org.jvnet.hk2.annotations.Contract;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * A factory for creating BinaryDataService objects.
  *
  * @author kec
  */
 @Contract
 public interface BinaryDataServiceFactory {
+   
    /**
+    * Gets the queue reader.
     *
     * @param dataPath data file location
     * @return the BinaryDataReaderService for the given dataPath
-    * @throws java.io.FileNotFoundException
+    * @throws FileNotFoundException the file not found exception
     */
    BinaryDataReaderQueueService getQueueReader(Path dataPath)
             throws FileNotFoundException;
 
    /**
+    * Gets the reader.
     *
     * @param dataPath data file location
     * @return the BinaryDataReaderService for the given dataPath
-    * @throws java.io.FileNotFoundException
+    * @throws FileNotFoundException the file not found exception
     */
    BinaryDataReaderService getReader(Path dataPath)
             throws FileNotFoundException;
 
    /**
+    * Gets the writer.
     *
     * @param dataPath data file location
     * @return the BinaryDataWriterService for the given dataPath
-    * @throws java.io.FileNotFoundException
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    DataWriterService getWriter(Path dataPath)
             throws IOException;

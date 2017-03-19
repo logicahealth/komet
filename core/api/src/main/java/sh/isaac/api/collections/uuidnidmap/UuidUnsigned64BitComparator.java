@@ -40,11 +40,13 @@
 package sh.isaac.api.collections.uuidnidmap;
 
 /**
+ * The Class UuidUnsigned64BitComparator.
  *
  * @author kec
  */
 public class UuidUnsigned64BitComparator
          implements UuidComparatorBI {
+   
    /**
     * This algorithm performs unsigned 64 bit comparison of the msb and lsb of 2 uuids. This method is based
     * on the following routine:
@@ -53,6 +55,12 @@ public class UuidUnsigned64BitComparator
     * return (n1 &lt; n2) ^ ((n1 &lt; 0) != (n2 &lt; 0));
     * }
     * } see: http://www.javamex.com/java_equivalents/unsigned_arithmetic.shtml
+    *
+    * @param msb1 the msb 1
+    * @param lsb1 the lsb 1
+    * @param msb2 the msb 2
+    * @param lsb2 the lsb 2
+    * @return the int
     */
    @Override
    public int compare(long msb1, long lsb1, long msb2, long lsb2) {

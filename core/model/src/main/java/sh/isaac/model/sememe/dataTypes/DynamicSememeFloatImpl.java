@@ -50,27 +50,45 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeFloatImpl}
+ * {@link DynamicSememeFloatImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeFloatImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeFloat {
+   
+   /** The property. */
    private ObjectProperty<Float> property_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe float impl.
+    *
+    * @param data the data
+    */
    protected DynamicSememeFloatImpl(byte[] data) {
       super(data);
    }
 
+   /**
+    * Instantiates a new dynamic sememe float impl.
+    *
+    * @param f the f
+    */
    public DynamicSememeFloatImpl(float f) {
       super();
       this.data_ = DynamicSememeIntegerImpl.intToByteArray(Float.floatToIntBits(f));
    }
 
+   /**
+    * Instantiates a new dynamic sememe float impl.
+    *
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    protected DynamicSememeFloatImpl(byte[] data, int assemblageSequence, int columnNumber) {
       super(data, assemblageSequence, columnNumber);
    }
@@ -78,6 +96,9 @@ public class DynamicSememeFloatImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data float.
+    *
+    * @return the data float
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI#getDataFloat()
     */
    @Override
@@ -86,6 +107,9 @@ public class DynamicSememeFloatImpl
    }
 
    /**
+    * Gets the data float property.
+    *
+    * @return the data float property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicFloatBI#getDataFloatProperty()
     */
    @Override
@@ -98,6 +122,9 @@ public class DynamicSememeFloatImpl
    }
 
    /**
+    * Gets the data object.
+    *
+    * @return the data object
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
     */
    @Override
@@ -106,6 +133,9 @@ public class DynamicSememeFloatImpl
    }
 
    /**
+    * Gets the data object property.
+    *
+    * @return the data object property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
     */
    @Override

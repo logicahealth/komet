@@ -65,18 +65,32 @@ import sh.isaac.api.collections.SequenceSet;
  */
 public class HashTreeWithBitSets
         extends AbstractHashTree {
+   
+   /** The concept sequences with parents. */
    final ConceptSequenceSet conceptSequencesWithParents;
+   
+   /** The concept sequences with children. */
    final ConceptSequenceSet conceptSequencesWithChildren;
+   
+   /** The concept sequences. */
    final ConceptSequenceSet conceptSequences;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new hash tree with bit sets.
+    */
    public HashTreeWithBitSets() {
       this.conceptSequencesWithParents  = new ConceptSequenceSet();
       this.conceptSequencesWithChildren = new ConceptSequenceSet();
       this.conceptSequences             = new ConceptSequenceSet();
    }
 
+   /**
+    * Instantiates a new hash tree with bit sets.
+    *
+    * @param initialSize the initial size
+    */
    public HashTreeWithBitSets(int initialSize) {
       this.conceptSequencesWithParents  = new ConceptSequenceSet();
       this.conceptSequencesWithChildren = new ConceptSequenceSet();
@@ -85,6 +99,12 @@ public class HashTreeWithBitSets
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the children.
+    *
+    * @param parentSequence the parent sequence
+    * @param childSequenceArray the child sequence array
+    */
    public void addChildren(int parentSequence, int[] childSequenceArray) {
       this.maxSequence = Math.max(parentSequence, this.maxSequence);
 
@@ -112,6 +132,12 @@ public class HashTreeWithBitSets
       }
    }
 
+   /**
+    * Adds the parents.
+    *
+    * @param childSequence the child sequence
+    * @param parentSequenceArray the parent sequence array
+    */
    public void addParents(int childSequence, int[] parentSequenceArray) {
       this.maxSequence = Math.max(childSequence, this.maxSequence);
 
@@ -140,14 +166,29 @@ public class HashTreeWithBitSets
       }
    }
 
+   /**
+    * Concept sequences with children count.
+    *
+    * @return the int
+    */
    public int conceptSequencesWithChildrenCount() {
       return this.conceptSequencesWithChildren.size();
    }
 
+   /**
+    * Concept sequences with parents count.
+    *
+    * @return the int
+    */
    public int conceptSequencesWithParentsCount() {
       return this.conceptSequencesWithParents.size();
    }
 
+   /**
+    * Size.
+    *
+    * @return the int
+    */
    @Override
    public int size() {
       return getNodeSequences().size() + 1;
@@ -155,6 +196,11 @@ public class HashTreeWithBitSets
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the leaf sequences.
+    *
+    * @return the leaf sequences
+    */
    public IntStream getLeafSequences() {
       final SequenceSet leavesSet = new SequenceSet<>();
 
@@ -163,14 +209,29 @@ public class HashTreeWithBitSets
       return leavesSet.stream();
    }
 
+   /**
+    * Gets the max sequence.
+    *
+    * @return the max sequence
+    */
    public int getMaxSequence() {
       return this.maxSequence;
    }
 
+   /**
+    * Gets the node sequences.
+    *
+    * @return the node sequences
+    */
    public SequenceSet<?> getNodeSequences() {
       return this.conceptSequences;
    }
 
+   /**
+    * Gets the root sequence stream.
+    *
+    * @return the root sequence stream
+    */
    @Override
    public IntStream getRootSequenceStream() {
       final SequenceSet rootSet = new SequenceSet<>();
@@ -180,6 +241,11 @@ public class HashTreeWithBitSets
       return rootSet.stream();
    }
 
+   /**
+    * Gets the root sequences.
+    *
+    * @return the root sequences
+    */
    @Override
    public int[] getRootSequences() {
       return getRootSequenceStream().toArray();

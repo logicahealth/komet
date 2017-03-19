@@ -65,30 +65,42 @@ import net.lingala.zip4j.util.Zip4jConstants;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link Zip}
+ * {@link Zip}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class Zip {
+   
+   /** The total work. */
    private final ReadOnlyDoubleWrapper totalWork    = new ReadOnlyDoubleWrapper();
+   
+   /** The work complete. */
    private final ReadOnlyDoubleWrapper workComplete = new ReadOnlyDoubleWrapper();
+   
+   /** The status. */
    private final ReadOnlyStringWrapper status       = new ReadOnlyStringWrapper();
+   
+   /** The zf. */
    private final ZipFile               zf;
+   
+   /** The zp. */
    private final ZipParameters         zp;
 
    //~--- constructors --------------------------------------------------------
 
    /**
+    * Instantiates a new zip.
     *
-    * @param artifactId
-    * @param version
+    * @param artifactId the artifact id
+    * @param version the version
     * @param classifier - optional
     * @param dataType - optional
-    * @param zipContentCommonRoot
+    * @param outputFolder the output folder
+    * @param zipContentCommonRoot the zip content common root
     * @param createArtifactTopLevelFolder - true to create a top level folder in the zip, false to just add the files starting at the root level
     * @return - progress moniter to utilize during {@link #addFiles(List)}
-    * @throws ZipException
-    * @throws IOException
+    * @throws ZipException the zip exception
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public Zip(String artifactId,
               String version,
@@ -131,6 +143,10 @@ public class Zip {
 
    /**
     * This will block during add - see the getTotalWork / getWorkComplete methods to monitor progress.
+    *
+    * @param dataFiles the data files
+    * @return the file
+    * @throws Throwable the throwable
     */
    public File addFiles(ArrayList<File> dataFiles)
             throws Throwable {
@@ -161,14 +177,29 @@ public class Zip {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the status.
+    *
+    * @return the status
+    */
    public ReadOnlyStringProperty getStatus() {
       return this.status.getReadOnlyProperty();
    }
 
+   /**
+    * Gets the total work.
+    *
+    * @return the total work
+    */
    public ReadOnlyDoubleProperty getTotalWork() {
       return this.totalWork.getReadOnlyProperty();
    }
 
+   /**
+    * Gets the work complete.
+    *
+    * @return the work complete
+    */
    public ReadOnlyDoubleProperty getWorkComplete() {
       return this.workComplete.getReadOnlyProperty();
    }

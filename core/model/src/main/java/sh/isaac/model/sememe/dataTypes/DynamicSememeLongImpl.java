@@ -54,22 +54,33 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeLongImpl}
+ * {@link DynamicSememeLongImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeLongImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeLong {
+   
+   /** The property. */
    private ObjectProperty<Long> property_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe long impl.
+    *
+    * @param data the data
+    */
    protected DynamicSememeLongImpl(byte[] data) {
       super(data);
    }
 
+   /**
+    * Instantiates a new dynamic sememe long impl.
+    *
+    * @param l the l
+    */
    public DynamicSememeLongImpl(long l) {
       super();
       this.data_ = ByteBuffer.allocate(8)
@@ -77,6 +88,13 @@ public class DynamicSememeLongImpl
                         .array();
    }
 
+   /**
+    * Instantiates a new dynamic sememe long impl.
+    *
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    protected DynamicSememeLongImpl(byte[] data, int assemblageSequence, int columnNumber) {
       super(data, assemblageSequence, columnNumber);
    }
@@ -84,6 +102,9 @@ public class DynamicSememeLongImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data long.
+    *
+    * @return the data long
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI#getDataLong()
     */
    @Override
@@ -93,6 +114,9 @@ public class DynamicSememeLongImpl
    }
 
    /**
+    * Gets the data long property.
+    *
+    * @return the data long property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI#getDataLongProperty()
     */
    @Override
@@ -105,6 +129,9 @@ public class DynamicSememeLongImpl
    }
 
    /**
+    * Gets the data object.
+    *
+    * @return the data object
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
     */
    @Override
@@ -113,6 +140,9 @@ public class DynamicSememeLongImpl
    }
 
    /**
+    * Gets the data object property.
+    *
+    * @return the data object property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
     */
    @Override

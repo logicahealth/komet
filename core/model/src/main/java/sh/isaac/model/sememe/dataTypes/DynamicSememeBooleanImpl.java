@@ -50,28 +50,46 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeBooleanImpl}
+ * {@link DynamicSememeBooleanImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeBooleanImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeBoolean {
+   
+   /** The property. */
    private ObjectProperty<Boolean> property_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe boolean impl.
+    *
+    * @param b the b
+    */
    public DynamicSememeBooleanImpl(boolean b) {
       super();
       this.data_ = (b ? new byte[] { 1 }
                  : new byte[] { 0 });
    }
 
+   /**
+    * Instantiates a new dynamic sememe boolean impl.
+    *
+    * @param data the data
+    */
    protected DynamicSememeBooleanImpl(byte[] data) {
       super(data);
    }
 
+   /**
+    * Instantiates a new dynamic sememe boolean impl.
+    *
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    protected DynamicSememeBooleanImpl(byte[] data, int assemblageSequence, int columnNumber) {
       super(data, assemblageSequence, columnNumber);
    }
@@ -79,6 +97,9 @@ public class DynamicSememeBooleanImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data boolean.
+    *
+    * @return the data boolean
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicBooleanBI#getDataBoolean()
     */
    @Override
@@ -88,6 +109,9 @@ public class DynamicSememeBooleanImpl
    }
 
    /**
+    * Gets the data boolean property.
+    *
+    * @return the data boolean property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicBooleanBI#getDataBooleanProperty()
     */
    @Override
@@ -100,6 +124,9 @@ public class DynamicSememeBooleanImpl
    }
 
    /**
+    * Gets the data object.
+    *
+    * @return the data object
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
     */
    @Override
@@ -108,6 +135,9 @@ public class DynamicSememeBooleanImpl
    }
 
    /**
+    * Gets the data object property.
+    *
+    * @return the data object property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
     */
    @Override

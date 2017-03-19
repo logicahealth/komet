@@ -94,15 +94,23 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
  */
 @HK2("integration")
 public class ImportExportTest {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The builder provider. */
    LogicalExpressionBuilderOchreProvider builderProvider = new LogicalExpressionBuilderOchreProvider();
+   
+   /** The import stats. */
    OchreExternalizableStatsTestFilter    importStats;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Test classify.
+    */
    @Test(
       groups           = { "load" },
       dependsOnMethods = { "testExportImport" }
@@ -129,6 +137,11 @@ public class ImportExportTest {
       }
    }
 
+   /**
+    * Test convert logic graph form.
+    *
+    * @throws Exception the exception
+    */
    @Test(
       groups           = { "load" },
       dependsOnMethods = { "testLoad" }
@@ -153,6 +166,9 @@ public class ImportExportTest {
       }
    }
 
+   /**
+    * Test export after classify.
+    */
    @Test(
       groups           = { "load" },
       dependsOnMethods = { "testClassify" }
@@ -197,6 +213,9 @@ public class ImportExportTest {
       }
    }
 
+   /**
+    * Test export import.
+    */
    @Test(
       groups           = { "load" },
       dependsOnMethods = { "testLoad" }
@@ -243,6 +262,9 @@ public class ImportExportTest {
       }
    }
 
+   /**
+    * Test inferred taxonomy.
+    */
    @Test(
       groups           = { "load" },
       dependsOnMethods = { "testClassify" }
@@ -272,6 +294,9 @@ public class ImportExportTest {
       logTree(roots[0], taxonomyTree);
    }
 
+   /**
+    * Test load.
+    */
    @Test(groups = { "load" })
    public void testLoad() {
       LOG.info("Testing load");
@@ -297,6 +322,9 @@ public class ImportExportTest {
       }
    }
 
+   /**
+    * Test stated taxonomy.
+    */
    @Test(
       groups           = { "load" },
       dependsOnMethods = { "testLoad" }
@@ -326,6 +354,12 @@ public class ImportExportTest {
       Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
    }
 
+   /**
+    * Log tree.
+    *
+    * @param root the root
+    * @param taxonomyTree the taxonomy tree
+    */
    private void logTree(int root, Tree taxonomyTree) {
       taxonomyTree.depthFirstProcess(root,
                                      (TreeNodeVisitData t,

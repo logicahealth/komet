@@ -52,24 +52,44 @@ import org.apache.commons.lang3.StringUtils;
 //~--- enums ------------------------------------------------------------------
 
 /**
+ * The Enum ObjectChronologyType.
  *
  * @author kec
  */
 public enum ObjectChronologyType {
+   
+   /** The concept. */
    CONCEPT("Concept"),
+   
+   /** The sememe. */
    SEMEME("Sememe"),
+   
+   /** The unknown nid. */
    UNKNOWN_NID("Unknown");
 
+   /** The nice name. */
    private String niceName_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new object chronology type.
+    *
+    * @param niceName the nice name
+    */
    private ObjectChronologyType(String niceName) {
       this.niceName_ = niceName;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Parses the.
+    *
+    * @param nameOrEnumId the name or enum id
+    * @param exceptionOnParseFail the exception on parse fail
+    * @return the object chronology type
+    */
    public static ObjectChronologyType parse(String nameOrEnumId, boolean exceptionOnParseFail) {
       if (nameOrEnumId == null) {
          return null;
@@ -98,6 +118,9 @@ public enum ObjectChronologyType {
    }
 
    /**
+    * To string.
+    *
+    * @return the string
     * @see java.lang.Enum#toString()
     */
    @Override

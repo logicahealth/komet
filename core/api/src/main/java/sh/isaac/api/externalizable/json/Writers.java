@@ -69,8 +69,8 @@ import sh.isaac.api.logic.NodeSemantic;
 
 /**
  * {@link Writers}
- *
- * An experimental class that doesn't work yet due to upstream bugs
+ * 
+ * An experimental class that doesn't work yet due to upstream bugs.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
@@ -80,7 +80,15 @@ public class Writers {
     */
    public static class ConceptChronologyJsonWriter
             implements JsonWriter.JsonClassWriterEx {
+      
       /**
+       * Write.
+       *
+       * @param obj the obj
+       * @param showType the show type
+       * @param output the output
+       * @param args the args
+       * @throws IOException Signals that an I/O exception has occurred.
        * @see com.cedarsoftware.util.io.JsonWriter.JsonClassWriterEx#write(java.lang.Object, boolean, java.io.Writer, java.util.Map)
        */
       @Override
@@ -123,7 +131,15 @@ public class Writers {
     */
    public static class SememeChronologyJsonWriter
             implements JsonWriter.JsonClassWriterEx {
+      
       /**
+       * Write.
+       *
+       * @param obj the obj
+       * @param showType the show type
+       * @param output the output
+       * @param args the args
+       * @throws IOException Signals that an I/O exception has occurred.
        * @see com.cedarsoftware.util.io.JsonWriter.JsonClassWriterEx#write(java.lang.Object, boolean, java.io.Writer, java.util.Map)
        */
       @Override

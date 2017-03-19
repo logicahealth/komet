@@ -53,17 +53,26 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 
 /**
  * A convenience class for specifying concepts in maven config files
- * {@link MavenConceptProxy}
+ * {@link MavenConceptProxy}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class MavenConceptProxy
          implements ConceptSpecification {
+   
+   /** The uuid. */
    protected String uuid;
+   
+   /** The description. */
    protected String description;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "MavenConceptProxy " + this.description + " " + this.uuid;
@@ -71,11 +80,21 @@ public class MavenConceptProxy
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the concept description text.
+    *
+    * @return the concept description text
+    */
    @Override
    public String getConceptDescriptionText() {
       return this.description;
    }
 
+   /**
+    * Gets the uuid list.
+    *
+    * @return the uuid list
+    */
    @Override
    public List<UUID> getUuidList() {
       return Arrays.asList(new UUID[] { UUID.fromString(this.uuid) });

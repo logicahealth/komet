@@ -59,6 +59,13 @@ import sh.isaac.api.collections.ConceptSequenceSet;
  */
 public class SimpleHashTree
         extends AbstractHashTree {
+   
+   /**
+    * Adds the child.
+    *
+    * @param parentSequence the parent sequence
+    * @param childSequence the child sequence
+    */
    public void addChild(int parentSequence, int childSequence) {
       this.maxSequence = Math.max(parentSequence, this.maxSequence);
       this.maxSequence = Math.max(childSequence, this.maxSequence);
@@ -99,6 +106,13 @@ public class SimpleHashTree
                           .count();
    }
 
+   /**
+    * Adds the to array.
+    *
+    * @param array the array
+    * @param toAdd the to add
+    * @return the int[]
+    */
    private static int[] addToArray(int[] array, int toAdd) {
       if (Arrays.binarySearch(array, toAdd) >= 0) {
          return array;
@@ -115,6 +129,11 @@ public class SimpleHashTree
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the root sequence stream.
+    *
+    * @return the root sequence stream
+    */
    @Override
    public IntStream getRootSequenceStream() {
       final ConceptSequenceSet parents = new ConceptSequenceSet();

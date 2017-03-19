@@ -75,18 +75,30 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class PasswordHasher {
+   
+   /** The Constant log_. */
    private static final Logger log_ = LoggerFactory.getLogger(PasswordHasher.class);
 
    // The higher the number of iterations the more expensive computing the hash is for us
+   /** The Constant iterations. */
    // and also for a brute force attack.
    private static final int    iterations          = 10 * 1024;
+   
+   /** The Constant saltLen. */
    private static final int    saltLen             = 32;
+   
+   /** The Constant desiredKeyLen. */
    private static final int    desiredKeyLen       = 256;
+   
+   /** The Constant keyFactoryAlgorithm. */
    private static final String keyFactoryAlgorithm = "PBKDF2WithHmacSHA1";
+   
+   /** The Constant cipherAlgorithm. */
    private static final String cipherAlgorithm     = "PBEWithSHA1AndDESede";
 
    // private static final Random random = new Random();  //Note, it would be more secure to use SecureRandom... but the entropy issues on Linux are a nasty issue
    // and it results in SecureRandom.getInstance(...).generateSeed(...) blocking for long periods of time.  A regular random is certainly good enough
+   /** The Constant secureRandom. */
    // for our encryption purposes.
    private static final SecureRandom secureRandom = new SecureRandom();
 
@@ -94,6 +106,11 @@ public class PasswordHasher {
 
    /**
     * Checks whether given plaintext password corresponds to a stored salted hash of the password.
+    *
+    * @param password the password
+    * @param stored the stored
+    * @return true, if successful
+    * @throws Exception the exception
     */
    public static boolean check(String password, String stored)
             throws Exception {
@@ -113,6 +130,14 @@ public class PasswordHasher {
       return hashOfInput.equals(saltAndPass[1]);
    }
 
+   /**
+    * Decrypt.
+    *
+    * @param password the password
+    * @param encryptedData the encrypted data
+    * @return the byte[]
+    * @throws Exception the exception
+    */
    public static byte[] decrypt(String password, String encryptedData)
             throws Exception {
       final long     startTime   = System.currentTimeMillis();
@@ -129,11 +154,27 @@ public class PasswordHasher {
       return result;
    }
 
+   /**
+    * Decrypt to string.
+    *
+    * @param password the password
+    * @param encryptedData the encrypted data
+    * @return the string
+    * @throws Exception the exception
+    */
    public static String decryptToString(String password, String encryptedData)
             throws Exception {
       return new String(decrypt(password, encryptedData), "UTF-8");
    }
 
+   /**
+    * Encrypt.
+    *
+    * @param password the password
+    * @param data the data
+    * @return the string
+    * @throws Exception the exception
+    */
    public static String encrypt(String password, byte[] data)
             throws Exception {
       final long   startTime = System.currentTimeMillis();
@@ -149,6 +190,14 @@ public class PasswordHasher {
       return result;
    }
 
+   /**
+    * Encrypt.
+    *
+    * @param password the password
+    * @param data the data
+    * @return the string
+    * @throws Exception the exception
+    */
    public static String encrypt(String password, String data)
             throws Exception {
       return encrypt(password, data.getBytes("UTF-8"));
@@ -157,7 +206,11 @@ public class PasswordHasher {
    /**
     * Computes a salted PBKDF2 hash of given plaintext password with the provided salt
     * Empty passwords are not supported.
+    *
+    * @param password the password
+    * @param salt the salt
     * @return a Base64 encoded hash
+    * @throws Exception the exception
     */
    public static String hash(String password, byte[] salt)
             throws Exception {
@@ -167,7 +220,13 @@ public class PasswordHasher {
    /**
     * Computes a salted PBKDF2 hash of given plaintext password with the provided salt
     * Empty passwords are not supported.
+    *
+    * @param password the password
+    * @param salt the salt
+    * @param iterationCount the iteration count
+    * @param keyLength the key length
     * @return a URL Safe Base64 encoded hash
+    * @throws Exception the exception
     */
    public static String hash(String password, byte[] salt, int iterationCount, int keyLength)
             throws Exception {
@@ -186,6 +245,15 @@ public class PasswordHasher {
       return result;
    }
 
+   /**
+    * Decrypt.
+    *
+    * @param password the password
+    * @param salt the salt
+    * @param data the data
+    * @return the byte[]
+    * @throws Exception the exception
+    */
    private static byte[] decrypt(String password, byte[] salt, String data)
             throws Exception {
       final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(keyFactoryAlgorithm);
@@ -224,6 +292,15 @@ public class PasswordHasher {
       }
    }
 
+   /**
+    * Encrypt.
+    *
+    * @param password the password
+    * @param salt the salt
+    * @param data the data
+    * @return the string
+    * @throws Exception the exception
+    */
    private static String encrypt(String password, byte[] salt, byte[] data)
             throws Exception {
       final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(keyFactoryAlgorithm);
@@ -251,6 +328,10 @@ public class PasswordHasher {
    /**
     * Computes a salted PBKDF2 hash of given plaintext password suitable for storing in a database.
     * Empty passwords are not supported.
+    *
+    * @param password the password
+    * @return the salted hash
+    * @throws Exception the exception
     */
    public static String getSaltedHash(String password)
             throws Exception {

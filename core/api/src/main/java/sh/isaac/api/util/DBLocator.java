@@ -60,6 +60,8 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DBLocator {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LoggerFactory.getLogger(DBLocator.class);
 
    //~--- methods -------------------------------------------------------------
@@ -70,8 +72,9 @@ public class DBLocator {
     * 2) Otherwise, we scan the children of the passed in folder, looking for a folder that ends with .data
     * 3) If still not found - it will scan the sibling folders of the passed in folder, looking for a folder that ends with .data
     * 4) Finally, if nothing matches, it just returns the input folder - however, if the folder doesn't exist, it will create it.
-    * @param inputFolder
-    * @return
+    *
+    * @param inputFolder the input folder
+    * @return the file
     */
    public static File findDBFolder(File inputFolder) {
       inputFolder = inputFolder.getAbsoluteFile();

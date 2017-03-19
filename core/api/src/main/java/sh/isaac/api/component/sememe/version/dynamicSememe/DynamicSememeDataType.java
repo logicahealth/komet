@@ -74,26 +74,64 @@ import sh.isaac.api.constants.DynamicSememeConstants;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public enum DynamicSememeDataType {
+   
+   /** The nid. */
    NID(101, DynamicSememeNid.class, "Component Nid"),
+   
+   /** The string. */
    STRING(102, DynamicSememeString.class, "String"),
+   
+   /** The integer. */
    INTEGER(103, DynamicSememeInteger.class, "Integer"),
+   
+   /** The boolean. */
    BOOLEAN(104, DynamicSememeBoolean.class, "Boolean"),
+   
+   /** The long. */
    LONG(105, DynamicSememeLong.class, "Long"),
+   
+   /** The bytearray. */
    BYTEARRAY(106, DynamicSememeByteArray.class, "Arbitrary Data"),
+   
+   /** The float. */
    FLOAT(107, DynamicSememeFloat.class, "Float"),
+   
+   /** The double. */
    DOUBLE(108, DynamicSememeDouble.class, "Double"),
+   
+   /** The uuid. */
    UUID(109, DynamicSememeUUID.class, "UUID"),
+   
+   /** The polymorphic. */
    POLYMORPHIC(110, DynamicSememePolymorphic.class, "Unspecified"),
+   
+   /** The array. */
    ARRAY(111, DynamicSememeArray.class, "Array"),
+   
+   /** The sequence. */
    SEQUENCE(112, DynamicSememeSequence.class, "Component Sequence"),
+   
+   /** The unknown. */
    UNKNOWN(Byte.MAX_VALUE, null, "Unknown");
 
+   /** The externalized token. */
    private int                                externalizedToken_;
+   
+   /** The data class. */
    private Class<? extends DynamicSememeData> dataClass_;
+   
+   /** The display name. */
    private String                             displayName_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe data type.
+    *
+    * @param externalizedToken the externalized token
+    * @param dataClass the data class
+    * @param displayName the display name
+    */
    private DynamicSememeDataType(int externalizedToken,
                                  Class<? extends DynamicSememeData> dataClass,
                                  String displayName) {
@@ -104,6 +142,12 @@ public enum DynamicSememeDataType {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Class to type.
+    *
+    * @param c the c
+    * @return the dynamic sememe data type
+    */
    public static DynamicSememeDataType classToType(Class<?> c) {
       if (DynamicSememeNid.class.isAssignableFrom(c)) {
          return NID;
@@ -158,6 +202,13 @@ public enum DynamicSememeDataType {
       return UNKNOWN;
    }
 
+   /**
+    * Parses the.
+    *
+    * @param nameOrTokenOrEnumId the name or token or enum id
+    * @param exceptionOnParseFail the exception on parse fail
+    * @return the dynamic sememe data type
+    */
    public static DynamicSememeDataType parse(String nameOrTokenOrEnumId, boolean exceptionOnParseFail) {
       if (nameOrTokenOrEnumId == null) {
          return null;
@@ -196,6 +247,11 @@ public enum DynamicSememeDataType {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the data type concept.
+    *
+    * @return the data type concept
+    */
    public UUID getDataTypeConcept() {
       /*
        * Implementation note - these used to be defined in the constructor, and stored in a local variable - but
@@ -260,14 +316,31 @@ public enum DynamicSememeDataType {
       }
    }
 
+   /**
+    * Gets the display name.
+    *
+    * @return the display name
+    */
    public String getDisplayName() {
       return this.displayName_;
    }
 
+   /**
+    * Gets the dynamic sememe member class.
+    *
+    * @return the dynamic sememe member class
+    */
    public Class<? extends DynamicSememeData> getDynamicSememeMemberClass() {
       return this.dataClass_;
    }
 
+   /**
+    * Gets the from token.
+    *
+    * @param type the type
+    * @return the from token
+    * @throws UnsupportedOperationException the unsupported operation exception
+    */
    public static DynamicSememeDataType getFromToken(int type)
             throws UnsupportedOperationException {
       switch (type) {
@@ -312,6 +385,11 @@ public enum DynamicSememeDataType {
       }
    }
 
+   /**
+    * Gets the type token.
+    *
+    * @return the type token
+    */
    public int getTypeToken() {
       return this.externalizedToken_;
    }

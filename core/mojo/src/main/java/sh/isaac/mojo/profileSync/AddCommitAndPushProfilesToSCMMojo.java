@@ -68,8 +68,11 @@ import sh.isaac.api.sync.SyncFiles;
 @Service(name = "add-commit-and-push-profiles-scm")
 public class AddCommitAndPushProfilesToSCMMojo
         extends ProfilesMojoBase {
+   
    /**
-    * @throws MojoExecutionException
+    * Instantiates a new adds the commit and push profiles to SCM mojo.
+    *
+    * @throws MojoExecutionException the mojo execution exception
     */
    public AddCommitAndPushProfilesToSCMMojo()
             throws MojoExecutionException {
@@ -78,6 +81,11 @@ public class AddCommitAndPushProfilesToSCMMojo
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException {

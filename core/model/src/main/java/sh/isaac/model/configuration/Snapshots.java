@@ -48,10 +48,17 @@ import sh.isaac.api.snapshot.Snapshot;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class Snapshots.
  *
  * @author kec
  */
 public class Snapshots {
+   
+   /**
+    * Gets the default solor inferred snapshot.
+    *
+    * @return the default solor inferred snapshot
+    */
    public static Snapshot getDefaultSolorInferredSnapshot() {
       final LanguageCoordinate language        = LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
       final StampCoordinate    stampCoordinate = StampCoordinates.getDevelopmentLatest();
@@ -62,6 +69,11 @@ public class Snapshots {
                           TaxonomyCoordinates.getInferredTaxonomyCoordinate(stampCoordinate, language));
    }
 
+   /**
+    * Gets the default solor stated snapshot.
+    *
+    * @return the default solor stated snapshot
+    */
    public static Snapshot getDefaultSolorStatedSnapshot() {
       final LanguageCoordinate language        = LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
       final StampCoordinate    stampCoordinate = StampCoordinates.getDevelopmentLatest();

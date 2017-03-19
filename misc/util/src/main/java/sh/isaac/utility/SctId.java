@@ -52,19 +52,19 @@ import org.apache.commons.lang3.StringUtils;
  * - Only positive integer values are permitted.
  * - The minimum permitted value is 100,000 (6 digits)
  * - The maximum permitted value is 999,999,999,999,999,999 (18-digits).
- *
+ * 
  * As a result of rules for the partition-identifier and check-digit, many integers within this range are not valid SCTIDs.
- *
+ * 
  * Extension SCTID (MSD)Extension Item ID (18-11)Namespace ID(10-4)Partition ID(3-2)Check-digit(1)(LSD)
- *
+ * 
  * In java, the SCTID is handled as a long.
  *
- * @see <a href="http://www.snomed.org/tig?t=trg2main_sctid">IHTSDO Technical Implementation Guide - SCT ID</a>
- *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
- *
+ * @see <a href="http://www.snomed.org/tig?t=trg2main_sctid">IHTSDO Technical Implementation Guide - SCT ID</a>
  */
 public class SctId {
+   
+   /** The Fn F. */
    // parts of the SCTID algorithm
    private static int[][] FnF_       = {
       {
@@ -87,6 +87,8 @@ public class SctId {
          0, 0, 0, 0, 0, 0, 0, 0, 0, 0
       }
    };
+   
+   /** The Dihedral. */
    private static int[][] Dihedral_  = {
       {
          0, 1, 2, 3, 4, 5, 6, 7, 8, 9
@@ -153,6 +155,7 @@ public class SctId {
        */
       SUBSET("13");
 
+      /** The digits. */
       private final String digits_;
 
       //~--- constructors -----------------------------------------------------
@@ -181,14 +184,20 @@ public class SctId {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * see {@link #isValidSctId(String)}
+    * see {@link #isValidSctId(String)}.
+    *
+    * @param sctid the sctid
+    * @return true, if valid SCTID
     */
    public static boolean isValidSCTID(int sctid) {
       return isValidSctId(Integer.toString(sctid));
    }
 
    /**
-    * see {@link #isValidSctId(String)}
+    * see {@link #isValidSctId(String)}.
+    *
+    * @param sctid the sctid
+    * @return true, if valid sct id
     */
    public static boolean isValidSctId(long sctid) {
       return isValidSctId(Long.toString(sctid));
@@ -275,7 +284,7 @@ public class SctId {
 // }
 
    /**
-    * Verifies the check digit of an SCT identifier
+    * Verifies the check digit of an SCT identifier.
     *
     * @param idAsString a String representation of the SCT ID
     * @return <code>true</code>, if the checksum in the string is correct for an SCTID.

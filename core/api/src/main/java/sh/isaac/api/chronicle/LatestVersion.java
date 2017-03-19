@@ -52,20 +52,35 @@ import java.util.stream.Stream;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LatestVersion.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public final class LatestVersion<V> {
+   
+   /** The value. */
    V                value;
+   
+   /** The contradictions. */
    Optional<Set<V>> contradictions;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new latest version.
+    *
+    * @param versionType the version type
+    */
    public LatestVersion(Class<V> versionType) {
       this.contradictions = Optional.empty();
    }
 
+   /**
+    * Instantiates a new latest version.
+    *
+    * @param versions the versions
+    */
    public LatestVersion(List<V> versions) {
       this.value = Objects.requireNonNull(versions.get(0), "latest version cannot be null");
 
@@ -76,11 +91,22 @@ public final class LatestVersion<V> {
       }
    }
 
+   /**
+    * Instantiates a new latest version.
+    *
+    * @param latest the latest
+    */
    public LatestVersion(V latest) {
       this.value     = Objects.requireNonNull(latest, "latest version cannot be null");
       this.contradictions = Optional.empty();
    }
 
+   /**
+    * Instantiates a new latest version.
+    *
+    * @param latest the latest
+    * @param contradictions the contradictions
+    */
    public LatestVersion(V latest, Collection<V> contradictions) {
       this.value = latest;
 
@@ -93,6 +119,11 @@ public final class LatestVersion<V> {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the latest.
+    *
+    * @param value the value
+    */
    public void addLatest(V value) {
       if (this.value == null) {
          this.value = value;
@@ -106,19 +137,39 @@ public final class LatestVersion<V> {
       }
    }
 
+   /**
+    * Contradictions.
+    *
+    * @return the optional
+    */
    public Optional<Set<V>> contradictions() {
       return this.contradictions;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "LatestVersion{" + "value=" + this.value + ", contradictions=" + this.contradictions + '}';
    }
 
+   /**
+    * Value.
+    *
+    * @return the v
+    */
    public V value() {
       return this.value;
    }
 
+   /**
+    * Version stream.
+    *
+    * @return the stream
+    */
    public Stream<V> versionStream() {
       final Stream.Builder<V> builder = Stream.builder();
 

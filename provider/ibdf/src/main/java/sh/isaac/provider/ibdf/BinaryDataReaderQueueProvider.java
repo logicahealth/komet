@@ -73,34 +73,63 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link BinaryDataReaderQueueProvider}
+ * {@link BinaryDataReaderQueueProvider}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class BinaryDataReaderQueueProvider
         extends TimedTaskWithProgressTracker<Integer>
          implements BinaryDataReaderQueueService, Spliterator<OchreExternalizableUnparsed> {
+   
+   /** The objects. */
    int                  objects       = 0;
+   
+   /** The notstarted. */
    int                  NOTSTARTED    = 3;
+   
+   /** The running. */
    int                  RUNNING       = 2;
+   
+   /** The donereading. */
    int                  DONEREADING   = 1;
+   
+   /** The comlete. */
    int                  COMLETE       = 0;
+   
+   /** The complete. */
    final CountDownLatch complete      = new CountDownLatch(this.NOTSTARTED);
+   
+   /** The complete block. */
    Semaphore            completeBlock = new Semaphore(1);
 
+   /** The read data. */
    // Only one thread doing the reading from disk, give it lots of buffer space
    private final BlockingQueue<OchreExternalizableUnparsed> readData = new ArrayBlockingQueue<>(5000);
 
+   /** The parsed data. */
    // This buffers from between the time when we deserialize the object, and when we write it back to the DB.
    private final BlockingQueue<OchreExternalizable> parsedData = new ArrayBlockingQueue<>(50);
+   
+   /** The data path. */
    Path                                       dataPath;
+   
+   /** The input. */
    DataInputStream                            input;
+   
+   /** The stream bytes. */
    int                                        streamBytes;
+   
+   /** The es. */
    ExecutorService                            es_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new binary data reader queue provider.
+    *
+    * @param dataPath the data path
+    * @throws FileNotFoundException the file not found exception
+    */
    public BinaryDataReaderQueueProvider(Path dataPath)
             throws FileNotFoundException {
       this.dataPath = dataPath;
@@ -116,16 +145,29 @@ public class BinaryDataReaderQueueProvider
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Characteristics.
+    *
+    * @return the int
+    */
    @Override
    public int characteristics() {
       return IMMUTABLE | NONNULL;
    }
 
+   /**
+    * Estimate size.
+    *
+    * @return the long
+    */
    @Override
    public long estimateSize() {
       return Long.MAX_VALUE;
    }
 
+   /**
+    * Shutdown.
+    */
    @Override
    public void shutdown() {
       try {
@@ -154,6 +196,12 @@ public class BinaryDataReaderQueueProvider
       }
    }
 
+   /**
+    * Try advance.
+    *
+    * @param action the action
+    * @return true, if successful
+    */
    @Override
    public boolean tryAdvance(Consumer<? super OchreExternalizableUnparsed> action) {
       try {
@@ -181,12 +229,18 @@ public class BinaryDataReaderQueueProvider
       }
    }
 
+   /**
+    * Try split.
+    *
+    * @return the spliterator
+    */
    @Override
    public Spliterator<OchreExternalizableUnparsed> trySplit() {
       return null;
    }
 
    /**
+    * Call.
     *
     * @return the number of objects read.
     */
@@ -203,13 +257,20 @@ public class BinaryDataReaderQueueProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if finished.
+    *
+    * @return true, if finished
+    */
    @Override
    public boolean isFinished() {
       return this.complete.getCount() == this.COMLETE;
    }
 
    /**
+    * Gets the queue.
     *
+    * @return the queue
     * @see sh.isaac.api.externalizable.BinaryDataReaderQueueService#getQueue()
     */
    @Override
@@ -274,6 +335,11 @@ public class BinaryDataReaderQueueProvider
       return this.parsedData;
    }
 
+   /**
+    * Gets the stream internal.
+    *
+    * @return the stream internal
+    */
    private Stream<OchreExternalizableUnparsed> getStreamInternal() {
       running();
       return StreamSupport.stream(this, false);

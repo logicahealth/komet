@@ -62,11 +62,16 @@ import javax.management.NotificationEmitter;
  * Created by kec on 4/8/15.
  */
 public class MemoryUtil {
+   
+   /** The Constant memorymbean. */
    // private static final Logger log = LogManager.getLogger();
    private static final MemoryMXBean memorymbean = ManagementFactory.getMemoryMXBean();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Dump memory info.
+    */
    public static void dumpMemoryInfo() {
       try {
          System.out.println("\nDUMPING MEMORY INFO\n");
@@ -119,6 +124,9 @@ public class MemoryUtil {
       }
    }
 
+   /**
+    * Start listener.
+    */
    public static void startListener() {
       final MemoryMXBean        mbean    = ManagementFactory.getMemoryMXBean();
       final NotificationEmitter emitter  = (NotificationEmitter) mbean;
@@ -129,6 +137,11 @@ public class MemoryUtil {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the heap percent use.
+    *
+    * @return the heap percent use
+    */
    public static String getHeapPercentUse() {
       final MemoryUsage   usage         = memorymbean.getHeapMemoryUsage();
       final double        heapCommitted = usage.getCommitted();
@@ -151,8 +164,26 @@ public class MemoryUtil {
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The listener interface for receiving my events.
+    * The class that is interested in processing a my
+    * event implements this interface, and the object created
+    * with that class is registered with a component using the
+    * component's <code>addMyListener<code> method. When
+    * the my event occurs, that object's appropriate
+    * method is invoked.
+    *
+    * @see MyEvent
+    */
    static class MyListener
             implements javax.management.NotificationListener {
+      
+      /**
+       * Handle notification.
+       *
+       * @param notif the notif
+       * @param handback the handback
+       */
       @Override
 	public void handleNotification(Notification notif, Object handback) {
          // handle notification

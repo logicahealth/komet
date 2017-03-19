@@ -59,18 +59,30 @@ import sh.isaac.model.observable.ObservableFields;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableStampPositionImpl.
  *
  * @author kec
  */
 public class ObservableStampPositionImpl
         extends ObservableCoordinateImpl
          implements ObservableStampPosition {
+   
+   /** The stamp position. */
    StampPositionImpl stampPosition;
+   
+   /** The time property. */
    LongProperty      timeProperty;
+   
+   /** The stamp path sequence property. */
    IntegerProperty   stampPathSequenceProperty;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new observable stamp position impl.
+    *
+    * @param stampPosition the stamp position
+    */
    public ObservableStampPositionImpl(StampPosition stampPosition) {
       if (stampPosition instanceof ObservableStampPositionImpl) {
          this.stampPosition = ((ObservableStampPositionImpl) stampPosition).stampPosition;
@@ -81,6 +93,11 @@ public class ObservableStampPositionImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Stamp path sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty stampPathSequenceProperty() {
       if (this.stampPathSequenceProperty == null) {
@@ -93,6 +110,11 @@ public class ObservableStampPositionImpl
       return this.stampPathSequenceProperty;
    }
 
+   /**
+    * Time property.
+    *
+    * @return the long property
+    */
    @Override
    public LongProperty timeProperty() {
       if (this.timeProperty == null) {
@@ -105,6 +127,11 @@ public class ObservableStampPositionImpl
       return this.timeProperty;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "ObservableStampPositionImpl{" + this.stampPosition + '}';
@@ -112,11 +139,21 @@ public class ObservableStampPositionImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the stamp path.
+    *
+    * @return the stamp path
+    */
    @Override
    public StampPath getStampPath() {
       return this.stampPosition.getStampPath();
    }
 
+   /**
+    * Gets the stamp path sequence.
+    *
+    * @return the stamp path sequence
+    */
    @Override
    public int getStampPathSequence() {
       if (this.stampPathSequenceProperty != null) {
@@ -126,6 +163,11 @@ public class ObservableStampPositionImpl
       return this.stampPosition.getStampPathSequence();
    }
 
+   /**
+    * Gets the time.
+    *
+    * @return the time
+    */
    @Override
    public long getTime() {
       if (this.timeProperty != null) {
@@ -135,6 +177,11 @@ public class ObservableStampPositionImpl
       return this.stampPosition.getTime();
    }
 
+   /**
+    * Gets the time as instant.
+    *
+    * @return the time as instant
+    */
    @Override
    public Instant getTimeAsInstant() {
       if (this.timeProperty != null) {

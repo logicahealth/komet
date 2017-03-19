@@ -73,14 +73,30 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class FullySpecifiedNameForConcept
         extends ParentClause {
+   
+   /**
+    * Instantiates a new fully specified name for concept.
+    */
    protected FullySpecifiedNameForConcept() {}
 
+   /**
+    * Instantiates a new fully specified name for concept.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param child the child
+    */
    public FullySpecifiedNameForConcept(Query enclosingQuery, Clause child) {
       super(enclosingQuery, child);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute components.
+    *
+    * @param incomingComponents the incoming components
+    * @return the nid set
+    */
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
       final LanguageCoordinate languageCoordinate         = getEnclosingQuery().getLanguageCoordinate();
@@ -108,6 +124,12 @@ public class FullySpecifiedNameForConcept
       return outgoingFullySpecifiedNids;
    }
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       return incomingPossibleComponents;
@@ -115,6 +137,11 @@ public class FullySpecifiedNameForConcept
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();

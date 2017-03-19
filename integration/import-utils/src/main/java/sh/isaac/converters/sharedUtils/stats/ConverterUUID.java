@@ -71,9 +71,17 @@ import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
  * @author darmbrust
  */
 public class ConverterUUID {
+   
+   /** The disable UUID map. */
    public static boolean disableUUIDMap_ = false;  // Some loaders need to disable this due to memory constraints
+   
+   /** The master UUID map. */
    private static Hashtable<UUID, String> masterUUIDMap_ = new Hashtable<UUID, String>();
+   
+   /** The namespace. */
    private static UUID                    namespace_     = null;
+   
+   /** The constants. */
    private static ConceptSpecification[]  constants      = new ConceptSpecification[] {
       MetaData.IS_A, MetaData.SYNONYM, MetaData.FULLY_SPECIFIED_NAME, MetaData.DEFINITION_DESCRIPTION_TYPE,
       MetaData.US_ENGLISH_DIALECT, MetaData.GB_ENGLISH_DIALECT, MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER,
@@ -88,7 +96,10 @@ public class ConverterUUID {
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Allow this map to be updated with UUIDs that were not generated via this utility class
+    * Allow this map to be updated with UUIDs that were not generated via this utility class.
+    *
+    * @param value the value
+    * @param uuid the uuid
     */
    public static void addMapping(String value, UUID uuid) {
       if (!disableUUIDMap_) {
@@ -100,10 +111,18 @@ public class ConverterUUID {
       }
    }
 
+   /**
+    * Clear cache.
+    */
    public static void clearCache() {
       masterUUIDMap_.clear();
    }
 
+   /**
+    * Configure namespace.
+    *
+    * @param namespace the namespace
+    */
    public static void configureNamespace(UUID namespace) {
       if (namespace_ != null) {
          ConsoleUtil.println("Reconfiguring Namespace!");
@@ -114,8 +133,11 @@ public class ConverterUUID {
 
    /**
     * Create a new Type5 UUID using the provided name as the seed in the configured namespace.
-    *
+    * 
     * Throws a runtime exception if the namespace has not been configured.
+    *
+    * @param name the name
+    * @return the uuid
     */
    public static UUID createNamespaceUUIDFromString(String name) {
       return createNamespaceUUIDFromString(name, false);
@@ -123,11 +145,14 @@ public class ConverterUUID {
 
    /**
     * Create a new Type5 UUID using the provided name as the seed in the configured namespace.
-    *
+    * 
     * Throws a runtime exception if the namespace has not been configured.
+    *
+    * @param name the name
     * @param skipDupeCheck can be used to bypass the duplicate checking function - useful in cases where you know
     * you are creating the same UUID more than once.  Normally, this method throws a runtime exception
     * if the same UUID is generated more than once.
+    * @return the uuid
     */
    public static UUID createNamespaceUUIDFromString(String name, boolean skipDupeCheck) {
       initCheck();
@@ -136,6 +161,10 @@ public class ConverterUUID {
 
    /**
     * Create a new Type5 UUID using the provided namespace, and provided name as the seed.
+    *
+    * @param namespace the namespace
+    * @param name the name
+    * @return the uuid
     */
    public static UUID createNamespaceUUIDFromString(UUID namespace, String name) {
       return createNamespaceUUIDFromString(namespace, name, false);
@@ -143,9 +172,13 @@ public class ConverterUUID {
 
    /**
     * Create a new Type5 UUID using the provided namespace, and provided name as the seed.
+    *
+    * @param namespace the namespace
+    * @param name the name
     * @param skipDupeCheck can be used to bypass the duplicate checking function - useful in cases where you know
     * you are creating the same UUID more than once.  Normally, this method throws a runtime exception
     * if the same UUID is generated more than once.
+    * @return the uuid
     */
    public static UUID createNamespaceUUIDFromString(UUID namespace, String name, boolean skipDupeCheck) {
       UUID uuid;
@@ -169,8 +202,11 @@ public class ConverterUUID {
 
    /**
     * Create a new Type5 UUID using the provided name as the seed in the configured namespace.
-    *
+    * 
     * Throws a runtime exception if the namespace has not been configured.
+    *
+    * @param values the values
+    * @return the uuid
     */
    public static UUID createNamespaceUUIDFromStrings(String... values) {
       final StringBuilder uuidKey = new StringBuilder();
@@ -192,7 +228,11 @@ public class ConverterUUID {
    }
 
    /**
-    * Write out a debug file with all of the UUID - String mappings
+    * Write out a debug file with all of the UUID - String mappings.
+    *
+    * @param outputDirectory the output directory
+    * @param prefix the prefix
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void dump(File outputDirectory, String prefix)
             throws IOException {
@@ -212,11 +252,16 @@ public class ConverterUUID {
 
    /**
     * In some scenarios, it isn't desireable to cache every creation string - allow the removal in these cases.
+    *
+    * @param uuid the uuid
     */
    public static void removeMapping(UUID uuid) {
       masterUUIDMap_.remove(uuid);
    }
 
+   /**
+    * Inits the check.
+    */
    private static void initCheck() {
       if (namespace_ == null) {
          throw new RuntimeException("Namespace UUID has not yet been initialized");
@@ -225,12 +270,20 @@ public class ConverterUUID {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the namespace.
+    *
+    * @return the namespace
+    */
    public static UUID getNamespace() {
       return namespace_;
    }
 
    /**
-    * Return the string that was used to generate this UUID (if available - null if not)
+    * Return the string that was used to generate this UUID (if available - null if not).
+    *
+    * @param uuid the uuid
+    * @return the UUID creation string
     */
    public static String getUUIDCreationString(UUID uuid) {
       if (uuid == null) {

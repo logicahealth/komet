@@ -87,42 +87,99 @@ public abstract class AbstractWorkflowProviderTestPackage {
 
    /** The bpmn file path. */
    protected static final String BPMN_FILE_PATH = "/sh/isaac/provider/workflow/StaticUnitTestingDefinition.bpmn2";
+   
+   /** The create role. */
    private static UserRole       createRole     = UserRole.AUTOMATED;
 
+   /** The Constant TEST_START_TIME. */
    /* Constants throughout testclasses to simplify process */
    private static final long           TEST_START_TIME            = new Date().getTime();
+   
+   /** The Constant conceptsForTesting. */
    protected static final Set<Integer> conceptsForTesting         = new HashSet<>(Arrays.asList(-55, -56));
+   
+   /** The Constant LAUNCH_STATE. */
    private static final String         LAUNCH_STATE               = "Ready for Edit";
+   
+   /** The Constant LAUNCH_ACTION. */
    private static final String         LAUNCH_ACTION              = "Edit";
+   
+   /** The Constant LAUNCH_OUTCOME. */
    private static final String         LAUNCH_OUTCOME             = "Ready for Review";
+   
+   /** The Constant LAUNCH_COMMENT. */
    private static final String         LAUNCH_COMMENT             = "Launch Comment";
+   
+   /** The Constant SEND_TO_APPROVAL_STATE. */
    private static final String         SEND_TO_APPROVAL_STATE     = "Ready for Review";
+   
+   /** The Constant SEND_TO_APPROVAL_ACTION. */
    private static final String         SEND_TO_APPROVAL_ACTION    = "Review";
+   
+   /** The Constant SEND_TO_APPROVAL_OUTCOME. */
    private static final String         SEND_TO_APPROVAL_OUTCOME   = "Ready for Approve";
+   
+   /** The Constant SEND_TO_APPROVAL_COMMENT. */
    private static final String         SEND_TO_APPROVAL_COMMENT   = "Sending for Approval";
+   
+   /** The Constant REJECT_REVIEW_STATE. */
    private static final String         REJECT_REVIEW_STATE        = "Ready for Review";
+   
+   /** The Constant REJECT_REVIEW_ACTION. */
    private static final String         REJECT_REVIEW_ACTION       = "Reject QA";
+   
+   /** The Constant REJECT_REVIEW_OUTCOME. */
    private static final String         REJECT_REVIEW_OUTCOME      = "Ready for Edit";
+   
+   /** The Constant REJECT_REVIEW_COMMENT. */
    private static final String         REJECT_REVIEW_COMMENT      = "Rejecting QA sending back to Edit";
+   
+   /** The Constant CONCLUDED_WORKFLOW_COMMENT. */
    protected static final String       CONCLUDED_WORKFLOW_COMMENT = "Concluded Workflow";
+   
+   /** The Constant CANCELED_WORKFLOW_COMMENT. */
    protected static final String       CANCELED_WORKFLOW_COMMENT  = "Canceled Workflow";
+   
+   /** The module seq. */
    private static int                  moduleSeq                  = 99;
+   
+   /** The path seq. */
    private static int                  pathSeq                    = 999;
+   
+   /** The conclude action. */
    protected static AvailableAction    concludeAction;
+   
+   /** The cancel action. */
    protected static AvailableAction    cancelAction;
 
+   /** The main definition id. */
    /*
     * Defined by importing definition and static throughout testclasses to
     * simplify process
     */
    protected static UUID             mainDefinitionId;
+   
+   /** The create state. */
    private static String             createState;
+   
+   /** The create action. */
    private static String             createAction;
+   
+   /** The create outcome. */
    private static String             createOutcome;
+   
+   /** The wp. */
    protected static WorkflowProvider wp_;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the components to process.
+    *
+    * @param processId the process id
+    * @param userSeq the user seq
+    * @param state the state
+    */
    protected void addComponentsToProcess(UUID processId, int userSeq, State state) {
       final ProcessDetail entry = wp_.getProcessDetailStore()
                                .get(processId);
@@ -137,6 +194,16 @@ public abstract class AbstractWorkflowProviderTestPackage {
          .put(processId, entry);
    }
 
+   /**
+    * Advance workflow.
+    *
+    * @param processId the process id
+    * @param userId the user id
+    * @param actionRequested the action requested
+    * @param comment the comment
+    * @return true, if successful
+    * @throws Exception the exception
+    */
    protected boolean advanceWorkflow(UUID processId,
                                      UUID userId,
                                      String actionRequested,
@@ -146,6 +213,12 @@ public abstract class AbstractWorkflowProviderTestPackage {
                 .advanceWorkflow(processId, userId, actionRequested, comment, null);
    }
 
+   /**
+    * Assert cancel history.
+    *
+    * @param entry the entry
+    * @param processId the process id
+    */
    protected void assertCancelHistory(ProcessHistory entry, UUID processId) {
       Assert.assertEquals(processId, entry.getProcessId());
       Assert.assertEquals(RoleConfigurator.getFirstTestUser(), entry.getUserId());
@@ -156,6 +229,12 @@ public abstract class AbstractWorkflowProviderTestPackage {
       Assert.assertEquals(CANCELED_WORKFLOW_COMMENT, entry.getComment());
    }
 
+   /**
+    * Assert conclude history.
+    *
+    * @param entry the entry
+    * @param processId the process id
+    */
    protected void assertConcludeHistory(ProcessHistory entry, UUID processId) {
       Assert.assertEquals(processId, entry.getProcessId());
       Assert.assertEquals(RoleConfigurator.getFirstTestUser(), entry.getUserId());
@@ -166,6 +245,12 @@ public abstract class AbstractWorkflowProviderTestPackage {
       Assert.assertEquals(CONCLUDED_WORKFLOW_COMMENT, entry.getComment());
    }
 
+   /**
+    * Assert history for process.
+    *
+    * @param allProcessHistory the all process history
+    * @param processId the process id
+    */
    protected void assertHistoryForProcess(SortedSet<ProcessHistory> allProcessHistory, UUID processId) {
       int counter = 0;
 
@@ -200,6 +285,11 @@ public abstract class AbstractWorkflowProviderTestPackage {
       }
    }
 
+   /**
+    * Cancel workflow.
+    *
+    * @param processId the process id
+    */
    protected void cancelWorkflow(UUID processId) {
       try {
          Thread.sleep(1);
@@ -213,6 +303,11 @@ public abstract class AbstractWorkflowProviderTestPackage {
       }
    }
 
+   /**
+    * Conclude workflow.
+    *
+    * @param processId the process id
+    */
    protected void concludeWorkflow(UUID processId) {
       try {
          Thread.sleep(1);
@@ -226,14 +321,31 @@ public abstract class AbstractWorkflowProviderTestPackage {
       }
    }
 
+   /**
+    * Creates the first workflow process.
+    *
+    * @param requestedDefinitionId the requested definition id
+    * @return the uuid
+    */
    protected UUID createFirstWorkflowProcess(UUID requestedDefinitionId) {
       return createWorkflowProcess(requestedDefinitionId, "Main Process Name", "Main Process Description");
    }
 
+   /**
+    * Creates the second workflow process.
+    *
+    * @param requestedDefinitionId the requested definition id
+    * @return the uuid
+    */
    protected UUID createSecondWorkflowProcess(UUID requestedDefinitionId) {
       return createWorkflowProcess(requestedDefinitionId, "Secondary Process Name", "Secondary Process Description");
    }
 
+   /**
+    * Creates the secondary definition.
+    *
+    * @return the uuid
+    */
    protected UUID createSecondaryDefinition() {
       final Set<UserRole> roles = new HashSet<>();
 
@@ -270,10 +382,27 @@ public abstract class AbstractWorkflowProviderTestPackage {
       return defId;
    }
 
+   /**
+    * Creates the stamp.
+    *
+    * @param userSeq the user seq
+    * @param state the state
+    * @return the stamp
+    */
    protected Stamp createStamp(int userSeq, State state) {
       return new Stamp(state, new Date().getTime(), userSeq, moduleSeq, pathSeq);
    }
 
+   /**
+    * End workflow process.
+    *
+    * @param processId the process id
+    * @param actionToProcess the action to process
+    * @param userId the user id
+    * @param comment the comment
+    * @param endType the end type
+    * @throws Exception the exception
+    */
    protected void endWorkflowProcess(UUID processId,
                                      AvailableAction actionToProcess,
                                      UUID userId,
@@ -284,6 +413,11 @@ public abstract class AbstractWorkflowProviderTestPackage {
          .endWorkflowProcess(processId, actionToProcess, userId, comment, endType, null);
    }
 
+   /**
+    * Execute launch workflow.
+    *
+    * @param processId the process id
+    */
    protected void executeLaunchWorkflow(UUID processId) {
       try {
          Thread.sleep(1);
@@ -300,6 +434,11 @@ public abstract class AbstractWorkflowProviderTestPackage {
       }
    }
 
+   /**
+    * Execute reject review advancement.
+    *
+    * @param requestedProcessId the requested process id
+    */
    protected void executeRejectReviewAdvancement(UUID requestedProcessId) {
       try {
          Thread.sleep(1);
@@ -330,6 +469,11 @@ public abstract class AbstractWorkflowProviderTestPackage {
       }
    }
 
+   /**
+    * Execute send for approval advancement.
+    *
+    * @param requestedProcessId the requested process id
+    */
    protected void executeSendForApprovalAdvancement(UUID requestedProcessId) {
       try {
          Thread.sleep(1);
@@ -360,6 +504,11 @@ public abstract class AbstractWorkflowProviderTestPackage {
       }
    }
 
+   /**
+    * Execute send for review advancement.
+    *
+    * @param processId the process id
+    */
    protected void executeSendForReviewAdvancement(UUID processId) {
       final ProcessDetail entry = wp_.getProcessDetailStore()
                                .get(processId);
@@ -393,6 +542,9 @@ public abstract class AbstractWorkflowProviderTestPackage {
       }
    }
 
+   /**
+    * Global setup.
+    */
    protected static void globalSetup() {
       RoleConfigurator.configureForTest();
       wp_              = LookupService.get()
@@ -421,6 +573,12 @@ public abstract class AbstractWorkflowProviderTestPackage {
                           .next();
    }
 
+   /**
+    * Time since yesterday before tomorrow.
+    *
+    * @param time the time
+    * @return true, if successful
+    */
    protected boolean timeSinceYesterdayBeforeTomorrow(long time) {
       Calendar cal = Calendar.getInstance();
 
@@ -436,6 +594,14 @@ public abstract class AbstractWorkflowProviderTestPackage {
       return (time >= yesterdayTimestamp) && (time <= tomorrowTimestamp);
    }
 
+   /**
+    * Creates the workflow process.
+    *
+    * @param requestedDefinitionId the requested definition id
+    * @param name the name
+    * @param description the description
+    * @return the uuid
+    */
    private UUID createWorkflowProcess(UUID requestedDefinitionId, String name, String description) {
       // Mimick the initConcluder's create new process
       final ProcessDetail details = new ProcessDetail(requestedDefinitionId,
@@ -467,6 +633,16 @@ public abstract class AbstractWorkflowProviderTestPackage {
       return processId;
    }
 
+   /**
+    * Finish workflow process.
+    *
+    * @param processId the process id
+    * @param actionToProcess the action to process
+    * @param userId the user id
+    * @param comment the comment
+    * @param endType the end type
+    * @throws Exception the exception
+    */
    private void finishWorkflowProcess(UUID processId,
                                       AvailableAction actionToProcess,
                                       UUID userId,

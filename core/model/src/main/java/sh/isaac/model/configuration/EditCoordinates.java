@@ -53,6 +53,12 @@ import sh.isaac.model.coordinate.EditCoordinateImpl;
  * Created by kec on 2/16/15.
  */
 public class EditCoordinates {
+   
+   /**
+    * Gets the classifier solor overlay.
+    *
+    * @return the classifier solor overlay
+    */
    public static EditCoordinate getClassifierSolorOverlay() {
       final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.IHTSDO_CLASSIFIER),
                                                              getNid(TermAux.SOLOR_OVERLAY_MODULE),
@@ -61,6 +67,11 @@ public class EditCoordinates {
       return editCoordinate;
    }
 
+   /**
+    * Gets the default user metadata.
+    *
+    * @return the default user metadata
+    */
    public static EditCoordinate getDefaultUserMetadata() {
       final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
                                                              getNid(TermAux.ISAAC_MODULE),
@@ -69,6 +80,11 @@ public class EditCoordinates {
       return editCoordinate;
    }
 
+   /**
+    * Gets the default user solor overlay.
+    *
+    * @return the default user solor overlay
+    */
    public static EditCoordinate getDefaultUserSolorOverlay() {
       final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
                                                              getNid(TermAux.SOLOR_OVERLAY_MODULE),
@@ -77,6 +93,11 @@ public class EditCoordinates {
       return editCoordinate;
    }
 
+   /**
+    * Gets the default user veterans administration extension.
+    *
+    * @return the default user veterans administration extension
+    */
    public static EditCoordinate getDefaultUserVeteransAdministrationExtension() {
       final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
                                                              getNid(TermAux.VHA_MODULES),
@@ -85,6 +106,12 @@ public class EditCoordinates {
       return editCoordinate;
    }
 
+   /**
+    * Gets the nid.
+    *
+    * @param spec the spec
+    * @return the nid
+    */
    private static int getNid(ConceptSpecification spec) {
       return Get.identifierService()
                 .getNidForUuids(spec.getUuids());

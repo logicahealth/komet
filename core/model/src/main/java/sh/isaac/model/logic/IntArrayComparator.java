@@ -46,11 +46,20 @@ import java.util.Comparator;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class IntArrayComparator.
  *
  * @author kec
  */
 public class IntArrayComparator
          implements Comparator<int[]> {
+   
+   /**
+    * Compare.
+    *
+    * @param o1 the o 1
+    * @param o2 the o 2
+    * @return the int
+    */
    @Override
    public int compare(int[] o1, int[] o2) {
       for (int i = 0; i < o1.length; i++) {

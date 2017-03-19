@@ -98,6 +98,7 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierProvider;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LogicProvider.
  *
  * @author kec
  */
@@ -105,11 +106,18 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierProvider;
 @RunLevel(value = 2)
 public class LogicProvider
          implements LogicService {
+   
+   /** The Constant log. */
    private static final Logger                                       log                  = LogManager.getLogger();
+   
+   /** The Constant classifierServiceMap. */
    private static final Map<ClassifierServiceKey, ClassifierService> classifierServiceMap = new ConcurrentHashMap<>();
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new logic provider.
+    */
    private LogicProvider() {
       // For HK2
       log.info("logic provider constructed");
@@ -117,6 +125,15 @@ public class LogicProvider
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Creates the isa rel.
+    *
+    * @param originSequence the origin sequence
+    * @param destinationNode the destination node
+    * @param stampSequence the stamp sequence
+    * @param premiseType the premise type
+    * @return the relationship version adaptor impl
+    */
    private RelationshipVersionAdaptorImpl createIsaRel(int originSequence,
          ConceptNodeWithSequences destinationNode,
          int stampSequence,
@@ -135,6 +152,16 @@ public class LogicProvider
       return new RelationshipVersionAdaptorImpl(key, stampSequence);
    }
 
+   /**
+    * Creates the some role.
+    *
+    * @param originSequence the origin sequence
+    * @param someNode the some node
+    * @param stampSequence the stamp sequence
+    * @param premiseType the premise type
+    * @param roleGroup the role group
+    * @return the stream
+    */
    private Stream<RelationshipVersionAdaptorImpl> createSomeRole(int originSequence,
          RoleNodeSomeWithSequences someNode,
          int stampSequence,
@@ -186,6 +213,13 @@ public class LogicProvider
       return roleStream.build();
    }
 
+   /**
+    * Extract relationship adaptors.
+    *
+    * @param logicGraphChronology the logic graph chronology
+    * @param premiseType the premise type
+    * @return the stream
+    */
    private Stream<RelationshipVersionAdaptorImpl> extractRelationshipAdaptors(
            SememeChronology<LogicGraphSememe<?>> logicGraphChronology,
            PremiseType premiseType) {
@@ -210,12 +244,27 @@ public class LogicProvider
       return streamBuilder.build();
    }
 
+   /**
+    * Generate rel adaptor chronicles.
+    *
+    * @param logicalDef the logical def
+    * @param conceptOriginRelationshipMap the concept origin relationship map
+    * @param premiseType the premise type
+    */
    private void generateRelAdaptorChronicles(SememeChronology<? extends SememeVersion> logicalDef,
          HashMap<RelationshipAdaptorChronicleKey, RelationshipAdaptorChronologyImpl> conceptOriginRelationshipMap,
          PremiseType premiseType) {
       generateRelAdaptorChronicles(Integer.MAX_VALUE, logicalDef, conceptOriginRelationshipMap, premiseType);
    }
 
+   /**
+    * Generate rel adaptor chronicles.
+    *
+    * @param conceptDestinationSequence the concept destination sequence
+    * @param logicalDef the logical def
+    * @param conceptOriginRelationshipMap the concept origin relationship map
+    * @param premiseType the premise type
+    */
    private void generateRelAdaptorChronicles(int conceptDestinationSequence,
          SememeChronology<? extends SememeVersion> logicalDef,
          HashMap<RelationshipAdaptorChronicleKey, RelationshipAdaptorChronologyImpl> conceptOriginRelationshipMap,
@@ -243,6 +292,14 @@ public class LogicProvider
             });
    }
 
+   /**
+    * Process node.
+    *
+    * @param node the node
+    * @param previousExpression the previous expression
+    * @param streamBuilder the stream builder
+    * @param premiseType the premise type
+    */
    private void processNode(Node<? extends LogicGraphSememe<?>> node,
                             LogicalExpression previousExpression,
                             Stream.Builder<RelationshipVersionAdaptorImpl> streamBuilder,
@@ -278,6 +335,16 @@ public class LogicProvider
       }
    }
 
+   /**
+    * Process rel node.
+    *
+    * @param aLogicNode the a logic node
+    * @param streamBuilder the stream builder
+    * @param expression the expression
+    * @param stampSequence the stamp sequence
+    * @param premiseType the premise type
+    * @throws UnsupportedOperationException the unsupported operation exception
+    */
    private void processRelNode(LogicNode aLogicNode,
                                Stream.Builder<RelationshipVersionAdaptorImpl> streamBuilder,
                                LogicalExpression expression,
@@ -310,6 +377,14 @@ public class LogicProvider
       }
    }
 
+   /**
+    * Process root expression.
+    *
+    * @param expression the expression
+    * @param streamBuilder the stream builder
+    * @param stampSequence the stamp sequence
+    * @param premiseType the premise type
+    */
    private void processRootExpression(LogicalExpression expression,
                                       Stream.Builder<RelationshipVersionAdaptorImpl> streamBuilder,
                                       int stampSequence,
@@ -323,11 +398,17 @@ public class LogicProvider
                          });
    }
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       log.info("Starting LogicProvider.");
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       log.info("Stopping LogicProvider.");
@@ -335,6 +416,14 @@ public class LogicProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the classifier service.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param logicCoordinate the logic coordinate
+    * @param editCoordinate the edit coordinate
+    * @return the classifier service
+    */
    @Override
    public ClassifierService getClassifierService(StampCoordinate stampCoordinate,
          LogicCoordinate logicCoordinate,
@@ -349,6 +438,14 @@ public class LogicProvider
       return classifierServiceMap.get(key);
    }
 
+   /**
+    * Gets the logical expression.
+    *
+    * @param conceptId the concept id
+    * @param logicAssemblageId the logic assemblage id
+    * @param stampCoordinate the stamp coordinate
+    * @return the logical expression
+    */
    @Override
    public Optional<LatestVersion<? extends LogicalExpression>> getLogicalExpression(int conceptId,
          int logicAssemblageId,
@@ -392,12 +489,25 @@ public class LogicProvider
       return Optional.of(latestVersions.get(0));
    }
 
+   /**
+    * Gets the relationship adaptors originating with concept.
+    *
+    * @param conceptChronology the concept chronology
+    * @return the relationship adaptors originating with concept
+    */
    @Override
    public Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsOriginatingWithConcept(
            ConceptChronology<?> conceptChronology) {
       return getRelationshipAdaptorsOriginatingWithConcept(conceptChronology, LogicCoordinates.getStandardElProfile());
    }
 
+   /**
+    * Gets the relationship adaptors originating with concept.
+    *
+    * @param conceptChronology the concept chronology
+    * @param logicCoordinate the logic coordinate
+    * @return the relationship adaptors originating with concept
+    */
    @Override
    public Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsOriginatingWithConcept(
            ConceptChronology<?> conceptChronology,
@@ -432,6 +542,12 @@ public class LogicProvider
       return streamBuilder.build();
    }
 
+   /**
+    * Gets the relationship adaptors with concept as destination.
+    *
+    * @param conceptChronology the concept chronology
+    * @return the relationship adaptors with concept as destination
+    */
    @Override
    public Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsWithConceptAsDestination(
            ConceptChronology<?> conceptChronology) {
@@ -439,6 +555,13 @@ public class LogicProvider
             LogicCoordinates.getStandardElProfile());
    }
 
+   /**
+    * Gets the relationship adaptors with concept as destination.
+    *
+    * @param conceptChronology the concept chronology
+    * @param logicCoordinate the logic coordinate
+    * @return the relationship adaptors with concept as destination
+    */
    @Override
    public Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsWithConceptAsDestination(
            ConceptChronology<?> conceptChronology,
@@ -481,13 +604,29 @@ public class LogicProvider
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class ClassifierServiceKey.
+    */
    private static class ClassifierServiceKey {
+      
+      /** The stamp coordinate. */
       StampCoordinate stampCoordinate;
+      
+      /** The logic coordinate. */
       LogicCoordinate logicCoordinate;
+      
+      /** The edit coordinate. */
       EditCoordinate  editCoordinate;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new classifier service key.
+       *
+       * @param stampCoordinate the stamp coordinate
+       * @param logicCoordinate the logic coordinate
+       * @param editCoordinate the edit coordinate
+       */
       public ClassifierServiceKey(StampCoordinate stampCoordinate,
                                   LogicCoordinate logicCoordinate,
                                   EditCoordinate editCoordinate) {
@@ -498,6 +637,12 @@ public class LogicProvider
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Equals.
+       *
+       * @param obj the obj
+       * @return true, if successful
+       */
       @Override
       public boolean equals(Object obj) {
          if (obj == null) {
@@ -521,6 +666,11 @@ public class LogicProvider
          return Objects.equals(this.editCoordinate, other.editCoordinate);
       }
 
+      /**
+       * Hash code.
+       *
+       * @return the int
+       */
       @Override
       public int hashCode() {
          int hash = 3;

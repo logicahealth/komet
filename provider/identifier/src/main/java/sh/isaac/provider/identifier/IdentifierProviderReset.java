@@ -52,6 +52,7 @@ import sh.isaac.api.OchreCache;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class IdentifierProviderReset.
  *
  * @author kec
  */
@@ -59,6 +60,10 @@ import sh.isaac.api.OchreCache;
 @Singleton
 public class IdentifierProviderReset
          implements OchreCache {
+   
+   /**
+    * Reset.
+    */
    @Override
    public void reset() {
       IdentifierProvider.reset();

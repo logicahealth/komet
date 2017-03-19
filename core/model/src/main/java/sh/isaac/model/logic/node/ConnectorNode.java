@@ -60,10 +60,17 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public abstract class ConnectorNode
         extends AbstractLogicNode {
+   
+   /** The child indices. */
    private final ShortArrayList childIndices;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new connector node.
+    *
+    * @param another the another
+    */
    public ConnectorNode(AbstractLogicNode another) {
       super(another);
       this.childIndices = new ShortArrayList(another.getChildren().length);
@@ -73,6 +80,12 @@ public abstract class ConnectorNode
       }
    }
 
+   /**
+    * Instantiates a new connector node.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param children the children
+    */
    public ConnectorNode(LogicalExpressionOchreImpl logicGraphVersion, AbstractLogicNode... children) {
       super(logicGraphVersion);
       this.childIndices = new ShortArrayList(children.length);
@@ -82,6 +95,13 @@ public abstract class ConnectorNode
       }
    }
 
+   /**
+    * Instantiates a new connector node.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public ConnectorNode(LogicalExpressionOchreImpl logicGraphVersion,
                         DataInputStream dataInputStream)
             throws IOException {
@@ -98,6 +118,11 @@ public abstract class ConnectorNode
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the children.
+    *
+    * @param children the children
+    */
    @Override
    public void addChildren(LogicNode... children) {
       for (final LogicNode child: children) {
@@ -107,6 +132,12 @@ public abstract class ConnectorNode
       sort();
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -120,6 +151,11 @@ public abstract class ConnectorNode
       return super.equals(o);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int result = super.hashCode();
@@ -128,6 +164,9 @@ public abstract class ConnectorNode
       return result;
    }
 
+   /**
+    * Sort.
+    */
    @Override
    public final void sort() {
       this.childIndices.mergeSortFromTo(0,
@@ -137,11 +176,22 @@ public abstract class ConnectorNode
                                           .compareTo(this.logicGraphVersion.getNode(o2)));
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
       if ((this.childIndices != null) &&!this.childIndices.isEmpty()) {
@@ -163,14 +213,33 @@ public abstract class ConnectorNode
       return "";
    }
 
+   /**
+    * Compare fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    protected int compareFields(LogicNode o) {
       // node semantic is already determined to be the same...
       return compareNodeFields(o);
    }
 
+   /**
+    * Compare node fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    protected abstract int compareNodeFields(LogicNode o);
 
+   /**
+    * Write data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    protected void writeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
@@ -186,6 +255,7 @@ public abstract class ConnectorNode
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the children.
     *
     * @return a sorted array of child <code>LogicNode</code>s.
     */

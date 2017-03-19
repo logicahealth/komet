@@ -46,23 +46,43 @@ import javafx.beans.property.SimpleObjectProperty;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class CommitAwareObjectProperty.
  *
  * @author kec
+ * @param <T> the generic type
  */
 public class CommitAwareObjectProperty<T>
         extends SimpleObjectProperty<T> {
+   
+   /**
+    * Instantiates a new commit aware object property.
+    *
+    * @param bean the bean
+    * @param name the name
+    * @param initialValue the initial value
+    */
    public CommitAwareObjectProperty(Object bean, String name, T initialValue) {
       super(bean, name, initialValue);
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set.
+    *
+    * @param newValue the new value
+    */
    @Override
    public void set(T newValue) {
       CommitAwareIntegerProperty.checkChangesAllowed(getBean());
       super.set(newValue);
    }
 
+   /**
+    * Sets the value.
+    *
+    * @param v the new value
+    */
    @Override
    public void setValue(T v) {
       CommitAwareIntegerProperty.checkChangesAllowed(getBean());

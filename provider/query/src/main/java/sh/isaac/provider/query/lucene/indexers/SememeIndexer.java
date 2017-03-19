@@ -121,17 +121,29 @@ import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 @RunLevel(value = 2)
 public class SememeIndexer
         extends LuceneIndexer {
+   
+   /** The Constant log. */
    private static final Logger log               = LogManager.getLogger();
+   
+   /** The Constant INDEX_NAME. */
    public static final String  INDEX_NAME        = "sememes";
+   
+   /** The Constant COLUMN_FIELD_DATA. */
    private static final String COLUMN_FIELD_DATA = "colData";
 
    //~--- fields --------------------------------------------------------------
 
+   /** The lric. */
    @Inject
    private SememeIndexerConfiguration lric;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new sememe indexer.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private SememeIndexer()
             throws IOException {
       // For HK2
@@ -143,17 +155,16 @@ public class SememeIndexer
    /**
     * Search for matches to the specified nid. Note that in the current implementation, you will only find matches to sememes
     * of type {@link SememeType#COMPONENT_NID} or {@link SememeType#LOGIC_GRAPH}.
-    *
+    * 
     * This only supports nids, not sequences.
-    *
+    * 
     * If searching a component nid sememe, this will only match on the attached component nid value.  It will not match
     * on the assemblage concept, nor the referenced component nid.  Those can be found directly via standard sememe APIs.
     * If searching a logic graph sememe, it will find a match in any concept that is involved in the graph, except for the
     * root concept.
     *
     * @param nid the id reference to search for
-    * @param semeneConceptSequence optional - The concept seqeuence of the sememe that you wish to search within. If null,
-    * searches all indexed content. This would be set to the concept sequence like {@link MetaData#EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE}
+    * @param sememeConceptSequence the sememe concept sequence
     * @param searchColumns (optional) limit the search to the specified columns of attached data.  May ONLY be provided if
     * ONE and only one sememeConceptSequence is provided.  May not be provided if 0 or more than 1 sememeConceptSequence values are provided.
     * @param sizeLimit The maximum size of the result list.
@@ -180,19 +191,19 @@ public class SememeIndexer
 
    /**
     * A convenience method.
-    *
+    * 
     * Search DynamicSememeData columns, treating them as text - and handling the search in the same mechanism as if this were a
     * call to the method {@link LuceneIndexer#query(String, boolean, Integer, int, long)}
-    *
+    * 
     * Calls the method {@link #query(DynamicSememeDataBI, Integer, boolean, Integer[], int, long) with a null parameter for
     * the searchColumns, and wraps the queryString into a DynamicSememeString.
     *
-    * @param queryString
-    * @param assemblageNid
-    * @param prefixSearch
-    * @param sizeLimit
-    * @param targetGeneration
-    * @return
+    * @param queryString the query string
+    * @param prefixSearch the prefix search
+    * @param sememeConceptSequence the sememe concept sequence
+    * @param sizeLimit the size limit
+    * @param targetGeneration the target generation
+    * @return the list
     */
    @Override
    public final List<SearchResult> query(String queryString,
@@ -209,16 +220,17 @@ public class SememeIndexer
    }
 
    /**
+    * Query.
     *
     * @param queryData - The query data object (string, int, etc)
+    * @param prefixSearch see {@link LuceneIndexer#query(String, boolean, ComponentProperty, int, Long)} for a description.  Only applicable
+    * when the queryData type is string.  Ignored for all other data types.
     * @param sememeConceptSequence (optional) limit the search to the specified assemblage
     * @param searchColumns (optional) limit the search to the specified columns of attached data.  May ONLY be provided if
     * ONE and only one sememeConceptSequence is provided.  May not be provided if 0 or more than 1 sememeConceptSequence values are provided.
-    * @param prefixSearch see {@link LuceneIndexer#query(String, boolean, ComponentProperty, int, Long)} for a description.  Only applicable
-    * when the queryData type is string.  Ignored for all other data types.
-    * @param sizeLimit
+    * @param sizeLimit the size limit
     * @param targetGeneration (optional) wait for an index to build, or null to not wait
-    * @return
+    * @return the list
     */
 
    // TODO fix this limitation on the column restriction...
@@ -302,16 +314,18 @@ public class SememeIndexer
    }
 
    /**
-    * @param queryDataLower
-    * @param queryDataLowerInclusive
-    * @param queryDataUpper
-    * @param queryDataUpperInclusive
+    * Query numeric range.
+    *
+    * @param queryDataLower the query data lower
+    * @param queryDataLowerInclusive the query data lower inclusive
+    * @param queryDataUpper the query data upper
+    * @param queryDataUpperInclusive the query data upper inclusive
     * @param sememeConceptSequence (optional) limit the search to the specified assemblage
     * @param searchColumns (optional) limit the search to the specified columns of attached data.  May ONLY be provided if
     * ONE and only one sememeConceptSequence is provided.  May not be provided if 0 or more than 1 sememeConceptSequence values are provided.
-    * @param sizeLimit
+    * @param sizeLimit the size limit
     * @param targetGeneration (optional) wait for an index to build, or null to not wait
-    * @return
+    * @return the list
     */
    public final List<SearchResult> queryNumericRange(final DynamicSememeData queryDataLower,
          final boolean queryDataLowerInclusive,
@@ -335,6 +349,12 @@ public class SememeIndexer
       return search(restrictToSememe(q, sememeConceptSequence), sizeLimit, targetGeneration, null);
    }
 
+   /**
+    * Adds the fields.
+    *
+    * @param chronicle the chronicle
+    * @param doc the doc
+    */
    @Override
    protected void addFields(ObjectChronology<?> chronicle, Document doc) {
       final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
@@ -412,6 +432,12 @@ public class SememeIndexer
       }
    }
 
+   /**
+    * Index chronicle.
+    *
+    * @param chronicle the chronicle
+    * @return true, if successful
+    */
    @Override
    protected boolean indexChronicle(ObjectChronology<?> chronicle) {
       if (chronicle instanceof SememeChronology<?>) {
@@ -429,6 +455,16 @@ public class SememeIndexer
       return false;
    }
 
+   /**
+    * Builds the numeric query.
+    *
+    * @param queryDataLower the query data lower
+    * @param queryDataLowerInclusive the query data lower inclusive
+    * @param queryDataUpper the query data upper
+    * @param queryDataUpperInclusive the query data upper inclusive
+    * @param columnName the column name
+    * @return the query
+    */
    private Query buildNumericQuery(DynamicSememeData queryDataLower,
                                    boolean queryDataLowerInclusive,
                                    DynamicSememeData queryDataUpper,
@@ -556,6 +592,13 @@ public class SememeIndexer
       }
    }
 
+   /**
+    * Handle type.
+    *
+    * @param doc the doc
+    * @param dataCol the data col
+    * @param colNumber the col number
+    */
    private void handleType(Document doc, DynamicSememeData dataCol, int colNumber) {
       // Not the greatest design for diskspace / performance... but if we want to be able to support searching across
       // all fields / all sememes - and also support searching per-field within a single sememe, we need to double index
@@ -694,9 +737,26 @@ public class SememeIndexer
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class QueryWrapperForColumnHandling.
+    */
    private abstract class QueryWrapperForColumnHandling {
+      
+      /**
+       * Builds the query.
+       *
+       * @param columnName the column name
+       * @return the query
+       */
       abstract Query buildQuery(String columnName);
 
+      /**
+       * Builds the column handling query.
+       *
+       * @param sememeConceptSequence the sememe concept sequence
+       * @param searchColumns the search columns
+       * @return the query
+       */
       protected Query buildColumnHandlingQuery(Integer[] sememeConceptSequence, Integer[] searchColumns) {
          Integer[] sememeIndexedColumns = null;
 

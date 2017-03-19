@@ -79,16 +79,28 @@ import sh.isaac.mojo.external.QuasiMojo;
 @Service(name = "diff-ibdfs")
 public class BinaryDataDifferMojo
         extends QuasiMojo {
+   
+   /** The diff on status. */
    @Parameter
    private final Boolean diffOnStatus        = false;
+   
+   /** The diff on timestamp. */
    @Parameter
    private final Boolean diffOnTimestamp     = false;
+   
+   /** The diff on author. */
    @Parameter
    private final Boolean diffOnAuthor        = false;
+   
+   /** The diff on module. */
    @Parameter
    private final Boolean diffOnModule        = false;
+   
+   /** The diff on path. */
    @Parameter
    private final Boolean diffOnPath          = false;
+   
+   /** The create analysis files. */
    @Parameter
    private final Boolean createAnalysisFiles = false;
 
@@ -115,13 +127,22 @@ public class BinaryDataDifferMojo
     */
    @Parameter(required = true)
    private String ibdfFileOutputDir;
+   
+   /** The import date. */
    @Parameter
    private String importDate;
+   
+   /** The changeset file name. */
    @Parameter(required = true)
    String         changesetFileName;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
 public void execute()
             throws MojoExecutionException {

@@ -53,20 +53,45 @@ import java.util.UUID;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class UuidT5Generator.
  *
  * @author kec
  */
 public class UuidT5Generator {
+   
+   /** The Constant encoding. */
    public static final String encoding                      = "8859_1";
+   
+   /** The Constant PATH_ID_FROM_FS_DESC. */
    public static final UUID   PATH_ID_FROM_FS_DESC          = UUID.fromString("5a2e7786-3e41-11dc-8314-0800200c9a66");
+   
+   /** The Constant REL_GROUP_NAMESPACE. */
    public static final UUID   REL_GROUP_NAMESPACE           = UUID.fromString("8972fef0-ad53-11df-94e2-0800200c9a66");
+   
+   /** The Constant USER_FULLNAME_NAMESPACE. */
    public static final UUID   USER_FULLNAME_NAMESPACE       = UUID.fromString("cad85220-1ed4-11e1-8bc2-0800200c9a66");
+   
+   /** The Constant TAXONOMY_COORDINATE_NAMESPACE. */
    public static final UUID   TAXONOMY_COORDINATE_NAMESPACE = UUID.fromString("c58dcdb6-185b-11e5-b60b-1697f925ec7b");
+   
+   /** The Constant REL_ADAPTOR_NAMESPACE. */
    public static final UUID   REL_ADAPTOR_NAMESPACE         = UUID.fromString("9cb2bf66-1863-11e5-b60b-1697f925ec7");
+   
+   /** The Constant AUTHOR_TIME_ID. */
    public static final UUID   AUTHOR_TIME_ID                = UUID.fromString("c6915290-30fc-11e1-b86c-0800200c9a66");
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the desc uuid.
+    *
+    * @param text the text
+    * @param langPrimUuid the lang prim uuid
+    * @param conceptPrimUuid the concept prim uuid
+    * @return the desc uuid
+    * @throws NoSuchAlgorithmException the no such algorithm exception
+    * @throws UnsupportedEncodingException the unsupported encoding exception
+    */
    public static UUID getDescUuid(String text,
                                   UUID langPrimUuid,
                                   UUID conceptPrimUuid)
@@ -75,10 +100,23 @@ public class UuidT5Generator {
       return get(langPrimUuid, text + conceptPrimUuid.toString());
    }
 
+   /**
+    * Gets the.
+    *
+    * @param name the name
+    * @return the uuid
+    */
    public static UUID get(String name) {
       return get(null, name);
    }
 
+   /**
+    * Gets the.
+    *
+    * @param namespace the namespace
+    * @param name the name
+    * @return the uuid
+    */
    public static UUID get(UUID namespace, String name) {
       try {
          final MessageDigest sha1Algorithm = MessageDigest.getInstance("SHA-1");
@@ -120,8 +158,8 @@ public class UuidT5Generator {
     * This routine adapted from org.safehaus.uuid.UUID,
     * which is licensed under Apache 2.
     *
-    * @param uid
-    * @return
+    * @param uid the uid
+    * @return the raw bytes
     */
    public static byte[] getRawBytes(UUID uid) {
       final String id       = uid.toString();

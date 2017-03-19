@@ -77,28 +77,45 @@ import sh.isaac.model.configuration.StampCoordinates;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * See {@link DynamicSememeUsageDescription}
+ * See {@link DynamicSememeUsageDescription}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeUsageDescriptionImpl
          implements DynamicSememeUsageDescription {
+   
+   /** The Constant logger. */
    protected static final Logger logger = Logger.getLogger(DynamicSememeUsageDescription.class.getName());
+   
+   /** The cache. */
    private static LruCache<Integer, DynamicSememeUsageDescriptionImpl> cache_ =
       new LruCache<Integer, DynamicSememeUsageDescriptionImpl>(25);
 
    //~--- fields --------------------------------------------------------------
 
+   /** The refex usage descriptor sequence. */
    int                       refexUsageDescriptorSequence_;
+   
+   /** The sememe usage description. */
    String                    sememeUsageDescription_;
+   
+   /** The name. */
    String                    name_;
+   
+   /** The refex column info. */
    DynamicSememeColumnInfo[] refexColumnInfo_;
+   
+   /** The referenced component type restriction. */
    ObjectChronologyType      referencedComponentTypeRestriction_;
+   
+   /** The referenced component type sub restriction. */
    SememeType                referencedComponentTypeSubRestriction_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe usage description impl.
+    */
    private DynamicSememeUsageDescriptionImpl() {
       // For use by the mock static method
    }
@@ -360,6 +377,10 @@ public class DynamicSememeUsageDescriptionImpl
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
     * @see java.lang.Object#equals(java.lang.Object)
     */
    @Override
@@ -386,6 +407,9 @@ public class DynamicSememeUsageDescriptionImpl
    }
 
    /**
+    * Hash code.
+    *
+    * @return the int
     * @see java.lang.Object#hashCode()
     */
    @Override
@@ -400,9 +424,10 @@ public class DynamicSememeUsageDescriptionImpl
    /**
     * Invent DynamicSememeUsageDescription info for other sememe types (that
     * aren't dynamic), otherwise, calls {@link #read(int)} if it is a dynamic
-    * sememe
+    * sememe.
     *
     * @param sememe the sememe in question
+    * @return the dynamic sememe usage description
     */
    public static DynamicSememeUsageDescription mockOrRead(SememeChronology<?> sememe) {
       final DynamicSememeUsageDescriptionImpl dsud = new DynamicSememeUsageDescriptionImpl();
@@ -473,6 +498,12 @@ public class DynamicSememeUsageDescriptionImpl
       return dsud;
    }
 
+   /**
+    * Read.
+    *
+    * @param assemblageNidOrSequence the assemblage nid or sequence
+    * @return the dynamic sememe usage description
+    */
    public static DynamicSememeUsageDescription read(int assemblageNidOrSequence) {
       // TODO (artf231860) [REFEX] maybe? implement a mechanism to allow the cache to be updated... for now
       // cache is uneditable, and may be wrong, if the user changes the definition of a dynamic sememe.  Perhaps
@@ -492,6 +523,11 @@ public class DynamicSememeUsageDescriptionImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the column info.
+    *
+    * @return the column info
+    */
    /*
     *     @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription#getColumnInfo()
     */
@@ -505,11 +541,10 @@ public class DynamicSememeUsageDescriptionImpl
    }
 
    /**
+    * Test if dyn sememe.
     *
-    * Test if dyn sememe
-    *
-    * @param assemblageNidOrSequence
-    * @return
+    * @param assemblageNidOrSequence the assemblage nid or sequence
+    * @return true, if dynamic sememe
     */
    public static boolean isDynamicSememe(int assemblageNidOrSequence) {
       if ((assemblageNidOrSequence >= 0) ||
@@ -526,6 +561,11 @@ public class DynamicSememeUsageDescriptionImpl
       }
    }
 
+   /**
+    * Gets the dynamic sememe name.
+    *
+    * @return the dynamic sememe name
+    */
    /*
     *     @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription#getDyanmicSememeName()
     */
@@ -534,6 +574,11 @@ public class DynamicSememeUsageDescriptionImpl
       return this.name_;
    }
 
+   /**
+    * Gets the dynamic sememe usage description.
+    *
+    * @return the dynamic sememe usage description
+    */
    /*
     *     @see DynamicSememeUsageDescription#getDynamicSememeUsageDescription()
     */
@@ -542,6 +587,11 @@ public class DynamicSememeUsageDescriptionImpl
       return this.sememeUsageDescription_;
    }
 
+   /**
+    * Gets the dynamic sememe usage descriptor sequence.
+    *
+    * @return the dynamic sememe usage descriptor sequence
+    */
    /*
     *     @see DynamicSememeUsageDescription#getDynamicSememeUsageDescriptorSequence()
     */
@@ -550,6 +600,11 @@ public class DynamicSememeUsageDescriptionImpl
       return this.refexUsageDescriptorSequence_;
    }
 
+   /**
+    * Gets the referenced component type restriction.
+    *
+    * @return the referenced component type restriction
+    */
    /*
     *     @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription#getReferencedComponentTypeRestriction()
     */
@@ -558,6 +613,11 @@ public class DynamicSememeUsageDescriptionImpl
       return this.referencedComponentTypeRestriction_;
    }
 
+   /**
+    * Gets the referenced component type sub restriction.
+    *
+    * @return the referenced component type sub restriction
+    */
    /*
     *     @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription#getReferencedComponentTypeSubRestriction()
     */

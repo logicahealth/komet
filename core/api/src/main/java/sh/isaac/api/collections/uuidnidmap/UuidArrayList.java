@@ -52,14 +52,14 @@ import org.apache.mahout.math.Arrays;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class UuidArrayList.
  *
  * @author kec
  */
 public class UuidArrayList
         extends AbstractUuidList {
-   /**
-    *
-    */
+   
+   /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 1L;
 
    //~--- fields --------------------------------------------------------------
@@ -132,6 +132,11 @@ public class UuidArrayList
       this.size++;
    }
 
+   /**
+    * Adds the.
+    *
+    * @param element the element
+    */
    public void add(UUID element) {
       // overridden for performance only.
       final int msbIndex = this.size * 2;
@@ -360,6 +365,11 @@ public class UuidArrayList
       return true;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       return super.hashCode();
@@ -720,6 +730,11 @@ public class UuidArrayList
       quickSortFromTo(from, to);
    }
 
+   /**
+    * To list.
+    *
+    * @return the array list
+    */
    public ArrayList<UUID> toList() {
       final ArrayList<UUID> resultList = new ArrayList<>(this.size);
 
@@ -742,6 +757,11 @@ public class UuidArrayList
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the capacity.
+    *
+    * @return the capacity
+    */
    public int getCapacity() {
       return this.elements.length / 2;
    }
@@ -749,11 +769,10 @@ public class UuidArrayList
    /**
     * Returns the element at the specified position in the receiver.
     *
-    * @param index
-    *            index of element to return.
-    * @param nid
-    * @exception IndexOutOfBoundsException
-    *                index is out of range (index &lt; 0 || index &gt;=
+    * @param index            index of element to return.
+    * @param nid the nid
+    * @return the long[]
+    * @exception IndexOutOfBoundsException                index is out of range (index &lt; 0 || index &gt;=
     *                size()).
     */
    public long[] get(int index, int nid) {
@@ -772,8 +791,8 @@ public class UuidArrayList
     * sure that the index is within bounds.</b> Precondition (unchecked):
     * {@code index &gt;= 0 && index &lt; size()}.
     *
-    * @param index
-    *            index of element to return.
+    * @param index            index of element to return.
+    * @return the quick
     */
    @Override
    public long[] getQuick(int index) {
@@ -799,6 +818,12 @@ public class UuidArrayList
       this.elements[index] = element;
    }
 
+   /**
+    * Set quick.
+    *
+    * @param index the index
+    * @param element the element
+    */
    @Override
    protected void setQuick(int index, long[] element) {
       this.elements[index * 2]     = element[0];
@@ -828,6 +853,12 @@ public class UuidArrayList
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the uuid.
+    *
+    * @param index the index
+    * @return the uuid
+    */
    private long[] getUuid(int index) {
       final int    msb         = index * 2;
       final int    lsb         = msb + 1;

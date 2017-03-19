@@ -54,11 +54,18 @@ import sh.isaac.api.sync.SyncFiles;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link SyncTesting}
+ * {@link SyncTesting}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class SyncTesting {
+   
+   /**
+    * The main method.
+    *
+    * @param args the arguments
+    * @throws Exception the exception
+    */
    public static void main(String[] args)
             throws Exception {
       // Configure Java logging into log4j2

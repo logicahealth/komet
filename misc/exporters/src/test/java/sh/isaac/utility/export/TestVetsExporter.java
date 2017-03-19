@@ -57,11 +57,21 @@ import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class TestVetsExporter.
+ */
 public class TestVetsExporter {
+   
+   /** The log. */
    private static Logger log = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * The main method.
+    *
+    * @param args the arguments
+    */
    public static void main(String[] args) {
       new TestVetsExporter();
       issacInit();
@@ -73,12 +83,18 @@ public class TestVetsExporter {
       javafx.application.Platform.exit();
    }
 
+   /**
+    * Isaac stop.
+    */
    private static void isaacStop() {
       log.info("Stopping ISAAC");
       LookupService.shutdownSystem();
       log.info("ISAAC stopped");
    }
 
+   /**
+    * Issac init.
+    */
    private static void issacInit() {
       log.info("Isaac Init called");
 

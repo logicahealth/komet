@@ -61,23 +61,33 @@ import sh.isaac.api.progress.ActiveTasks;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class WriteSememeChronicle.
  *
  * @author kec
  */
 public class WriteSememeChronicle
         extends Task<Void> {
+   
+   /** The sc. */
    private final SememeChronology                                               sc;
+   
+   /** The write semaphore. */
    private final Semaphore                                                      writeSemaphore;
+   
+   /** The change listeners. */
    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
+   
+   /** The uncommitted tracking. */
    private final BiConsumer<ObjectChronology, Boolean>                          uncommittedTracking;
 
    //~--- constructors --------------------------------------------------------
 
    /**
+    * Instantiates a new write sememe chronicle.
     *
-    * @param sc
-    * @param writeSemaphore
-    * @param changeListeners
+    * @param sc the sc
+    * @param writeSemaphore the write semaphore
+    * @param changeListeners the change listeners
     * @param uncommittedTracking A handle to call back to the caller to notify it that the sememe has been
     * written to the SememeService.  Parameter 1 is the Sememe, Parameter two is true to indicate that the
     * change checker is active for this implementation.
@@ -100,6 +110,12 @@ public class WriteSememeChronicle
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Call.
+    *
+    * @return the void
+    * @throws Exception the exception
+    */
    @Override
    public Void call()
             throws Exception {

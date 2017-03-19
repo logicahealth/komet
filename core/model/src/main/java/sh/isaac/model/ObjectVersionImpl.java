@@ -56,19 +56,33 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObjectVersionImpl.
  *
  * @author kec
- * @param <C>
- * @param <V>
+ * @param <C> the generic type
+ * @param <V> the value type
  */
 public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V extends ObjectVersionImpl>
          implements MutableStampedVersion, IdentifiedStampedVersion {
+   
+   /** The chronicle. */
    protected final C chronicle;
+   
+   /** The stamp sequence. */
    private int       stampSequence;
+   
+   /** The version sequence. */
    private short     versionSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new object version impl.
+    *
+    * @param chronicle the chronicle
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    */
    public ObjectVersionImpl(C chronicle, int stampSequence, short versionSequence) {
       this.chronicle       = chronicle;
       this.stampSequence   = stampSequence;
@@ -77,6 +91,9 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Cancel.
+    */
    public void cancel() {
       if (!isUncommitted()) {
          throw new RuntimeException("Attempt to cancel an already committed version: " + this);
@@ -85,6 +102,12 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
       this.stampSequence = -1;
    }
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (this == obj) {
@@ -108,6 +131,11 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
       return this.chronicle.getNid() == other.chronicle.getNid();
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int hash = 7;
@@ -116,11 +144,22 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
       return hash;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString(new StringBuilder()).toString();
    }
 
+   /**
+    * To string.
+    *
+    * @param builder the builder
+    * @return the string builder
+    */
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
              .append(Get.stampService()
@@ -128,11 +167,21 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
       return builder;
    }
 
+   /**
+    * To user string.
+    *
+    * @return the string
+    */
    @Override
    public String toUserString() {
       return toString();
    }
 
+   /**
+    * Check uncommitted.
+    *
+    * @throws RuntimeException the runtime exception
+    */
    protected void checkUncommitted()
             throws RuntimeException {
       if (!this.isUncommitted()) {
@@ -140,6 +189,11 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
       }
    }
 
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
    protected void writeVersionData(ByteArrayDataBuffer data) {
       data.putStampSequence(this.stampSequence);
       data.putShort(this.versionSequence);
@@ -147,6 +201,11 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the author sequence.
+    *
+    * @return the author sequence
+    */
    @Override
    public int getAuthorSequence() {
       return Get.stampService()
@@ -155,6 +214,11 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the author sequence.
+    *
+    * @param authorSequence the new author sequence
+    */
    @Override
    public void setAuthorSequence(int authorSequence) {
       checkUncommitted();
@@ -168,6 +232,11 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the commit state.
+    *
+    * @return the commit state
+    */
    @Override
    public CommitStates getCommitState() {
       if (isUncommitted()) {
@@ -177,6 +246,11 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
       return CommitStates.COMMITTED;
    }
 
+   /**
+    * Gets the module sequence.
+    *
+    * @return the module sequence
+    */
    @Override
    public int getModuleSequence() {
       return Get.stampService()
@@ -185,6 +259,11 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the module sequence.
+    *
+    * @param moduleSequence the new module sequence
+    */
    @Override
    public void setModuleSequence(int moduleSequence) {
       checkUncommitted();
@@ -198,11 +277,21 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the nid.
+    *
+    * @return the nid
+    */
    @Override
    public int getNid() {
       return this.chronicle.getNid();
    }
 
+   /**
+    * Gets the path sequence.
+    *
+    * @return the path sequence
+    */
    @Override
    public int getPathSequence() {
       return Get.stampService()
@@ -211,6 +300,11 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the path sequence.
+    *
+    * @param pathSequence the new path sequence
+    */
    @Override
    public void setPathSequence(int pathSequence) {
       checkUncommitted();
@@ -224,22 +318,42 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the primordial uuid.
+    *
+    * @return the primordial uuid
+    */
    @Override
    public UUID getPrimordialUuid() {
       return this.chronicle.getPrimordialUuid();
    }
 
+   /**
+    * Gets the stamp sequence.
+    *
+    * @return the stamp sequence
+    */
    @Override
    public int getStampSequence() {
       return this.stampSequence;
    }
 
+   /**
+    * Gets the state.
+    *
+    * @return the state
+    */
    @Override
    public State getState() {
       return Get.stampService()
                 .getStatusForStamp(this.stampSequence);
    }
 
+   /**
+    * Gets the time.
+    *
+    * @return the time
+    */
    @Override
    public long getTime() {
       return Get.stampService()
@@ -248,6 +362,11 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the time.
+    *
+    * @param time the new time
+    */
    @Override
    public void setTime(long time) {
       checkUncommitted();
@@ -261,22 +380,42 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if uncommitted.
+    *
+    * @return true, if uncommitted
+    */
    @Override
    public boolean isUncommitted() {
       return this.getTime() == Long.MAX_VALUE;
    }
 
+   /**
+    * Gets the uuid list.
+    *
+    * @return the uuid list
+    */
    @Override
    public List<UUID> getUuidList() {
       return this.chronicle.getUuidList();
    }
 
+   /**
+    * Gets the version sequence.
+    *
+    * @return the version sequence
+    */
    public short getVersionSequence() {
       return this.versionSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the version sequence.
+    *
+    * @param versionSequence the new version sequence
+    */
    public void setVersionSequence(short versionSequence) {
       this.versionSequence = versionSequence;
    }

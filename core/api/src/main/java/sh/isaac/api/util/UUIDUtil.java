@@ -47,16 +47,29 @@ import java.util.UUID;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * Various UUID related utilities
+ * Various UUID related utilities.
  *
  * @author darmbrust
  * @author kec
  */
 public class UUIDUtil {
+   
+   /**
+    * Convert.
+    *
+    * @param data the data
+    * @return the uuid
+    */
    public static UUID convert(long[] data) {
       return new UUID(data[0], data[1]);
    }
 
+   /**
+    * Convert.
+    *
+    * @param id the id
+    * @return the long[]
+    */
    public static long[] convert(UUID id) {
       final long[] data = new long[2];
 
@@ -67,6 +80,12 @@ public class UUIDUtil {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the uuid.
+    *
+    * @param string the string
+    * @return the uuid
+    */
    public static Optional<UUID> getUUID(String string) {
       if (string == null) {
          Optional.empty();
@@ -83,6 +102,12 @@ public class UUIDUtil {
       }
    }
 
+   /**
+    * Checks if uuid.
+    *
+    * @param string the string
+    * @return true, if uuid
+    */
    public static boolean isUUID(String string) {
       return (getUUID(string).isPresent());
    }

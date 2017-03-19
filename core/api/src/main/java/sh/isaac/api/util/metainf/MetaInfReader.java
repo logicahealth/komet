@@ -80,15 +80,23 @@ import sh.isaac.api.LookupService;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link MetaInfReader}
+ * {@link MetaInfReader}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class MetaInfReader {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LoggerFactory.getLogger(MetaInfReader.class);
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read db metadata.
+    *
+    * @return the maven artifact info
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static MavenArtifactInfo readDbMetadata()
             throws IOException {
       try {

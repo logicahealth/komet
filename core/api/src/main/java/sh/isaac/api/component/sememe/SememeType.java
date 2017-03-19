@@ -63,25 +63,53 @@ import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 //~--- enums ------------------------------------------------------------------
 
 /**
+ * The Enum SememeType.
  *
  * @author kec
  */
 public enum SememeType {
+   
+   /** The member. */
    MEMBER((byte) 0, "Member"),
+   
+   /** The component nid. */
    COMPONENT_NID((byte) 1, "Component Nid"),
+   
+   /** The long. */
    LONG((byte) 2, "Long"),
+   
+   /** The logic graph. */
    LOGIC_GRAPH((byte) 4, "Logic Graph"),
+   
+   /** The string. */
    STRING((byte) 5, "String"),
+   
+   /** The dynamic. */
    DYNAMIC((byte) 6, "Dynamic Sememe"),
+   
+   /** The description. */
    DESCRIPTION((byte) 7, "Description"),
+   
+   /** The relationship adaptor. */
    RELATIONSHIP_ADAPTOR((byte) 8, "Relationship Adapter"),
+   
+   /** The unknown. */
    UNKNOWN(Byte.MAX_VALUE, "Unknown");
 
+   /** The sememe token. */
    final byte   sememeToken;
+   
+   /** The nice name. */
    final String niceName_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new sememe type.
+    *
+    * @param sememeToken the sememe token
+    * @param niceName the nice name
+    */
    private SememeType(byte sememeToken, String niceName) {
       this.sememeToken = sememeToken;
       this.niceName_   = niceName;
@@ -89,6 +117,13 @@ public enum SememeType {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Parses the.
+    *
+    * @param nameOrEnumId the name or enum id
+    * @param exceptionOnParseFail the exception on parse fail
+    * @return the sememe type
+    */
    public static SememeType parse(String nameOrEnumId, boolean exceptionOnParseFail) {
       if (nameOrEnumId == null) {
          return null;
@@ -116,6 +151,11 @@ public enum SememeType {
       return UNKNOWN;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return this.niceName_;
@@ -123,6 +163,12 @@ public enum SememeType {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the from token.
+    *
+    * @param token the token
+    * @return the from token
+    */
    public static SememeType getFromToken(byte token) {
       switch (token) {
       case 0:
@@ -151,6 +197,11 @@ public enum SememeType {
       }
    }
 
+   /**
+    * Gets the observable sememe version class.
+    *
+    * @return the observable sememe version class
+    */
    @SuppressWarnings("rawtypes")
    public Class<? extends ObservableSememeVersion> getObservableSememeVersionClass() {
       switch (this) {
@@ -180,10 +231,20 @@ public enum SememeType {
       }
    }
 
+   /**
+    * Gets the sememe token.
+    *
+    * @return the sememe token
+    */
    public byte getSememeToken() {
       return this.sememeToken;
    }
 
+   /**
+    * Gets the sememe version class.
+    *
+    * @return the sememe version class
+    */
    @SuppressWarnings("rawtypes")
    public Class<? extends SememeVersion> getSememeVersionClass() {
       switch (this) {

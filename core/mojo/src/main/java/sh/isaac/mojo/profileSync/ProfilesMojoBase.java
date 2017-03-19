@@ -87,22 +87,32 @@ import sh.isaac.mojo.external.QuasiMojo;
  */
 public abstract class ProfilesMojoBase
         extends QuasiMojo {
+   
+   /** The Constant PROFILE_SYNC_DISABLE. */
    // For disabling Profile Sync entirely
    public static final String PROFILE_SYNC_DISABLE = "profileSyncDisable";
 
+   /** The Constant PROFILE_SYNC_NO_PROMPTS. */
    // For preventing command line prompts for credentials during automated runs - set this system property to true.
    public static final String PROFILE_SYNC_NO_PROMPTS = "profileSyncNoPrompt";
 
+   /** The Constant PROFILE_SYNC_USERNAME_PROPERTY. */
    // Allow setting the username via a system property
    public static final String PROFILE_SYNC_USERNAME_PROPERTY = "profileSyncUsername";
 
+   /** The Constant PROFILE_SYNC_PWD_PROPERTY. */
    // Allow setting the password via a system property
    public static final String PROFILE_SYNC_PWD_PROPERTY = "profileSyncPassword";
+   
+   /** The username. */
    private static String      username                  = null;
+   
+   /** The pwd. */
    private static char[]      pwd                       = null;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The disable hint given. */
    private boolean disableHintGiven = false;
 
    /**
@@ -111,32 +121,29 @@ public abstract class ProfilesMojoBase
    @Parameter(required = true)
    File userProfileFolderLocation = null;
 
-   /**
-    * The location URL to use when connecting to the sync service
-    */
+   /** The location URL to use when connecting to the sync service. */
    @Parameter(required = true)
    String changeSetURL = null;
 
-   /**
-    * The Type of the specified changeSetURL - should be GIT or SVN
-    */
+   /** The Type of the specified changeSetURL - should be GIT or SVN. */
    @Parameter(required = true)
    String changeSetURLType = null;
 
-   /**
-    * The username to use for remote operations
-    */
+   /** The username to use for remote operations. */
    @Parameter(required = false)
    private final String profileSyncUsername = null;
 
-   /**
-    * The password to use for remote operations
-    */
+   /** The password to use for remote operations. */
    @Parameter(required = false)
    private final String profileSyncPassword = null;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new profiles mojo base.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    public ProfilesMojoBase()
             throws MojoExecutionException {
       super();
@@ -145,6 +152,9 @@ public abstract class ProfilesMojoBase
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
     * @see org.apache.maven.plugin.Mojo#execute()
     */
    @Override
@@ -157,6 +167,11 @@ public abstract class ProfilesMojoBase
       }
    }
 
+   /**
+    * Skip run.
+    *
+    * @return true, if successful
+    */
    protected boolean skipRun() {
       if (Boolean.valueOf(System.getProperty(PROFILE_SYNC_DISABLE))) {
          return true;
@@ -172,6 +187,12 @@ public abstract class ProfilesMojoBase
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the password.
+    *
+    * @return the password
+    * @throws MojoExecutionException the mojo execution exception
+    */
    protected char[] getPassword()
             throws MojoExecutionException  // protected String getPassword() throws MojoExecutionException
    {
@@ -235,6 +256,12 @@ public abstract class ProfilesMojoBase
       return pwd;
    }
 
+   /**
+    * Gets the profile sync impl.
+    *
+    * @return the profile sync impl
+    * @throws MojoExecutionException the mojo execution exception
+    */
    protected SyncFiles getProfileSyncImpl()
             throws MojoExecutionException {
       if (this.changeSetURLType.equalsIgnoreCase("GIT")) {
@@ -268,13 +295,21 @@ public abstract class ProfilesMojoBase
     * Does the necessary substitution to put the contents of getUserName() into the URL, if a known pattern needing substitution is found.
     *  ssh://someuser@csfe.aceworkspace.net:29418/... for example needs to become:
     *  ssh://<getUsername()>@csfe.aceworkspace.net:29418/...
-    * @throws MojoExecutionException
+    *
+    * @return the url
+    * @throws MojoExecutionException the mojo execution exception
     */
    protected String getURL()
             throws MojoExecutionException {
       return getProfileSyncImpl().substituteURL(this.changeSetURL, getUsername());
    }
 
+   /**
+    * Gets the username.
+    *
+    * @return the username
+    * @throws MojoExecutionException the mojo execution exception
+    */
    protected String getUsername()
             throws MojoExecutionException {
       if (username == null) {

@@ -53,21 +53,43 @@ import javafx.collections.ObservableIntegerArray;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The listener interface for receiving weakArrayChange events.
+ * The class that is interested in processing a weakArrayChange
+ * event implements this interface, and the object created
+ * with that class is registered with a component using the
+ * component's <code>addWeakArrayChangeListener<code> method. When
+ * the weakArrayChange event occurs, that object's appropriate
+ * method is invoked.
  *
  * @author kec
  */
 public class WeakArrayChangeListener
          implements WeakListener, ArrayChangeListener<ObservableIntegerArray> {
+   
+   /** The ref. */
    private final WeakReference<ArrayChangeListener<ObservableIntegerArray>> ref;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new weak array change listener.
+    *
+    * @param listener the listener
+    */
    public WeakArrayChangeListener(ArrayChangeListener<ObservableIntegerArray> listener) {
       this.ref = new WeakReference<>(listener);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * On changed.
+    *
+    * @param observableArray the observable array
+    * @param sizeChanged the size changed
+    * @param from the from
+    * @param to the to
+    */
    @Override
    public void onChanged(ObservableIntegerArray observableArray, boolean sizeChanged, int from, int to) {
       final ArrayChangeListener<ObservableIntegerArray> listener = this.ref.get();
@@ -82,6 +104,11 @@ public class WeakArrayChangeListener
       }
    }
 
+   /**
+    * Was garbage collected.
+    *
+    * @return true, if successful
+    */
    @Override
    public boolean wasGarbageCollected() {
       return (this.ref.get() == null);

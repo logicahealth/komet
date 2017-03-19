@@ -52,21 +52,35 @@ import sh.isaac.api.coordinate.StampCoordinate;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LatestPrimitiveStampCollector.
  *
  * @author kec
  */
 public class LatestPrimitiveStampCollector
          implements ObjIntConsumer<StampSequenceSet> {
+   
+   /** The computer. */
    private final RelativePositionCalculator computer;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new latest primitive stamp collector.
+    *
+    * @param stampCoordinate the stamp coordinate
+    */
    public LatestPrimitiveStampCollector(StampCoordinate stampCoordinate) {
       this.computer = RelativePositionCalculator.getCalculator(stampCoordinate);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Accept.
+    *
+    * @param latestResult the latest result
+    * @param possibleNewLatestStamp the possible new latest stamp
+    */
    @Override
    public void accept(StampSequenceSet latestResult, int possibleNewLatestStamp) {
       final StampSequenceSet oldResult = StampSequenceSet.of(latestResult.stream());

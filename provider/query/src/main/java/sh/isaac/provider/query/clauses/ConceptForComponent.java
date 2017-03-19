@@ -71,14 +71,30 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptForComponent
         extends ParentClause {
+   
+   /**
+    * Instantiates a new concept for component.
+    */
    protected ConceptForComponent() {}
 
+   /**
+    * Instantiates a new concept for component.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param child the child
+    */
    public ConceptForComponent(Query enclosingQuery, Clause child) {
       super(enclosingQuery, child);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute components.
+    *
+    * @param incomingComponents the incoming components
+    * @return the nid set
+    */
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
       final NidSet incomingPossibleComponentNids = NidSet.of(incomingComponents.stream());
@@ -93,6 +109,12 @@ public class ConceptForComponent
       return outgoingPossibleConceptNids;
    }
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleConceptNids the incoming possible concept nids
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleConceptNids) {
       final NidSet incomingPossibleComponentNids = NidSet.of(incomingPossibleConceptNids.stream());
@@ -110,11 +132,21 @@ public class ConceptForComponent
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return POST_ITERATION;
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();

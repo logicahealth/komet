@@ -40,11 +40,19 @@
 package sh.isaac.api.component.sememe.version;
 
 /**
+ * The Interface MutableLongSememe.
  *
  * @author kec
+ * @param <T> the generic type
  */
 public interface MutableLongSememe<T extends MutableLongSememe<T>>
         extends LongSememe<T> {
+   
+   /**
+    * Sets the long value.
+    *
+    * @param longValue the new long value
+    */
    void setLongValue(long longValue);
 }
 

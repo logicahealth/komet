@@ -66,14 +66,31 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionActiveRegexMatch
         extends DescriptionRegexMatch {
+   
+   /**
+    * Instantiates a new description active regex match.
+    */
    protected DescriptionActiveRegexMatch() {}
 
+   /**
+    * Instantiates a new description active regex match.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param regexKey the regex key
+    * @param viewCoordinateKey the view coordinate key
+    */
    public DescriptionActiveRegexMatch(Query enclosingQuery, String regexKey, String viewCoordinateKey) {
       super(enclosingQuery, regexKey, viewCoordinateKey);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
       final String                                      regex = (String) this.enclosingQuery.getLetDeclarations()
@@ -90,6 +107,11 @@ public class DescriptionActiveRegexMatch
                                 });
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();

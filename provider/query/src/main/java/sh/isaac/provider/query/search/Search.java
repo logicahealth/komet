@@ -63,13 +63,15 @@ import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link Search}
+ * {@link Search}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class Search {
+   
    /**
     * Launch a search in a background thread (returns immediately) handing back a handle to the search.
+    *
     * @param searchString - the query string
     * @param operationToRunWhenSearchComplete - (optional) Pass the function that you want to have executed when the search is complete and the results
     * are ready for use.  Note that this function will also be executed in the background thread.
@@ -79,9 +81,8 @@ public class Search {
     * @param targetCodeSystemPathNidOrSequence - (optional) Restrict the results to concepts from the specified path.
     * @param memberOfRefsetNid - (optional) Restrict the results to concepts that are members of the specified refset.
     * @param kindOfNid - (optional) restrict the results to concepts that are a kind of the specified concept
-    * @param childOfNid - (optional) restrict the results to concepts that are children of the specified concept
     * @return - A handle to the running search.
-    * @throws IOException
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static SearchHandle search(String searchString,
                                      Consumer<SearchHandle> operationToRunWhenSearchComplete,
@@ -202,6 +203,7 @@ public class Search {
 
    /**
     * Launch a search in a background thread (returns immediately) handing back a handle to the search.
+    *
     * @param sourceConceptNid - the source concept of the map - the descriptions of this concept will be used to create a search
     * @param operationToRunWhenSearchComplete - (optional) Pass the function that you want to have executed when the search is complete and the results
     * are ready for use.  Note that this function will also be executed in the background thread.
@@ -210,10 +212,10 @@ public class Search {
     * When this parameter is provided, the descriptionType parameter is ignored.
     * @param targetCodeSystemPathNid - (optional) Restrict the results to concepts from the specified path.
     * @param memberOfRefsetNid - (optional) Restrict the results to concepts that are members of the specified refset.
-    * @param childOfNid - (optional) restrict the results to concepts that are children of the specified concept
+    * @param kindOfNid the kind of nid
     * @param stampCoord - (optional) - use this stamp coordinate for fetching descriptions to build the search - otherwise, uses the default stamp coord.
     * @return - A handle to the running search.
-    * @throws IOException
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static SearchHandle search(int sourceConceptNid,
                                      Consumer<SearchHandle> operationToRunWhenSearchComplete,

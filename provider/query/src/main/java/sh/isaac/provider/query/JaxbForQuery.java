@@ -82,14 +82,23 @@ import sh.isaac.provider.query.clauses.RelRestriction;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class JaxbForQuery.
  *
  * @author kec
  */
 public class JaxbForQuery {
+   
+   /** The singleton. */
    public static JAXBContext singleton;
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the.
+    *
+    * @return the JAXB context
+    * @throws JAXBException the JAXB exception
+    */
    public static JAXBContext get()
             throws JAXBException {
       if (singleton == null) {

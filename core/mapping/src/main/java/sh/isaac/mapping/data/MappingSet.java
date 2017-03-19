@@ -82,29 +82,45 @@ import sh.isaac.utility.Frills;
  */
 public class MappingSet
         extends MappingObject {
+   
+   /** The Constant LOG. */
    private static final Logger                LOG            = LoggerFactory.getLogger(MappingSet.class);
+   
+   /** The Constant nameComparator. */
    public static final Comparator<MappingSet> nameComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getName(), o2.getName());
+   
+   /** The Constant purposeComparator. */
    public static final Comparator<MappingSet> purposeComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getPurpose(), o2.getPurpose());
+   
+   /** The Constant descriptionComparator. */
    public static final Comparator<MappingSet> descriptionComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getDescription(), o2.getDescription());
 
    //~--- fields --------------------------------------------------------------
 
+   /** The name property. */
    private final SimpleStringProperty nameProperty        = new SimpleStringProperty();
+   
+   /** The purpose property. */
    private final SimpleStringProperty purposeProperty     = new SimpleStringProperty();
+   
+   /** The description property. */
    private final SimpleStringProperty descriptionProperty = new SimpleStringProperty();
+   
+   /** The inverse name property. */
    private final SimpleStringProperty inverseNameProperty = new SimpleStringProperty();
 
+   /** The primordial UUID. */
    // private String name, inverseName, description, purpose;
    private UUID primordialUUID;
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    *
-    * Read an existing mapping set from the database
+    * Read an existing mapping set from the database.
     *
     * @param refex DynamicSememeChronicleBI<?>
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @throws RuntimeException the runtime exception
     */
    protected MappingSet(DynamicSememe<?> refex, StampCoordinate stampCoord)
             throws RuntimeException {
@@ -113,6 +129,13 @@ public class MappingSet
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read from refex.
+    *
+    * @param refex the refex
+    * @param stampCoord the stamp coord
+    * @throws RuntimeException the runtime exception
+    */
    private void readFromRefex(DynamicSememe<?> refex, StampCoordinate stampCoord)
             throws RuntimeException {
       final Optional<ConceptVersion<?>> mappingConcept = MappingSetDAO.getMappingConcept(refex, stampCoord);
@@ -179,8 +202,11 @@ public class MappingSet
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the comments.
+    *
+    * @param stampCoord the stamp coord
     * @return Any comments attached to this mapping set.
-    * @throws RuntimeException
+    * @throws RuntimeException the runtime exception
     */
    public List<MappingItemComment> getComments(StampCoordinate stampCoord)
             throws RuntimeException {
@@ -188,6 +214,8 @@ public class MappingSet
    }
 
    /**
+    * Gets the description.
+    *
     * @return - The user specified description of the mapping set.
     */
    public String getDescription() {
@@ -197,6 +225,8 @@ public class MappingSet
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the description.
+    *
     * @param description - specify the description of the mapping set
     */
    public void setDescription(String description) {
@@ -205,11 +235,18 @@ public class MappingSet
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the description property.
+    *
+    * @return the description property
+    */
    public SimpleStringProperty getDescriptionProperty() {
       return this.descriptionProperty;
    }
 
    /**
+    * Gets the inverse name.
+    *
     * @return - The inverse name of the mapping set - may return null
     */
    public String getInverseName() {
@@ -219,6 +256,8 @@ public class MappingSet
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the inverse name.
+    *
     * @param inverseName - Change the inverse name of the mapping set
     */
    public void setInverseName(String inverseName) {
@@ -227,10 +266,21 @@ public class MappingSet
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the inverse name property.
+    *
+    * @return the inverse name property
+    */
    public SimpleStringProperty getInverseNameProperty() {
       return this.inverseNameProperty;
    }
 
+   /**
+    * Gets the mapping items.
+    *
+    * @param stampCoord the stamp coord
+    * @return the mapping items
+    */
    public List<MappingItem> getMappingItems(StampCoordinate stampCoord) {
       List<MappingItem> mappingItems = null;
 
@@ -245,6 +295,8 @@ public class MappingSet
    }
 
    /**
+    * Gets the name.
+    *
     * @return the name of the mapping set
     */
    public String getName() {
@@ -254,6 +306,8 @@ public class MappingSet
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the name.
+    *
     * @param name - Change the name of the mapping set
     */
    public void setName(String name) {
@@ -262,11 +316,18 @@ public class MappingSet
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the name property.
+    *
+    * @return the name property
+    */
    public SimpleStringProperty getNameProperty() {
       return this.nameProperty;
    }
 
    /**
+    * Gets the primordial UUID.
+    *
     * @return the identifier of this mapping set
     */
    public UUID getPrimordialUUID() {
@@ -274,6 +335,8 @@ public class MappingSet
    }
 
    /**
+    * Gets the purpose.
+    *
     * @return - the 'purpose' of the mapping set - may be null
     */
    public String getPurpose() {
@@ -283,6 +346,8 @@ public class MappingSet
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the purpose.
+    *
     * @param purpose - The 'purpose' of the mapping set. May specify null.
     */
    public void setPurpose(String purpose) {
@@ -291,11 +356,19 @@ public class MappingSet
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the purpose property.
+    *
+    * @return the purpose property
+    */
    public SimpleStringProperty getPurposeProperty() {
       return this.purposeProperty;
    }
 
    /**
+    * Gets the summary.
+    *
+    * @param stampCoord the stamp coord
     * @return The summary of the mapping set
     */
    public String getSummary(StampCoordinate stampCoord) {

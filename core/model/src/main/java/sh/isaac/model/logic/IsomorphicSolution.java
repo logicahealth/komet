@@ -57,13 +57,28 @@ import sh.isaac.api.tree.TreeNodeVisitData;
  */
 public class IsomorphicSolution
          implements Comparable<IsomorphicSolution> {
+   
+   /** The score. */
    int         score = -1;
+   
+   /** The legal. */
    boolean     legal = true;
+   
+   /** The hashcode. */
    final int   hashcode;
+   
+   /** The solution. */
    final int[] solution;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new isomorphic solution.
+    *
+    * @param solution the solution
+    * @param referenceTreeVisitData the reference tree visit data
+    * @param comparisonTreeVisitData the comparison tree visit data
+    */
    public IsomorphicSolution(int[] solution,
                              TreeNodeVisitData referenceTreeVisitData,
                              TreeNodeVisitData comparisonTreeVisitData) {
@@ -74,6 +89,12 @@ public class IsomorphicSolution
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(IsomorphicSolution o) {
       int comparison = Integer.compare(this.score, o.score);
@@ -91,6 +112,12 @@ public class IsomorphicSolution
       return compare(this.solution, o.solution);
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -114,16 +141,33 @@ public class IsomorphicSolution
       return Arrays.equals(this.solution, that.solution);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       return this.hashcode;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "solution{" + this.legal + "  s:" + this.score + ", " + Arrays.toString(this.solution) + '}';
    }
 
+   /**
+    * Compare.
+    *
+    * @param o1 the o 1
+    * @param o2 the o 2
+    * @return the int
+    */
    int compare(int[] o1, int[] o2) {
       for (int i = 0; i < o1.length; i++) {
          if (o1[i] != o2[i]) {
@@ -136,6 +180,12 @@ public class IsomorphicSolution
       return 0;
    }
 
+   /**
+    * Score.
+    *
+    * @param referenceTreeVisitData the reference tree visit data
+    * @param comparisonTreeVisitData the comparison tree visit data
+    */
    final void score(TreeNodeVisitData referenceTreeVisitData, TreeNodeVisitData comparisonTreeVisitData) {
       final OpenIntHashSet                       parentNodeIds                 = new OpenIntHashSet(this.solution.length);
       final OpenIntHashSet                       usedNodeIds                   = new OpenIntHashSet(this.solution.length);
@@ -205,14 +255,29 @@ public class IsomorphicSolution
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if legal.
+    *
+    * @return true, if legal
+    */
    public boolean isLegal() {
       return this.legal;
    }
 
+   /**
+    * Gets the score.
+    *
+    * @return the score
+    */
    public int getScore() {
       return this.score;
    }
 
+   /**
+    * Gets the solution.
+    *
+    * @return the solution
+    */
    public int[] getSolution() {
       return this.solution;
    }

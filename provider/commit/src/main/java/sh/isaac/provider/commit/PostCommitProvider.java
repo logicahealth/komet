@@ -73,6 +73,7 @@ import sh.isaac.api.identity.StampedVersion;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class PostCommitProvider.
  *
  * @author Nuno Marques
  */
@@ -80,37 +81,65 @@ import sh.isaac.api.identity.StampedVersion;
 @RunLevel(value = 1)
 public class PostCommitProvider
          implements PostCommitService, ChronologyChangeListener {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The listener id. */
    private final UUID                                            listenerId         = UUID.randomUUID();
+   
+   /** The change set listeners. */
    ConcurrentSkipListSet<WeakReference<ChangeSetListener>> changeSetListeners = new ConcurrentSkipListSet<>();
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new post commit provider.
+    */
    private PostCommitProvider() {
       // for HK2
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the change set listener.
+    *
+    * @param changeSetListener the change set listener
+    */
    @Override
    public void addChangeSetListener(ChangeSetListener changeSetListener) {
       LOG.debug("add listener");
       this.changeSetListeners.add(new ChangeSetListenerReference(changeSetListener));
    }
 
+   /**
+    * Handle change.
+    *
+    * @param cc the cc
+    */
    @Override
    public void handleChange(ConceptChronology<? extends StampedVersion> cc) {
       // not interested
    }
 
+   /**
+    * Handle change.
+    *
+    * @param sc the sc
+    */
    @Override
    public void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
       // not interested
    }
 
+   /**
+    * Handle commit.
+    *
+    * @param commitRecord the commit record
+    */
    @Override
    public void handleCommit(CommitRecord commitRecord) {
       LOG.debug("change set listeners size: {}", this.changeSetListeners.size());
@@ -125,12 +154,20 @@ public class PostCommitProvider
                                  });
    }
 
+   /**
+    * Removes the change set listener.
+    *
+    * @param changeSetListener the change set listener
+    */
    @Override
    public void removeChangeSetListener(ChangeSetListener changeSetListener) {
       LOG.debug("remove listener");
       this.changeSetListeners.remove(new ChangeSetListenerReference(changeSetListener));
    }
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       LOG.info("Starting PostCommitProvider post-construct");
@@ -138,6 +175,9 @@ public class PostCommitProvider
          .addChangeListener(this);
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping PostCommitProvider pre-destroy. ");
@@ -145,6 +185,11 @@ public class PostCommitProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the listener uuid.
+    *
+    * @return the listener uuid
+    */
    // ChronologyChangeListener interfaces
    @Override
    public UUID getListenerUuid() {
@@ -153,18 +198,34 @@ public class PostCommitProvider
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class ChangeSetListenerReference.
+    */
    private static class ChangeSetListenerReference
            extends WeakReference<ChangeSetListener>
             implements Comparable<ChangeSetListenerReference> {
+      
+      /** The listener uuid. */
       UUID listenerUuid;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new change set listener reference.
+       *
+       * @param referent the referent
+       */
       public ChangeSetListenerReference(ChangeSetListener referent) {
          super(referent);
          this.listenerUuid = referent.getListenerUuid();
       }
 
+      /**
+       * Instantiates a new change set listener reference.
+       *
+       * @param referent the referent
+       * @param q the q
+       */
       public ChangeSetListenerReference(ChangeSetListener referent, ReferenceQueue<? super ChangeSetListener> q) {
          super(referent, q);
          this.listenerUuid = referent.getListenerUuid();
@@ -172,11 +233,23 @@ public class PostCommitProvider
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Compare to.
+       *
+       * @param o the o
+       * @return the int
+       */
       @Override
       public int compareTo(ChangeSetListenerReference o) {
          return this.listenerUuid.compareTo(o.listenerUuid);
       }
 
+      /**
+       * Equals.
+       *
+       * @param obj the obj
+       * @return true, if successful
+       */
       @Override
       public boolean equals(Object obj) {
          if (obj == null) {
@@ -192,6 +265,11 @@ public class PostCommitProvider
          return Objects.equals(this.listenerUuid, other.listenerUuid);
       }
 
+      /**
+       * Hash code.
+       *
+       * @return the int
+       */
       @Override
       public int hashCode() {
          int hash = 3;

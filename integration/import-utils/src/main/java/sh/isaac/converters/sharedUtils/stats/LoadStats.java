@@ -54,60 +54,129 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Daniel Armbrust
  */
 public class LoadStats {
+   
+   /** The concepts. */
    private final AtomicInteger                             concepts_                    = new AtomicInteger();
+   
+   /** The graphs. */
    private final AtomicInteger                             graphs_                      = new AtomicInteger();
+   
+   /** The cloned concepts. */
    private final AtomicInteger                             clonedConcepts_              = new AtomicInteger();
+   
+   /** The skipped properties counter. */
    private final AtomicInteger                             skippedPropertiesCounter_    = new AtomicInteger();
+   
+   /** The generated preferred term count. */
    private final AtomicInteger                             generatedPreferredTermCount_ = new AtomicInteger();
+   
+   /** The descriptions. */
    private final TreeMap<String, Integer>                  descriptions_                = new TreeMap<String, Integer>();
+   
+   /** The refset members. */
    private final TreeMap<String, Integer>                  refsetMembers_               = new TreeMap<String, Integer>();
+   
+   /** The relationships. */
    private final TreeMap<String, Integer>                  relationships_               = new TreeMap<String, Integer>();
+   
+   /** The associations. */
    private final TreeMap<String, Integer>                  associations_                = new TreeMap<String, Integer>();
+   
+   /** The annotations. */
    private final TreeMap<String, TreeMap<String, Integer>> annotations_ = new TreeMap<String, TreeMap<String, Integer>>();
+   
+   /** The sync lock. */
    private final Object                                    syncLock                     = new Object();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the annotation.
+    *
+    * @param annotatedItem the annotated item
+    * @param annotationName the annotation name
+    */
    public void addAnnotation(String annotatedItem, String annotationName) {
       increment(this.annotations_, annotatedItem, annotationName);
    }
 
+   /**
+    * Adds the association.
+    *
+    * @param assnName the assn name
+    */
    public void addAssociation(String assnName) {
       increment(this.associations_, assnName);
    }
 
+   /**
+    * Adds the concept.
+    */
    public void addConcept() {
       this.concepts_.incrementAndGet();
    }
 
+   /**
+    * Adds the concept clone.
+    */
    public void addConceptClone() {
       this.clonedConcepts_.incrementAndGet();
    }
 
+   /**
+    * Adds the description.
+    *
+    * @param descName the desc name
+    */
    public void addDescription(String descName) {
       increment(this.descriptions_, descName);
    }
 
+   /**
+    * Adds the graph.
+    */
    public void addGraph() {
       this.graphs_.incrementAndGet();
    }
 
+   /**
+    * Adds the refset member.
+    *
+    * @param refsetName the refset name
+    */
    public void addRefsetMember(String refsetName) {
       increment(this.refsetMembers_, refsetName);
    }
 
+   /**
+    * Adds the relationship.
+    *
+    * @param relName the rel name
+    */
    public void addRelationship(String relName) {
       increment(this.relationships_, relName);
    }
 
+   /**
+    * Adds the skipped property.
+    */
    public void addSkippedProperty() {
       this.skippedPropertiesCounter_.incrementAndGet();
    }
 
+   /**
+    * Inc description copied from FSN count.
+    */
    public void incDescriptionCopiedFromFSNCount() {
       this.generatedPreferredTermCount_.incrementAndGet();
    }
 
+   /**
+    * Increment.
+    *
+    * @param dataHolder the data holder
+    * @param type the type
+    */
    private void increment(TreeMap<String, Integer> dataHolder, String type) {
       synchronized (this.syncLock) {
          Integer i = dataHolder.get(type);
@@ -122,6 +191,13 @@ public class LoadStats {
       }
    }
 
+   /**
+    * Increment.
+    *
+    * @param dataHolder the data holder
+    * @param annotatedType the annotated type
+    * @param type the type
+    */
    private void increment(TreeMap<String, TreeMap<String, Integer>> dataHolder, String annotatedType, String type) {
       synchronized (this.syncLock) {
          TreeMap<String, Integer> map = dataHolder.get(annotatedType);
@@ -145,18 +221,38 @@ public class LoadStats {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the cloned concept count.
+    *
+    * @return the cloned concept count
+    */
    public int getClonedConceptCount() {
       return this.clonedConcepts_.get();
    }
 
+   /**
+    * Gets the concept count.
+    *
+    * @return the concept count
+    */
    public int getConceptCount() {
       return this.concepts_.get();
    }
 
+   /**
+    * Gets the skipped property count.
+    *
+    * @return the skipped property count
+    */
    public int getSkippedPropertyCount() {
       return this.skippedPropertiesCounter_.get();
    }
 
+   /**
+    * Gets the summary.
+    *
+    * @return the summary
+    */
    public ArrayList<String> getSummary() {
       final ArrayList<String> result = new ArrayList<String>();
 

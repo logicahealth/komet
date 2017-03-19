@@ -53,6 +53,7 @@ import java.io.IOException;
 //~--- enums ------------------------------------------------------------------
 
 /**
+ * The Enum OchreExternalizableObjectType.
  *
  * @author kec
  */
@@ -78,16 +79,29 @@ public enum OchreExternalizableObjectType {
     */
    STAMP_ALIAS((byte) 5);
 
+   /** The token. */
    private final byte token;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new ochre externalizable object type.
+    *
+    * @param token the token
+    */
    private OchreExternalizableObjectType(byte token) {
       this.token = token;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * From data stream.
+    *
+    * @param input the input
+    * @return the ochre externalizable object type
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static OchreExternalizableObjectType fromDataStream(DataInput input)
             throws IOException {
       final byte token = input.readByte();
@@ -113,6 +127,12 @@ public enum OchreExternalizableObjectType {
       }
    }
 
+   /**
+    * To data stream.
+    *
+    * @param out the out
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void toDataStream(DataOutput out)
             throws IOException {
       out.writeByte(this.token);
@@ -120,6 +140,11 @@ public enum OchreExternalizableObjectType {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the token.
+    *
+    * @return the token
+    */
    public byte getToken() {
       return this.token;
    }

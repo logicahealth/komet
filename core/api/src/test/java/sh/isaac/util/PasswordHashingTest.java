@@ -49,11 +49,17 @@ import sh.isaac.api.util.PasswordHasher;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link PasswordHashingTest}
+ * {@link PasswordHashingTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class PasswordHashingTest {
+   
+   /**
+    * Encrypt test four.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void encryptTestFour()
             throws Exception {
@@ -74,6 +80,11 @@ public class PasswordHashingTest {
       }
    }
 
+   /**
+    * Encrypt test one.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void encryptTestOne()
             throws Exception {
@@ -94,6 +105,11 @@ public class PasswordHashingTest {
       }
    }
 
+   /**
+    * Encrypt test three.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void encryptTestThree()
             throws Exception {
@@ -115,6 +131,11 @@ public class PasswordHashingTest {
       }
    }
 
+   /**
+    * Encrypt test two.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void encryptTestTwo()
             throws Exception {
@@ -135,6 +156,11 @@ public class PasswordHashingTest {
       }
    }
 
+   /**
+    * Hash test four.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void hashTestFour()
             throws Exception {
@@ -145,6 +171,11 @@ public class PasswordHashingTest {
       Assert.assertFalse(PasswordHasher.check("$", passwordHash));
    }
 
+   /**
+    * Hash test one.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void hashTestOne()
             throws Exception {
@@ -155,6 +186,11 @@ public class PasswordHashingTest {
       Assert.assertFalse(PasswordHasher.check("not my password", passwordHash));
    }
 
+   /**
+    * Hash test three.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void hashTestThree()
             throws Exception {
@@ -166,6 +202,11 @@ public class PasswordHashingTest {
       Assert.assertFalse(PasswordHasher.check("", passwordHash));
    }
 
+   /**
+    * Hash test two.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void hashTestTwo()
             throws Exception {

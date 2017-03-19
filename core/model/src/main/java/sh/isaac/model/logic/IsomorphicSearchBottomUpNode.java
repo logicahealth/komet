@@ -49,20 +49,41 @@ import sh.isaac.api.logic.NodeSemantic;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class IsomorphicSearchBottomUpNode.
  *
  * @author kec
  */
 public class IsomorphicSearchBottomUpNode
          implements Comparable<IsomorphicSearchBottomUpNode> {
+   
+   /** The node semantic. */
    final NodeSemantic       nodeSemantic;
+   
+   /** The concepts referenced at node or above. */
    final ConceptSequenceSet conceptsReferencedAtNodeOrAbove;
+   
+   /** The concepts referenced at node or above hash. */
    int                      conceptsReferencedAtNodeOrAboveHash;
+   
+   /** The child node id. */
    final int                childNodeId;
+   
+   /** The node id. */
    final int                nodeId;
+   
+   /** The size. */
    final int                size;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new isomorphic search bottom up node.
+    *
+    * @param nodeSemantic the node semantic
+    * @param conceptsReferencedAtNodeOrAbove the concepts referenced at node or above
+    * @param childNodeId the child node id
+    * @param nodeId the node id
+    */
    public IsomorphicSearchBottomUpNode(NodeSemantic nodeSemantic,
          OpenIntHashSet conceptsReferencedAtNodeOrAbove,
          int childNodeId,
@@ -83,6 +104,12 @@ public class IsomorphicSearchBottomUpNode
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(IsomorphicSearchBottomUpNode o) {
       int comparison = this.nodeSemantic.compareTo(o.nodeSemantic);
@@ -118,6 +145,12 @@ public class IsomorphicSearchBottomUpNode
       return Integer.compare(this.nodeId, o.nodeId);
    }
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
@@ -131,11 +164,21 @@ public class IsomorphicSearchBottomUpNode
       return compareTo((IsomorphicSearchBottomUpNode) obj) == 0;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       return this.conceptsReferencedAtNodeOrAboveHash;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "BottomUpNode{" + this.nodeSemantic + ", conceptsAtOrAbove=" + this.conceptsReferencedAtNodeOrAbove + ", childId=" +

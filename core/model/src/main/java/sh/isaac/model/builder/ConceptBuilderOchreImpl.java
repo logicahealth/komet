@@ -72,26 +72,49 @@ import sh.isaac.model.concept.ConceptChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ConceptBuilderOchreImpl.
  *
  * @author kec
  */
 public class ConceptBuilderOchreImpl
         extends ComponentBuilder<ConceptChronology<?>>
          implements ConceptBuilder {
+   
+   /** The description builders. */
    private final List<DescriptionBuilder<?, ?>> descriptionBuilders         = new ArrayList<>();
+   
+   /** The logical expression builders. */
    private final List<LogicalExpressionBuilder> logicalExpressionBuilders   = new ArrayList<>();
+   
+   /** The logical expressions. */
    private final List<LogicalExpression>        logicalExpressions          = new ArrayList<>();
+   
+   /** The fsn description builder. */
    private transient DescriptionBuilder<?, ?>   fsnDescriptionBuilder       = null;
+   
+   /** The preferred description builder. */
    private transient DescriptionBuilder<?, ?>   preferredDescriptionBuilder = null;
+   
+   /** The concept name. */
    private final String                         conceptName;
+   
+   /** The semantic tag. */
    private final String                         semanticTag;
+   
+   /** The default language for descriptions. */
    private final ConceptSpecification           defaultLanguageForDescriptions;
+   
+   /** The default dialect assemblage for descriptions. */
    private final ConceptSpecification           defaultDialectAssemblageForDescriptions;
+   
+   /** The default logic coordinate. */
    private final LogicCoordinate                defaultLogicCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
    /**
+    * Instantiates a new concept builder ochre impl.
+    *
     * @param conceptName - Optional - if specified, a FSN will be created using this value (but see additional information on semanticTag)
     * @param semanticTag - Optional - if specified, conceptName must be specified, and two descriptions will be created using the following forms:
     *   FSN: -     "conceptName (semanticTag)"
@@ -126,12 +149,25 @@ public class ConceptBuilderOchreImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the description.
+    *
+    * @param descriptionBuilder the description builder
+    * @return the concept builder
+    */
    @Override
    public ConceptBuilder addDescription(DescriptionBuilder<?, ?> descriptionBuilder) {
       this.descriptionBuilders.add(descriptionBuilder);
       return this;
    }
 
+   /**
+    * Adds the description.
+    *
+    * @param value the value
+    * @param descriptionType the description type
+    * @return the concept builder
+    */
    @Override
    public ConceptBuilder addDescription(String value, ConceptSpecification descriptionType) {
       if ((this.defaultLanguageForDescriptions == null) || (this.defaultDialectAssemblageForDescriptions == null)) {
@@ -147,18 +183,38 @@ public class ConceptBuilderOchreImpl
       return this;
    }
 
+   /**
+    * Adds the logical expression.
+    *
+    * @param logicalExpression the logical expression
+    * @return the concept builder
+    */
    @Override
    public ConceptBuilder addLogicalExpression(LogicalExpression logicalExpression) {
       this.logicalExpressions.add(logicalExpression);
       return this;
    }
 
+   /**
+    * Adds the logical expression builder.
+    *
+    * @param logicalExpressionBuilder the logical expression builder
+    * @return the concept builder
+    */
    @Override
    public ConceptBuilder addLogicalExpressionBuilder(LogicalExpressionBuilder logicalExpressionBuilder) {
       this.logicalExpressionBuilders.add(logicalExpressionBuilder);
       return this;
    }
 
+   /**
+    * Builds the.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param builtObjects the built objects
+    * @return the concept chronology
+    * @throws IllegalStateException the illegal state exception
+    */
    @Override
    public ConceptChronology build(int stampCoordinate,
                                   List<ObjectChronology<? extends StampedVersion>> builtObjects)
@@ -204,6 +260,15 @@ public class ConceptBuilderOchreImpl
       return conceptChronology;
    }
 
+   /**
+    * Builds the.
+    *
+    * @param editCoordinate the edit coordinate
+    * @param changeCheckerMode the change checker mode
+    * @param builtObjects the built objects
+    * @return the optional wait task
+    * @throws IllegalStateException the illegal state exception
+    */
    @Override
    public OptionalWaitTask<ConceptChronology<?>> build(EditCoordinate editCoordinate,
          ChangeCheckerMode changeCheckerMode,
@@ -264,6 +329,12 @@ public class ConceptBuilderOchreImpl
       return new OptionalWaitTask<ConceptChronology<?>>(primaryNested, conceptChronology, nestedBuilders);
    }
 
+   /**
+    * Merge from spec.
+    *
+    * @param conceptSpec the concept spec
+    * @return the concept builder
+    */
    @Override
    public ConceptBuilder mergeFromSpec(ConceptSpecification conceptSpec) {
       setPrimordialUuid(conceptSpec.getPrimordialUuid());
@@ -278,11 +349,21 @@ public class ConceptBuilderOchreImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the concept description text.
+    *
+    * @return the concept description text
+    */
    @Override
    public String getConceptDescriptionText() {
       return this.conceptName;
    }
 
+   /**
+    * Gets the fully specified description builder.
+    *
+    * @return the fully specified description builder
+    */
    @Override
    public DescriptionBuilder<?, ?> getFullySpecifiedDescriptionBuilder() {
       synchronized (this) {
@@ -318,6 +399,11 @@ public class ConceptBuilderOchreImpl
       return this.fsnDescriptionBuilder;
    }
 
+   /**
+    * Gets the synonym preferred description builder.
+    *
+    * @return the synonym preferred description builder
+    */
    @Override
    public DescriptionBuilder<?, ?> getSynonymPreferredDescriptionBuilder() {
       synchronized (this) {

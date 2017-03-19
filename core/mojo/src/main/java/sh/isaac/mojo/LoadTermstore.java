@@ -116,10 +116,18 @@ import sh.isaac.api.logic.LogicalExpression;
 )
 public class LoadTermstore
         extends AbstractMojo {
+   
+   /** The active only. */
    @Parameter(required = false)
    private boolean                   activeOnly        = false;
+   
+   /** The sememe types to skip. */
    private final HashSet<SememeType> sememeTypesToSkip = new HashSet<>();
+   
+   /** The skipped items. */
    private final HashSet<Integer>    skippedItems      = new HashSet<>();
+   
+   /** The skipped any. */
    private boolean                   skippedAny        = false;
 
    /**
@@ -134,10 +142,17 @@ public class LoadTermstore
     */
    @Parameter(required = false)
    private File[] ibdfFiles;
+   
+   /** The item failure. */
    private int    conceptCount, sememeCount, stampAliasCount, stampCommentCount, itemCount, itemFailure;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @SuppressWarnings({ "rawtypes", "unchecked" })
    @Override
    public void execute()
@@ -425,16 +440,32 @@ public class LoadTermstore
       }
    }
 
+   /**
+    * Sets the ibdf files.
+    *
+    * @param files the new ibdf files
+    */
    public void setibdfFiles(File[] files) {
       this.ibdfFiles = files;
    }
 
+   /**
+    * Skip sememe types.
+    *
+    * @param types the types
+    */
    public void skipSememeTypes(Collection<SememeType> types) {
       this.sememeTypesToSkip.addAll(types);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if active.
+    *
+    * @param object the object
+    * @return true, if active
+    */
    private boolean isActive(ObjectChronology<?> object) {
       if (object.getVersionList()
                 .size() != 1) {
@@ -447,12 +478,23 @@ public class LoadTermstore
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the active only.
+    *
+    * @param activeOnly the new active only
+    */
    public void setActiveOnly(boolean activeOnly) {
       this.activeOnly = activeOnly;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the latest logical expression.
+    *
+    * @param sc the sc
+    * @return the latest logical expression
+    */
    private static LogicalExpression getLatestLogicalExpression(SememeChronology sc) {
       final SememeChronology<? extends LogicGraphSememe> lgsc          = sc;
       LogicGraphSememe                             latestVersion = null;

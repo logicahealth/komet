@@ -60,11 +60,17 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class ChecksumGenerator.
+ */
 public class ChecksumGenerator {
+   
    /**
-    * Accepts types like "MD5 or SHA1"
-    * @param data
-    * @return
+    * Accepts types like "MD5 or SHA1".
+    *
+    * @param type the type
+    * @param data the data
+    * @return the string
     */
    public static String calculateChecksum(String type, byte[] data) {
       try {
@@ -78,6 +84,13 @@ public class ChecksumGenerator {
       }
    }
 
+   /**
+    * Calculate checksum.
+    *
+    * @param type the type
+    * @param data the data
+    * @return the task
+    */
    public static Task<String> calculateChecksum(String type, File data) {
       final Task<String> checkSumCalculator = new Task<String>() {
          @Override
@@ -119,6 +132,12 @@ public class ChecksumGenerator {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the string value.
+    *
+    * @param md the md
+    * @return the string value
+    */
    private static String getStringValue(MessageDigest md) {
       final byte[] digest = md.digest();
 

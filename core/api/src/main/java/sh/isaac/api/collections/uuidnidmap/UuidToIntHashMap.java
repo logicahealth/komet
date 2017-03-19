@@ -56,18 +56,24 @@ import org.apache.mahout.math.map.PrimeFinder;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class UuidToIntHashMap.
  *
  * @author kec
  */
 public class UuidToIntHashMap
         extends AbstractUuidToIntHashMap
          implements UuidToIntMap {
-   /**
-    *    
-    */
+   
+   /** The Constant serialVersionUID. */
    private static final long   serialVersionUID = -3621266181773866347L;
+   
+   /** The Constant FREE. */
    protected static final byte FREE             = 0;
+   
+   /** The Constant FULL. */
    protected static final byte FULL             = 1;
+   
+   /** The Constant REMOVED. */
    protected static final byte REMOVED          = 2;
 
    //~--- fields --------------------------------------------------------------
@@ -169,7 +175,7 @@ public class UuidToIntHashMap
    /**
     * Returns {@code true} if the receiver contains the specified key.
     *
-    * @param key
+    * @param key the key
     * @return {@code true} if the receiver contains the specified key.
     */
    @Override
@@ -177,6 +183,12 @@ public class UuidToIntHashMap
       return indexOfKey(key) >= 0;
    }
 
+   /**
+    * Contains key.
+    *
+    * @param key the key
+    * @return true, if successful
+    */
    @Override
    public boolean containsKey(UUID key) {
       return indexOfKey(key) >= 0;
@@ -185,7 +197,7 @@ public class UuidToIntHashMap
    /**
     * Returns {@code true} if the receiver contains the specified value.
     *
-    * @param value
+    * @param value the value
     * @return {@code true} if the receiver contains the specified value.
     */
    @Override
@@ -211,6 +223,12 @@ public class UuidToIntHashMap
       }
    }
 
+   /**
+    * For each key.
+    *
+    * @param procedure the procedure
+    * @return true, if successful
+    */
    @Override
    public boolean forEachKey(UuidProcedure procedure) {
       for (int i = this.state.length; i-- > 0; ) {
@@ -318,6 +336,12 @@ public class UuidToIntHashMap
       }
    }
 
+   /**
+    * Keys of.
+    *
+    * @param value the value
+    * @return the list
+    */
    public List<UUID> keysOf(int value) {
       final List<Integer> indexes = indexesOfValue(value);
       final List<UUID>    keys    = new ArrayList<>(indexes.size());
@@ -423,6 +447,8 @@ public class UuidToIntHashMap
    }
 
    /**
+    * Index of insertion.
+    *
     * @param key the key to be added to the receiver.
     * @return the index where the key would need to be inserted, if it is not already contained. Returns
     * -index-1 if the key is already contained at slot index. Therefore, if the returned index < 0, then it
@@ -485,6 +511,14 @@ public class UuidToIntHashMap
       return i;
    }
 
+   /**
+    * Index of insertion for rehash.
+    *
+    * @param key the key
+    * @param tab the tab
+    * @param stat the stat
+    * @return the int
+    */
    protected int indexOfInsertionForRehash(long[] key, long[] tab, byte[] stat) {
       final int length    = stat.length;
       final int hash      = HashFunctions.hash(key[0] + key[1]) & 0x7FFFFFFF;
@@ -540,6 +574,8 @@ public class UuidToIntHashMap
    }
 
    /**
+    * Index of key.
+    *
     * @param key the key to be searched in the receiver.
     * @return the index where the key is contained in the receiver, returns -1 if the key was not found.
     */
@@ -575,11 +611,19 @@ public class UuidToIntHashMap
       return i;  // found, return index where key is contained
    }
 
+   /**
+    * Index of key.
+    *
+    * @param key the key
+    * @return the int
+    */
    protected int indexOfKey(UUID key) {
       return indexOfKey(new long[] { key.getMostSignificantBits(), key.getLeastSignificantBits() });
    }
 
    /**
+    * Index of value.
+    *
     * @param value the value to be searched in the receiver.
     * @return the index where the value is contained in the receiver, returns -1 if the value was not found.
     */
@@ -596,6 +640,12 @@ public class UuidToIntHashMap
       return -1;  // not found
    }
 
+   /**
+    * Indexes of value.
+    *
+    * @param value the value
+    * @return the list
+    */
    protected List<Integer> indexesOfValue(int value) {
       final List<Integer> indexes = new ArrayList<>();
       final int     val[]   = this.values;
@@ -610,6 +660,13 @@ public class UuidToIntHashMap
       return indexes;  // not found
    }
 
+   /**
+    * Private put.
+    *
+    * @param key the key
+    * @param value the value
+    * @return true, if successful
+    */
    protected boolean privatePut(long[] key, int value) {
       int i = indexOfInsertion(key);
 
@@ -652,7 +709,8 @@ public class UuidToIntHashMap
     * Rehashes the contents of the receiver into a new table with a smaller or larger capacity. This method
     * is called automatically when the number of keys in the receiver exceeds the high water mark or falls
     * below the low water mark.
-    * @param newCapacity
+    *
+    * @param newCapacity the new capacity
     */
    protected void rehash(int newCapacity) {
       final int oldCapacity = this.state.length;
@@ -687,6 +745,14 @@ public class UuidToIntHashMap
       updateAfterRehash(newCapacity, newTable, newValues, newState);
    }
 
+   /**
+    * Update after rehash.
+    *
+    * @param newCapacity the new capacity
+    * @param newTable the new table
+    * @param newValues the new values
+    * @param newState the new state
+    */
    protected void updateAfterRehash(int newCapacity, long[] newTable, int[] newValues, byte[] newState) {
       this.lowWaterMark  = chooseLowWaterMark(newCapacity, this.minLoadFactor);
       this.highWaterMark = chooseHighWaterMark(newCapacity, this.maxLoadFactor);
@@ -698,12 +764,22 @@ public class UuidToIntHashMap
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the number of table entries in state==FREE.
+    *
+    * @return the number of table entries in state==FREE
+    */
    public int getFreeEntries() {
       return this.freeEntries;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set number of table entries in state==FREE.
+    *
+    * @param freeEntries the new number of table entries in state==FREE
+    */
    public void setFreeEntries(int freeEntries) {
       this.freeEntries = freeEntries;
    }
@@ -729,6 +805,12 @@ public class UuidToIntHashMap
       return this.values[i];
    }
 
+   /**
+    * Gets the.
+    *
+    * @param key the key
+    * @return the int
+    */
    @Override
    public int get(UUID key) {
       final int i = indexOfKey(key);
@@ -740,10 +822,20 @@ public class UuidToIntHashMap
       return this.values[i];
    }
 
+   /**
+    * Gets the state of each hash table entry (FREE, FULL, REMOVED).
+    *
+    * @return the state of each hash table entry (FREE, FULL, REMOVED)
+    */
    public byte[] getState() {
       return this.state;
    }
 
+   /**
+    * Gets the hash table keys.
+    *
+    * @return the hash table keys
+    */
    public long[] getTable() {
       return this.table;
    }
@@ -801,6 +893,11 @@ public class UuidToIntHashMap
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the hash table values.
+    *
+    * @return the hash table values
+    */
    public int[] getValues() {
       return this.values;
    }

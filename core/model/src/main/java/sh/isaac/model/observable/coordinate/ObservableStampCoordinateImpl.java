@@ -65,20 +65,36 @@ import sh.isaac.model.observable.ObservableFields;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableStampCoordinateImpl.
  *
  * @author kec
  */
 public class ObservableStampCoordinateImpl
         extends ObservableCoordinateImpl
          implements ObservableStampCoordinate {
+   
+   /** The stamp coordinate. */
    StampCoordinateImpl                     stampCoordinate;
+   
+   /** The stamp precedence property. */
    ObjectProperty<StampPrecedence>         stampPrecedenceProperty;
+   
+   /** The stamp position property. */
    ObjectProperty<ObservableStampPosition> stampPositionProperty;
+   
+   /** The module sequences property. */
    ObjectProperty<ObservableIntegerArray>  moduleSequencesProperty;
+   
+   /** The allowed states. */
    SetProperty<State>                      allowedStates;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new observable stamp coordinate impl.
+    *
+    * @param stampCoordinate the stamp coordinate
+    */
    public ObservableStampCoordinateImpl(StampCoordinate stampCoordinate) {
       if (stampCoordinate instanceof ObservableStampCoordinateImpl) {
          this.stampCoordinate = ((ObservableStampCoordinateImpl) stampCoordinate).stampCoordinate;
@@ -89,6 +105,11 @@ public class ObservableStampCoordinateImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Allowed states property.
+    *
+    * @return the set property
+    */
    @Override
    public SetProperty<State> allowedStatesProperty() {
       if (this.allowedStates == null) {
@@ -101,6 +122,12 @@ public class ObservableStampCoordinateImpl
       return this.allowedStates;
    }
 
+   /**
+    * Make analog.
+    *
+    * @param stampPositionTime the stamp position time
+    * @return the observable stamp coordinate impl
+    */
    @Override
    public ObservableStampCoordinateImpl makeAnalog(long stampPositionTime) {
       final StampCoordinate analog = this.stampCoordinate.makeAnalog(stampPositionTime);
@@ -108,6 +135,12 @@ public class ObservableStampCoordinateImpl
       return new ObservableStampCoordinateImpl(analog);
    }
 
+   /**
+    * Make analog.
+    *
+    * @param state the state
+    * @return the observable stamp coordinate
+    */
    @Override
    public ObservableStampCoordinate makeAnalog(State... state) {
       final StampCoordinate analog = this.stampCoordinate.makeAnalog(state);
@@ -115,6 +148,11 @@ public class ObservableStampCoordinateImpl
       return new ObservableStampCoordinateImpl(analog);
    }
 
+   /**
+    * Module sequences property.
+    *
+    * @return the object property
+    */
    @Override
    public ObjectProperty<ObservableIntegerArray> moduleSequencesProperty() {
       if (this.moduleSequencesProperty == null) {
@@ -127,6 +165,11 @@ public class ObservableStampCoordinateImpl
       return this.moduleSequencesProperty;
    }
 
+   /**
+    * Stamp position property.
+    *
+    * @return the object property
+    */
    @Override
    public ObjectProperty<ObservableStampPosition> stampPositionProperty() {
       if (this.stampPositionProperty == null) {
@@ -139,6 +182,11 @@ public class ObservableStampCoordinateImpl
       return this.stampPositionProperty;
    }
 
+   /**
+    * Stamp precedence property.
+    *
+    * @return the object property
+    */
    @Override
    public ObjectProperty<StampPrecedence> stampPrecedenceProperty() {
       if (this.stampPrecedenceProperty == null) {
@@ -151,6 +199,11 @@ public class ObservableStampCoordinateImpl
       return this.stampPrecedenceProperty;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "ObservableStampCoordinateImpl{" + this.stampCoordinate + '}';
@@ -158,11 +211,21 @@ public class ObservableStampCoordinateImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the allowed states.
+    *
+    * @return the allowed states
+    */
    @Override
    public EnumSet<State> getAllowedStates() {
       return this.stampCoordinate.getAllowedStates();
    }
 
+   /**
+    * Gets the module sequences.
+    *
+    * @return the module sequences
+    */
    @Override
    public ConceptSequenceSet getModuleSequences() {
       if (this.moduleSequencesProperty != null) {
@@ -173,11 +236,21 @@ public class ObservableStampCoordinateImpl
       return this.stampCoordinate.getModuleSequences();
    }
 
+   /**
+    * Gets the stamp position.
+    *
+    * @return the stamp position
+    */
    @Override
    public ObservableStampPosition getStampPosition() {
       return stampPositionProperty().get();
    }
 
+   /**
+    * Gets the stamp precedence.
+    *
+    * @return the stamp precedence
+    */
    @Override
    public StampPrecedence getStampPrecedence() {
       if (this.stampPrecedenceProperty != null) {

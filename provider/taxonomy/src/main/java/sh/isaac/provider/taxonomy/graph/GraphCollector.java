@@ -74,15 +74,33 @@ import sh.isaac.provider.taxonomy.TaxonomyRecordUnpacked;
  */
 public class GraphCollector
          implements ObjIntConsumer<HashTreeBuilder>, BiConsumer<HashTreeBuilder, HashTreeBuilder> {
+   
+   /** The isa concept sequence. */
    private final int                                   ISA_CONCEPT_SEQUENCE         = TermAux.IS_A.getConceptSequence();
+   
+   /** The origin sequence being processed. */
    int                                                 originSequenceBeingProcessed = -1;
+   
+   /** The watch list. */
    ConceptSequenceSet                                  watchList                    = new ConceptSequenceSet();
+   
+   /** The taxonomy map. */
    final CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap;
+   
+   /** The taxonomy coordinate. */
    final TaxonomyCoordinate                            taxonomyCoordinate;
+   
+   /** The taxonomy flags. */
    final int                                           taxonomyFlags;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new graph collector.
+    *
+    * @param taxonomyMap the taxonomy map
+    * @param viewCoordinate the view coordinate
+    */
    public GraphCollector(CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap, TaxonomyCoordinate viewCoordinate) {
       this.taxonomyMap        = taxonomyMap;
       this.taxonomyCoordinate = viewCoordinate;
@@ -95,11 +113,23 @@ public class GraphCollector
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Accept.
+    *
+    * @param t the t
+    * @param u the u
+    */
    @Override
    public void accept(HashTreeBuilder t, HashTreeBuilder u) {
       t.combine(u);
    }
 
+   /**
+    * Accept.
+    *
+    * @param graphBuilder the graph builder
+    * @param originSequence the origin sequence
+    */
    @Override
    public void accept(HashTreeBuilder graphBuilder, int originSequence) {
       this.originSequenceBeingProcessed = originSequence;
@@ -123,12 +153,23 @@ public class GraphCollector
       this.originSequenceBeingProcessed = -1;
    }
 
+   /**
+    * Adds the to watch list.
+    *
+    * @param uuid the uuid
+    * @throws RuntimeException the runtime exception
+    */
    public final void addToWatchList(String uuid)
             throws RuntimeException {
       this.watchList.add(Get.identifierService()
                        .getConceptSequenceForUuids(UUID.fromString(uuid)));
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuilder buff = new StringBuilder();

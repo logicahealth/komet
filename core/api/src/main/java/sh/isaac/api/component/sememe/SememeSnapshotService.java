@@ -53,21 +53,49 @@ import sh.isaac.api.component.sememe.version.SememeVersion;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface SememeSnapshotService.
  *
  * @author kec
  * @param <V> type of SememeVersions provided by this snapshot service.
  */
 public interface SememeSnapshotService<V extends SememeVersion> {
+   
+   /**
+    * Gets the latest description versions for component.
+    *
+    * @param componentNid the component nid
+    * @return the latest description versions for component
+    */
    Stream<LatestVersion<V>> getLatestDescriptionVersionsForComponent(int componentNid);
 
+   /**
+    * Gets the latest sememe version.
+    *
+    * @param sememeSequenceOrNid the sememe sequence or nid
+    * @return the latest sememe version
+    */
    Optional<LatestVersion<V>> getLatestSememeVersion(int sememeSequenceOrNid);
 
+   /**
+    * Gets the latest sememe versions for component.
+    *
+    * @param componentNid the component nid
+    * @return the latest sememe versions for component
+    */
    Stream<LatestVersion<V>> getLatestSememeVersionsForComponent(int componentNid);
 
+   /**
+    * Gets the latest sememe versions for component from assemblage.
+    *
+    * @param componentNid the component nid
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the latest sememe versions for component from assemblage
+    */
    Stream<LatestVersion<V>> getLatestSememeVersionsForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence);
 
    /**
+    * Gets the latest sememe versions from assemblage.
     *
     * @param assemblageConceptSequence The sequence identifier of the assemblage to select
     * sememes from.

@@ -48,15 +48,28 @@ import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface LogicalExpressionBuilderService.
  *
  * @author kec
  */
 @Contract
 public interface LogicalExpressionBuilderService {
+   
+   /**
+    * From sememe.
+    *
+    * @param sememe the sememe
+    * @return the logical expression
+    */
    LogicalExpression fromSememe(LogicGraphSememe<?> sememe);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the logical expression builder.
+    *
+    * @return the logical expression builder
+    */
    LogicalExpressionBuilder getLogicalExpressionBuilder();
 }
 

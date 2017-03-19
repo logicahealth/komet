@@ -64,24 +64,41 @@ import sh.isaac.provider.taxonomy.TaxonomyFlags;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class TaxonomyWalkCollector.
  *
  * @author kec
  */
 public class TaxonomyWalkCollector
          implements ObjIntConsumer<TaxonomyWalkAccumulator>,
                     BiConsumer<TaxonomyWalkAccumulator, TaxonomyWalkAccumulator> {
+   
+   /** The Constant MAX_PRINT_COUNT. */
    private static final int MAX_PRINT_COUNT = 10;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The watch sequences. */
    final OpenIntHashSet     watchSequences = new OpenIntHashSet();
+   
+   /** The error count. */
    int                      errorCount     = 0;
+   
+   /** The print count. */
    int                      printCount     = 0;
+   
+   /** The taxonomy coordinate. */
    final TaxonomyCoordinate taxonomyCoordinate;
+   
+   /** The taxonomy flags. */
    final int                taxonomyFlags;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new taxonomy walk collector.
+    *
+    * @param taxonomyCoordinate the taxonomy coordinate
+    */
    public TaxonomyWalkCollector(TaxonomyCoordinate taxonomyCoordinate) {
       this.taxonomyCoordinate = taxonomyCoordinate;
       this.taxonomyFlags           = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(taxonomyCoordinate);
@@ -95,6 +112,12 @@ public class TaxonomyWalkCollector
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Accept.
+    *
+    * @param accumulator the accumulator
+    * @param conceptSequence the concept sequence
+    */
    @Override
    public void accept(TaxonomyWalkAccumulator accumulator, int conceptSequence) {
       if (this.watchSequences.contains(conceptSequence)) {
@@ -125,6 +148,12 @@ public class TaxonomyWalkCollector
       }
    }
 
+   /**
+    * Accept.
+    *
+    * @param t the t
+    * @param u the u
+    */
    @Override
    public void accept(TaxonomyWalkAccumulator t, TaxonomyWalkAccumulator u) {
       t.combine(u);

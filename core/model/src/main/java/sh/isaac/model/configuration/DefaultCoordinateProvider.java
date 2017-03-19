@@ -64,21 +64,41 @@ import sh.isaac.model.observable.coordinate.ObservableTaxonomyCoordinateImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class DefaultCoordinateProvider.
  *
  * @author kec
  */
 public class DefaultCoordinateProvider {
+   
+   /** The defaults setup. */
    AtomicBoolean                defaultsSetup      = new AtomicBoolean();
+   
+   /** The defaults setup latch. */
    CountDownLatch               defaultsSetupLatch = new CountDownLatch(1);
+   
+   /** The observable edit coordinate. */
    ObservableEditCoordinate     observableEditCoordinate;
+   
+   /** The observable language coordinate. */
    ObservableLanguageCoordinate observableLanguageCoordinate;
+   
+   /** The observable logic coordinate. */
    ObservableLogicCoordinate    observableLogicCoordinate;
+   
+   /** The observable stamp coordinate. */
    ObservableStampCoordinate    observableStampCoordinate;
+   
+   /** The observable stamp position. */
    ObservableStampPositionImpl  observableStampPosition;
+   
+   /** The observable taxonomy coordinate. */
    ObservableTaxonomyCoordinate observableTaxonomyCoordinate;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Setup defaults.
+    */
    private void setupDefaults() {
       try {
          if (this.defaultsSetup.compareAndSet(false, true)) {
@@ -107,6 +127,11 @@ public class DefaultCoordinateProvider {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the default classifier.
+    *
+    * @param conceptId the new default classifier
+    */
    public void setDefaultClassifier(int conceptId) {
       setupDefaults();
       this.observableLogicCoordinate.classifierSequenceProperty()
@@ -114,6 +139,11 @@ public class DefaultCoordinateProvider {
                                        .getConceptSequence(conceptId));
    }
 
+   /**
+    * Sets the default description logic profile.
+    *
+    * @param conceptId the new default description logic profile
+    */
    public void setDefaultDescriptionLogicProfile(int conceptId) {
       setupDefaults();
       this.observableLogicCoordinate.descriptionLogicProfileSequenceProperty()
@@ -121,6 +151,11 @@ public class DefaultCoordinateProvider {
                                        .getConceptSequence(conceptId));
    }
 
+   /**
+    * Sets the default description type preference list.
+    *
+    * @param descriptionTypePreferenceList the new default description type preference list
+    */
    public void setDefaultDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
       setupDefaults();
 
@@ -139,6 +174,11 @@ public class DefaultCoordinateProvider {
                                   .set(descriptionTypeIntegerArray);
    }
 
+   /**
+    * Sets the default dialect assemblage preference list.
+    *
+    * @param dialectAssemblagePreferenceList the new default dialect assemblage preference list
+    */
    public void setDefaultDialectAssemblagePreferenceList(int[] dialectAssemblagePreferenceList) {
       setupDefaults();
 
@@ -157,6 +197,11 @@ public class DefaultCoordinateProvider {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the default edit coordinate.
+    *
+    * @return the default edit coordinate
+    */
    public ObservableEditCoordinate getDefaultEditCoordinate() {
       setupDefaults();
       return this.observableEditCoordinate;
@@ -164,6 +209,11 @@ public class DefaultCoordinateProvider {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the default inferred assemblage.
+    *
+    * @param conceptId the new default inferred assemblage
+    */
    public void setDefaultInferredAssemblage(int conceptId) {
       setupDefaults();
       this.observableLogicCoordinate.inferredAssemblageSequenceProperty()
@@ -171,6 +221,11 @@ public class DefaultCoordinateProvider {
                                        .getConceptSequence(conceptId));
    }
 
+   /**
+    * Sets the default language.
+    *
+    * @param conceptId the new default language
+    */
    public void setDefaultLanguage(int conceptId) {
       setupDefaults();
       this.observableLanguageCoordinate.languageConceptSequenceProperty()
@@ -180,11 +235,21 @@ public class DefaultCoordinateProvider {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the default language coordinate.
+    *
+    * @return the default language coordinate
+    */
    public ObservableLanguageCoordinate getDefaultLanguageCoordinate() {
       setupDefaults();
       return this.observableLanguageCoordinate;
    }
 
+   /**
+    * Gets the default logic coordinate.
+    *
+    * @return the default logic coordinate
+    */
    public ObservableLogicCoordinate getDefaultLogicCoordinate() {
       setupDefaults();
       return this.observableLogicCoordinate;
@@ -192,6 +257,11 @@ public class DefaultCoordinateProvider {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the default module.
+    *
+    * @param conceptId the new default module
+    */
    public void setDefaultModule(int conceptId) {
       setupDefaults();
       this.observableEditCoordinate.moduleSequenceProperty()
@@ -199,6 +269,11 @@ public class DefaultCoordinateProvider {
                                       .getConceptSequence(conceptId));
    }
 
+   /**
+    * Sets the default path.
+    *
+    * @param conceptId the new default path
+    */
    public void setDefaultPath(int conceptId) {
       setupDefaults();
       this.observableStampPosition.stampPathSequenceProperty()
@@ -211,6 +286,11 @@ public class DefaultCoordinateProvider {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the default stamp coordinate.
+    *
+    * @return the default stamp coordinate
+    */
    public ObservableStampCoordinate getDefaultStampCoordinate() {
       setupDefaults();
       return this.observableStampCoordinate;
@@ -218,6 +298,11 @@ public class DefaultCoordinateProvider {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the default stated assemblage.
+    *
+    * @param conceptId the new default stated assemblage
+    */
    public void setDefaultStatedAssemblage(int conceptId) {
       setupDefaults();
       this.observableLogicCoordinate.statedAssemblageSequenceProperty()
@@ -227,6 +312,11 @@ public class DefaultCoordinateProvider {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the default taxonomy coordinate.
+    *
+    * @return the default taxonomy coordinate
+    */
    public ObservableTaxonomyCoordinate getDefaultTaxonomyCoordinate() {
       setupDefaults();
       return this.observableTaxonomyCoordinate;
@@ -234,12 +324,22 @@ public class DefaultCoordinateProvider {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the default time.
+    *
+    * @param timeInMs the new default time
+    */
    public void setDefaultTime(long timeInMs) {
       setupDefaults();
       this.observableStampPosition.timeProperty()
                              .set(timeInMs);
    }
 
+   /**
+    * Sets the default user.
+    *
+    * @param conceptId the new default user
+    */
    public void setDefaultUser(int conceptId) {
       setupDefaults();
       this.observableEditCoordinate.authorSequenceProperty()

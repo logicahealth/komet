@@ -70,33 +70,52 @@ import sh.isaac.api.util.TimeFlushBufferedOutputStream;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class BinaryDataWriterProvider.
+ *
  * @author kec
  */
 @Service(name = "ibdfWriter")
 @PerLookup
 public class BinaryDataWriterProvider
          implements DataWriterService {
+   
+   /** The Constant BUFFER_SIZE. */
    private static final int BUFFER_SIZE = 1024;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The logger. */
    private final Logger      logger     = LoggerFactory.getLogger(BinaryDataWriterProvider.class);
+   
+   /** The pause block. */
    private final Semaphore   pauseBlock = new Semaphore(1);
+   
+   /** The buffer. */
    ByteArrayDataBuffer buffer     = new ByteArrayDataBuffer(BUFFER_SIZE);
+   
+   /** The data path. */
    Path                dataPath;
+   
+   /** The output. */
    DataOutputStream    output;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new binary data writer provider.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private BinaryDataWriterProvider()
             throws IOException {
       // for HK2
    }
 
    /**
-    * For non-HK2 use cases
-    * @param dataPath
-    * @throws IOException
+    * For non-HK2 use cases.
+    *
+    * @param dataPath the data path
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public BinaryDataWriterProvider(Path dataPath)
             throws IOException {
@@ -106,6 +125,11 @@ public class BinaryDataWriterProvider
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Close.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void close()
             throws IOException {
@@ -117,6 +141,12 @@ public class BinaryDataWriterProvider
       }
    }
 
+   /**
+    * Configure.
+    *
+    * @param path the path
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void configure(Path path)
             throws IOException {
@@ -145,7 +175,9 @@ public class BinaryDataWriterProvider
    }
 
    /**
-    * @throws IOException
+    * Flush.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
     * @see sh.isaac.api.externalizable.DataWriterService#flush()
     */
    @Override
@@ -156,6 +188,11 @@ public class BinaryDataWriterProvider
       }
    }
 
+   /**
+    * Pause.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void pause()
             throws IOException {
@@ -169,6 +206,12 @@ public class BinaryDataWriterProvider
       this.logger.debug("ibdf writer paused");
    }
 
+   /**
+    * Put.
+    *
+    * @param ochreObject the ochre object
+    * @throws RuntimeException the runtime exception
+    */
    @Override
    public void put(OchreExternalizable ochreObject)
             throws RuntimeException {
@@ -188,6 +231,11 @@ public class BinaryDataWriterProvider
       }
    }
 
+   /**
+    * Resume.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void resume()
             throws IOException {
@@ -206,6 +254,11 @@ public class BinaryDataWriterProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the current path.
+    *
+    * @return the current path
+    */
    @Override
    public Path getCurrentPath() {
       return this.dataPath;

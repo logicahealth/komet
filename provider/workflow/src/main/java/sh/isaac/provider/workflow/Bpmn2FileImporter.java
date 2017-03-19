@@ -97,13 +97,14 @@ import sh.isaac.provider.workflow.model.contents.ProcessDetail.EndWorkflowType;
 
 /**
  * Routines enabling access of content built when importing a bpmn2 file
- *
- * {@link BPMNInfo} {@link WorkflowProvider}
+ * 
+ * {@link BPMNInfo} {@link WorkflowProvider}.
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 public class Bpmn2FileImporter {
-   /** A constant used to flag which states in a BPMN2 file are editing */
+   
+   /**  A constant used to flag which states in a BPMN2 file are editing. */
    private static final String EDITING_ACTION = "EDITING";
 
    //~--- fields --------------------------------------------------------------
@@ -144,30 +145,28 @@ public class Bpmn2FileImporter {
    /** A list of all editing states observed during importing of BPMN2 file. */
    private final Set<String> currentEditStates = new HashSet<>();
 
-   /** A map of available actions per type of ending workflow */
+   /**  A map of available actions per type of ending workflow. */
    private final HashMap<EndWorkflowType, Set<AvailableAction>> endNodeTypeMap = new HashMap<>();
 
-   /**
-    * A map of available actions per definition from which a workflow may be
-    * started
-    */
+   /** A map of available actions per definition from which a workflow may be started. */
    private final HashMap<UUID, Set<AvailableAction>> definitionStartActionMap = new HashMap<>();
 
-   /** A map of all states per definition from which a process may be edited */
+   /**  A map of all states per definition from which a process may be edited. */
    private final HashMap<UUID, Set<String>> editStatesMap = new HashMap<>();
+   
+   /** The logger. */
    private final Logger               logger        = LogManager.getLogger();
 
-   /**
-    * The Definition Id to be used as DefinionDetail entry's key in the content
-    * store
-    */
+   /** The Definition Id to be used as DefinionDetail entry's key in the content store. */
    private UUID currentDefinitionId;
 
    /** The JBPMN RuleFlowProcess discovered when importing the BPMN2 file. */
    private RuleFlowProcess ruleFlow;
 
-   /** The path to the BPMN2 file being imported */
+   /**  The path to the BPMN2 file being imported. */
    private final String           bpmn2ResourcePath;
+   
+   /** The provider. */
    private final WorkflowProvider provider;
 
    //~--- constructors --------------------------------------------------------
@@ -176,10 +175,8 @@ public class Bpmn2FileImporter {
     * Imports a new workflow definition storing the contents into the store
     * based on the bpmn2 file passed in.
     *
-    * @param store
-    *            The workflow content store
-    * @param bpmn2FilePath
-    *            The bpmn2 file path being imported
+    * @param bpmn2ResourcePath the bpmn 2 resource path
+    * @param provider the provider
     */
    public Bpmn2FileImporter(String bpmn2ResourcePath, WorkflowProvider provider) {
       this.bpmn2ResourcePath = bpmn2ResourcePath;
@@ -215,6 +212,7 @@ public class Bpmn2FileImporter {
     *
     * @return Complete set of AvailableActions to be persisted in
     *         AvailableAction Content Store
+    * @throws Exception the exception
     */
    private Set<AvailableAction> generateAvailableActions()
             throws Exception {
@@ -321,20 +319,15 @@ public class Bpmn2FileImporter {
 
    /**
     * For a given node, process its outgoing connections to determine if any of
-    * them give cause to create a new set of AvailableActions
+    * them give cause to create a new set of AvailableActions.
     *
-    * @param node
-    *            The node to process
-    * @param initialState
-    *            The current state when processing the current node to be used
+    * @param node            The node to process
+    * @param initialState            The current state when processing the current node to be used
     *            if any AvailableActions are to be created
-    * @param roles
-    *            The current roles when processing the current node to be used
+    * @param roles            The current roles when processing the current node to be used
     *            if any AvailableActions are to be created
-    * @param nodeOutgoingConnections
-    *            The node's outgoing connections.
-    * @param allOutgoingConnections
-    *            The full set of Sequence Flows which contain information
+    * @param nodeOutgoingConnections            The node's outgoing connections.
+    * @param allOutgoingConnections            The full set of Sequence Flows which contain information
     *            associated with the outgoing connections
     * @return The full set of AvailableActions based on the current node
     */
@@ -557,7 +550,7 @@ public class Bpmn2FileImporter {
 
    /**
     * Import the BPMN2 file this time analyzing it for its rules (including the
-    * definition nodes)
+    * definition nodes).
     *
     * @return The definition's rules (nodes)
     */
@@ -838,12 +831,17 @@ public class Bpmn2FileImporter {
       return restrictions;
    }
 
+   /**
+    * Gets the BPMN info.
+    *
+    * @return the BPMN info
+    */
    public BPMNInfo getBPMNInfo() {
       return new BPMNInfo(this.currentDefinitionId, this.endNodeTypeMap, this.definitionStartActionMap, this.editStatesMap);
    }
 
    /**
-    * Retrieves the definition id of the last import imported BPMN2 file
+    * Retrieves the definition id of the last import imported BPMN2 file.
     *
     * @return The definition id used as the DefinitionDetail entry's key
     */
@@ -853,12 +851,10 @@ public class Bpmn2FileImporter {
 
    /**
     * Placeholder for when the BPMN2 version is updated with the ability to
-    * access the metadata associated with a VPMN2 definition as a whole
+    * access the metadata associated with a VPMN2 definition as a whole.
     *
-    * @param descriptor
-    *            The process descriptor containing the metadata associated with
+    * @param descriptor            The process descriptor containing the metadata associated with
     *            the BPMN2 file that was imported.
-    *
     * @return The BPMN2 process description
     */
    private String getDescription(ProcessDescriptor descriptor) {

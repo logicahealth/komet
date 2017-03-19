@@ -58,26 +58,45 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LogicGraphSememeImpl.
  *
  * @author kec
  */
 public class LogicGraphSememeImpl
         extends SememeVersionImpl<LogicGraphSememeImpl>
          implements MutableLogicGraphSememe<LogicGraphSememeImpl> {
+   
+   /** The converter. */
    private static LogicalExpressionByteArrayConverter converter;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The graph data. */
    byte[][] graphData = null;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new logic graph sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    */
    public LogicGraphSememeImpl(SememeChronologyImpl<LogicGraphSememeImpl> container,
                                int stampSequence,
                                short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
+   /**
+    * Instantiates a new logic graph sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    * @param data the data
+    */
    public LogicGraphSememeImpl(SememeChronologyImpl<LogicGraphSememeImpl> container,
                                int stampSequence,
                                short versionSequence,
@@ -103,6 +122,11 @@ public class LogicGraphSememeImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();
@@ -120,6 +144,11 @@ public class LogicGraphSememeImpl
       return sb.toString();
    }
 
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
@@ -139,6 +168,12 @@ public class LogicGraphSememeImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the external data converter.
+    *
+    * @return the external data converter
+    * @throws MultiException the multi exception
+    */
    private static LogicalExpressionByteArrayConverter getExternalDataConverter()
             throws MultiException {
       if (converter == null) {
@@ -149,11 +184,21 @@ public class LogicGraphSememeImpl
       return converter;
    }
 
+   /**
+    * Gets the external graph data.
+    *
+    * @return the external graph data
+    */
    @Override
    public byte[][] getExternalGraphData() {
       return getExternalDataConverter().convertLogicGraphForm(this.graphData, DataTarget.EXTERNAL);
    }
 
+   /**
+    * Gets the graph data.
+    *
+    * @return the graph data
+    */
    @Override
    public byte[][] getGraphData() {
       return this.graphData;
@@ -161,6 +206,11 @@ public class LogicGraphSememeImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the graph data.
+    *
+    * @param graphData the new graph data
+    */
    @Override
    public void setGraphData(byte[][] graphData) {
       if (this.graphData != null) {
@@ -172,11 +222,21 @@ public class LogicGraphSememeImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the logical expression.
+    *
+    * @return the logical expression
+    */
    @Override
    public LogicalExpression getLogicalExpression() {
       return new LogicalExpressionOchreImpl(this.graphData, DataSource.INTERNAL, getReferencedComponentNid());
    }
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    @Override
    public SememeType getSememeType() {
       return SememeType.LOGIC_GRAPH;

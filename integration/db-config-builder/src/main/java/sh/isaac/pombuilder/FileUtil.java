@@ -74,16 +74,24 @@ import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link FileUtil}
+ * {@link FileUtil}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class FileUtil {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read file.
+    *
+    * @param fileName the file name
+    * @return the string
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static String readFile(String fileName)
             throws IOException {
       try (InputStream is = DBConfigurationCreator.class.getResourceAsStream("/" + fileName);) {
@@ -94,6 +102,12 @@ public class FileUtil {
       }
    }
 
+   /**
+    * Recursive delete.
+    *
+    * @param file the file
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static void recursiveDelete(File file)
             throws IOException {
       if ((file == null) ||!file.exists()) {
@@ -118,11 +132,29 @@ public class FileUtil {
       file.delete();
    }
 
+   /**
+    * Write file.
+    *
+    * @param fromFolder the from folder
+    * @param relativePath the relative path
+    * @param toFolder the to folder
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static void writeFile(String fromFolder, String relativePath, File toFolder)
             throws IOException {
       writeFile(fromFolder, relativePath, toFolder, null, null);
    }
 
+   /**
+    * Write file.
+    *
+    * @param fromFolder the from folder
+    * @param relativePath the relative path
+    * @param toFolder the to folder
+    * @param replacementValues the replacement values
+    * @param append the append
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static void writeFile(String fromFolder,
                                 String relativePath,
                                 File toFolder,
@@ -165,6 +197,13 @@ public class FileUtil {
       }
    }
 
+   /**
+    * Write pom file.
+    *
+    * @param model the model
+    * @param projectFolder the project folder
+    * @throws Exception the exception
+    */
    public static void writePomFile(Model model, File projectFolder)
             throws Exception {
       try {

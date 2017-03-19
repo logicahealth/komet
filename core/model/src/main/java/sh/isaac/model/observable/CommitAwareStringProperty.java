@@ -46,33 +46,66 @@ import javafx.beans.property.SimpleStringProperty;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class CommitAwareStringProperty.
  *
  * @author kec
  */
 public class CommitAwareStringProperty
         extends SimpleStringProperty {
+   
+   /**
+    * Instantiates a new commit aware string property.
+    */
    public CommitAwareStringProperty() {}
 
+   /**
+    * Instantiates a new commit aware string property.
+    *
+    * @param initialValue the initial value
+    */
    public CommitAwareStringProperty(String initialValue) {
       super(initialValue);
    }
 
+   /**
+    * Instantiates a new commit aware string property.
+    *
+    * @param bean the bean
+    * @param name the name
+    */
    public CommitAwareStringProperty(Object bean, String name) {
       super(bean, name);
    }
 
+   /**
+    * Instantiates a new commit aware string property.
+    *
+    * @param bean the bean
+    * @param name the name
+    * @param initialValue the initial value
+    */
    public CommitAwareStringProperty(Object bean, String name, String initialValue) {
       super(bean, name, initialValue);
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set.
+    *
+    * @param newValue the new value
+    */
    @Override
    public void set(String newValue) {
       CommitAwareIntegerProperty.checkChangesAllowed(getBean());
       super.set(newValue);
    }
 
+   /**
+    * Sets the value.
+    *
+    * @param v the new value
+    */
    @Override
    public void setValue(String v) {
       CommitAwareIntegerProperty.checkChangesAllowed(getBean());

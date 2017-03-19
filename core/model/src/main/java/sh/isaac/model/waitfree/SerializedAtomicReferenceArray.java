@@ -56,20 +56,31 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class SerializedAtomicReferenceArray.
  *
  * @author kec
  */
 public class SerializedAtomicReferenceArray
         extends AtomicReferenceArray<byte[]> {
-   /**
-	 * 
-	 */
+   
+   /** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
+
+/** The isaac serializer. */
 WaitFreeMergeSerializer isaacSerializer;
+   
+   /** The segment. */
    int                     segment;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new serialized atomic reference array.
+    *
+    * @param length the length
+    * @param isaacSerializer the isaac serializer
+    * @param segment the segment
+    */
    public SerializedAtomicReferenceArray(int length, WaitFreeMergeSerializer isaacSerializer, int segment) {
       super(length);
       this.isaacSerializer = isaacSerializer;
@@ -126,6 +137,11 @@ WaitFreeMergeSerializer isaacSerializer;
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the segment.
+    *
+    * @return the segment
+    */
    public int getSegment() {
       return this.segment;
    }

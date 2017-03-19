@@ -52,15 +52,23 @@ import sh.isaac.api.coordinate.StampPosition;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StampPathImpl.
  *
  * @author kec
  */
 public class StampPathImpl
          implements StampPath {
+   
+   /** The path concept sequence. */
    private final int pathConceptSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new stamp path impl.
+    *
+    * @param pathConceptSequence the path concept sequence
+    */
    public StampPathImpl(int pathConceptSequence) {
       if (pathConceptSequence < 0) {
          pathConceptSequence = Get.identifierService()
@@ -72,6 +80,12 @@ public class StampPathImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(StampPath o) {
       return Integer.compare(this.pathConceptSequence, o.getPathConceptSequence());
@@ -79,11 +93,21 @@ public class StampPathImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the path concept sequence.
+    *
+    * @return the path concept sequence
+    */
    @Override
    public int getPathConceptSequence() {
       return this.pathConceptSequence;
    }
 
+   /**
+    * Gets the path origins.
+    *
+    * @return the path origins
+    */
    @Override
    public Collection<? extends StampPosition> getPathOrigins() {
       return Get.pathService()

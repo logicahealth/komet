@@ -68,12 +68,24 @@ public class And
       super();
    }
 
+   /**
+    * Instantiates a new and.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param clauses the clauses
+    */
    public And(Query enclosingQuery, Clause... clauses) {
       super(enclosingQuery, clauses);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute components.
+    *
+    * @param incomingComponents the incoming components
+    * @return the nid set
+    */
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
       final NidSet results = NidSet.of(incomingComponents.stream());
@@ -85,6 +97,12 @@ public class And
       return results;
    }
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       final NidSet results = NidSet.of(incomingPossibleComponents.stream());
@@ -97,6 +115,11 @@ public class And
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();

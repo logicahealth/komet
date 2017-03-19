@@ -95,21 +95,41 @@ import sh.isaac.model.logic.node.internal.TypedNodeWithSequences;
  */
 public class LogicalExpressionOchreImpl
          implements LogicalExpression {
+   
+   /** The Constant NODE_SEMANTICS. */
    private static final NodeSemantic[] NODE_SEMANTICS = NodeSemantic.values();
+   
+   /** The Constant MEANINGFUL_NODE_SEMANTICS. */
    private static final EnumSet<NodeSemantic> MEANINGFUL_NODE_SEMANTICS = EnumSet.of(NodeSemantic.CONCEPT,
                                                                                      NodeSemantic.SUBSTITUTION_CONCEPT);
+   
+   /** The isa nid. */
    protected static int isaNid = 0;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The concept sequence. */
    transient int        conceptSequence = -1;
+   
+   /** The logic nodes. */
    ArrayList<LogicNode> logicNodes      = new ArrayList<>();
+   
+   /** The root node index. */
    int                  rootNodeIndex   = -1;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new logical expression ochre impl.
+    */
    public LogicalExpressionOchreImpl() {}
 
+   /**
+    * Instantiates a new logical expression ochre impl.
+    *
+    * @param nodeDataArray the node data array
+    * @param dataSource the data source
+    */
    public LogicalExpressionOchreImpl(byte[][] nodeDataArray, DataSource dataSource) {
       try {
          this.logicNodes = new ArrayList<>(nodeDataArray.length);
@@ -280,7 +300,7 @@ public class LogicalExpressionOchreImpl
    }
 
    /**
-    * Called to generate an isomorphicExpression and a mergedExpression
+    * Called to generate an isomorphicExpression and a mergedExpression.
     *
     * @param another the logical expression to add nodes from.
     * @param solution an array mapping from the nodeId in another to the nodeId
@@ -294,9 +314,10 @@ public class LogicalExpressionOchreImpl
    }
 
    /**
+    * Instantiates a new logical expression ochre impl.
     *
-    * @param nodeDataArray
-    * @param dataSource
+    * @param nodeDataArray the node data array
+    * @param dataSource the data source
     * @param conceptId Either a nid or sequence of a concept is acceptable.
     */
    public LogicalExpressionOchreImpl(byte[][] nodeDataArray, DataSource dataSource, int conceptId) {
@@ -311,7 +332,7 @@ public class LogicalExpressionOchreImpl
    }
 
    /**
-    * Called to generate an isomorphicExpression and a mergedExpression
+    * Called to generate an isomorphicExpression and a mergedExpression.
     *
     * @param another the logical expression to add nodes from.
     * @param solution an array mapping from the nodeId in another to the nodeId
@@ -327,84 +348,204 @@ public class LogicalExpressionOchreImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * All role.
+    *
+    * @param dataInputStream the data input stream
+    * @return the role node all with sequences
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final RoleNodeAllWithSequences AllRole(DataInputStream dataInputStream)
             throws IOException {
       return new RoleNodeAllWithSequences(this, dataInputStream);
    }
 
+   /**
+    * All role.
+    *
+    * @param typeNid the type nid
+    * @param restriction the restriction
+    * @return the role node all with sequences
+    */
    public RoleNodeAllWithSequences AllRole(int typeNid, AbstractLogicNode restriction) {
       return new RoleNodeAllWithSequences(this, typeNid, restriction);
    }
 
+   /**
+    * All role with uuids.
+    *
+    * @param dataInputStream the data input stream
+    * @return the role node all with uuids
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final RoleNodeAllWithUuids AllRoleWithUuids(DataInputStream dataInputStream)
             throws IOException {
       return new RoleNodeAllWithUuids(this, dataInputStream);
    }
 
+   /**
+    * And.
+    *
+    * @param children the children
+    * @return the and node
+    */
    public final AndNode And(AbstractLogicNode... children) {
       return new AndNode(this, children);
    }
 
+   /**
+    * And.
+    *
+    * @param dataInputStream the data input stream
+    * @return the and node
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final AndNode And(DataInputStream dataInputStream)
             throws IOException {
       return new AndNode(this, dataInputStream);
    }
 
+   /**
+    * Boolean literal.
+    *
+    * @param literalValue the literal value
+    * @return the literal node boolean
+    */
    public LiteralNodeBoolean BooleanLiteral(boolean literalValue) {
       return new LiteralNodeBoolean(this, literalValue);
    }
 
+   /**
+    * Boolean literal.
+    *
+    * @param dataInputStream the data input stream
+    * @return the literal node boolean
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final LiteralNodeBoolean BooleanLiteral(DataInputStream dataInputStream)
             throws IOException {
       return new LiteralNodeBoolean(this, dataInputStream);
    }
 
+   /**
+    * Boolean substitution.
+    *
+    * @param dataInputStream the data input stream
+    * @return the substitution node boolean
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final SubstitutionNodeBoolean BooleanSubstitution(DataInputStream dataInputStream)
             throws IOException {
       return new SubstitutionNodeBoolean(this, dataInputStream);
    }
 
+   /**
+    * Boolean substitution.
+    *
+    * @param substitutionFieldSpecification the substitution field specification
+    * @return the substitution node boolean
+    */
    public SubstitutionNodeBoolean BooleanSubstitution(SubstitutionFieldSpecification substitutionFieldSpecification) {
       return new SubstitutionNodeBoolean(this, substitutionFieldSpecification);
    }
 
+   /**
+    * Concept.
+    *
+    * @param dataInputStream the data input stream
+    * @return the concept node with sequences
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final ConceptNodeWithSequences Concept(DataInputStream dataInputStream)
             throws IOException {
       return new ConceptNodeWithSequences(this, dataInputStream);
    }
 
+   /**
+    * Concept.
+    *
+    * @param conceptSequence the concept sequence
+    * @return the concept node with sequences
+    */
    public final ConceptNodeWithSequences Concept(int conceptSequence) {
       return new ConceptNodeWithSequences(this, conceptSequence);
    }
 
+   /**
+    * Concept substitution.
+    *
+    * @param dataInputStream the data input stream
+    * @return the substitution node concept
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final SubstitutionNodeConcept ConceptSubstitution(DataInputStream dataInputStream)
             throws IOException {
       return new SubstitutionNodeConcept(this, dataInputStream);
    }
 
+   /**
+    * Concept substitution.
+    *
+    * @param substitutionFieldSpecification the substitution field specification
+    * @return the substitution node concept
+    */
    public SubstitutionNodeConcept ConceptSubstitution(SubstitutionFieldSpecification substitutionFieldSpecification) {
       return new SubstitutionNodeConcept(this, substitutionFieldSpecification);
    }
 
+   /**
+    * Concept with uuids.
+    *
+    * @param dataInputStream the data input stream
+    * @return the concept node with uuids
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final ConceptNodeWithUuids ConceptWithUuids(DataInputStream dataInputStream)
             throws IOException {
       return new ConceptNodeWithUuids(this, dataInputStream);
    }
 
+   /**
+    * Disjoint with.
+    *
+    * @param children the children
+    * @return the disjoint with node
+    */
    public DisjointWithNode DisjointWith(AbstractLogicNode... children) {
       return new DisjointWithNode(this, children);
    }
 
+   /**
+    * Disjoint with.
+    *
+    * @param dataInputStream the data input stream
+    * @return the disjoint with node
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final DisjointWithNode DisjointWith(DataInputStream dataInputStream)
             throws IOException {
       return new DisjointWithNode(this, dataInputStream);
    }
 
+   /**
+    * Feature.
+    *
+    * @param dataInputStream the data input stream
+    * @return the feature node with sequences
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final FeatureNodeWithSequences Feature(DataInputStream dataInputStream)
             throws IOException {
       return new FeatureNodeWithSequences(this, dataInputStream);
    }
 
+   /**
+    * Feature.
+    *
+    * @param typeNid the type nid
+    * @param literal the literal
+    * @return the feature node with sequences
+    */
    public FeatureNodeWithSequences Feature(int typeNid, AbstractLogicNode literal) {
       // check for LiteralNode or SubstitutionNodeLiteral
       if ((literal instanceof LiteralNode) || (literal instanceof SubstitutionNodeLiteral)) {
@@ -415,83 +556,200 @@ public class LogicalExpressionOchreImpl
                                       literal);
    }
 
+   /**
+    * Feature with uuids.
+    *
+    * @param dataInputStream the data input stream
+    * @return the feature node with uuids
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final FeatureNodeWithUuids FeatureWithUuids(DataInputStream dataInputStream)
             throws IOException {
       return new FeatureNodeWithUuids(this, dataInputStream);
    }
 
+   /**
+    * Float literal.
+    *
+    * @param dataInputStream the data input stream
+    * @return the literal node float
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final LiteralNodeFloat FloatLiteral(DataInputStream dataInputStream)
             throws IOException {
       return new LiteralNodeFloat(this, dataInputStream);
    }
 
+   /**
+    * Float literal.
+    *
+    * @param literalValue the literal value
+    * @return the literal node float
+    */
    public LiteralNodeFloat FloatLiteral(float literalValue) {
       return new LiteralNodeFloat(this, literalValue);
    }
 
+   /**
+    * Float substitution.
+    *
+    * @param dataInputStream the data input stream
+    * @return the substitution node float
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final SubstitutionNodeFloat FloatSubstitution(DataInputStream dataInputStream)
             throws IOException {
       return new SubstitutionNodeFloat(this, dataInputStream);
    }
 
+   /**
+    * Float substitution.
+    *
+    * @param substitutionFieldSpecification the substitution field specification
+    * @return the substitution node float
+    */
    public SubstitutionNodeFloat FloatSubstitution(SubstitutionFieldSpecification substitutionFieldSpecification) {
       return new SubstitutionNodeFloat(this, substitutionFieldSpecification);
    }
 
+   /**
+    * Instant literal.
+    *
+    * @param dataInputStream the data input stream
+    * @return the literal node instant
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final LiteralNodeInstant InstantLiteral(DataInputStream dataInputStream)
             throws IOException {
       return new LiteralNodeInstant(this, dataInputStream);
    }
 
+   /**
+    * Instant literal.
+    *
+    * @param literalValue the literal value
+    * @return the literal node instant
+    */
    public LiteralNodeInstant InstantLiteral(Instant literalValue) {
       return new LiteralNodeInstant(this, literalValue);
    }
 
+   /**
+    * Instant substitution.
+    *
+    * @param dataInputStream the data input stream
+    * @return the substitution node instant
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final SubstitutionNodeInstant InstantSubstitution(DataInputStream dataInputStream)
             throws IOException {
       return new SubstitutionNodeInstant(this, dataInputStream);
    }
 
+   /**
+    * Instant substitution.
+    *
+    * @param substitutionFieldSpecification the substitution field specification
+    * @return the substitution node instant
+    */
    public SubstitutionNodeInstant InstantSubstitution(SubstitutionFieldSpecification substitutionFieldSpecification) {
       return new SubstitutionNodeInstant(this, substitutionFieldSpecification);
    }
 
+   /**
+    * Integer literal.
+    *
+    * @param dataInputStream the data input stream
+    * @return the literal node integer
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final LiteralNodeInteger IntegerLiteral(DataInputStream dataInputStream)
             throws IOException {
       return new LiteralNodeInteger(this, dataInputStream);
    }
 
+   /**
+    * Integer literal.
+    *
+    * @param literalValue the literal value
+    * @return the literal node integer
+    */
    public LiteralNodeInteger IntegerLiteral(int literalValue) {
       return new LiteralNodeInteger(this, literalValue);
    }
 
+   /**
+    * Integer substitution.
+    *
+    * @param dataInputStream the data input stream
+    * @return the substitution node integer
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final SubstitutionNodeInteger IntegerSubstitution(DataInputStream dataInputStream)
             throws IOException {
       return new SubstitutionNodeInteger(this, dataInputStream);
    }
 
+   /**
+    * Integer substitution.
+    *
+    * @param substitutionFieldSpecification the substitution field specification
+    * @return the substitution node integer
+    */
    public SubstitutionNodeInteger IntegerSubstitution(SubstitutionFieldSpecification substitutionFieldSpecification) {
       return new SubstitutionNodeInteger(this, substitutionFieldSpecification);
    }
 
+   /**
+    * Necessary set.
+    *
+    * @param children the children
+    * @return the necessary set node
+    */
    public final NecessarySetNode NecessarySet(AbstractLogicNode... children) {
       return new NecessarySetNode(this, children);
    }
 
+   /**
+    * Necessary set.
+    *
+    * @param dataInputStream the data input stream
+    * @return the necessary set node
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final NecessarySetNode NecessarySet(DataInputStream dataInputStream)
             throws IOException {
       return new NecessarySetNode(this, dataInputStream);
    }
 
+   /**
+    * Or.
+    *
+    * @param children the children
+    * @return the or node
+    */
    public OrNode Or(AbstractLogicNode... children) {
       return new OrNode(this, children);
    }
 
+   /**
+    * Or.
+    *
+    * @param dataInputStream the data input stream
+    * @return the or node
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final OrNode Or(DataInputStream dataInputStream)
             throws IOException {
       return new OrNode(this, dataInputStream);
    }
 
+   /**
+    * Root.
+    *
+    * @param children the children
+    * @return the root node
+    */
    public RootNode Root(ConnectorNode... children) {
       final RootNode rootNode = new RootNode(this, children);
 
@@ -499,6 +757,13 @@ public class LogicalExpressionOchreImpl
       return rootNode;
    }
 
+   /**
+    * Root.
+    *
+    * @param dataInputStream the data input stream
+    * @return the root node
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final RootNode Root(DataInputStream dataInputStream)
             throws IOException {
       final RootNode rootNode = new RootNode(this, dataInputStream);
@@ -507,67 +772,154 @@ public class LogicalExpressionOchreImpl
       return rootNode;
    }
 
+   /**
+    * Some role.
+    *
+    * @param dataInputStream the data input stream
+    * @return the role node some with sequences
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final RoleNodeSomeWithSequences SomeRole(DataInputStream dataInputStream)
             throws IOException {
       return new RoleNodeSomeWithSequences(this, dataInputStream);
    }
 
+   /**
+    * Some role.
+    *
+    * @param typeNid the type nid
+    * @param restriction the restriction
+    * @return the role node some with sequences
+    */
    public final RoleNodeSomeWithSequences SomeRole(int typeNid, AbstractLogicNode restriction) {
       return new RoleNodeSomeWithSequences(this, typeNid, restriction);
    }
 
+   /**
+    * Some role with uuids.
+    *
+    * @param dataInputStream the data input stream
+    * @return the role node some with uuids
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final RoleNodeSomeWithUuids SomeRoleWithUuids(DataInputStream dataInputStream)
             throws IOException {
       return new RoleNodeSomeWithUuids(this, dataInputStream);
    }
 
+   /**
+    * String literal.
+    *
+    * @param dataInputStream the data input stream
+    * @return the literal node string
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final LiteralNodeString StringLiteral(DataInputStream dataInputStream)
             throws IOException {
       return new LiteralNodeString(this, dataInputStream);
    }
 
+   /**
+    * String literal.
+    *
+    * @param literalValue the literal value
+    * @return the literal node string
+    */
    public LiteralNodeString StringLiteral(String literalValue) {
       return new LiteralNodeString(this, literalValue);
    }
 
+   /**
+    * String substitution.
+    *
+    * @param dataInputStream the data input stream
+    * @return the substitution node string
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final SubstitutionNodeString StringSubstitution(DataInputStream dataInputStream)
             throws IOException {
       return new SubstitutionNodeString(this, dataInputStream);
    }
 
+   /**
+    * String substitution.
+    *
+    * @param substitutionFieldSpecification the substitution field specification
+    * @return the substitution node string
+    */
    public SubstitutionNodeString StringSubstitution(SubstitutionFieldSpecification substitutionFieldSpecification) {
       return new SubstitutionNodeString(this, substitutionFieldSpecification);
    }
 
+   /**
+    * Sufficient set.
+    *
+    * @param children the children
+    * @return the sufficient set node
+    */
    public final SufficientSetNode SufficientSet(AbstractLogicNode... children) {
       return new SufficientSetNode(this, children);
    }
 
+   /**
+    * Sufficient set.
+    *
+    * @param dataInputStream the data input stream
+    * @return the sufficient set node
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final SufficientSetNode SufficientSet(DataInputStream dataInputStream)
             throws IOException {
       return new SufficientSetNode(this, dataInputStream);
    }
 
+   /**
+    * Template.
+    *
+    * @param dataInputStream the data input stream
+    * @return the template node with sequences
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final TemplateNodeWithSequences Template(DataInputStream dataInputStream)
             throws IOException {
       return new TemplateNodeWithSequences(this, dataInputStream);
    }
 
+   /**
+    * Template.
+    *
+    * @param templateConceptId the template concept id
+    * @param assemblageConceptId the assemblage concept id
+    * @return the template node with sequences
+    */
    public TemplateNodeWithSequences Template(int templateConceptId, int assemblageConceptId) {
       return new TemplateNodeWithSequences(this, templateConceptId, assemblageConceptId);
    }
 
+   /**
+    * Template with uuids.
+    *
+    * @param dataInputStream the data input stream
+    * @return the template node with uuids
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public final TemplateNodeWithUuids TemplateWithUuids(DataInputStream dataInputStream)
             throws IOException {
       return new TemplateNodeWithUuids(this, dataInputStream);
    }
 
+   /**
+    * Adds the node.
+    *
+    * @param logicNode the logic node
+    */
    public void addNode(LogicNode logicNode) {
       logicNode.setNodeIndex((short) this.logicNodes.size());
       this.logicNodes.add(logicNode);
    }
 
    /**
+    * Adds the nodes.
     *
     * @param another the logical expression to add nodes from.
     * @param solution an array mapping from the nodeId in another to the nodeId
@@ -587,12 +939,24 @@ public class LogicalExpressionOchreImpl
       return this.addNodesWithMap(another, solution, null, oldIds);
    }
 
+   /**
+    * Contains.
+    *
+    * @param semantic the semantic
+    * @return true, if successful
+    */
    @Override
    public boolean contains(NodeSemantic semantic) {
       return this.logicNodes.stream()
                        .anyMatch((node) -> (node.getNodeSemantic() == semantic));
    }
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
@@ -623,11 +987,22 @@ public class LogicalExpressionOchreImpl
       return true;
    }
 
+   /**
+    * Find isomorphisms.
+    *
+    * @param another the another
+    * @return the isomorphic results
+    */
    @Override
    public IsomorphicResults findIsomorphisms(LogicalExpression another) {
       return new IsomorphicResultsBottomUp(this, another);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int hash = 7;
@@ -636,6 +1011,11 @@ public class LogicalExpressionOchreImpl
       return hash;
    }
 
+   /**
+    * Process depth first.
+    *
+    * @param consumer the consumer
+    */
    @Override
    public void processDepthFirst(BiConsumer<LogicNode, TreeNodeVisitData> consumer) {
       processDepthFirst(getRoot(), consumer);
@@ -644,8 +1024,8 @@ public class LogicalExpressionOchreImpl
    /**
     * Process the fragment starting at root in a depth first manner.
     *
-    * @param fragmentRoot
-    * @param consumer
+    * @param fragmentRoot the fragment root
+    * @param consumer the consumer
     */
    @Override
    public void processDepthFirst(LogicNode fragmentRoot, BiConsumer<LogicNode, TreeNodeVisitData> consumer) {
@@ -656,15 +1036,29 @@ public class LogicalExpressionOchreImpl
       depthFirstVisit(consumer, fragmentRoot, graphVisitData, 0);
    }
 
+   /**
+    * Sort.
+    */
    public void sort() {
       this.logicNodes.forEach((node) -> node.sort());
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
       final StringBuilder builder = new StringBuilder();
@@ -681,6 +1075,14 @@ public class LogicalExpressionOchreImpl
       return builder.toString();
    }
 
+   /**
+    * Depth first visit.
+    *
+    * @param consumer the consumer
+    * @param logicNode the logic node
+    * @param graphVisitData the graph visit data
+    * @param depth the depth
+    */
    protected void depthFirstVisit(BiConsumer<LogicNode, TreeNodeVisitData> consumer,
                                   LogicNode logicNode,
                                   TreeNodeVisitData graphVisitData,
@@ -736,18 +1138,22 @@ public class LogicalExpressionOchreImpl
       graphVisitData.endNodeVisit(logicNode.getNodeIndex());
    }
 
+   /**
+    * Inits the.
+    */
    protected void init() {
       this.logicNodes.trimToSize();
    }
 
    /**
+    * Adds the nodes with map.
     *
     * @param another the logical expression to add nodes from.
     * @param solution an array mapping from the nodeId in another to the nodeId
     * in this expression. If the value of the solution element == -1, that node
     * is not added to this logical expression, otherwise the value of the
     * solution element is used for the nodeId in this logical expression.
-    *  @param anotherToThisNodeIdMap contains a mapping from nodeId in another to nodeId in this constructed expression.
+    * @param anotherToThisNodeIdMap contains a mapping from nodeId in another to nodeId in this constructed expression.
     * @param oldIds the list of nodeIds in the provided logical expression
     * (another) to add to this logical expression on this invocation. Note that
     * children of the nodes indicated by oldIds may be added by recursive calls
@@ -937,6 +1343,15 @@ public class LogicalExpressionOchreImpl
       return results;
    }
 
+   /**
+    * Graphs equal.
+    *
+    * @param g1 the g 1
+    * @param g2 the g 2
+    * @param depth the depth
+    * @param maxDepth the max depth
+    * @return true, if successful
+    */
    private boolean graphsEqual(AbstractLogicNode g1, AbstractLogicNode g2, int depth, int maxDepth) {
       if (g1.equals(g2)) {
          final AbstractLogicNode[] g1children = g1.getChildren();
@@ -1008,11 +1423,22 @@ public class LogicalExpressionOchreImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the concept sequence.
+    *
+    * @return the concept sequence
+    */
    @Override
    public int getConceptSequence() {
       return this.conceptSequence;
    }
 
+   /**
+    * Gets the data.
+    *
+    * @param dataTarget the data target
+    * @return the data
+    */
    @Override
    public byte[][] getData(DataTarget dataTarget) {
       init();
@@ -1027,28 +1453,55 @@ public class LogicalExpressionOchreImpl
       return byteArrayArray;
    }
 
+   /**
+    * Checks if meaningful.
+    *
+    * @return true, if meaningful
+    */
    @Override
    public boolean isMeaningful() {
       return this.logicNodes.stream()
                        .anyMatch((node) -> (MEANINGFUL_NODE_SEMANTICS.contains(node.getNodeSemantic())));
    }
 
+   /**
+    * Gets the node.
+    *
+    * @param nodeIndex the node index
+    * @return the node
+    */
    @Override
    public LogicNode getNode(int nodeIndex) {
       return this.logicNodes.get(nodeIndex);
    }
 
+   /**
+    * Gets the node count.
+    *
+    * @return the node count
+    */
    @Override
    public int getNodeCount() {
       return this.logicNodes.size();
    }
 
+   /**
+    * Gets the nodes of type.
+    *
+    * @param semantic the semantic
+    * @return the nodes of type
+    */
    @Override
    public Stream<LogicNode> getNodesOfType(NodeSemantic semantic) {
       return this.logicNodes.stream()
                        .filter((node) -> (node.getNodeSemantic() == semantic));
    }
 
+   /**
+    * Gets the root.
+    *
+    * @return the root
+    */
    @Override
    public final RootNode getRoot() {
       if (this.logicNodes.isEmpty()) {

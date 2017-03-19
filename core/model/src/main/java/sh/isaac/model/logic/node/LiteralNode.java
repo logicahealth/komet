@@ -58,10 +58,23 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public abstract class LiteralNode
         extends AbstractLogicNode {
+   
+   /**
+    * Instantiates a new literal node.
+    *
+    * @param logicGraphVersion the logic graph version
+    */
    public LiteralNode(LogicalExpressionOchreImpl logicGraphVersion) {
       super(logicGraphVersion);
    }
 
+   /**
+    * Instantiates a new literal node.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public LiteralNode(LogicalExpressionOchreImpl logicGraphVersion,
                       DataInputStream dataInputStream)
             throws IOException {
@@ -70,21 +83,44 @@ public abstract class LiteralNode
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the children.
+    *
+    * @param children the children
+    */
    @Override
    public final void addChildren(LogicNode... children) {
       throw new UnsupportedOperationException();
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
       return super.toString(nodeIdSuffix);
    }
 
+   /**
+    * Write node data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    protected void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
@@ -93,6 +129,11 @@ public abstract class LiteralNode
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the children.
+    *
+    * @return the children
+    */
    @Override
    public final AbstractLogicNode[] getChildren() {
       return new AbstractLogicNode[0];

@@ -40,16 +40,26 @@
 package sh.isaac.api.util;
 
 /**
- * {@link Interval}
+ * {@link Interval}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class Interval {
+   
+   /** The right inclusive. */
    private boolean leftInclusive_, rightInclusive_;
+   
+   /** The right. */
    private Number  left_, right_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new interval.
+    *
+    * @param parseFrom the parse from
+    * @throws NumberFormatException the number format exception
+    */
    public Interval(String parseFrom)
             throws NumberFormatException {
       final String s = parseFrom.trim();
@@ -99,6 +109,14 @@ public class Interval {
       }
    }
 
+   /**
+    * Instantiates a new interval.
+    *
+    * @param left the left
+    * @param leftInclusive the left inclusive
+    * @param right the right
+    * @param rightInclusive the right inclusive
+    */
    public Interval(Number left, boolean leftInclusive, Number right, boolean rightInclusive) {
       this.left_           = left;
       this.right_          = right;
@@ -109,6 +127,8 @@ public class Interval {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the left.
+    *
     * @return the left
     */
    public Number getLeft() {
@@ -116,6 +136,8 @@ public class Interval {
    }
 
    /**
+    * Checks if left inclusive.
+    *
     * @return the leftInclusive
     */
    public boolean isLeftInclusive() {
@@ -123,6 +145,8 @@ public class Interval {
    }
 
    /**
+    * Gets the right.
+    *
     * @return the right
     */
    public Number getRight() {
@@ -130,6 +154,8 @@ public class Interval {
    }
 
    /**
+    * Checks if right inclusive.
+    *
     * @return the rightInclusive
     */
    public boolean isRightInclusive() {

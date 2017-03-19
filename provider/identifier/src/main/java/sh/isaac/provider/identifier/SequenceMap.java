@@ -70,19 +70,37 @@ import sh.isaac.api.collections.NativeIntIntHashMap;
  * @author kec
  */
 public class SequenceMap {
+   
+   /** The Constant FIRST_SEQUENCE. */
    public static final int     FIRST_SEQUENCE      = 1;
+   
+   /** The Constant MINIMUM_LOAD_FACTOR. */
    private static final double MINIMUM_LOAD_FACTOR = 0.75;
+   
+   /** The Constant MAXIMUM_LOAD_FACTOR. */
    private static final double MAXIMUM_LOAD_FACTOR = 0.9;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The sl. */
    StampedLock               sl           = new StampedLock();
+   
+   /** The next sequence. */
    int                       nextSequence = FIRST_SEQUENCE;
+   
+   /** The nid sequence map. */
    final NativeIntIntHashMap nidSequenceMap;
+   
+   /** The sequence nid map. */
    final NativeIntIntHashMap sequenceNidMap;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new sequence map.
+    *
+    * @param defaultCapacity the default capacity
+    */
    public SequenceMap(int defaultCapacity) {
       this.nidSequenceMap = new NativeIntIntHashMap(defaultCapacity, MINIMUM_LOAD_FACTOR, MAXIMUM_LOAD_FACTOR);
       this.sequenceNidMap = new NativeIntIntHashMap(defaultCapacity, MINIMUM_LOAD_FACTOR, MAXIMUM_LOAD_FACTOR);
@@ -90,6 +108,12 @@ public class SequenceMap {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the nid.
+    *
+    * @param nid the nid
+    * @return the int
+    */
    public int addNid(int nid) {
       final long stamp = this.sl.writeLock();
 
@@ -108,6 +132,12 @@ public class SequenceMap {
       }
    }
 
+   /**
+    * Adds the nid if missing.
+    *
+    * @param nid the nid
+    * @return the int
+    */
    public int addNidIfMissing(int nid) {
       long    stamp       = this.sl.tryOptimisticRead();
       final boolean containsKey = this.nidSequenceMap.containsKey(nid);
@@ -133,6 +163,12 @@ public class SequenceMap {
       }
    }
 
+   /**
+    * Contains nid.
+    *
+    * @param nid the nid
+    * @return true, if successful
+    */
    public boolean containsNid(int nid) {
       long    stamp = this.sl.tryOptimisticRead();
       boolean value = this.nidSequenceMap.containsKey(nid);
@@ -150,6 +186,12 @@ public class SequenceMap {
       return value;
    }
 
+   /**
+    * Read.
+    *
+    * @param mapFile the map file
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void read(File mapFile)
             throws IOException {
       try (DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(mapFile)))) {
@@ -169,6 +211,11 @@ public class SequenceMap {
       }
    }
 
+   /**
+    * Removes the nid.
+    *
+    * @param nid the nid
+    */
    public void removeNid(int nid) {
       final long stamp = this.sl.writeLock();
 
@@ -184,6 +231,12 @@ public class SequenceMap {
       }
    }
 
+   /**
+    * Write.
+    *
+    * @param mapFile the map file
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void write(File mapFile)
             throws IOException {
       try (DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(mapFile)))) {
@@ -204,15 +257,31 @@ public class SequenceMap {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the concept nid stream.
+    *
+    * @return the concept nid stream
+    */
    public IntStream getConceptNidStream() {
       return IntStream.of(this.nidSequenceMap.keys()
                                         .elements());
    }
 
+   /**
+    * Gets the next sequence.
+    *
+    * @return the next sequence
+    */
    public int getNextSequence() {
       return this.nextSequence;
    }
 
+   /**
+    * Gets the nid.
+    *
+    * @param sequence the sequence
+    * @return the nid
+    */
    public OptionalInt getNid(int sequence) {
       long stamp = this.sl.tryOptimisticRead();
       int  value = this.sequenceNidMap.get(sequence);
@@ -234,6 +303,12 @@ public class SequenceMap {
       return OptionalInt.of(value);
    }
 
+   /**
+    * Gets the nid fast.
+    *
+    * @param sequence the sequence
+    * @return the nid fast
+    */
    public int getNidFast(int sequence) {
       long stamp = this.sl.tryOptimisticRead();
       int  value = this.sequenceNidMap.get(sequence);
@@ -251,6 +326,12 @@ public class SequenceMap {
       return value;
    }
 
+   /**
+    * Gets the sequence.
+    *
+    * @param nid the nid
+    * @return the sequence
+    */
    public OptionalInt getSequence(int nid) {
       if (containsNid(nid)) {
          long stamp = this.sl.tryOptimisticRead();
@@ -272,6 +353,12 @@ public class SequenceMap {
       return OptionalInt.empty();
    }
 
+   /**
+    * Gets the sequence fast.
+    *
+    * @param nid the nid
+    * @return the sequence fast
+    */
    public int getSequenceFast(int nid) {
       long stamp = this.sl.tryOptimisticRead();
       int  value = this.nidSequenceMap.get(nid);
@@ -289,11 +376,21 @@ public class SequenceMap {
       return value;
    }
 
+   /**
+    * Gets the sequence stream.
+    *
+    * @return the sequence stream
+    */
    public IntStream getSequenceStream() {
       return IntStream.of(this.sequenceNidMap.keys()
                                         .elements());
    }
 
+   /**
+    * Gets the size.
+    *
+    * @return the size
+    */
    public int getSize() {
       assert this.nidSequenceMap.size() == this.sequenceNidMap.size():
              "nidSequenceMap.size() = " + this.nidSequenceMap.size() + " sequenceNidMap.size() = " + this.sequenceNidMap.size();

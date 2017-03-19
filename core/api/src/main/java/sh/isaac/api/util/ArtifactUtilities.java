@@ -74,7 +74,19 @@ import sh.isaac.api.LookupService;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class ArtifactUtilities.
+ */
 public class ArtifactUtilities {
+   
+   /**
+    * The main method.
+    *
+    * @param args the arguments
+    * @throws InterruptedException the interrupted exception
+    * @throws ExecutionException the execution exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static void main(String[] args)
             throws InterruptedException, ExecutionException, IOException {
       try {
@@ -141,17 +153,18 @@ public class ArtifactUtilities {
    }
 
    /**
+    * Make full URL.
     *
-    * @param baseMavenURL
+    * @param baseMavenURL the base maven URL
     * @param mavenUsername - optional - only used for a SNAPSHOT dependency
     * @param mavenPassword - optional - only used for a SNAPSHOT dependency
-    * @param groupId
-    * @param artifactId
-    * @param version
+    * @param groupId the group id
+    * @param artifactId the artifact id
+    * @param version the version
     * @param classifier - optional
-    * @param type
-    * @return
-    * @throws Exception
+    * @param type the type
+    * @return the url
+    * @throws Exception the exception
     */
    public static URL makeFullURL(String baseMavenURL,
                                  String mavenUsername,
@@ -173,6 +186,16 @@ public class ArtifactUtilities {
                   type));
    }
 
+   /**
+    * Make maven relative path.
+    *
+    * @param groupId the group id
+    * @param artifactId the artifact id
+    * @param version the version
+    * @param classifier the classifier
+    * @param type the type
+    * @return the string
+    */
    public static String makeMavenRelativePath(String groupId,
          String artifactId,
          String version,
@@ -191,18 +214,19 @@ public class ArtifactUtilities {
    }
 
    /**
+    * Make maven relative path.
     *
     * @param baseMavenURL - optional - but required if you are downloading a SNAPSHOT dependency, as this method will need to download the metadata file
     * from the repository server in order to determine the proper version component for the SNAPSHOT.
     * @param mavenUsername - optional - only used for a SNAPSHOT dependency
     * @param mavenPassword - optional - only used for a SNAPSHOT dependency
-    * @param groupId
-    * @param artifactId
-    * @param version
+    * @param groupId the group id
+    * @param artifactId the artifact id
+    * @param version the version
     * @param classifier - optional
-    * @param type
-    * @return
-    * @throws Exception
+    * @param type the type
+    * @return the string
+    * @throws Exception the exception
     */
    public static String makeMavenRelativePath(String baseMavenURL,
          String mavenUsername,

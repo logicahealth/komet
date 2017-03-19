@@ -53,20 +53,38 @@ import org.apache.commons.lang3.StringUtils;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ConverterOptionParamSuggestedValue {
+   
+   /** The value. */
    private String value;
+   
+   /** The description. */
    private String description;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new converter option param suggested value.
+    */
    @SuppressWarnings("unused")
    private ConverterOptionParamSuggestedValue() {
       // For serialization
    }
 
+   /**
+    * Instantiates a new converter option param suggested value.
+    *
+    * @param value the value
+    */
    public ConverterOptionParamSuggestedValue(String value) {
       this.value = value;
    }
 
+   /**
+    * Instantiates a new converter option param suggested value.
+    *
+    * @param value the value
+    * @param description the description
+    */
    public ConverterOptionParamSuggestedValue(String value, String description) {
       this.value       = value;
       this.description = description;
@@ -74,6 +92,12 @@ public class ConverterOptionParamSuggestedValue {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (this == obj) {
@@ -109,6 +133,11 @@ public class ConverterOptionParamSuggestedValue {
       return true;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       final int prime  = 31;
@@ -120,6 +149,11 @@ public class ConverterOptionParamSuggestedValue {
       return result;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "ConverterOptionParamSuggestedValue [value=" + this.value + ", description=" + this.description + "]";
@@ -130,6 +164,8 @@ public class ConverterOptionParamSuggestedValue {
    /**
     * A user friendly description of this value for use in user-facing GUIs.  If a description wasn't provided
     * upon construction, this will return the same thing as {@link #getValue()}
+    *
+    * @return the description
     */
    public String getDescription() {
       return StringUtils.isNotBlank(this.description) ? this.description
@@ -137,7 +173,9 @@ public class ConverterOptionParamSuggestedValue {
    }
 
    /**
-    * The value to be passed in to the {@link ConverterOptionValue} class
+    * The value to be passed in to the {@link ConverterOptionValue} class.
+    *
+    * @return the value
     */
    public String getValue() {
       return this.value;

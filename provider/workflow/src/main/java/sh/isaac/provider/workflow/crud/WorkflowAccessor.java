@@ -93,19 +93,24 @@ import sh.isaac.utility.Frills;
 
 /**
  * Contains methods necessary to perform workflow-based accessing
- *
+ * 
  * {@link WorkflowContentStore} {@link WorkflowProvider}
- * {@link BPMNInfo}
+ * {@link BPMNInfo}.
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 @Service
 @Singleton
 public class WorkflowAccessor {
+   
+   /** The workflow provider. */
    private final WorkflowProvider workflowProvider_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new workflow accessor.
+    */
    // for HK2
    private WorkflowAccessor() {
       this.workflowProvider_ = LookupService.get()
@@ -114,11 +119,26 @@ public class WorkflowAccessor {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Format string association information.
+    *
+    * @param value the value
+    * @param target the target
+    * @return the string
+    */
    private String formatStringAssociationInformation(String value, String target) {
       // Association: <Source Component> : <Target Component>
       return String.format("Association: %s : %s", value, target);
    }
 
+   /**
+    * Format string concept information.
+    *
+    * @param nid the nid
+    * @param stampCoord the stamp coord
+    * @param langCoord the lang coord
+    * @return the string
+    */
    private String formatStringConceptInformation(int nid, StampCoordinate stampCoord, LanguageCoordinate langCoord) {
       // Concept: <Concept FSN>
       return String.format("Concept: %s",
@@ -130,17 +150,36 @@ public class WorkflowAccessor {
                                  .getText());
    }
 
+   /**
+    * Format string description information.
+    *
+    * @param descSem the desc sem
+    * @return the string
+    */
    private String formatStringDescriptionInformation(LatestVersion<DescriptionSememe> descSem) {
       // Description: <Desctipion Text>
       return String.format("Description: %s", descSem.value()
             .getText());
    }
 
+   /**
+    * Format string map information.
+    *
+    * @param value the value
+    * @param target the target
+    * @return the string
+    */
    private String formatStringMapInformation(String value, String target) {
       // Map: <MapSet FSN>-<Source Code> : <Target Code>
       return String.format("Map: %s : %s", value, target);
    }
 
+   /**
+    * Format string value information.
+    *
+    * @param value the value
+    * @return the string
+    */
    private String formatStringValueInformation(String value) {
       // Value: <Value Text>
       return String.format("Value: %s", value);
@@ -219,6 +258,13 @@ public class WorkflowAccessor {
       return false;
    }
 
+   /**
+    * Checks if component in process.
+    *
+    * @param processId the process id
+    * @param componentNid the component nid
+    * @return true, if component in process
+    */
    public boolean isComponentInProcess(UUID processId, int componentNid) {
       final ProcessDetail process = getProcessDetails(processId);
 
@@ -230,11 +276,11 @@ public class WorkflowAccessor {
    /**
     * Return a String formatted for component modifications. Includes Concept, Description, Map, Association, or Value.
     *
-    *  @param nid int - Component id
-    *  @param stampCoord StampCoordinate
-    *  @param langCoord LanguageCoordinate
-    *
-    *  @exception Exception
+    * @param nid int - Component id
+    * @param stampCoord StampCoordinate
+    * @param langCoord LanguageCoordinate
+    * @return the component modification
+    * @exception Exception the exception
     */
    private String getComponentModification(int nid,
          StampCoordinate stampCoord,
@@ -304,10 +350,9 @@ public class WorkflowAccessor {
     * Return an ArrayList of Strings formatted for component modifications for a given processId.
     * Includes Concept, Description, Map, Association, or Value.
     *
-    *  @param processId UUID - identifier of the process.
-    *  @return ArrayList<String> - collection of formatted string of component modifications.
-    *
-    *  @exception Exception
+    * @param processId UUID - identifier of the process.
+    * @return ArrayList<String> - collection of formatted string of component modifications.
+    * @exception Exception the exception
     */
    public ArrayList<String> getComponentModifications(UUID processId)
             throws Exception {
@@ -416,11 +461,9 @@ public class WorkflowAccessor {
    /**
     * Request a list of workflow processes.  Can request any or all workflow statuses of DEFINED, LAUNCHED, CANCELED or CONCLUDED.
     *
-    * @param definitionId
-    *            The workflow definition (type) being examined.
-    * @param status
-    *            A list of statuses to include.
-    *
+    * @param definitionId            The workflow definition (type) being examined.
+    * @param userId the user id
+    * @param status            A list of statuses to include.
     * @return The list of processes filtered by the status provided.
     */
    public ArrayList<ProcessDetail> getProcessInformation(UUID definitionId,
@@ -449,15 +492,12 @@ public class WorkflowAccessor {
    /**
     * Returns the of available actions a user has roles based on the
     * definition's possible initial-states
-    *
+    * 
     * Used to support the getAdvanceableProcessInformation() and
-    * getUserPermissibleActionsForProcess()
+    * getUserPermissibleActionsForProcess().
     *
-    * @param definitionId
-    *            The definition being examined
-    * @param userId
-    *            The user is being examined
-    *
+    * @param definitionId            The definition being examined
+    * @param userId            The user is being examined
     * @return The set of all Available Actions for each initial state for which
     *         the user can advance workflow.
     */
@@ -488,14 +528,11 @@ public class WorkflowAccessor {
    /**
     * Identifies the set of Available Actions containing actions which the user
     * may take on a given process
+    * 
+    * Used to determine which actions populate the Transition Workflow picklist.
     *
-    * Used to determine which actions populate the Transition Workflow picklist
-    *
-    * @param processId
-    *            The process being examined
-    * @param userId
-    *            The user for whom available actions are being identified
-    *
+    * @param processId            The process being examined
+    * @param userId            The user for whom available actions are being identified
     * @return A set of AvailableActions defining the actions a user can take on
     *         the process
     */
@@ -517,15 +554,11 @@ public class WorkflowAccessor {
    }
 
    /**
-    * Identify the version of the component prior to workflow process being launched
+    * Identify the version of the component prior to workflow process being launched.
     *
-    * @param processId
-    *            The process being examined
-    * @param compNid
-    *            The component to be investigated
+    * @param processId            The process being examined
+    * @param compNid            The component to be investigated
     * @return The version of the component prior to it entering into workflow. If no version is found, the chronology was created within this workflow process
-    *
-    * @throws Exception
     */
    public StampedVersion getVersionPriorToWorkflow(UUID processId, int compNid) {
       final ProcessDetail proc = getProcessDetails(processId);
@@ -576,6 +609,16 @@ public class WorkflowAccessor {
       return null;
    }
 
+   /**
+    * Gets the version prior to workflow.
+    *
+    * @param <T> the generic type
+    * @param versionClazz the version clazz
+    * @param processId the process id
+    * @param compNid the comp nid
+    * @return the version prior to workflow
+    * @throws Exception the exception
+    */
    public <T extends StampedVersion> T getVersionPriorToWorkflow(Class<T> versionClazz,
          UUID processId,
          int compNid)

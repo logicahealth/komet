@@ -52,21 +52,41 @@ import javafx.collections.SetChangeListener;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The listener interface for receiving weakSetChange events.
+ * The class that is interested in processing a weakSetChange
+ * event implements this interface, and the object created
+ * with that class is registered with a component using the
+ * component's <code>addWeakSetChangeListener<code> method. When
+ * the weakSetChange event occurs, that object's appropriate
+ * method is invoked.
  *
  * @author kec
+ * @param <T> the generic type
  */
 public class WeakSetChangeListener<T>
          implements WeakListener, SetChangeListener<T> {
+   
+   /** The ref. */
    private final WeakReference<SetChangeListener<T>> ref;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new weak set change listener.
+    *
+    * @param listener the listener
+    */
    public WeakSetChangeListener(SetChangeListener<T> listener) {
       this.ref = new WeakReference<>(listener);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * On changed.
+    *
+    * @param change the change
+    */
    @Override
    public void onChanged(Change<? extends T> change) {
       final SetChangeListener<T> listener = this.ref.get();
@@ -82,6 +102,11 @@ public class WeakSetChangeListener<T>
       }
    }
 
+   /**
+    * Was garbage collected.
+    *
+    * @return true, if successful
+    */
    @Override
    public boolean wasGarbageCollected() {
       return (this.ref.get() == null);

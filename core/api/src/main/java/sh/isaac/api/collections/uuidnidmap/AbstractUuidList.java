@@ -52,15 +52,17 @@ import org.apache.mahout.math.list.AbstractList;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class AbstractUuidList.
  *
  * @author kec
  */
 public abstract class AbstractUuidList
         extends AbstractList {
-   /**
-    *
-    */
+   
+   /** The Constant serialVersionUID. */
    private static final long       serialVersionUID = 1L;
+   
+   /** The c. */
    private static UuidComparatorBI c                = new UuidUnsigned64BitComparator();
 
    //~--- fields --------------------------------------------------------------
@@ -129,8 +131,6 @@ public abstract class AbstractUuidList
     * @param other list of which a part is to be inserted into the receiver.
     * @param from the index of the first element to be inserted (inclusive).
     * @param to the index of the last element to be inserted (inclusive).
-    * @exception IndexOutOfBoundsException index is out of range ( {@code other.size()&gt;0 && (from&lt;0 ||
-    * from&gt;to || to&gt;=other.size())} ).
     * @throws IndexOutOfBoundsException if {@code index &lt; 0 || index &gt; size()}.
     */
    public void beforeInsertAllOfFromTo(int index, AbstractUuidList other, int from, int to) {
@@ -209,6 +209,7 @@ public abstract class AbstractUuidList
    }
 
    /**
+    * Contains.
     *
     * @param elem element whose presence in the receiver is to be tested.
     * @return true if the receiver contains the specified element.
@@ -670,6 +671,7 @@ public abstract class AbstractUuidList
    }
 
    /**
+    * Size.
     *
     * @return the number of elements contained in the receiver.
     */
@@ -680,6 +682,8 @@ public abstract class AbstractUuidList
 
    /**
     * Returns a string representation of the receiver, containing the String representation of each element.
+    *
+    * @return the string
     */
    @Override
    public String toString() {
@@ -711,6 +715,7 @@ public abstract class AbstractUuidList
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the.
     *
     * @param index index of element to return.
     * @return the element at the specified position in the receiver.

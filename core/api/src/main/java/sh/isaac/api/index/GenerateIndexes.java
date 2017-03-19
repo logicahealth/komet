@@ -66,21 +66,34 @@ import sh.isaac.api.task.TimedTask;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class GenerateIndexes.
  *
  * @author kec
  */
 public class GenerateIndexes
         extends TimedTask<Void> {
+   
+   /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The processed. */
    AtomicLong           processed = new AtomicLong(0);
+   
+   /** The indexers. */
    List<IndexServiceBI> indexers;
+   
+   /** The component count. */
    long                 componentCount;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new generate indexes.
+    *
+    * @param indexersToReindex the indexers to reindex
+    */
    public GenerateIndexes(Class<?>... indexersToReindex) {
       updateTitle("Index generation");
       updateProgress(-1, Long.MAX_VALUE);  // Indeterminate progress
@@ -124,6 +137,12 @@ public class GenerateIndexes
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Call.
+    *
+    * @return the void
+    * @throws Exception the exception
+    */
    @Override
    protected Void call()
             throws Exception {
@@ -189,6 +208,9 @@ public class GenerateIndexes
       }
    }
 
+   /**
+    * Update processed count.
+    */
    protected void updateProcessedCount() {
       final long processedCount = this.processed.incrementAndGet();
 

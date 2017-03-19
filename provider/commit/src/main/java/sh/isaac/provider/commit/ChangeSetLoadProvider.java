@@ -99,24 +99,46 @@ import sh.isaac.model.configuration.StampCoordinates;
 @RunLevel(value = 3)
 public class ChangeSetLoadProvider
          implements ChangeSetLoadService {
+   
+   /** The Constant LOG. */
    private static final Logger   LOG                     = LogManager.getLogger();
+   
+   /** The Constant CHANGESETS. */
    private static final String   CHANGESETS              = "changesets";
+   
+   /** The Constant CHANGESETS_ID. */
    private static final String   CHANGESETS_ID           = "changesetId.txt";
+   
+   /** The Constant MAVEN_ARTIFACT_IDENTITY. */
    private static final String   MAVEN_ARTIFACT_IDENTITY = "dbMavenArtifactIdentity.txt";
+   
+   /** The database path. */
    private static Optional<Path> databasePath;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The changeset path. */
    private Path                           changesetPath;
+   
+   /** The processed changesets. */
    private ConcurrentMap<String, Boolean> processedChangesets;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new change set load provider.
+    */
    // For HK2
    private ChangeSetLoadProvider() {}
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read changeset files.
+    *
+    * @return the int
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public int readChangesetFiles()
             throws IOException {
@@ -160,6 +182,11 @@ public class ChangeSetLoadProvider
       return loaded.get();
    }
 
+   /**
+    * Read sememe db id.
+    *
+    * @return the uuid
+    */
    private UUID readSememeDbId() {
       final Optional<SememeChronology<? extends SememeVersion<?>>> sdic = Get.sememeService()
                                                                        .getSememesForComponentFromAssemblage(
@@ -186,6 +213,9 @@ public class ChangeSetLoadProvider
       return null;
    }
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       try {
@@ -295,6 +325,9 @@ public class ChangeSetLoadProvider
       }
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       LOG.info("Finished ChangeSet Load Provider pre-destory.");

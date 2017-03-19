@@ -75,23 +75,50 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class RelRestriction
         extends LeafClause {
+   
+   /** The rel type key. */
    @XmlElement
    String             relTypeKey;
+   
+   /** The destination spec key. */
    @XmlElement
    String             destinationSpecKey;
+   
+   /** The view coordinate key. */
    @XmlElement
    String             viewCoordinateKey;
+   
+   /** The destination subsumption key. */
    @XmlElement
    String             destinationSubsumptionKey;
+   
+   /** The rel type subsumption key. */
    @XmlElement
    String             relTypeSubsumptionKey;
+   
+   /** The destination set. */
    ConceptSequenceSet destinationSet;
+   
+   /** The rel type set. */
    ConceptSequenceSet relTypeSet;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new rel restriction.
+    */
    protected RelRestriction() {}
 
+   /**
+    * Instantiates a new rel restriction.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param relTypeKey the rel type key
+    * @param destinationSpecKey the destination spec key
+    * @param viewCoordinateKey the view coordinate key
+    * @param destinationSubsumptionKey the destination subsumption key
+    * @param relTypeSubsumptionKey the rel type subsumption key
+    */
    public RelRestriction(Query enclosingQuery,
                          String relTypeKey,
                          String destinationSpecKey,
@@ -108,6 +135,12 @@ public class RelRestriction
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
 //    System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
@@ -152,11 +185,22 @@ public class RelRestriction
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_ITERATION_AND_ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
       final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
@@ -175,6 +219,11 @@ public class RelRestriction
                   });
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();

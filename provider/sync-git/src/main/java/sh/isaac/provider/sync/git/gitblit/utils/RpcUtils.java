@@ -60,6 +60,8 @@ import sh.isaac.provider.sync.git.gitblit.models.RepositoryModel;
  *
  */
 public class RpcUtils {
+   
+   /** The Constant RPC_PATH. */
    public static final String RPC_PATH = "/rpc/";
 
    //~--- enums ---------------------------------------------------------------
@@ -68,50 +70,109 @@ public class RpcUtils {
     * The access permissions available for a repository.
     */
    public static enum AccessPermission {
+      
+      /** The none. */
       NONE("N"),
+      
+      /** The exclude. */
       EXCLUDE("X"),
+      
+      /** The view. */
       VIEW("V"),
+      
+      /** The clone. */
       CLONE("R"),
+      
+      /** The push. */
       PUSH("RW"),
+      
+      /** The create. */
       CREATE("RWC"),
+      
+      /** The delete. */
       DELETE("RWD"),
+      
+      /** The rewind. */
       REWIND("RW+"),
+      
+      /** The owner. */
       OWNER("RW+");
 
+      /** The Constant NEWPERMISSIONS. */
       public static final AccessPermission[] NEWPERMISSIONS = {
          EXCLUDE, VIEW, CLONE, PUSH, CREATE, DELETE, REWIND
       };
+      
+      /** The Constant SSHPERMISSIONS. */
       public static final AccessPermission[] SSHPERMISSIONS = { VIEW, CLONE, PUSH };
+      
+      /** The legacy. */
       public static AccessPermission         LEGACY         = REWIND;
 
       //~--- fields -----------------------------------------------------------
 
+      /** The code. */
       public final String code;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new access permission.
+       *
+       * @param code the code
+       */
       private AccessPermission(String code) {
          this.code = code;
       }
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * As role.
+       *
+       * @param repository the repository
+       * @return the string
+       */
       public String asRole(String repository) {
          return this.code + ":" + repository;
       }
 
+      /**
+       * At least.
+       *
+       * @param perm the perm
+       * @return true, if successful
+       */
       public boolean atLeast(AccessPermission perm) {
          return ordinal() >= perm.ordinal();
       }
 
+      /**
+       * At most.
+       *
+       * @param perm the perm
+       * @return true, if successful
+       */
       public boolean atMost(AccessPermission perm) {
          return ordinal() <= perm.ordinal();
       }
 
+      /**
+       * Exceeds.
+       *
+       * @param perm the perm
+       * @return true, if successful
+       */
       public boolean exceeds(AccessPermission perm) {
          return ordinal() > perm.ordinal();
       }
 
+      /**
+       * From code.
+       *
+       * @param code the code
+       * @return the access permission
+       */
       public static AccessPermission fromCode(String code) {
          for (final AccessPermission perm: values()) {
             if (perm.code.equalsIgnoreCase(code)) {
@@ -122,6 +183,12 @@ public class RpcUtils {
          return AccessPermission.NONE;
       }
 
+      /**
+       * Permission from role.
+       *
+       * @param role the role
+       * @return the access permission
+       */
       public static AccessPermission permissionFromRole(String role) {
          final String[] fields = role.split(":", 2);
 
@@ -134,6 +201,12 @@ public class RpcUtils {
          }
       }
 
+      /**
+       * Repository from role.
+       *
+       * @param role the role
+       * @return the string
+       */
       public static String repositoryFromRole(String role) {
          final String[] fields = role.split(":", 2);
 
@@ -146,6 +219,11 @@ public class RpcUtils {
          }
       }
 
+      /**
+       * To string.
+       *
+       * @return the string
+       */
       @Override
       public String toString() {
          return this.code;
@@ -156,19 +234,40 @@ public class RpcUtils {
     * Enumeration representing the four access restriction levels.
     */
    public static enum AccessRestrictionType {
+      
+      /** The none. */
       NONE,
+      
+      /** The push. */
       PUSH,
+      
+      /** The clone. */
       CLONE,
+      
+      /** The view. */
       VIEW;
 
+      /** The Constant AUTH_TYPES. */
       private static final AccessRestrictionType[] AUTH_TYPES = { PUSH, CLONE, VIEW };
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * At least.
+       *
+       * @param type the type
+       * @return true, if successful
+       */
       public boolean atLeast(AccessRestrictionType type) {
          return this.ordinal() >= type.ordinal();
       }
 
+      /**
+       * Choices.
+       *
+       * @param allowAnonymousPush the allow anonymous push
+       * @return the list
+       */
       public static List<AccessRestrictionType> choices(boolean allowAnonymousPush) {
          if (allowAnonymousPush) {
             return Arrays.asList(values());
@@ -177,10 +276,22 @@ public class RpcUtils {
          return Arrays.asList(AUTH_TYPES);
       }
 
+      /**
+       * Exceeds.
+       *
+       * @param type the type
+       * @return true, if successful
+       */
       public boolean exceeds(AccessRestrictionType type) {
          return this.ordinal() > type.ordinal();
       }
 
+      /**
+       * From name.
+       *
+       * @param name the name
+       * @return the access restriction type
+       */
       public static AccessRestrictionType fromName(String name) {
          for (final AccessRestrictionType type: values()) {
             if (type.name()
@@ -192,6 +303,11 @@ public class RpcUtils {
          return NONE;
       }
 
+      /**
+       * To string.
+       *
+       * @return the string
+       */
       @Override
       public String toString() {
          return name();
@@ -199,6 +315,12 @@ public class RpcUtils {
 
       //~--- get methods ------------------------------------------------------
 
+      /**
+       * Checks if valid permission.
+       *
+       * @param permission the permission
+       * @return true, if valid permission
+       */
       public boolean isValidPermission(AccessPermission permission) {
          switch (this) {
          case VIEW:
@@ -235,9 +357,19 @@ public class RpcUtils {
     * access restricted resource.
     */
    public static enum AuthorizationControl {
+      
+      /** The authenticated. */
       AUTHENTICATED,
+      
+      /** The named. */
       NAMED;
 
+      /**
+       * From name.
+       *
+       * @param name the name
+       * @return the authorization control
+       */
       public static AuthorizationControl fromName(String name) {
          for (final AuthorizationControl type: values()) {
             if (type.name()
@@ -249,6 +381,11 @@ public class RpcUtils {
          return NAMED;
       }
 
+      /**
+       * To string.
+       *
+       * @return the string
+       */
       @Override
       public String toString() {
          return name();
@@ -259,18 +396,42 @@ public class RpcUtils {
     * Enumeration representing the federation types.
     */
    public static enum FederationStrategy {
+      
+      /** The exclude. */
       EXCLUDE,
+      
+      /** The federate this. */
       FEDERATE_THIS,
+      
+      /** The federate origin. */
       FEDERATE_ORIGIN;
 
+      /**
+       * At least.
+       *
+       * @param type the type
+       * @return true, if successful
+       */
       public boolean atLeast(FederationStrategy type) {
          return this.ordinal() >= type.ordinal();
       }
 
+      /**
+       * Exceeds.
+       *
+       * @param type the type
+       * @return true, if successful
+       */
       public boolean exceeds(FederationStrategy type) {
          return this.ordinal() > type.ordinal();
       }
 
+      /**
+       * From name.
+       *
+       * @param name the name
+       * @return the federation strategy
+       */
       public static FederationStrategy fromName(String name) {
          for (final FederationStrategy type: values()) {
             if (type.name()
@@ -282,6 +443,11 @@ public class RpcUtils {
          return FEDERATE_THIS;
       }
 
+      /**
+       * To string.
+       *
+       * @return the string
+       */
       @Override
       public String toString() {
          return name();
@@ -293,13 +459,29 @@ public class RpcUtils {
     * a client.
     */
    public static enum RpcRequest {
+      
+      /** The create repository. */
       CREATE_REPOSITORY,
+      
+      /** The list repositories. */
       LIST_REPOSITORIES;
 
+      /**
+       * Exceeds.
+       *
+       * @param type the type
+       * @return true, if successful
+       */
       public boolean exceeds(RpcRequest type) {
          return this.ordinal() > type.ordinal();
       }
 
+      /**
+       * From name.
+       *
+       * @param name the name
+       * @return the rpc request
+       */
       public static RpcRequest fromName(String name) {
          for (final RpcRequest type: values()) {
             if (type.name()
@@ -311,6 +493,11 @@ public class RpcUtils {
          return null;
       }
 
+      /**
+       * To string.
+       *
+       * @return the string
+       */
       @Override
       public String toString() {
          return name();
@@ -320,14 +507,12 @@ public class RpcUtils {
    //~--- methods -------------------------------------------------------------
 
    /**
+    * As link.
     *
-    * @param remoteURL
-    * the url of the remote gitblit instance
-    * @param req
-    * the rpc request type
-    * @param name
-    * the name of the actionable object
-    * @return
+    * @param remoteURL the url of the remote gitblit instance
+    * @param req the rpc request type
+    * @param name the name of the actionable object
+    * @return the string
     */
    public static String asLink(String remoteURL, RpcRequest req, String name) {
       if ((remoteURL.length() > 0) && (remoteURL.charAt(remoteURL.length() - 1) == '/')) {
@@ -345,12 +530,12 @@ public class RpcUtils {
    /**
     * Create a repository on the Gitblit server.
     *
-    * @param repository
-    * @param serverUrl
-    * @param account
-    * @param password
+    * @param repository the repository
+    * @param serverUrl the server url
+    * @param account the account
+    * @param password the password
     * @return true if the action succeeded
-    * @throws IOException
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static boolean createRepository(RepositoryModel repository,
          String serverUrl,
@@ -368,15 +553,14 @@ public class RpcUtils {
    /**
     * Do the specified administrative action on the Gitblit server.
     *
-    * @param request
-    * @param name
-    * the name of the object (may be null)
-    * @param object
-    * @param serverUrl
-    * @param account
-    * @param password
+    * @param request the request
+    * @param name the name of the object (may be null)
+    * @param object the object
+    * @param serverUrl the server url
+    * @param account the account
+    * @param password the password
     * @return true if the action succeeded
-    * @throws IOException
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    protected static boolean doAction(RpcRequest request,
                                      String name,
@@ -397,11 +581,11 @@ public class RpcUtils {
     * Retrieves a map of the repositories at the remote gitblit instance keyed
     * by the repository clone url.
     *
-    * @param serverUrl
-    * @param account
-    * @param password
+    * @param serverUrl the server url
+    * @param account the account
+    * @param password the password
     * @return a map of cloneable repositories
-    * @throws IOException
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static JsonObject<String, Map<String, ?>> getRepositories(String serverUrl,
          String account,

@@ -48,15 +48,25 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeByteArray}
+ * {@link DynamicSememeByteArray}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface DynamicSememeByteArray
         extends DynamicSememeData {
+   
+   /**
+    * Gets the data byte array.
+    *
+    * @return the data byte array
+    */
    public byte[] getDataByteArray();
 
+   /**
+    * Gets the data byte array property.
+    *
+    * @return the data byte array property
+    */
    public ReadOnlyObjectProperty<byte[]> getDataByteArrayProperty();
 }
 

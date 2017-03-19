@@ -77,28 +77,51 @@ import sh.isaac.api.util.HeadlessToolkit;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LookupService.
  *
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @SuppressWarnings("restriction")
 public class LookupService {
+   
+   /** The Constant LOG. */
    private static final Logger            LOG                                = LogManager.getLogger();
+   
+   /** The looker. */
    private static volatile ServiceLocator looker                             = null;
+   
+   /** The fx platform up. */
    private static volatile boolean        fxPlatformUp                       = false;
+   
+   /** The Constant DATABASE_SERVICES_STARTED_RUNLEVEL. */
    public static final int                DATABASE_SERVICES_STARTED_RUNLEVEL = 2;
+   
+   /** The Constant ISAAC_DEPENDENTS_RUNLEVEL. */
    public static final int                ISAAC_DEPENDENTS_RUNLEVEL          = 5;
+   
+   /** The Constant ISAAC_STARTED_RUNLEVEL. */
    public static final int                ISAAC_STARTED_RUNLEVEL             = 4;
+   
+   /** The Constant METADATA_STORE_STARTED_RUNLEVEL. */
    public static final int                METADATA_STORE_STARTED_RUNLEVEL    = -1;
+   
+   /** The Constant WORKERS_STARTED_RUNLEVEL. */
    public static final int                WORKERS_STARTED_RUNLEVEL           = -2;
+   
+   /** The Constant SYSTEM_STOPPED_RUNLEVEL. */
    public static final int                SYSTEM_STOPPED_RUNLEVEL            = -3;
+   
+   /** The Constant STARTUP_LOCK. */
    private static final Object            STARTUP_LOCK                       = new Object();
+   
+   /** The discovered validity value. */
    private static DatabaseValidity        discoveredValidityValue            = null;
 
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Stop all core isaac service, blocking until stopped (or failed)
+    * Stop all core isaac service, blocking until stopped (or failed).
     */
    public static void shutdownIsaac() {
       setRunLevel(WORKERS_STARTED_RUNLEVEL);
@@ -108,7 +131,7 @@ public class LookupService {
    }
 
    /**
-    * Stop all system services, blocking until stopped (or failed)
+    * Stop all system services, blocking until stopped (or failed).
     */
    public static void shutdownSystem() {
       if (isInitialized()) {
@@ -150,7 +173,7 @@ public class LookupService {
    }
 
    /**
-    * Start all core isaac services, blocking until started (or failed)
+    * Start all core isaac services, blocking until started (or failed).
     */
    public static void startupIsaac() {
       try {
@@ -227,6 +250,9 @@ public class LookupService {
       }
    }
 
+   /**
+    * Validate database folder status.
+    */
    /*
     * Check database directories. Either all must exist or none may exist. Inconsistent state suggests database
     * corruption
@@ -262,11 +288,18 @@ public class LookupService {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the current run level.
+    *
+    * @return the current run level
+    */
    public static int getCurrentRunLevel() {
       return getService(RunLevelController.class).getCurrentRunLevel();
    }
 
    /**
+    * Gets the.
+    *
     * @return the {@link ServiceLocator} that is managing this ISAAC instance
     */
    public static ServiceLocator get() {
@@ -334,10 +367,20 @@ public class LookupService {
       return looker;
    }
 
+   /**
+    * Checks if initialized.
+    *
+    * @return true, if initialized
+    */
    public static boolean isInitialized() {
       return looker != null;
    }
 
+   /**
+    * Checks if isaac started.
+    *
+    * @return true, if isaac started
+    */
    public static boolean isIsaacStarted() {
       return isInitialized() ? getService(RunLevelController.class).getCurrentRunLevel() >= ISAAC_STARTED_RUNLEVEL
                              : false;
@@ -346,8 +389,10 @@ public class LookupService {
    /**
     * Find a service by name, and automatically fall back to any service which implements the contract if the named service was not available.
     *
+    * @param <T> the generic type
     * @param contractOrService May not be null, and is the contract or concrete implementation to get the best instance of
     * @param name May be null (to indicate any name is ok), and is the name of the implementation to be returned
+    * @return the named service if possible
     */
    public static <T> T getNamedServiceIfPossible(Class<T> contractOrService, String name) {
       T service = null;
@@ -370,6 +415,11 @@ public class LookupService {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the run level.
+    *
+    * @param runLevel the new run level
+    */
    public static void setRunLevel(int runLevel) {
       final int current = getService(RunLevelController.class).getCurrentRunLevel();
 
@@ -393,6 +443,10 @@ public class LookupService {
 
    /**
     * Return the highest ranked service that implements the requested contract or implementation class.
+    *
+    * @param <T> the generic type
+    * @param contractOrImpl the contract or impl
+    * @return the service
     * @see ServiceLocator#getService(Class, Annotation...)
     */
    public static <T> T getService(Class<T> contractOrImpl) {
@@ -408,10 +462,11 @@ public class LookupService {
     * Find the best ranked service with the specified name.  If no service with the specified name is available,
     * this returns null (even if there is a service with another name [or no name] which would meet the contract)
     *
-    * @see ServiceLocator#getService(Class, String, Annotation...)
-    *
+    * @param <T> the generic type
     * @param contractOrService May not be null, and is the contract or concrete implementation to get the best instance of
     * @param name May not be null or empty
+    * @return the service
+    * @see ServiceLocator#getService(Class, String, Annotation...)
     */
    public static <T> T getService(Class<T> contractOrService, String name) {
       if (StringUtils.isEmpty(name)) {
@@ -428,6 +483,9 @@ public class LookupService {
 
    /**
     * Return true if and only if any service implements the requested contract or implementation class.
+    *
+    * @param contractOrImpl the contract or impl
+    * @return true, if successful
     * @see ServiceLocator#getService(Class, Annotation...)
     */
    public static boolean hasService(Class<?> contractOrImpl) {
@@ -438,10 +496,10 @@ public class LookupService {
     * Return true if and only if there is a service with the specified name.  If no service with the specified name is available,
     * this returns false (even if there is a service with another name [or no name] which would meet the contract)
     *
-    * @see ServiceLocator#getService(Class, String, Annotation...)
-    *
     * @param contractOrService May not be null, and is the contract or concrete implementation to get the best instance of
     * @param name May not be null or empty
+    * @return true, if successful
+    * @see ServiceLocator#getService(Class, String, Annotation...)
     */
    public static boolean hasService(Class<?> contractOrService, String name) {
       if (StringUtils.isEmpty(name)) {

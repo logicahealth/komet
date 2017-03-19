@@ -111,67 +111,111 @@ import sh.isaac.utility.Frills;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class VetsExporter.
+ */
 public class VetsExporter {
+   
+   /** The log. */
    private final Logger            log               = LogManager.getLogger();
+   
+   /** The designation types. */
    private final Map<UUID, String> designationTypes  = new HashMap<>();
+   
+   /** The property types. */
    private final Map<UUID, String> propertyTypes     = new HashMap<>();
+   
+   /** The relationship types. */
    private final Map<UUID, String> relationshipTypes = new HashMap<>();
+   
+   /** The assemblages map. */
    private final Map<UUID, String> assemblagesMap    = new HashMap<>();
+   
+   /** The subset map. */
    private final Map<String, Long> subsetMap         = new HashMap<>();
+   
+   /** The stamp coordinates. */
    private StampCoordinate   STAMP_COORDINATES = null;
+   
+   /** The ts. */
    TaxonomyService           ts                = Get.taxonomyService();
 
    // TODO: Source all the following hardcoded UUID values from MetaData, once available
    // ConceptChronology: VHAT Attribute Types <261> uuid:8287530a-b6b0-594d-bf46-252e09434f7e
+   /** The vhat property types UUID. */
    // VHAT Metadata -> "Attribute Types"
    final UUID vhatPropertyTypesUUID = UUID.fromString("8287530a-b6b0-594d-bf46-252e09434f7e");
+   
+   /** The vhat property types nid. */
    final int  vhatPropertyTypesNid  = Get.identifierService()
                                          .getNidForUuids(this.vhatPropertyTypesUUID);
 
    // ConceptChronology: Refsets (ISAAC) <325> uuid:fab80263-6dae-523c-b604-c69e450d8c7f
+   /** The vhat refset types UUID. */
    // VHAT Metadata -> "Refsets"
    final UUID vhatRefsetTypesUUID = UUID.fromString("fab80263-6dae-523c-b604-c69e450d8c7f");
+   
+   /** The vhat refset types nid. */
    final int  vhatRefsetTypesNid  = Get.identifierService()
                                        .getNidForUuids(this.vhatRefsetTypesUUID);
 
+   /** The code assemblage UUID. */
    // conceptChronology: CODE (ISAAC) <77> uuid:803af596-aea8-5184-b8e1-45f801585d17
    final UUID codeAssemblageUUID       = MetaData.CODE.getPrimordialUuid();
+   
+   /** The code assemblage concept seq. */
    final int  codeAssemblageConceptSeq = Get.identifierService()
                                             .getConceptSequenceForUuids(this.codeAssemblageUUID);
 
    // ConceptChronology: VHAT <1129> uuid:6e60d7fd-3729-5dd3-9ce7-6d97c8f75447
+   /** The vhat code system UUID. */
    // VHAT CodeSystem
    final UUID vhatCodeSystemUUID = UUID.fromString("6e60d7fd-3729-5dd3-9ce7-6d97c8f75447");
+   
+   /** The vhat code system nid. */
    final int  vhatCodeSystemNid  = Get.identifierService()
                                       .getNidForUuids(this.vhatCodeSystemUUID);
 
    // ConceptChronology: Preferred Name (ISAAC) <257> uuid:a20e5175-6257-516a-a97d-d7f9655916b8
+   /** The preferred name extended type. */
    // VHAT Description Types -> Preferred Name
    final UUID preferredNameExtendedType = UUID.fromString("a20e5175-6257-516a-a97d-d7f9655916b8");
 
    // ConceptChronology: Association Types (ISAAC) <309> uuid:55f56c52-757a-5db8-bf1e-3ed613711386
+   /** The vhat association types UUID. */
    // ISAAC Associations => RelationshipType UUID
    final UUID vhatAssociationTypesUUID = UUID.fromString("55f56c52-757a-5db8-bf1e-3ed613711386");
 
    // ConceptChronology: Description Types (ISAAC) <254> uuid:09c43aa9-eaed-5217-bc5f-23cacca4df38
+   /** The vhat designation types UUID. */
    // ISAAC Descriptions => DesignationType UUID
    final UUID vhatDesignationTypesUUID = UUID.fromString("09c43aa9-eaed-5217-bc5f-23cacca4df38");
 
+   /** The vhat all concepts UUID. */
    // ConceptChronology: All VHAT Concepts (ISAAC) <365> uuid:f2df3cf5-a426-50f9-a660-081a5ca22c70
    final UUID vhatAllConceptsUUID = UUID.fromString("f2df3cf5-a426-50f9-a660-081a5ca22c70");
 
+   /** The missing SDO code systems UUID. */
    // ConceptChronology: Missing SDO Code System Concepts <42268> uuid:52460eeb-1388-512d-a5e4-fddd64fe0aee
    final UUID          missingSDOCodeSystemsUUID = UUID.fromString("52460eeb-1388-512d-a5e4-fddd64fe0aee");
+   
+   /** The full export mode. */
    boolean             fullExportMode            = false;
+   
+   /** The terminology. */
    private Terminology terminology;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new vets exporter.
+    */
    public VetsExporter() {}
 
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Export.
     *
     * @param writeTo the output stream object handling the export
     * @param startDate only export concepts modified on or after this date.  Set to 0, if you want to start from the beginning
@@ -607,11 +651,12 @@ public class VetsExporter {
    }
 
    /**
+    * Builds the property.
     *
-    * @param sememe
-    * @param startDate
-    * @param endDate
-    * @param constructor
+    * @param sememe the sememe
+    * @param startDate the start date
+    * @param endDate the end date
+    * @param constructor the constructor
     * @return A PropertyType object for the property, or null
     */
    private PropertyType buildProperty(SememeChronology<?> sememe,
@@ -731,10 +776,11 @@ public class VetsExporter {
    }
 
    /**
+    * Builds the subset membership.
     *
     * @param sememe the Chronicle object (concept) representing the Subset
-    * @param startDate
-    * @param endDate
+    * @param startDate the start date
+    * @param endDate the end date
     * @return the SubsetMembership object built for the sememe, or null
     */
    private SubsetMembership buildSubsetMembership(SememeChronology<?> sememe, long startDate, long endDate) {
@@ -768,10 +814,11 @@ public class VetsExporter {
    }
 
    /**
+    * Determine action.
     *
-    * @param object
-    * @param startDate
-    * @param endDate
+    * @param object the object
+    * @param startDate the start date
+    * @param endDate the end date
     * @return the ActionType object representing the change
     */
    private ActionType determineAction(ObjectChronology<? extends StampedVersion> object, long startDate, long endDate) {
@@ -841,10 +888,11 @@ public class VetsExporter {
    }
 
    /**
+    * Read map entry types.
     *
-    * @param componentNid
-    * @param startDate
-    * @param endDate
+    * @param componentNid the component nid
+    * @param startDate the start date
+    * @param endDate the end date
     * @return a List of the MapEntry objects for the MapSet item
     */
    private List<Terminology.CodeSystem.Version.MapSets.MapSet.MapEntries.MapEntry> readMapEntryTypes(int componentNid,
@@ -983,11 +1031,12 @@ public class VetsExporter {
    }
 
    /**
+    * Read property types.
     *
-    * @param componentNid
-    * @param startDate
-    * @param endDate
-    * @param constructor
+    * @param componentNid the component nid
+    * @param startDate the start date
+    * @param endDate the end date
+    * @param constructor the constructor
     * @return a List of the PropertyType objects for the specific component
     */
    private List<PropertyType> readPropertyTypes(int componentNid,
@@ -1016,6 +1065,9 @@ public class VetsExporter {
    /**
     * Scan through all (nested) components associated with this concept, and the concept itself, and see if the latest edit
     * date for any component is within our filter range.
+    *
+    * @param concept the concept
+    * @param startDate the start date
     * @return true or false, if the concept or a nested value was modified within the date range
     */
    @SuppressWarnings("rawtypes")
@@ -1036,8 +1088,9 @@ public class VetsExporter {
    }
 
    /**
+    * Write xml.
     *
-    * @param writeTo
+    * @param writeTo the write to
     */
    private void writeXml(OutputStream writeTo) {
       try {
@@ -1055,8 +1108,9 @@ public class VetsExporter {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the code from nid.
     *
-    * @param componentNid
+    * @param componentNid the component nid
     * @return the Code value found based on the Nid
     */
    private String getCodeFromNid(int componentNid) {
@@ -1107,11 +1161,12 @@ public class VetsExporter {
    }
 
    /**
+    * Gets the designations.
     *
-    * @param concept
-    * @param startDate
-    * @param endDate
-    * @param constructor
+    * @param concept the concept
+    * @param startDate the start date
+    * @param endDate the end date
+    * @param constructor the constructor
     * @return a List of DesignationTypes for the concept
     */
    private List<DesignationType> getDesignations(ConceptChronology<?> concept,
@@ -1252,8 +1307,9 @@ public class VetsExporter {
    }
 
    /**
+    * Gets the preferred name description type.
     *
-    * @param conceptNid
+    * @param conceptNid the concept nid
     * @return the preferred description type for the concept
     */
    private String getPreferredNameDescriptionType(int conceptNid) {
@@ -1317,10 +1373,11 @@ public class VetsExporter {
    }
 
    /**
+    * Gets the relationships.
     *
-    * @param concept
-    * @param startDate
-    * @param endDate
+    * @param concept the concept
+    * @param startDate the start date
+    * @param endDate the end date
     * @return a List of Relationship objects for the concept
     */
    private List<Terminology.CodeSystem.Version.CodedConcepts.CodedConcept.Relationships.Relationship> getRelationships(
@@ -1412,9 +1469,10 @@ public class VetsExporter {
    }
 
    /**
+    * Checks for sememe modified in date range.
     *
-    * @param nid
-    * @param startDate
+    * @param nid the nid
+    * @param startDate the start date
     * @return true or false, if the sememe was modified in the date range
     */
    private boolean hasSememeModifiedInDateRange(int nid, long startDate) {

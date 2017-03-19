@@ -52,26 +52,27 @@ import java.util.function.Function;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * SearchResultsFilterException
+ * SearchResultsFilterException.
  *
  * @author <a href="mailto:joel.kniaz@gmail.com">Joel Kniaz</a>
- *
  */
 public class SearchResultsFilterException
         extends RuntimeException {
-   /**
-    *
-    */
+   
+   /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 1L;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The failed filter. */
    private final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> failedFilter;
 
    //~--- constructors --------------------------------------------------------
 
    /**
+    * Instantiates a new search results filter exception.
     *
+    * @param failedFilter the failed filter
     */
    public SearchResultsFilterException(Function<List<CompositeSearchResult>,
          List<CompositeSearchResult>> failedFilter) {
@@ -79,7 +80,9 @@ public class SearchResultsFilterException
    }
 
    /**
-    * @param cause
+    * Instantiates a new search results filter exception.
+    *
+    * @param cause the cause
     */
    public SearchResultsFilterException(SearchResultsFilterException cause) {
       super(cause);
@@ -87,7 +90,10 @@ public class SearchResultsFilterException
    }
 
    /**
-    * @param message
+    * Instantiates a new search results filter exception.
+    *
+    * @param failedFilter the failed filter
+    * @param message the message
     */
    public SearchResultsFilterException(Function<List<CompositeSearchResult>, List<CompositeSearchResult>> failedFilter,
          String message) {
@@ -96,7 +102,10 @@ public class SearchResultsFilterException
    }
 
    /**
-    * @param cause
+    * Instantiates a new search results filter exception.
+    *
+    * @param failedFilter the failed filter
+    * @param cause the cause
     */
    public SearchResultsFilterException(Function<List<CompositeSearchResult>, List<CompositeSearchResult>> failedFilter,
          Throwable cause) {
@@ -105,8 +114,11 @@ public class SearchResultsFilterException
    }
 
    /**
-    * @param message
-    * @param cause
+    * Instantiates a new search results filter exception.
+    *
+    * @param failedFilter the failed filter
+    * @param message the message
+    * @param cause the cause
     */
    public SearchResultsFilterException(Function<List<CompositeSearchResult>, List<CompositeSearchResult>> failedFilter,
          String message,
@@ -116,10 +128,12 @@ public class SearchResultsFilterException
    }
 
    /**
-    * @param message
-    * @param cause
-    * @param enableSuppression
-    * @param writableStackTrace
+    * Instantiates a new search results filter exception.
+    *
+    * @param message the message
+    * @param cause the cause
+    * @param enableSuppression the enable suppression
+    * @param writableStackTrace the writable stack trace
     */
    public SearchResultsFilterException(String message,
          SearchResultsFilterException cause,
@@ -130,10 +144,13 @@ public class SearchResultsFilterException
    }
 
    /**
-    * @param message
-    * @param cause
-    * @param enableSuppression
-    * @param writableStackTrace
+    * Instantiates a new search results filter exception.
+    *
+    * @param failedFilter the failed filter
+    * @param message the message
+    * @param cause the cause
+    * @param enableSuppression the enable suppression
+    * @param writableStackTrace the writable stack trace
     */
    public SearchResultsFilterException(Function<List<CompositeSearchResult>, List<CompositeSearchResult>> failedFilter,
          String message,

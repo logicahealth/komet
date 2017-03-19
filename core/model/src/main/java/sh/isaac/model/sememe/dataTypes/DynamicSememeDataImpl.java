@@ -57,23 +57,42 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeData}
+ * {@link DynamicSememeData}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public abstract class DynamicSememeDataImpl
          implements DynamicSememeData {
+   
+   /** The name provider. */
    private transient Supplier<String> nameProvider_ = null;
+   
+   /** The data. */
    protected byte[]                   data_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe data impl.
+    */
    protected DynamicSememeDataImpl() {}
 
+   /**
+    * Instantiates a new dynamic sememe data impl.
+    *
+    * @param data the data
+    */
    protected DynamicSememeDataImpl(byte[] data) {
       this.data_ = data;
    }
 
+   /**
+    * Instantiates a new dynamic sememe data impl.
+    *
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    protected DynamicSememeDataImpl(byte[] data, int assemblageSequence, int columnNumber) {
       this.data_ = data;
       configureNameProvider(assemblageSequence, columnNumber);
@@ -81,6 +100,12 @@ public abstract class DynamicSememeDataImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Configure name provider.
+    *
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    @Override
    public void configureNameProvider(int assemblageSequence, int columnNumber) {
       if (this.nameProvider_ == null) {
@@ -108,6 +133,11 @@ public abstract class DynamicSememeDataImpl
       }
    }
 
+   /**
+    * Data to string.
+    *
+    * @return the string
+    */
    @Override
    public String dataToString() {
       switch (this.getDynamicSememeDataType()) {
@@ -149,6 +179,10 @@ public abstract class DynamicSememeDataImpl
    }
 
    /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
     * @see java.lang.Object#equals(java.lang.Object)
     */
    @Override
@@ -175,6 +209,9 @@ public abstract class DynamicSememeDataImpl
    }
 
    /**
+    * Hash code.
+    *
+    * @return the int
     * @see java.lang.Object#hashCode()
     */
    @Override
@@ -187,6 +224,9 @@ public abstract class DynamicSememeDataImpl
    }
 
    /**
+    * To string.
+    *
+    * @return the string
     * @see java.lang.Object#toString()
     */
    @Override
@@ -197,7 +237,9 @@ public abstract class DynamicSememeDataImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data.
     *
+    * @return the data
     * @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData#getData()
     */
    @Override
@@ -206,6 +248,9 @@ public abstract class DynamicSememeDataImpl
    }
 
    /**
+    * Gets the dynamic sememe data type.
+    *
+    * @return the dynamic sememe data type
     * @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData#getDynamicSememeDataType()
     */
    @Override
@@ -213,6 +258,11 @@ public abstract class DynamicSememeDataImpl
       return DynamicSememeDataType.classToType(this.getClass());
    }
 
+   /**
+    * Gets the name.
+    *
+    * @return the name
+    */
    protected String getName() {
       return ((this.nameProvider_ == null) ? "???"
                                       : this.nameProvider_.get());

@@ -67,16 +67,25 @@ import sh.isaac.api.coordinate.StampCoordinate;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface IdentifierService.
  *
  * @author kec
  */
 @Contract
 public interface IdentifierService
         extends DatabaseServices {
+   
+   /** The Constant FIRST_NID. */
    static final int FIRST_NID = Integer.MIN_VALUE + 1;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the uuid for nid.
+    *
+    * @param uuid the uuid
+    * @param nid the nid
+    */
    void addUuidForNid(UUID uuid, int nid);
 
    /**
@@ -88,14 +97,40 @@ public interface IdentifierService
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the chronology type for nid.
+    *
+    * @param nid the nid
+    * @return the chronology type for nid
+    */
    ObjectChronologyType getChronologyTypeForNid(int nid);
 
+   /**
+    * Gets the concept identifier for authority.
+    *
+    * @param conceptId the concept id
+    * @param identifierAuthorityUuid the identifier authority uuid
+    * @param stampCoordinate the stamp coordinate
+    * @return the concept identifier for authority
+    */
    Optional<LatestVersion<String>> getConceptIdentifierForAuthority(int conceptId,
          UUID identifierAuthorityUuid,
          StampCoordinate stampCoordinate);
 
+   /**
+    * Gets the concept nid.
+    *
+    * @param conceptSequence the concept sequence
+    * @return the concept nid
+    */
    int getConceptNid(int conceptSequence);
 
+   /**
+    * Gets the concept nids for concept sequences.
+    *
+    * @param conceptSequences the concept sequences
+    * @return the concept nids for concept sequences
+    */
    IntStream getConceptNidsForConceptSequences(IntStream conceptSequences);
 
    /**
@@ -103,45 +138,130 @@ public interface IdentifierService
     * When retrieving concepts using the sequence, use the {@code ConceptService.getOptionalConcept(...)} to safely
     * retrieve concepts without the risk of null pointer exceptions if the concept is not yet written to the store
     * (as would be the case frequently when importing change sets, or loading a database).
-    * @param conceptNid
+    *
+    * @param conceptNid the concept nid
     * @return a concept sequence for the provided conceptNid.
     */
    int getConceptSequence(int conceptNid);
 
+   /**
+    * Gets the concept sequence for proxy.
+    *
+    * @param conceptProxy the concept proxy
+    * @return the concept sequence for proxy
+    */
    int getConceptSequenceForProxy(ConceptSpecification conceptProxy);
 
+   /**
+    * Gets the concept sequence for uuids.
+    *
+    * @param uuids the uuids
+    * @return the concept sequence for uuids
+    */
    int getConceptSequenceForUuids(Collection<UUID> uuids);
 
+   /**
+    * Gets the concept sequence for uuids.
+    *
+    * @param uuids the uuids
+    * @return the concept sequence for uuids
+    */
    int getConceptSequenceForUuids(UUID... uuids);
 
+   /**
+    * Gets the concept sequence stream.
+    *
+    * @return the concept sequence stream
+    */
    IntStream getConceptSequenceStream();
 
+   /**
+    * Gets the concept sequences for concept nids.
+    *
+    * @param conceptNidArray the concept nid array
+    * @return the concept sequences for concept nids
+    */
    ConceptSequenceSet getConceptSequencesForConceptNids(int[] conceptNidArray);
 
+   /**
+    * Gets the concept sequences for concept nids.
+    *
+    * @param componentNidSet the component nid set
+    * @return the concept sequences for concept nids
+    */
    ConceptSequenceSet getConceptSequencesForConceptNids(NidSet componentNidSet);
 
+   /**
+    * Gets the identifier for authority.
+    *
+    * @param nid the nid
+    * @param identifierAuthorityUuid the identifier authority uuid
+    * @param stampCoordinate the stamp coordinate
+    * @return the identifier for authority
+    */
    Optional<LatestVersion<String>> getIdentifierForAuthority(int nid,
          UUID identifierAuthorityUuid,
          StampCoordinate stampCoordinate);
 
    /**
+    * Gets the max nid.
     *
     * @return the maximum native identifier currently assigned.
     */
    int getMaxNid();
 
+   /**
+    * Gets the nid for proxy.
+    *
+    * @param conceptProxy the concept proxy
+    * @return the nid for proxy
+    */
    int getNidForProxy(ConceptSpecification conceptProxy);
 
+   /**
+    * Gets the nid for uuids.
+    *
+    * @param uuids the uuids
+    * @return the nid for uuids
+    */
    int getNidForUuids(Collection<UUID> uuids);
 
+   /**
+    * Gets the nid for uuids.
+    *
+    * @param uuids the uuids
+    * @return the nid for uuids
+    */
    int getNidForUuids(UUID... uuids);
 
+   /**
+    * Gets the parallel concept sequence stream.
+    *
+    * @return the parallel concept sequence stream
+    */
    IntStream getParallelConceptSequenceStream();
 
+   /**
+    * Gets the parallel sememe sequence stream.
+    *
+    * @return the parallel sememe sequence stream
+    */
    IntStream getParallelSememeSequenceStream();
 
+   /**
+    * Gets the sememe nid.
+    *
+    * @param sememeId the sememe id
+    * @return the sememe nid
+    */
    int getSememeNid(int sememeId);
 
+   /**
+    * Gets the sememe nids for sememe sequences.
+    *
+    * @param sememSequences the semem sequences
+    * @return the sememe nids for sememe sequences
+    */
    IntStream getSememeNidsForSememeSequences(IntStream sememSequences);
 
    /**
@@ -149,35 +269,101 @@ public interface IdentifierService
     * When retrieving sememes using the sequence, use the {@code SememeService.getOptionalSememe(int sememeSequence)} to safely
     * retrieve sememes without the risk of null pointer exceptions if the sememe is not yet written to the store
     * (as would be the case frequently when importing change sets, or loading a database).
-    * @param sememeId
+    *
+    * @param sememeId the sememe id
     * @return a concept sequence for the provided sememeId.
     */
    int getSememeSequence(int sememeId);
 
+   /**
+    * Gets the sememe sequence for uuids.
+    *
+    * @param uuids the uuids
+    * @return the sememe sequence for uuids
+    */
    int getSememeSequenceForUuids(Collection<UUID> uuids);
 
+   /**
+    * Gets the sememe sequence for uuids.
+    *
+    * @param uuids the uuids
+    * @return the sememe sequence for uuids
+    */
    int getSememeSequenceForUuids(UUID... uuids);
 
+   /**
+    * Gets the sememe sequence stream.
+    *
+    * @return the sememe sequence stream
+    */
    IntStream getSememeSequenceStream();
 
+   /**
+    * Gets the sememe sequences for sememe nids.
+    *
+    * @param sememeNidArray the sememe nid array
+    * @return the sememe sequences for sememe nids
+    */
    SememeSequenceSet getSememeSequencesForSememeNids(int[] sememeNidArray);
 
+   /**
+    * Checks for uuid.
+    *
+    * @param uuids the uuids
+    * @return true, if successful
+    */
    boolean hasUuid(Collection<UUID> uuids);
 
+   /**
+    * Checks for uuid.
+    *
+    * @param uuids the uuids
+    * @return true, if successful
+    */
    boolean hasUuid(UUID... uuids);
 
+   /**
+    * Gets the uuid array for nid.
+    *
+    * @param nid the nid
+    * @return the uuid array for nid
+    */
    default UUID[] getUuidArrayForNid(int nid) {
       final List<UUID> uuids = getUuidsForNid(nid);
 
       return uuids.toArray(new UUID[uuids.size()]);
    }
 
+   /**
+    * Gets the uuid primordial for nid.
+    *
+    * @param nid the nid
+    * @return the uuid primordial for nid
+    */
    Optional<UUID> getUuidPrimordialForNid(int nid);
 
+   /**
+    * Gets the uuid primordial from concept id.
+    *
+    * @param conceptId the concept id
+    * @return the uuid primordial from concept id
+    */
    Optional<UUID> getUuidPrimordialFromConceptId(int conceptId);
 
+   /**
+    * Gets the uuid primordial from sememe id.
+    *
+    * @param sememeId the sememe id
+    * @return the uuid primordial from sememe id
+    */
    Optional<UUID> getUuidPrimordialFromSememeId(int sememeId);
 
+   /**
+    * Gets the uuids for nid.
+    *
+    * @param nid the nid
+    * @return the uuids for nid
+    */
    List<UUID> getUuidsForNid(int nid);
 }
 

@@ -52,27 +52,69 @@ import sh.isaac.api.commit.CommitStates;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ObservableVersion.
  *
  * @author kec
  */
 public interface ObservableVersion
         extends MutableStampedVersion {
+   
+   /**
+    * Author sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty authorSequenceProperty();
 
+   /**
+    * Commit state property.
+    *
+    * @return the object property
+    */
    ObjectProperty<CommitStates> commitStateProperty();
 
+   /**
+    * Module sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty moduleSequenceProperty();
 
+   /**
+    * Path sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty pathSequenceProperty();
 
+   /**
+    * Stamp sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty stampSequenceProperty();
 
+   /**
+    * State property.
+    *
+    * @return the object property
+    */
    ObjectProperty<State> stateProperty();
 
+   /**
+    * Time property.
+    *
+    * @return the long property
+    */
    LongProperty timeProperty();
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the chronology.
+    *
+    * @return the chronology
+    */
    ObservableChronology<? extends ObservableVersion> getChronology();
 }
 

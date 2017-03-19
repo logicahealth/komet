@@ -133,6 +133,7 @@ import sh.isaac.model.ObjectVersionImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class CommitProvider.
  *
  * @author kec
  */
@@ -140,23 +141,50 @@ import sh.isaac.model.ObjectVersionImpl;
 @RunLevel(value = 1)
 public class CommitProvider
          implements CommitService {
+   
+   /** The Constant LOG. */
    private static final Logger LOG                                  = LogManager.getLogger();
+   
+   /** The Constant DEFAULT_CRADLE_COMMIT_MANAGER_FOLDER. */
    public static final String  DEFAULT_CRADLE_COMMIT_MANAGER_FOLDER = "commit-manager";
+   
+   /** The Constant COMMIT_MANAGER_DATA_FILENAME. */
    private static final String COMMIT_MANAGER_DATA_FILENAME         = "commit-manager.data";
+   
+   /** The Constant STAMP_ALIAS_MAP_FILENAME. */
    private static final String STAMP_ALIAS_MAP_FILENAME             = "stamp-alias.map";
+   
+   /** The Constant STAMP_COMMENT_MAP_FILENAME. */
    private static final String STAMP_COMMENT_MAP_FILENAME           = "stamp-comment.map";
+   
+   /** The Constant WRITE_POOL_SIZE. */
    private static final int    WRITE_POOL_SIZE                      = 40;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The uncommitted sequence lock. */
    private final ReentrantLock              uncommittedSequenceLock = new ReentrantLock();
+   
+   /** The write permit reference. */
    private final AtomicReference<Semaphore> writePermitReference =
       new AtomicReference<>(new Semaphore(WRITE_POOL_SIZE));
+   
+   /** The write completion service. */
    private final WriteCompletionService                           writeCompletionService = new WriteCompletionService();
+   
+   /** The change listeners. */
    ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners = new ConcurrentSkipListSet<>();
+   
+   /** The checkers. */
    private final ConcurrentSkipListSet<ChangeChecker>             checkers = new ConcurrentSkipListSet<>();
+   
+   /** The last commit. */
    private long                                                   lastCommit                = Long.MIN_VALUE;
+   
+   /** The load required. */
    private final AtomicBoolean                                          loadRequired              = new AtomicBoolean();
+   
+   /** The deferred import no check nids. */
    ThreadLocal<Set<Integer>>                                      deferredImportNoCheckNids = new ThreadLocal<>();
 
    /**
@@ -164,9 +192,7 @@ public class CommitProvider
     */
    private final ConcurrentSkipListSet<Alert> alertCollection = new ConcurrentSkipListSet<>();
 
-   /**
-    * Persistent map of a stamp aliases to a sequence
-    */
+   /** Persistent map of a stamp aliases to a sequence. */
    private final StampAliasMap stampAliasMap = new StampAliasMap();
 
    /**
@@ -174,24 +200,37 @@ public class CommitProvider
     */
    private final StampCommentMap stampCommentMap = new StampCommentMap();
 
-   /**
-    * Persistent sequence of database commit actions
-    */
+   /** Persistent sequence of database commit actions. */
    private final AtomicLong databaseSequence = new AtomicLong();
 
-   /**
-    * Persistent stamp sequence
-    */
+   /** Persistent stamp sequence. */
    private final ConceptSequenceSet uncommittedConceptsWithChecksSequenceSet = ConceptSequenceSet.concurrent();
+   
+   /** The uncommitted concepts no checks sequence set. */
    private final ConceptSequenceSet uncommittedConceptsNoChecksSequenceSet   = ConceptSequenceSet.concurrent();
+   
+   /** The uncommitted sememes with checks sequence set. */
    private final SememeSequenceSet  uncommittedSememesWithChecksSequenceSet  = SememeSequenceSet.concurrent();
+   
+   /** The uncommitted sememes no checks sequence set. */
    private final SememeSequenceSet  uncommittedSememesNoChecksSequenceSet    = SememeSequenceSet.concurrent();
+   
+   /** The database validity. */
    private DatabaseValidity         databaseValidity                         = DatabaseValidity.NOT_SET;
+   
+   /** The db folder path. */
    private final Path               dbFolderPath;
+   
+   /** The commit manager folder. */
    private final Path               commitManagerFolder;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new commit provider.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private CommitProvider()
             throws IOException {
       try {
@@ -216,6 +255,13 @@ public class CommitProvider
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the alias.
+    *
+    * @param stampSequence the stamp sequence
+    * @param stampAlias the stamp alias
+    * @param aliasCommitComment the alias commit comment
+    */
    @Override
    public void addAlias(int stampSequence, int stampAlias, String aliasCommitComment) {
       this.stampAliasMap.addAlias(stampSequence, stampAlias);
@@ -225,6 +271,11 @@ public class CommitProvider
       }
    }
 
+   /**
+    * Adds the change checker.
+    *
+    * @param checker the checker
+    */
    @Override
    public void addChangeChecker(ChangeChecker checker) {
       this.checkers.add(checker);
@@ -232,7 +283,9 @@ public class CommitProvider
 
    /**
     * Due to the use of Weak References in the implementation, you MUST maintain a reference to the change listener that is passed in here,
-    * otherwise, it will be rapidly garbage collected, and you will randomly stop getting change notifications!
+    * otherwise, it will be rapidly garbage collected, and you will randomly stop getting change notifications!.
+    *
+    * @param changeListener the change listener
     * @see sh.isaac.api.commit.CommitService#addChangeListener(sh.isaac.api.commit.ChronologyChangeListener)
     */
    @Override
@@ -240,50 +293,104 @@ public class CommitProvider
       this.changeListeners.add(new ChangeListenerReference(changeListener));
    }
 
+   /**
+    * Adds the uncommitted.
+    *
+    * @param cc the cc
+    * @return the task
+    */
    @Override
    public Task<Void> addUncommitted(ConceptChronology cc) {
       return checkAndWrite(cc, this.checkers, this.alertCollection, this.writePermitReference.get(), this.changeListeners);
    }
 
+   /**
+    * Adds the uncommitted.
+    *
+    * @param sc the sc
+    * @return the task
+    */
    @Override
    public Task<Void> addUncommitted(SememeChronology sc) {
       return checkAndWrite(sc, this.checkers, this.alertCollection, this.writePermitReference.get(), this.changeListeners);
    }
 
+   /**
+    * Adds the uncommitted no checks.
+    *
+    * @param cc the cc
+    * @return the task
+    */
    @Override
    public Task<Void> addUncommittedNoChecks(ConceptChronology cc) {
       return write(cc, this.writePermitReference.get(), this.changeListeners);
    }
 
+   /**
+    * Adds the uncommitted no checks.
+    *
+    * @param sc the sc
+    * @return the task
+    */
    @Override
    public Task<Void> addUncommittedNoChecks(SememeChronology sc) {
       return write(sc, this.writePermitReference.get(), this.changeListeners);
    }
 
+   /**
+    * Cancel.
+    *
+    * @return the task
+    */
    @Override
    public Task<Void> cancel() {
       return cancel(Get.configurationService()
                        .getDefaultEditCoordinate());
    }
 
+   /**
+    * Cancel.
+    *
+    * @param cc the cc
+    * @return the task
+    */
    @Override
    public Task<Void> cancel(ConceptChronology cc) {
       return cancel(cc, Get.configurationService()
                            .getDefaultEditCoordinate());
    }
 
+   /**
+    * Cancel.
+    *
+    * @param editCoordinate the edit coordinate
+    * @return the task
+    */
    @Override
    public Task<Void> cancel(EditCoordinate editCoordinate) {
       return Get.stampService()
                 .cancel(editCoordinate.getAuthorSequence());
    }
 
+   /**
+    * Cancel.
+    *
+    * @param sememeChronicle the sememe chronicle
+    * @return the task
+    */
    @Override
    public Task<Void> cancel(SememeChronology sememeChronicle) {
       return cancel(sememeChronicle, Get.configurationService()
                                         .getDefaultEditCoordinate());
    }
 
+   /**
+    * Cancel.
+    *
+    * @param chronicle the chronicle
+    * @param editCoordinate the edit coordinate
+    * @return the task
+    */
    @Override
    public Task<Void> cancel(ObjectChronology<?> chronicle, EditCoordinate editCoordinate) {
       final ObjectChronologyImpl    chronicleImpl = (ObjectChronologyImpl) chronicle;
@@ -328,6 +435,9 @@ public class CommitProvider
       return new SequentialAggregateTask<>("Canceling change", subTasks);
    }
 
+   /**
+    * Clear database validity value.
+    */
    @Override
    public void clearDatabaseValidityValue() {
       // Reset to enforce analysis
@@ -338,9 +448,7 @@ public class CommitProvider
     * Perform a global commit. The caller may chose to block on the returned
     * task if synchronous operation is desired.
     *
-    *
-    *
-    * @param commitComment
+    * @param commitComment the commit comment
     * @return a task that is already submitted to an executor.
     */
    @Override
@@ -375,12 +483,26 @@ public class CommitProvider
       }
    }
 
+   /**
+    * Commit.
+    *
+    * @param cc the cc
+    * @param commitComment the commit comment
+    * @return the task
+    */
    @Override
    public Task<Optional<CommitRecord>> commit(ConceptChronology cc, String commitComment) {
       return commit(cc, Get.configurationService()
                            .getDefaultEditCoordinate(), commitComment);
    }
 
+   /**
+    * Commit.
+    *
+    * @param editCoordinate the edit coordinate
+    * @param commitComment the commit comment
+    * @return the task
+    */
    @Override
    public Task<Optional<CommitRecord>> commit(EditCoordinate editCoordinate, String commitComment) {
       // TODO, make this only commit those components with changes from the provided edit coordinate.
@@ -420,12 +542,27 @@ public class CommitProvider
       // return task;
    }
 
+   /**
+    * Commit.
+    *
+    * @param cc the cc
+    * @param commitComment the commit comment
+    * @return the task
+    */
    @Override
    public Task<Optional<CommitRecord>> commit(SememeChronology cc, String commitComment) {
       return commit(cc, Get.configurationService()
                            .getDefaultEditCoordinate(), commitComment);
    }
 
+   /**
+    * Commit.
+    *
+    * @param chronicle the chronicle
+    * @param editCoordinate the edit coordinate
+    * @param commitComment the commit comment
+    * @return the task
+    */
    @Override
    public synchronized Task<Optional<CommitRecord>> commit(ObjectChronology<?> chronicle,
          EditCoordinate editCoordinate,
@@ -528,6 +665,11 @@ public class CommitProvider
       return task;
    }
 
+   /**
+    * Import no checks.
+    *
+    * @param ochreExternalizable the ochre externalizable
+    */
    @Override
    public void importNoChecks(OchreExternalizable ochreExternalizable) {
       switch (ochreExternalizable.getOchreObjectType()) {
@@ -567,11 +709,19 @@ public class CommitProvider
       }
    }
 
+   /**
+    * Increment and get sequence.
+    *
+    * @return the long
+    */
    @Override
    public long incrementAndGetSequence() {
       return this.databaseSequence.incrementAndGet();
    }
 
+   /**
+    * Post process import no checks.
+    */
    @Override
    public void postProcessImportNoChecks() {
       final Set<Integer> nids = this.deferredImportNoCheckNids.get();
@@ -598,20 +748,41 @@ public class CommitProvider
       }
    }
 
+   /**
+    * Removes the change checker.
+    *
+    * @param checker the checker
+    */
    @Override
    public void removeChangeChecker(ChangeChecker checker) {
       this.checkers.remove(checker);
    }
 
+   /**
+    * Removes the change listener.
+    *
+    * @param changeListener the change listener
+    */
    @Override
    public void removeChangeListener(ChronologyChangeListener changeListener) {
       this.changeListeners.remove(new ChangeListenerReference(changeListener));
    }
 
+   /**
+    * Adds the comment.
+    *
+    * @param stamp the stamp
+    * @param commitComment the commit comment
+    */
    protected void addComment(int stamp, String commitComment) {
       this.stampCommentMap.addComment(stamp, commitComment);
    }
 
+   /**
+    * Handle commit notification.
+    *
+    * @param commitRecord the commit record
+    */
    protected void handleCommitNotification(CommitRecord commitRecord) {
       this.changeListeners.forEach((listenerRef) -> {
                                  final ChronologyChangeListener listener = listenerRef.get();
@@ -624,6 +795,15 @@ public class CommitProvider
                               });
    }
 
+   /**
+    * Revert commit.
+    *
+    * @param conceptsToCommit the concepts to commit
+    * @param conceptsToCheck the concepts to check
+    * @param sememesToCommit the sememes to commit
+    * @param sememesToCheck the sememes to check
+    * @param pendingStampsForCommit the pending stamps for commit
+    */
    protected void revertCommit(ConceptSequenceSet conceptsToCommit,
                                ConceptSequenceSet conceptsToCheck,
                                SememeSequenceSet sememesToCommit,
@@ -645,6 +825,16 @@ public class CommitProvider
       }
    }
 
+   /**
+    * Check and write.
+    *
+    * @param cc the cc
+    * @param checkers the checkers
+    * @param alertCollection the alert collection
+    * @param writeSemaphore the write semaphore
+    * @param changeListeners the change listeners
+    * @return the task
+    */
    private Task<Void> checkAndWrite(ConceptChronology cc,
                                     ConcurrentSkipListSet<ChangeChecker> checkers,
                                     ConcurrentSkipListSet<Alert> alertCollection,
@@ -666,6 +856,16 @@ public class CommitProvider
       return task;
    }
 
+   /**
+    * Check and write.
+    *
+    * @param sc the sc
+    * @param checkers the checkers
+    * @param alertCollection the alert collection
+    * @param writeSemaphore the write semaphore
+    * @param changeListeners the change listeners
+    * @return the task
+    */
    private Task<Void> checkAndWrite(SememeChronology sc,
                                     ConcurrentSkipListSet<ChangeChecker> checkers,
                                     ConcurrentSkipListSet<Alert> alertCollection,
@@ -687,6 +887,11 @@ public class CommitProvider
       return task;
    }
 
+   /**
+    * Defer nid action.
+    *
+    * @param nid the nid
+    */
    private void deferNidAction(int nid) {
       Set<Integer> nids = this.deferredImportNoCheckNids.get();
 
@@ -698,6 +903,12 @@ public class CommitProvider
       nids.add(nid);
    }
 
+   /**
+    * Handle uncommitted sequence set.
+    *
+    * @param sememeOrConceptChronicle the sememe or concept chronicle
+    * @param changeCheckerActive the change checker active
+    */
    private void handleUncommittedSequenceSet(ObjectChronology sememeOrConceptChronicle, boolean changeCheckerActive) {
       try {
          this.uncommittedSequenceLock.lock();
@@ -741,6 +952,9 @@ public class CommitProvider
       }
    }
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       try {
@@ -775,6 +989,9 @@ public class CommitProvider
       }
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping CommitProvider pre-destroy. ");
@@ -799,6 +1016,14 @@ public class CommitProvider
       }
    }
 
+   /**
+    * Write.
+    *
+    * @param cc the cc
+    * @param writeSemaphore the write semaphore
+    * @param changeListeners the change listeners
+    * @return the task
+    */
    private Task<Void> write(ConceptChronology cc,
                             Semaphore writeSemaphore,
                             ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners) {
@@ -816,6 +1041,14 @@ public class CommitProvider
       return task;
    }
 
+   /**
+    * Write.
+    *
+    * @param sc the sc
+    * @param writeSemaphore the write semaphore
+    * @param changeListeners the change listeners
+    * @return the task
+    */
    private Task<Void> write(SememeChronology sc,
                             Semaphore writeSemaphore,
                             ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners) {
@@ -835,17 +1068,34 @@ public class CommitProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the alert list.
+    *
+    * @return the alert list
+    */
    @Override
    public ObservableList<Alert> getAlertList() {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Gets the aliases.
+    *
+    * @param stampSequence the stamp sequence
+    * @return the aliases
+    */
    @Override
    public int[] getAliases(int stampSequence) {
       return this.stampAliasMap.getAliases(stampSequence);
    }
 
+   /**
+    * Gets the comment.
+    *
+    * @param stampSequence the stamp sequence
+    * @return the comment
+    */
    @Override
    public Optional<String> getComment(int stampSequence) {
       return this.stampCommentMap.getComment(stampSequence);
@@ -853,6 +1103,12 @@ public class CommitProvider
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set comment.
+    *
+    * @param stampSequence the stamp sequence
+    * @param comment the comment
+    */
    @Override
    public void setComment(int stampSequence, String comment) {
       this.stampCommentMap.addComment(stampSequence, comment);
@@ -860,31 +1116,61 @@ public class CommitProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the commit manager sequence.
+    *
+    * @return the commit manager sequence
+    */
    @Override
    public long getCommitManagerSequence() {
       return this.databaseSequence.get();
    }
 
+   /**
+    * Gets the database folder.
+    *
+    * @return the database folder
+    */
    @Override
    public Path getDatabaseFolder() {
       return this.commitManagerFolder;
    }
 
+   /**
+    * Gets the database validity status.
+    *
+    * @return the database validity status
+    */
    @Override
    public DatabaseValidity getDatabaseValidityStatus() {
       return this.databaseValidity;
    }
 
+   /**
+    * Gets the stamp alias stream.
+    *
+    * @return the stamp alias stream
+    */
    @Override
    public Stream<StampAlias> getStampAliasStream() {
       return this.stampAliasMap.getStampAliasStream();
    }
 
+   /**
+    * Gets the stamp comment stream.
+    *
+    * @return the stamp comment stream
+    */
    @Override
    public Stream<StampComment> getStampCommentStream() {
       return this.stampCommentMap.getStampCommentStream();
    }
 
+   /**
+    * Gets the uncommitted component text summary.
+    *
+    * @return the uncommitted component text summary
+    */
    @Override
    public String getUncommittedComponentTextSummary() {
       final StringBuilder builder = new StringBuilder("CommitProvider summary: ");
@@ -900,6 +1186,11 @@ public class CommitProvider
       return builder.toString();
    }
 
+   /**
+    * Gets the uncommitted concept nids.
+    *
+    * @return the uncommitted concept nids
+    */
    @Override
    public ObservableList<Integer> getUncommittedConceptNids() {
       // need to create a list that can be backed with a set...
@@ -909,18 +1200,34 @@ public class CommitProvider
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class ChangeListenerReference.
+    */
    private static class ChangeListenerReference
            extends WeakReference<ChronologyChangeListener>
             implements Comparable<ChangeListenerReference> {
+      
+      /** The listener uuid. */
       UUID listenerUuid;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new change listener reference.
+       *
+       * @param referent the referent
+       */
       public ChangeListenerReference(ChronologyChangeListener referent) {
          super(referent);
          this.listenerUuid = referent.getListenerUuid();
       }
 
+      /**
+       * Instantiates a new change listener reference.
+       *
+       * @param referent the referent
+       * @param q the q
+       */
       public ChangeListenerReference(ChronologyChangeListener referent,
                                      ReferenceQueue<? super ChronologyChangeListener> q) {
          super(referent, q);
@@ -929,11 +1236,23 @@ public class CommitProvider
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Compare to.
+       *
+       * @param o the o
+       * @return the int
+       */
       @Override
       public int compareTo(ChangeListenerReference o) {
          return this.listenerUuid.compareTo(o.listenerUuid);
       }
 
+      /**
+       * Equals.
+       *
+       * @param obj the obj
+       * @return true, if successful
+       */
       @Override
       public boolean equals(Object obj) {
          if (obj == null) {
@@ -949,6 +1268,11 @@ public class CommitProvider
          return Objects.equals(this.listenerUuid, other.listenerUuid);
       }
 
+      /**
+       * Hash code.
+       *
+       * @return the int
+       */
       @Override
       public int hashCode() {
          int hash = 3;

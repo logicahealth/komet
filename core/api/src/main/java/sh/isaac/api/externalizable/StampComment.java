@@ -49,16 +49,26 @@ import sh.isaac.api.externalizable.OchreExternalizableObjectType;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StampComment.
  *
  * @author kec
  */
 public class StampComment
          implements OchreExternalizable {
+   
+   /** The comment. */
    private String comment;
+   
+   /** The stamp sequence. */
    private int    stampSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new stamp comment.
+    *
+    * @param in the in
+    */
    public StampComment(ByteArrayDataBuffer in) {
       final byte version = in.getByte();
 
@@ -71,6 +81,12 @@ public class StampComment
       }
    }
 
+   /**
+    * Instantiates a new stamp comment.
+    *
+    * @param comment the comment
+    * @param stampSequence the stamp sequence
+    */
    public StampComment(String comment, int stampSequence) {
       this.comment       = comment;
       this.stampSequence = stampSequence;
@@ -78,6 +94,11 @@ public class StampComment
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Put external.
+    *
+    * @param out the out
+    */
    @Override
    public void putExternal(ByteArrayDataBuffer out) {
       out.putByte(getDataFormatVersion());
@@ -86,6 +107,11 @@ public class StampComment
       out.putUTF(this.comment);
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "StampComment{" + "comment='" + this.comment + '\'' + ", stampSequence=" + this.stampSequence + '}';
@@ -93,20 +119,40 @@ public class StampComment
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the comment.
+    *
+    * @return the comment
+    */
    public String getComment() {
       return this.comment;
    }
 
+   /**
+    * Gets the data format version.
+    *
+    * @return the data format version
+    */
    @Override
    public byte getDataFormatVersion() {
       return 0;
    }
 
+   /**
+    * Gets the ochre object type.
+    *
+    * @return the ochre object type
+    */
    @Override
    public OchreExternalizableObjectType getOchreObjectType() {
       return OchreExternalizableObjectType.STAMP_COMMENT;
    }
 
+   /**
+    * Gets the stamp sequence.
+    *
+    * @return the stamp sequence
+    */
    public int getStampSequence() {
       return this.stampSequence;
    }

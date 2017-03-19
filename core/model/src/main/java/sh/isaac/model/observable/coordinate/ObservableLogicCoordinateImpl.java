@@ -61,6 +61,7 @@ import sh.isaac.model.observable.ObservableFields;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableLogicCoordinateImpl.
  *
  * @author kec
  */
@@ -69,22 +70,40 @@ import sh.isaac.model.observable.ObservableFields;
 public class ObservableLogicCoordinateImpl
         extends ObservableCoordinateImpl
          implements ObservableLogicCoordinate {
+   
+   /** The logic coordinate. */
    LogicCoordinateImpl logicCoordinate;
+   
+   /** The stated assemblage sequence property. */
    @XmlTransient
    IntegerProperty     statedAssemblageSequenceProperty;
+   
+   /** The inferred assemblage sequence property. */
    @XmlTransient
    IntegerProperty     inferredAssemblageSequenceProperty;
+   
+   /** The description logic profile sequence property. */
    @XmlTransient
    IntegerProperty     descriptionLogicProfileSequenceProperty;
+   
+   /** The classifier sequence property. */
    @XmlTransient
    IntegerProperty     classifierSequenceProperty;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new observable logic coordinate impl.
+    */
    private ObservableLogicCoordinateImpl() {
       // for jaxb
    }
 
+   /**
+    * Instantiates a new observable logic coordinate impl.
+    *
+    * @param logicCoordinate the logic coordinate
+    */
    public ObservableLogicCoordinateImpl(LogicCoordinate logicCoordinate) {
       if (logicCoordinate instanceof ObservableLogicCoordinateImpl) {
          this.logicCoordinate = ((ObservableLogicCoordinateImpl) logicCoordinate).logicCoordinate;
@@ -95,6 +114,11 @@ public class ObservableLogicCoordinateImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Classifier sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty classifierSequenceProperty() {
       if (this.classifierSequenceProperty == null) {
@@ -107,6 +131,11 @@ public class ObservableLogicCoordinateImpl
       return this.classifierSequenceProperty;
    }
 
+   /**
+    * Description logic profile sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty descriptionLogicProfileSequenceProperty() {
       if (this.descriptionLogicProfileSequenceProperty == null) {
@@ -120,16 +149,32 @@ public class ObservableLogicCoordinateImpl
       return this.descriptionLogicProfileSequenceProperty;
    }
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       return this.logicCoordinate.equals(obj);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       return this.logicCoordinate.hashCode();
    }
 
+   /**
+    * Inferred assemblage sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty inferredAssemblageSequenceProperty() {
       if (this.inferredAssemblageSequenceProperty == null) {
@@ -142,6 +187,11 @@ public class ObservableLogicCoordinateImpl
       return this.inferredAssemblageSequenceProperty;
    }
 
+   /**
+    * Stated assemblage sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty statedAssemblageSequenceProperty() {
       if (this.statedAssemblageSequenceProperty == null) {
@@ -154,6 +204,11 @@ public class ObservableLogicCoordinateImpl
       return this.statedAssemblageSequenceProperty;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "ObservableLogicCoordinateImpl{" + this.logicCoordinate.toString() + '}';
@@ -161,6 +216,11 @@ public class ObservableLogicCoordinateImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the classifier sequence.
+    *
+    * @return the classifier sequence
+    */
    @Override
    public int getClassifierSequence() {
       if (this.classifierSequenceProperty != null) {
@@ -170,6 +230,11 @@ public class ObservableLogicCoordinateImpl
       return this.logicCoordinate.getClassifierSequence();
    }
 
+   /**
+    * Gets the description logic profile sequence.
+    *
+    * @return the description logic profile sequence
+    */
    @Override
    public int getDescriptionLogicProfileSequence() {
       if (this.descriptionLogicProfileSequenceProperty != null) {
@@ -179,6 +244,11 @@ public class ObservableLogicCoordinateImpl
       return this.logicCoordinate.getDescriptionLogicProfileSequence();
    }
 
+   /**
+    * Gets the inferred assemblage sequence.
+    *
+    * @return the inferred assemblage sequence
+    */
    @Override
    public int getInferredAssemblageSequence() {
       if (this.inferredAssemblageSequenceProperty != null) {
@@ -188,6 +258,11 @@ public class ObservableLogicCoordinateImpl
       return this.logicCoordinate.getInferredAssemblageSequence();
    }
 
+   /**
+    * Gets the stated assemblage sequence.
+    *
+    * @return the stated assemblage sequence
+    */
    @Override
    public int getStatedAssemblageSequence() {
       if (this.statedAssemblageSequenceProperty != null) {

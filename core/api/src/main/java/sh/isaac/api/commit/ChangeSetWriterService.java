@@ -78,10 +78,10 @@ public interface ChangeSetWriterService {
     * flush any unwritten data, close the underlying file writer(s), and block further writes to disk until
     * resume is called. This feature is useful when you want to ensure the file on disk doesn't change while another thread picks
     * up the file and pushes it to git, for example.
-    *
+    * 
     * Ensure that if pause() is called, that resume is called from the same thread.
     *
-    * @throws IOException
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public void pause()
             throws IOException;
@@ -90,7 +90,7 @@ public interface ChangeSetWriterService {
     * open the file writer (closed by a {@link #pause()}) and unblock any blocked write calls.
     * Ensure that if pause() is called, that resume is called from the same thread.
     *
-    * @throws IOException
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public void resume()
             throws IOException;
@@ -99,6 +99,8 @@ public interface ChangeSetWriterService {
 
    /**
     * Return the path to the folder that contains the changesets.
+    *
+    * @return the write folder
     */
    public Path getWriteFolder();
 

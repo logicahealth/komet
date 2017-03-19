@@ -65,16 +65,36 @@ import sh.isaac.model.logic.node.external.RoleNodeSomeWithUuids;
  */
 public final class RoleNodeSomeWithSequences
         extends TypedNodeWithSequences {
+   
+   /**
+    * Instantiates a new role node some with sequences.
+    *
+    * @param externalForm the external form
+    */
    public RoleNodeSomeWithSequences(RoleNodeSomeWithUuids externalForm) {
       super(externalForm);
    }
 
+   /**
+    * Instantiates a new role node some with sequences.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public RoleNodeSomeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
                                     DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
    }
 
+   /**
+    * Instantiates a new role node some with sequences.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param typeConceptId the type concept id
+    * @param child the child
+    */
    public RoleNodeSomeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
                                     int typeConceptId,
                                     AbstractLogicNode child) {
@@ -83,16 +103,34 @@ public final class RoleNodeSomeWithSequences
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
       return "Some[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
 
+   /**
+    * Write node data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
@@ -112,12 +150,23 @@ public final class RoleNodeSomeWithSequences
       }
    }
 
+   /**
+    * Compare typed node fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    protected int compareTypedNodeFields(LogicNode o) {
       // node semantic already determined equals.
       return 0;
    }
 
+   /**
+    * Inits the node uuid.
+    *
+    * @return the uuid
+    */
    @Override
    protected UUID initNodeUuid() {
       return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
@@ -129,6 +178,11 @@ public final class RoleNodeSomeWithSequences
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the node semantic.
+    *
+    * @return the node semantic
+    */
    @Override
    public NodeSemantic getNodeSemantic() {
       return NodeSemantic.ROLE_SOME;

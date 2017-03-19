@@ -49,25 +49,48 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Created by kec on 11/4/14.
  */
 public class QueryFactory {
+   
+   /**
+    * Creates a new Query object.
+    *
+    * @return the query
+    */
    public static Query createQuery() {
       return new QueryFromFactory();
    }
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * A factory for creating QueryFrom objects.
+    */
    @XmlRootElement(name = "query")
    public static class QueryFromFactory
            extends Query {
+      
+      /**
+       * Let.
+       */
       @Override
       public void Let() {
          // Set directly by Jaxb
       }
 
+      /**
+       * Where.
+       *
+       * @return the clause
+       */
       @Override
       public Clause Where() {
          return this.rootClause[0];
       }
 
+      /**
+       * For set specification.
+       *
+       * @return the for set specification
+       */
       @Override
       protected ForSetSpecification ForSetSpecification() {
          final ForSetSpecification forSetSpec = new ForSetSpecification();

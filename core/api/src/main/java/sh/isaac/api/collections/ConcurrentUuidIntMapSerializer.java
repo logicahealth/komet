@@ -58,11 +58,16 @@ import sh.isaac.api.collections.uuidnidmap.ConcurrentUuidToIntHashMap;
  */
 public class ConcurrentUuidIntMapSerializer
          implements DataSerializer<ConcurrentUuidToIntHashMap>, Serializable {
-   /**
-	 * 
-	 */
+   
+   /** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
+/**
+ * Deserialize.
+ *
+ * @param input the input
+ * @return the concurrent uuid to int hash map
+ */
 @Override
    public ConcurrentUuidToIntHashMap deserialize(DataInput input) {
       try {
@@ -93,6 +98,12 @@ public class ConcurrentUuidIntMapSerializer
       }
    }
 
+   /**
+    * Serialize.
+    *
+    * @param out the out
+    * @param map the map
+    */
    @Override
    public void serialize(DataOutput out, ConcurrentUuidToIntHashMap map) {
       try {

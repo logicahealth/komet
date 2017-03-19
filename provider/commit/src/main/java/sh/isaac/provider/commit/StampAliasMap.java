@@ -79,18 +79,35 @@ import sh.isaac.api.externalizable.StampComment;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StampAliasMap.
  *
  * @author kec
  */
 public class StampAliasMap {
+   
+   /** The rwl. */
    private final ReentrantReadWriteLock rwl           = new ReentrantReadWriteLock();
+   
+   /** The read. */
    private final Lock                   read          = this.rwl.readLock();
+   
+   /** The write. */
    private final Lock                   write         = this.rwl.writeLock();
+   
+   /** The stamp alias map. */
    NativeIntIntHashMap                  stampAliasMap = new NativeIntIntHashMap();
+   
+   /** The alias stamp map. */
    NativeIntIntHashMap                  aliasStampMap = new NativeIntIntHashMap();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the alias.
+    *
+    * @param stamp the stamp
+    * @param alias the alias
+    */
    public void addAlias(int stamp, int alias) {
       try {
          this.write.lock();
@@ -111,6 +128,12 @@ public class StampAliasMap {
       }
    }
 
+   /**
+    * Read.
+    *
+    * @param mapFile the map file
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void read(File mapFile)
             throws IOException {
       try (DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(mapFile)))) {
@@ -131,6 +154,12 @@ public class StampAliasMap {
       }
    }
 
+   /**
+    * Write.
+    *
+    * @param mapFile the map file
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void write(File mapFile)
             throws IOException {
       try (DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(mapFile)))) {
@@ -162,8 +191,9 @@ public class StampAliasMap {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the aliases.
     *
-    * @param stamp
+    * @param stamp the stamp
     * @return array of unique aliases, which do not include the stamp itself.
     */
    public int[] getAliases(int stamp) {
@@ -184,6 +214,13 @@ public class StampAliasMap {
       }
    }
 
+   /**
+    * Gets the aliases forward.
+    *
+    * @param stamp the stamp
+    * @param builder the builder
+    * @return the aliases forward
+    */
    private void getAliasesForward(int stamp, IntStream.Builder builder) {
       if (this.stampAliasMap.containsKey(stamp)) {
          final int alias = this.stampAliasMap.get(stamp);
@@ -193,6 +230,13 @@ public class StampAliasMap {
       }
    }
 
+   /**
+    * Gets the aliases reverse.
+    *
+    * @param stamp the stamp
+    * @param builder the builder
+    * @return the aliases reverse
+    */
    private void getAliasesReverse(int stamp, IntStream.Builder builder) {
       if (this.aliasStampMap.containsKey(stamp)) {
          final int alias = this.aliasStampMap.get(stamp);
@@ -202,26 +246,49 @@ public class StampAliasMap {
       }
    }
 
+   /**
+    * Gets the size.
+    *
+    * @return the size
+    */
    public int getSize() {
       assert this.stampAliasMap.size() == this.aliasStampMap.size():
              "stampAliasMap.size() = " + this.stampAliasMap.size() + " aliasStampMap.size() = " + this.aliasStampMap.size();
       return this.aliasStampMap.size();
    }
 
+   /**
+    * Gets the stamp alias stream.
+    *
+    * @return the stamp alias stream
+    */
    public Stream<StampAlias> getStampAliasStream() {
       return StreamSupport.stream(new StampAliasSpliterator(), false);
    }
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class StampAliasSpliterator.
+    */
    private class StampAliasSpliterator
            extends IndexedStampSequenceSpliterator<StampAlias> {
+      
+      /**
+       * Instantiates a new stamp alias spliterator.
+       */
       public StampAliasSpliterator() {
          super(StampAliasMap.this.aliasStampMap.keys());
       }
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Try advance.
+       *
+       * @param action the action
+       * @return true, if successful
+       */
       @Override
       public boolean tryAdvance(Consumer<? super StampAlias> action) {
          if (getIterator().hasNext()) {

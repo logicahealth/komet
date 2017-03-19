@@ -62,23 +62,39 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StampUniversal.
  *
  * @author kec
  */
 public class StampUniversal {
+   
+   /** The status. */
    @XmlAttribute
    public State status;
+   
+   /** The time. */
    @XmlAttribute
    public long  time;
+   
+   /** The author uuid. */
    @XmlAttribute
    public UUID  authorUuid;
+   
+   /** The module uuid. */
    @XmlAttribute
    public UUID  moduleUuid;
+   
+   /** The path uuid. */
    @XmlAttribute
    public UUID  pathUuid;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new stamp universal.
+    *
+    * @param in the in
+    */
    public StampUniversal(ByteArrayDataBuffer in) {
       this.status     = State.getFromBoolean(in.getBoolean());
       this.time       = in.getLong();
@@ -87,6 +103,11 @@ public class StampUniversal {
       this.pathUuid   = new UUID(in.getLong(), in.getLong());
    }
 
+   /**
+    * Instantiates a new stamp universal.
+    *
+    * @param stamp the stamp
+    */
    public StampUniversal(int stamp) {
       final StampService      stampService = Get.stampService();
       final IdentifierService idService    = Get.identifierService();
@@ -103,6 +124,11 @@ public class StampUniversal {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Write external.
+    *
+    * @param out the out
+    */
    public void writeExternal(ByteArrayDataBuffer out) {
       out.putBoolean(this.status.getBoolean());
       out.putLong(this.time);
@@ -116,26 +142,58 @@ public class StampUniversal {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the author uuid.
+    *
+    * @return the author uuid
+    */
    public UUID getAuthorUuid() {
       return this.authorUuid;
    }
 
+   /**
+    * Gets the.
+    *
+    * @param in the in
+    * @return the stamp universal
+    */
    public static StampUniversal get(ByteArrayDataBuffer in) {
       return new StampUniversal(in);
    }
 
+   /**
+    * Gets the.
+    *
+    * @param stampSequence the stamp sequence
+    * @return the stamp universal
+    */
    public static StampUniversal get(int stampSequence) {
       return new StampUniversal(stampSequence);
    }
 
+   /**
+    * Gets the module uuid.
+    *
+    * @return the module uuid
+    */
    public UUID getModuleUuid() {
       return this.moduleUuid;
    }
 
+   /**
+    * Gets the path uuid.
+    *
+    * @return the path uuid
+    */
    public UUID getPathUuid() {
       return this.pathUuid;
    }
 
+   /**
+    * Gets the stamp sequence.
+    *
+    * @return the stamp sequence
+    */
    public int getStampSequence() {
       final IdentifierService idService = Get.identifierService();
 
@@ -147,10 +205,20 @@ public class StampUniversal {
                                   idService.getConceptSequenceForUuids(this.pathUuid));
    }
 
+   /**
+    * Gets the status.
+    *
+    * @return the status
+    */
    public State getStatus() {
       return this.status;
    }
 
+   /**
+    * Gets the time.
+    *
+    * @return the time
+    */
    public long getTime() {
       return this.time;
    }

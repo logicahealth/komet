@@ -76,29 +76,42 @@ import sh.isaac.api.util.FortifyFun;
 )
 public class ExternalCodeExecutor
         extends AbstractMojo {
+   
+   /** The skip execution. */
    @Parameter(
       required                                 = false,
       defaultValue                             = "false"
    )
    protected boolean             skipExecution = false;;
+   
+   /** The project version. */
    @Parameter(
       required                                 = true,
       defaultValue                             = "${project.version}"
    )
    protected String              projectVersion;
+   
+   /** The output directory. */
    @Parameter(
       required     = true,
       defaultValue = "${project.build.directory}"
    )
    protected File                outputDirectory;
+   
+   /** The quasi mojo name. */
    @Parameter(required = true)
    protected String              quasiMojoName;
+   
+   /** The parameters. */
    @Parameter(required = false)
    protected Map<String, String> parameters;
 
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
     * @see org.apache.maven.plugin.Mojo#execute()
     */
    @Override

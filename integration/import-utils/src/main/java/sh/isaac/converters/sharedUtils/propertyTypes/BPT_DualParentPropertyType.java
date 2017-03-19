@@ -58,12 +58,18 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
  */
 public abstract class BPT_DualParentPropertyType
         extends PropertyType {
+   
+   /** The second parent name. */
    private final String secondParentName_;  // Typically "Term-name Refsets" under "Project Refsets" or "Term-name Descriptions" under "Descriptions in source terminology, etc
+   
+   /** The second parent id. */
    private UUID secondParentId_;  // calculated from above, but may have semantic tag stuff added.
 
    //~--- constructors --------------------------------------------------------
 
    /**
+    * Instantiates a new BP T dual parent property type.
+    *
     * @param propertyTypeDescription - The name used for the property category within the terminology specific hierarchy -typically something like
     * "Attribute Types" or "Association Types".  This text is also used to construct the UUID for this property type grouping.
     * @param descriptionWithCodeSystemName - a second name used to create a concept in a more generic hierarcy - should be a value such as "{Term-name} Descriptions"
@@ -81,16 +87,31 @@ public abstract class BPT_DualParentPropertyType
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the second parent id.
+    *
+    * @param secondParentId the new second parent id
+    */
    public void setSecondParentId(UUID secondParentId) {
       this.secondParentId_ = secondParentId;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the second parent name.
+    *
+    * @return the second parent name
+    */
    public String getSecondParentName() {
       return this.secondParentName_;
    }
 
+   /**
+    * Gets the second parent UUID.
+    *
+    * @return the second parent UUID
+    */
    public UUID getSecondParentUUID() {
       if (this.secondParentId_ == null) {
          throw new RuntimeException("Second parent ID not yet calculated!");

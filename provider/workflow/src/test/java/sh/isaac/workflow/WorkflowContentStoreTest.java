@@ -75,15 +75,17 @@ import sh.isaac.provider.workflow.model.contents.ProcessHistory;
 /**
  * Test both static and user based workflow content as defined in the
  * metacontent-store
- *
- * {@link WorkflowContentStore} {@link WorkflowProvider}
+ * 
+ * {@link WorkflowContentStore} {@link WorkflowProvider}.
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 public class WorkflowContentStoreTest {
+   
    /**
     * Tear down.
-    * @throws IOException
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    @After
    public void tearDown()

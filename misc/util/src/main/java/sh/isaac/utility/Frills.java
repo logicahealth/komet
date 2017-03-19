@@ -152,13 +152,22 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class Frills.
+ */
 //This is a service, simply to implement the DynamicSememeColumnUtility interface.  Everythign else is static, and may be used directly
 @Service
 @Singleton
 public class Frills
          implements DynamicSememeColumnUtility {
+   
+   /** The log. */
    private static Logger                     log                = LogManager.getLogger(Frills.class);
+   
+   /** The is association cache. */
    private static LruCache<Integer, Boolean> isAssociationCache = new LruCache<>(50);
+   
+   /** The is mapping cache. */
    private static LruCache<Integer, Boolean> isMappingCache     = new LruCache<>(50);
 
    //~--- methods -------------------------------------------------------------
@@ -166,12 +175,12 @@ public class Frills
    /**
     * Build, without committing, a new concept using the provided columnName and columnDescription values which is suitable
     * for use as a column descriptor within {@link DynamicSememeUsageDescription}.
-    *
+    * 
     * The new concept will be created under the concept {@link DynamicSememeConstants#DYNAMIC_SEMEME_COLUMNS}
-    *
+    * 
     * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
     * to be created) would look roughly like this:
-    *
+    * 
     * DynamicSememeUtility.createNewDynamicSememeUsageDescriptionConcept(
     *       "The name of the Sememe",
     *       "The description of the Sememe",
@@ -185,9 +194,13 @@ public class Frills
     *               new DynamicSememeStringImpl("default value")
     *               )}
     *       )
-    *
+    * 
     * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
-    * @throws RuntimeException
+    *
+    * @param columnName the column name
+    * @param columnDescription the column description
+    * @return the concept chronology<? extends concept version<?>>
+    * @throws RuntimeException the runtime exception
     */
    @SuppressWarnings("deprecation")
    public static ConceptChronology<? extends ConceptVersion<?>> buildNewDynamicSememeColumnInfoConcept(
@@ -252,15 +265,15 @@ public class Frills
     * This method returns an uncommitted refexUsageDescriptor concept chronology.
     * A DynamicSememeUsageDescription may be constructed by passing it to the DynamicSememeUsageDescriptionImpl ctor.
     *
-    * @param sememeFSN
-    * @param sememePreferredTerm
-    * @param sememeDescription
-    * @param columns
-    * @param parentConceptNidOrSequence
-    * @param referencedComponentRestriction
-    * @param referencedComponentSubRestriction
-    * @param editCoord
-    * @return
+    * @param sememeFSN the sememe FSN
+    * @param sememePreferredTerm the sememe preferred term
+    * @param sememeDescription the sememe description
+    * @param columns the columns
+    * @param parentConceptNidOrSequence the parent concept nid or sequence
+    * @param referencedComponentRestriction the referenced component restriction
+    * @param referencedComponentSubRestriction the referenced component sub restriction
+    * @param editCoord the edit coord
+    * @return the concept chronology<? extends concept version<?>>
     */
    @SuppressWarnings("deprecation")
    public static ConceptChronology<? extends ConceptVersion<?>> buildUncommittedNewDynamicSememeUsageDescription(
@@ -372,12 +385,12 @@ public class Frills
    /**
     * Create a new concept using the provided columnName and columnDescription values which is suitable
     * for use as a column descriptor within {@link DynamicSememeUsageDescription}.
-    *
+    * 
     * The new concept will be created under the concept {@link DynamicSememeConstants#DYNAMIC_SEMEME_COLUMNS}
-    *
+    * 
     * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
     * to be created) would look roughly like this:
-    *
+    * 
     * DynamicSememeUtility.createNewDynamicSememeUsageDescriptionConcept(
     *       "The name of the Sememe",
     *       "The description of the Sememe",
@@ -391,9 +404,13 @@ public class Frills
     *               new DynamicSememeStringImpl("default value")
     *               )}
     *       )
-    *
+    * 
     * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
-    * @throws RuntimeException
+    *
+    * @param columnName the column name
+    * @param columnDescription the column description
+    * @return the concept chronology<? extends concept version<?>>
+    * @throws RuntimeException the runtime exception
     */
    @SuppressWarnings("deprecation")
    public static ConceptChronology<? extends ConceptVersion<?>> createNewDynamicSememeColumnInfoConcept(
@@ -419,12 +436,14 @@ public class Frills
 
    /**
     * See {@link DynamicSememeUsageDescription} for the full details on what this builds.
-    *
+    * 
     * Does all the work to create a new concept that is suitable for use as an Assemblage Concept for a new style Dynamic Sememe.
-    *
+    * 
     * The concept will be created under the concept {@link DynamicSememeConstants#DYNAMIC_SEMEME_ASSEMBLAGES} if a parent is not specified
-    *
+    * 
     * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
+    *
+    * @param sememeFSN the sememe FSN
     * @param sememePreferredTerm - The preferred term for this refex concept that will be created.
     * @param sememeDescription - A user friendly string the explains the overall intended purpose of this sememe (what it means, what it stores)
     * @param columns - The column information for this new refex.  May be an empty list or null.
@@ -468,6 +487,12 @@ public class Frills
       return new DynamicSememeUsageDescriptionImpl(newDynamicSememeUsageDescriptionConcept.getNid());
    }
 
+   /**
+    * Defines association.
+    *
+    * @param conceptSequence the concept sequence
+    * @return true, if successful
+    */
    public static boolean definesAssociation(int conceptSequence) {
       if (isAssociationCache.containsKey(conceptSequence)) {
          return isAssociationCache.get(conceptSequence);
@@ -484,10 +509,22 @@ public class Frills
       return temp;
    }
 
+   /**
+    * Defines dynamic sememe.
+    *
+    * @param conceptSequence the concept sequence
+    * @return true, if successful
+    */
    public static boolean definesDynamicSememe(int conceptSequence) {
       return DynamicSememeUsageDescriptionImpl.isDynamicSememe(conceptSequence);
    }
 
+   /**
+    * Defines mapping.
+    *
+    * @param conceptSequence the concept sequence
+    * @return true, if successful
+    */
    public static boolean definesMapping(int conceptSequence) {
       if (isMappingCache.containsKey(conceptSequence)) {
          return isMappingCache.get(conceptSequence);
@@ -506,7 +543,8 @@ public class Frills
 
    /**
     * Convenience method to find the nearest concept related to a sememe.  Recursively walks referenced components until it finds a concept.
-    * @param nid
+    *
+    * @param nid the nid
     * @return the nearest concept sequence, or -1, if no concept can be found.
     */
    public static int findConcept(int nid) {
@@ -569,10 +607,9 @@ public class Frills
    }
 
    /**
+    * All done in a background thread, method returns immediately.
     *
-    * All done in a background thread, method returns immediately
-    *
-    * @param identifier - The NID to search for
+    * @param nid the nid
     * @param callback - who to inform when lookup completes
     * @param callId - An arbitrary identifier that will be returned to the caller when this completes
     * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
@@ -598,6 +635,14 @@ public class Frills
          .execute(r);
    }
 
+   /**
+    * Make stamp coordinate analog varying by modules only.
+    *
+    * @param existingStampCoordinate the existing stamp coordinate
+    * @param requiredModuleSequence the required module sequence
+    * @param optionalModuleSequences the optional module sequences
+    * @return the stamp coordinate
+    */
    public static StampCoordinate makeStampCoordinateAnalogVaryingByModulesOnly(StampCoordinate existingStampCoordinate,
          int requiredModuleSequence,
          int... optionalModuleSequences) {
@@ -623,6 +668,12 @@ public class Frills
       return newStampCoordinate;
    }
 
+   /**
+    * Read dynamic sememe column name description.
+    *
+    * @param columnDescriptionConcept the column description concept
+    * @return the string[]
+    */
    @SuppressWarnings("unchecked")
    @Override
    public String[] readDynamicSememeColumnNameDescription(UUID columnDescriptionConcept) {
@@ -704,6 +755,9 @@ public class Frills
       return new String[] { columnName, columnDescription };
    }
 
+   /**
+    * Refresh indexes.
+    */
    public static void refreshIndexes() {
       LookupService.get()
                    .getAllServiceHandles(IndexServiceBI.class)
@@ -715,8 +769,10 @@ public class Frills
    }
 
    /**
+    * To string.
+    *
     * @param version toString for StampedVersion
-    * @return
+    * @return the string
     */
    public static String toString(StampedVersion version) {
       return version.getClass()
@@ -731,11 +787,12 @@ public class Frills
    /**
     * Returns a Map correlating each dialect sequence for a passed
     * descriptionSememeId with its respective acceptability nid (preferred vs
-    * acceptable)
+    * acceptable).
     *
-    * @param descriptionSememeNid
+    * @param descriptionSememeNid the description sememe nid
     * @param stamp - optional - if not provided, uses default from config
     * service
+    * @return the acceptabilities
     * @throws RuntimeException If there is inconsistent data (incorrectly)
     * attached to the sememe
     */
@@ -834,6 +891,12 @@ public class Frills
    /**
     * Recursively get Is a children of a concept.  May inadvertenly return the requested starting sequence when leafOnly is true, and
     * there are no children.
+    *
+    * @param handledConceptSequenceIds the handled concept sequence ids
+    * @param conceptSequence the concept sequence
+    * @param recursive the recursive
+    * @param leafOnly the leaf only
+    * @return the all children of concept
     */
    private static Set<Integer> getAllChildrenOfConcept(Set<Integer> handledConceptSequenceIds,
          int conceptSequence,
@@ -875,7 +938,7 @@ public class Frills
 
    /**
     * Convenience method to return sequences of a distinct set of modules in
-    * which versions of an ObjectChronology have been defined
+    * which versions of an ObjectChronology have been defined.
     *
     * @param chronology The ObjectChronology
     * @return sequences of a distinct set of modules in which versions of an
@@ -894,9 +957,10 @@ public class Frills
    /**
     * A convenience method to determine if a particular component has 0 or 1 annotations of a particular type.  If there is more than one
     * annotation of a particular type, this method will throw a runtime exception.
+    *
     * @param componentNid - the component to check for the assemblage
     * @param assemblageConceptId - the assemblage type you are interested in (nid or concept sequence)
-    * @return
+    * @return the annotation sememe
     */
    public static Optional<SememeChronology<? extends SememeVersion<?>>> getAnnotationSememe(int componentNid,
          int assemblageConceptId) {
@@ -925,6 +989,14 @@ public class Frills
       }
    }
 
+   /**
+    * Gets the annotation string value.
+    *
+    * @param componentId the component id
+    * @param assemblageConceptId the assemblage concept id
+    * @param stamp the stamp
+    * @return the annotation string value
+    */
    public static Optional<String> getAnnotationStringValue(int componentId,
          int assemblageConceptId,
          StampCoordinate stamp) {
@@ -997,6 +1069,12 @@ public class Frills
       return Optional.empty();
    }
 
+   /**
+    * Checks if association.
+    *
+    * @param sc the sc
+    * @return true, if association
+    */
    public static boolean isAssociation(SememeChronology<? extends SememeVersion<?>> sc) {
       return definesAssociation(sc.getAssemblageSequence());
    }
@@ -1009,6 +1087,9 @@ public class Frills
     * sequence identifiers to look like SCTIDs - if a passed in value is valid as both a SCTID and a sequence identifier - it will be
     * treated as an SCTID.
     * Finally, if it is a positive integer, it treats is as a sequence identity, converts it to a nid, then looks up the nid.
+    *
+    * @param identifier the identifier
+    * @return the concept for unknown identifier
     */
    public static Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getConceptForUnknownIdentifier(
            String identifier) {
@@ -1079,9 +1160,12 @@ public class Frills
    }
 
    /**
+    * Checks if concept fully defined.
+    *
+    * @param <T> the generic type
     * @param lgs The LogicGraphSememe containing the logic graph data
     * @return true if the corresponding concept is fully defined, otherwise returns false (for primitive concepts)
-    *
+    * 
     * Things that are defined with at least one SUFFICIENT_SET node are defined.
     * Things that are defined without any SUFFICIENT_SET nodes are primitive.
     */
@@ -1091,10 +1175,11 @@ public class Frills
    }
 
    /**
-    * Return true for fully defined, false for primitive, or empty for unknown, on the standard logic coordinates / standard development path
-    * @param conceptNid
-    * @param stated
-    * @return
+    * Return true for fully defined, false for primitive, or empty for unknown, on the standard logic coordinates / standard development path.
+    *
+    * @param conceptNid the concept nid
+    * @param stated the stated
+    * @return the optional
     */
    public static Optional<Boolean> isConceptFullyDefined(int conceptNid, boolean stated) {
       final Optional<SememeChronology<? extends SememeVersion<?>>> sememe = Get.sememeService()
@@ -1124,7 +1209,9 @@ public class Frills
    }
 
    /**
-    * @param conceptNidOrSequence
+    * Gets the concept snapshot.
+    *
+    * @param conceptNidOrSequence the concept nid or sequence
     * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
     * @param langCoord - optional - what lang coord to use when returning the ConceptSnapshot (defaults to user prefs)
     * @return the ConceptSnapshot, or an optional that indicates empty, if the identifier was invalid, or if the concept didn't
@@ -1159,7 +1246,9 @@ public class Frills
    }
 
    /**
-    * @param conceptUUID
+    * Gets the concept snapshot.
+    *
+    * @param conceptUUID the concept UUID
     * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
     * @param langCoord - optional - what lang coord to use when returning the ConceptSnapshot (defaults to user prefs)
     * @return the ConceptSnapshot, or an optional that indicates empty, if the identifier was invalid, or if the concept didn't
@@ -1176,8 +1265,9 @@ public class Frills
     * Utility method to get the best text value description for a concept, according to the user preferences.
     * Calls {@link #getDescription(int, LanguageCoordinate, StampCoordinate)} using the default system stamp coordinate,
     * modified to return all states (this may return an inactive description)
+    *
     * @param conceptId - either a sequence or a nid
-    * @return
+    * @return the description
     */
    public static Optional<String> getDescription(int conceptId) {
       return getDescription(conceptId,
@@ -1190,8 +1280,9 @@ public class Frills
    /**
     * Utility method to get the best text value description for a concept, according to the user preferences.
     * Calls {@link #getDescription(UUID, LanguageCoordinate, StampCoordinate)} with nulls.
+    *
     * @param conceptUUID - identifier for a concept
-    * @return
+    * @return the description
     */
    public static Optional<String> getDescription(UUID conceptUUID) {
       return getDescription(conceptUUID, null, null);
@@ -1201,9 +1292,10 @@ public class Frills
     * Utility method to get the best text value description for a concept, according to the passed in options,
     * or the user preferences.  Calls {@link #getDescription(int, LanguageCoordinate, StampCoordinate)} with values
     * extracted from the taxonomyCoordinate, or null.
+    *
     * @param conceptId - either a sequence or a nid
-    * @param tc - optional - if not provided, defaults to system preferences values
-    * @return
+    * @param taxonomyCoordinate the taxonomy coordinate
+    * @return the description
     */
    public static Optional<String> getDescription(int conceptId, TaxonomyCoordinate taxonomyCoordinate) {
       return getDescription(conceptId,
@@ -1217,9 +1309,10 @@ public class Frills
     * Utility method to get the best text value description for a concept, according to the passed in options,
     * or the user preferences.  Calls {@link #getDescription(UUID, LanguageCoordinate, StampCoordinate)} with values
     * extracted from the taxonomyCoordinate, or null.
+    *
     * @param conceptUUID - identifier for a concept
-    * @param tc - optional - if not provided, defaults to system preferences values
-    * @return
+    * @param taxonomyCoordinate the taxonomy coordinate
+    * @return the description
     */
    public static Optional<String> getDescription(UUID conceptUUID, TaxonomyCoordinate taxonomyCoordinate) {
       return getDescription(conceptUUID,
@@ -1232,10 +1325,11 @@ public class Frills
    /**
     * Utility method to get the best text value description for a concept, according to the passed in options,
     * or the user preferences.
+    *
     * @param conceptId - either a sequence or a nid
-    * @param languageCoordinate - optional - if not provided, defaults to system preferences values
     * @param stampCoordinate - optional - if not provided, defaults to system preference values
-    * @return
+    * @param languageCoordinate - optional - if not provided, defaults to system preferences values
+    * @return the description
     */
    public static Optional<String> getDescription(int conceptId,
          StampCoordinate stampCoordinate,
@@ -1261,10 +1355,11 @@ public class Frills
     * Utility method to get the best text value description for a concept, according to the passed in options,
     * or the user preferences.  Calls {@link #getDescription(int, LanguageCoordinate, StampCoordinate)} with values
     * extracted from the taxonomyCoordinate, or null.
-    * @param conceptId - either a sequence or a nid
-    * @param languageCoordinate - optional - if not provided, defaults to system preferences values
+    *
+    * @param conceptUUID the concept UUID
     * @param stampCoordinate - optional - if not provided, defaults to system preference values
-    * @return
+    * @param languageCoordinate - optional - if not provided, defaults to system preferences values
+    * @return the description
     */
    public static Optional<String> getDescription(UUID conceptUUID,
          StampCoordinate stampCoordinate,
@@ -1277,9 +1372,10 @@ public class Frills
 
    /**
     * If this description is flagged as an extended description type, return the type concept of the extension.
-    * @param sc - optional Stamp - pass null to use the default stamp.
+    *
+    * @param stampCoordinate the stamp coordinate
     * @param descriptionId - the nid or sequence of the description sememe to check for an extended type.
-    * @return
+    * @return the description extended type concept
     */
    public static Optional<UUID> getDescriptionExtendedTypeConcept(StampCoordinate stampCoordinate, int descriptionId) {
       final Optional<SememeChronology<? extends SememeVersion<?>>> descriptionExtendedTypeAnnotationSememe =
@@ -1336,9 +1432,10 @@ public class Frills
     * Determine if a particular description sememe is flagged as preferred IN
     * ANY LANGUAGE. Returns false if there is no acceptability sememe.
     *
-    * @param descriptionSememeNid
+    * @param descriptionSememeNid the description sememe nid
     * @param stamp - optional - if not provided, uses default from config
     * service
+    * @return true, if description preferred
     * @throws RuntimeException If there is unexpected data (incorrectly)
     * attached to the sememe
     */
@@ -1395,7 +1492,7 @@ public class Frills
 
    /**
     * Convenience method to extract the latest version of descriptions of the
-    * requested type
+    * requested type.
     *
     * @param conceptNid The concept to read descriptions for
     * @param descriptionType expected to be one of
@@ -1437,6 +1534,12 @@ public class Frills
       return results;
    }
 
+   /**
+    * Gets the extended description types.
+    *
+    * @return the extended description types
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static List<SimpleDisplayConcept> getExtendedDescriptionTypes()
             throws IOException {
       Set<Integer>                    extendedDescriptionTypes;
@@ -1456,11 +1559,11 @@ public class Frills
    }
 
    /**
-    * @param id int identifier
-    * @param sc StampCoordinate (defaults to development latest)
-    * @param lc LanguageCoordinate (defaults to US English FSN)
-    * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
+    * Gets the id info.
     *
+    * @param id int identifier
+    * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
+    * 
     * This method should only be used for logging. The returned data structure is not meant to be parsed.
     */
    public static IdInfo getIdInfo(int id) {
@@ -1468,11 +1571,11 @@ public class Frills
    }
 
    /**
-    * @param id String identifier may parse to int NID, int sequence or UUID
-    * @param sc StampCoordinate (defaults to development latest)
-    * @param lc LanguageCoordinate (defaults to US English FSN)
-    * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
+    * Gets the id info.
     *
+    * @param id String identifier may parse to int NID, int sequence or UUID
+    * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
+    * 
     * This method should only be used for logging. The returned data structure is not meant to be parsed.
     */
    public static IdInfo getIdInfo(String id) {
@@ -1482,21 +1585,37 @@ public class Frills
    }
 
    /**
-    * @param id UUID identifier
-    * @param sc StampCoordinate (defaults to development latest)
-    * @param lc LanguageCoordinate (defaults to US English FSN)
-    * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
+    * Gets the id info.
     *
+    * @param id UUID identifier
+    * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
+    * 
     * This method should only be used for logging. The returned data structure is not meant to be parsed.
     */
    public static IdInfo getIdInfo(UUID id) {
       return getIdInfo(id.toString());
    }
 
+   /**
+    * Gets the id info.
+    *
+    * @param id the id
+    * @param sc the sc
+    * @param lc the lc
+    * @return the id info
+    */
    public static IdInfo getIdInfo(int id, StampCoordinate sc, LanguageCoordinate lc) {
       return getIdInfo(Integer.toString(id), sc, lc);
    }
 
+   /**
+    * Gets the id info.
+    *
+    * @param id the id
+    * @param sc the sc
+    * @param lc the lc
+    * @return the id info
+    */
    public static IdInfo getIdInfo(String id, StampCoordinate sc, LanguageCoordinate lc) {
       final Map<String, Object>  idInfo         = new HashMap<>();
       Long                 sctId          = null;
@@ -1582,11 +1701,20 @@ public class Frills
       return new IdInfo(idInfo);
    }
 
+   /**
+    * Gets the id info.
+    *
+    * @param id the id
+    * @param sc the sc
+    * @param lc the lc
+    * @return the id info
+    */
    public static IdInfo getIdInfo(UUID id, StampCoordinate sc, LanguageCoordinate lc) {
       return getIdInfo(id.toString(), sc, lc);
    }
 
    /**
+    * Gets the inferred definition chronology.
     *
     * @param conceptId either a concept nid or sequence.
     * @param logicCoordinate LogicCoordinate.
@@ -1603,6 +1731,8 @@ public class Frills
    }
 
    /**
+    * Gets the logic graph chronology.
+    *
     * @param id The int sequence or NID of the Concept for which the logic graph is requested
     * @param stated boolean indicating stated vs inferred definition chronology should be used
     * @return An Optional containing a LogicGraphSememe SememeChronology
@@ -1634,11 +1764,13 @@ public class Frills
    }
 
    /**
+    * Gets the logic graph chronology.
+    *
     * @param id The int sequence or NID of the Concept for which the logic graph is requested
+    * @param stated boolean indicating stated vs inferred definition chronology should be used
     * @param stampCoordinate The StampCoordinate for which the logic graph is requested
     * @param languageCoordinate The LanguageCoordinate for which the logic graph is requested
     * @param logicCoordinate the LogicCoordinate for which the logic graph is requested
-    * @param stated boolean indicating stated vs inferred definition chronology should be used
     * @return An Optional containing a LogicGraphSememe SememeChronology
     */
    public static Optional<SememeChronology<? extends LogicGraphSememe<?>>> getLogicGraphChronology(int id,
@@ -1672,6 +1804,8 @@ public class Frills
    }
 
    /**
+    * Gets the logic graph version.
+    *
     * @param logicGraphSememeChronology The SememeChronology<? extends LogicGraphSememe<?>> chronology for which the logic graph version is requested
     * @param stampCoordinate StampCoordinate to be used for selecting latest version
     * @return An Optional containing a LogicGraphSememe SememeChronology
@@ -1699,15 +1833,20 @@ public class Frills
       return latest;
    }
 
+   /**
+    * Checks if mapping.
+    *
+    * @param sc the sc
+    * @return true, if mapping
+    */
    public static boolean isMapping(SememeChronology<? extends SememeVersion<?>> sc) {
       return definesMapping(sc.getAssemblageSequence());
    }
 
    /**
+    * Determine if Chronology has nested sememes.
     *
-    * Determine if Chronology has nested sememes
-    *
-    * @param chronology
+    * @param chronology the chronology
     * @return true if there is a nested sememe, false otherwise
     */
    public static boolean hasNestedSememe(ObjectChronology<?> chronology) {
@@ -1715,6 +1854,12 @@ public class Frills
                         .isEmpty();
    }
 
+   /**
+    * Gets the nid for SCTID.
+    *
+    * @param sctID the sct ID
+    * @return the nid for SCTID
+    */
    public static Optional<Integer> getNidForSCTID(long sctID) {
       final IndexServiceBI si = LookupService.get()
                                        .getService(IndexServiceBI.class, "sememe indexer");
@@ -1740,6 +1885,12 @@ public class Frills
       return Optional.empty();
    }
 
+   /**
+    * Gets the nid for VUID.
+    *
+    * @param vuID the vu ID
+    * @return the nid for VUID
+    */
    public static Optional<Integer> getNidForVUID(long vuID) {
       final IndexServiceBI si = LookupService.get()
                                        .getService(IndexServiceBI.class, "sememe indexer");
@@ -1766,9 +1917,9 @@ public class Frills
    }
 
    /**
-    * Find the SCTID for a component (if it has one)
+    * Find the SCTID for a component (if it has one).
     *
-    * @param componentNid
+    * @param componentNid the component nid
     * @param stamp - optional - if not provided uses default from config
     * service
     * @return the id, if found, or empty (will not return null)
@@ -1830,11 +1981,13 @@ public class Frills
    }
 
    /**
+    * Gets the stamp coordinate from stamp.
+    *
     * @param stamp Stamp from which to generate StampCoordinate
     * @return StampCoordinate corresponding to Stamp values
-    *
+    * 
     * StampPrecedence set to StampPrecedence.TIME
-    *
+    * 
     * Use StampCoordinate.makeAnalog() to customize result
     */
    public static StampCoordinate getStampCoordinateFromStamp(Stamp stamp) {
@@ -1842,10 +1995,12 @@ public class Frills
    }
 
    /**
+    * Gets the stamp coordinate from stamp.
+    *
     * @param stamp Stamp from which to generate StampCoordinate
     * @param precedence Precedence to assign StampCoordinate
     * @return StampCoordinate corresponding to Stamp values
-    *
+    * 
     * Use StampCoordinate.makeAnalog() to customize result
     */
    public static StampCoordinate getStampCoordinateFromStamp(Stamp stamp, StampPrecedence precedence) {
@@ -1860,11 +2015,13 @@ public class Frills
    }
 
    /**
+    * Gets the stamp coordinate from version.
+    *
     * @param version StampedVersion from which to generate StampCoordinate
     * @return StampCoordinate corresponding to StampedVersion values
-    *
+    * 
     * StampPrecedence set to StampPrecedence.TIME
-    *
+    * 
     * Use StampCoordinate.makeAnalog() to customize result
     */
    public static StampCoordinate getStampCoordinateFromVersion(StampedVersion version) {
@@ -1872,11 +2029,14 @@ public class Frills
    }
 
    /**
+    * Gets the stamp coordinate from version.
+    *
     * @param version StampedVersion from which to generate StampCoordinate
+    * @param precedence the precedence
     * @return StampCoordinate corresponding to StampedVersion values
-    *
+    * 
     * StampPrecedence set to StampPrecedence.TIME
-    *
+    * 
     * Use StampCoordinate.makeAnalog() to customize result
     */
    public static StampCoordinate getStampCoordinateFromVersion(StampedVersion version, StampPrecedence precedence) {
@@ -1891,6 +2051,7 @@ public class Frills
    }
 
    /**
+    * Gets the stated definition chronology.
     *
     * @param conceptId either a concept nid or sequence.
     * @param logicCoordinate LogicCoordinate.
@@ -1906,6 +2067,12 @@ public class Frills
                 .findAny();
    }
 
+   /**
+    * Gets the version type.
+    *
+    * @param nid the nid
+    * @return the version type
+    */
    public static Class<? extends StampedVersion> getVersionType(int nid) {
       final Optional<? extends ObjectChronology<? extends StampedVersion>> obj = Get.identifiedObjectService()
                                                                               .getIdentifiedObjectChronology(nid);
@@ -1917,6 +2084,12 @@ public class Frills
       return getVersionType(obj.get());
    }
 
+   /**
+    * Gets the version type.
+    *
+    * @param obj the obj
+    * @return the version type
+    */
    public static Class<? extends StampedVersion> getVersionType(ObjectChronology<? extends StampedVersion> obj) {
       switch (obj.getOchreObjectType()) {
       case SEMEME: {
@@ -1964,9 +2137,9 @@ public class Frills
    }
 
    /**
-    * Find the VUID for a component (if it has one)
+    * Find the VUID for a component (if it has one).
     *
-    * @param componentNid
+    * @param componentNid the component nid
     * @param stamp - optional - if not provided uses default from config
     * service
     * @return the id, if found, or empty (will not return null)
@@ -2016,24 +2189,35 @@ public class Frills
    //~--- inner classes -------------------------------------------------------
 
    /**
-    *
-    * {@link IdInfo}
+    * {@link IdInfo}.
     *
     * @author <a href="mailto:joel.kniaz.list@gmail.com">Joel Kniaz</a>
-    *
+    * 
     * Class to contain and hide map generated by getIdInfo(). Only useful method is toString(). The returned String is not meant to be parsed.
     */
    public final static class IdInfo {
+      
+      /** The map. */
       private final Map<String, Object> map_;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new id info.
+       *
+       * @param map the map
+       */
       private IdInfo(Map<String, Object> map) {
          this.map_ = map;
       }
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * To string.
+       *
+       * @return the string
+       */
       @Override
 	public String toString() {
          return this.map_.toString();

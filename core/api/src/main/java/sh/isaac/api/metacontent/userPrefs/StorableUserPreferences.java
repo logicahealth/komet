@@ -40,13 +40,16 @@
 package sh.isaac.api.metacontent.userPrefs;
 
 /**
- * {@link StorableUserPreferences}
+ * {@link StorableUserPreferences}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface StorableUserPreferences {
+   
    /**
-    * Turn the concrete class into a suitable byte[] for storage
+    * Turn the concrete class into a suitable byte[] for storage.
+    *
+    * @return the byte[]
     */
    public byte[] serialize();
 }

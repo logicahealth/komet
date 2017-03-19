@@ -77,18 +77,34 @@ import sh.isaac.provider.ibdf.diff.BinaryDataDifferProvider;
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 public class BinaryDataDifferTest {
+   
+   /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The terminology input file name. */
    private final String             TERMINOLOGY_INPUT_FILE_NAME = "vhat-ibdf";
+   
+   /** The old version. */
    private final String             OLD_VERSION                 = "4.3-SNAPSHOT";
+   
+   /** The new version. */
    private final String             NEW_VERSION                 = "4.31-SNAPSHOT";
+   
+   /** The datastore path. */
    private final File               DATASTORE_PATH              = new File("target/db");
+   
+   /** The differ provider. */
    private final BinaryDataDifferProvider differProvider              = new BinaryDataDifferProvider();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Setup DB.
+    *
+    * @throws Exception the exception
+    */
    @Before
    public void setupDB()
             throws Exception {
@@ -111,6 +127,11 @@ public class BinaryDataDifferTest {
       log.info("Done setting up ISAAC");
    }
 
+   /**
+    * Shutdown DB.
+    *
+    * @throws Exception the exception
+    */
    @After
    public void shutdownDB()
             throws Exception {
@@ -119,7 +140,7 @@ public class BinaryDataDifferTest {
    }
 
    /**
-    * Mimick the IbdfDiffMojo
+    * Mimick the IbdfDiffMojo.
     */
    @Test
    public void testDiff() {

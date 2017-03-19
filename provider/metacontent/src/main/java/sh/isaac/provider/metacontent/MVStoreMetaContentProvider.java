@@ -83,16 +83,26 @@ import sh.isaac.api.metacontent.userPrefs.StorableUserPreferences;
 @RunLevel(value = -1)
 public class MVStoreMetaContentProvider
          implements MetaContentService {
+   
+   /** The Constant USER_PREFS_STORE. */
    private static final String USER_PREFS_STORE = "_userPrefs_";
 
    //~--- fields --------------------------------------------------------------
 
+   /** The log. */
    private final Logger   LOG = LogManager.getLogger();
+   
+   /** The store. */
    MVStore                store;
+   
+   /** The user prefs map. */
    MVMap<Integer, byte[]> userPrefsMap;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new MV store meta content provider.
+    */
    @SuppressWarnings("unused")
    private MVStoreMetaContentProvider() {
       // For HK2
@@ -122,6 +132,8 @@ public class MVStoreMetaContentProvider
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Close.
+    *
     * @see sh.isaac.api.metacontent.MetaContentService#close()
     */
    @Override
@@ -135,6 +147,12 @@ public class MVStoreMetaContentProvider
    }
 
    /**
+    * Open store.
+    *
+    * @param <K> the key type
+    * @param <V> the value type
+    * @param storeName the store name
+    * @return the concurrent map
     * @see sh.isaac.api.metacontent.MetaContentService#openStore(java.lang.String)
     */
    @Override
@@ -147,6 +165,11 @@ public class MVStoreMetaContentProvider
    }
 
    /**
+    * Put user prefs.
+    *
+    * @param userId the user id
+    * @param userPrefs the user prefs
+    * @return the byte[]
     * @see sh.isaac.api.metacontent.MetaContentService#putUserPrefs(int,
     *      sh.isaac.api.metacontent.userPrefs.StorableUserPreferences)
     */
@@ -158,6 +181,9 @@ public class MVStoreMetaContentProvider
    }
 
    /**
+    * Removes the store.
+    *
+    * @param storeName the store name
     * @see sh.isaac.api.metacontent.MetaContentService#removeStore(java.lang.String)
     */
    @Override
@@ -170,6 +196,9 @@ public class MVStoreMetaContentProvider
    }
 
    /**
+    * Removes the user prefs.
+    *
+    * @param userId the user id
     * @see sh.isaac.api.metacontent.MetaContentService#removeUserPrefs(int)
     */
    @Override
@@ -179,6 +208,14 @@ public class MVStoreMetaContentProvider
                                              .getConceptSequence(userId));
    }
 
+   /**
+    * Initialize.
+    *
+    * @param storageFolder the storage folder
+    * @param storePrefix the store prefix
+    * @param wipeExisting the wipe existing
+    * @return the meta content service
+    */
    private MetaContentService initialize(File storageFolder, String storePrefix, boolean wipeExisting) {
       final File dataFile = new File(storageFolder, (StringUtils.isNotBlank(storePrefix) ? storePrefix
             : "") + "MetaContent.mv");
@@ -198,6 +235,9 @@ public class MVStoreMetaContentProvider
       return this;
    }
 
+   /**
+    * Start.
+    */
    @PostConstruct
    private void start() {
       this.LOG.info("Starting MVStoreMetaContent service");
@@ -225,6 +265,10 @@ public class MVStoreMetaContentProvider
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the user prefs.
+    *
+    * @param userId the user id
+    * @return the user prefs
     * @see sh.isaac.api.metacontent.MetaContentService#getUserPrefs(int)
     */
    @Override

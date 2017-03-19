@@ -88,14 +88,20 @@ public abstract class ParentClause
    /**
     * Constructor from a Query and child clauses.
     *
-    * @param enclosingQuery
-    * @param children
+    * @param enclosingQuery the enclosing query
+    * @param children the children
     */
    public ParentClause(Query enclosingQuery, Clause... children) {
       super(enclosingQuery);
       setChildren(Arrays.asList(children));
    }
 
+   /**
+    * Instantiates a new parent clause.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param children the children
+    */
    public ParentClause(Query enclosingQuery, List<Clause> children) {
       super(enclosingQuery);
       setChildren(children);
@@ -103,6 +109,11 @@ public abstract class ParentClause
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the array of instances of <code>Clause</code> that are children of the ParentClause in the tree used to compute the constructed <code>Query</code>.
+    *
+    * @return the array of instances of <code>Clause</code> that are children of the ParentClause in the tree used to compute the constructed <code>Query</code>
+    */
    @Override
 public List<Clause> getChildren() {
       return this.children;
@@ -110,6 +121,11 @@ public List<Clause> getChildren() {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set array of instances of <code>Clause</code> that are children of the ParentClause in the tree used to compute the constructed <code>Query</code>.
+    *
+    * @param children the new array of instances of <code>Clause</code> that are children of the ParentClause in the tree used to compute the constructed <code>Query</code>
+    */
    public void setChildren(List<Clause> children) {
       this.children = children;
 
@@ -120,11 +136,22 @@ public List<Clause> getChildren() {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_AND_POST_ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public final void getQueryMatches(ConceptVersion conceptVersion) {
       this.children.stream().forEach((c) -> {

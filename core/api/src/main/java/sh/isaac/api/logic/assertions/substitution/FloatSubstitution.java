@@ -40,6 +40,7 @@
 package sh.isaac.api.logic.assertions.substitution;
 
 /**
+ * The Interface FloatSubstitution.
  *
  * @author kec
  */

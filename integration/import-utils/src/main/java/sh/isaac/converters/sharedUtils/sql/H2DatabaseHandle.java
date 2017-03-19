@@ -64,11 +64,19 @@ import sh.isaac.converters.sharedUtils.ConsoleUtil;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class H2DatabaseHandle.
+ */
 public class H2DatabaseHandle {
+   
+   /** The connection. */
    protected Connection connection_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new h 2 database handle.
+    */
    public H2DatabaseHandle() {
       super();
    }
@@ -78,6 +86,11 @@ public class H2DatabaseHandle {
    /**
     * If file provided, created or opened at that path.  If file is null, an in-memory db is created.
     * Returns false if the database already existed, true if it was newly created.
+    *
+    * @param dbFile the db file
+    * @return true, if successful
+    * @throws ClassNotFoundException the class not found exception
+    * @throws SQLException the SQL exception
     */
    public boolean createOrOpenDatabase(File dbFile)
             throws ClassNotFoundException, SQLException {
@@ -103,6 +116,12 @@ public class H2DatabaseHandle {
       return createdNew;
    }
 
+   /**
+    * Creates the table.
+    *
+    * @param td the td
+    * @throws SQLException the SQL exception
+    */
    public void createTable(TableDefinition td)
             throws SQLException {
       final Statement     s         = this.connection_.createStatement();
@@ -127,6 +146,13 @@ public class H2DatabaseHandle {
    }
 
    /**
+    * Load data into table.
+    *
+    * @param td the td
+    * @param data the data
+    * @return the int
+    * @throws SQLException the SQL exception
+    * @throws IOException Signals that an I/O exception has occurred.
     * @returns rowCount loaded
     */
    public int loadDataIntoTable(TableDefinition td, TerminologyFileReader data)
@@ -135,14 +161,16 @@ public class H2DatabaseHandle {
    }
 
    /**
-    * @param td
-    * @param data
+    * Load data into table.
+    *
+    * @param td the td
+    * @param data the data
     * @param includeValuesColumnName - (optional) the name of the column to check for an include values filter
     * @param includeValues - (optional) - the values to include.  If this parameter, and the above parameter are specified, only rows which have
     * a column name that matches 'includeValuesColumnName' with a value from the set of 'includeValues" will be loaded.
-    * @throws SQLException
-    * @throws IOException
     * @return row count loaded
+    * @throws SQLException the SQL exception
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public int loadDataIntoTable(TableDefinition td,
                                 TerminologyFileReader data,
@@ -285,6 +313,11 @@ public class H2DatabaseHandle {
       return rowCount;
    }
 
+   /**
+    * Shutdown.
+    *
+    * @throws SQLException the SQL exception
+    */
    public void shutdown()
             throws SQLException {
       this.connection_.close();
@@ -292,6 +325,11 @@ public class H2DatabaseHandle {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the connection.
+    *
+    * @return the connection
+    */
    public Connection getConnection() {
       return this.connection_;
    }

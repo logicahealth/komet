@@ -40,24 +40,41 @@
 package sh.isaac.api;
 
 /**
- *
- * {@link UserRoleConstants}
+ * {@link UserRoleConstants}.
  *
  * @author <a href="mailto:joel.kniaz.list@gmail.com">Joel Kniaz</a>
- *
  */
 public class UserRoleConstants {
+   
+   /** The Constant AUTOMATED. */
    public final static String AUTOMATED     = "automated";
+   
+   /** The Constant SUPER_USER. */
    public final static String SUPER_USER    = "super_user";
+   
+   /** The Constant ADMINISTRATOR. */
    public final static String ADMINISTRATOR = "administrator";
+   
+   /** The Constant READ_ONLY. */
    public final static String READ_ONLY     = "read_only";
+   
+   /** The Constant EDITOR. */
    public final static String EDITOR        = "editor";
+   
+   /** The Constant REVIEWER. */
    public final static String REVIEWER      = "reviewer";
+   
+   /** The Constant APPROVER. */
    public final static String APPROVER      = "approver";
+   
+   /** The Constant MANAGER. */
    public final static String MANAGER       = "manager";
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new user role constants.
+    */
    private UserRoleConstants() {}
 }
 

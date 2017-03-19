@@ -47,18 +47,32 @@ import sh.isaac.model.ObjectVersionImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ConceptVersionImpl.
  *
  * @author kec
  */
 public class ConceptVersionImpl
         extends ObjectVersionImpl<ConceptChronologyImpl, ConceptVersionImpl>
          implements ConceptVersion<ConceptVersionImpl> {
+   
+   /**
+    * Instantiates a new concept version impl.
+    *
+    * @param chronicle the chronicle
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    */
    public ConceptVersionImpl(ConceptChronologyImpl chronicle, int stampSequence, short versionSequence) {
       super(chronicle, stampSequence, versionSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the chronology.
+    *
+    * @return the chronology
+    */
    @Override
    public ConceptChronologyImpl getChronology() {
       return this.chronicle;

@@ -70,23 +70,38 @@ import sh.isaac.model.observable.version.ObservableDescriptionImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableConceptChronologyImpl.
  *
  * @author kec
  */
 public class ObservableConceptChronologyImpl
         extends ObservableChronologyImpl<ObservableConceptVersionImpl, ConceptChronology<ConceptVersionImpl>>
          implements ObservableConceptChronology<ObservableConceptVersionImpl> {
+   
+   /** The concept sequence property. */
    private IntegerProperty                                                          conceptSequenceProperty;
+   
+   /** The description list property. */
    private ListProperty<ObservableSememeChronology<ObservableDescriptionSememe<?>>> descriptionListProperty;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new observable concept chronology impl.
+    *
+    * @param chronicledObjectLocal the chronicled object local
+    */
    public ObservableConceptChronologyImpl(ConceptChronology<ConceptVersionImpl> chronicledObjectLocal) {
       super(chronicledObjectLocal);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Concept description list property.
+    *
+    * @return the list property
+    */
    @Override
    public ListProperty<ObservableSememeChronology<ObservableDescriptionSememe<?>>> conceptDescriptionListProperty() {
       if (this.descriptionListProperty == null) {
@@ -109,6 +124,11 @@ public class ObservableConceptChronologyImpl
       return this.descriptionListProperty;
    }
 
+   /**
+    * Concept sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty conceptSequenceProperty() {
       if (this.conceptSequenceProperty == null) {
@@ -120,22 +140,48 @@ public class ObservableConceptChronologyImpl
       return this.conceptSequenceProperty;
    }
 
+   /**
+    * Contains active description.
+    *
+    * @param descriptionText the description text
+    * @param stampCoordinate the stamp coordinate
+    * @return true, if successful
+    */
    @Override
    public boolean containsActiveDescription(String descriptionText, StampCoordinate stampCoordinate) {
       return this.chronicledObjectLocal.containsDescription(descriptionText, stampCoordinate);
    }
 
+   /**
+    * Contains description.
+    *
+    * @param descriptionText the description text
+    * @return true, if successful
+    */
    @Override
    public boolean containsDescription(String descriptionText) {
       return this.chronicledObjectLocal.containsDescription(descriptionText);
    }
 
+   /**
+    * Creates the mutable version.
+    *
+    * @param stampSequence the stamp sequence
+    * @return the observable concept version impl
+    */
    @Override
    public ObservableConceptVersionImpl createMutableVersion(int stampSequence) {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Creates the mutable version.
+    *
+    * @param state the state
+    * @param ec the ec
+    * @return the observable concept version impl
+    */
    @Override
    public ObservableConceptVersionImpl createMutableVersion(State state, EditCoordinate ec) {
       throw new UnsupportedOperationException(
@@ -144,11 +190,21 @@ public class ObservableConceptChronologyImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the concept description list.
+    *
+    * @return the concept description list
+    */
    @Override
    public ObservableList<ObservableSememeChronology<ObservableDescriptionSememe<?>>> getConceptDescriptionList() {
       return conceptDescriptionListProperty().get();
    }
 
+   /**
+    * Gets the concept sequence.
+    *
+    * @return the concept sequence
+    */
    @Override
    public int getConceptSequence() {
       if (this.conceptSequenceProperty != null) {
@@ -158,6 +214,13 @@ public class ObservableConceptChronologyImpl
       return this.chronicledObjectLocal.getConceptSequence();
    }
 
+   /**
+    * Gets the fully specified description.
+    *
+    * @param languageCoordinate the language coordinate
+    * @param stampCoordinate the stamp coordinate
+    * @return the fully specified description
+    */
    @Override
    public Optional<LatestVersion<ObservableDescriptionSememe<?>>> getFullySpecifiedDescription(
            LanguageCoordinate languageCoordinate,
@@ -169,6 +232,11 @@ public class ObservableConceptChronologyImpl
       return getSpecifiedDescription(optionalFsn);
    }
 
+   /**
+    * Gets the observable version list.
+    *
+    * @return the observable version list
+    */
    @Override
    protected ObservableList<ObservableConceptVersionImpl> getObservableVersionList() {
       final ObservableList<ObservableConceptVersionImpl> observableList = FXCollections.observableArrayList();
@@ -179,6 +247,13 @@ public class ObservableConceptChronologyImpl
       return observableList;
    }
 
+   /**
+    * Gets the preferred description.
+    *
+    * @param languageCoordinate the language coordinate
+    * @param stampCoordinate the stamp coordinate
+    * @return the preferred description
+    */
    @Override
    public Optional<LatestVersion<ObservableDescriptionSememe<?>>> getPreferredDescription(
            LanguageCoordinate languageCoordinate,
@@ -190,6 +265,12 @@ public class ObservableConceptChronologyImpl
       return getSpecifiedDescription(optionalPreferred);
    }
 
+   /**
+    * Gets the specified description.
+    *
+    * @param optionalSpecifiedDescription the optional specified description
+    * @return the specified description
+    */
    private Optional<LatestVersion<ObservableDescriptionSememe<?>>> getSpecifiedDescription(
            Optional<LatestVersion<DescriptionSememe<?>>> optionalSpecifiedDescription) {
       if (optionalSpecifiedDescription.isPresent()) {

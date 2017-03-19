@@ -46,17 +46,40 @@ package sh.isaac.pombuilder.artifacts;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public abstract class Artifact {
+   
+   /** The group id. */
    private final String groupId_;
+   
+   /** The artifact id. */
    private final String artifactId_;
+   
+   /** The version. */
    private final String version_;
+   
+   /** The classifier. */
    private final String classifier_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new artifact.
+    *
+    * @param groupId the group id
+    * @param artifactId the artifact id
+    * @param version the version
+    */
    public Artifact(String groupId, String artifactId, String version) {
       this(groupId, artifactId, version, null);
    }
 
+   /**
+    * Instantiates a new artifact.
+    *
+    * @param groupId the group id
+    * @param artifactId the artifact id
+    * @param version the version
+    * @param classifier the classifier
+    */
    public Artifact(String groupId, String artifactId, String version, String classifier) {
       this.groupId_    = groupId;
       this.artifactId_ = artifactId;
@@ -66,6 +89,11 @@ public abstract class Artifact {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "Artifact [groupId_=" + this.groupId_ + ", artifactId_=" + this.artifactId_ + ", version_=" + this.version_ +
@@ -74,14 +102,29 @@ public abstract class Artifact {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the artifact id.
+    *
+    * @return the artifact id
+    */
    public String getArtifactId() {
       return this.artifactId_;
    }
 
+   /**
+    * Gets the classifier.
+    *
+    * @return the classifier
+    */
    public String getClassifier() {
       return this.classifier_;
    }
 
+   /**
+    * Checks for classifier.
+    *
+    * @return true, if successful
+    */
    public boolean hasClassifier() {
       if ((this.classifier_ == null) || (this.classifier_.trim().length() == 0)) {
          return false;
@@ -90,10 +133,20 @@ public abstract class Artifact {
       return true;
    }
 
+   /**
+    * Gets the group id.
+    *
+    * @return the group id
+    */
    public String getGroupId() {
       return this.groupId_;
    }
 
+   /**
+    * Gets the version.
+    *
+    * @return the version
+    */
    public String getVersion() {
       return this.version_;
    }

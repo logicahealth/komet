@@ -45,9 +45,14 @@
 package sh.isaac.api;
 
 /**
+ * The Enum DataSource.
  *
  * @author kec
  */
-public enum DataSource { INTERNAL,
+public enum DataSource { 
+ /** The internal. */
+ INTERNAL,
+                         
+                         /** The external. */
                          EXTERNAL; }
 

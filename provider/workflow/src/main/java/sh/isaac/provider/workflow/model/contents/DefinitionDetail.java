@@ -100,12 +100,12 @@ public class DefinitionDetail
    /**
     * Constructor for a new definition based on specified entry fields.
     *
-    * @param bpmn2Id
-    * @param name
-    * @param namespace
-    * @param version
-    * @param roles
-    * @param description
+    * @param bpmn2Id the bpmn 2 id
+    * @param name the name
+    * @param namespace the namespace
+    * @param version the version
+    * @param roles the roles
+    * @param description the description
     */
    public DefinitionDetail(String bpmn2Id,
                            String name,
@@ -124,6 +124,12 @@ public class DefinitionDetail
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       final DefinitionDetail other = (DefinitionDetail) obj;
@@ -137,12 +143,22 @@ public class DefinitionDetail
              (this.importDate == other.importDate);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       return this.bpmn2Id.hashCode() + this.name.hashCode() + this.namespace.hashCode() + this.version.hashCode() + this.roles.hashCode() +
              this.description.hashCode() + new Long(this.importDate).hashCode();
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuffer buf = new StringBuffer();
@@ -159,6 +175,11 @@ public class DefinitionDetail
              this.description + "\n\t\tImport Date: " + importDateString;
    }
 
+   /**
+    * Put additional workflow fields.
+    *
+    * @param out the out
+    */
    @Override
    protected void putAdditionalWorkflowFields(ByteArrayDataBuffer out) {
       out.putByteArrayField(this.bpmn2Id.getBytes());
@@ -177,6 +198,12 @@ public class DefinitionDetail
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the additional workflow fields.
+    *
+    * @param in the in
+    * @return the additional workflow fields
+    */
    @Override
    protected void getAdditionalWorkflowFields(ByteArrayDataBuffer in) {
       this.bpmn2Id   = new String(in.getByteArrayField());
@@ -198,7 +225,7 @@ public class DefinitionDetail
    }
 
    /**
-    * Gets the BPMN2 file's Id
+    * Gets the BPMN2 file's Id.
     *
     * @return bpmn2 id
     */
@@ -207,7 +234,7 @@ public class DefinitionDetail
    }
 
    /**
-    * Gets the name of the workflow definition
+    * Gets the name of the workflow definition.
     *
     * @return definition name
     */
@@ -217,7 +244,7 @@ public class DefinitionDetail
 
    /**
     * Gets the date which the BPM2 file containing the definition was imported
-    * into the system
+    * into the system.
     *
     * @return version
     */
@@ -226,7 +253,7 @@ public class DefinitionDetail
    }
 
    /**
-    * Gets the name of the workflow definition
+    * Gets the name of the workflow definition.
     *
     * @return definition name
     */
@@ -235,7 +262,7 @@ public class DefinitionDetail
    }
 
    /**
-    * Gets the namespace for which the definition is relevant
+    * Gets the namespace for which the definition is relevant.
     *
     * @return namespace
     */
@@ -244,7 +271,7 @@ public class DefinitionDetail
    }
 
    /**
-    * Gets the workflow roles that are used within the definition
+    * Gets the workflow roles that are used within the definition.
     *
     * @return the workflow roles available
     */
@@ -253,7 +280,7 @@ public class DefinitionDetail
    }
 
    /**
-    * Gets the definition's version
+    * Gets the definition's version.
     *
     * @return version
     */

@@ -47,22 +47,45 @@ import java.util.UUID;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class MetadataConceptConstantGroup.
+ */
 public abstract class MetadataConceptConstantGroup
         extends MetadataConceptConstant {
+   
+   /** The children. */
    private final List<MetadataConceptConstant> children_ = new ArrayList<>();
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new metadata concept constant group.
+    *
+    * @param fsn the fsn
+    * @param uuid the uuid
+    */
    protected MetadataConceptConstantGroup(String fsn, UUID uuid) {
       super(fsn, uuid);
    }
 
+   /**
+    * Instantiates a new metadata concept constant group.
+    *
+    * @param fsn the fsn
+    * @param uuid the uuid
+    * @param definition the definition
+    */
    protected MetadataConceptConstantGroup(String fsn, UUID uuid, String definition) {
       super(fsn, uuid, definition);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the child.
+    *
+    * @param child the child
+    */
    protected void addChild(MetadataConceptConstant child) {
       this.children_.add(child);
       child.setParent(this);
@@ -71,6 +94,8 @@ public abstract class MetadataConceptConstantGroup
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the children.
+    *
     * @return The constants that should be created under this constant in the
     * taxonomy (if any). Will not return null.
     */

@@ -62,16 +62,18 @@ import sh.isaac.provider.workflow.model.contents.AbstractStorableWorkflowContent
 /**
  * An generic storage class utilized to store all Workflow Content Store classes.
  * Contains fields and methods shared by all such Content Stores.
- *
+ * 
  * Implements the Map interface, plus a couple of other convenience methods
- *
+ * 
  * {@link AbstractStorableWorkflowContents}
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
+ * @param <T> the generic type
  */
 public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
          implements Map<UUID, T> {
-   /** The Logger made available to each Workflow Content Store class */
+   
+   /**  The Logger made available to each Workflow Content Store class. */
    protected final Logger logger = LogManager.getLogger();
 
    /**
@@ -79,6 +81,8 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
     * Entry type.  This map is backed by the metacontent store.
     */
    private ConcurrentMap<UUID, byte[]> map = null;
+   
+   /** The deserializer. */
    private final Function<byte[], T>         deserializer_;
 
    //~--- constructors --------------------------------------------------------
@@ -87,10 +91,8 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
     * Constructor for each new workflow content store based on the type
     * requested.
     *
-    * @param type
-    *            The type of workflow content store being instantiated
-    * @param deserializer
-    *            How to create a new object of type T from the submitted bytes
+    * @param dataStore the data store
+    * @param deserializer            How to create a new object of type T from the submitted bytes
     */
    public WorkflowContentStore(ConcurrentMap<UUID, byte[]> dataStore, Function<byte[], T> deserializer) {
       this.deserializer_ = deserializer;
@@ -119,6 +121,8 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    }
 
    /**
+    * Clear.
+    *
     * @see java.util.Map#clear()
     */
    @Override
@@ -127,6 +131,10 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    }
 
    /**
+    * Contains key.
+    *
+    * @param key the key
+    * @return true, if successful
     * @see java.util.Map#containsKey(java.lang.Object)
     */
    @Override
@@ -136,6 +144,9 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
 
    /**
     * Unsupported in this impl.
+    *
+    * @param value the value
+    * @return true, if successful
     */
    @Override
    public boolean containsValue(Object value) {
@@ -143,6 +154,9 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    }
 
    /**
+    * Entry set.
+    *
+    * @return the set
     * @see java.util.Map#entrySet()
     */
    @Override
@@ -156,6 +170,12 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
       return retSet.entrySet();
    }
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj instanceof WorkflowContentStore) {
@@ -170,6 +190,9 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    }
 
    /**
+    * Key set.
+    *
+    * @return the set
     * @see java.util.Map#keySet()
     */
    @Override
@@ -178,6 +201,11 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    }
 
    /**
+    * Put.
+    *
+    * @param key the key
+    * @param value the value
+    * @return the t
     * @see java.util.Map#put(java.lang.Object, java.lang.Object)
     */
    @Override
@@ -192,7 +220,9 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    }
 
    /**
-    * Not implemented in this implementation
+    * Not implemented in this implementation.
+    *
+    * @param m the m
     */
    @Override
    public void putAll(Map<? extends UUID, ? extends T> m) {
@@ -200,6 +230,10 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    }
 
    /**
+    * Removes the.
+    *
+    * @param key the key
+    * @return the t
     * @see java.util.Map#remove(java.lang.Object)
     */
    @Override
@@ -208,6 +242,9 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    }
 
    /**
+    * Size.
+    *
+    * @return the int
     * @see java.util.Map#size()
     */
    @Override
@@ -215,6 +252,11 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
       return this.map.size();
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuffer buf = new StringBuffer();
@@ -229,6 +271,9 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    }
 
    /**
+    * Values.
+    *
+    * @return the collection
     * @see java.util.Map#values()
     */
    @Override
@@ -242,6 +287,9 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Checks if empty.
+    *
+    * @return true, if empty
     * @see java.util.Map#isEmpty()
     */
    @Override
@@ -250,6 +298,10 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    }
 
    /**
+    * Gets the.
+    *
+    * @param key the key
+    * @return the t
     * @see java.util.Map#get(java.lang.Object)
     */
    @Override

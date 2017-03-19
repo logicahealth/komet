@@ -69,24 +69,47 @@ import sh.isaac.model.sememe.version.DescriptionSememeImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class DescriptionBuilderOchreImpl.
  *
  * @author kec
- * @param <T>
- * @param <V>
+ * @param <T> the generic type
+ * @param <V> the value type
  */
 public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extends DescriptionSememeImpl>
         extends ComponentBuilder<T>
          implements DescriptionBuilder<T, V> {
+   
+   /** The preferred in dialect assemblages. */
    private final ArrayList<ConceptSpecification> preferredInDialectAssemblages  = new ArrayList<>();
+   
+   /** The acceptable in dialect assemblages. */
    private final ArrayList<ConceptSpecification> acceptableInDialectAssemblages = new ArrayList<>();
+   
+   /** The concept sequence. */
    private int                                   conceptSequence                = Integer.MAX_VALUE;
+   
+   /** The description text. */
    private final String                          descriptionText;
+   
+   /** The description type. */
    private final ConceptSpecification            descriptionType;
+   
+   /** The language for description. */
    private final ConceptSpecification            languageForDescription;
+   
+   /** The concept builder. */
    private final ConceptBuilder                  conceptBuilder;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new description builder ochre impl.
+    *
+    * @param descriptionText the description text
+    * @param conceptBuilder the concept builder
+    * @param descriptionType the description type
+    * @param languageForDescription the language for description
+    */
    public DescriptionBuilderOchreImpl(String descriptionText,
                                       ConceptBuilder conceptBuilder,
                                       ConceptSpecification descriptionType,
@@ -97,6 +120,14 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
       this.conceptBuilder         = conceptBuilder;
    }
 
+   /**
+    * Instantiates a new description builder ochre impl.
+    *
+    * @param descriptionText the description text
+    * @param conceptSequence the concept sequence
+    * @param descriptionType the description type
+    * @param languageForDescription the language for description
+    */
    public DescriptionBuilderOchreImpl(String descriptionText,
                                       int conceptSequence,
                                       ConceptSpecification descriptionType,
@@ -110,18 +141,38 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the acceptable in dialect assemblage.
+    *
+    * @param dialectAssemblage the dialect assemblage
+    * @return the description builder
+    */
    @Override
    public DescriptionBuilder addAcceptableInDialectAssemblage(ConceptSpecification dialectAssemblage) {
       this.acceptableInDialectAssemblages.add(dialectAssemblage);
       return this;
    }
 
+   /**
+    * Adds the preferred in dialect assemblage.
+    *
+    * @param dialectAssemblage the dialect assemblage
+    * @return the description builder
+    */
    @Override
    public DescriptionBuilder addPreferredInDialectAssemblage(ConceptSpecification dialectAssemblage) {
       this.preferredInDialectAssemblages.add(dialectAssemblage);
       return this;
    }
 
+   /**
+    * Builds the.
+    *
+    * @param stampSequence the stamp sequence
+    * @param builtObjects the built objects
+    * @return the t
+    * @throws IllegalStateException the illegal state exception
+    */
    @Override
    public T build(int stampSequence,
                   List<ObjectChronology<? extends StampedVersion>> builtObjects)
@@ -165,6 +216,15 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
       return (T) newDescription;
    }
 
+   /**
+    * Builds the.
+    *
+    * @param editCoordinate the edit coordinate
+    * @param changeCheckerMode the change checker mode
+    * @param builtObjects the built objects
+    * @return the optional wait task
+    * @throws IllegalStateException the illegal state exception
+    */
    @Override
    public OptionalWaitTask<T> build(EditCoordinate editCoordinate,
                                     ChangeCheckerMode changeCheckerMode,

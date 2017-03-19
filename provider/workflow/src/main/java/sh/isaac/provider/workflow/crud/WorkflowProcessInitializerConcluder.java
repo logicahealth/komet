@@ -67,20 +67,25 @@ import sh.isaac.provider.workflow.model.contents.ProcessHistory;
 /**
  * Contains methods necessary to start, launch, cancel, or conclude a workflow
  * process
- *
- *
+ * 
+ * 
  * {@link WorkflowContentStore} {@link WorkflowProvider}
- * {@link BPMNInfo}
+ * {@link BPMNInfo}.
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 @Service
 @Singleton
 public class WorkflowProcessInitializerConcluder {
+   
+   /** The workflow provider. */
    private final WorkflowProvider workflowProvider_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new workflow process initializer concluder.
+    */
    // for HK2
    private WorkflowProcessInitializerConcluder() {
       this.workflowProvider_ = LookupService.get()
@@ -92,21 +97,15 @@ public class WorkflowProcessInitializerConcluder {
    /**
     * Creates a new workflow process instance. In turn, a new entry is added to the ProcessDetails content store. The process status defaults as
     * DEFINED.
-    *
+    * 
     * Used by users when creating a new process
     *
-    * @param definitionId
-    * The definition for which the process should be based on
-    * @param userId
-    * The user whom is creating the new process
-    * @param name
-    * The name of the new process
-    * @param description
-    * The description of the new process
-    *
+    * @param definitionId The definition for which the process should be based on
+    * @param userId The user whom is creating the new process
+    * @param name The name of the new process
+    * @param description The description of the new process
     * @return The process id which is in turn the key to the Process Detail's entry
-    *
-    * @throws Exception
+    * @throws Exception the exception
     */
    public UUID createWorkflowProcess(UUID definitionId, UUID userId, String name, String description)
             throws Exception {
@@ -169,20 +168,14 @@ public class WorkflowProcessInitializerConcluder {
     * History entry is added showing the advancement, and in the case of "CANCEL" request, any editing changes previously associated with the
     * instance are reverted.
     *
-    * @param processId
-    * The process being ended
-    * @param actionToProcess
-    * The AvailableAction the user requested
-    * @param userId
-    * The user ending the workflow
-    * @param comment
-    * The user added comment associated with the advancement
-    * @param endType
-    * The type of END-ADVANCEMENT associated with the selected
+    * @param processId The process being ended
+    * @param actionToProcess The AvailableAction the user requested
+    * @param userId The user ending the workflow
+    * @param comment The user added comment associated with the advancement
+    * @param endType The type of END-ADVANCEMENT associated with the selected
     * action (Canceled or Concluded)
-    *
-    * @throws Exception
-    * Thrown if the process doesn't exist or an attempt is made to a) cancel or conclude a process which isn't active, b) conclude a process where
+    * @param editCoordinate the edit coordinate
+    * @throws Exception Thrown if the process doesn't exist or an attempt is made to a) cancel or conclude a process which isn't active, b) conclude a process where
     * the process is not LAUNCHED, or c) conclude a process where the outcome state isn't a concluded state according to the definition
     */
    public void endWorkflowProcess(UUID processId,

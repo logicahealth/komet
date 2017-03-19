@@ -64,12 +64,16 @@ import sh.isaac.utility.SimpleDisplayConcept;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link MappingUtils}
+ * {@link MappingUtils}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class MappingUtils {
+   
+   /** The Constant LOG. */
    protected static final Logger LOG = LoggerFactory.getLogger(MappingUtils.class);
+   
+   /** The Constant CODE_SYSTEM_CONCEPTS. */
    public static final HashMap<String, ConceptSpecification> CODE_SYSTEM_CONCEPTS = new HashMap<String,
                                                                                        ConceptSpecification>();
 
@@ -85,6 +89,11 @@ public class MappingUtils {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the code systems.
+    *
+    * @return the code systems
+    */
    public static List<SimpleDisplayConcept> getCodeSystems() {
       final List<SimpleDisplayConcept> codeSystems = new ArrayList<SimpleDisplayConcept>();
 
@@ -94,10 +103,22 @@ public class MappingUtils {
       return codeSystems;
    }
 
+   /**
+    * Checks if mapping.
+    *
+    * @param sc the sc
+    * @return true, if mapping
+    */
    public static boolean isMapping(SememeChronology<? extends SememeVersion<?>> sc) {
       return Frills.isMapping(sc);
    }
 
+   /**
+    * Gets the qualifier concepts.
+    *
+    * @return the qualifier concepts
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static List<SimpleDisplayConcept> getQualifierConcepts()
             throws IOException {
       final ArrayList<SimpleDisplayConcept> result = new ArrayList<>();
@@ -113,6 +134,12 @@ public class MappingUtils {
       return result;
    }
 
+   /**
+    * Gets the status concepts.
+    *
+    * @return the status concepts
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static List<SimpleDisplayConcept> getStatusConcepts()
             throws IOException {
       // TODO why is this commented out / broken?

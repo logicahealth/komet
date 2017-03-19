@@ -63,20 +63,41 @@ import sh.isaac.api.progress.ActiveTasks;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class UpdateInferredFormsTask.
  *
  * @author kec
  */
 public class UpdateInferredFormsTask
         extends Task<Integer> {
+   
+   /** The processed count. */
    AtomicInteger     processedCount = new AtomicInteger();
+   
+   /** The classifier results. */
    ClassifierResults classifierResults;
+   
+   /** The classified model. */
    Ontology          classifiedModel;
+   
+   /** The logic coordinate. */
    LogicCoordinate   logicCoordinate;
+   
+   /** The stamp coordinate. */
    StampCoordinate   stampCoordinate;
+   
+   /** The concepts to process. */
    int               conceptsToProcess;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new update inferred forms task.
+    *
+    * @param classifierResults the classifier results
+    * @param classifiedModel the classified model
+    * @param logicCoordinate the logic coordinate
+    * @param stampCoordinate the stamp coordinate
+    */
    private UpdateInferredFormsTask(ClassifierResults classifierResults,
                                    Ontology classifiedModel,
                                    LogicCoordinate logicCoordinate,
@@ -94,6 +115,15 @@ public class UpdateInferredFormsTask
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Creates the.
+    *
+    * @param classifierResults the classifier results
+    * @param classifiedModel the classified model
+    * @param logicCoordinate the logic coordinate
+    * @param stampCoordinate the stamp coordinate
+    * @return the update inferred forms task
+    */
    public static UpdateInferredFormsTask create(ClassifierResults classifierResults,
          Ontology classifiedModel,
          LogicCoordinate logicCoordinate,
@@ -109,6 +139,12 @@ public class UpdateInferredFormsTask
       return task;
    }
 
+   /**
+    * Call.
+    *
+    * @return the integer
+    * @throws Exception the exception
+    */
    @Override
    protected Integer call()
             throws Exception {
@@ -142,6 +178,11 @@ public class UpdateInferredFormsTask
       throw new UnsupportedOperationException("Not supported yet.");
    }
 
+   /**
+    * Process logic graph sememe.
+    *
+    * @param latest the latest
+    */
    private void processLogicGraphSememe(LatestVersion<LogicGraphSememe> latest) {}
 }
 

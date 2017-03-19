@@ -43,10 +43,20 @@ package sh.isaac.model.logic;
  * Created by kec on 12/9/14.
  */
 public enum ConcreteDomainOperators {
+   
+   /** The equals. */
    EQUALS,
+   
+   /** The less than. */
    LESS_THAN,
+   
+   /** The less than equals. */
    LESS_THAN_EQUALS,
+   
+   /** The greater than. */
    GREATER_THAN,
+   
+   /** The greater than equals. */
    GREATER_THAN_EQUALS
 }
 

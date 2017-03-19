@@ -48,12 +48,20 @@ import sh.isaac.model.concept.ConceptVersionImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableConceptVersionImpl.
  *
  * @author kec
  */
 public class ObservableConceptVersionImpl
         extends ObservableVersionImpl<ObservableConceptVersionImpl, ConceptVersionImpl>
          implements ObservableConceptVersion<ObservableConceptVersionImpl> {
+   
+   /**
+    * Instantiates a new observable concept version impl.
+    *
+    * @param stampedVersion the stamped version
+    * @param chronology the chronology
+    */
    public ObservableConceptVersionImpl(ConceptVersionImpl stampedVersion,
          ObservableConceptChronology<ObservableConceptVersionImpl> chronology) {
       super(stampedVersion, chronology);
@@ -61,6 +69,11 @@ public class ObservableConceptVersionImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the chronology.
+    *
+    * @return the chronology
+    */
    @Override
    public ObservableConceptChronology<ObservableConceptVersionImpl> getChronology() {
       return (ObservableConceptChronology<ObservableConceptVersionImpl>) this.chronology;

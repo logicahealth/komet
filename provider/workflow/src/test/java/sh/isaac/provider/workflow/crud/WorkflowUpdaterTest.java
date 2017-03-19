@@ -73,11 +73,18 @@ import sh.isaac.provider.workflow.user.RoleConfigurator;
  */
 public class WorkflowUpdaterTest
         extends AbstractWorkflowProviderTestPackage {
+   
+   /** The first concept nid. */
    private static int firstConceptNid  = 0;
+   
+   /** The second concept nid. */
    private static int secondConceptNid = 0;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Before test.
+    */
    @Before
    public void beforeTest() {
       wp_.getProcessDetailStore()
@@ -86,6 +93,11 @@ public class WorkflowUpdaterTest
          .clear();
    }
 
+   /**
+    * Tear down class.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @AfterClass
    public static void tearDownClass()
             throws IOException {

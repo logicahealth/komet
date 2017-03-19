@@ -55,13 +55,27 @@ import sh.isaac.api.externalizable.OchreExternalizable;
  */
 public class OchreExternalizableStatsTestFilter
          implements Predicate<OchreExternalizable> {
+   
+   /** The concepts. */
    AtomicInteger concepts      = new AtomicInteger(0);
+   
+   /** The sememes. */
    AtomicInteger sememes       = new AtomicInteger(0);
+   
+   /** The stamp aliases. */
    AtomicInteger stampAliases  = new AtomicInteger(0);
+   
+   /** The stamp comments. */
    AtomicInteger stampComments = new AtomicInteger(0);
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -89,6 +103,11 @@ public class OchreExternalizableStatsTestFilter
       return this.stampComments.get() == that.stampComments.get();
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int result = this.concepts.hashCode();
@@ -99,6 +118,12 @@ public class OchreExternalizableStatsTestFilter
       return result;
    }
 
+   /**
+    * Test.
+    *
+    * @param ochreExternalizable the ochre externalizable
+    * @return true, if successful
+    */
    @Override
    public boolean test(OchreExternalizable ochreExternalizable) {
       switch (ochreExternalizable.getOchreObjectType()) {
@@ -125,6 +150,11 @@ public class OchreExternalizableStatsTestFilter
       return true;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "OchreExternalizableStatsTestFilter{" + "concepts=" + this.concepts + ", sememes=" + this.sememes +

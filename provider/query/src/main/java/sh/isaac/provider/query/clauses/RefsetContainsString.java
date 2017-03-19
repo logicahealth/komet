@@ -75,18 +75,37 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class RefsetContainsString
         extends LeafClause {
+   
+   /** The query text. */
    @XmlElement
    String queryText;
+   
+   /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
+   
+   /** The cache. */
    NidSet cache;
+   
+   /** The refset spec key. */
    @XmlElement
    String refsetSpecKey;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new refset contains string.
+    */
    protected RefsetContainsString() {}
 
+   /**
+    * Instantiates a new refset contains string.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param refsetSpecKey the refset spec key
+    * @param queryText the query text
+    * @param viewCoordinateKey the view coordinate key
+    */
    public RefsetContainsString(Query enclosingQuery, String refsetSpecKey, String queryText, String viewCoordinateKey) {
       super(enclosingQuery);
       this.refsetSpecKey     = refsetSpecKey;
@@ -96,6 +115,12 @@ public class RefsetContainsString
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       throw new UnsupportedOperationException();
@@ -128,14 +153,30 @@ public class RefsetContainsString
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {}
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();

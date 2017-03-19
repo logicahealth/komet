@@ -46,13 +46,25 @@ import sh.isaac.api.identity.IdentifiedObject;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface CommittableComponent.
  *
  * @author kec
  */
 public interface CommittableComponent
         extends IdentifiedObject {
+   
+   /**
+    * Gets the commit state.
+    *
+    * @return the commit state
+    */
    CommitStates getCommitState();
 
+   /**
+    * Checks if uncommitted.
+    *
+    * @return true, if uncommitted
+    */
    default boolean isUncommitted() {
       return getCommitState() == CommitStates.UNCOMMITTED;
    }

@@ -46,20 +46,38 @@ import org.apache.lucene.search.similarities.DefaultSimilarity;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ShortTextSimilarity.
  *
  * @author kec
  */
 class ShortTextSimilarity
         extends DefaultSimilarity {
+   
+   /**
+    * Instantiates a new short text similarity.
+    */
    public ShortTextSimilarity() {}
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Coord.
+    *
+    * @param overlap the overlap
+    * @param maxOverlap the max overlap
+    * @return the float
+    */
    @Override
    public float coord(int overlap, int maxOverlap) {
       return 1.0f;
    }
 
+   /**
+    * Tf.
+    *
+    * @param freq the freq
+    * @return the float
+    */
    @Override
    public float tf(float freq) {
       return 1.0f;

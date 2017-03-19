@@ -54,55 +54,116 @@ import sh.isaac.api.IdentifierService;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class NidSet.
  *
  * @author kec
  */
 public class NidSet
         extends AbstractIntSet<NidSet> {
+   
+   /**
+    * Instantiates a new nid set.
+    */
    public NidSet() {}
 
+   /**
+    * Instantiates a new nid set.
+    *
+    * @param members the members
+    */
    private NidSet(int[] members) {
       super(members);
    }
 
+   /**
+    * Instantiates a new nid set.
+    *
+    * @param memberStream the member stream
+    */
    private NidSet(IntStream memberStream) {
       super(memberStream);
    }
 
+   /**
+    * Instantiates a new nid set.
+    *
+    * @param members the members
+    */
    private NidSet(OpenIntHashSet members) {
       super(members);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Of.
+    *
+    * @param members the members
+    * @return the nid set
+    */
    public static NidSet of(Collection<Integer> members) {
       return new NidSet(members.stream().mapToInt(i -> i));
    }
 
+   /**
+    * Of.
+    *
+    * @param conceptSequenceSet the concept sequence set
+    * @return the nid set
+    */
    public static NidSet of(ConceptSequenceSet conceptSequenceSet) {
       final IdentifierService sp = Get.identifierService();
 
       return new NidSet(conceptSequenceSet.stream().map((sequence) -> sp.getConceptNid(sequence)));
    }
 
+   /**
+    * Of.
+    *
+    * @param members the members
+    * @return the nid set
+    */
    public static NidSet of(int... members) {
       return new NidSet(members);
    }
 
+   /**
+    * Of.
+    *
+    * @param memberStream the member stream
+    * @return the nid set
+    */
    public static NidSet of(IntStream memberStream) {
       return new NidSet(memberStream);
    }
 
+   /**
+    * Of.
+    *
+    * @param members the members
+    * @return the nid set
+    */
    public static NidSet of(OpenIntHashSet members) {
       return new NidSet(members);
    }
 
+   /**
+    * Of.
+    *
+    * @param sememeSequenceSet the sememe sequence set
+    * @return the nid set
+    */
    public static NidSet of(SememeSequenceSet sememeSequenceSet) {
       final IdentifierService sp = Get.identifierService();
 
       return new NidSet(sememeSequenceSet.stream().map((sequence) -> sp.getSememeNid(sequence)));
    }
 
+   /**
+    * Of all component nids.
+    *
+    * @return the nid set
+    */
    public static NidSet ofAllComponentNids() {
       return new NidSet(IntStream.rangeClosed(IdentifierService.FIRST_NID, Get.identifierService().getMaxNid()));
    }
@@ -111,6 +172,11 @@ public class NidSet
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString((nid) -> Integer.toString(nid));

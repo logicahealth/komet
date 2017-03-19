@@ -84,29 +84,54 @@ import sh.isaac.api.util.NamedThreadFactory;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link ChangeSetWriterHandler}
+ * {@link ChangeSetWriterHandler}.
+ *
  * @author <a href="mailto:nmarques@westcoastinformatics.com">Nuno Marques</a>
  */
 @Service(name = "Change Set Writer Handler")
 @RunLevel(value = 4)
 public class ChangeSetWriterHandler
          implements ChangeSetWriterService, ChangeSetListener {
+   
+   /** The Constant LOG. */
    private static final Logger LOG            = LogManager.getLogger();
+   
+   /** The Constant jsonFileSuffix. */
    private static final String jsonFileSuffix = "json";
+   
+   /** The Constant ibdfFileSuffix. */
    private static final String ibdfFileSuffix = "ibdf";
+   
+   /** The Constant CHANGESETS. */
    private static final String CHANGESETS     = "changesets";
 
    //~--- fields --------------------------------------------------------------
 
+   /** The change set writer handler uuid. */
    private final UUID        changeSetWriterHandlerUuid = UUID.randomUUID();
+   
+   /** The writer. */
    private DataWriterService writer;
+   
+   /** The change set write executor. */
    private ExecutorService   changeSetWriteExecutor;
+   
+   /** The write enabled. */
    private boolean           writeEnabled;
+   
+   /** The db build mode. */
    private Boolean           dbBuildMode;
+   
+   /** The change set folder. */
    private final Path              changeSetFolder;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new change set writer handler.
+    *
+    * @throws Exception the exception
+    */
    public ChangeSetWriterHandler()
             throws Exception {
       final Optional<Path> databasePath = LookupService.getService(ConfigurationService.class)
@@ -130,16 +155,27 @@ public class ChangeSetWriterHandler
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Disable.
+    */
    @Override
    public void disable() {
       this.writeEnabled = false;
    }
 
+   /**
+    * Enable.
+    */
    @Override
    public void enable() {
       this.writeEnabled = true;
    }
 
+   /**
+    * Handle post commit.
+    *
+    * @param commitRecord the commit record
+    */
    @Override
    public void handlePostCommit(CommitRecord commitRecord) {
       LOG.info("handle Post Commit");
@@ -180,6 +216,11 @@ public class ChangeSetWriterHandler
       }
    }
 
+   /**
+    * Pause.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void pause()
             throws IOException {
@@ -188,6 +229,11 @@ public class ChangeSetWriterHandler
       }
    }
 
+   /**
+    * Resume.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void resume()
             throws IOException {
@@ -196,6 +242,11 @@ public class ChangeSetWriterHandler
       }
    }
 
+   /**
+    * Sequence set change.
+    *
+    * @param conceptSequenceSet the concept sequence set
+    */
    /*
     */
    private void sequenceSetChange(ConceptSequenceSet conceptSequenceSet) {
@@ -212,6 +263,11 @@ public class ChangeSetWriterHandler
                                  });
    }
 
+   /**
+    * Sequence set change.
+    *
+    * @param sememeSequenceSet the sememe sequence set
+    */
    /*
     */
    private void sequenceSetChange(SememeSequenceSet sememeSequenceSet) {
@@ -227,6 +283,9 @@ public class ChangeSetWriterHandler
                                 });
    }
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       try {
@@ -244,6 +303,9 @@ public class ChangeSetWriterHandler
       }
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping ChangeSetWriterHandler pre-destroy");
@@ -267,6 +329,12 @@ public class ChangeSetWriterHandler
       }
    }
 
+   /**
+    * Write to file.
+    *
+    * @param ochreObject the ochre object
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private void writeToFile(OchreExternalizable ochreObject)
             throws IOException {
       this.writer.put(ochreObject);
@@ -274,16 +342,31 @@ public class ChangeSetWriterHandler
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the listener uuid.
+    *
+    * @return the listener uuid
+    */
    @Override
    public UUID getListenerUuid() {
       return this.changeSetWriterHandlerUuid;
    }
 
+   /**
+    * Gets the write folder.
+    *
+    * @return the write folder
+    */
    @Override
    public Path getWriteFolder() {
       return this.changeSetFolder;
    }
 
+   /**
+    * Gets the write status.
+    *
+    * @return the write status
+    */
    @Override
    public boolean getWriteStatus() {
       return this.writeEnabled;

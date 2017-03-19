@@ -69,15 +69,23 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeStringImpl;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class MappingItemCommentDAO.
+ */
 public class MappingItemCommentDAO
         extends MappingDAO {
+   
    /**
-    * Create (and store to the DB) a new comment
+    * Create (and store to the DB) a new comment.
+    *
     * @param pMappingItemUUID - The item the comment is being added to
     * @param pCommentText - The text of the comment
     * @param commentContext - (optional) field for storing other arbitrary info about the comment.  An editor may wish to put certain keywords on
     * some comments - this field is indexed, so a search for comments could query this field.
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @return the mapping item comment
+    * @throws RuntimeException the runtime exception
     */
    public static MappingItemComment createMappingItemComment(UUID pMappingItemUUID,
          String pCommentText,
@@ -126,8 +134,12 @@ public class MappingItemCommentDAO
    }
 
    /**
+    * Retire comment.
+    *
     * @param commentPrimordialUUID - The ID of the comment to be retired
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void retireComment(UUID commentPrimordialUUID,
                                     StampCoordinate stampCoord,
@@ -137,8 +149,12 @@ public class MappingItemCommentDAO
    }
 
    /**
+    * Un retire comment.
+    *
     * @param commentPrimordialUUID - The ID of the comment to be re-activated
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void unRetireComment(UUID commentPrimordialUUID,
                                       StampCoordinate stampCoord,
@@ -148,9 +164,12 @@ public class MappingItemCommentDAO
    }
 
    /**
-    * Store the values passed in as a new revision of a comment (the old revision remains in the DB)
+    * Store the values passed in as a new revision of a comment (the old revision remains in the DB).
+    *
     * @param comment - The MappingItemComment with revisions (contains fields where the setters have been called)
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void updateComment(MappingItemComment comment,
                                     StampCoordinate stampCoord,
@@ -182,10 +201,12 @@ public class MappingItemCommentDAO
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Read all comments for a particular mapping item (which could be a mapping set, or a mapping item)
+    * Read all comments for a particular mapping item (which could be a mapping set, or a mapping item).
+    *
     * @param mappingUUID - The UUID of a MappingSet or a MappingItem
-    * @return
-    * @throws RuntimeException
+    * @param stampCoord the stamp coord
+    * @return the comments
+    * @throws RuntimeException the runtime exception
     */
    public static List<MappingItemComment> getComments(UUID mappingUUID,
          StampCoordinate stampCoord)

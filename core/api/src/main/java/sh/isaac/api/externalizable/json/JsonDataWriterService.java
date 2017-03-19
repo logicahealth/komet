@@ -71,7 +71,7 @@ import sh.isaac.api.util.TimeFlushBufferedOutputStream;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link JsonDataWriterService} - serialize to JSON
+ * {@link JsonDataWriterService} - serialize to JSON.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
@@ -79,19 +79,40 @@ import sh.isaac.api.util.TimeFlushBufferedOutputStream;
 @PerLookup
 public class JsonDataWriterService
          implements DataWriterService {
+   
+   /** The logger. */
    private final Logger           logger     = LoggerFactory.getLogger(JsonDataWriterService.class);
+   
+   /** The pause block. */
    private final Semaphore        pauseBlock = new Semaphore(1);
+   
+   /** The json. */
    private JsonWriter       json_;
+   
+   /** The fos. */
    private FileOutputStream fos_;
+   
+   /** The data path. */
    private Path             dataPath;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new json data writer service.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private JsonDataWriterService()
             throws IOException {
       // For HK2
    }
 
+   /**
+    * Instantiates a new json data writer service.
+    *
+    * @param path the path
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public JsonDataWriterService(File path)
             throws IOException {
       this();
@@ -99,9 +120,10 @@ public class JsonDataWriterService
    }
 
    /**
-    * To support non HK2 useage
-    * @param path
-    * @throws IOException
+    * To support non HK2 useage.
+    *
+    * @param path the path
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public JsonDataWriterService(Path path)
             throws IOException {
@@ -111,6 +133,11 @@ public class JsonDataWriterService
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Close.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void close()
             throws IOException {
@@ -123,6 +150,12 @@ public class JsonDataWriterService
       }
    }
 
+   /**
+    * Configure.
+    *
+    * @param path the path
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void configure(Path path)
             throws IOException {
@@ -142,7 +175,9 @@ public class JsonDataWriterService
    }
 
    /**
-    * @throws IOException
+    * Flush.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
     * @see sh.isaac.api.externalizable.DataWriterService#flush()
     */
    @Override
@@ -153,6 +188,11 @@ public class JsonDataWriterService
       }
    }
 
+   /**
+    * Pause.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void pause()
             throws IOException {
@@ -166,6 +206,11 @@ public class JsonDataWriterService
       this.logger.debug("json writer paused");
    }
 
+   /**
+    * Put.
+    *
+    * @param ochreObject the ochre object
+    */
    @Override
    public void put(OchreExternalizable ochreObject) {
       try {
@@ -179,6 +224,8 @@ public class JsonDataWriterService
    /**
     * Write out a string object to the json file - this will encode all illegal characters within the string.
     * Useful for writing debugging files
+    *
+    * @param string the string
     */
    public void put(String string) {
       try {
@@ -189,6 +236,11 @@ public class JsonDataWriterService
       }
    }
 
+   /**
+    * Resume.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void resume()
             throws IOException {
@@ -207,6 +259,11 @@ public class JsonDataWriterService
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the current path.
+    *
+    * @return the current path
+    */
    @Override
    public Path getCurrentPath() {
       return this.dataPath;

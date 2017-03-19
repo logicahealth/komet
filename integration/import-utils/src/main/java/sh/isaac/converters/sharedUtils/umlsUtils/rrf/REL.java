@@ -57,29 +57,80 @@ import sh.isaac.converters.sharedUtils.umlsUtils.Relationship;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class REL.
+ */
 public class REL {
+   
+   /** The stype 1. */
    private final String cui1, aui1, stype1;
+
+/** The rel. */
 private String rel;
+
+/** The cui 2. */
 private final String cui2;
+
+/** The aui 2. */
 private final String aui2;
+
+/** The stype 2. */
 private final String stype2;
+
+/** The rela. */
 private String rela;
+
+/** The rui. */
 private final String rui;
+
+/** The srui. */
 private final String srui;
+
+/** The sab. */
 private final String sab;
+
+/** The sl. */
 private final String sl;
+
+/** The rg. */
 private final String rg;
+
+/** The dir. */
 private final String dir;
+
+/** The suppress. */
 private final String suppress;
+
+/** The cvf. */
 private final String cvf;
+
+/** The target SAB. */
 private String targetSAB;
+
+/** The target CODE. */
 private String targetCODE;
+
+/** The source SAB. */
 private final String sourceSAB;
+   
+   /** The rel hash. */
    private UUID    sourceUUID_, targetUUID_, relHash_;
+   
+   /** The looked up 2. */
    private final boolean lookedUp2_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new rel.
+    *
+    * @param sourceSab the source sab
+    * @param rs the rs
+    * @param lookedUp2 the looked up 2
+    * @param isRxNorm the is rx norm
+    * @param relReverser the rel reverser
+    * @throws SQLException the SQL exception
+    */
    private REL(String sourceSab,
                ResultSet rs,
                boolean lookedUp2,
@@ -125,6 +176,19 @@ private final String sourceSAB;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read.
+    *
+    * @param sourceSab the source sab
+    * @param rs the rs
+    * @param lookedUp2 the looked up 2
+    * @param allowedCUIs the allowed CU is
+    * @param cuiSkipCounter the cui skip counter
+    * @param isRxNorm the is rx norm
+    * @param relReverser the rel reverser
+    * @return the list
+    * @throws SQLException the SQL exception
+    */
    public static List<REL> read(String sourceSab,
                                 ResultSet rs,
                                 boolean lookedUp2,
@@ -152,14 +216,30 @@ private final String sourceSAB;
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the cvf.
+    *
+    * @return the cvf
+    */
    public String getCvf() {
       return this.cvf;
    }
 
+   /**
+    * Gets the dir.
+    *
+    * @return the dir
+    */
    public String getDir() {
       return this.dir;
    }
 
+   /**
+    * Gets the inverse rel hash.
+    *
+    * @param nameToRelMapper the name to rel mapper
+    * @return the inverse rel hash
+    */
    public UUID getInverseRelHash(Function<String, Relationship> nameToRelMapper) {
       // reverse the direction of the rels, and the source/target
       final String relInverse  = nameToRelMapper.apply(this.rel)
@@ -174,10 +254,20 @@ private final String sourceSAB;
       return UUID.nameUUIDFromBytes(new String(relInverse + relaInverse + this.targetUUID_ + this.sourceUUID_).getBytes());
    }
 
+   /**
+    * Gets the rel.
+    *
+    * @return the rel
+    */
    public String getRel() {
       return this.rel;
    }
 
+   /**
+    * Gets the rel hash.
+    *
+    * @return the rel hash
+    */
    public UUID getRelHash() {
       if (this.relHash_ == null) {
          this.relHash_ = UUID.nameUUIDFromBytes(new String(this.rel + this.rela + this.sourceUUID_ + this.targetUUID_).getBytes());
@@ -186,46 +276,96 @@ private final String sourceSAB;
       return this.relHash_;
    }
 
+   /**
+    * Gets the rela.
+    *
+    * @return the rela
+    */
    public String getRela() {
       return this.rela;
    }
 
+   /**
+    * Gets the rg.
+    *
+    * @return the rg
+    */
    public String getRg() {
       return this.rg;
    }
 
+   /**
+    * Gets the rui.
+    *
+    * @return the rui
+    */
    public String getRui() {
       return this.rui;
    }
 
+   /**
+    * Gets the sab.
+    *
+    * @return the sab
+    */
    public String getSab() {
       return this.sab;
    }
 
+   /**
+    * Gets the sl.
+    *
+    * @return the sl
+    */
    public String getSl() {
       return this.sl;
    }
 
+   /**
+    * Gets the source AUI.
+    *
+    * @return the source AUI
+    */
    public String getSourceAUI() {
       return this.lookedUp2_ ? this.aui2
                         : this.aui1;
    }
 
+   /**
+    * Gets the source CUI.
+    *
+    * @return the source CUI
+    */
    public String getSourceCUI() {
       return this.lookedUp2_ ? this.cui2
                         : this.cui1;
    }
 
+   /**
+    * Gets the source SAB.
+    *
+    * @return the source SAB
+    */
    public String getSourceSAB() {
       return this.sourceSAB;
    }
 
+   /**
+    * Gets the source UUID.
+    *
+    * @return the source UUID
+    */
    public UUID getSourceUUID() {
       return this.sourceUUID_;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the source UUID.
+    *
+    * @param sourceUUID the new source UUID
+    */
    public void setSourceUUID(UUID sourceUUID) {
       this.sourceUUID_ = sourceUUID;
       this.relHash_    = null;
@@ -233,46 +373,96 @@ private final String sourceSAB;
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the srui.
+    *
+    * @return the srui
+    */
    public String getSrui() {
       return this.srui;
    }
 
+   /**
+    * Gets the stype 1.
+    *
+    * @return the stype 1
+    */
    public String getStype1() {
       return this.stype1;
    }
 
+   /**
+    * Gets the stype 2.
+    *
+    * @return the stype 2
+    */
    public String getStype2() {
       return this.stype2;
    }
 
+   /**
+    * Gets the suppress.
+    *
+    * @return the suppress
+    */
    public String getSuppress() {
       return this.suppress;
    }
 
+   /**
+    * Gets the target AUI.
+    *
+    * @return the target AUI
+    */
    public String getTargetAUI() {
       return this.lookedUp2_ ? this.aui1
                         : this.aui2;
    }
 
+   /**
+    * Gets the target CUI.
+    *
+    * @return the target CUI
+    */
    public String getTargetCUI() {
       return this.lookedUp2_ ? this.cui1
                         : this.cui2;
    }
 
+   /**
+    * Gets the target code.
+    *
+    * @return the target code
+    */
    public String getTargetCode() {
       return this.targetCODE;
    }
 
+   /**
+    * Gets the target SAB.
+    *
+    * @return the target SAB
+    */
    public String getTargetSAB() {
       return this.targetSAB;
    }
 
+   /**
+    * Gets the target UUID.
+    *
+    * @return the target UUID
+    */
    public UUID getTargetUUID() {
       return this.targetUUID_;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the target UUID.
+    *
+    * @param targetUUID the new target UUID
+    */
    public void setTargetUUID(UUID targetUUID) {
       this.targetUUID_ = targetUUID;
       this.relHash_    = null;

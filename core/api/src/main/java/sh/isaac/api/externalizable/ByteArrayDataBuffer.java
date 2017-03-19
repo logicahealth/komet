@@ -61,20 +61,36 @@ import sh.isaac.api.commit.StampService;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ByteArrayDataBuffer.
  *
  * @author kec
  */
 public class ByteArrayDataBuffer {
+   
+   /** The Constant MAX_DATA_SIZE. */
    private static final int    MAX_DATA_SIZE = Integer.MAX_VALUE - 16;
+   
+   /** The Constant DEFAULT_SIZE. */
    private static final int    DEFAULT_SIZE  = 1024;
+   
+   /** The Constant FALSE. */
    protected static final byte FALSE         = 0;
+   
+   /** The Constant TRUE. */
    protected static final byte TRUE          = 1;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The position. */
    protected int     position                = 0;
+   
+   /** The read only. */
    protected boolean readOnly                = false;
+   
+   /** The object data format version. */
    protected byte    objectDataFormatVersion = 0;
+   
+   /** The external data. */
    protected boolean externalData            = false;
 
    /**
@@ -83,27 +99,56 @@ public class ByteArrayDataBuffer {
     * reading or writing to the same fields.
     */
    protected final StampedLock sl   = new StampedLock();
+   
+   /** The used. */
    protected int               used = 0;
+   
+   /** The position start. */
    protected final int         positionStart;
+   
+   /** The identifier service. */
    protected IdentifierService identifierService;
+   
+   /** The stamp service. */
    protected StampService      stampService;
+   
+   /** The data. */
    private byte[]              data;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new byte array data buffer.
+    */
    public ByteArrayDataBuffer() {
       this(DEFAULT_SIZE);
    }
 
+   /**
+    * Instantiates a new byte array data buffer.
+    *
+    * @param data the data
+    */
    public ByteArrayDataBuffer(byte[] data) {
       this(data, 0);
    }
 
+   /**
+    * Instantiates a new byte array data buffer.
+    *
+    * @param size the size
+    */
    public ByteArrayDataBuffer(int size) {
       this.data          = new byte[size];
       this.positionStart = 0;
    }
 
+   /**
+    * Instantiates a new byte array data buffer.
+    *
+    * @param data the data
+    * @param positionStart the position start
+    */
    public ByteArrayDataBuffer(byte[] data, int positionStart) {
       this.data          = data;
       this.used          = data.length;
@@ -112,6 +157,13 @@ public class ByteArrayDataBuffer {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Append.
+    *
+    * @param db the db
+    * @param position the position
+    * @param length the length
+    */
    public void append(ByteArrayDataBuffer db, int position, int length) {
       ensureSpace(this.position + length);
       System.arraycopy(db.data, position, this.data, this.position, length);
@@ -121,6 +173,8 @@ public class ByteArrayDataBuffer {
    /**
     *  Makes this buffer ready for a new sequence of put operations:
     *  It sets the limit to positionStart, and the position to positionStart.
+    *
+    * @return the byte array data buffer
     */
    public ByteArrayDataBuffer clear() {
       this.used     = 0;
@@ -131,6 +185,8 @@ public class ByteArrayDataBuffer {
    /**
     * Makes this buffer ready for a new sequence of get operations:
     * It sets the limit to the current position and then sets the position to zero.
+    *
+    * @return the byte array data buffer
     */
    public ByteArrayDataBuffer flip() {
       getLimit();
@@ -138,6 +194,11 @@ public class ByteArrayDataBuffer {
       return this;
    }
 
+   /**
+    * New wrapper.
+    *
+    * @return the byte array data buffer
+    */
    public ByteArrayDataBuffer newWrapper() {
       final ByteArrayDataBuffer newWrapper = new ByteArrayDataBuffer(this.data);
 
@@ -147,10 +208,22 @@ public class ByteArrayDataBuffer {
       return newWrapper;
    }
 
+   /**
+    * Put.
+    *
+    * @param src the src
+    */
    public void put(byte[] src) {
       put(src, 0, src.length);
    }
 
+   /**
+    * Put.
+    *
+    * @param src the src
+    * @param offset the offset
+    * @param length the length
+    */
    public void put(byte[] src, int offset, int length) {
       ensureSpace(this.position + length);
 
@@ -171,6 +244,11 @@ public class ByteArrayDataBuffer {
       this.position += length;
    }
 
+   /**
+    * Put boolean.
+    *
+    * @param x the x
+    */
    public void putBoolean(boolean x) {
       if (x) {
          putByte(TRUE);
@@ -179,6 +257,11 @@ public class ByteArrayDataBuffer {
       }
    }
 
+   /**
+    * Put byte.
+    *
+    * @param x the x
+    */
    public void putByte(byte x) {
       ensureSpace(this.position + 1);
 
@@ -199,15 +282,30 @@ public class ByteArrayDataBuffer {
       this.position += 1;
    }
 
+   /**
+    * Put byte array field.
+    *
+    * @param array the array
+    */
    public void putByteArrayField(byte[] array) {
       putInt(array.length);
       put(array, 0, array.length);
    }
 
+   /**
+    * Put char.
+    *
+    * @param x the x
+    */
    public void putChar(char x) {
       putShort((short) x);
    }
 
+   /**
+    * Put concept sequence.
+    *
+    * @param conceptSequence the concept sequence
+    */
    public void putConceptSequence(int conceptSequence) {
       if (this.externalData) {
          final UUID uuid = this.identifierService.getUuidPrimordialForNid(this.identifierService.getConceptNid(conceptSequence))
@@ -220,14 +318,29 @@ public class ByteArrayDataBuffer {
       }
    }
 
+   /**
+    * Put double.
+    *
+    * @param d the d
+    */
    public void putDouble(double d) {
       putLong(Double.doubleToLongBits(d));
    }
 
+   /**
+    * Put float.
+    *
+    * @param f the f
+    */
    public void putFloat(float f) {
       putInt(Float.floatToRawIntBits(f));
    }
 
+   /**
+    * Put int.
+    *
+    * @param x the x
+    */
    public void putInt(int x) {
       ensureSpace(this.position + 4);
 
@@ -254,6 +367,11 @@ public class ByteArrayDataBuffer {
       this.position += 4;
    }
 
+   /**
+    * Put int array.
+    *
+    * @param src the src
+    */
    public void putIntArray(int[] src) {
       putInt(src.length);
       ensureSpace(this.position + (src.length * 4));
@@ -275,6 +393,11 @@ public class ByteArrayDataBuffer {
       }
    }
 
+   /**
+    * Put long.
+    *
+    * @param x the x
+    */
    public void putLong(long x) {
       ensureSpace(this.position + 8);
 
@@ -309,6 +432,11 @@ public class ByteArrayDataBuffer {
       this.position += 8;
    }
 
+   /**
+    * Put nid.
+    *
+    * @param nid the nid
+    */
    public void putNid(int nid) {
       if (this.externalData) {
          final Optional<UUID> optionalUuid = this.identifierService.getUuidPrimordialForNid(nid);
@@ -326,6 +454,11 @@ public class ByteArrayDataBuffer {
       }
    }
 
+   /**
+    * Put sememe sequence.
+    *
+    * @param sememeSequence the sememe sequence
+    */
    public void putSememeSequence(int sememeSequence) {
       if (this.externalData) {
          final UUID uuid = this.identifierService.getUuidPrimordialForNid(this.identifierService.getSememeNid(sememeSequence))
@@ -338,6 +471,11 @@ public class ByteArrayDataBuffer {
       }
    }
 
+   /**
+    * Put short.
+    *
+    * @param x the x
+    */
    public void putShort(short x) {
       ensureSpace(this.position + 2);
 
@@ -360,6 +498,11 @@ public class ByteArrayDataBuffer {
       this.position += 2;
    }
 
+   /**
+    * Put stamp sequence.
+    *
+    * @param stampSequence the stamp sequence
+    */
    public void putStampSequence(int stampSequence) {
       if (this.externalData) {
          StampUniversal.get(stampSequence)
@@ -369,6 +512,11 @@ public class ByteArrayDataBuffer {
       }
    }
 
+   /**
+    * Put UTF.
+    *
+    * @param str the str
+    */
    public void putUTF(String str) {
       final int strlen = str.length();
       int utflen = 0;
@@ -419,11 +567,21 @@ public class ByteArrayDataBuffer {
       put(bytearr, 0, utflen);
    }
 
+   /**
+    * Put uuid.
+    *
+    * @param uuid the uuid
+    */
    public void putUuid(UUID uuid) {
       putLong(uuid.getMostSignificantBits());
       putLong(uuid.getLeastSignificantBits());
    }
 
+   /**
+    * Read UTF.
+    *
+    * @return the string
+    */
    public final String readUTF() {
       final int[]  positionArray = new int[] { this.position };
       final String result        = readUTF(positionArray);
@@ -432,6 +590,12 @@ public class ByteArrayDataBuffer {
       return result;
    }
 
+   /**
+    * Read UTF.
+    *
+    * @param position the position
+    * @return the string
+    */
    public final String readUTF(int[] position) {
       final int    utflen  = getInt(position[0]);
       final byte[] bytearr = new byte[utflen];
@@ -529,12 +693,18 @@ public class ByteArrayDataBuffer {
     * Makes this buffer ready for re-reading the data that it already contains:
     * It leaves the limit unchanged and sets the position to the positionStart.
     *
+    * @return the byte array data buffer
     */
    public ByteArrayDataBuffer rewind() {
       this.position = this.positionStart;
       return this;
    }
 
+   /**
+    * Slice.
+    *
+    * @return the byte array data buffer
+    */
    public ByteArrayDataBuffer slice() {
       final ByteArrayDataBuffer slice = new ByteArrayDataBuffer(this.data, this.position);
 
@@ -544,6 +714,11 @@ public class ByteArrayDataBuffer {
       return slice;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "ByteArrayDataBuffer{" + "position=" + this.position + ", positionStart=" + this.positionStart + ", readOnly=" +
@@ -551,6 +726,9 @@ public class ByteArrayDataBuffer {
              ", used=" + this.used + ", data=" + DatatypeConverter.printHexBinary(this.data) + '}';
    }
 
+   /**
+    * Trim to size.
+    */
    public void trimToSize() {
       if (this.readOnly) {
          throw new ReadOnlyBufferException();
@@ -571,6 +749,11 @@ public class ByteArrayDataBuffer {
       }
    }
 
+   /**
+    * Ensure space.
+    *
+    * @param minSpace the min space
+    */
    private void ensureSpace(int minSpace) {
       if (this.readOnly) {
          throw new ReadOnlyBufferException();
@@ -595,6 +778,11 @@ public class ByteArrayDataBuffer {
       }
    }
 
+   /**
+    * Put int array into data.
+    *
+    * @param src the src
+    */
    private void putIntArrayIntoData(int[] src) {
       for (final int anInt: src) {
          this.data[this.position]     = (byte) (anInt >> 24);
@@ -607,14 +795,30 @@ public class ByteArrayDataBuffer {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the boolean.
+    *
+    * @return the boolean
+    */
    public boolean getBoolean() {
       return getByte() != FALSE;
    }
 
+   /**
+    * Gets the boolean.
+    *
+    * @param position the position
+    * @return the boolean
+    */
    public boolean getBoolean(int position) {
       return getByte(position) != FALSE;
    }
 
+   /**
+    * Gets the byte.
+    *
+    * @return the byte
+    */
    public byte getByte() {
       final byte result = getByte(this.position);
 
@@ -622,6 +826,12 @@ public class ByteArrayDataBuffer {
       return result;
    }
 
+   /**
+    * Gets the byte.
+    *
+    * @param position the position
+    * @return the byte
+    */
    public byte getByte(int position) {
       long lockStamp = this.sl.tryOptimisticRead();
       byte result    = this.data[position];
@@ -640,6 +850,7 @@ public class ByteArrayDataBuffer {
    }
 
    /**
+    * Gets the byte array field.
     *
     * @return a byte[] written to the ByteArrayDataBuffer. Does not return the entire
     * data buffer as an array.
@@ -674,6 +885,11 @@ public class ByteArrayDataBuffer {
       return this.data.length;
    }
 
+   /**
+    * Gets the char.
+    *
+    * @return the char
+    */
    public char getChar() {
       final char result = getChar(this.position);
 
@@ -681,6 +897,12 @@ public class ByteArrayDataBuffer {
       return result;
    }
 
+   /**
+    * Gets the char.
+    *
+    * @param position the position
+    * @return the char
+    */
    public char getChar(int position) {
       long lockStamp = this.sl.tryOptimisticRead();
       char result    = (char) ((this.data[position] << 8) | (this.data[position + 1] & 0xff));
@@ -698,6 +920,11 @@ public class ByteArrayDataBuffer {
       return result;
    }
 
+   /**
+    * Gets the concept sequence.
+    *
+    * @return the concept sequence
+    */
    public int getConceptSequence() {
       if (this.externalData) {
          return this.identifierService.getConceptSequenceForUuids(new UUID(getLong(), getLong()));
@@ -707,6 +934,7 @@ public class ByteArrayDataBuffer {
    }
 
    /**
+    * Gets the data.
     *
     * @return the byte[] that backs this buffer.
     */
@@ -714,20 +942,41 @@ public class ByteArrayDataBuffer {
       return this.data;
    }
 
+   /**
+    * Gets the double.
+    *
+    * @return the double
+    */
    public double getDouble() {
       return Double.longBitsToDouble(getLong());
    }
 
+   /**
+    * Gets the double.
+    *
+    * @param position the position
+    * @return the double
+    */
    public double getDouble(int position) {
       return Double.longBitsToDouble(getLong(position));
    }
 
+   /**
+    * Checks if external data.
+    *
+    * @return true, if external data
+    */
    public boolean isExternalData() {
       return this.externalData;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the external data.
+    *
+    * @param externalData the new external data
+    */
    public void setExternalData(boolean externalData) {
       if (externalData) {
          this.identifierService = Get.identifierService();
@@ -739,19 +988,45 @@ public class ByteArrayDataBuffer {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the float.
+    *
+    * @return the float
+    */
    public float getFloat() {
       return Float.intBitsToFloat(getInt());
    }
 
+   /**
+    * Gets the float.
+    *
+    * @param position the position
+    * @return the float
+    */
    public float getFloat(int position) {
       return Float.intBitsToFloat(getInt(position));
    }
 
+   /**
+    * Gets the.
+    *
+    * @param src the src
+    * @param offset the offset
+    * @param length the length
+    */
    public void get(byte[] src, int offset, int length) {
       get(this.position, src, offset, length);
       this.position += length;
    }
 
+   /**
+    * Gets the.
+    *
+    * @param position the position
+    * @param src the src
+    * @param offset the offset
+    * @param length the length
+    */
    public void get(int position, byte[] src, int offset, int length) {
       long lockStamp = this.sl.tryOptimisticRead();
 
@@ -768,6 +1043,11 @@ public class ByteArrayDataBuffer {
       }
    }
 
+   /**
+    * Gets the int.
+    *
+    * @return the int
+    */
    public int getInt() {
       final int result = getInt(this.position);
 
@@ -775,6 +1055,12 @@ public class ByteArrayDataBuffer {
       return result;
    }
 
+   /**
+    * Gets the int.
+    *
+    * @param position the position
+    * @return the int
+    */
    public int getInt(int position) {
       long lockStamp = this.sl.tryOptimisticRead();
       int result = (((this.data[position]) << 24) | ((this.data[position + 1] & 0xff) << 16) | ((this.data[position + 2] & 0xff) << 8)
@@ -794,6 +1080,11 @@ public class ByteArrayDataBuffer {
       return result;
    }
 
+   /**
+    * Gets the int array.
+    *
+    * @return the int array
+    */
    public int[] getIntArray() {
       final int[] array            = new int[getInt()];
       final int   startingPosition = this.position;
@@ -833,6 +1124,11 @@ public class ByteArrayDataBuffer {
       return this.used - this.positionStart;
    }
 
+   /**
+    * Gets the long.
+    *
+    * @return the long
+    */
    public long getLong() {
       final long result = getLong(this.position);
 
@@ -840,6 +1136,12 @@ public class ByteArrayDataBuffer {
       return result;
    }
 
+   /**
+    * Gets the long.
+    *
+    * @param position the position
+    * @return the long
+    */
    public long getLong(int position) {
       long lockStamp = this.sl.tryOptimisticRead();
       long result    = getLongResult(position);
@@ -857,6 +1159,12 @@ public class ByteArrayDataBuffer {
       return result;
    }
 
+   /**
+    * Gets the long result.
+    *
+    * @param position the position
+    * @return the long result
+    */
    private long getLongResult(int position) {
       long result;
 
@@ -867,6 +1175,11 @@ public class ByteArrayDataBuffer {
       return result;
    }
 
+   /**
+    * Gets the nid.
+    *
+    * @return the nid
+    */
    public int getNid() {
       if (this.externalData) {
          return this.identifierService.getNidForUuids(new UUID(getLong(), getLong()));
@@ -875,12 +1188,22 @@ public class ByteArrayDataBuffer {
       return getInt();
    }
 
+   /**
+    * Gets the object data format version.
+    *
+    * @return the object data format version
+    */
    public byte getObjectDataFormatVersion() {
       return this.objectDataFormatVersion;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the object data format version.
+    *
+    * @param objectDataFormatVersion the new object data format version
+    */
    public void setObjectDataFormatVersion(byte objectDataFormatVersion) {
       this.objectDataFormatVersion = objectDataFormatVersion;
    }
@@ -919,6 +1242,11 @@ public class ByteArrayDataBuffer {
       return this.positionStart;
    }
 
+   /**
+    * Gets the sememe sequence.
+    *
+    * @return the sememe sequence
+    */
    public int getSememeSequence() {
       if (this.externalData) {
          return this.identifierService.getSememeSequenceForUuids(new UUID(getLong(), getLong()));
@@ -927,6 +1255,11 @@ public class ByteArrayDataBuffer {
       return getInt();
    }
 
+   /**
+    * Gets the short.
+    *
+    * @return the short
+    */
    public short getShort() {
       final short result = getShort(this.position);
 
@@ -934,6 +1267,12 @@ public class ByteArrayDataBuffer {
       return result;
    }
 
+   /**
+    * Gets the short.
+    *
+    * @param position the position
+    * @return the short
+    */
    public short getShort(int position) {
       long  lockStamp = this.sl.tryOptimisticRead();
       short result    = (short) (((this.data[position] & 0xff) << 8) | (this.data[position + 1] & 0xff));
@@ -951,6 +1290,11 @@ public class ByteArrayDataBuffer {
       return result;
    }
 
+   /**
+    * Gets the stamp sequence.
+    *
+    * @return the stamp sequence
+    */
    public int getStampSequence() {
       if (this.externalData) {
          return StampUniversal.get(this)
@@ -960,6 +1304,11 @@ public class ByteArrayDataBuffer {
       return getInt();
    }
 
+   /**
+    * Gets the uuid.
+    *
+    * @return the uuid
+    */
    public UUID getUuid() {
       return new UUID(getLong(), getLong());
    }

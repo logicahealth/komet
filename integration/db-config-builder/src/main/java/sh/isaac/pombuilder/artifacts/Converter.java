@@ -40,14 +40,21 @@
 package sh.isaac.pombuilder.artifacts;
 
 /**
- *
  * {@link Converter}
- * An artifact that points to a maven mojo converter project that knows how to turn terminology content into an  ibdf file
+ * An artifact that points to a maven mojo converter project that knows how to turn terminology content into an  ibdf file.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class Converter
         extends Artifact {
+   
+   /**
+    * Instantiates a new converter.
+    *
+    * @param groupId the group id
+    * @param artifactId the artifact id
+    * @param version the version
+    */
    public Converter(String groupId, String artifactId, String version) {
       super(groupId, artifactId, version, null);
    }

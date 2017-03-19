@@ -81,14 +81,10 @@ public class AvailableAction
    /** The workflow role which may perform the action on the initial state. */
    private UserRole role;
 
-   /**
-    * Definition uuid most significant bits for this component
-    */
+   /** Definition uuid most significant bits for this component. */
    private long definitionIdMsb;
 
-   /**
-    * Definition uuid least significant bits for this component
-    */
+   /** Definition uuid least significant bits for this component. */
    private long definitionIdLsb;
 
    //~--- constructors --------------------------------------------------------
@@ -106,11 +102,11 @@ public class AvailableAction
    /**
     * Constructor for a new available action on specified entry fields.
     *
-    * @param definitionId
-    * @param initialState
-    * @param action
-    * @param outcomeState
-    * @param role
+    * @param definitionId the definition id
+    * @param initialState the initial state
+    * @param action the action
+    * @param outcomeState the outcome state
+    * @param role the role
     */
    public AvailableAction(UUID definitionId, String initialState, String action, String outcomeState, UserRole role) {
       this.definitionId    = definitionId;
@@ -124,6 +120,12 @@ public class AvailableAction
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       final AvailableAction other = (AvailableAction) obj;
@@ -135,18 +137,33 @@ public class AvailableAction
              this.role.equals(other.role);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       return this.definitionId.hashCode() + this.initialState.hashCode() + this.action.hashCode() + this.outcomeState.hashCode() +
              this.role.hashCode();
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "\n\t\tId: " + this.id + "\n\t\tDefinition Id: " + this.definitionId.toString() + "\n\t\tInitial State: " +
              this.initialState + "\n\t\tAction: " + this.action + "\n\t\tOutcome State: " + this.outcomeState + "\n\t\tRole: " + this.role;
    }
 
+   /**
+    * Put additional workflow fields.
+    *
+    * @param out the out
+    */
    @Override
    protected void putAdditionalWorkflowFields(ByteArrayDataBuffer out) {
       out.putLong(this.definitionIdMsb);
@@ -168,6 +185,12 @@ public class AvailableAction
       return this.action;
    }
 
+   /**
+    * Gets the additional workflow fields.
+    *
+    * @param in the in
+    * @return the additional workflow fields
+    */
    @Override
    protected void getAdditionalWorkflowFields(ByteArrayDataBuffer in) {
       this.definitionIdMsb = in.getLong();

@@ -54,11 +54,18 @@ import static org.junit.Assert.assertEquals;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeLongTest}
+ * {@link DynamicSememeLongTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeLongTest {
+   
+   /**
+    * Test serialization.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
@@ -71,6 +78,13 @@ public class DynamicSememeLongTest {
       }
    }
 
+   /**
+    * Test.
+    *
+    * @param value the value
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private void test(long value)
             throws PropertyVetoException, IOException {
       final DynamicSememeLongImpl l = new DynamicSememeLongImpl(value);

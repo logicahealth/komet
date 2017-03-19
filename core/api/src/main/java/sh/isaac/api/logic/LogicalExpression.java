@@ -57,7 +57,10 @@ import sh.isaac.api.tree.TreeNodeVisitData;
  * @author kec
  */
 public interface LogicalExpression {
+   
    /**
+    * Contains.
+    *
     * @param semantic the type of nodes to match
     * @return true if the expression contains at least 1 node that matches
     * the semantic
@@ -82,8 +85,9 @@ public interface LogicalExpression {
 
    /**
     * Process the fragment starting at fragmentRoot in a depth first manner.
-    * @param fragmentRoot
-    * @param consumer
+    *
+    * @param fragmentRoot the fragment root
+    * @param consumer the consumer
     */
    void processDepthFirst(LogicNode fragmentRoot, BiConsumer<LogicNode, TreeNodeVisitData> consumer);
 
@@ -98,12 +102,14 @@ public interface LogicalExpression {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the concept sequence.
     *
     * @return the concept sequence this expression is associated with
     */
    int getConceptSequence();
 
    /**
+    * Gets the data.
     *
     * @param dataTarget if the serialization should be targeted for internal or universal use.
     * @return a array of byte arrays that represent this logical expression
@@ -112,25 +118,29 @@ public interface LogicalExpression {
    byte[][] getData(DataTarget dataTarget);
 
    /**
+    * Checks if meaningful.
     *
     * @return true if the expression is sufficiently complete to be meaningful.
     */
    boolean isMeaningful();
 
    /**
+    * Gets the node.
     *
-    * @param nodeIndex
+    * @param nodeIndex the node index
     * @return the node corresponding to the node index
     */
    LogicNode getNode(int nodeIndex);
 
    /**
+    * Gets the node count.
     *
     * @return the number of nodes in this expression
     */
    int getNodeCount();
 
    /**
+    * Gets the nodes of type.
     *
     * @param semantic the type of nodes to match
     * @return the nodes in the expression that match the NodeSemantic
@@ -138,6 +148,7 @@ public interface LogicalExpression {
    Stream<LogicNode> getNodesOfType(NodeSemantic semantic);
 
    /**
+    * Gets the root.
     *
     * @return the root node if this expression
     */

@@ -40,9 +40,14 @@
 package sh.isaac.api.commit;
 
 /**
+ * The Enum CommitStates.
  *
  * @author kec
  */
-public enum CommitStates { COMMITTED,
+public enum CommitStates { 
+ /** The committed. */
+ COMMITTED,
+                           
+                           /** The uncommitted. */
                            UNCOMMITTED; }
 

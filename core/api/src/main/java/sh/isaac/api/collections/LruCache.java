@@ -54,17 +54,22 @@ import java.util.Map;
  */
 public class LruCache<K, V>
         extends LinkedHashMap<K, V> {
-   /**
-    *
-    */
+   
+   /** The Constant serialVersionUID. */
    private static final long serialVersionUID = -2584554176457193968L;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The capacity. */
    private final int capacity;  // Maximum number of items in the cache.
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new lru cache.
+    *
+    * @param capacity the capacity
+    */
    public LruCache(int capacity) {
       super(capacity + 1, 1.0f, true);  // Pass 'true' for accessOrder.
       this.capacity = capacity;
@@ -72,6 +77,12 @@ public class LruCache<K, V>
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Removes the eldest entry.
+    *
+    * @param entry the entry
+    * @return true, if successful
+    */
    @Override
    protected boolean removeEldestEntry(Map.Entry<K, V> entry) {
       return (size() > this.capacity);

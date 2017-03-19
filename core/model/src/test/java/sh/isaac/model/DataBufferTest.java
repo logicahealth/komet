@@ -54,17 +54,28 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class DataBufferTest.
  *
  * @author kec
  */
 public class DataBufferTest {
+   
+   /**
+    * Instantiates a new data buffer test.
+    */
    public DataBufferTest() {}
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Tear down.
+    */
    @After
    public void tearDown() {}
 
+   /**
+    * Tear down class.
+    */
    @AfterClass
    public static void tearDownClass() {}
 
@@ -82,6 +93,9 @@ public class DataBufferTest {
       assertEquals(instance.getData().length, 4);
    }
 
+   /**
+    * Test edge UTF.
+    */
    @Test
    public void testEdgeUTF() {
       System.out.println("readUTF");
@@ -500,9 +514,15 @@ public class DataBufferTest {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set up.
+    */
    @Before
    public void setUp() {}
 
+   /**
+    * Set up class.
+    */
    @BeforeClass
    public static void setUpClass() {}
 }

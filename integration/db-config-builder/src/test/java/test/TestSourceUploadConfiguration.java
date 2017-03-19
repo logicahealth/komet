@@ -61,7 +61,17 @@ import sh.isaac.pombuilder.upload.SrcUploadCreator;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class TestSourceUploadConfiguration.
+ */
 public class TestSourceUploadConfiguration {
+   
+   /**
+    * The main method.
+    *
+    * @param args the arguments
+    * @throws Throwable the throwable
+    */
    public static void main(String[] args)
             throws Throwable {
       final String gitTestURL         = "https://git.isaac.sh/git/r/junk.git";

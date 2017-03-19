@@ -46,18 +46,27 @@ import java.util.concurrent.Semaphore;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class DiskSemaphore.
  *
  * @author kec
  */
 public class DiskSemaphore {
+   
+   /** The Constant WRITE_SEMAPHORE. */
    private static final Semaphore WRITE_SEMAPHORE = new Semaphore(1, true);
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Acquire.
+    */
    public static void acquire() {
       WRITE_SEMAPHORE.acquireUninterruptibly();
    }
 
+   /**
+    * Release.
+    */
    public static void release() {
       WRITE_SEMAPHORE.release();
    }

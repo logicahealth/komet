@@ -61,15 +61,22 @@ import org.w3c.dom.Node;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link VersionFinder}
+ * {@link VersionFinder}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class VersionFinder {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Find project version.
+    *
+    * @return the string
+    */
    public static String findProjectVersion() {
       try (InputStream is =
             VersionFinder.class.getResourceAsStream("/META-INF/maven/sh.isaac.modules/db-config-builder/pom.xml");) {

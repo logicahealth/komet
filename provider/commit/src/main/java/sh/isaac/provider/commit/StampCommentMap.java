@@ -73,17 +73,32 @@ import sh.isaac.api.externalizable.StampComment;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StampCommentMap.
  *
  * @author kec
  */
 public class StampCommentMap {
+   
+   /** The rwl. */
    private final ReentrantReadWriteLock rwl             = new ReentrantReadWriteLock();
+   
+   /** The read. */
    private final Lock                   read            = this.rwl.readLock();
+   
+   /** The write. */
    private final Lock                   write           = this.rwl.writeLock();
+   
+   /** The stamp comment map. */
    OpenIntObjectHashMap<String>         stampCommentMap = new OpenIntObjectHashMap();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the comment.
+    *
+    * @param stamp the stamp
+    * @param comment the comment
+    */
    public void addComment(int stamp, String comment) {
       try {
          this.write.lock();
@@ -100,6 +115,12 @@ public class StampCommentMap {
       }
    }
 
+   /**
+    * Read.
+    *
+    * @param mapFile the map file
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void read(File mapFile)
             throws IOException {
       try (DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(mapFile)))) {
@@ -116,6 +137,12 @@ public class StampCommentMap {
       }
    }
 
+   /**
+    * Write.
+    *
+    * @param mapFile the map file
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void write(File mapFile)
             throws IOException {
       try (DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(mapFile)))) {
@@ -136,8 +163,9 @@ public class StampCommentMap {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the comment.
     *
-    * @param stamp
+    * @param stamp the stamp
     * @return Comment associated with the stamp.
     */
    public Optional<String> getComment(int stamp) {
@@ -151,24 +179,47 @@ public class StampCommentMap {
       }
    }
 
+   /**
+    * Gets the size.
+    *
+    * @return the size
+    */
    public int getSize() {
       return this.stampCommentMap.size();
    }
 
+   /**
+    * Gets the stamp comment stream.
+    *
+    * @return the stamp comment stream
+    */
    public Stream<StampComment> getStampCommentStream() {
       return StreamSupport.stream(new StampCommentSpliterator(), false);
    }
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class StampCommentSpliterator.
+    */
    private class StampCommentSpliterator
            extends IndexedStampSequenceSpliterator<StampComment> {
+      
+      /**
+       * Instantiates a new stamp comment spliterator.
+       */
       public StampCommentSpliterator() {
          super(StampCommentMap.this.stampCommentMap.keys());
       }
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Try advance.
+       *
+       * @param action the action
+       * @return true, if successful
+       */
       @Override
       public boolean tryAdvance(Consumer<? super StampComment> action) {
          if (getIterator().hasNext()) {

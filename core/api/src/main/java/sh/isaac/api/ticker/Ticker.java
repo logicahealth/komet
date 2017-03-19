@@ -56,10 +56,18 @@ import org.reactfx.Subscription;
  * Created by kec on 4/9/15.
  */
 public class Ticker {
+   
+   /** The tick subscription. */
    private Subscription tickSubscription;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Start.
+    *
+    * @param intervalInSeconds the interval in seconds
+    * @param consumer the consumer
+    */
    public void start(int intervalInSeconds, Consumer consumer) {
       stop();
       this.tickSubscription = EventStreams.ticks(Duration.ofSeconds(intervalInSeconds))
@@ -68,6 +76,9 @@ public class Ticker {
             });
    }
 
+   /**
+    * Stop.
+    */
    public void stop() {
       if (this.tickSubscription != null) {
          this.tickSubscription.unsubscribe();

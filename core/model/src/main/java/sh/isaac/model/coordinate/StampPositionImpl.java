@@ -62,6 +62,7 @@ import sh.isaac.api.coordinate.StampPosition;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StampPositionImpl.
  *
  * @author kec
  */
@@ -69,15 +70,28 @@ import sh.isaac.api.coordinate.StampPosition;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class StampPositionImpl
          implements StampPosition, Comparable<StampPosition> {
+   
+   /** The time. */
    long time;
+   
+   /** The stamp path sequence. */
    int  stampPathSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new stamp position impl.
+    */
    private StampPositionImpl() {
       // for jaxb
    }
 
+   /**
+    * Instantiates a new stamp position impl.
+    *
+    * @param time the time
+    * @param stampPathSequence the stamp path sequence
+    */
    public StampPositionImpl(long time, int stampPathSequence) {
       this.time              = time;
       this.stampPathSequence = Get.identifierService()
@@ -86,6 +100,12 @@ public class StampPositionImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(StampPosition o) {
       if (this.stampPathSequence != o.getStampPathSequence()) {
@@ -95,6 +115,12 @@ public class StampPositionImpl
       return Long.compare(this.time, o.getTime());
    }
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
@@ -114,6 +140,11 @@ public class StampPositionImpl
       return this.stampPathSequence == other.stampPathSequence;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int hash = 7;
@@ -123,6 +154,11 @@ public class StampPositionImpl
       return hash;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();
@@ -145,11 +181,21 @@ public class StampPositionImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the stamp path.
+    *
+    * @return the stamp path
+    */
    @Override
    public StampPath getStampPath() {
       return new StampPathImpl(this.stampPathSequence);
    }
 
+   /**
+    * Gets the stamp path sequence.
+    *
+    * @return the stamp path sequence
+    */
    @Override
    public int getStampPathSequence() {
       return this.stampPathSequence;
@@ -157,6 +203,12 @@ public class StampPositionImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set stamp path sequence property.
+    *
+    * @param stampPathSequenceProperty the stamp path sequence property
+    * @return the change listener
+    */
    public ChangeListener<Number> setStampPathSequenceProperty(IntegerProperty stampPathSequenceProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                          Number oldValue,
@@ -170,6 +222,11 @@ public class StampPositionImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the time.
+    *
+    * @return the time
+    */
    @Override
    public long getTime() {
       return this.time;
@@ -177,6 +234,12 @@ public class StampPositionImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set time property.
+    *
+    * @param timeProperty the time property
+    * @return the change listener
+    */
    public ChangeListener<Number> setTimeProperty(LongProperty timeProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
                                          Number oldValue,

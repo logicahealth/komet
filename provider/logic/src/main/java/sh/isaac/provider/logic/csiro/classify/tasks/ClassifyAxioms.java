@@ -49,16 +49,27 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ClassifyAxioms.
  *
  * @author kec
  */
 public class ClassifyAxioms
         extends TimedTask<Void> {
+   
+   /** The stamp coordinate. */
    StampCoordinate stampCoordinate;
+   
+   /** The logic coordinate. */
    LogicCoordinate logicCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new classify axioms.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param logicCoordinate the logic coordinate
+    */
    public ClassifyAxioms(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
       this.stampCoordinate = stampCoordinate;
       this.logicCoordinate = logicCoordinate;
@@ -67,6 +78,12 @@ public class ClassifyAxioms
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Call.
+    *
+    * @return the void
+    * @throws Exception the exception
+    */
    @Override
    protected Void call()
             throws Exception {

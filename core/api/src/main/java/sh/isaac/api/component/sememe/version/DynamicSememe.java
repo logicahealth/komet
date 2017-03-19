@@ -51,20 +51,27 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDes
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface DynamicSememe.
+ *
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ * @param <T> the generic type
  */
 public interface DynamicSememe<T extends DynamicSememe<T>>
         extends SememeVersion<T> {
+   
    /**
-    * Return a string representation of the data fields
-    * @return
+    * Return a string representation of the data fields.
+    *
+    * @return the string
     */
    public String dataToString();
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data.
+    *
     * @return All of the data columns that are part of this DynamicSememe. See
     *         {@link #getData(int)}. May be empty, will not be null.
     */
@@ -73,10 +80,10 @@ public interface DynamicSememe<T extends DynamicSememe<T>>
    /**
     * The type and data (if any) in the specified column of the DynamicSememe.
     *
-    * @param columnNumber
+    * @param columnNumber the column number
     * @return The SememeMemberBI which contains the type and data (if any) for
     *         the specified column
-    * @throws IndexOutOfBoundsException
+    * @throws IndexOutOfBoundsException the index out of bounds exception
     */
    DynamicSememeData getData(int columnNumber)
             throws IndexOutOfBoundsException;
@@ -84,9 +91,9 @@ public interface DynamicSememe<T extends DynamicSememe<T>>
    /**
     * The type and data (if any) in the specified column of the DynamicSememe.
     *
-    * @param columnName
+    * @param columnName the column name
     * @return The DynamicSememeData which contains the type and data (if any) for the specified column
-    * @throws InvalidNameException
+    * @throws InvalidNameException the invalid name exception
     */
    DynamicSememeData getData(String columnName)
             throws InvalidNameException;
@@ -94,6 +101,8 @@ public interface DynamicSememe<T extends DynamicSememe<T>>
    /**
     * A convenience method that reads the concept referenced in {@link #getAssemblageNid()} and returns the actual column
     * information that is contained within that concept.
+    *
+    * @return the dynamic sememe usage description
     */
    public DynamicSememeUsageDescription getDynamicSememeUsageDescription();
 }

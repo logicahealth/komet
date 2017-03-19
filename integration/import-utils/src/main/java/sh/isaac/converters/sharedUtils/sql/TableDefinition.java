@@ -45,18 +45,35 @@ import java.util.LinkedHashMap;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class TableDefinition.
+ */
 public class TableDefinition {
+   
+   /** The columns. */
    private final LinkedHashMap<String, ColumnDefinition> columns_ = new LinkedHashMap<>();
+   
+   /** The table name. */
    private final String                                  tableName_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new table definition.
+    *
+    * @param tableName the table name
+    */
    public TableDefinition(String tableName) {
       this.tableName_ = tableName;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the column.
+    *
+    * @param cd the cd
+    */
    public void addColumn(ColumnDefinition cd) {
       this.columns_.put(cd.getColumnName()
                      .toLowerCase(), cd);
@@ -64,6 +81,12 @@ public class TableDefinition {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the col data type.
+    *
+    * @param columnName the column name
+    * @return the col data type
+    */
    public DataType getColDataType(String columnName) {
       final ColumnDefinition x = this.columns_.get(columnName.toLowerCase());
 
@@ -71,11 +94,21 @@ public class TableDefinition {
                          : x.getDataType();
    }
 
+   /**
+    * Gets the columns.
+    *
+    * @return the columns
+    */
    public ColumnDefinition[] getColumns() {
       return this.columns_.values()
                      .toArray(new ColumnDefinition[this.columns_.size()]);
    }
 
+   /**
+    * Gets the table name.
+    *
+    * @return the table name
+    */
    public String getTableName() {
       return this.tableName_;
    }

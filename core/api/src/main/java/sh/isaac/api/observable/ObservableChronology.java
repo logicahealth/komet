@@ -68,53 +68,108 @@ import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
  * Note the property constructor should take a concept id, and use a
  * language coordinate, and a stamp coordinate to determine the name of
  * the property.
- *
+ * 
  * Should the property name be the primordial UUID of of the concept identifying
  * the property?
- *
+ * 
  * ObservableChronologies are singletons.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public interface ObservableChronology<V extends ObservableVersion>
         extends ChronologyChangeListener {
+   
+   /**
+    * Commit state property.
+    *
+    * @return the object property
+    */
    ObjectProperty<CommitStates> commitStateProperty();
 
+   /**
+    * Nid property.
+    *
+    * @return the integer property
+    */
    IntegerProperty nidProperty();
 
+   /**
+    * Primordial uuid property.
+    *
+    * @return the object property
+    */
    ObjectProperty<UUID> primordialUuidProperty();
 
+   /**
+    * Sememe list property.
+    *
+    * @return the list property<? extends observable sememe chronology<? extends observable sememe version<?>>>
+    */
    ListProperty<? extends ObservableSememeChronology<? extends ObservableSememeVersion<?>>> sememeListProperty();
 
+   /**
+    * Uuid list property.
+    *
+    * @return the list property
+    */
    ListProperty<UUID> uuidListProperty();
 
+   /**
+    * Version list property.
+    *
+    * @return the list property<? extends v>
+    */
    ListProperty<? extends V> versionListProperty();
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the latest version.
+    *
+    * @param type the type
+    * @param coordinate the coordinate
+    * @return the latest version
+    */
    Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate coordinate);
 
    /**
+    * Gets the sememe list.
     *
     * @return a list of sememes, where this object is the referenced component.
     */
    ObservableList<? extends ObservableSememeChronology<? extends ObservableSememeVersion<?>>> getSememeList();
 
+   /**
+    * Gets the sememe list from assemblage.
+    *
+    * @param assemblageSequence the assemblage sequence
+    * @return the sememe list from assemblage
+    */
    List<? extends ObservableSememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(
            int assemblageSequence);
 
+   /**
+    * Gets the sememe list from assemblage of type.
+    *
+    * @param <SV> the generic type
+    * @param assemblageSequence the assemblage sequence
+    * @param type the type
+    * @return the sememe list from assemblage of type
+    */
    <SV extends ObservableSememeVersion> List<? extends ObservableSememeChronology<SV>> getSememeListFromAssemblageOfType(
            int assemblageSequence,
            Class<SV> type);
 
    /**
+    * Gets the version list.
     *
     * @return a list of all versions of this object chronology.
     */
    List<? extends V> getVersionList();
 
    /**
+    * Gets the version stamp sequences.
     *
     * @return the version stamps for all the versions of this object chronology.
     */

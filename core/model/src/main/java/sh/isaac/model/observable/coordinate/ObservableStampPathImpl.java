@@ -62,29 +62,52 @@ import sh.isaac.model.observable.ObservableFields;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableStampPathImpl.
  *
  * @author kec
  */
 public class ObservableStampPathImpl
         extends ObservableCoordinateImpl
          implements ObservableStampPath {
+   
+   /** The stamp path. */
    StampPathImpl                                stampPath;
+   
+   /** The path concept sequence property. */
    ReadOnlyIntegerProperty                      pathConceptSequenceProperty;
+   
+   /** The path origins property. */
    ReadOnlyListWrapper<ObservableStampPosition> pathOriginsProperty;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new observable stamp path impl.
+    *
+    * @param stampPath the stamp path
+    */
    public ObservableStampPathImpl(StampPath stampPath) {
       this.stampPath = (StampPathImpl) stampPath;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(StampPath o) {
       return this.stampPath.compareTo(o);
    }
 
+   /**
+    * Path concept sequence property.
+    *
+    * @return the read only integer property
+    */
    @Override
    public ReadOnlyIntegerProperty pathConceptSequenceProperty() {
       if (this.pathConceptSequenceProperty == null) {
@@ -96,6 +119,11 @@ public class ObservableStampPathImpl
       return this.pathConceptSequenceProperty;
    }
 
+   /**
+    * Path origins property.
+    *
+    * @return the read only list property
+    */
    @Override
    public ReadOnlyListProperty<ObservableStampPosition> pathOriginsProperty() {
       if (this.pathOriginsProperty == null) {
@@ -107,6 +135,11 @@ public class ObservableStampPathImpl
       return this.pathOriginsProperty;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "ObservableStampPathImpl{" + this.stampPath + '}';
@@ -114,6 +147,11 @@ public class ObservableStampPathImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the path concept sequence.
+    *
+    * @return the path concept sequence
+    */
    @Override
    public int getPathConceptSequence() {
       if (this.pathConceptSequenceProperty != null) {
@@ -123,6 +161,11 @@ public class ObservableStampPathImpl
       return this.stampPath.getPathConceptSequence();
    }
 
+   /**
+    * Gets the path origins.
+    *
+    * @return the path origins
+    */
    @Override
    public List<ObservableStampPosition> getPathOrigins() {
       if (this.pathOriginsProperty != null) {

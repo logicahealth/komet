@@ -69,14 +69,32 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
 //TODO move to CSIRO specific module
 public class AxiomCollector
          implements Collector<LogicalExpressionOchreImpl, Set<Axiom>, Set<Axiom>> {
+   
+   /** The concept sequences. */
    BitSet                     conceptSequences;
+   
+   /** The concepts. */
    Concept[]                  concepts;
+   
+   /** The roles. */
    OpenIntObjectHashMap<Role> roles;
+   
+   /** The never group role sequences. */
    OpenIntHashSet             neverGroupRoleSequences;
+   
+   /** The role group concept sequence. */
    int                        roleGroupConceptSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new axiom collector.
+    *
+    * @param conceptSequences the concept sequences
+    * @param roleSequences the role sequences
+    * @param neverGroupRoleSequences the never group role sequences
+    * @param roleGroupConceptSequence the role group concept sequence
+    */
    public AxiomCollector(BitSet conceptSequences,
                          OpenIntHashSet roleSequences,
                          OpenIntHashSet neverGroupRoleSequences,
@@ -96,17 +114,32 @@ public class AxiomCollector
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Accumulator.
+    *
+    * @return the bi consumer
+    */
    @Override
    public BiConsumer<Set<Axiom>, LogicalExpressionOchreImpl> accumulator() {
       return new AxiomAccumulator(this.concepts, this.conceptSequences, this.roles, this.neverGroupRoleSequences, this.roleGroupConceptSequence);
    }
 
+   /**
+    * Characteristics.
+    *
+    * @return the set
+    */
    @Override
    public Set<Characteristics> characteristics() {
       return Collections.unmodifiableSet(EnumSet.of(Collector.Characteristics.UNORDERED,
             Characteristics.IDENTITY_FINISH));
    }
 
+   /**
+    * Combiner.
+    *
+    * @return the binary operator
+    */
    @Override
    public BinaryOperator<Set<Axiom>> combiner() {
       return (list1, list2) -> {
@@ -115,11 +148,21 @@ public class AxiomCollector
              };
    }
 
+   /**
+    * Finisher.
+    *
+    * @return the function
+    */
    @Override
    public Function<Set<Axiom>, Set<Axiom>> finisher() {
       return Function.identity();
    }
 
+   /**
+    * Supplier.
+    *
+    * @return the supplier
+    */
    @Override
    public Supplier<Set<Axiom>> supplier() {
       return HashSet::new;

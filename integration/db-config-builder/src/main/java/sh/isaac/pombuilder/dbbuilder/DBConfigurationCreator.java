@@ -81,16 +81,27 @@ import sh.isaac.pombuilder.artifacts.IBDFFile;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DBConfigurationCreator {
+   
+   /** The Constant LOG. */
    private static final Logger LOG              = LogManager.getLogger();
+   
+   /** The Constant parentGroupId. */
    private static final String parentGroupId    = "sh.isaac.modules";
+   
+   /** The Constant parentArtifactId. */
    private static final String parentArtifactId = "db-builder";
+   
+   /** The Constant parentVersion. */
    private static final String parentVersion    = VersionFinder.findProjectVersion();
+   
+   /** The Constant groupId. */
    public static final String  groupId          = "sh.isaac.db";
 
    //~--- methods -------------------------------------------------------------
 
    /**
     * Construct a new DB builder project which is executable via maven.
+    *
     * @param name - The name to use for the maven artifact that will result from executing this generated pom file.
     * @param version - The version to use for the maven artifact that will result from executing this generated pom file.
     * @param description - Describe the purpose / contents of the database being constructed
@@ -100,9 +111,9 @@ public class DBConfigurationCreator {
     * @param metadataVersion - The version of the ochre-metadata content to include in the DB
     * @param gitRepositoryURL - The URL to publish this built project to
     * @param gitUsername - The username to utilize to publish this project
-    * @param getPassword - the password to utilize to publish this project
+    * @param gitPassword the git password
     * @return the tag created in the repository that carries the created project
-    * @throws Exception
+    * @throws Exception the exception
     */
    public static String createDBConfiguration(String name,
          String version,

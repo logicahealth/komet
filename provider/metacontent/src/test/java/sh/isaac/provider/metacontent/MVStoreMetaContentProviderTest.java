@@ -55,11 +55,17 @@ import sh.isaac.provider.metacontent.userPrefs.UserPreference;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link MVStoreMetaContentProviderTest}
+ * {@link MVStoreMetaContentProviderTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class MVStoreMetaContentProviderTest {
+   
+   /**
+    * Test my data.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void testMyData()
             throws Exception {
@@ -88,6 +94,11 @@ public class MVStoreMetaContentProviderTest {
       Assert.assertNull(map.get("b"));
    }
 
+   /**
+    * Test user prefs.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void testUserPrefs()
             throws Exception {

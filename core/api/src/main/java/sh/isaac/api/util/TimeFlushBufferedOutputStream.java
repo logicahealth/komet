@@ -71,20 +71,34 @@ import sh.isaac.api.Get;
  */
 public class TimeFlushBufferedOutputStream
         extends BufferedOutputStream {
+   
+   /** The Constant instances_. */
    private static final ArrayList<WeakReference<TimeFlushBufferedOutputStream>> instances_ = new ArrayList<>();
+   
+   /** The Constant logger. */
    private static final Logger logger = LoggerFactory.getLogger(TimeFlushBufferedOutputStream.class);
+   
+   /** The scheduled job. */
    private static ScheduledFuture<?>                                            scheduledJob_;
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    * @param out
+    * Instantiates a new time flush buffered output stream.
+    *
+    * @param out the out
     */
    public TimeFlushBufferedOutputStream(OutputStream out) {
       super(out);
       scheduleFlush();
    }
 
+   /**
+    * Instantiates a new time flush buffered output stream.
+    *
+    * @param out the out
+    * @param size the size
+    */
    public TimeFlushBufferedOutputStream(OutputStream out, int size) {
       super(out, size);
       scheduleFlush();
@@ -92,6 +106,11 @@ public class TimeFlushBufferedOutputStream
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Close.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void close()
             throws IOException {
@@ -110,6 +129,9 @@ public class TimeFlushBufferedOutputStream
       super.close();
    }
 
+   /**
+    * Schedule flush.
+    */
    private void scheduleFlush() {
       synchronized (instances_) {
          instances_.add(new WeakReference<TimeFlushBufferedOutputStream>(this));

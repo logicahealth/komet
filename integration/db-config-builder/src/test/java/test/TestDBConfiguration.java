@@ -46,7 +46,17 @@ import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class TestDBConfiguration.
+ */
 public class TestDBConfiguration {
+   
+   /**
+    * The main method.
+    *
+    * @param args the arguments
+    * @throws Exception the exception
+    */
    public static void main(String[] args)
             throws Exception {
       final String testURL  = "https://git.isaac.sh/git/r/dantest.git";

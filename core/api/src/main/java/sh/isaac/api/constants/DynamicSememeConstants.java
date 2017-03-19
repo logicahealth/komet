@@ -80,9 +80,10 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- * Constants relating to Dynamic Sememes
- * @author darmbrust
+ * Constants relating to Dynamic Sememes.
  *
+ * @author darmbrust
+ * 
  * Unfortunately, due to the use of the LookupService within this class - and the class itself being provided by a LookupService,
  * we cannot create these constants as static - it leads to recursion in the LookupService init which breaks things.
  */
@@ -90,63 +91,90 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 @Singleton
 public class DynamicSememeConstants
          implements ModuleProvidedConstants {
+   
+   /** The cache. */
    private static DynamicSememeConstants cache_;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The unknown concept. */
    public final UUID UNKNOWN_CONCEPT = UUID.fromString("00000000-0000-0000-C000-000000000046");
 
+   /** The dynamic sememe dt nid. */
    // Set up all of the data type columns
    public final MetadataConceptConstant DYNAMIC_SEMEME_DT_NID = new MetadataConceptConstant("nid",
                                                                                             UUID.fromString(
                                                                                                "d1a17272-9785-51aa-8bde-cc556ab32ebb")) {}
    ;
+   
+   /** The dynamic sememe dt boolean. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_DT_BOOLEAN = new MetadataConceptConstant("boolean",
                                                                                                 UUID.fromString(
                                                                                                    "08f2fb74-980d-5157-b92c-4ff1eac6a506")) {}
    ;
+   
+   /** The dynamic sememe dt long. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_DT_LONG = new MetadataConceptConstant("long",
                                                                                              UUID.fromString(
                                                                                                 "dea8cdf1-de75-5991-9791-79714e4a964d")) {}
    ;
+   
+   /** The dynamic sememe dt byte array. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_DT_BYTE_ARRAY = new MetadataConceptConstant("byte array",
                                                                                                    UUID.fromString(
                                                                                                       "9a84fecf-708d-5de4-9c5f-e17973229e0f")) {}
    ;
+   
+   /** The dynamic sememe dt float. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_DT_FLOAT = new MetadataConceptConstant("float",
                                                                                               UUID.fromString(
                                                                                                  "fb591801-7b37-525d-980d-98a1c63ceee0")) {}
    ;
+   
+   /** The dynamic sememe dt double. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_DT_DOUBLE = new MetadataConceptConstant("double",
                                                                                                UUID.fromString(
                                                                                                   "7172e6ac-a05a-5a34-8275-aef430b18207")) {}
    ;
+   
+   /** The dynamic sememe dt polymorphic. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_DT_POLYMORPHIC = new MetadataConceptConstant("polymorphic",
                                                                                                     UUID.fromString(
                                                                                                        "3d634fd6-1498-5e8b-b914-e75b42018397")) {}
    ;
+   
+   /** The dynamic sememe dt array. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_DT_ARRAY = new MetadataConceptConstant("array",
                                                                                               UUID.fromString(
                                                                                                  "318622e6-dd7a-5651-851d-2d5c2af85767")) {}
    ;
+   
+   /** The dynamic sememe dt sequence. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_DT_SEQUENCE = new MetadataConceptConstant("sequence",
                                                                                                  UUID.fromString(
                                                                                                     "5bfd7cfb-ca7e-584d-8672-e089dbb4e912")) {}
    ;
 
+   /** The dynamic sememe dt string. */
    // The following data types already exist, but I'm also adding them to our hierarchy for clarity
    public final MetadataConceptConstant DYNAMIC_SEMEME_DT_STRING = new MetadataConceptConstant("String",
                                                                                                UUID.fromString(
                                                                                                   "a46aaf11-b37a-32d6-abdc-707f084ec8f5")) {}
    ;
+   
+   /** The dynamic sememe dt integer. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_DT_INTEGER = new MetadataConceptConstant("Signed integer",
                                                                                                 UUID.fromString(
                                                                                                    "1d1c2073-d98b-3dd3-8aad-a19c65aa5a0c")) {}
    ;
+   
+   /** The dynamic sememe dt uuid. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_DT_UUID =
       new MetadataConceptConstant("Universally Unique Identifier",
                                   UUID.fromString("845274b5-9644-3799-94c6-e0ea37e7d1a4")) {}
    ;
+   
+   /** The dynamic sememe column data types. */
    public final MetadataConceptConstantGroup DYNAMIC_SEMEME_COLUMN_DATA_TYPES =
       new MetadataConceptConstantGroup("dynamic sememe column data types",
                                        UUID.fromString("61da7e50-f606-5ba0-a0df-83fd524951e7")) {
@@ -167,49 +195,64 @@ public class DynamicSememeConstants
    };
 
    // Set up other metadata
+   /** The dynamic sememe namespace. */
    // used as salt for generating other UUIDs.
    public final MetadataConceptConstant DYNAMIC_SEMEME_NAMESPACE =
       new MetadataConceptConstant("dynamic sememe namespace",
                                   UUID.fromString("eb0c13ff-74fd-5987-88a0-6f5d75269e9d")) {}
    ;
 
+   /** The dynamic sememe column order. */
    // The seven column types we need for describing column types
    public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_ORDER = new MetadataConceptConstant("column order",
                                                                                                   UUID.fromString(
                                                                                                      "8c501747-846a-5cea-8fd6-c9dd3dfc674f"),
                                                                                                   "Stores the column order of this column within a Dynamic Sememe Definition") {}
    ;
+   
+   /** The dynamic sememe column name. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_NAME = new MetadataConceptConstant("column name",
                                                                                                  UUID.fromString(
                                                                                                     "89c0ded2-fd69-5654-a386-ded850d258a1"),
                                                                                                  "Stores the concept reference to the concept that defines the name of this column within a Dynamic Sememe Definition") {}
    ;
+   
+   /** The dynamic sememe column type. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_TYPE = new MetadataConceptConstant("column type",
                                                                                                  UUID.fromString(
                                                                                                     "dbfd9bd2-b84f-574a-ab9e-64ba3bb94793"),
                                                                                                  "Stores the data type of this column within a Dynamic Sememe Definition") {}
    ;
+   
+   /** The dynamic sememe column default value. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_DEFAULT_VALUE =
       new MetadataConceptConstant("column default value",
                                   UUID.fromString("4d3e79aa-ab74-5858-beb3-15e0888986cb"),
                                   "Stores the (optional) default value of this column within a Dynamic Sememe Definition") {}
    ;
+   
+   /** The dynamic sememe column required. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_REQUIRED = new MetadataConceptConstant("column required",
                                                                                                      UUID.fromString(
                                                                                                         "8a89ef19-bd5a-5e25-aa57-1172fbb437b6"),
                                                                                                      "Stores the (optional) flag to specify that this column is manditory within a Dynamic Sememe Definition") {}
    ;
+   
+   /** The dynamic sememe column validator. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_VALIDATOR =
       new MetadataConceptConstant("column validator",
                                   UUID.fromString("f295c3ba-d416-563d-8427-8b5d3e324192"),
                                   "Stores the (optional) validator type which will be applied to user supplied data of this column within a Dynamic Sememe Definition") {}
    ;
+   
+   /** The dynamic sememe column validator data. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_VALIDATOR_DATA =
       new MetadataConceptConstant("column validator data",
                                   UUID.fromString("50ea8378-8355-5a5d-bae2-ce7c10e92636"),
                                   "Stores the (optional) validator data which will be used by the validator to check the user input of this column within a Dynamic Sememe Definition") {}
    ;
 
+   /** The dynamic sememe column columns to index. */
    // used for index config
    public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_COLUMNS_TO_INDEX =
       new MetadataConceptConstant("columns to index",
@@ -217,6 +260,7 @@ public class DynamicSememeConstants
                                   "Contains an array of integers that denote the column positions within the referenced sememe assemblage which should have their values indexed.") {}
    ;
 
+   /** The dynamic sememe column referenced component type. */
    // Used for referenced component type restrictions
    public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_REFERENCED_COMPONENT_TYPE =
       new MetadataConceptConstant("referenced component type restriction",
@@ -225,6 +269,7 @@ public class DynamicSememeConstants
                                   "referenced component when creating an instance of a dynamic sememe") {}
    ;
 
+   /** The dynamic sememe column referenced component subtype. */
    // Used for referenced component sub-type restrictions
    public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_REFERENCED_COMPONENT_SUBTYPE =
       new MetadataConceptConstant("referenced component subtype restriction",
@@ -235,6 +280,7 @@ public class DynamicSememeConstants
 
    // Convenience column type for refex instances that just wish to attach a single column of data, and don't want to create another concept
    // to represent the column name.  Typically only used when defining refexes where there is a single column of attached data (typically - attaching an attribute,
+   /** The dynamic sememe column value. */
    // the column represents the value, while the type of the attribute is represented by the refex type itself - so the column name isn't really necessary)
    public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_VALUE = new MetadataConceptConstant("value",
                                                                                                   UUID.fromString(
@@ -242,12 +288,15 @@ public class DynamicSememeConstants
                                                                                                   "The attached value of the sememe") {}
    ;
 
+   /** The dynamic sememe column editor comment. */
    // 2 columns for a comments sememe
    public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_EDITOR_COMMENT =
       new MetadataConceptConstant("editor comment",
                                   UUID.fromString("2b38b1a9-ce6e-5be2-8885-65cd76f40929"),
                                   "Stores the comment created by the editor") {}
    ;
+   
+   /** The dynamic sememe column editor comment context. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_EDITOR_COMMENT_CONTEXT =
       new MetadataConceptConstant("editor comment context",
                                   UUID.fromString("2e4187ca-ba45-5a87-8484-1f86801a331a"),
@@ -255,12 +304,15 @@ public class DynamicSememeConstants
                                   " then would allow programmatic filtering of comments to be context specific.") {}
    ;
 
+   /** The dynamic sememe column association target component. */
    // A column to store the target of an association within a sememe
    public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT =
       new MetadataConceptConstant("Target",
                                   UUID.fromString("e598e12f-3d39-56ac-be68-4e9fca98fb7a"),
                                   "Stores the (optional) target concept or component of an association or mapping") {}
    ;
+   
+   /** The dynamic sememe column business rules. */
    public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_BUSINESS_RULES =
       new MetadataConceptConstant("business rules",
                                   UUID.fromString("7ebc6742-8586-58c3-b49d-765fb5a93f35"),
@@ -269,6 +321,7 @@ public class DynamicSememeConstants
 
    // parent concept for all of the column info
    // An organizational concept which serves as a parent concept for any column types that are defined
+   /** The dynamic sememe columns. */
    // within the system.
    public final MetadataConceptConstantGroup DYNAMIC_SEMEME_COLUMNS =
       new MetadataConceptConstantGroup("dynamic sememe columns",
@@ -293,6 +346,7 @@ public class DynamicSememeConstants
    };
 
    // This is the assemblage type that is optionally attached to an assemblage itself, to declare type restrictions on the referenced component
+   /** The dynamic sememe referenced component restriction. */
    // of the sememe
    public final MetadataDynamicSememeConstant DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION =
       new MetadataDynamicSememeConstant("dynamic sememe referenced component restriction",
@@ -331,6 +385,7 @@ public class DynamicSememeConstants
                                                     false) }) {}
    ;
 
+   /** The dynamic sememe metadata. */
    // an organizational concept for all of the metadata concepts being added for dynamic sememe
    public final MetadataConceptConstantGroup DYNAMIC_SEMEME_METADATA =
       new MetadataConceptConstantGroup("dynamic sememe metadata",
@@ -348,6 +403,7 @@ public class DynamicSememeConstants
    // Set up the Dynamic Sememes that we require for Dynamic Sememes themselves.
    // This is the assemblage type that is usually present on a concept when it is used as an assemblage itself to describe the attached data - the attached
    // refex using this for an assemblage will describe a data column that is to be attached with the refex.  This assemblage type wouldn't be used if there was
+   /** The dynamic sememe extension definition. */
    // no data to attach.
    public final MetadataDynamicSememeConstant DYNAMIC_SEMEME_EXTENSION_DEFINITION =
       new MetadataDynamicSememeConstant("dynamic sememe extension definition",
@@ -414,6 +470,7 @@ public class DynamicSememeConstants
 
    // This is the extended description type that must be attached to a description within a concept to make the concept valid for use as an
    // assemblage concept for DynamicSememe refexes.  The description annotated with this type describes the intent of
+   /** The dynamic sememe definition description. */
    // using the concept containing the description as an assemblage concept.
    public final MetadataDynamicSememeConstant DYNAMIC_SEMEME_DEFINITION_DESCRIPTION =
       new MetadataDynamicSememeConstant("dynamic sememe definition description",
@@ -430,6 +487,7 @@ public class DynamicSememeConstants
 
    // This is the assemblage type that is used to record the current configuration of the Indexer for Dynamic Sememes..
    // this is ALSO the concept used as the referenced component dynamic sememe instances (of assemblage type itself) which define which other
+   /** The dynamic sememe index configuration. */
    // dynamic sememes should be indexed within the system.
    public final MetadataDynamicSememeConstant DYNAMIC_SEMEME_INDEX_CONFIGURATION =
       new MetadataDynamicSememeConstant("dynamic sememe index configuration",
@@ -444,6 +502,8 @@ public class DynamicSememeConstants
                                               false) },
                                         null) {}
    ;
+   
+   /** The dynamic sememe comment attribute. */
    public final MetadataDynamicSememeConstant DYNAMIC_SEMEME_COMMENT_ATTRIBUTE =
       new MetadataDynamicSememeConstant("Comment",
                                         UUID.fromString("147832d4-b9b8-5062-8891-19f9c4e4760a"),
@@ -462,9 +522,7 @@ public class DynamicSememeConstants
                                                     true) }) {}
    ;  // Index the comments, and the columns
 
-   /**
-    * see {@link #DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT}
-    */
+   /** see {@link #DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT}. */
    public final MetadataDynamicSememeConstant DYNAMIC_SEMEME_ASSOCIATION_SEMEME =
       new MetadataDynamicSememeConstant("sememe represents association",
                                         UUID.fromString("5252bafb-1ba7-5a35-b1a2-48d7a65fa477"),
@@ -473,6 +531,8 @@ public class DynamicSememeConstants
                                         new DynamicSememeColumnInfo[] {},
                                         null) {}
    ;
+   
+   /** The dynamic sememe association inverse name. */
    public final MetadataDynamicSememeConstant DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME =
       new MetadataDynamicSememeConstant("inverse name",
                                         UUID.fromString("c342d18a-ec1c-5583-bfe3-59e6324ae189"),
@@ -484,6 +544,8 @@ public class DynamicSememeConstants
                                         ObjectChronologyType.SEMEME,
                                         SememeType.DESCRIPTION) {}
    ;
+   
+   /** The dynamic sememe extended description type. */
    public final MetadataDynamicSememeConstant DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE =
       new MetadataDynamicSememeConstant("extended description type",
                                         UUID.fromString("5a2e7786-3e41-11dc-8314-0800200c9a66"),
@@ -499,6 +561,8 @@ public class DynamicSememeConstants
                                                  TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY.getPrimordialUuid()),
                                               true) }) {}
    ;
+   
+   /** The dynamic sememe extended relationship type. */
    public final MetadataDynamicSememeConstant DYNAMIC_SEMEME_EXTENDED_RELATIONSHIP_TYPE =
       new MetadataDynamicSememeConstant("extended relationship type",
                                         UUID.fromString("d41d928f-8a97-55c1-aa6c-a289b413fbfd"),
@@ -516,6 +580,7 @@ public class DynamicSememeConstants
                                               true) }) {}
    ;
 
+   /** The dynamic sememe prisme user id. */
    // TODO rewrite this sememe with multiple columns, to store whatever interesting data is passed over the json from prisme that we choose to store.
    public final MetadataDynamicSememeConstant DYNAMIC_SEMEME_PRISME_USER_ID =
       new MetadataDynamicSememeConstant("PRISME user ID",
@@ -530,6 +595,7 @@ public class DynamicSememeConstants
    ;
 
    // An organizational concept which serves as a parent concept for dynamic sememes defined in the system
+   /** The dynamic sememe assemblages. */
    // (unless they choose to put them some where else, this isn't required, is only for convenience)
    public final MetadataConceptConstantGroup DYNAMIC_SEMEME_ASSEMBLAGES =
       new MetadataConceptConstantGroup("dynamic sememe assemblages",
@@ -550,17 +616,30 @@ public class DynamicSememeConstants
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe constants.
+    */
    private DynamicSememeConstants() {
       // making this class impossible to construct outside of HK2
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the constants to create.
+    *
+    * @return the constants to create
+    */
    @Override
    public MetadataConceptConstant[] getConstantsToCreate() {
       return new MetadataConceptConstant[] { this.DYNAMIC_SEMEME_ASSEMBLAGES, this.DYNAMIC_SEMEME_METADATA };
    }
 
+   /**
+    * Gets the.
+    *
+    * @return the dynamic sememe constants
+    */
    public static DynamicSememeConstants get() {
       if (cache_ == null) {
          cache_ = LookupService.getService(DynamicSememeConstants.class);

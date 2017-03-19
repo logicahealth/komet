@@ -50,25 +50,49 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class DescriptionSememeImpl.
  *
  * @author kec
  */
 public class DescriptionSememeImpl
         extends SememeVersionImpl<DescriptionSememeImpl>
          implements MutableDescriptionSememe<DescriptionSememeImpl> {
+   
+   /** The case significance concept sequence. */
    protected int    caseSignificanceConceptSequence;
+   
+   /** The language concept sequence. */
    protected int    languageConceptSequence;
+   
+   /** The text. */
    protected String text;
+   
+   /** The description type concept sequence. */
    protected int    descriptionTypeConceptSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new description sememe impl.
+    *
+    * @param chronicle the chronicle
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    */
    public DescriptionSememeImpl(SememeChronologyImpl<DescriptionSememeImpl> chronicle,
                                 int stampSequence,
                                 short versionSequence) {
       super(chronicle, stampSequence, versionSequence);
    }
 
+   /**
+    * Instantiates a new description sememe impl.
+    *
+    * @param chronicle the chronicle
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    * @param data the data
+    */
    public DescriptionSememeImpl(SememeChronologyImpl<DescriptionSememeImpl> chronicle,
                                 int stampSequence,
                                 short versionSequence,
@@ -82,6 +106,11 @@ public class DescriptionSememeImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();
@@ -111,6 +140,11 @@ public class DescriptionSememeImpl
       return sb.toString();
    }
 
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
@@ -122,6 +156,11 @@ public class DescriptionSememeImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the case significance concept sequence.
+    *
+    * @return the case significance concept sequence
+    */
    @Override
    public int getCaseSignificanceConceptSequence() {
       return this.caseSignificanceConceptSequence;
@@ -129,6 +168,11 @@ public class DescriptionSememeImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the case significance concept sequence.
+    *
+    * @param caseSignificanceConceptSequence the new case significance concept sequence
+    */
    @Override
    public void setCaseSignificanceConceptSequence(int caseSignificanceConceptSequence) {
       this.caseSignificanceConceptSequence = caseSignificanceConceptSequence;
@@ -136,6 +180,11 @@ public class DescriptionSememeImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the description type concept sequence.
+    *
+    * @return the description type concept sequence
+    */
    @Override
    public int getDescriptionTypeConceptSequence() {
       return this.descriptionTypeConceptSequence;
@@ -143,6 +192,11 @@ public class DescriptionSememeImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the description type concept sequence.
+    *
+    * @param descriptionTypeConceptSequence the new description type concept sequence
+    */
    @Override
    public void setDescriptionTypeConceptSequence(int descriptionTypeConceptSequence) {
       this.descriptionTypeConceptSequence = descriptionTypeConceptSequence;
@@ -150,6 +204,11 @@ public class DescriptionSememeImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the language concept sequence.
+    *
+    * @return the language concept sequence
+    */
    @Override
    public int getLanguageConceptSequence() {
       return this.languageConceptSequence;
@@ -157,6 +216,11 @@ public class DescriptionSememeImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the language concept sequence.
+    *
+    * @param languageConceptSequence the new language concept sequence
+    */
    @Override
    public void setLanguageConceptSequence(int languageConceptSequence) {
       this.languageConceptSequence = languageConceptSequence;
@@ -164,11 +228,21 @@ public class DescriptionSememeImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    @Override
    public SememeType getSememeType() {
       return SememeType.DESCRIPTION;
    }
 
+   /**
+    * Gets the text.
+    *
+    * @return the text
+    */
    @Override
    public String getText() {
       return this.text;
@@ -176,6 +250,11 @@ public class DescriptionSememeImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the text.
+    *
+    * @param text the new text
+    */
    @Override
    public void setText(String text) {
       this.text = text;

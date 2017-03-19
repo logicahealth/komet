@@ -49,13 +49,25 @@ import sh.isaac.api.coordinate.StampPosition;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ObservableStampPosition.
  *
  * @author kec
  */
 public interface ObservableStampPosition
         extends StampPosition {
+   
+   /**
+    * Stamp path sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty stampPathSequenceProperty();
 
+   /**
+    * Time property.
+    *
+    * @return the long property
+    */
    LongProperty timeProperty();
 }
 

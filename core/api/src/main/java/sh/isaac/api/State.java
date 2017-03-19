@@ -46,6 +46,7 @@ import java.util.EnumSet;
 //~--- enums ------------------------------------------------------------------
 
 /**
+ * The Enum State.
  *
  * @author kec
  */
@@ -70,17 +71,32 @@ public enum State {
     */
    CANCELED(false, "Canceled", "C");
 
+   /** The active only set. */
    public static EnumSet<State> ACTIVE_ONLY_SET = EnumSet.of(State.ACTIVE);
+   
+   /** The any state set. */
    public static EnumSet<State> ANY_STATE_SET   = EnumSet.allOf(State.class);
 
    //~--- fields --------------------------------------------------------------
 
+   /** The is active. */
    boolean isActive;
+   
+   /** The name. */
    String  name;
+   
+   /** The abbreviation. */
    String  abbreviation;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new state.
+    *
+    * @param isActive the is active
+    * @param name the name
+    * @param abbreviation the abbreviation
+    */
    State(boolean isActive, String name, String abbreviation) {
       this.isActive     = isActive;
       this.name         = name;
@@ -89,6 +105,11 @@ public enum State {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Inverse.
+    *
+    * @return the state
+    */
    public State inverse() {
       switch (this) {
       case ACTIVE:
@@ -102,6 +123,11 @@ public enum State {
       }
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
 public String toString() {
       return this.name;
@@ -109,18 +135,39 @@ public String toString() {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the abbreviation.
+    *
+    * @return the abbreviation
+    */
    public String getAbbreviation() {
       return this.abbreviation;
    }
 
+   /**
+    * Checks if active.
+    *
+    * @return true, if active
+    */
    public boolean isActive() {
       return this.isActive;
    }
 
+   /**
+    * Gets the boolean.
+    *
+    * @return the boolean
+    */
    public boolean getBoolean() {
       return this.isActive;
    }
 
+   /**
+    * Gets the from boolean.
+    *
+    * @param isActive the is active
+    * @return the from boolean
+    */
    public static State getFromBoolean(boolean isActive) {
       if (isActive) {
          return ACTIVE;

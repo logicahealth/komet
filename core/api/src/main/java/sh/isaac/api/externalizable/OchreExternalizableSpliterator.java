@@ -58,10 +58,15 @@ import sh.isaac.api.Get;
  */
 public class OchreExternalizableSpliterator
          implements Spliterator<OchreExternalizable> {
+   
+   /** The streams. */
    List<Stream<? extends OchreExternalizable>> streams = new ArrayList<>();
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new ochre externalizable spliterator.
+    */
    public OchreExternalizableSpliterator() {
       this.streams.add(Get.conceptService()
                      .getConceptChronologyStream());
@@ -75,16 +80,31 @@ public class OchreExternalizableSpliterator
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Characteristics.
+    *
+    * @return the int
+    */
    @Override
    public int characteristics() {
       return DISTINCT | NONNULL | IMMUTABLE;
    }
 
+   /**
+    * Estimate size.
+    *
+    * @return the long
+    */
    @Override
    public long estimateSize() {
       return Long.MAX_VALUE;
    }
 
+   /**
+    * For each remaining.
+    *
+    * @param action the action
+    */
    @Override
    public void forEachRemaining(Consumer<? super OchreExternalizable> action) {
       for (final Stream<? extends OchreExternalizable> stream: this.streams) {
@@ -92,11 +112,22 @@ public class OchreExternalizableSpliterator
       }
    }
 
+   /**
+    * Try advance.
+    *
+    * @param action the action
+    * @return true, if successful
+    */
    @Override
    public boolean tryAdvance(Consumer<? super OchreExternalizable> action) {
       throw new UnsupportedOperationException();
    }
 
+   /**
+    * Try split.
+    *
+    * @return the spliterator
+    */
    @Override
    public Spliterator<OchreExternalizable> trySplit() {
       return null;

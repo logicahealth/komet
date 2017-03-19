@@ -48,15 +48,14 @@ import java.util.List;
 
 /**
  * {@link MavenArtifactInfo}
- *
- * This class carries Maven dependency information
+ * 
+ * This class carries Maven dependency information.
  *
  * @author <a href="mailto:joel.kniaz.list@gmail.com">Joel Kniaz</a>
  */
 public class MavenArtifactInfo {
-   /**
-    * Database Licenses
-    */
+   
+   /** Database Licenses. */
    public List<MavenLicenseInfo> dbLicenses = new ArrayList<>();
 
    /**
@@ -64,36 +63,31 @@ public class MavenArtifactInfo {
     */
    public List<MavenArtifactInfo> dbDependencies = new ArrayList<>();
 
-   /**
-    * Maven Dependency Group ID
-    */
+   /** Maven Dependency Group ID. */
    public String groupId;
 
-   /**
-    * Maven Dependency Artifact ID
-    */
+   /** Maven Dependency Artifact ID. */
    public String artifactId;
 
-   /**
-    * Maven Dependency Version
-    */
+   /** Maven Dependency Version. */
    public String version;
 
-   /**
-    * Maven Dependency Classifier
-    */
+   /** Maven Dependency Classifier. */
    public String classifier;
 
-   /**
-    * Maven Dependency Type
-    */
+   /** Maven Dependency Type. */
    public String type;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new maven artifact info.
+    */
    public MavenArtifactInfo() {}
 
    /**
+    * Instantiates a new maven artifact info.
+    *
     * @param groupId Maven Dependency Group ID
     * @param artifactId Maven Dependency Artifact ID
     * @param version Maven Dependency Version
@@ -107,6 +101,11 @@ public class MavenArtifactInfo {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();
@@ -129,6 +128,8 @@ public class MavenArtifactInfo {
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Set values.
+    *
     * @param groupId Maven Dependency Group ID
     * @param artifactId Maven Dependency Artifact ID
     * @param version Maven Dependency Version

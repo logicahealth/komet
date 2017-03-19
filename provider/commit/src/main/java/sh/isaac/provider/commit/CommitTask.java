@@ -74,29 +74,67 @@ import sh.isaac.api.task.TimedTask;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class CommitTask.
  *
  * @author kec
  */
 public class CommitTask
         extends TimedTask<Optional<CommitRecord>> {
+   
+   /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The concepts to commit. */
    final ConceptSequenceSet                           conceptsToCommit = new ConceptSequenceSet();
+   
+   /** The concepts to check. */
    final ConceptSequenceSet                           conceptsToCheck  = new ConceptSequenceSet();
+   
+   /** The sememes to commit. */
    final SememeSequenceSet                            sememesToCommit  = new SememeSequenceSet();
+   
+   /** The sememes to check. */
    final SememeSequenceSet                            sememesToCheck   = new SememeSequenceSet();
+   
+   /** The commit comment. */
    final String                                       commitComment;
+   
+   /** The last commit. */
    final long                                         lastCommit;
+   
+   /** The checkers. */
    private final ConcurrentSkipListSet<ChangeChecker> checkers;
+   
+   /** The alert collection. */
    private final ConcurrentSkipListSet<Alert>         alertCollection;
+   
+   /** The pending stamps for commit. */
    private final Map<UncommittedStamp, Integer>       pendingStampsForCommit;
+   
+   /** The commit provider. */
    private final CommitProvider                       commitProvider;
+   
+   /** The stamp provider. */
    private final StampService                         stampProvider;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new commit task.
+    *
+    * @param commitComment the commit comment
+    * @param uncommittedConceptsWithChecksSequenceSet the uncommitted concepts with checks sequence set
+    * @param uncommittedConceptsNoChecksSequenceSet the uncommitted concepts no checks sequence set
+    * @param uncommittedSememesWithChecksSequenceSet the uncommitted sememes with checks sequence set
+    * @param uncommittedSememesNoChecksSequenceSet the uncommitted sememes no checks sequence set
+    * @param lastCommit the last commit
+    * @param checkers the checkers
+    * @param alertCollection the alert collection
+    * @param pendingStampsForCommit the pending stamps for commit
+    * @param commitProvider the commit provider
+    */
    private CommitTask(String commitComment,
                       ConceptSequenceSet uncommittedConceptsWithChecksSequenceSet,
                       ConceptSequenceSet uncommittedConceptsNoChecksSequenceSet,
@@ -133,6 +171,12 @@ public class CommitTask
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Call.
+    *
+    * @return the optional
+    * @throws Exception the exception
+    */
    @Override
    protected Optional<CommitRecord> call()
             throws Exception {
@@ -229,17 +273,18 @@ public class CommitTask
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the.
     *
-    * @param commitComment
-    * @param uncommittedConceptsWithChecksSequenceSet
-    * @param uncommittedConceptsNoChecksSequenceSet
-    * @param uncommittedSememesWithChecksSequenceSet
-    * @param uncommittedSememesNoChecksSequenceSet
-    * @param lastCommit
-    * @param checkers
-    * @param alertCollection
-    * @param pendingStampsForCommit
-    * @param commitProvider
+    * @param commitComment the commit comment
+    * @param uncommittedConceptsWithChecksSequenceSet the uncommitted concepts with checks sequence set
+    * @param uncommittedConceptsNoChecksSequenceSet the uncommitted concepts no checks sequence set
+    * @param uncommittedSememesWithChecksSequenceSet the uncommitted sememes with checks sequence set
+    * @param uncommittedSememesNoChecksSequenceSet the uncommitted sememes no checks sequence set
+    * @param lastCommit the last commit
+    * @param checkers the checkers
+    * @param alertCollection the alert collection
+    * @param pendingStampsForCommit the pending stamps for commit
+    * @param commitProvider the commit provider
     * @return a {@code CommitTask} after it has been given to an executor, and
     * added to the activeTasks service.
     */

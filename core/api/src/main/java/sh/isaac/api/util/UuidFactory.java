@@ -50,6 +50,7 @@ import sh.isaac.api.bootstrap.TermAux;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * A factory for creating Uuid objects.
  *
  * @author kec
  */

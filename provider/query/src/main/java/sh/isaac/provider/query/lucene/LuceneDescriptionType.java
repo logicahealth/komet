@@ -40,15 +40,27 @@
 package sh.isaac.provider.query.lucene;
 
 /**
- * {@link LuceneDescriptionType}
+ * {@link LuceneDescriptionType}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public enum LuceneDescriptionType {
+   
+   /** The fsn. */
    FSN,
+   
+   /** The synonym. */
    SYNONYM,
+   
+   /** The definition. */
    DEFINITION;
 
+   /**
+    * From ordinal.
+    *
+    * @param ordinal the ordinal
+    * @return the lucene description type
+    */
    public static LuceneDescriptionType fromOrdinal(int ordinal) {
       for (final LuceneDescriptionType ldt: LuceneDescriptionType.values()) {
          if (ordinal == ldt.ordinal()) {
@@ -59,6 +71,12 @@ public enum LuceneDescriptionType {
       throw new RuntimeException("No Match!");
    }
 
+   /**
+    * Parses the.
+    *
+    * @param descriptionType the description type
+    * @return the lucene description type
+    */
    public static LuceneDescriptionType parse(String descriptionType) {
       for (final LuceneDescriptionType ldt: LuceneDescriptionType.values()) {
          if (ldt.name()

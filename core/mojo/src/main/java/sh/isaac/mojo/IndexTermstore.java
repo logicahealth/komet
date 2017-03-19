@@ -80,6 +80,12 @@ import sh.isaac.api.index.IndexServiceBI;
 )
 public class IndexTermstore
         extends AbstractMojo {
+   
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException {

@@ -55,12 +55,21 @@ import sh.isaac.api.logic.LogicalExpressionByteArrayConverter;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LogicByteArrayConverterService.
  *
  * @author kec
  */
 @Service
 public class LogicByteArrayConverterService
          implements LogicalExpressionByteArrayConverter {
+   
+   /**
+    * Convert logic graph form.
+    *
+    * @param logicGraphBytes the logic graph bytes
+    * @param dataTarget the data target
+    * @return the byte[][]
+    */
    @Override
    public byte[][] convertLogicGraphForm(byte[][] logicGraphBytes, DataTarget dataTarget) {
       LogicalExpressionOchreImpl logicGraph;

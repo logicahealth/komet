@@ -63,7 +63,7 @@ import sh.isaac.provider.query.WhereClause;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
+ * The Class DescriptionActiveLuceneMatch.
  *
  * @author dylangrald
  */
@@ -71,14 +71,31 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionActiveLuceneMatch
         extends DescriptionLuceneMatch {
+   
+   /**
+    * Instantiates a new description active lucene match.
+    */
    protected DescriptionActiveLuceneMatch() {}
 
+   /**
+    * Instantiates a new description active lucene match.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param luceneMatchKey the lucene match key
+    * @param viewCoordinateKey the view coordinate key
+    */
    public DescriptionActiveLuceneMatch(Query enclosingQuery, String luceneMatchKey, String viewCoordinateKey) {
       super(enclosingQuery, luceneMatchKey, viewCoordinateKey);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute components.
+    *
+    * @param incomingComponents the incoming components
+    * @return the nid set
+    */
    @Override
    public final NidSet computeComponents(NidSet incomingComponents) {
       final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
@@ -104,11 +121,21 @@ public class DescriptionActiveLuceneMatch
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_AND_POST_ITERATION;
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();

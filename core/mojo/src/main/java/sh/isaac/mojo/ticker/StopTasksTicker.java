@@ -59,6 +59,12 @@ import sh.isaac.api.progress.ActiveTasksTicker;
 )
 public class StopTasksTicker
         extends AbstractMojo {
+   
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException {

@@ -50,8 +50,14 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * Created by kec on 4/10/15.
  */
 public class WriteToDiskCache {
+   
+   /** The Constant WRITE_INTERVAL_IN_MS. */
    private static final int                             WRITE_INTERVAL_IN_MS = 15000;
+   
+   /** The cache set. */
    static ConcurrentSkipListSet<MemoryManagedReference> cacheSet             = new ConcurrentSkipListSet<>();
+   
+   /** The Constant writerThread. */
    static final Thread                                  writerThread;
 
    //~--- static initializers -------------------------------------------------
@@ -63,10 +69,18 @@ public class WriteToDiskCache {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the to cache.
+    *
+    * @param newRef the new ref
+    */
    public static void addToCache(MemoryManagedReference newRef) {
       cacheSet.add(newRef);
    }
 
+   /**
+    * Flush and clear cache.
+    */
    public static void flushAndClearCache() {
       cacheSet.stream().forEach((memoryManagedReference) -> {
                           cacheSet.remove(memoryManagedReference);
@@ -80,8 +94,15 @@ public class WriteToDiskCache {
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class WriteToDiskRunnable.
+    */
    public static class WriteToDiskRunnable
             implements Runnable {
+      
+      /**
+       * Run.
+       */
       @Override
       public void run() {
          while (true) {

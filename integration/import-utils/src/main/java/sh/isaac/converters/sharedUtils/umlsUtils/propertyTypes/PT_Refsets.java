@@ -47,14 +47,23 @@ import sh.isaac.converters.sharedUtils.propertyTypes.Property;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class PT_Refsets.
+ *
  * @author Daniel Armbrust
  */
 public class PT_Refsets
         extends BPT_Refsets {
+   
+   /** The cui concepts. */
    public Property CUI_CONCEPTS;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new p T refsets.
+    *
+    * @param terminologyName the terminology name
+    */
    public PT_Refsets(String terminologyName) {
       super(terminologyName);
 

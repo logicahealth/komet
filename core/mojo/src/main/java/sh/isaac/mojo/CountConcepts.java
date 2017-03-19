@@ -59,6 +59,12 @@ import sh.isaac.api.Get;
 )
 public class CountConcepts
         extends AbstractMojo {
+   
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
 public void execute()
             throws MojoExecutionException {

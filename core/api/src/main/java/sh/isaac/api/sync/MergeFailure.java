@@ -53,15 +53,26 @@ import java.util.Set;
  */
 public class MergeFailure
         extends Exception {
+   
+   /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 1L;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The files with merge failures. */
    private final Set<String> filesWithMergeFailures_;
+   
+   /** The files changed during merge attempt. */
    private final Set<String> filesChangedDuringMergeAttempt_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new merge failure.
+    *
+    * @param filesWithMergeFailures the files with merge failures
+    * @param filesChangedDuringMergeAttempt the files changed during merge attempt
+    */
    public MergeFailure(Set<String> filesWithMergeFailures, Set<String> filesChangedDuringMergeAttempt) {
       super("Merge Failure");
       this.filesWithMergeFailures_         = filesWithMergeFailures;
@@ -71,6 +82,8 @@ public class MergeFailure
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the files changed during merge attempt.
+    *
     * @return All files that were changed (successfully or not) during the merge.
     */
    public Set<String> getFilesChangedDuringMergeAttempt() {
@@ -78,6 +91,9 @@ public class MergeFailure
    }
 
    /**
+    * Gets the localized message.
+    *
+    * @return the localized message
     * @see java.lang.Throwable#getLocalizedMessage()
     */
    @Override
@@ -87,6 +103,8 @@ public class MergeFailure
    }
 
    /**
+    * Gets the merge failures.
+    *
     * @return The files that were left in a conflicted, unusable state - much be corrected with a call to resolveMergeFailures.
     */
    public Set<String> getMergeFailures() {

@@ -85,6 +85,7 @@ import sh.isaac.model.coordinate.StampPositionImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class CoordinateFactoryProvider.
  *
  * @author kec
  */
@@ -92,26 +93,55 @@ import sh.isaac.model.coordinate.StampPositionImpl;
 @Singleton
 public class CoordinateFactoryProvider
          implements CoordinateFactory {
+   
+   /**
+    * Case significance to concept sequence.
+    *
+    * @param initialCaseSignificant the initial case significant
+    * @return the int
+    */
    @Override
    public int caseSignificanceToConceptSequence(boolean initialCaseSignificant) {
       return LanguageCoordinates.caseSignificanceToConceptSequence(initialCaseSignificant);
    }
 
+   /**
+    * Concept id to case significance.
+    *
+    * @param id the id
+    * @return true, if successful
+    */
    @Override
    public boolean conceptIdToCaseSignificance(int id) {
       return LanguageCoordinates.conceptIdToCaseSignificance(id);
    }
 
+   /**
+    * Concept id to iso 639.
+    *
+    * @param nid the nid
+    * @return the string
+    */
    @Override
    public String conceptIdToIso639(int nid) {
       return LanguageCoordinates.conceptNidToIso639(nid);
    }
 
+   /**
+    * Creates the classifier solor overlay edit coordinate.
+    *
+    * @return the edits the coordinate
+    */
    @Override
    public EditCoordinate createClassifierSolorOverlayEditCoordinate() {
       return EditCoordinates.getClassifierSolorOverlay();
    }
 
+   /**
+    * Creates the default inferred taxonomy coordinate.
+    *
+    * @return the taxonomy coordinate
+    */
    @Override
    public TaxonomyCoordinate createDefaultInferredTaxonomyCoordinate() {
       return createInferredTaxonomyCoordinate(createDevelopmentLatestActiveOnlyStampCoordinate(),
@@ -119,6 +149,11 @@ public class CoordinateFactoryProvider
             createStandardElProfileLogicCoordinate());
    }
 
+   /**
+    * Creates the default stated taxonomy coordinate.
+    *
+    * @return the taxonomy coordinate
+    */
    @Override
    public TaxonomyCoordinate createDefaultStatedTaxonomyCoordinate() {
       return createStatedTaxonomyCoordinate(createDevelopmentLatestActiveOnlyStampCoordinate(),
@@ -126,31 +161,64 @@ public class CoordinateFactoryProvider
             createStandardElProfileLogicCoordinate());
    }
 
+   /**
+    * Creates the default user metadata edit coordinate.
+    *
+    * @return the edits the coordinate
+    */
    @Override
    public EditCoordinate createDefaultUserMetadataEditCoordinate() {
       return EditCoordinates.getDefaultUserMetadata();
    }
 
+   /**
+    * Creates the default user solor overlay edit coordinate.
+    *
+    * @return the edits the coordinate
+    */
    @Override
    public EditCoordinate createDefaultUserSolorOverlayEditCoordinate() {
       return EditCoordinates.getDefaultUserSolorOverlay();
    }
 
+   /**
+    * Creates the default user veterans administration extension edit coordinate.
+    *
+    * @return the edits the coordinate
+    */
    @Override
    public EditCoordinate createDefaultUserVeteransAdministrationExtensionEditCoordinate() {
       return EditCoordinates.getDefaultUserVeteransAdministrationExtension();
    }
 
+   /**
+    * Creates the development latest active only stamp coordinate.
+    *
+    * @return the stamp coordinate
+    */
    @Override
    public StampCoordinate createDevelopmentLatestActiveOnlyStampCoordinate() {
       return StampCoordinates.getDevelopmentLatestActiveOnly();
    }
 
+   /**
+    * Creates the development latest stamp coordinate.
+    *
+    * @return the stamp coordinate
+    */
    @Override
    public StampCoordinate createDevelopmentLatestStampCoordinate() {
       return StampCoordinates.getDevelopmentLatest();
    }
 
+   /**
+    * Creates the inferred taxonomy coordinate.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param languageCoordinate the language coordinate
+    * @param logicCoordinate the logic coordinate
+    * @return the taxonomy coordinate
+    */
    @Override
    public TaxonomyCoordinate createInferredTaxonomyCoordinate(StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate,
@@ -158,16 +226,36 @@ public class CoordinateFactoryProvider
       return TaxonomyCoordinates.getInferredTaxonomyCoordinate(stampCoordinate, languageCoordinate, logicCoordinate);
    }
 
+   /**
+    * Creates the master latest active only stamp coordinate.
+    *
+    * @return the stamp coordinate
+    */
    @Override
    public StampCoordinate createMasterLatestActiveOnlyStampCoordinate() {
       return StampCoordinates.getMasterLatestActiveOnly();
    }
 
+   /**
+    * Creates the master latest stamp coordinate.
+    *
+    * @return the stamp coordinate
+    */
    @Override
    public StampCoordinate createMasterLatestStampCoordinate() {
       return StampCoordinates.getMasterLatest();
    }
 
+   /**
+    * Creates the stamp coordinate.
+    *
+    * @param stampPath the stamp path
+    * @param precedence the precedence
+    * @param moduleSpecificationList the module specification list
+    * @param allowedStateSet the allowed state set
+    * @param dateTimeText the date time text
+    * @return the stamp coordinate
+    */
    @Override
    public StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
          StampPrecedence precedence,
@@ -181,6 +269,16 @@ public class CoordinateFactoryProvider
       return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, allowedStateSet);
    }
 
+   /**
+    * Creates the stamp coordinate.
+    *
+    * @param stampPath the stamp path
+    * @param precedence the precedence
+    * @param moduleSpecificationList the module specification list
+    * @param allowedStateSet the allowed state set
+    * @param temporal the temporal
+    * @return the stamp coordinate
+    */
    @Override
    public StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
          StampPrecedence precedence,
@@ -194,6 +292,21 @@ public class CoordinateFactoryProvider
       return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, allowedStateSet);
    }
 
+   /**
+    * Creates the stamp coordinate.
+    *
+    * @param stampPath the stamp path
+    * @param precedence the precedence
+    * @param moduleSpecificationList the module specification list
+    * @param allowedStateSet the allowed state set
+    * @param year the year
+    * @param month the month
+    * @param dayOfMonth the day of month
+    * @param hour the hour
+    * @param minute the minute
+    * @param second the second
+    * @return the stamp coordinate
+    */
    @Override
    public StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
          StampPrecedence precedence,
@@ -216,11 +329,24 @@ public class CoordinateFactoryProvider
       return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, allowedStateSet);
    }
 
+   /**
+    * Creates the standard el profile logic coordinate.
+    *
+    * @return the logic coordinate
+    */
    @Override
    public LogicCoordinate createStandardElProfileLogicCoordinate() {
       return LogicCoordinates.getStandardElProfile();
    }
 
+   /**
+    * Creates the stated taxonomy coordinate.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param languageCoordinate the language coordinate
+    * @param logicCoordinate the logic coordinate
+    * @return the taxonomy coordinate
+    */
    @Override
    public TaxonomyCoordinate createStatedTaxonomyCoordinate(StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate,
@@ -228,11 +354,23 @@ public class CoordinateFactoryProvider
       return TaxonomyCoordinates.getStatedTaxonomyCoordinate(stampCoordinate, languageCoordinate, logicCoordinate);
    }
 
+   /**
+    * Iso 639 to concept nid.
+    *
+    * @param iso639text the iso 639 text
+    * @return the int
+    */
    @Override
    public int iso639toConceptNid(String iso639text) {
       return LanguageCoordinates.iso639toConceptNid(iso639text);
    }
 
+   /**
+    * Iso 639 to concept sequence.
+    *
+    * @param iso639text the iso 639 text
+    * @return the int
+    */
    @Override
    public int iso639toConceptSequence(String iso639text) {
       return LanguageCoordinates.iso639toConceptSequence(iso639text);
@@ -240,30 +378,63 @@ public class CoordinateFactoryProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the acceptable concept sequence.
+    *
+    * @return the acceptable concept sequence
+    */
    @Override
    public int getAcceptableConceptSequence() {
       return TermAux.ACCEPTABLE.getConceptSequence();
    }
 
+   /**
+    * Gets the fully specified concept sequence.
+    *
+    * @return the fully specified concept sequence
+    */
    @Override
    public int getFullySpecifiedConceptSequence() {
       return TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence();
    }
 
+   /**
+    * Gets the gb english language fully specified name coordinate.
+    *
+    * @return the gb english language fully specified name coordinate
+    */
    public static LanguageCoordinate getGbEnglishLanguageFullySpecifiedNameCoordinate() {
       return LanguageCoordinates.getGbEnglishLanguageFullySpecifiedNameCoordinate();
    }
 
+   /**
+    * Gets the gb english language preferred term coordinate.
+    *
+    * @return the gb english language preferred term coordinate
+    */
    @Override
    public LanguageCoordinate getGbEnglishLanguagePreferredTermCoordinate() {
       return LanguageCoordinates.getGbEnglishLanguagePreferredTermCoordinate();
    }
 
+   /**
+    * Gets the preferred concept sequence.
+    *
+    * @return the preferred concept sequence
+    */
    @Override
    public int getPreferredConceptSequence() {
       return TermAux.PREFERRED.getConceptSequence();
    }
 
+   /**
+    * Gets the specified description.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param descriptionList the description list
+    * @param languageCoordinate the language coordinate
+    * @return the specified description
+    */
    @Override
    public Optional<LatestVersion<DescriptionSememe<?>>> getSpecifiedDescription(StampCoordinate stampCoordinate,
          List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
@@ -282,6 +453,15 @@ public class CoordinateFactoryProvider
       return Optional.empty();
    }
 
+   /**
+    * Gets the specified description.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param descriptionList the description list
+    * @param typeSequence the type sequence
+    * @param languageCoordinate the language coordinate
+    * @return the specified description
+    */
    @Override
    public Optional<LatestVersion<DescriptionSememe<?>>> getSpecifiedDescription(StampCoordinate stampCoordinate,
          List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
@@ -352,16 +532,31 @@ public class CoordinateFactoryProvider
       return Optional.of(preferredForDialect);
    }
 
+   /**
+    * Gets the synonym concept sequence.
+    *
+    * @return the synonym concept sequence
+    */
    @Override
    public int getSynonymConceptSequence() {
       return TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence();
    }
 
+   /**
+    * Gets the us english language fully specified name coordinate.
+    *
+    * @return the us english language fully specified name coordinate
+    */
    @Override
    public LanguageCoordinate getUsEnglishLanguageFullySpecifiedNameCoordinate() {
       return LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
    }
 
+   /**
+    * Gets the us english language preferred term coordinate.
+    *
+    * @return the us english language preferred term coordinate
+    */
    @Override
    public LanguageCoordinate getUsEnglishLanguagePreferredTermCoordinate() {
       return LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate();

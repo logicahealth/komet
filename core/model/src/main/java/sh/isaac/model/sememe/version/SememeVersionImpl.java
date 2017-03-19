@@ -51,24 +51,43 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class SememeVersionImpl.
  *
  * @author kec
- *  @param <V>
+ * @param <V> the value type
  */
 public class SememeVersionImpl<V extends SememeVersionImpl<V>>
         extends ObjectVersionImpl<SememeChronologyImpl<V>, V>
          implements MutableSememeVersion<V> {
+   
+   /**
+    * Instantiates a new sememe version impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    */
    public SememeVersionImpl(SememeChronologyImpl<V> container, int stampSequence, short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return getSememeType().toString() + super.toString();
    }
 
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
@@ -76,26 +95,51 @@ public class SememeVersionImpl<V extends SememeVersionImpl<V>>
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the assemblage sequence.
+    *
+    * @return the assemblage sequence
+    */
    @Override
    public int getAssemblageSequence() {
       return this.chronicle.getAssemblageSequence();
    }
 
+   /**
+    * Gets the chronology.
+    *
+    * @return the chronology
+    */
    @Override
    public SememeChronology<V> getChronology() {
       return this.chronicle;
    }
 
+   /**
+    * Gets the referenced component nid.
+    *
+    * @return the referenced component nid
+    */
    @Override
    public int getReferencedComponentNid() {
       return this.chronicle.getReferencedComponentNid();
    }
 
+   /**
+    * Gets the sememe sequence.
+    *
+    * @return the sememe sequence
+    */
    @Override
    public int getSememeSequence() {
       return this.chronicle.getSememeSequence();
    }
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    public SememeType getSememeType() {
       return SememeType.MEMBER;
    }

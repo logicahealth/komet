@@ -60,9 +60,7 @@ public class ConceptSearchResult
     */
    public Set<Integer> nids = new HashSet<>();
 
-   /**
-    * The sequence ID of the concept most closely related to the search result (the concept referenced by a description, for example)
-    */
+   /** The sequence ID of the concept most closely related to the search result (the concept referenced by a description, for example). */
    public int conceptSequence;
 
    /**
@@ -72,6 +70,13 @@ public class ConceptSearchResult
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concept search result.
+    *
+    * @param conceptSequence the concept sequence
+    * @param componentNid the component nid
+    * @param score the score
+    */
    public ConceptSearchResult(int conceptSequence, int componentNid, float score) {
       this.conceptSequence = conceptSequence;
       this.nids.add(componentNid);
@@ -80,6 +85,11 @@ public class ConceptSearchResult
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Merge.
+    *
+    * @param other the other
+    */
    public void merge(ConceptSearchResult other) {
       if (this.conceptSequence != other.conceptSequence) {
          throw new RuntimeException("Unmergeable!");
@@ -92,6 +102,11 @@ public class ConceptSearchResult
       this.nids.addAll(other.getMatchingComponents());
    }
 
+   /**
+    * Merge.
+    *
+    * @param other the other
+    */
    public void merge(SearchResult other) {
       if (other.getScore() > this.bestScore) {
          this.bestScore = other.getScore();
@@ -102,20 +117,37 @@ public class ConceptSearchResult
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the score of the component with the best score, relative to the other matches.
+    *
+    * @return the score of the component with the best score, relative to the other matches
+    */
    public float getBestScore() {
       return this.bestScore;
    }
 
+   /**
+    * Gets the sequence ID of the concept most closely related to the search result (the concept referenced by a description, for example).
+    *
+    * @return the sequence ID of the concept most closely related to the search result (the concept referenced by a description, for example)
+    */
    public int getConceptSequence() {
       return this.conceptSequence;
    }
 
+   /**
+    * Gets the matching components.
+    *
+    * @return the matching components
+    */
    public Collection<? extends Integer> getMatchingComponents() {
       return this.nids;
    }
 
    /**
-    * Returns (an arbitrary) match nid from the set of component match nids
+    * Returns (an arbitrary) match nid from the set of component match nids.
+    *
+    * @return the nid
     */
    @Override
    public int getNid() {
@@ -124,7 +156,9 @@ public class ConceptSearchResult
    }
 
    /**
-    * returns {@link #getBestScore()}
+    * returns {@link #getBestScore()}.
+    *
+    * @return the score
     */
    @Override
    public float getScore() {

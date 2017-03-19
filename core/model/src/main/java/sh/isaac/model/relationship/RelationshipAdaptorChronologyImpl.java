@@ -71,22 +71,23 @@ import static sh.isaac.api.util.UuidT5Generator.REL_ADAPTOR_NAMESPACE;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class RelationshipAdaptorChronologyImpl.
  *
  * @author kec
  */
 public class RelationshipAdaptorChronologyImpl
          implements SememeChronology<RelationshipVersionAdaptorImpl> {
+   
+   /** The version list. */
    private final ArrayList<RelationshipVersionAdaptorImpl> versionList = new ArrayList<>();
+   
+   /** The primordial uuid msb. */
    private final long                                      primordialUuidMsb;
 
-   /**
-    * Primordial uuid least significant bits for this component
-    */
+   /** Primordial uuid least significant bits for this component. */
    private final long primordialUuidLsb;
 
-   /**
-    * Native identifier of this component
-    */
+   /** Native identifier of this component. */
    private final int nid;
 
    /**
@@ -96,6 +97,12 @@ public class RelationshipAdaptorChronologyImpl
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new relationship adaptor chronology impl.
+    *
+    * @param nid the nid
+    * @param referencedComponentNid the referenced component nid
+    */
    public RelationshipAdaptorChronologyImpl(int nid, int referencedComponentNid) {
       this.nid                    = nid;
       this.referencedComponentNid = referencedComponentNid;
@@ -108,11 +115,28 @@ public class RelationshipAdaptorChronologyImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Creates the mutable version.
+    *
+    * @param <M> the generic type
+    * @param type the type
+    * @param stampSequence the stamp sequence
+    * @return the m
+    */
    @Override
    public <M extends RelationshipVersionAdaptorImpl> M createMutableVersion(Class<M> type, int stampSequence) {
       throw new UnsupportedOperationException("Not supported.");
    }
 
+   /**
+    * Creates the mutable version.
+    *
+    * @param <M> the generic type
+    * @param type the type
+    * @param state the state
+    * @param ec the ec
+    * @return the m
+    */
    @Override
    public <M extends RelationshipVersionAdaptorImpl> M createMutableVersion(Class<M> type,
          State state,
@@ -120,11 +144,21 @@ public class RelationshipAdaptorChronologyImpl
       throw new UnsupportedOperationException("Not supported.");
    }
 
+   /**
+    * Put external.
+    *
+    * @param out the out
+    */
    @Override
    public void putExternal(ByteArrayDataBuffer out) {
       throw new UnsupportedOperationException("Not supported.");
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();
@@ -149,6 +183,11 @@ public class RelationshipAdaptorChronologyImpl
       return "RelAdaptor{" + this.referencedComponentNid + ": " + sb.toString() + '}';
    }
 
+   /**
+    * To user string.
+    *
+    * @return the string
+    */
    @Override
    public String toUserString() {
       return toString();
@@ -156,21 +195,43 @@ public class RelationshipAdaptorChronologyImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the assemblage sequence.
+    *
+    * @return the assemblage sequence
+    */
    @Override
    public int getAssemblageSequence() {
       throw new UnsupportedOperationException("Not supported.");
    }
 
+   /**
+    * Gets the commit state.
+    *
+    * @return the commit state
+    */
    @Override
    public CommitStates getCommitState() {
       return CommitStates.COMMITTED;
    }
 
+   /**
+    * Gets the data format version.
+    *
+    * @return the data format version
+    */
    @Override
    public byte getDataFormatVersion() {
       throw new UnsupportedOperationException("Not supported.");
    }
 
+   /**
+    * Gets the latest version.
+    *
+    * @param type the type
+    * @param coordinate the coordinate
+    * @return the latest version
+    */
    @Override
    public Optional<LatestVersion<RelationshipVersionAdaptorImpl>> getLatestVersion(
            Class<RelationshipVersionAdaptorImpl> type,
@@ -180,6 +241,12 @@ public class RelationshipAdaptorChronologyImpl
       return calc.getLatestVersion(this);
    }
 
+   /**
+    * Checks if latest version active.
+    *
+    * @param coordinate the coordinate
+    * @return true, if latest version active
+    */
    @Override
    public boolean isLatestVersionActive(StampCoordinate coordinate) {
       final RelativePositionCalculator calc       = RelativePositionCalculator.getCalculator(coordinate);
@@ -188,43 +255,77 @@ public class RelationshipAdaptorChronologyImpl
       return !latestStampSequences.isEmpty();
    }
 
+   /**
+    * Gets the native identifier of this component.
+    *
+    * @return the native identifier of this component
+    */
    @Override
    public int getNid() {
       return this.nid;
    }
 
+   /**
+    * Gets the ochre object type.
+    *
+    * @return the ochre object type
+    */
    @Override
    public OchreExternalizableObjectType getOchreObjectType() {
       throw new UnsupportedOperationException("Not supported.");
    }
 
+   /**
+    * Gets the primordial uuid.
+    *
+    * @return the primordial uuid
+    */
    @Override
    public UUID getPrimordialUuid() {
       return new UUID(this.primordialUuidMsb, this.primordialUuidLsb);
    }
 
    /**
+    * Gets the id of the logical expression this adaptor was generated from.
     *
     * @return the sememe nid for the logical expression from which
     * this relationship adaptor was derived.
-    *
     */
    @Override
    public int getReferencedComponentNid() {
       return this.referencedComponentNid;
    }
 
+   /**
+    * Gets the sememe list.
+    *
+    * @return the sememe list
+    */
    @Override
    public List<? extends SememeChronology<? extends SememeVersion<?>>> getSememeList() {
       return Collections.emptyList();
    }
 
+   /**
+    * Gets the sememe list from assemblage.
+    *
+    * @param assemblageSequence the assemblage sequence
+    * @return the sememe list from assemblage
+    */
    @Override
    public List<? extends SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(
            int assemblageSequence) {
       return Collections.emptyList();
    }
 
+   /**
+    * Gets the sememe list from assemblage of type.
+    *
+    * @param <SV> the generic type
+    * @param assemblageSequence the assemblage sequence
+    * @param type the type
+    * @return the sememe list from assemblage of type
+    */
    @Override
    public <SV extends SememeVersion> List<? extends SememeChronology<SV>> getSememeListFromAssemblageOfType(
            int assemblageSequence,
@@ -232,31 +333,61 @@ public class RelationshipAdaptorChronologyImpl
       return Collections.emptyList();
    }
 
+   /**
+    * Gets the sememe sequence.
+    *
+    * @return the sememe sequence
+    */
    @Override
    public int getSememeSequence() {
       throw new UnsupportedOperationException("Not supported.");
    }
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    @Override
    public SememeType getSememeType() {
       return SememeType.RELATIONSHIP_ADAPTOR;
    }
 
+   /**
+    * Gets the unwritten version list.
+    *
+    * @return the unwritten version list
+    */
    @Override
    public List<? extends RelationshipVersionAdaptorImpl> getUnwrittenVersionList() {
       throw new UnsupportedOperationException("Not supported.");
    }
 
+   /**
+    * Gets the uuid list.
+    *
+    * @return the uuid list
+    */
    @Override
    public List<UUID> getUuidList() {
       return Arrays.asList(new UUID[] { getPrimordialUuid() });
    }
 
+   /**
+    * Gets the version list.
+    *
+    * @return the version list
+    */
    @Override
    public List<RelationshipVersionAdaptorImpl> getVersionList() {
       return this.versionList;
    }
 
+   /**
+    * Gets the version stamp sequences.
+    *
+    * @return the version stamp sequences
+    */
    @Override
    public IntStream getVersionStampSequences() {
       final IntStream.Builder stampSequences = IntStream.builder();

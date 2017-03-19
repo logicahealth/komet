@@ -52,16 +52,26 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link OchreExternalizableUnparsed}
+ * {@link OchreExternalizableUnparsed}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class OchreExternalizableUnparsed {
+   
+   /** The data. */
    private final ByteArrayDataBuffer   data_;
+   
+   /** The type. */
    OchreExternalizableObjectType type_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new ochre externalizable unparsed.
+    *
+    * @param type the type
+    * @param data the data
+    */
    public OchreExternalizableUnparsed(OchreExternalizableObjectType type, ByteArrayDataBuffer data) {
       this.data_ = data;
       this.type_ = type;
@@ -69,6 +79,11 @@ public class OchreExternalizableUnparsed {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Parses the.
+    *
+    * @return the ochre externalizable
+    */
    public OchreExternalizable parse() {
       switch (this.type_) {
       case CONCEPT:

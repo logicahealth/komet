@@ -66,9 +66,8 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
  */
 public abstract class ConverterBaseMojo
         extends AbstractMojo {
-   /**
-    * Location to write the output file
-    */
+   
+   /** Location to write the output file. */
    @Parameter(
       required     = true,
       defaultValue = "${project.build.directory}"
@@ -82,57 +81,42 @@ public abstract class ConverterBaseMojo
    @Parameter(required = true)
    protected File inputFileLocation;
 
-   /**
-    * Output artifactId
-    */
+   /** Output artifactId. */
    @Parameter(
       required     = true,
       defaultValue = "${project.artifactId}"
    )
    protected String converterOutputArtifactId;
 
-   /**
-    * Loader version number
-    */
+   /** Loader version number. */
    @Parameter(
       required     = true,
       defaultValue = "${loader.version}"
    )
    protected String converterVersion;
 
-   /**
-    * Converter result version number
-    */
+   /** Converter result version number. */
    @Parameter(
       required     = true,
       defaultValue = "${project.version}"
    )
    protected String converterOutputArtifactVersion;
 
-   /**
-    * Converter result classifier
-    */
+   /** Converter result classifier. */
    @Parameter(
       required     = false,
       defaultValue = "${resultArtifactClassifier}"
    )
    protected String converterOutputArtifactClassifier;
 
-   /**
-    * Converter source artifact version
-    */
+   /** Converter source artifact version. */
    @Parameter(
       required     = true,
       defaultValue = "${sourceData.version}"
    )
    protected String converterSourceArtifactVersion;
 
-   /**
-    * Set '-Dsdp' (skipUUIDDebugPublish) on the command line, to prevent the publishing of the
-    * debug UUID map (it will still be created, and written to a file)
-    *
-    * At the moment, this param is never used in code - it is just used as a pom trigger (but documented here)
-    */
+   /** Set '-Dsdp' (skipUUIDDebugPublish) on the command line, to prevent the publishing of the debug UUID map (it will still be created, and written to a file)  At the moment, this param is never used in code - it is just used as a pom trigger (but documented here). */
    @Parameter(
       required     = false,
       defaultValue = "${sdp}"
@@ -178,10 +162,17 @@ public abstract class ConverterBaseMojo
     */
    @Parameter(required = false)
    protected List<String>        relationshipSkipList;
+   
+   /** The import util. */
    protected IBDFCreationUtility importUtil_;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException {
@@ -202,27 +193,55 @@ public abstract class ConverterBaseMojo
       checkSkipListSupport();
    }
 
+   /**
+    * Supports annotation skip list.
+    *
+    * @return true, if successful
+    */
    // Individual loaders need to override the methods below, if they wish to support the various skiplists
    protected boolean supportsAnnotationSkipList() {
       throw new UnsupportedOperationException("This loader does not support an annotation skip list");
    }
 
+   /**
+    * Supports description skip list.
+    *
+    * @return true, if successful
+    */
    protected boolean supportsDescriptionSkipList() {
       throw new UnsupportedOperationException("This loader does not support a description skip list");
    }
 
+   /**
+    * Supports id skip list.
+    *
+    * @return true, if successful
+    */
    protected boolean supportsIdSkipList() {
       throw new UnsupportedOperationException("This loader does not support an id skip list");
    }
 
+   /**
+    * Supports refset skip list.
+    *
+    * @return true, if successful
+    */
    protected boolean supportsRefsetSkipList() {
       throw new UnsupportedOperationException("This loader does not support a refset skip list");
    }
 
+   /**
+    * Supports relationship skip list.
+    *
+    * @return true, if successful
+    */
    protected boolean supportsRelationshipSkipList() {
       throw new UnsupportedOperationException("This loader does not support a relationsihp skip list");
    }
 
+   /**
+    * Check skip list support.
+    */
    private void checkSkipListSupport() {
       if (notEmpty(this.annotationSkipList)) {
          supportsAnnotationSkipList();
@@ -245,6 +264,12 @@ public abstract class ConverterBaseMojo
       }
    }
 
+   /**
+    * Not empty.
+    *
+    * @param item the item
+    * @return true, if successful
+    */
    private boolean notEmpty(List<String> item) {
       if ((item != null) && (item.size() > 0)) {
          return true;

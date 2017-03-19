@@ -66,15 +66,23 @@ import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ConceptNodeWithUuids.
  *
  * @author kec
  */
 public class ConceptNodeWithUuids
         extends AbstractLogicNode {
+   
+   /** The concept uuid. */
    UUID conceptUuid;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concept node with uuids.
+    *
+    * @param internalForm the internal form
+    */
    public ConceptNodeWithUuids(ConceptNodeWithSequences internalForm) {
       super(internalForm);
       this.conceptUuid = Get.identifierService()
@@ -82,6 +90,13 @@ public class ConceptNodeWithUuids
                             .get();
    }
 
+   /**
+    * Instantiates a new concept node with uuids.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public ConceptNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion,
                                DataInputStream dataInputStream)
             throws IOException {
@@ -89,6 +104,12 @@ public class ConceptNodeWithUuids
       this.conceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
    }
 
+   /**
+    * Instantiates a new concept node with uuids.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param conceptUuid the concept uuid
+    */
    public ConceptNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion, UUID conceptUuid) {
       super(logicGraphVersion);
       this.conceptUuid = conceptUuid;
@@ -96,11 +117,22 @@ public class ConceptNodeWithUuids
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the children.
+    *
+    * @param children the children
+    */
    @Override
    public final void addChildren(LogicNode... children) {
       throw new UnsupportedOperationException();
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -120,6 +152,11 @@ public class ConceptNodeWithUuids
       return this.conceptUuid.equals(that.conceptUuid);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int result = super.hashCode();
@@ -128,17 +165,35 @@ public class ConceptNodeWithUuids
       return result;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
       return "ConceptNode[" + getNodeIndex() + nodeIdSuffix + "] \"" +
              Get.conceptService().getConcept(this.conceptUuid).toUserString() + "\"" + super.toString(nodeIdSuffix);
    }
 
+   /**
+    * Write node data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
@@ -159,11 +214,22 @@ public class ConceptNodeWithUuids
       }
    }
 
+   /**
+    * Compare fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    protected int compareFields(LogicNode o) {
       return this.conceptUuid.compareTo(((ConceptNodeWithUuids) o).conceptUuid);
    }
 
+   /**
+    * Inits the node uuid.
+    *
+    * @return the uuid
+    */
    @Override
    protected UUID initNodeUuid() {
       return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), this.conceptUuid.toString());
@@ -171,15 +237,30 @@ public class ConceptNodeWithUuids
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the children.
+    *
+    * @return the children
+    */
    @Override
    public AbstractLogicNode[] getChildren() {
       return new AbstractLogicNode[0];
    }
 
+   /**
+    * Gets the concept uuid.
+    *
+    * @return the concept uuid
+    */
    public UUID getConceptUuid() {
       return this.conceptUuid;
    }
 
+   /**
+    * Gets the node semantic.
+    *
+    * @return the node semantic
+    */
    @Override
    public NodeSemantic getNodeSemantic() {
       return NodeSemantic.CONCEPT;

@@ -53,13 +53,25 @@ import sh.isaac.converters.sharedUtils.sql.TerminologyFileReader;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class UMLSFileReader.
+ */
 public class UMLSFileReader
          implements TerminologyFileReader {
+   
+   /** The reader. */
    private final BufferedReader reader_;
+   
+   /** The next line. */
    private List<String>   nextLine_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new UMLS file reader.
+    *
+    * @param reader the reader
+    */
    public UMLSFileReader(BufferedReader reader) {
       this.reader_ = reader;
    }
@@ -67,6 +79,9 @@ public class UMLSFileReader
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Close.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
     * @see sh.isaac.converters.sharedUtils.sql.TerminologyFileReader#close()
     */
    @Override
@@ -75,6 +90,11 @@ public class UMLSFileReader
       this.reader_.close();
    }
 
+   /**
+    * Read next line.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private void readNextLine()
             throws IOException {
       final String line = this.reader_.readLine();
@@ -98,6 +118,10 @@ public class UMLSFileReader
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the next row.
+    *
+    * @return the next row
+    * @throws IOException Signals that an I/O exception has occurred.
     * @see sh.isaac.converters.sharedUtils.sql.TerminologyFileReader#getNextRow()
     */
    @Override
@@ -114,6 +138,10 @@ public class UMLSFileReader
    }
 
    /**
+    * Checks for next row.
+    *
+    * @return true, if successful
+    * @throws IOException Signals that an I/O exception has occurred.
     * @see sh.isaac.converters.sharedUtils.sql.TerminologyFileReader#hasNextRow()
     */
    @Override

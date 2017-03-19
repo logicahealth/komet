@@ -68,16 +68,26 @@ import sh.isaac.api.collections.NidSet;
  * Created by kec on 12/18/14.
  */
 public class ConcurrentSequenceIntMap {
+   
+   /** The Constant SEGMENT_SIZE. */
    private static final int SEGMENT_SIZE = 128000;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The lock. */
    ReentrantLock               lock            = new ReentrantLock();
+   
+   /** The sequence int list. */
    CopyOnWriteArrayList<int[]> sequenceIntList = new CopyOnWriteArrayList<>();
+   
+   /** The size. */
    AtomicInteger               size            = new AtomicInteger(0);
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concurrent sequence int map.
+    */
    public ConcurrentSequenceIntMap() {
       final int[] segmentArray = new int[SEGMENT_SIZE];
 
@@ -87,6 +97,12 @@ public class ConcurrentSequenceIntMap {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Contains key.
+    *
+    * @param sequence the sequence
+    * @return true, if successful
+    */
    public boolean containsKey(int sequence) {
       if (sequence < 0) {
          sequence = sequence - Integer.MIN_VALUE;
@@ -102,6 +118,13 @@ public class ConcurrentSequenceIntMap {
       return this.sequenceIntList.get(segmentIndex)[indexInSegment] != 0;
    }
 
+   /**
+    * Put.
+    *
+    * @param sequence the sequence
+    * @param value the value
+    * @return true, if successful
+    */
    public boolean put(int sequence, int value) {
       if (sequence < 0) {
          sequence = sequence - Integer.MIN_VALUE;
@@ -132,6 +155,12 @@ public class ConcurrentSequenceIntMap {
       return true;
    }
 
+   /**
+    * Read.
+    *
+    * @param folder the folder
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void read(File folder)
             throws IOException {
       this.sequenceIntList = null;
@@ -164,6 +193,12 @@ public class ConcurrentSequenceIntMap {
       }
    }
 
+   /**
+    * Write.
+    *
+    * @param folder the folder
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void write(File folder)
             throws IOException {
       folder.mkdirs();
@@ -190,6 +225,11 @@ public class ConcurrentSequenceIntMap {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the component nid stream.
+    *
+    * @return the component nid stream
+    */
    public IntStream getComponentNidStream() {
       final int componentSize = this.size.get();
 
@@ -203,6 +243,12 @@ public class ConcurrentSequenceIntMap {
                               });
    }
 
+   /**
+    * Gets the component nids for concept nids.
+    *
+    * @param conceptSequenceSet the concept sequence set
+    * @return the component nids for concept nids
+    */
    public NidSet getComponentNidsForConceptNids(ConceptSequenceSet conceptSequenceSet) {
       final NidSet conceptNids   = NidSet.of(conceptSequenceSet);
       final NidSet results       = new NidSet();
@@ -222,6 +268,11 @@ public class ConcurrentSequenceIntMap {
       return results;
    }
 
+   /**
+    * Gets the components not set.
+    *
+    * @return the components not set
+    */
    public IntStream getComponentsNotSet() {
       final int componentSize = this.size.get();
 
@@ -235,6 +286,12 @@ public class ConcurrentSequenceIntMap {
                               });
    }
 
+   /**
+    * Gets the.
+    *
+    * @param sequence the sequence
+    * @return the optional int
+    */
    public OptionalInt get(int sequence) {
       if (sequence < 0) {
          sequence = sequence - Integer.MIN_VALUE;
@@ -256,6 +313,11 @@ public class ConcurrentSequenceIntMap {
       return OptionalInt.of(returnValue);
    }
 
+   /**
+    * Gets the size.
+    *
+    * @return the size
+    */
    public int getSize() {
       return this.size.get();
    }

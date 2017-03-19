@@ -67,14 +67,22 @@ import sh.isaac.model.logic.node.external.FeatureNodeWithUuids;
  */
 public final class FeatureNodeWithSequences
         extends TypedNodeWithSequences {
+   
+   /** The concrete domain operators. */
    static ConcreteDomainOperators[] concreteDomainOperators = ConcreteDomainOperators.values();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The operator. */
    ConcreteDomainOperators operator;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new feature node with sequences.
+    *
+    * @param externalForm the external form
+    */
    public FeatureNodeWithSequences(FeatureNodeWithUuids externalForm) {
       super(externalForm);
       this.operator = externalForm.getOperator();
@@ -82,6 +90,13 @@ public final class FeatureNodeWithSequences
 //    unitsConceptSequence = Get.identifierService().getConceptSequenceForUuids(externalForm.getUnitsConceptUuid());
    }
 
+/**
+ * Instantiates a new feature node with sequences.
+ *
+ * @param logicGraphVersion the logic graph version
+ * @param dataInputStream the data input stream
+ * @throws IOException Signals that an I/O exception has occurred.
+ */
 // int unitsConceptSequence;
    public FeatureNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
                                    DataInputStream dataInputStream)
@@ -92,6 +107,13 @@ public final class FeatureNodeWithSequences
 //    unitsConceptSequence = dataInputStream.readInt();
    }
 
+   /**
+    * Instantiates a new feature node with sequences.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param typeConceptId the type concept id
+    * @param child the child
+    */
    public FeatureNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
                                    int typeConceptId,
                                    AbstractLogicNode child) {
@@ -101,6 +123,11 @@ public final class FeatureNodeWithSequences
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the concepts referenced by node.
+    *
+    * @param conceptSequenceSet the concept sequence set
+    */
    @Override
    public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
       super.addConceptsReferencedByNode(conceptSequenceSet);
@@ -108,6 +135,12 @@ public final class FeatureNodeWithSequences
 //    conceptSequenceSet.add(unitsConceptSequence);
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -130,6 +163,11 @@ public final class FeatureNodeWithSequences
       return this.operator == that.operator;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int result = super.hashCode();
@@ -140,11 +178,22 @@ public final class FeatureNodeWithSequences
       return result;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
       return "Feature[" + getNodeIndex() + nodeIdSuffix + "] " + this.operator +
@@ -152,6 +201,13 @@ public final class FeatureNodeWithSequences
             + super.toString(nodeIdSuffix);
    }
 
+   /**
+    * Write node data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
@@ -176,6 +232,12 @@ public final class FeatureNodeWithSequences
 
 // public int getUnitsConceptSequence() {
 //     return unitsConceptSequence;
+/**
+ * Compare typed node fields.
+ *
+ * @param o the o
+ * @return the int
+ */
 // }
    @Override
    protected int compareTypedNodeFields(LogicNode o) {
@@ -192,6 +254,11 @@ public final class FeatureNodeWithSequences
       return Integer.compare(this.typeConceptSequence, other.typeConceptSequence);
    }
 
+   /**
+    * Inits the node uuid.
+    *
+    * @return the uuid
+    */
    @Override
    protected UUID initNodeUuid() {
       return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
@@ -206,11 +273,21 @@ public final class FeatureNodeWithSequences
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the node semantic.
+    *
+    * @return the node semantic
+    */
    @Override
    public NodeSemantic getNodeSemantic() {
       return NodeSemantic.FEATURE;
    }
 
+   /**
+    * Gets the operator.
+    *
+    * @return the operator
+    */
    public ConcreteDomainOperators getOperator() {
       return this.operator;
    }

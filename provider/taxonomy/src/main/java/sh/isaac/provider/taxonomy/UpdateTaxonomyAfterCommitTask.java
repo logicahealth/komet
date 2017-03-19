@@ -60,24 +60,46 @@ import sh.isaac.api.task.TimedTask;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class UpdateTaxonomyAfterCommitTask.
  *
  * @author kec
  */
 public class UpdateTaxonomyAfterCommitTask
         extends TimedTask<Void> {
+   
+   /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The work done. */
    int                            workDone  = 0;
+   
+   /** The total work. */
    int                            totalWork = 0;
+   
+   /** The taxonomy service. */
    TaxonomyService                taxonomyService;
+   
+   /** The commit record. */
    CommitRecord                   commitRecord;
+   
+   /** The sememe sequences for unhandled changes. */
    ConcurrentSkipListSet<Integer> sememeSequencesForUnhandledChanges;
+   
+   /** The lock. */
    StampedLock                    lock;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new update taxonomy after commit task.
+    *
+    * @param taxonomyService the taxonomy service
+    * @param commitRecord the commit record
+    * @param sememeSequencesForUnhandledChanges the sememe sequences for unhandled changes
+    * @param lock the lock
+    */
    private UpdateTaxonomyAfterCommitTask(TaxonomyService taxonomyService,
          CommitRecord commitRecord,
          ConcurrentSkipListSet<Integer> sememeSequencesForUnhandledChanges,
@@ -93,6 +115,12 @@ public class UpdateTaxonomyAfterCommitTask
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Call.
+    *
+    * @return the void
+    * @throws Exception the exception
+    */
    @Override
    protected Void call()
             throws Exception {

@@ -40,9 +40,14 @@
 package sh.isaac.api.memory;
 
 /**
+ * The Enum MemoryConfigurations.
  *
  * @author kec
  */
-public enum MemoryConfigurations { IMPORT,
+public enum MemoryConfigurations { 
+ /** The import. */
+ IMPORT,
+                                   
+                                   /** The classify. */
                                    CLASSIFY; }
 

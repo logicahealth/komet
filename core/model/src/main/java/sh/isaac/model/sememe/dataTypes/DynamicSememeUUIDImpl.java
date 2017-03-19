@@ -56,22 +56,33 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeUUIDImpl}
+ * {@link DynamicSememeUUIDImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeUUIDImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeUUID {
+   
+   /** The property. */
    private ObjectProperty<UUID> property_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe UUID impl.
+    *
+    * @param data the data
+    */
    protected DynamicSememeUUIDImpl(byte[] data) {
       super(data);
    }
 
+   /**
+    * Instantiates a new dynamic sememe UUID impl.
+    *
+    * @param uuid the uuid
+    */
    public DynamicSememeUUIDImpl(UUID uuid) {
       super();
 
@@ -86,6 +97,13 @@ public class DynamicSememeUUIDImpl
       this.data_ = b.array();
    }
 
+   /**
+    * Instantiates a new dynamic sememe UUID impl.
+    *
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    protected DynamicSememeUUIDImpl(byte[] data, int assemblageSequence, int columnNumber) {
       super(data, assemblageSequence, columnNumber);
    }
@@ -93,6 +111,9 @@ public class DynamicSememeUUIDImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data object.
+    *
+    * @return the data object
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
     */
    @Override
@@ -101,6 +122,9 @@ public class DynamicSememeUUIDImpl
    }
 
    /**
+    * Gets the data object property.
+    *
+    * @return the data object property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
     */
    @Override
@@ -109,6 +133,9 @@ public class DynamicSememeUUIDImpl
    }
 
    /**
+    * Gets the data UUID.
+    *
+    * @return the data UUID
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicUUIDBI#getDataUUID()
     */
    @Override
@@ -121,7 +148,9 @@ public class DynamicSememeUUIDImpl
    }
 
    /**
-    * @return
+    * Gets the data UUID property.
+    *
+    * @return the data UUID property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicUUIDBI#getDataUUIDProperty()
     */
    @Override

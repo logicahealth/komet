@@ -102,18 +102,45 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
  */
 @Contract
 public class IsaacTaxonomy {
+   
+   /** The concept builders. */
    private final TreeMap<String, ConceptBuilder> conceptBuilders                 = new TreeMap<>();
+   
+   /** The sememe builders. */
    private final List<SememeBuilder<?>>          sememeBuilders                  = new ArrayList<>();
+   
+   /** The concept builders in insertion order. */
    private final List<ConceptBuilder>            conceptBuildersInInsertionOrder = new ArrayList<>();
+   
+   /** The parent stack. */
    private final Stack<ConceptBuilder>           parentStack                     = new Stack<>();
+   
+   /** The current. */
    private ConceptBuilder                        current;
+   
+   /** The module spec. */
    private final ConceptSpecification            moduleSpec;
+   
+   /** The path spec. */
    private final ConceptSpecification            pathSpec;
+   
+   /** The author spec. */
    private final ConceptSpecification            authorSpec;
+   
+   /** The semantic tag. */
    private final String                          semanticTag;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new isaac taxonomy.
+    *
+    * @param path the path
+    * @param author the author
+    * @param module the module
+    * @param isaType the isa type
+    * @param semanticTag the semantic tag
+    */
    public IsaacTaxonomy(ConceptSpecification path,
                         ConceptSpecification author,
                         ConceptSpecification module,
@@ -127,6 +154,13 @@ public class IsaacTaxonomy {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Creates the concept.
+    *
+    * @param cc the cc
+    * @return the concept builder
+    * @throws Exception the exception
+    */
    public ConceptBuilder createConcept(MetadataConceptConstant cc)
             throws Exception {
       try {
@@ -221,6 +255,13 @@ public class IsaacTaxonomy {
       }
    }
 
+   /**
+    * Export.
+    *
+    * @param jsonPath the json path
+    * @param ibdfPath the ibdf path
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void export(Optional<Path> jsonPath, Optional<Path> ibdfPath)
             throws IOException {
       final long exportTime = System.currentTimeMillis();
@@ -259,6 +300,14 @@ public class IsaacTaxonomy {
       }
    }
 
+   /**
+    * Export java binding.
+    *
+    * @param out the out
+    * @param packageName the package name
+    * @param className the class name
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void exportJavaBinding(Writer out, String packageName, String className)
             throws IOException {
       out.append("package " + packageName + ";\n");
@@ -297,6 +346,12 @@ public class IsaacTaxonomy {
       out.close();
    }
 
+   /**
+    * Export jaxb.
+    *
+    * @param out the out
+    * @throws Exception the exception
+    */
    public void exportJaxb(DataOutputStream out)
             throws Exception {
 //    UuidDtoBuilder dtoBuilder = new UuidDtoBuilder(time,
@@ -322,6 +377,14 @@ public class IsaacTaxonomy {
 //    marshaller.marshal(jaxbElement, out);
    }
 
+   /**
+    * Export yaml binding.
+    *
+    * @param out the out
+    * @param packageName the package name
+    * @param className the class name
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void exportYamlBinding(Writer out, String packageName, String className)
             throws IOException {
       out.append("#YAML Bindings for " + packageName + "." + className + "\n");
@@ -354,12 +417,24 @@ public class IsaacTaxonomy {
       out.close();
    }
 
+   /**
+    * Adds the path.
+    *
+    * @param pathAssemblageConcept the path assemblage concept
+    * @param pathConcept the path concept
+    */
    protected void addPath(ConceptBuilder pathAssemblageConcept, ConceptBuilder pathConcept) {
       this.sememeBuilders.add(Get.sememeBuilderService()
                             .getMembershipSememeBuilder(pathConcept.getNid(),
                                   pathAssemblageConcept.getConceptSequence()));
    }
 
+   /**
+    * Creates the concept.
+    *
+    * @param specification the specification
+    * @return the concept builder
+    */
    protected final ConceptBuilder createConcept(ConceptSpecification specification) {
       final ConceptBuilder builder = createConcept(specification.getConceptDescriptionText());
 
@@ -377,10 +452,23 @@ public class IsaacTaxonomy {
       return builder;
    }
 
+   /**
+    * Creates the concept.
+    *
+    * @param name the name
+    * @return the concept builder
+    */
    protected final ConceptBuilder createConcept(String name) {
       return createConcept(name, null, null);
    }
 
+   /**
+    * Creates the concept.
+    *
+    * @param name the name
+    * @param nonPreferredSynonym the non preferred synonym
+    * @return the concept builder
+    */
    protected final ConceptBuilder createConcept(String name, String nonPreferredSynonym) {
       return createConcept(name, null, nonPreferredSynonym);
    }
@@ -389,6 +477,11 @@ public class IsaacTaxonomy {
     * If parent is provided, it ignores the parent stack, and uses the provided parent instead.
     * If parent is not provided, it uses the parentStack (if populated), otherwise, it creates
     * the concept without setting a parent.
+    *
+    * @param name the name
+    * @param parentId the parent id
+    * @param nonPreferredSynonym the non preferred synonym
+    * @return the concept builder
     */
    protected final ConceptBuilder createConcept(String name, Integer parentId, String nonPreferredSynonym) {
       checkConceptDescriptionText(name);
@@ -420,10 +513,20 @@ public class IsaacTaxonomy {
       return this.current;
    }
 
+   /**
+    * Current.
+    *
+    * @return the concept builder
+    */
    protected final ConceptBuilder current() {
       return this.current;
    }
 
+   /**
+    * Export.
+    *
+    * @param dataOutputStream the data output stream
+    */
    protected void export(DataOutputStream dataOutputStream) {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -441,10 +544,18 @@ public class IsaacTaxonomy {
       }
    }
 
+   /**
+    * Pop parent.
+    */
    protected final void popParent() {
       this.parentStack.pop();
    }
 
+   /**
+    * Push parent.
+    *
+    * @param parent the parent
+    */
    protected final void pushParent(ConceptBuilder parent) {
       ensureStableUUID(parent);  // no generated UUIDs from this point on....
       this.parentStack.push(parent);
@@ -452,7 +563,13 @@ public class IsaacTaxonomy {
 
    /**
     * type should be either {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or {@link TermAux#SYNONYM_DESCRIPTION_TYPE}
-    * This currently only creates english language descriptions
+    * This currently only creates english language descriptions.
+    *
+    * @param description the description
+    * @param cb the cb
+    * @param descriptionType the description type
+    * @param preferred the preferred
+    * @return the description builder<? extends sememe chronology<?>,? extends mutable description sememe<?>>
     */
    private DescriptionBuilder<? extends SememeChronology<?>,
                               ? extends MutableDescriptionSememe<?>> addDescription(String description,
@@ -476,6 +593,15 @@ public class IsaacTaxonomy {
       return db;
    }
 
+   /**
+    * Builds the and write.
+    *
+    * @param builder the builder
+    * @param stampCoordinate the stamp coordinate
+    * @param conceptService the concept service
+    * @param sememeService the sememe service
+    * @throws IllegalStateException the illegal state exception
+    */
    private void buildAndWrite(IdentifiedComponentBuilder builder,
                               int stampCoordinate,
                               ConceptService conceptService,
@@ -496,12 +622,22 @@ public class IsaacTaxonomy {
                            });
    }
 
+   /**
+    * Check concept description text.
+    *
+    * @param name the name
+    */
    private void checkConceptDescriptionText(String name) {
       if (this.conceptBuilders.containsKey(name)) {
          throw new RuntimeException("Concept is already added");
       }
    }
 
+   /**
+    * Ensure stable UUID.
+    *
+    * @param builder the builder
+    */
    private void ensureStableUUID(ConceptBuilder builder) {
       if (builder.getPrimordialUuid()
                  .version() == 4) {

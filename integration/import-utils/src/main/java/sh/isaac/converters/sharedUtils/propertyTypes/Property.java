@@ -64,20 +64,46 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class Property {
+   
+   /** The is disabled. */
    private boolean isDisabled_        = false;
+   
+   /** The is from concept spec. */
    private boolean isFromConceptSpec_ = false;
+   
+   /** The property sub type. */
    private int propertySubType_ =
       Integer.MAX_VALUE;  // Used for subtypes of descriptions, at the moment - FSN, synonym, etc.
+   
+   /** The property UUID. */
    private UUID                      propertyUUID                = null;
+   
+   /** The use WB property type instead. */
    private UUID                      useWBPropertyTypeInstead    = null;  // see comments in setter
+   
+   /** The data columns for dynamic refex. */
    private DynamicSememeColumnInfo[] dataColumnsForDynamicRefex_ = null;
+   
+   /** The source property name FS N. */
    private final String                    sourcePropertyNameFSN_;
+   
+   /** The source property alt name. */
    private final String                    sourcePropertyAltName_;
+   
+   /** The source property definition. */
    private final String                    sourcePropertyDefinition_;
+   
+   /** The owner. */
    private PropertyType              owner_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new property.
+    *
+    * @param owner the owner
+    * @param cs the cs
+    */
    public Property(PropertyType owner, ConceptSpecification cs) {
       this(owner, cs.getConceptDescriptionText(), null, null, false, Integer.MAX_VALUE, null);
       this.propertyUUID = cs.getPrimordialUuid();
@@ -85,12 +111,23 @@ public class Property {
       this.isFromConceptSpec_ = true;
    }
 
+   /**
+    * Instantiates a new property.
+    *
+    * @param owner the owner
+    * @param sourcePropertyNameFSN the source property name FSN
+    */
    public Property(PropertyType owner, String sourcePropertyNameFSN) {
       this(owner, sourcePropertyNameFSN, null, null, false, Integer.MAX_VALUE, null);
    }
 
    /**
-    * owner must be set via the set method after using this constructor!
+    * owner must be set via the set method after using this constructor!.
+    *
+    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyAltName the source property alt name
+    * @param sourcePropertyDefinition the source property definition
+    * @param wbRelType the wb rel type
     */
    public Property(String sourcePropertyNameFSN,
                    String sourcePropertyAltName,
@@ -107,8 +144,15 @@ public class Property {
    }
 
    /**
-    * @param dataTypesForDynamicRefex - if null - will use the default information for the parent {@link PropertyType} - otherwise,
-    * uses as provided here (even if empty)
+    * Instantiates a new property.
+    *
+    * @param owner the owner
+    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyAltName the source property alt name
+    * @param sourcePropertyDefinition the source property definition
+    * @param disabled the disabled
+    * @param propertySubType the property sub type
+    * @param columnInforForDynamicRefex the column infor for dynamic refex
     */
    public Property(PropertyType owner,
                    String sourcePropertyNameFSN,
@@ -149,6 +193,11 @@ public class Property {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the data columns for dynamic refex.
+    *
+    * @return the data columns for dynamic refex
+    */
    public DynamicSememeColumnInfo[] getDataColumnsForDynamicRefex() {
       if ((this.dataColumnsForDynamicRefex_ != null) &&
             (this.dataColumnsForDynamicRefex_.length == 1) &&
@@ -159,16 +208,31 @@ public class Property {
       return this.dataColumnsForDynamicRefex_;
    }
 
+   /**
+    * Checks if disabled.
+    *
+    * @return true, if disabled
+    */
    public boolean isDisabled() {
       return this.isDisabled_;
    }
 
+   /**
+    * Checks if from concept spec.
+    *
+    * @return true, if from concept spec
+    */
    public boolean isFromConceptSpec() {
       return this.isFromConceptSpec_;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the owner.
+    *
+    * @param owner the new owner
+    */
    protected void setOwner(PropertyType owner) {
       this.owner_ = owner;
 
@@ -194,34 +258,69 @@ public class Property {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the property sub type.
+    *
+    * @return the property sub type
+    */
    public int getPropertySubType() {
       return this.propertySubType_;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the property sub type.
+    *
+    * @param value the new property sub type
+    */
    public void setPropertySubType(int value) {
       this.propertySubType_ = value;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the property type.
+    *
+    * @return the property type
+    */
    public PropertyType getPropertyType() {
       return this.owner_;
    }
 
+   /**
+    * Gets the source property alt name.
+    *
+    * @return the source property alt name
+    */
    public String getSourcePropertyAltName() {
       return this.sourcePropertyAltName_;
    }
 
+   /**
+    * Gets the source property definition.
+    *
+    * @return the source property definition
+    */
    public String getSourcePropertyDefinition() {
       return this.sourcePropertyDefinition_;
    }
 
+   /**
+    * Gets the source property name FSN.
+    *
+    * @return the source property name FSN
+    */
    public String getSourcePropertyNameFSN() {
       return this.sourcePropertyNameFSN_;
    }
 
+   /**
+    * Gets the uuid.
+    *
+    * @return the uuid
+    */
    public UUID getUUID() {
       if (this.propertyUUID == null) {
          this.propertyUUID = this.owner_.getPropertyUUID(this.sourcePropertyNameFSN_);
@@ -236,6 +335,8 @@ public class Property {
     * Normally, we just create the relation names as specified.  However, some, we map to
     * other existing WB relationships, and put the source rel name on as an extension - for example
     * To enable the map case, set this (and use the appropriate addRelationship method)
+    *
+    * @param wbRelType the new WB property type
     */
    public void setWBPropertyType(UUID wbRelType) {
       this.useWBPropertyTypeInstead = wbRelType;
@@ -243,6 +344,11 @@ public class Property {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the WB type UUID.
+    *
+    * @return the WB type UUID
+    */
    public UUID getWBTypeUUID() {
       return this.useWBPropertyTypeInstead;
    }

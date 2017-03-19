@@ -80,17 +80,32 @@ import sh.isaac.utility.Frills;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class CompositeSearchResult {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LoggerFactory.getLogger(CompositeSearchResult.class);
 
    //~--- fields --------------------------------------------------------------
 
+   /** The containing concept. */
    private Optional<ConceptSnapshot>      containingConcept  = null;
+   
+   /** The matching components. */
    private final Set<ObjectChronology<?>> matchingComponents = new HashSet<>();
+   
+   /** The matching component nid. */
    private int                            matchingComponentNid_;
+   
+   /** The best score. */
    private float bestScore;  // best score, rather than score, as multiple matches may go into a SearchResult
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new composite search result.
+    *
+    * @param matchingComponentNid the matching component nid
+    * @param score the score
+    */
    public CompositeSearchResult(int matchingComponentNid, float score) {
       this.bestScore = score;
 
@@ -99,6 +114,12 @@ public class CompositeSearchResult {
       this.matchingComponentNid_ = matchingComponentNid;
    }
 
+   /**
+    * Instantiates a new composite search result.
+    *
+    * @param matchingComponent the matching component
+    * @param score the score
+    */
    public CompositeSearchResult(ObjectChronology<?> matchingComponent, float score) {
       this.matchingComponents.add(matchingComponent);
       this.bestScore = score;
@@ -115,6 +136,12 @@ public class CompositeSearchResult {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Removes the null results.
+    *
+    * @param results the results
+    * @return the int
+    */
    public static int removeNullResults(Collection<CompositeSearchResult> results) {
       final Collection<CompositeSearchResult> nullResults = new ArrayList<>();
 
@@ -131,6 +158,11 @@ public class CompositeSearchResult {
       return nullResults.size();
    }
 
+   /**
+    * To long string.
+    *
+    * @return the string
+    */
    public String toLongString() {
       final StringBuilder builder = new StringBuilder();
 
@@ -155,6 +187,11 @@ public class CompositeSearchResult {
       return builder.toString();
    }
 
+   /**
+    * To short string.
+    *
+    * @return the string
+    */
    public String toShortString() {
       final StringBuilder builder = new StringBuilder();
 
@@ -188,6 +225,11 @@ public class CompositeSearchResult {
       return builder.toString();
    }
 
+   /**
+    * To string with descriptions.
+    *
+    * @return the string
+    */
    public String toStringWithDescriptions() {
       final StringBuilder builder = new StringBuilder();
 
@@ -245,10 +287,20 @@ public class CompositeSearchResult {
       return builder.toString();
    }
 
+   /**
+    * Adjust score.
+    *
+    * @param newScore the new score
+    */
    protected void adjustScore(float newScore) {
       this.bestScore = newScore;
    }
 
+   /**
+    * Merge.
+    *
+    * @param other the other
+    */
    protected void merge(CompositeSearchResult other) {
       if (this.containingConcept.get()
                            .getNid() != other.containingConcept.get().getNid()) {
@@ -262,6 +314,12 @@ public class CompositeSearchResult {
       this.matchingComponents.addAll(other.getMatchingComponents());
    }
 
+   /**
+    * Locate containing concept.
+    *
+    * @param componentNid the component nid
+    * @return the optional
+    */
    private Optional<ConceptSnapshot> locateContainingConcept(int componentNid) {
       final ObjectChronologyType type = Get.identifierService()
                                      .getChronologyTypeForNid(componentNid);
@@ -281,24 +339,38 @@ public class CompositeSearchResult {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the best score.
+    *
+    * @return the best score
+    */
    public float getBestScore() {
       return this.bestScore;
    }
 
    /**
-    * This may return an empty, if the concept and/or matching component was not on the path
+    * This may return an empty, if the concept and/or matching component was not on the path.
+    *
+    * @return the containing concept
     */
    public Optional<ConceptSnapshot> getContainingConcept() {
       return this.containingConcept;
    }
 
+   /**
+    * Gets the matching components.
+    *
+    * @return the matching components
+    */
    public Set<ObjectChronology<?>> getMatchingComponents() {
       return this.matchingComponents;
    }
 
    /**
     * Convenience method to return a filtered list of matchingComponents such that it only returns
-    * Description type components
+    * Description type components.
+    *
+    * @return the matching description components
     */
    public Set<SememeChronology<DescriptionSememe>> getMatchingDescriptionComponents() {
       final Set<SememeChronology<DescriptionSememe>> setToReturn = new HashSet<>();
@@ -314,7 +386,10 @@ public class CompositeSearchResult {
    }
 
    /**
-    * A convenience method to get string values from the matching Components
+    * A convenience method to get string values from the matching Components.
+    *
+    * @param stampCoord the stamp coord
+    * @return the matching strings
     */
    public List<String> getMatchingStrings(Optional<StampCoordinate> stampCoord) {
       final ArrayList<String> strings = new ArrayList<>();

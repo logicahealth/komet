@@ -54,33 +54,63 @@ import java.util.concurrent.Semaphore;
  * @author ocarlsen
  */
 public class SearchHandle {
+   
+   /** The search start time. */
    private final long                  searchStartTime = System.currentTimeMillis();
+   
+   /** The result block. */
    private final Semaphore                   resultBlock_    = new Semaphore(1);
+   
+   /** The cancelled. */
    private volatile boolean            cancelled       = false;
+   
+   /** The error. */
    private Exception                   error           = null;
+   
+   /** The search I D. */
    private final Integer                     searchID_;
+   
+   /** The result. */
    private List<CompositeSearchResult> result_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new search handle.
+    *
+    * @param searchID the search ID
+    */
    SearchHandle(Integer searchID) {
       this.searchID_ = searchID;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Cancel.
+    */
    public void cancel() {
       this.cancelled = true;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if cancelled.
+    *
+    * @return true, if cancelled
+    */
    public boolean isCancelled() {
       return this.cancelled;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the error.
+    *
+    * @param e the new error
+    */
    protected void setError(Exception e) {
       synchronized (SearchHandle.this) {
          this.error = e;
@@ -92,8 +122,9 @@ public class SearchHandle {
 
    /**
     * This is not the same as the size of the result collection, as results may be merged.
-    * @return
-    * @throws Exception
+    *
+    * @return the hit count
+    * @throws Exception the exception
     */
    public int getHitCount()
             throws Exception {
@@ -110,8 +141,8 @@ public class SearchHandle {
    /**
     * Blocks until the results are available....
     *
-    * @return
-    * @throws Exception
+    * @return the results
+    * @throws Exception the exception
     */
    public Collection<CompositeSearchResult> getResults()
             throws Exception {
@@ -140,6 +171,11 @@ public class SearchHandle {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the results.
+    *
+    * @param results the new results
+    */
    protected void setResults(List<CompositeSearchResult> results) {
       synchronized (SearchHandle.this) {
          this.result_ = results;
@@ -149,12 +185,19 @@ public class SearchHandle {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the search start time.
+    *
+    * @return the search start time
+    */
    public long getSearchStartTime() {
       return this.searchStartTime;
    }
 
    /**
-    * Returns the identifier provided (if any) by the caller when the search was started
+    * Returns the identifier provided (if any) by the caller when the search was started.
+    *
+    * @return the task id
     */
    public Integer getTaskId() {
       return this.searchID_;

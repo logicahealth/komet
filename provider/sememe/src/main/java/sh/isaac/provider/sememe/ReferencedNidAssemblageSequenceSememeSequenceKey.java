@@ -44,12 +44,25 @@ package sh.isaac.provider.sememe;
  */
 public class ReferencedNidAssemblageSequenceSememeSequenceKey
          implements Comparable<ReferencedNidAssemblageSequenceSememeSequenceKey> {
+   
+   /** The referenced nid. */
    int referencedNid;
+   
+   /** The assemblage sequence. */
    int assemblageSequence;
+   
+   /** The sememe sequence. */
    int sememeSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new referenced nid assemblage sequence sememe sequence key.
+    *
+    * @param referencedNid the referenced nid
+    * @param assemblageSequence the assemblage sequence
+    * @param sememeSequence the sememe sequence
+    */
    public ReferencedNidAssemblageSequenceSememeSequenceKey(int referencedNid,
          int assemblageSequence,
          int sememeSequence) {
@@ -60,6 +73,12 @@ public class ReferencedNidAssemblageSequenceSememeSequenceKey
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(ReferencedNidAssemblageSequenceSememeSequenceKey o) {
       if (this.referencedNid != o.referencedNid) {
@@ -89,6 +108,12 @@ public class ReferencedNidAssemblageSequenceSememeSequenceKey
       return 1;
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -112,6 +137,11 @@ public class ReferencedNidAssemblageSequenceSememeSequenceKey
       return this.sememeSequence == sememeKey.sememeSequence;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int result = this.referencedNid;
@@ -121,6 +151,11 @@ public class ReferencedNidAssemblageSequenceSememeSequenceKey
       return result;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "Key{" + "referencedNid=" + this.referencedNid + ", assemblageSequence=" + this.assemblageSequence +
@@ -129,14 +164,29 @@ public class ReferencedNidAssemblageSequenceSememeSequenceKey
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the assemblage sequence.
+    *
+    * @return the assemblage sequence
+    */
    public int getAssemblageSequence() {
       return this.assemblageSequence;
    }
 
+   /**
+    * Gets the referenced nid.
+    *
+    * @return the referenced nid
+    */
    public int getReferencedNid() {
       return this.referencedNid;
    }
 
+   /**
+    * Gets the sememe sequence.
+    *
+    * @return the sememe sequence
+    */
    public int getSememeSequence() {
       return this.sememeSequence;
    }

@@ -55,14 +55,26 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
  * Created by kec on 1/21/16.
  */
 public class LogicalExpressionBuilderTest {
+   
+   /** The builder provider. */
    LogicalExpressionBuilderOchreProvider builderProvider = new LogicalExpressionBuilderOchreProvider();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Tear down.
+    *
+    * @throws Exception the exception
+    */
    @AfterMethod
    public void tearDown()
             throws Exception {}
 
+   /**
+    * Test add to root.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void testAddToRoot()
             throws Exception {
@@ -71,6 +83,11 @@ public class LogicalExpressionBuilderTest {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set up.
+    *
+    * @throws Exception the exception
+    */
    @BeforeMethod
    public void setUp()
             throws Exception {}

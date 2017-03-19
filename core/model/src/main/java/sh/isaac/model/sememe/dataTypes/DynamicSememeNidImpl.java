@@ -50,27 +50,45 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeNidImpl}
+ * {@link DynamicSememeNidImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeNidImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeNid {
+   
+   /** The property. */
    private ObjectProperty<Integer> property_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe nid impl.
+    *
+    * @param data the data
+    */
    protected DynamicSememeNidImpl(byte[] data) {
       super(data);
    }
 
+   /**
+    * Instantiates a new dynamic sememe nid impl.
+    *
+    * @param nid the nid
+    */
    public DynamicSememeNidImpl(int nid) {
       super();
       this.data_ = DynamicSememeIntegerImpl.intToByteArray(nid);
    }
 
+   /**
+    * Instantiates a new dynamic sememe nid impl.
+    *
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    protected DynamicSememeNidImpl(byte[] data, int assemblageSequence, int columnNumber) {
       super(data, assemblageSequence, columnNumber);
    }
@@ -78,6 +96,9 @@ public class DynamicSememeNidImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data nid.
+    *
+    * @return the data nid
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicNidBI#getDataNid()
     */
    @Override
@@ -86,6 +107,9 @@ public class DynamicSememeNidImpl
    }
 
    /**
+    * Gets the data nid property.
+    *
+    * @return the data nid property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicNidBI#getDataNidProperty()
     */
    @Override
@@ -98,6 +122,9 @@ public class DynamicSememeNidImpl
    }
 
    /**
+    * Gets the data object.
+    *
+    * @return the data object
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
     */
    @Override
@@ -106,6 +133,9 @@ public class DynamicSememeNidImpl
    }
 
    /**
+    * Gets the data object property.
+    *
+    * @return the data object property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
     */
    @Override

@@ -92,6 +92,8 @@ public class ProcessDetail
 
    /** The workflow process's current "owner". */
    private UUID            ownerId         = BPMNInfo.UNOWNED_PROCESS;
+   
+   /** The stamp serializer. */
    private final StampSerializer stampSerializer = new StampSerializer();
 
    /** The workflow definition key for which the Process Detail is relevant. */
@@ -112,48 +114,35 @@ public class ProcessDetail
    /** The workflow process's description. */
    private String description;
 
-   /**
-    * Definition uuid most significant bits
-    */
+   /** Definition uuid most significant bits. */
    private long definitionIdMsb;
 
-   /**
-    * Definition uuid least significant bits
-    */
+   /** Definition uuid least significant bits. */
    private long definitionIdLsb;
 
-   /**
-    * Creator uuid most significant bits
-    */
+   /** Creator uuid most significant bits. */
    private long creatorIdMsb;
 
-   /**
-    * Creator uuid least significant bits
-    */
+   /** Creator uuid least significant bits. */
    private long creatorIdLsb;
 
-   /**
-    * Owner uuid most significant bits
-    */
+   /** Owner uuid most significant bits. */
    private long ownerIdMsb;
 
-   /**
-    * Owner uuid least significant bits
-    */
+   /** Owner uuid least significant bits. */
    private long ownerIdLsb;
 
    //~--- constant enums ------------------------------------------------------
 
    /**
-    * The exhaustive list of possible ways an instantiated process may be ended
-    *
-    *
+    * The exhaustive list of possible ways an instantiated process may be ended.
     */
    public enum EndWorkflowType {
-      /** Process is stopped without reaching a completed state */
+      
+      /**  Process is stopped without reaching a completed state. */
       CANCELED,
 
-      /** Process has been finished by reaching a completed state */
+      /**  Process has been finished by reaching a completed state. */
       CONCLUDED
    }
 
@@ -164,13 +153,13 @@ public class ProcessDetail
       /** Process is being defined and has yet to be launched. */
       DEFINED,
 
-      /** Process has been launched */
+      /**  Process has been launched. */
       LAUNCHED,
 
-      /** A previously launched or defined process that has been canceled */
+      /**  A previously launched or defined process that has been canceled. */
       CANCELED,
 
-      /** A previously launched process that is completed */
+      /**  A previously launched process that is completed. */
       CONCLUDED
    }
 
@@ -191,12 +180,12 @@ public class ProcessDetail
    /**
     * Constructor for a new process based on specified entry fields.
     *
-    * @param definitionId
-    * @param creatorId
-    * @param timeCreated
-    * @param status
-    * @param name
-    * @param description
+    * @param definitionId the definition id
+    * @param creatorId the creator id
+    * @param timeCreated the time created
+    * @param status the status
+    * @param name the name
+    * @param description the description
     */
    public ProcessDetail(UUID definitionId,
                         UUID creatorId,
@@ -221,6 +210,12 @@ public class ProcessDetail
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       final ProcessDetail other = (ProcessDetail) obj;
@@ -237,6 +232,11 @@ public class ProcessDetail
              this.ownerId.equals(other.ownerId);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       return this.definitionId.hashCode() + this.componentToIntitialEditMap.hashCode() + this.creatorId.hashCode() +
@@ -245,6 +245,11 @@ public class ProcessDetail
              this.description.hashCode() + this.ownerId.hashCode();
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuffer buf = new StringBuffer();
@@ -275,6 +280,11 @@ public class ProcessDetail
              "\n\t\tName: " + this.name + "\n\t\tDescription: " + this.description + "\n\t\tOwner Id: " + this.ownerId.toString();
    }
 
+   /**
+    * Put additional workflow fields.
+    *
+    * @param out the out
+    */
    @Override
    protected void putAdditionalWorkflowFields(ByteArrayDataBuffer out) {
       out.putLong(this.definitionIdMsb);
@@ -307,10 +317,21 @@ public class ProcessDetail
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if active.
+    *
+    * @return true, if active
+    */
    public boolean isActive() {
       return (this.status == ProcessStatus.LAUNCHED) || (this.status == ProcessStatus.DEFINED);
    }
 
+   /**
+    * Gets the additional workflow fields.
+    *
+    * @param in the in
+    * @return the additional workflow fields
+    */
    @Override
    protected void getAdditionalWorkflowFields(ByteArrayDataBuffer in) {
       this.definitionIdMsb = in.getLong();
@@ -343,6 +364,11 @@ public class ProcessDetail
       this.ownerId                 = new UUID(this.ownerIdMsb, this.ownerIdLsb);
    }
 
+   /**
+    * Checks if canceled.
+    *
+    * @return true, if canceled
+    */
    public boolean isCanceled() {
       return this.status == ProcessStatus.CANCELED;
    }
@@ -356,6 +382,11 @@ public class ProcessDetail
       return this.componentToIntitialEditMap;
    }
 
+   /**
+    * Checks if concluded.
+    *
+    * @return true, if concluded
+    */
    public boolean isConcluded() {
       return this.status == ProcessStatus.CONCLUDED;
    }
@@ -379,7 +410,7 @@ public class ProcessDetail
    }
 
    /**
-    * The description of the process
+    * The description of the process.
     *
     * @return process description
     */
@@ -388,7 +419,7 @@ public class ProcessDetail
    }
 
    /**
-    * The name of the process
+    * The name of the process.
     *
     * @return process name
     */
@@ -397,7 +428,7 @@ public class ProcessDetail
    }
 
    /**
-    * Retrieves the current owner of the process
+    * Retrieves the current owner of the process.
     *
     * @return 0-based UUID: Process is not owned.
     * Otherwise, return the process's current owner id
@@ -409,10 +440,9 @@ public class ProcessDetail
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the current owner of the process
+    * Sets the current owner of the process.
     *
-    * @param nid
-    * The userId obtaining a lock on the instance. Note '0' means no owner.
+    * @param nid The userId obtaining a lock on the instance. Note '0' means no owner.
     */
    public void setOwnerId(UUID nid) {
       this.ownerId    = nid;
@@ -482,7 +512,7 @@ public class ProcessDetail
    }
 
    /**
-    * Get the time the process was launched as long primitive type
+    * Get the time the process was launched as long primitive type.
     *
     * @return the time launched
     */

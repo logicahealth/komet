@@ -93,21 +93,24 @@ import sh.isaac.utility.Frills;
 
 //TODO need to rework these APIs to take in path info - so that the path for the search can easily be customized from the search GUI
 public class SearchHandler {
+   
+   /** The Constant LOG. */
    private static final Logger LOG                                = LoggerFactory.getLogger(SearchHandler.class);
+   
+   /** The description sememe assemblages cache. */
    private static Integer[]    descriptionSememeAssemblagesCache_ = null;
 
    //~--- methods -------------------------------------------------------------
 
    /**
     * Calls {@link #descriptionSearch(String, int, boolean, TaskCompleteCallback, Integer, SearchResultsFilter, Comparator, boolean, Supplier)}
-    * passing false for prefixSearch, null for the taskID, null for the filter, null for the comparator
+    * passing false for prefixSearch, null for the taskID, null for the filter, null for the comparator.
+    *
     * @param query - The query string
     * @param resultLimit - limit to X results.  Use {@link Integer#MAX_VALUE} for no limit.
     * @param operationToRunWhenSearchComplete - (optional) Pass the function that you want to have executed when the search is complete and the results
     * are ready for use.  Note that this function will also be executed in the background thread.
-    * @param mergeOnConcepts - If true, when multiple description objects within the same concept match the search, this will be returned
-    *   as a single result representing the concept - with each matching string listed, and the score being the best score of any of the
-    *   matching strings.  When false, you will get one search result per description match - so concepts can be returned multiple times.
+    * @param mergeResultsOnConcepts the merge results on concepts
     * @param includeOffPathResults - true to give back results for all hits (which may have unresolvable concepts) or false to filter those
     *   out that are not on THE CURRENT COORDINATE configuration
     * @return A handle to the running search.
@@ -583,6 +586,13 @@ public class SearchHandler {
                           includeOffPathResults);
    }
 
+   /**
+    * Normalize scores.
+    *
+    * @param searchResults the search results
+    * @param searchHandle the search handle
+    * @return the list
+    */
    private static List<CompositeSearchResult> normalizeScores(List<SearchResult> searchResults,
          SearchHandle searchHandle) {
       final List<CompositeSearchResult> initialSearchResults = new ArrayList<>();
@@ -622,6 +632,17 @@ public class SearchHandler {
       return initialSearchResults;
    }
 
+   /**
+    * Process results.
+    *
+    * @param searchHandle the search handle
+    * @param rawResults the raw results
+    * @param filter the filter
+    * @param comparator the comparator
+    * @param mergeOnConcepts the merge on concepts
+    * @param includeOffPathResults the include off path results
+    * @throws SearchResultsFilterException the search results filter exception
+    */
    private static void processResults(SearchHandle searchHandle,
                                       List<CompositeSearchResult> rawResults,
                                       final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter,
@@ -693,6 +714,11 @@ public class SearchHandler {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the description sememe assemblages.
+    *
+    * @return the description sememe assemblages
+    */
    private static Integer[] getDescriptionSememeAssemblages() {
       if (descriptionSememeAssemblagesCache_ == null) {
          final Set<Integer> descSememes = Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_ASSEMBLAGE.getConceptSequence(),

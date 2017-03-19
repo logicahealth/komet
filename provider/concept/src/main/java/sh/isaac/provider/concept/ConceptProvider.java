@@ -96,6 +96,7 @@ import sh.isaac.provider.concept.ConceptSerializer;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ConceptProvider.
  *
  * @author kec
  */
@@ -103,23 +104,51 @@ import sh.isaac.provider.concept.ConceptSerializer;
 @RunLevel(value = 1)
 public class ConceptProvider
          implements ConceptService {
+   
+   /** The Constant LOG. */
    private static final Logger LOG                          = LogManager.getLogger();
+   
+   /** The Constant CRADLE_PROPERTIES_FILE_NAME. */
    public static final String  CRADLE_PROPERTIES_FILE_NAME  = "cradle.properties";
+   
+   /** The Constant CRADLE_ID_FILE_NAME. */
    public static final String  CRADLE_ID_FILE_NAME          = "dbid.txt";
+   
+   /** The Constant CRADLE_DATA_VERSION. */
    public static final String  CRADLE_DATA_VERSION          = "1.5";
+   
+   /** The Constant CRADLE_DATA_VERSION_PROPERTY. */
    public static final String  CRADLE_DATA_VERSION_PROPERTY = "cradle.data.version";
 
    //~--- fields --------------------------------------------------------------
 
+   /** The load required. */
    private final AtomicBoolean                             loadRequired     = new AtomicBoolean(true);
+   
+   /** The database validity. */
    private DatabaseValidity                          databaseValidity = DatabaseValidity.NOT_SET;
+   
+   /** The db id. */
    private UUID                                      dbId             = null;
+   
+   /** The concept active service. */
    ConceptActiveService                              conceptActiveService;
+   
+   /** The concept map. */
    final CasSequenceObjectMap<ConceptChronologyImpl> conceptMap;
+   
+   /** The ochre concept path. */
    private Path                                      ochreConceptPath;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concept provider.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    * @throws NumberFormatException the number format exception
+    * @throws ParseException the parse exception
+    */
    public ConceptProvider()
             throws IOException, NumberFormatException, ParseException {
       try {
@@ -203,17 +232,28 @@ public class ConceptProvider
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Clear database validity value.
+    */
    @Override
    public void clearDatabaseValidityValue() {
       // Reset to enforce analysis
       this.databaseValidity = DatabaseValidity.NOT_SET;
    }
 
+   /**
+    * Write concept.
+    *
+    * @param concept the concept
+    */
    @Override
    public void writeConcept(ConceptChronology<? extends ConceptVersion<?>> concept) {
       this.conceptMap.put(concept.getConceptSequence(), (ConceptChronologyImpl) concept);
    }
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       LOG.info("Starting OCHRE ConceptProvider post-construct");
@@ -230,6 +270,9 @@ public class ConceptProvider
       }
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping OCHRE ConceptProvider.");
@@ -239,6 +282,12 @@ public class ConceptProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the concept.
+    *
+    * @param conceptId the concept id
+    * @return the concept
+    */
    @Override
    public ConceptChronologyImpl getConcept(int conceptId) {
       if (conceptId < 0) {
@@ -249,6 +298,12 @@ public class ConceptProvider
       return this.conceptMap.getQuick(conceptId);
    }
 
+   /**
+    * Gets the concept.
+    *
+    * @param conceptUuids the concept uuids
+    * @return the concept
+    */
    @Override
    public ConceptChronologyImpl getConcept(UUID... conceptUuids) {
       final int                             conceptNid      = Get.identifierService()
@@ -271,6 +326,12 @@ public class ConceptProvider
       return this.conceptMap.getQuick(conceptSequence);
    }
 
+   /**
+    * Checks for concept.
+    *
+    * @param conceptId the concept id
+    * @return true, if successful
+    */
    @Override
    public boolean hasConcept(int conceptId) {
       if (conceptId < 0) {
@@ -281,11 +342,23 @@ public class ConceptProvider
       return this.conceptMap.containsKey(conceptId);
    }
 
+   /**
+    * Checks if concept active.
+    *
+    * @param conceptSequence the concept sequence
+    * @param stampCoordinate the stamp coordinate
+    * @return true, if concept active
+    */
    @Override
    public boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate) {
       return this.conceptActiveService.isConceptActive(conceptSequence, stampCoordinate);
    }
 
+   /**
+    * Gets the concept chronology stream.
+    *
+    * @return the concept chronology stream
+    */
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream() {
       return this.conceptMap.getStream().map((cc) -> {
@@ -293,6 +366,12 @@ public class ConceptProvider
                             });
    }
 
+   /**
+    * Gets the concept chronology stream.
+    *
+    * @param conceptSequences the concept sequences
+    * @return the concept chronology stream
+    */
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream(
            ConceptSequenceSet conceptSequences) {
@@ -308,11 +387,23 @@ public class ConceptProvider
                           });
    }
 
+   /**
+    * Gets the concept count.
+    *
+    * @return the concept count
+    */
    @Override
    public int getConceptCount() {
       return this.conceptMap.getSize();
    }
 
+   /**
+    * Gets the concept data.
+    *
+    * @param i the i
+    * @return the concept data
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public Optional<ConceptChronologyImpl> getConceptData(int i)
             throws IOException {
       if (i < 0) {
@@ -323,31 +414,62 @@ public class ConceptProvider
       return this.conceptMap.get(i);
    }
 
+   /**
+    * Gets the concept key parallel stream.
+    *
+    * @return the concept key parallel stream
+    */
    @Override
    public IntStream getConceptKeyParallelStream() {
       return this.conceptMap.getKeyParallelStream();
    }
 
+   /**
+    * Gets the concept key stream.
+    *
+    * @return the concept key stream
+    */
    @Override
    public IntStream getConceptKeyStream() {
       return this.conceptMap.getKeyStream();
    }
 
+   /**
+    * Gets the data store id.
+    *
+    * @return the data store id
+    */
    @Override
    public UUID getDataStoreId() {
       return this.dbId;
    }
 
+   /**
+    * Gets the database folder.
+    *
+    * @return the database folder
+    */
    @Override
    public Path getDatabaseFolder() {
       return this.ochreConceptPath;
    }
 
+   /**
+    * Gets the database validity status.
+    *
+    * @return the database validity status
+    */
    @Override
    public DatabaseValidity getDatabaseValidityStatus() {
       return this.databaseValidity;
    }
 
+   /**
+    * Gets the optional concept.
+    *
+    * @param conceptId the concept id
+    * @return the optional concept
+    */
    @Override
    public Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(int conceptId) {
       if (conceptId < 0) {
@@ -358,6 +480,12 @@ public class ConceptProvider
       return this.conceptMap.get(conceptId);
    }
 
+   /**
+    * Gets the optional concept.
+    *
+    * @param conceptUuids the concept uuids
+    * @return the optional concept
+    */
    @Override
    public Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(UUID... conceptUuids) {
       // check hasUuid first, because getOptionalConcept adds the UUID to the index if it doesn't exist...
@@ -370,6 +498,11 @@ public class ConceptProvider
       }
    }
 
+   /**
+    * Gets the parallel concept chronology stream.
+    *
+    * @return the parallel concept chronology stream
+    */
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream() {
       return this.conceptMap.getParallelStream().map((cc) -> {
@@ -377,6 +510,12 @@ public class ConceptProvider
                             });
    }
 
+   /**
+    * Gets the parallel concept chronology stream.
+    *
+    * @param conceptSequences the concept sequences
+    * @return the parallel concept chronology stream
+    */
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream(
            ConceptSequenceSet conceptSequences) {
@@ -392,6 +531,13 @@ public class ConceptProvider
                           });
    }
 
+   /**
+    * Gets the snapshot.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param languageCoordinate the language coordinate
+    * @return the snapshot
+    */
    @Override
    public ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
       return new ConceptSnapshotProvider(stampCoordinate, languageCoordinate);
@@ -399,13 +545,26 @@ public class ConceptProvider
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class ConceptSnapshotProvider.
+    */
    public class ConceptSnapshotProvider
             implements ConceptSnapshotService {
+      
+      /** The stamp coordinate. */
       StampCoordinate    stampCoordinate;
+      
+      /** The language coordinate. */
       LanguageCoordinate languageCoordinate;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new concept snapshot provider.
+       *
+       * @param stampCoordinate the stamp coordinate
+       * @param languageCoordinate the language coordinate
+       */
       public ConceptSnapshotProvider(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
          this.stampCoordinate    = stampCoordinate;
          this.languageCoordinate = languageCoordinate;
@@ -413,6 +572,12 @@ public class ConceptProvider
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Concept description text.
+       *
+       * @param conceptId the concept id
+       * @return the string
+       */
       @Override
       public String conceptDescriptionText(int conceptId) {
          final Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional = getDescriptionOptional(conceptId);
@@ -426,6 +591,11 @@ public class ConceptProvider
          return "No desc for: " + conceptId;
       }
 
+      /**
+       * To string.
+       *
+       * @return the string
+       */
       @Override
       public String toString() {
          return "ConceptSnapshotProvider{" + "stampCoordinate=" + this.stampCoordinate + ", languageCoordinate=" +
@@ -434,16 +604,34 @@ public class ConceptProvider
 
       //~--- get methods ------------------------------------------------------
 
+      /**
+       * Checks if concept active.
+       *
+       * @param conceptSequence the concept sequence
+       * @return true, if concept active
+       */
       @Override
       public boolean isConceptActive(int conceptSequence) {
          return ConceptProvider.this.isConceptActive(conceptSequence, this.stampCoordinate);
       }
 
+      /**
+       * Gets the concept snapshot.
+       *
+       * @param conceptSequence the concept sequence
+       * @return the concept snapshot
+       */
       @Override
       public ConceptSnapshot getConceptSnapshot(int conceptSequence) {
          return new ConceptSnapshotImpl(getConcept(conceptSequence), this.stampCoordinate, this.languageCoordinate);
       }
 
+      /**
+       * Gets the description list.
+       *
+       * @param conceptId the concept id
+       * @return the description list
+       */
       private List<SememeChronology<? extends DescriptionSememe<?>>> getDescriptionList(int conceptId) {
          final int conceptNid = Get.identifierService()
                              .getConceptNid(conceptId);
@@ -453,26 +641,54 @@ public class ConceptProvider
                    .collect(Collectors.toList());
       }
 
+      /**
+       * Gets the description optional.
+       *
+       * @param conceptId the concept id
+       * @return the description optional
+       */
       @Override
       public Optional<LatestVersion<DescriptionSememe<?>>> getDescriptionOptional(int conceptId) {
          return this.languageCoordinate.getDescription(getDescriptionList(conceptId), this.stampCoordinate);
       }
 
+      /**
+       * Gets the fully specified description.
+       *
+       * @param conceptId the concept id
+       * @return the fully specified description
+       */
       @Override
       public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(int conceptId) {
          return this.languageCoordinate.getFullySpecifiedDescription(getDescriptionList(conceptId), this.stampCoordinate);
       }
 
+      /**
+       * Gets the language coordinate.
+       *
+       * @return the language coordinate
+       */
       @Override
       public LanguageCoordinate getLanguageCoordinate() {
          return this.languageCoordinate;
       }
 
+      /**
+       * Gets the preferred description.
+       *
+       * @param conceptId the concept id
+       * @return the preferred description
+       */
       @Override
       public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(int conceptId) {
          return this.languageCoordinate.getPreferredDescription(getDescriptionList(conceptId), this.stampCoordinate);
       }
 
+      /**
+       * Gets the stamp coordinate.
+       *
+       * @return the stamp coordinate
+       */
       @Override
       public StampCoordinate getStampCoordinate() {
          return this.stampCoordinate;

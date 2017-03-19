@@ -69,27 +69,57 @@ import org.slf4j.LoggerFactory;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link MavenPublish}
+ * {@link MavenPublish}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class MavenPublish
         extends Task<Integer> {
+   
+   /** The log. */
    private static Logger log = LoggerFactory.getLogger(MavenPublish.class);
 
    //~--- fields --------------------------------------------------------------
 
+   /** The group id. */
    String groupId_;
+   
+   /** The artifact id. */
    String artifactId_;
+   
+   /** The version. */
    String version_;
+   
+   /** The pom file. */
    File   pomFile_;
+   
+   /** The data files. */
    File[] dataFiles_;
+   
+   /** The url. */
    String url_;
+   
+   /** The username. */
    String username_;
+   
+   /** The psswrd. */
    String psswrd_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new maven publish.
+    *
+    * @param groupId the group id
+    * @param artifactId the artifact id
+    * @param version the version
+    * @param pomFile the pom file
+    * @param dataFiles the data files
+    * @param url the url
+    * @param username the username
+    * @param psswrd the psswrd
+    * @throws Exception the exception
+    */
    public MavenPublish(String groupId,
                        String artifactId,
                        String version,
@@ -113,6 +143,10 @@ public class MavenPublish
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Call.
+    *
+    * @return the integer
+    * @throws Exception the exception
     * @see javafx.concurrent.Task#call()
     */
    @Override
@@ -148,6 +182,13 @@ public class MavenPublish
       return 0;
    }
 
+   /**
+    * Put file.
+    *
+    * @param file the file
+    * @param targetFileName the target file name
+    * @throws Exception the exception
+    */
    private void putFile(File file, String targetFileName)
             throws Exception {
       final String groupIdTemp = this.groupId_.replaceAll("\\.", "//");
@@ -227,6 +268,15 @@ public class MavenPublish
       updateProgress(-1, 0);
    }
 
+   /**
+    * Write checksum file.
+    *
+    * @param file the file
+    * @param type the type
+    * @throws IOException Signals that an I/O exception has occurred.
+    * @throws InterruptedException the interrupted exception
+    * @throws ExecutionException the execution exception
+    */
    private void writeChecksumFile(File file, String type)
             throws IOException, InterruptedException, ExecutionException {
       updateMessage("Calculating Checksum for " + file.getName());

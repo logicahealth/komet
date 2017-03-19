@@ -70,20 +70,37 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class BinaryDataReaderProvider.
  *
  * @author kec
  */
 public class BinaryDataReaderProvider
         extends TimedTaskWithProgressTracker<Integer>
          implements BinaryDataReaderService, Spliterator<OchreExternalizable> {
+   
+   /** The objects. */
    int             objects  = 0;
+   
+   /** The complete. */
    CountDownLatch  complete = new CountDownLatch(1);
+   
+   /** The data path. */
    Path            dataPath;
+   
+   /** The input. */
    DataInputStream input;
+   
+   /** The stream bytes. */
    int             streamBytes;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new binary data reader provider.
+    *
+    * @param dataPath the data path
+    * @throws FileNotFoundException the file not found exception
+    */
    public BinaryDataReaderProvider(Path dataPath)
             throws FileNotFoundException {
       this.dataPath = dataPath;
@@ -99,11 +116,19 @@ public class BinaryDataReaderProvider
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Characteristics.
+    *
+    * @return the int
+    */
    @Override
    public int characteristics() {
       return IMMUTABLE | NONNULL;
    }
 
+   /**
+    * Close.
+    */
    @Override
    public void close() {
       try {
@@ -115,11 +140,22 @@ public class BinaryDataReaderProvider
       }
    }
 
+   /**
+    * Estimate size.
+    *
+    * @return the long
+    */
    @Override
    public long estimateSize() {
       return Long.MAX_VALUE;
    }
 
+   /**
+    * Try advance.
+    *
+    * @param action the action
+    * @return true, if successful
+    */
    @Override
    public boolean tryAdvance(Consumer<? super OchreExternalizable> action) {
       try {
@@ -168,12 +204,18 @@ public class BinaryDataReaderProvider
       }
    }
 
+   /**
+    * Try split.
+    *
+    * @return the spliterator
+    */
    @Override
    public Spliterator<OchreExternalizable> trySplit() {
       return null;
    }
 
    /**
+    * Call.
     *
     * @return the number of objects read.
     */
@@ -190,6 +232,11 @@ public class BinaryDataReaderProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the stream.
+    *
+    * @return the stream
+    */
    @Override
    public Stream<OchreExternalizable> getStream() {
       running();

@@ -64,15 +64,25 @@ import sh.isaac.api.coordinate.StampCoordinate;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link MappingDAO}
+ * {@link MappingDAO}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public abstract class MappingDAO {
+   
+   /** The Constant LOG. */
    protected static final Logger LOG = LoggerFactory.getLogger(MappingDAO.class);
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read current refex.
+    *
+    * @param refexUUID the refex UUID
+    * @param stampCoord the stamp coord
+    * @return the dynamic sememe
+    * @throws RuntimeException the runtime exception
+    */
    protected static DynamicSememe<?> readCurrentRefex(UUID refexUUID,
          StampCoordinate stampCoord)
             throws RuntimeException {
@@ -92,6 +102,15 @@ public abstract class MappingDAO {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set concept status.
+    *
+    * @param conceptUUID the concept UUID
+    * @param state the state
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws RuntimeException the runtime exception
+    */
    @SuppressWarnings({ "deprecation", "unchecked", "rawtypes" })
    protected static void setConceptStatus(UUID conceptUUID,
          State state,
@@ -116,6 +135,15 @@ public abstract class MappingDAO {
       }
    }
 
+   /**
+    * Set sememe status.
+    *
+    * @param refexUUID the refex UUID
+    * @param state the state
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws RuntimeException the runtime exception
+    */
    @SuppressWarnings("deprecation")
    protected static void setSememeStatus(UUID refexUUID,
          State state,

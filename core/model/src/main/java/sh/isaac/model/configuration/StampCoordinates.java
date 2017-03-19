@@ -53,10 +53,17 @@ import sh.isaac.model.coordinate.StampPositionImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StampCoordinates.
  *
  * @author kec
  */
 public class StampCoordinates {
+   
+   /**
+    * Gets the development latest.
+    *
+    * @return the development latest
+    */
    public static StampCoordinate getDevelopmentLatest() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
                                                           TermAux.DEVELOPMENT_PATH.getConceptSequence());
@@ -67,6 +74,11 @@ public class StampCoordinates {
                                      State.ANY_STATE_SET);
    }
 
+   /**
+    * Gets the development latest active only.
+    *
+    * @return the development latest active only
+    */
    public static StampCoordinate getDevelopmentLatestActiveOnly() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
                                                           TermAux.DEVELOPMENT_PATH.getConceptSequence());
@@ -77,6 +89,11 @@ public class StampCoordinates {
                                      State.ACTIVE_ONLY_SET);
    }
 
+   /**
+    * Gets the master latest.
+    *
+    * @return the master latest
+    */
    public static StampCoordinate getMasterLatest() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.MASTER_PATH.getConceptSequence());
 
@@ -86,6 +103,11 @@ public class StampCoordinates {
                                      State.ANY_STATE_SET);
    }
 
+   /**
+    * Gets the master latest active only.
+    *
+    * @return the master latest active only
+    */
    public static StampCoordinate getMasterLatestActiveOnly() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.MASTER_PATH.getConceptSequence());
 

@@ -83,11 +83,14 @@ import sh.isaac.provider.workflow.model.contents.ProcessHistory;
 @Singleton
 public class WorkflowProvider
          implements OchreCache {
+   
+   /** The bpmn path. */
    // This hack is only visible for test hacking at the moment - this will be redone in the future when we handle multiple bpmn files
    public static String BPMN_PATH = "/sh/isaac/provider/workflow/VetzWorkflowV1.0.bpmn2";
 
    //~--- fields --------------------------------------------------------------
 
+   /** The logger. */
    private final Logger logger = LogManager.getLogger();
 
    /**
@@ -121,19 +124,35 @@ public class WorkflowProvider
     * Initialized during reading of WF Definition only and static from then on.
     */
    private UserRoleService userRoleContentStore_;
+   
+   /** The bpmn info. */
    private BPMNInfo        bpmnInfo_;
 
    //~--- constant enums ------------------------------------------------------
 
+   /**
+    * The Enum WorkflowContentStoreType.
+    */
    private enum WorkflowContentStoreType {
+      
+      /** The available action. */
       AVAILABLE_ACTION,
+      
+      /** The definition detail. */
       DEFINITION_DETAIL,
+      
+      /** The historical workflow. */
       HISTORICAL_WORKFLOW,
+      
+      /** The process definition. */
       PROCESS_DEFINITION
    }
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new workflow provider.
+    */
    // For HK2 only
    private WorkflowProvider() {
       this.logger.debug("Starting up the Workflow Provider");
@@ -143,6 +162,8 @@ public class WorkflowProvider
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Reset.
+    *
     * @see sh.isaac.api.OchreCache#reset()
     */
    @Override
@@ -156,6 +177,9 @@ public class WorkflowProvider
       this.bpmnInfo_                     = null;
    }
 
+   /**
+    * Re cache store refs.
+    */
    private synchronized void reCacheStoreRefs() {
       this.logger.info("Getting storage refs from metastore " + this);
       this.availableActionContentStore_ = new WorkflowContentStore<AvailableAction>(Get.metaContentService().<UUID,
@@ -183,6 +207,9 @@ public class WorkflowProvider
       }
    }
 
+   /**
+    * Shutdown.
+    */
    @PreDestroy
    private void shutdown() {
       this.logger.debug("Shutting down the Workflow Provider");
@@ -192,6 +219,11 @@ public class WorkflowProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the available action store.
+    *
+    * @return the available action store
+    */
    public WorkflowContentStore<AvailableAction> getAvailableActionStore() {
       if (this.availableActionContentStore_ == null) {
          reCacheStoreRefs();
@@ -200,6 +232,11 @@ public class WorkflowProvider
       return this.availableActionContentStore_;
    }
 
+   /**
+    * Gets the BPMN info.
+    *
+    * @return the BPMN info
+    */
    public BPMNInfo getBPMNInfo() {
       if (this.bpmnInfo_ == null) {
          reCacheStoreRefs();
@@ -208,6 +245,11 @@ public class WorkflowProvider
       return this.bpmnInfo_;
    }
 
+   /**
+    * Gets the definition detail store.
+    *
+    * @return the definition detail store
+    */
    public WorkflowContentStore<DefinitionDetail> getDefinitionDetailStore() {
       if (this.definitionDetailContentStore_ == null) {
          reCacheStoreRefs();
@@ -216,6 +258,11 @@ public class WorkflowProvider
       return this.definitionDetailContentStore_;
    }
 
+   /**
+    * Gets the process detail store.
+    *
+    * @return the process detail store
+    */
    public WorkflowContentStore<ProcessDetail> getProcessDetailStore() {
       if (this.processDetailContentStore_ == null) {
          reCacheStoreRefs();
@@ -224,6 +271,11 @@ public class WorkflowProvider
       return this.processDetailContentStore_;
    }
 
+   /**
+    * Gets the process history store.
+    *
+    * @return the process history store
+    */
    public WorkflowContentStore<ProcessHistory> getProcessHistoryStore() {
       if (this.processHistoryContentStore_ == null) {
          reCacheStoreRefs();
@@ -232,6 +284,11 @@ public class WorkflowProvider
       return this.processHistoryContentStore_;
    }
 
+   /**
+    * Gets the user role store.
+    *
+    * @return the user role store
+    */
    public UserRoleService getUserRoleStore() {
       if (this.userRoleContentStore_ == null) {
          reCacheStoreRefs();
@@ -240,16 +297,31 @@ public class WorkflowProvider
       return this.userRoleContentStore_;
    }
 
+   /**
+    * Gets the workflow accessor.
+    *
+    * @return the workflow accessor
+    */
    public WorkflowAccessor getWorkflowAccessor() {
       return LookupService.get()
                           .getService(WorkflowAccessor.class);
    }
 
+   /**
+    * Gets the workflow process initializer concluder.
+    *
+    * @return the workflow process initializer concluder
+    */
    public WorkflowProcessInitializerConcluder getWorkflowProcessInitializerConcluder() {
       return LookupService.get()
                           .getService(WorkflowProcessInitializerConcluder.class);
    }
 
+   /**
+    * Gets the workflow updater.
+    *
+    * @return the workflow updater
+    */
    public WorkflowUpdater getWorkflowUpdater() {
       return LookupService.get()
                           .getService(WorkflowUpdater.class);

@@ -40,12 +40,17 @@
 package sh.isaac.api.collections.uuidnidmap;
 
 /**
+ * The Class UuidSorting.
  *
  * @author kec
  */
 public class UuidSorting
         extends Object {
+   
+   /** The Constant SMALL. */
    private static final int SMALL  = 7;
+   
+   /** The Constant MEDIUM. */
    private static final int MEDIUM = 40;
 
    //~--- constructors --------------------------------------------------------
@@ -179,6 +184,13 @@ public class UuidSorting
 
    /**
     * Returns the index of the median of the three indexed chars.
+    *
+    * @param x the x
+    * @param a the a
+    * @param b the b
+    * @param c the c
+    * @param comp the comp
+    * @return the int
     */
    private static int med3(long x[], int a, int b, int c, UuidComparatorBI comp) {
       final int ab = comp.compare(x[2 * a], x[2 * a + 1], x[2 * b], x[2 * b + 1]);
@@ -193,6 +205,14 @@ public class UuidSorting
             : a));
    }
 
+   /**
+    * Merge sort 1.
+    *
+    * @param src the src
+    * @param dest the dest
+    * @param low the low
+    * @param high the high
+    */
    private static void mergeSort1(long src[], long dest[], int low, int high) {
       final int length = high - low;
 
@@ -241,6 +261,15 @@ public class UuidSorting
       }
    }
 
+   /**
+    * Merge sort 1.
+    *
+    * @param src the src
+    * @param dest the dest
+    * @param low the low
+    * @param high the high
+    * @param c the c
+    */
    private static void mergeSort1(long src[], long dest[], int low, int high, UuidComparatorBI c) {
       final int length = high - low;
 
@@ -285,6 +314,11 @@ public class UuidSorting
 
    /**
     * Sorts the specified sub-array of chars into ascending order.
+    *
+    * @param x the x
+    * @param off the off
+    * @param len the len
+    * @param comp the comp
     */
    private static void quickSort1(long x[], int off, int len, UuidComparatorBI comp) {
       // Insertion sort on smallest arrays
@@ -374,6 +408,10 @@ public class UuidSorting
 
    /**
     * Check that fromIndex and toIndex are in range, and throw an appropriate exception if they aren't.
+    *
+    * @param arrayLen the array len
+    * @param fromIndex the from index
+    * @param toIndex the to index
     */
    private static void rangeCheck(int arrayLen, int fromIndex, int toIndex) {
       if (fromIndex > toIndex) {
@@ -391,6 +429,10 @@ public class UuidSorting
 
    /**
     * Swaps x[a] with x[b].
+    *
+    * @param x the x
+    * @param a the a
+    * @param b the b
     */
    private static void swap(long x[], int a, int b) {
       final int    aMsb = a * 2;
@@ -409,6 +451,11 @@ public class UuidSorting
 
    /**
     * Swaps x[a .. (a+n-1)] with x[b .. (b+n-1)].
+    *
+    * @param x the x
+    * @param a the a
+    * @param b the b
+    * @param n the n
     */
    private static void vecswap(long x[], int a, int b, int n) {
       for (int i = 0; i < n; i++, a++, b++) {

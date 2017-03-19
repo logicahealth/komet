@@ -97,18 +97,36 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeIntegerImpl;
 @Service
 @Singleton
 public class SememeIndexerConfiguration {
+   
+   /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The what to index sequence to col. */
    // store assemblage sequences that should be indexed - and then - for COLUMN_DATA keys, keep the 0 indexed column order numbers that need to be indexed.
    private HashMap<Integer, Integer[]> whatToIndexSequenceToCol_ = new HashMap<>();
+   
+   /** The read needed. */
    private final AtomicInteger readNeeded_ =
       new AtomicInteger(1);  // 0 means no readNeeded, anything greater than 0 means it does need a re-read
+   
+   /** The read needed block. */
    private final Semaphore readNeededBlock_ = new Semaphore(1);
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Builds the and configure columns to index.
+    *
+    * @param assemblageNidOrSequence the assemblage nid or sequence
+    * @param columnsToIndex the columns to index
+    * @param skipReindex the skip reindex
+    * @return the sememe chronology<? extends dynamic sememe<?>>
+    * @throws RuntimeException the runtime exception
+    * @throws InterruptedException the interrupted exception
+    * @throws ExecutionException the execution exception
+    */
    @SuppressWarnings("unchecked")
    public static SememeChronology<? extends DynamicSememe<?>> buildAndConfigureColumnsToIndex(
            int assemblageNidOrSequence,
@@ -175,14 +193,15 @@ public class SememeIndexerConfiguration {
 
    /**
     * for the given assemblage sequence, which columns should be indexed - note - columnsToIndex must be provided
-    * it doesn't make any sense to index sememes any longer in ochre without indexing column content
+    * it doesn't make any sense to index sememes any longer in ochre without indexing column content.
     *
+    * @param assemblageNidOrSequence the assemblage nid or sequence
+    * @param columnsToIndex the columns to index
     * @param skipReindex - if true - does not do a full DB reindex (useful if you are enabling an index on a new sememe that has never been used)
     * otherwise - leave false - so that a full reindex occurs (on this thread) and the index becomes valid.
-    *
-    * @throws RuntimeException
-    * @throws ExecutionException
-    * @throws InterruptedException
+    * @throws RuntimeException the runtime exception
+    * @throws InterruptedException the interrupted exception
+    * @throws ExecutionException the execution exception
     */
    @SuppressWarnings("unchecked")
    public static void configureColumnsToIndex(int assemblageNidOrSequence,
@@ -248,14 +267,11 @@ public class SememeIndexerConfiguration {
 
    /**
     * Disable all indexing of the specified refex.  To change the index config, use the {@link #configureColumnsToIndex(int, Integer[]) method.
-    *
+    * 
     * Note that this causes a full DB reindex, on this thread.
     *
-    * @throws IOException
-    * @throws ContradictionException
-    * @throws InvalidCAB
-    * @throws ExecutionException
-    * @throws InterruptedException 
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @throws RuntimeException the runtime exception
     */
    @SuppressWarnings("unchecked")
    public static void disableIndex(int assemblageConceptSequence)
@@ -295,10 +311,13 @@ public class SememeIndexerConfiguration {
 
    /**
     * Read the indexing configuration for the specified dynamic sememe.
-    *
+    * 
     * Returns null, if the assemblage is not indexed at all.  Returns an empty array, if the assemblage is indexed (but no columns are indexed)
     * Returns an integer array of the column positions of the refex that are indexed, if any.
     *
+    * @param assemblageSequence the assemblage sequence
+    * @return the integer[]
+    * @throws RuntimeException the runtime exception
     */
    public static Integer[] readIndexInfo(int assemblageSequence)
             throws RuntimeException {
@@ -307,16 +326,35 @@ public class SememeIndexerConfiguration {
                           .whatColumnsToIndex(assemblageSequence);
    }
 
+   /**
+    * Needs indexing.
+    *
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return true, if successful
+    */
    protected boolean needsIndexing(int assemblageConceptSequence) {
       initCheck();
       return this.whatToIndexSequenceToCol_.containsKey(assemblageConceptSequence);
    }
 
+   /**
+    * What columns to index.
+    *
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the integer[]
+    */
    protected Integer[] whatColumnsToIndex(int assemblageConceptSequence) {
       initCheck();
       return this.whatToIndexSequenceToCol_.get(assemblageConceptSequence);
    }
 
+   /**
+    * Find current index config refex.
+    *
+    * @param indexedSememeId the indexed sememe id
+    * @return the dynamic sememe<? extends dynamic sememe<?>>
+    * @throws RuntimeException the runtime exception
+    */
    private static DynamicSememe<? extends DynamicSememe<?>> findCurrentIndexConfigRefex(int indexedSememeId)
             throws RuntimeException {
       @SuppressWarnings("rawtypes")
@@ -343,6 +381,9 @@ public class SememeIndexerConfiguration {
       return null;
    }
 
+   /**
+    * Inits the check.
+    */
    private void initCheck() {
       if (this.readNeeded_.get() > 0) {
          // During bulk index, prevent all threads from doing this at the same time...
@@ -414,12 +455,24 @@ public class SememeIndexerConfiguration {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if assemblage indexed.
+    *
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return true, if assemblage indexed
+    */
    public static boolean isAssemblageIndexed(int assemblageConceptSequence) {
       return LookupService.get()
                           .getService(SememeIndexerConfiguration.class)
                           .needsIndexing(assemblageConceptSequence);
    }
 
+   /**
+    * Checks if column type indexable.
+    *
+    * @param dataType the data type
+    * @return true, if column type indexable
+    */
    public static boolean isColumnTypeIndexable(DynamicSememeDataType dataType) {
       if (dataType == DynamicSememeDataType.BYTEARRAY) {
          return false;

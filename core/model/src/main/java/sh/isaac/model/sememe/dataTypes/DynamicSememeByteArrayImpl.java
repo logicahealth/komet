@@ -50,22 +50,35 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeByteArrayImpl}
+ * {@link DynamicSememeByteArrayImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeByteArrayImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeByteArray {
+   
+   /** The property. */
    private ObjectProperty<byte[]> property_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe byte array impl.
+    *
+    * @param bytes the bytes
+    */
    public DynamicSememeByteArrayImpl(byte[] bytes) {
       super(bytes);
    }
 
+   /**
+    * Instantiates a new dynamic sememe byte array impl.
+    *
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    protected DynamicSememeByteArrayImpl(byte[] data, int assemblageSequence, int columnNumber) {
       super(data, assemblageSequence, columnNumber);
    }
@@ -73,6 +86,9 @@ public class DynamicSememeByteArrayImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data byte array.
+    *
+    * @return the data byte array
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicByteArrayBI#getDataByteArray()
     */
    @Override
@@ -81,6 +97,9 @@ public class DynamicSememeByteArrayImpl
    }
 
    /**
+    * Gets the data byte array property.
+    *
+    * @return the data byte array property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicByteArrayBI#getDataByteArrayProperty()
     */
    @Override
@@ -93,6 +112,9 @@ public class DynamicSememeByteArrayImpl
    }
 
    /**
+    * Gets the data object.
+    *
+    * @return the data object
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
     */
    @Override
@@ -101,6 +123,9 @@ public class DynamicSememeByteArrayImpl
    }
 
    /**
+    * Gets the data object property.
+    *
+    * @return the data object property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
     */
    @Override

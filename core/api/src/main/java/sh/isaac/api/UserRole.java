@@ -46,38 +46,63 @@ import java.util.Optional;
 //~--- enums ------------------------------------------------------------------
 
 /**
- *
- * {@link UserRole}
+ * {@link UserRole}.
  *
  * @author <a href="mailto:joel.kniaz.list@gmail.com">Joel Kniaz</a>
- *
  */
 public enum UserRole {
    // Do not rearrange. Add new values to end.
 
+   /** The automated. */
    /*
     * AUTOMATED is used to capture that the system automated the workflow
     * advancement rather than a specific user
     */
    AUTOMATED(UserRoleConstants.AUTOMATED),
+   
+   /** The super user. */
    SUPER_USER(UserRoleConstants.SUPER_USER),
+   
+   /** The administrator. */
    ADMINISTRATOR(UserRoleConstants.ADMINISTRATOR),
+   
+   /** The read only. */
    READ_ONLY(UserRoleConstants.READ_ONLY),
+   
+   /** The editor. */
    EDITOR(UserRoleConstants.EDITOR),
+   
+   /** The reviewer. */
    REVIEWER(UserRoleConstants.REVIEWER),
+   
+   /** The approver. */
    APPROVER(UserRoleConstants.APPROVER),
+   
+   /** The manager. */
    MANAGER(UserRoleConstants.MANAGER);
 
+   /** The text. */
    private final String text;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new user role.
+    *
+    * @param text the text
+    */
    private UserRole(String text) {
       this.text = text;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Safe value of.
+    *
+    * @param ord the ord
+    * @return the optional
+    */
    public static Optional<UserRole> safeValueOf(int ord) {
       for (final UserRole role: UserRole.values()) {
          if (role.ordinal() == ord) {
@@ -88,6 +113,12 @@ public enum UserRole {
       return Optional.empty();
    }
 
+   /**
+    * Safe value of.
+    *
+    * @param str the str
+    * @return the optional
+    */
    public static Optional<UserRole> safeValueOf(String str) {
       for (final UserRole role: UserRole.values()) {
          if (role.getText()
@@ -99,6 +130,11 @@ public enum UserRole {
       return Optional.empty();
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
 public String toString() {
       return this.text;
@@ -106,6 +142,11 @@ public String toString() {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the text.
+    *
+    * @return the text
+    */
    public String getText() {
       return this.text;
    }

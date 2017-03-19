@@ -56,17 +56,28 @@ import sh.isaac.api.coordinate.StampPosition;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class SememeTypeProvider.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public class SememeTypeProvider<V extends SememeVersion<?>>
          implements SememeServiceTyped<V> {
+   
+   /** The type. */
    Class<V>      type;
+   
+   /** The sememe provider. */
    SememeService sememeProvider;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new sememe type provider.
+    *
+    * @param type the type
+    * @param sememeProvider the sememe provider
+    */
    public SememeTypeProvider(Class<V> type, SememeService sememeProvider) {
       this.type           = type;
       this.sememeProvider = sememeProvider;
@@ -74,6 +85,11 @@ public class SememeTypeProvider<V extends SememeVersion<?>>
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Write sememe.
+    *
+    * @param sememeChronicle the sememe chronicle
+    */
    @Override
    public void writeSememe(SememeChronology<?> sememeChronicle) {
       // TODO Implement the Sememe Type provider class
@@ -83,6 +99,11 @@ public class SememeTypeProvider<V extends SememeVersion<?>>
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the parallel sememe stream.
+    *
+    * @return the parallel sememe stream
+    */
    @Override
    public Stream<SememeChronology<V>> getParallelSememeStream() {
       // TODO Implement the Sememe Type provider class
@@ -90,6 +111,12 @@ public class SememeTypeProvider<V extends SememeVersion<?>>
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Gets the sememe.
+    *
+    * @param sememeSequence the sememe sequence
+    * @return the sememe
+    */
    @Override
    public SememeChronology<V> getSememe(int sememeSequence) {
       // TODO Implement the Sememe Type provider class
@@ -97,6 +124,12 @@ public class SememeTypeProvider<V extends SememeVersion<?>>
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Gets the sememe sequences for component.
+    *
+    * @param componentNid the component nid
+    * @return the sememe sequences for component
+    */
    @Override
    public SememeSequenceSet getSememeSequencesForComponent(int componentNid) {
       // TODO Implement the Sememe Type provider class
@@ -104,6 +137,13 @@ public class SememeTypeProvider<V extends SememeVersion<?>>
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Gets the sememe sequences for component from assemblage.
+    *
+    * @param componentNid the component nid
+    * @param assemblageSequence the assemblage sequence
+    * @return the sememe sequences for component from assemblage
+    */
    @Override
    public SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageSequence) {
       // TODO Implement the Sememe Type provider class
@@ -111,6 +151,13 @@ public class SememeTypeProvider<V extends SememeVersion<?>>
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Gets the sememe sequences for components from assemblage.
+    *
+    * @param componentNidSet the component nid set
+    * @param assemblageSequence the assemblage sequence
+    * @return the sememe sequences for components from assemblage
+    */
    @Override
    public SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet,
          int assemblageSequence) {
@@ -119,6 +166,14 @@ public class SememeTypeProvider<V extends SememeVersion<?>>
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Gets the sememe sequences for components from assemblage modified after position.
+    *
+    * @param componentNidSet the component nid set
+    * @param assemblageSequence the assemblage sequence
+    * @param position the position
+    * @return the sememe sequences for components from assemblage modified after position
+    */
    @Override
    public SememeSequenceSet getSememeSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet,
          int assemblageSequence,
@@ -128,6 +183,12 @@ public class SememeTypeProvider<V extends SememeVersion<?>>
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Gets the sememe sequences from assemblage.
+    *
+    * @param assemblageSequence the assemblage sequence
+    * @return the sememe sequences from assemblage
+    */
    @Override
    public SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageSequence) {
       // TODO Implement the Sememe Type provider class
@@ -135,6 +196,13 @@ public class SememeTypeProvider<V extends SememeVersion<?>>
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Gets the sememe sequences from assemblage modified after position.
+    *
+    * @param assemblageSequence the assemblage sequence
+    * @param position the position
+    * @return the sememe sequences from assemblage modified after position
+    */
    @Override
    public SememeSequenceSet getSememeSequencesFromAssemblageModifiedAfterPosition(int assemblageSequence,
          StampPosition position) {
@@ -143,6 +211,11 @@ public class SememeTypeProvider<V extends SememeVersion<?>>
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Gets the sememe stream.
+    *
+    * @return the sememe stream
+    */
    @Override
    public Stream<SememeChronology<V>> getSememeStream() {
       // TODO Implement the Sememe Type provider class
@@ -150,6 +223,12 @@ public class SememeTypeProvider<V extends SememeVersion<?>>
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Gets the sememes for component.
+    *
+    * @param componentNid the component nid
+    * @return the sememes for component
+    */
    @Override
    public Stream<SememeChronology<V>> getSememesForComponent(int componentNid) {
       // TODO Implement the Sememe Type provider class
@@ -157,6 +236,13 @@ public class SememeTypeProvider<V extends SememeVersion<?>>
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Gets the sememes for component from assemblage.
+    *
+    * @param componentNid the component nid
+    * @param assemblageSequence the assemblage sequence
+    * @return the sememes for component from assemblage
+    */
    @Override
    public Stream<SememeChronology<V>> getSememesForComponentFromAssemblage(int componentNid, int assemblageSequence) {
       // TODO Implement the Sememe Type provider class
@@ -164,6 +250,12 @@ public class SememeTypeProvider<V extends SememeVersion<?>>
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Gets the sememes from assemblage.
+    *
+    * @param assemblageSequence the assemblage sequence
+    * @return the sememes from assemblage
+    */
    @Override
    public Stream<SememeChronology<V>> getSememesFromAssemblage(int assemblageSequence) {
       // TODO Implement the Sememe Type provider class

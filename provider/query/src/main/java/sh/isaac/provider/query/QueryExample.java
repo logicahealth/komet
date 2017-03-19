@@ -62,10 +62,15 @@ import sh.isaac.model.configuration.TaxonomyCoordinates;
  * @author kec
  */
 public class QueryExample {
+   
+   /** The q. */
    Query q;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new query example.
+    */
    public QueryExample() {
       this.q =
          new Query(TaxonomyCoordinates.getInferredTaxonomyCoordinate(StampCoordinates.getDevelopmentLatestActiveOnly(),
@@ -94,6 +99,13 @@ public class QueryExample {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the results.
+    *
+    * @return the results
+    * @throws IOException Signals that an I/O exception has occurred.
+    * @throws Exception the exception
+    */
    public NidSet getResults()
             throws IOException, Exception {
       return this.q.compute();

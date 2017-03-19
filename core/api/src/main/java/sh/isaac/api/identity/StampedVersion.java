@@ -60,7 +60,9 @@ import sh.isaac.api.State;
  * @author kec
  */
 public interface StampedVersion {
+   
    /**
+    * Gets the author sequence.
     *
     * @return the sequence of the concept that represents the author who committed this version.
     */
@@ -75,6 +77,7 @@ public interface StampedVersion {
    int getModuleSequence();
 
    /**
+    * Gets the path sequence.
     *
     * @return the sequence of the concept that represents the path on which this version is committed.
     */
@@ -90,6 +93,7 @@ public interface StampedVersion {
    int getStampSequence();
 
    /**
+    * Gets the state.
     *
     * @return the state of this version.
     */

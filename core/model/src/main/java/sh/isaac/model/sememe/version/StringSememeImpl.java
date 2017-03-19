@@ -50,20 +50,38 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StringSememeImpl.
  *
  * @author kec
  */
 public class StringSememeImpl
         extends SememeVersionImpl<StringSememeImpl>
          implements StringSememe<StringSememeImpl>, MutableStringSememe<StringSememeImpl> {
+   
+   /** The string. */
    private String string = null;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new string sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    */
    public StringSememeImpl(SememeChronologyImpl<StringSememeImpl> container, int stampSequence, short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
+   /**
+    * Instantiates a new string sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    * @param data the data
+    */
    public StringSememeImpl(SememeChronologyImpl<StringSememeImpl> container,
                            int stampSequence,
                            short versionSequence,
@@ -74,6 +92,11 @@ public class StringSememeImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();
@@ -85,6 +108,11 @@ public class StringSememeImpl
       return sb.toString();
    }
 
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
@@ -93,11 +121,21 @@ public class StringSememeImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    @Override
    public SememeType getSememeType() {
       return SememeType.STRING;
    }
 
+   /**
+    * Gets the string.
+    *
+    * @return the string
+    */
    @Override
    public String getString() {
       return this.string;
@@ -105,6 +143,11 @@ public class StringSememeImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the string.
+    *
+    * @param string the new string
+    */
    @Override
    public void setString(String string) {
       if (this.string != null) {

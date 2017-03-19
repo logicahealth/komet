@@ -76,16 +76,23 @@ import sh.isaac.api.constants.ModuleProvidedConstants;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ExportTaxonomy.
  *
  * @author kec
  */
 @Mojo(name = "export-taxonomy")
 public class ExportTaxonomy
         extends AbstractMojo {
+   
+   /** The binding package. */
    @Parameter(required = true)
    private String bindingPackage;
+   
+   /** The binding class. */
    @Parameter(required = true)
    private String bindingClass;
+   
+   /** The build directory. */
    @Parameter(
       required     = true,
       defaultValue = "${project.build.directory}"
@@ -94,6 +101,12 @@ public class ExportTaxonomy
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    * @throws MojoFailureException the mojo failure exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException, MojoFailureException {

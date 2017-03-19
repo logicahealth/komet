@@ -45,14 +45,31 @@ import java.util.Locale;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class DataType.
+ */
 public class DataType {
+   
+   /** The data size. */
    private int                 dataSize_ = -1;
+   
+   /** The scale. */
    private int                 scale_    = -1;
+   
+   /** The type. */
    private SUPPORTED_DATA_TYPE type_;
+   
+   /** The allows null. */
    private boolean             allowsNull_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new data type.
+    *
+    * @param sql92Type the sql 92 type
+    * @param allowsNull the allows null
+    */
    public DataType(String sql92Type, Boolean allowsNull) {
       if (sql92Type.startsWith("varchar")) {
          this.type_ = SUPPORTED_DATA_TYPE.STRING;
@@ -90,6 +107,13 @@ public class DataType {
       }
    }
 
+   /**
+    * Instantiates a new data type.
+    *
+    * @param type the type
+    * @param size the size
+    * @param allowsNull the allows null
+    */
    public DataType(SUPPORTED_DATA_TYPE type, Integer size, Boolean allowsNull) {
       this.type_ = type;
 
@@ -106,13 +130,32 @@ public class DataType {
 
    //~--- enums ---------------------------------------------------------------
 
+   /**
+    * The Enum SUPPORTED_DATA_TYPE.
+    */
    public enum SUPPORTED_DATA_TYPE {
+      
+      /** The string. */
       STRING,
+      
+      /** The integer. */
       INTEGER,
+      
+      /** The long. */
       LONG,
+      
+      /** The boolean. */
       BOOLEAN,
+      
+      /** The bigdecimal. */
       BIGDECIMAL;
 
+      /**
+       * Parses the.
+       *
+       * @param value the value
+       * @return the supported data type
+       */
       public static SUPPORTED_DATA_TYPE parse(String value) {
          for (final SUPPORTED_DATA_TYPE s: SUPPORTED_DATA_TYPE.values()) {
             if (value.toUpperCase(Locale.ENGLISH)
@@ -129,6 +172,11 @@ public class DataType {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * As H 2.
+    *
+    * @return the string
+    */
    public String asH2() {
       final StringBuilder sb = new StringBuilder();
 
@@ -163,22 +211,47 @@ public class DataType {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if big decimal.
+    *
+    * @return true, if big decimal
+    */
    public boolean isBigDecimal() {
       return this.type_ == SUPPORTED_DATA_TYPE.BIGDECIMAL;
    }
 
+   /**
+    * Checks if boolean.
+    *
+    * @return true, if boolean
+    */
    public boolean isBoolean() {
       return this.type_ == SUPPORTED_DATA_TYPE.BOOLEAN;
    }
 
+   /**
+    * Checks if integer.
+    *
+    * @return true, if integer
+    */
    public boolean isInteger() {
       return this.type_ == SUPPORTED_DATA_TYPE.INTEGER;
    }
 
+   /**
+    * Checks if long.
+    *
+    * @return true, if long
+    */
    public boolean isLong() {
       return this.type_ == SUPPORTED_DATA_TYPE.LONG;
    }
 
+   /**
+    * Checks if string.
+    *
+    * @return true, if string
+    */
    public boolean isString() {
       return this.type_ == SUPPORTED_DATA_TYPE.STRING;
    }

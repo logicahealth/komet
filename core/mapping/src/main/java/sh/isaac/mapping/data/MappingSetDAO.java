@@ -100,19 +100,24 @@ import sh.isaac.utility.Frills;
  */
 public class MappingSetDAO
         extends MappingDAO {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LoggerFactory.getLogger(MappingSetDAO.class);
 
    //~--- methods -------------------------------------------------------------
 
    /**
     * Create and store a new mapping set in the DB.
+    *
     * @param mappingName - The name of the mapping set (used for the FSN and preferred term of the underlying concept)
     * @param inverseName - (optional) inverse name of the mapping set (if it makes sense for the mapping)
     * @param purpose - (optional) - user specified purpose of the mapping set
     * @param description - the intended use of the mapping set
     * @param editorStatus - (optional) user specified status concept of the mapping set
-    * @return
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @return the mapping set
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static MappingSet createMappingSet(String mappingName,
          String inverseName,
@@ -213,6 +218,14 @@ public class MappingSetDAO
       return new MappingSet(sememe.get().value(), stampCoord);
    }
 
+   /**
+    * Retire mapping set.
+    *
+    * @param mappingSetPrimordialUUID the mapping set primordial UUID
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static void retireMappingSet(UUID mappingSetPrimordialUUID,
          StampCoordinate stampCoord,
          EditCoordinate editCoord)
@@ -220,6 +233,14 @@ public class MappingSetDAO
       setConceptStatus(mappingSetPrimordialUUID, State.INACTIVE, stampCoord, editCoord);
    }
 
+   /**
+    * Un retire mapping set.
+    *
+    * @param mappingSetPrimordialUUID the mapping set primordial UUID
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static void unRetireMappingSet(UUID mappingSetPrimordialUUID,
          StampCoordinate stampCoord,
          EditCoordinate editCoord)
@@ -229,8 +250,11 @@ public class MappingSetDAO
 
    /**
     * Store the changes (done via set methods) on the passed in mapping set.
+    *
     * @param mappingSet - The mappingSet that carries the changes
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws RuntimeException the runtime exception
     */
    @SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
    public static void updateMappingSet(MappingSet mappingSet,
@@ -358,6 +382,14 @@ public class MappingSetDAO
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the mapping concept.
+    *
+    * @param sememe the sememe
+    * @param stampCoord the stamp coord
+    * @return the mapping concept
+    * @throws RuntimeException the runtime exception
+    */
    public static Optional<ConceptVersion<?>> getMappingConcept(DynamicSememe<?> sememe,
          StampCoordinate stampCoord)
             throws RuntimeException {
@@ -385,6 +417,13 @@ public class MappingSetDAO
       return Optional.empty();
    }
 
+   /**
+    * Gets the mapping sets.
+    *
+    * @param stampCoord the stamp coord
+    * @return the mapping sets
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static List<MappingSet> getMappingSets(StampCoordinate stampCoord)
             throws IOException {
       final ArrayList<MappingSet> result = new ArrayList<>();

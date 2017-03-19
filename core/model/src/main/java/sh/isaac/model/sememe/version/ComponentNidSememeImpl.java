@@ -56,23 +56,40 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * Used for description dialect preferences
+ * Used for description dialect preferences.
  *
  * @author kec
  */
 public class ComponentNidSememeImpl
         extends SememeVersionImpl<ComponentNidSememeImpl>
          implements MutableComponentNidSememe<ComponentNidSememeImpl> {
+   
+   /** The component nid. */
    int componentNid = Integer.MAX_VALUE;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new component nid sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    */
    public ComponentNidSememeImpl(SememeChronologyImpl<ComponentNidSememeImpl> container,
                                  int stampSequence,
                                  short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
+   /**
+    * Instantiates a new component nid sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    * @param data the data
+    */
    public ComponentNidSememeImpl(SememeChronologyImpl<ComponentNidSememeImpl> container,
                                  int stampSequence,
                                  short versionSequence,
@@ -83,6 +100,11 @@ public class ComponentNidSememeImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();
@@ -123,6 +145,11 @@ public class ComponentNidSememeImpl
       return sb.toString();
    }
 
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
@@ -131,6 +158,11 @@ public class ComponentNidSememeImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the component nid.
+    *
+    * @return the component nid
+    */
    @Override
    public int getComponentNid() {
       return this.componentNid;
@@ -138,6 +170,11 @@ public class ComponentNidSememeImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the component nid.
+    *
+    * @param componentNid the new component nid
+    */
    @Override
    public void setComponentNid(int componentNid) {
       if (this.componentNid != Integer.MAX_VALUE) {
@@ -149,6 +186,11 @@ public class ComponentNidSememeImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    @Override
    public SememeType getSememeType() {
       return SememeType.COMPONENT_NID;

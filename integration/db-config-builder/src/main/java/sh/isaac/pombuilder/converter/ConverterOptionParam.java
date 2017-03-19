@@ -74,26 +74,46 @@ import sh.isaac.pombuilder.artifacts.Converter;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ConverterOptionParam {
+   
+   /** The Constant MAVEN_FILE_TYPE. */
    public static final String  MAVEN_FILE_TYPE = "options.json";
+   
+   /** The Constant LOG. */
    private static final Logger LOG             = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The display name. */
    private String                               displayName;
+   
+   /** The internal name. */
    private String                               internalName;
+   
+   /** The description. */
    private String                               description;
+   
+   /** The allow no selection. */
    private boolean                              allowNoSelection;
+   
+   /** The allow multi select. */
    private boolean                              allowMultiSelect;
+   
+   /** The suggested pick list values. */
    private ConverterOptionParamSuggestedValue[] suggestedPickListValues;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new converter option param.
+    */
    @SuppressWarnings("unused")
    private ConverterOptionParam() {
       // for jackson
    }
 
    /**
+    * Instantiates a new converter option param.
+    *
     * @param displayName The name of this option
     * @param internalName The name to use when writing the option to a pom file
     * @param description A description suitable for display to end users of the system (in the GUI)
@@ -119,6 +139,12 @@ public class ConverterOptionParam {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (this == obj) {
@@ -177,7 +203,13 @@ public class ConverterOptionParam {
    /**
     * Read the options specification from a json file found on the provided maven artifact server, with the provided artifact type.
     * May return an empty array, will not return null.
-    * @throws Exception
+    *
+    * @param artifact the artifact
+    * @param baseMavenUrl the base maven url
+    * @param mavenUsername the maven username
+    * @param mavenPassword the maven password
+    * @return the converter option param[]
+    * @throws Exception the exception
     */
    public static ConverterOptionParam[] fromArtifact(Converter artifact,
          String baseMavenUrl,
@@ -259,6 +291,10 @@ public class ConverterOptionParam {
 
    /**
     * Read the options specification from a json file.
+    *
+    * @param jsonConverterOptionFile the json converter option file
+    * @return the converter option param[]
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static ConverterOptionParam[] fromFile(File jsonConverterOptionFile)
             throws IOException {
@@ -267,6 +303,11 @@ public class ConverterOptionParam {
       return mapper.readValue(jsonConverterOptionFile, ConverterOptionParam[].class);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       final int prime  = 31;
@@ -287,9 +328,11 @@ public class ConverterOptionParam {
    }
 
    /**
-    * Serialize to json
+    * Serialize to json.
     *
-    * @throws IOException
+    * @param options the options
+    * @param outputFile the output file
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void serialize(ConverterOptionParam[] options, File outputFile)
             throws IOException {
@@ -302,6 +345,11 @@ public class ConverterOptionParam {
       }
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "ConverterOptionParam [displayName=" + this.displayName + ", internalName=" + this.internalName + ", description=" +
@@ -313,6 +361,8 @@ public class ConverterOptionParam {
 
    /**
     * true if it is valie for the user to select more than 1 entry from the pick list, false if they may select at most 1.
+    *
+    * @return true, if allow multi select
     */
    public boolean isAllowMultiSelect() {
       return this.allowMultiSelect;
@@ -320,6 +370,8 @@ public class ConverterOptionParam {
 
    /**
     * true if it is valid for the user to select 0 entries from the pick list, false if they must select 1 or more.
+    *
+    * @return true, if allow no selection
     */
    public boolean isAllowNoSelection() {
       return this.allowNoSelection;
@@ -327,28 +379,35 @@ public class ConverterOptionParam {
 
    /**
     * The description of this option suitable to display to the end user, in a GUI.
+    *
+    * @return the description
     */
    public String getDescription() {
       return this.description;
    }
 
    /**
-    * The displayName of this option - suitable for GUI use to the end user
+    * The displayName of this option - suitable for GUI use to the end user.
+    *
+    * @return the display name
     */
    public String getDisplayName() {
       return this.displayName;
    }
 
    /**
-    * The internalName of this option - use when creating the pom file
+    * The internalName of this option - use when creating the pom file.
+    *
+    * @return the internal name
     */
    public String getInternalName() {
       return this.internalName;
    }
 
    /**
-    * @param suggestedPickListValues the suggested values to provide the user to select from. This may not be an all-inclusive list of values - the
-    * user should still have the option to provide their own value.
+    * Gets the suggested pick list values.
+    *
+    * @return the suggested pick list values
     */
    public ConverterOptionParamSuggestedValue[] getSuggestedPickListValues() {
       return this.suggestedPickListValues;

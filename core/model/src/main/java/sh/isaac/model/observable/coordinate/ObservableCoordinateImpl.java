@@ -50,10 +50,17 @@ import java.util.List;
  * Created by kec on 7/24/15.
  */
 public class ObservableCoordinateImpl {
+   
+   /** The listener references. */
    private final List<Object> listenerReferences = new ArrayList<>();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the listener reference.
+    *
+    * @param listener the listener
+    */
    protected void addListenerReference(Object listener) {
       this.listenerReferences.add(listener);
    }

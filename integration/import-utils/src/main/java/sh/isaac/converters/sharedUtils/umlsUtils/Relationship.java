@@ -57,7 +57,12 @@ import sh.isaac.converters.sharedUtils.ConsoleUtil;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class Relationship.
+ */
 public class Relationship {
+   
+   /** The preferred name map. */
    private static HashMap<String, String> preferredNameMap = new HashMap<>();
 
    //~--- static initializers -------------------------------------------------
@@ -83,25 +88,55 @@ public class Relationship {
 
    //~--- fields --------------------------------------------------------------
 
+   /** The name 1 snomed code. */
    private final HashSet<String> name1SnomedCode = new HashSet<String>();
+   
+   /** The name 2 snomed code. */
    private final HashSet<String> name2SnomedCode = new HashSet<String>();
+   
+   /** The name 1. */
    private String          name1;
+   
+   /** The description 1. */
    private String          description1;
+   
+   /** The name 2. */
    private String          name2;
+   
+   /** The description 2. */
    private String          description2;
+   
+   /** The name 1 rel type. */
    private String          name1RelType;
+   
+   /** The name 2 rel type. */
    private String          name2RelType;
+   
+   /** The is rela. */
    private final boolean         isRela_;
+   
+   /** The swap. */
    private Boolean         swap;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new relationship.
+    *
+    * @param isRela the is rela
+    */
    public Relationship(boolean isRela) {
       this.isRela_ = isRela;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the description.
+    *
+    * @param name the name
+    * @param niceName the nice name
+    */
    public void addDescription(String name, String niceName) {
       if (name.equals(this.name1)) {
          if (this.description1 != null) {
@@ -127,6 +162,12 @@ public class Relationship {
       }
    }
 
+   /**
+    * Adds the rel inverse.
+    *
+    * @param name the name
+    * @param inverseRelName the inverse rel name
+    */
    public void addRelInverse(String name, String inverseRelName) {
       if ((this.name1 == null) && (this.name2 == null)) {
          this.name1 = name;
@@ -148,6 +189,12 @@ public class Relationship {
       }
    }
 
+   /**
+    * Adds the rel type.
+    *
+    * @param name the name
+    * @param type the type
+    */
    public void addRelType(String name, String type) {
       if (name.equals(this.name1)) {
          if (this.name1RelType == null) {
@@ -166,6 +213,12 @@ public class Relationship {
       }
    }
 
+   /**
+    * Adds the snomed code.
+    *
+    * @param name the name
+    * @param code the code
+    */
    public void addSnomedCode(String name, String code) {
       if (name.equals(this.name1)) {
          this.name1SnomedCode.add(code);
@@ -178,54 +231,109 @@ public class Relationship {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the alt name.
+    *
+    * @return the alt name
+    */
    public String getAltName() {
       return preferredNameMap.get(getFSNName());
    }
 
+   /**
+    * Gets the description.
+    *
+    * @return the description
+    */
    public String getDescription() {
       return this.swap ? this.description2
                   : this.description1;
    }
 
+   /**
+    * Gets the FSN name.
+    *
+    * @return the FSN name
+    */
    public String getFSNName() {
       return this.swap ? this.name2
                   : this.name1;
    }
 
+   /**
+    * Gets the inverse alt name.
+    *
+    * @return the inverse alt name
+    */
    public String getInverseAltName() {
       return (getInverseFSNName() == null) ? null
             : preferredNameMap.get(getInverseFSNName());
    }
 
+   /**
+    * Gets the inverse description.
+    *
+    * @return the inverse description
+    */
    public String getInverseDescription() {
       return this.swap ? this.description1
                   : this.description2;
    }
 
+   /**
+    * Gets the inverse FSN name.
+    *
+    * @return the inverse FSN name
+    */
    public String getInverseFSNName() {
       return this.swap ? this.name1
                   : this.name2;
    }
 
+   /**
+    * Gets the inverse rel snomed code.
+    *
+    * @return the inverse rel snomed code
+    */
    public Set<String> getInverseRelSnomedCode() {
       return this.swap ? this.name1SnomedCode
                   : this.name2SnomedCode;
    }
 
+   /**
+    * Gets the inverse rel type.
+    *
+    * @return the inverse rel type
+    */
    public String getInverseRelType() {
       return this.swap ? this.name1RelType
                   : this.name2RelType;
    }
 
+   /**
+    * Gets the checks if rela.
+    *
+    * @return the checks if rela
+    */
    public boolean getIsRela() {
       return this.isRela_;
    }
 
+   /**
+    * Gets the rel snomed code.
+    *
+    * @return the rel snomed code
+    */
    public Set<String> getRelSnomedCode() {
       return this.swap ? this.name2SnomedCode
                   : this.name1SnomedCode;
    }
 
+   /**
+    * Gets the rel type.
+    *
+    * @return the rel type
+    */
    public String getRelType() {
       return this.swap ? this.name2RelType
                   : this.name1RelType;
@@ -233,6 +341,13 @@ public class Relationship {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set swap.
+    *
+    * @param c the c
+    * @param tablePrefix the table prefix
+    * @throws SQLException the SQL exception
+    */
    public void setSwap(Connection c, String tablePrefix)
             throws SQLException {
       if (this.swap != null) {

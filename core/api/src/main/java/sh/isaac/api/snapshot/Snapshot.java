@@ -63,19 +63,38 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class Snapshot.
  *
  * @author kec
  */
 public class Snapshot {
+   
+   /** The language coordinate. */
    // private static final Logger log = LogManager.getLogger();
    LanguageCoordinate         languageCoordinate;
+   
+   /** The logic coordinate. */
    LogicCoordinate            logicCoordinate;
+   
+   /** The stamp coordinate. */
    StampCoordinate            stampCoordinate;
+   
+   /** The taxonomy coordinate. */
    TaxonomyCoordinate         taxonomyCoordinate;
+   
+   /** The position calculator. */
    RelativePositionCalculator positionCalculator;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new snapshot.
+    *
+    * @param languageCoordinate the language coordinate
+    * @param logicCoordinate the logic coordinate
+    * @param stampCoordinate the stamp coordinate
+    * @param taxonomyCoordinate the taxonomy coordinate
+    */
    public Snapshot(LanguageCoordinate languageCoordinate,
                    LogicCoordinate logicCoordinate,
                    StampCoordinate stampCoordinate,
@@ -89,16 +108,35 @@ public class Snapshot {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the sememe snapshot service.
+    *
+    * @param <V> the value type
+    * @param type the type
+    * @return the sememe snapshot service
+    */
    public <V extends SememeVersion<?>> SememeSnapshotService<V> getSememeSnapshotService(Class<V> type) {
       return Get.sememeService()
                 .getSnapshot(type, this.stampCoordinate);
    }
 
+   /**
+    * Gets the taxonomy snapshot service.
+    *
+    * @return the taxonomy snapshot service
+    */
    public TaxonomySnapshotService getTaxonomySnapshotService() {
       return Get.taxonomyService()
                 .getSnapshot(this.taxonomyCoordinate);
    }
 
+   /**
+    * Gets the visible.
+    *
+    * @param <V> the value type
+    * @param chronicle the chronicle
+    * @return the visible
+    */
    public <V extends StampedVersion> Stream<? extends V> getVisible(ObjectChronology<V> chronicle) {
       return chronicle.getVersionList()
                       .stream()

@@ -46,15 +46,25 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
 //~--- classes ----------------------------------------------------------------
 
 /**
- * Fields to treat as annotations (attributes)
+ * Fields to treat as annotations (attributes).
+ *
  * @author Daniel Armbrust
  */
 public class BPT_Annotations
         extends PropertyType {
+   
+   /**
+    * Instantiates a new BP T annotations.
+    */
    public BPT_Annotations() {
       super("Attribute Types", true, DynamicSememeDataType.STRING);
    }
 
+   /**
+    * Instantiates a new BP T annotations.
+    *
+    * @param fsnPrefix the fsn prefix
+    */
    public BPT_Annotations(String fsnPrefix) {
       super(fsnPrefix + " Attribute Types", true, DynamicSememeDataType.STRING);
    }

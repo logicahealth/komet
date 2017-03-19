@@ -56,26 +56,43 @@ import org.apache.mahout.math.map.OpenIntObjectHashMap;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class HashTreeBuilder.
  *
  * @author kec
  */
 public class HashTreeBuilder {
+   
+   /** The Constant builderCount. */
    private static final AtomicInteger builderCount = new AtomicInteger();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The child sequence parent sequence stream map. */
    final OpenIntObjectHashMap<IntStream.Builder> childSequence_ParentSequenceStream_Map = new OpenIntObjectHashMap<>();
+   
+   /** The parent sequence child sequence stream map. */
    final OpenIntObjectHashMap<IntStream.Builder> parentSequence_ChildSequenceStream_Map = new OpenIntObjectHashMap<>();
+   
+   /** The builder id. */
    final int                                     builderId;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new hash tree builder.
+    */
    public HashTreeBuilder() {
       this.builderId = builderCount.getAndIncrement();
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the.
+    *
+    * @param parent the parent
+    * @param child the child
+    */
    public void add(int parent, int child) {
       if (!this.childSequence_ParentSequenceStream_Map.containsKey(child)) {
          this.childSequence_ParentSequenceStream_Map.put(child, IntStream.builder());
@@ -92,6 +109,11 @@ public class HashTreeBuilder {
             .add(child);
    }
 
+   /**
+    * Combine.
+    *
+    * @param another the another
+    */
    public void combine(HashTreeBuilder another) {
       another.childSequence_ParentSequenceStream_Map.forEachPair((int childSequence,
             IntStream.Builder parentsFromAnother) -> {
@@ -123,6 +145,11 @@ public class HashTreeBuilder {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the simple directed graph graph.
+    *
+    * @return the simple directed graph graph
+    */
    public HashTreeWithBitSets getSimpleDirectedGraphGraph() {
       final HashTreeWithBitSets graph = new HashTreeWithBitSets(this.childSequence_ParentSequenceStream_Map.size());
 

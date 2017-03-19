@@ -89,24 +89,16 @@ public class ProcessHistory
    /** The sequence in the process which the history represents. */
    private int historySequence;
 
-   /**
-    * Process uuid most significant bits
-    */
+   /** Process uuid most significant bits. */
    private long processIdMsb;
 
-   /**
-    * Process uuid least significant bits
-    */
+   /** Process uuid least significant bits. */
    private long processIdLsb;
 
-   /**
-    * User uuid most significant bits
-    */
+   /** User uuid most significant bits. */
    private long userIdMsb;
 
-   /**
-    * User uuid least significant bits
-    */
+   /** User uuid least significant bits. */
    private long userIdLsb;
 
    //~--- constructors --------------------------------------------------------
@@ -124,14 +116,14 @@ public class ProcessHistory
    /**
     * Constructor for a new process history based on specified entry fields.
     *
-    * @param processId
-    * @param userId
-    * @param timeAdvanced
-    * @param initialState
-    * @param action
-    * @param outcomeState
-    * @param comment
-    * @param historySequence
+    * @param processId the process id
+    * @param userId the user id
+    * @param timeAdvanced the time advanced
+    * @param initialState the initial state
+    * @param action the action
+    * @param outcomeState the outcome state
+    * @param comment the comment
+    * @param historySequence the history sequence
     */
    public ProcessHistory(UUID processId,
                          UUID userId,
@@ -157,6 +149,12 @@ public class ProcessHistory
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       final ProcessHistory other = (ProcessHistory) obj;
@@ -171,12 +169,22 @@ public class ProcessHistory
              (this.historySequence == other.historySequence);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       return this.processId.hashCode() + this.userId.hashCode() + new Long(this.timeAdvanced).hashCode() + this.initialState.hashCode() +
              this.action.hashCode() + this.outcomeState.hashCode() + this.comment.hashCode() + this.historySequence;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final LocalDateTime date = LocalDateTime.from(Instant.ofEpochMilli(this.timeAdvanced)
@@ -189,6 +197,11 @@ public class ProcessHistory
              this.outcomeState + "\n\t\tComment: " + this.comment + "\n\t\tHistory Sequence: " + this.historySequence;
    }
 
+   /**
+    * Put additional workflow fields.
+    *
+    * @param out the out
+    */
    @Override
    protected void putAdditionalWorkflowFields(ByteArrayDataBuffer out) {
       out.putLong(this.processIdMsb);
@@ -214,6 +227,12 @@ public class ProcessHistory
       return this.action;
    }
 
+   /**
+    * Gets the additional workflow fields.
+    *
+    * @param in the in
+    * @return the additional workflow fields
+    */
    @Override
    protected void getAdditionalWorkflowFields(ByteArrayDataBuffer in) {
       this.processIdMsb    = in.getLong();
@@ -253,6 +272,7 @@ public class ProcessHistory
    /**
     * Sets the sequence within the process which the history represents.
     *
+    * @param seq the new sequence in the process which the history represents
     * @return the history sequence
     */
    public void setHistorySequence(int seq) {
@@ -315,10 +335,21 @@ public class ProcessHistory
     */
    public static class ProcessHistoryComparator
             implements Comparator<ProcessHistory> {
+      
+      /**
+       * Instantiates a new process history comparator.
+       */
       public ProcessHistoryComparator() {}
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Compare.
+       *
+       * @param o1 the o 1
+       * @param o2 the o 2
+       * @return the int
+       */
       @Override
       public int compare(ProcessHistory o1, ProcessHistory o2) {
          if (o1.getProcessId()

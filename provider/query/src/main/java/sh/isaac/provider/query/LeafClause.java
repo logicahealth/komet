@@ -75,10 +75,18 @@ public abstract class LeafClause
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new leaf clause.
+    */
    protected LeafClause() {
       super();
    }
 
+   /**
+    * Instantiates a new leaf clause.
+    *
+    * @param enclosingQuery the enclosing query
+    */
    public LeafClause(Query enclosingQuery) {
       super(enclosingQuery);
    }
@@ -88,12 +96,18 @@ public abstract class LeafClause
    /**
     * Sets the specified nid as a member of the results cache set.
     *
-    * @param nid
+    * @param nid the nid
     */
    public void addToResultsCache(int nid) {
       this.resultsCache.add(nid);
    }
 
+   /**
+    * Compute components.
+    *
+    * @param incomingComponents the incoming components
+    * @return the nid set
+    */
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
       this.resultsCache.and(incomingComponents);
@@ -102,12 +116,18 @@ public abstract class LeafClause
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the children.
+    *
+    * @return the children
+    */
    @Override
 public List<Clause> getChildren() {
       return Collections.emptyList();
    }
 
    /**
+    * Gets the <code>NidSet</code> of components that match the criterion specified in the LeafClause.
     *
     * @return <code>NativeIdSetBI</code> of components in the resultsCache,
     * which is the components that match the criterion

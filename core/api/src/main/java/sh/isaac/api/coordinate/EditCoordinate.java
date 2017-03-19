@@ -40,14 +40,31 @@
 package sh.isaac.api.coordinate;
 
 /**
+ * The Interface EditCoordinate.
  *
  * @author kec
  */
 public interface EditCoordinate {
+   
+   /**
+    * Gets the author sequence.
+    *
+    * @return the author sequence
+    */
    int getAuthorSequence();
 
+   /**
+    * Gets the module sequence.
+    *
+    * @return the module sequence
+    */
    int getModuleSequence();
 
+   /**
+    * Gets the path sequence.
+    *
+    * @return the path sequence
+    */
    int getPathSequence();
 }
 

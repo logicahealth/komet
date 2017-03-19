@@ -48,15 +48,25 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeDouble}
+ * {@link DynamicSememeDouble}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface DynamicSememeDouble
         extends DynamicSememeData {
+   
+   /**
+    * Gets the data double.
+    *
+    * @return the data double
+    */
    public double getDataDouble();
 
+   /**
+    * Gets the data double property.
+    *
+    * @return the data double property
+    */
    public ReadOnlyObjectProperty<Double> getDataDoubleProperty();
 }
 

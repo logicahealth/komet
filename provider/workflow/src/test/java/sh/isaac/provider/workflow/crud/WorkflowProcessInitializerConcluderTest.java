@@ -82,6 +82,10 @@ import sh.isaac.provider.workflow.user.RoleConfigurator;
  */
 public class WorkflowProcessInitializerConcluderTest
         extends AbstractWorkflowProviderTestPackage {
+   
+   /**
+    * Before test.
+    */
    @Before
    public void beforeTest() {
       wp_.getProcessDetailStore()
@@ -90,6 +94,11 @@ public class WorkflowProcessInitializerConcluderTest
          .clear();
    }
 
+   /**
+    * Tear down class.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @AfterClass
    public static void tearDownClass()
             throws IOException {
@@ -266,10 +275,9 @@ public class WorkflowProcessInitializerConcluderTest
 
    /**
     * Test creation of workflow process creates the process details as expected
-    * and adds a process history entry as expected
+    * and adds a process history entry as expected.
     *
-    * @throws Exception
-    *             Thrown if test fails
+    * @throws Exception             Thrown if test fails
     */
    @Test
    public void testCreateWorkflowProcess()
@@ -345,6 +353,13 @@ public class WorkflowProcessInitializerConcluderTest
       }
    }
 
+   /**
+    * Assert process definition.
+    *
+    * @param processStatus the process status
+    * @param definitionId the definition id
+    * @param processId the process id
+    */
    private void assertProcessDefinition(ProcessStatus processStatus, UUID definitionId, UUID processId) {
       final Set<ProcessDetail> detailEntries = new HashSet<>();
 

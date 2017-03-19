@@ -62,27 +62,50 @@ import sh.isaac.model.observable.ObservableFields;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableTaxonomyCoordinateImpl.
  *
  * @author kec
  */
 public class ObservableTaxonomyCoordinateImpl
         extends ObservableCoordinateImpl
          implements ObservableTaxonomyCoordinate {
+   
+   /** The taxonomy coordinate. */
    TaxonomyCoordinateImpl                       taxonomyCoordinate;
+   
+   /** The taxonomy type property. */
    ObjectProperty<PremiseType>                  taxonomyTypeProperty;
+   
+   /** The stamp coordinate property. */
    ObjectProperty<ObservableStampCoordinate>    stampCoordinateProperty;
+   
+   /** The language coordinate property. */
    ObjectProperty<ObservableLanguageCoordinate> languageCoordinateProperty;
+   
+   /** The logic coordinate property. */
    ObjectProperty<ObservableLogicCoordinate>    logicCoordinateProperty;
+   
+   /** The uuid property. */
    ObjectProperty<UUID>                         uuidProperty;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new observable taxonomy coordinate impl.
+    *
+    * @param taxonomyCoordinate the taxonomy coordinate
+    */
    public ObservableTaxonomyCoordinateImpl(TaxonomyCoordinate taxonomyCoordinate) {
       this.taxonomyCoordinate = (TaxonomyCoordinateImpl) taxonomyCoordinate;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Language coordinate property.
+    *
+    * @return the object property
+    */
    @Override
    public ObjectProperty<ObservableLanguageCoordinate> languageCoordinateProperty() {
       if (this.languageCoordinateProperty == null) {
@@ -94,6 +117,11 @@ public class ObservableTaxonomyCoordinateImpl
       return this.languageCoordinateProperty;
    }
 
+   /**
+    * Logic coordinate property.
+    *
+    * @return the object property
+    */
    @Override
    public ObjectProperty<ObservableLogicCoordinate> logicCoordinateProperty() {
       if (this.logicCoordinateProperty == null) {
@@ -105,21 +133,44 @@ public class ObservableTaxonomyCoordinateImpl
       return this.logicCoordinateProperty;
    }
 
+   /**
+    * Make analog.
+    *
+    * @param stampPositionTime the stamp position time
+    * @return the observable taxonomy coordinate
+    */
    @Override
    public ObservableTaxonomyCoordinate makeAnalog(long stampPositionTime) {
       return new ObservableTaxonomyCoordinateImpl(this.taxonomyCoordinate.makeAnalog(stampPositionTime));
    }
 
+   /**
+    * Make analog.
+    *
+    * @param taxonomyType the taxonomy type
+    * @return the taxonomy coordinate
+    */
    @Override
    public TaxonomyCoordinate makeAnalog(PremiseType taxonomyType) {
       return new ObservableTaxonomyCoordinateImpl(this.taxonomyCoordinate.makeAnalog(taxonomyType));
    }
 
+   /**
+    * Make analog.
+    *
+    * @param state the state
+    * @return the observable taxonomy coordinate
+    */
    @Override
    public ObservableTaxonomyCoordinate makeAnalog(State... state) {
       return new ObservableTaxonomyCoordinateImpl(this.taxonomyCoordinate.makeAnalog(state));
    }
 
+   /**
+    * Premise type property.
+    *
+    * @return the object property
+    */
    @Override
    public ObjectProperty<PremiseType> premiseTypeProperty() {
       if (this.taxonomyTypeProperty == null) {
@@ -131,6 +182,11 @@ public class ObservableTaxonomyCoordinateImpl
       return this.taxonomyTypeProperty;
    }
 
+   /**
+    * Stamp coordinate property.
+    *
+    * @return the object property
+    */
    @Override
    public ObjectProperty<ObservableStampCoordinate> stampCoordinateProperty() {
       if (this.stampCoordinateProperty == null) {
@@ -142,11 +198,21 @@ public class ObservableTaxonomyCoordinateImpl
       return this.stampCoordinateProperty;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "ObservableTaxonomyCoordinateImpl{" + this.taxonomyCoordinate + '}';
    }
 
+   /**
+    * Uuid property.
+    *
+    * @return the object property
+    */
    @Override
    public ObjectProperty<UUID> uuidProperty() {
       if (this.uuidProperty == null) {
@@ -160,31 +226,61 @@ public class ObservableTaxonomyCoordinateImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the isa concept sequence.
+    *
+    * @return the isa concept sequence
+    */
    @Override
    public int getIsaConceptSequence() {
       return this.taxonomyCoordinate.getIsaConceptSequence();
    }
 
+   /**
+    * Gets the language coordinate.
+    *
+    * @return the language coordinate
+    */
    @Override
    public ObservableLanguageCoordinate getLanguageCoordinate() {
       return languageCoordinateProperty().get();
    }
 
+   /**
+    * Gets the logic coordinate.
+    *
+    * @return the logic coordinate
+    */
    @Override
    public LogicCoordinate getLogicCoordinate() {
       return logicCoordinateProperty().get();
    }
 
+   /**
+    * Gets the stamp coordinate.
+    *
+    * @return the stamp coordinate
+    */
    @Override
    public ObservableStampCoordinate getStampCoordinate() {
       return stampCoordinateProperty().get();
    }
 
+   /**
+    * Gets the taxonomy type.
+    *
+    * @return the taxonomy type
+    */
    @Override
    public PremiseType getTaxonomyType() {
       return premiseTypeProperty().get();
    }
 
+   /**
+    * Gets the uuid.
+    *
+    * @return the uuid
+    */
    @Override
    public UUID getUuid() {
       return uuidProperty().get();

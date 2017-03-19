@@ -62,6 +62,12 @@ import sh.isaac.api.LookupService;
 )
 public class Shutdown
         extends AbstractMojo {
+   
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException {

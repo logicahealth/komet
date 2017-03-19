@@ -48,12 +48,19 @@ import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ObservableSememeVersion.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public interface ObservableSememeVersion<V extends ObservableSememeVersion<V>>
         extends ObservableVersion, SememeObject {
+   
+   /**
+    * Gets the chronology.
+    *
+    * @return the chronology
+    */
    @Override
    ObservableSememeChronology<V> getChronology();
 }

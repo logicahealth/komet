@@ -59,24 +59,50 @@ import sh.isaac.converters.sharedUtils.propertyTypes.ValuePropertyPair;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class ValuePropertyPairWithAttributes.
+ */
 public class ValuePropertyPairWithAttributes
         extends ValuePropertyPair {
+   
+   /** The string attributes. */
    protected HashMap<UUID, ArrayList<String>> stringAttributes = new HashMap<>();
+   
+   /** The uuid attributes. */
    protected HashMap<UUID, ArrayList<UUID>>   uuidAttributes   = new HashMap<>();
+   
+   /** The refset membership. */
    protected ArrayList<UUID>                  refsetMembership = new ArrayList<>();
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new value property pair with attributes.
+    *
+    * @param value the value
+    * @param property the property
+    */
    public ValuePropertyPairWithAttributes(String value, Property property) {
       super(value, property);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the refset membership.
+    *
+    * @param refsetConcept the refset concept
+    */
    public void addRefsetMembership(UUID refsetConcept) {
       this.refsetMembership.add(refsetConcept);
    }
 
+   /**
+    * Adds the string attribute.
+    *
+    * @param type the type
+    * @param value the value
+    */
    public void addStringAttribute(UUID type, String value) {
       ArrayList<String> values = this.stringAttributes.get(type);
 
@@ -88,6 +114,12 @@ public class ValuePropertyPairWithAttributes
       values.add(value);
    }
 
+   /**
+    * Adds the UUID attribute.
+    *
+    * @param type the type
+    * @param value the value
+    */
    public void addUUIDAttribute(UUID type, UUID value) {
       ArrayList<UUID> values = this.uuidAttributes.get(type);
 
@@ -99,6 +131,13 @@ public class ValuePropertyPairWithAttributes
       values.add(value);
    }
 
+   /**
+    * Process attributes.
+    *
+    * @param ibdfCreationUtility the ibdf creation utility
+    * @param descriptionSource the description source
+    * @param descriptions the descriptions
+    */
    public static void processAttributes(IBDFCreationUtility ibdfCreationUtility,
          List<? extends ValuePropertyPairWithAttributes> descriptionSource,
          List<SememeChronology<DescriptionSememe<?>>> descriptions) {
@@ -133,6 +172,12 @@ public class ValuePropertyPairWithAttributes
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the string attribute.
+    *
+    * @param type the type
+    * @return the string attribute
+    */
    public ArrayList<String> getStringAttribute(UUID type) {
       return this.stringAttributes.get(type);
    }

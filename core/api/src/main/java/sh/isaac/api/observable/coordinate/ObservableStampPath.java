@@ -49,13 +49,25 @@ import sh.isaac.api.coordinate.StampPath;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ObservableStampPath.
  *
  * @author kec
  */
 public interface ObservableStampPath
         extends StampPath {
+   
+   /**
+    * Path concept sequence property.
+    *
+    * @return the read only integer property
+    */
    ReadOnlyIntegerProperty pathConceptSequenceProperty();
 
+   /**
+    * Path origins property.
+    *
+    * @return the read only list property
+    */
    ReadOnlyListProperty<ObservableStampPosition> pathOriginsProperty();
 }
 

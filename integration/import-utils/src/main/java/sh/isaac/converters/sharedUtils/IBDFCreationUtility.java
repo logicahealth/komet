@@ -141,23 +141,52 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class IBDFCreationUtility {
+   
+   /** The Constant isARelUuid_. */
    private final static UUID        isARelUuid_          = MetaData.IS_A.getPrimordialUuid();
+   
+   /** The Constant metadataSemanticTag_. */
    public final static String       metadataSemanticTag_ = " (ISAAC)";
+   
+   /** The read back stamp. */
    protected static StampCoordinate readBackStamp_;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The module. */
    private ComponentReference                       module_                  = null;
+   
+   /** The refex allowed column types. */
    private final HashMap<UUID, DynamicSememeColumnInfo[]> refexAllowedColumnTypes_ = new HashMap<>();
+   
+   /** The concept has stated graph. */
    private final HashSet<UUID>                            conceptHasStatedGraph    = new HashSet<>();
+   
+   /** The concept has inferred graph. */
    private final HashSet<UUID>                            conceptHasInferredGraph  = new HashSet<>();
+   
+   /** The ls. */
    private LoadStats                                ls_                      = new LoadStats();
+   
+   /** The author seq. */
    private final int                                authorSeq_;
+   
+   /** The terminology path seq. */
    private final int                                terminologyPathSeq_;
+   
+   /** The default time. */
    private final long                               defaultTime_;
+   
+   /** The concept builder service. */
    private final ConceptBuilderService                    conceptBuilderService_;
+   
+   /** The expression builder service. */
    private final LogicalExpressionBuilderService          expressionBuilderService_;
+   
+   /** The sememe builder service. */
    private final SememeBuilderService<?>                  sememeBuilderService_;
+   
+   /** The writer. */
    private final DataWriterService                        writer_;
 
    //~--- constructors --------------------------------------------------------
@@ -166,6 +195,7 @@ public class IBDFCreationUtility {
     * Creates and stores the path concept - sets up the various namespace details.
     * If creating a module per version, you should specify both module parameters - for the version specific module to create, and the parent grouping module.
     * The namespace will be specified based on the parent grouping module.
+    *
     * @param moduleToCreate - if present, a new concept will be created, using this value as the FSN / preferred term for use as the module
     * @param preExistingModule - if moduleToCreate is not present, lookup the concept with this UUID to use as the module.  if moduleToCreate is present
     *   use preExistingModule as the parent concept for the moduleToCreate, rather than the default of MODULE.
@@ -175,7 +205,7 @@ public class IBDFCreationUtility {
     * @param outputArtifactClassifier - optional - Combined with outputArtifactId and outputArtifactVersion to name the final ibdf file
     * @param outputGson - true to dump out the data in gson format for debug
     * @param defaultTime - the timestamp to place on created elements, when no other timestamp is specified on the element itself.
-    * @throws Exception
+    * @throws Exception the exception
     */
    public IBDFCreationUtility(Optional<String> moduleToCreate,
                               Optional<ConceptSpecification> preExistingModule,
@@ -202,6 +232,7 @@ public class IBDFCreationUtility {
     * Creates and stores the path concept - sets up the various namespace details.
     * If creating a module per version, you should specify both module parameters - for the version specific module to create, and the parent grouping module.
     * The namespace will be specified based on the parent grouping module.
+    *
     * @param moduleToCreate - if present, a new concept will be created, using this value as the FSN / preferred term for use as the module
     * @param preExistingModule - if moduleToCreate is not present, lookup the concept with this UUID to use as the module.  if moduleToCreate is present
     *   use preExistingModule as the parent concept for the moduleToCreate, rather than the default of MODULE.
@@ -212,8 +243,9 @@ public class IBDFCreationUtility {
     * @param outputGson - true to dump out the data in gson format for debug
     * @param defaultTime - the timestamp to place on created elements, when no other timestamp is specified on the element itself.
     * @param sememeTypesToSkip - if ibdfPreLoadFiles are provided, this list of types can be specified as the types to ignore in the preload files
+    * @param preloadActiveOnly the preload active only
     * @param ibdfPreLoadFiles (optional) load these ibdf files into the isaac DB after starting (required for some conversions like LOINC)
-    * @throws Exception
+    * @throws Exception the exception
     */
    public IBDFCreationUtility(Optional<String> moduleToCreate,
                               Optional<ConceptSpecification> preExistingModule,
@@ -362,11 +394,26 @@ public class IBDFCreationUtility {
 
    //~--- enums ---------------------------------------------------------------
 
+   /**
+    * The Enum DescriptionType.
+    */
    public static enum DescriptionType {
+      
+      /** The fsn. */
       FSN,
+      
+      /** The synonym. */
       SYNONYM,
+      
+      /** The definition. */
       DEFINITION;
 
+      /**
+       * Parses the.
+       *
+       * @param typeId the type id
+       * @return the description type
+       */
       public static DescriptionType parse(UUID typeId) {
          if (MetaData.FULLY_SPECIFIED_NAME.getPrimordialUuid()
                                           .equals(typeId)) {
@@ -386,6 +433,11 @@ public class IBDFCreationUtility {
 
       //~--- get methods ------------------------------------------------------
 
+      /**
+       * Gets the concept spec.
+       *
+       * @return the concept spec
+       */
       public ConceptSpecification getConceptSpec() {
          if (DescriptionType.FSN == this) {
             return MetaData.FULLY_SPECIFIED_NAME;
@@ -404,6 +456,8 @@ public class IBDFCreationUtility {
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Adds the annotation.
+    *
     * @param referencedComponent The component to attach this annotation to
     * @param uuidForCreatedAnnotation  - the UUID to use for the created annotation.  If null, generated from uuidForCreatedAnnotation, value, refexDynamicTypeUuid
     * @param value - the value to attach (may be null if the annotation only serves to mark 'membership') - columns must align with values specified in the definition
@@ -411,7 +465,7 @@ public class IBDFCreationUtility {
     * @param refexDynamicTypeUuid - the uuid of the dynamic sememe type -
     * @param state -  state or null (for active)
     * @param time - if null, uses the component time
-    * @return
+    * @return the sememe chronology
     */
    public SememeChronology<DynamicSememe<?>> addAnnotation(ComponentReference referencedComponent,
          UUID uuidForCreatedAnnotation,
@@ -424,6 +478,8 @@ public class IBDFCreationUtility {
    }
 
    /**
+    * Adds the annotation.
+    *
     * @param referencedComponent The component to attach this annotation to
     * @param uuidForCreatedAnnotation  - the UUID to use for the created annotation.  If null, generated from uuidForCreatedAnnotation, value, refexDynamicTypeUuid
     * @param values - the values to attach (may be null if the annotation only serves to mark 'membership') - columns must align with values specified in the definition
@@ -431,7 +487,8 @@ public class IBDFCreationUtility {
     * @param refexDynamicTypeUuid - the uuid of the dynamic sememe type -
     * @param state -  state or null (for active)
     * @param time - if null, uses the component time
-    * @return
+    * @param module the module
+    * @return the sememe chronology
     */
    @SuppressWarnings("unchecked")
    public SememeChronology<DynamicSememe<?>> addAnnotation(ComponentReference referencedComponent,
@@ -504,9 +561,14 @@ public class IBDFCreationUtility {
    /**
     * Add an association. The source of the association is assumed to be the specified concept.
     *
+    * @param concept the concept
     * @param associationPrimordialUuid - optional - if not provided, created from the source, target and type.
+    * @param targetUuid the target uuid
     * @param associationTypeUuid required
+    * @param state the state
     * @param time - if null, default is used
+    * @param module the module
+    * @return the sememe chronology
     */
    public SememeChronology<DynamicSememe<?>> addAssociation(ComponentReference concept,
          UUID associationPrimordialUuid,
@@ -532,6 +594,14 @@ public class IBDFCreationUtility {
 
    /**
     * Add a description to the concept.  UUID for the description is calculated from the target concept, description value, type, and preferred flag.
+    *
+    * @param concept the concept
+    * @param descriptionValue the description value
+    * @param wbDescriptionType the wb description type
+    * @param preferred the preferred
+    * @param sourceDescriptionTypeUUID the source description type UUID
+    * @param state the state
+    * @return the sememe chronology
     */
    public SememeChronology<DescriptionSememe<?>> addDescription(ComponentReference concept,
          String descriptionValue,
@@ -555,6 +625,15 @@ public class IBDFCreationUtility {
 
    /**
     * Add a description to the concept.
+    *
+    * @param concept the concept
+    * @param descriptionPrimordialUUID the description primordial UUID
+    * @param descriptionValue the description value
+    * @param wbDescriptionType the wb description type
+    * @param preferred the preferred
+    * @param sourceDescriptionTypeUUID the source description type UUID
+    * @param status the status
+    * @return the sememe chronology
     */
    public SememeChronology<DescriptionSememe<?>> addDescription(ComponentReference concept,
          UUID descriptionPrimordialUUID,
@@ -592,6 +671,7 @@ public class IBDFCreationUtility {
     * @param sourceDescriptionTypeUUID - this optional value is attached as the extended description type
     * @param state active / inactive
     * @param time - defaults to concept time
+    * @return the sememe chronology
     */
    @SuppressWarnings("unchecked")
    public SememeChronology<DescriptionSememe<?>> addDescription(ComponentReference concept,
@@ -693,12 +773,14 @@ public class IBDFCreationUtility {
    /**
     * Add a description to the concept.
     *
+    * @param description the description
     * @param acceptabilityPrimordialUUID - if not supplied, created from the description UUID, dialectRefsetg and preferred flag
     * @param dialectRefset - A UUID for a refset like MetaData.US_ENGLISH_DIALECT
     * @param preferred - true for preferred, false for acceptable
     * @param state -
     * @param time - if null, uses the description time
     * @param module - optional
+    * @return the sememe chronology
     */
    public SememeChronology<ComponentNidSememe<?>> addDescriptionAcceptibility(ComponentReference description,
          UUID acceptabilityPrimordialUUID,
@@ -747,6 +829,10 @@ public class IBDFCreationUtility {
    /**
     * Add a batch of WB descriptions, following WB rules in always generating a FSN (picking the value based on the propertySubType order).
     * And then adding other types as specified by the propertySubType value, setting preferred / acceptable according to their ranking.
+    *
+    * @param concept the concept
+    * @param descriptions the descriptions
+    * @return the list
     */
    public List<SememeChronology<DescriptionSememe<?>>> addDescriptions(ComponentReference concept,
          List<? extends ValuePropertyPair> descriptions) {
@@ -824,6 +910,10 @@ public class IBDFCreationUtility {
 
    /**
     * Add a workbench official "Fully Specified Name".  Convenience method for adding a description of type FSN
+    *
+    * @param concept the concept
+    * @param fullySpecifiedName the fully specified name
+    * @return the sememe chronology
     */
    public SememeChronology<DescriptionSememe<?>> addFullySpecifiedName(ComponentReference concept,
          String fullySpecifiedName) {
@@ -833,6 +923,10 @@ public class IBDFCreationUtility {
    /**
     * Add an IS_A_REL relationship, with the time set to now.
     * Can only be called once per concept.
+    *
+    * @param concept the concept
+    * @param targetUuid the target uuid
+    * @return the sememe chronology
     */
    public SememeChronology<LogicGraphSememe<?>> addParent(ComponentReference concept, UUID targetUuid) {
       return addParent(concept, null, new UUID[] { targetUuid }, null, null);
@@ -842,6 +936,12 @@ public class IBDFCreationUtility {
     * This rel add method handles the advanced cases where a rel type 'foo' is actually being loaded as "is_a" (or some other arbitrary type)
     * it makes the swap, and adds the second value as a UUID annotation on the created relationship.
     * Can only be called once per concept
+    *
+    * @param concept the concept
+    * @param targetUuid the target uuid
+    * @param p the p
+    * @param time the time
+    * @return the sememe chronology
     */
    public SememeChronology<LogicGraphSememe<?>> addParent(ComponentReference concept,
          UUID targetUuid,
@@ -858,8 +958,12 @@ public class IBDFCreationUtility {
     * Add a parent (is a ) relationship. The source of the relationship is assumed to be the specified concept.
     * Can only be called once per concept
     *
+    * @param concept the concept
     * @param relPrimordialUuid - optional - if not provided, created from the source, target and type.
+    * @param targetUuid the target uuid
+    * @param sourceRelTypeUUID the source rel type UUID
     * @param time - if null, default is used
+    * @return the sememe chronology
     */
    public SememeChronology<LogicGraphSememe<?>> addParent(ComponentReference concept,
          UUID relPrimordialUuid,
@@ -926,6 +1030,15 @@ public class IBDFCreationUtility {
       return sci;
    }
 
+   /**
+    * Adds the refset membership.
+    *
+    * @param referencedComponent the referenced component
+    * @param refexDynamicTypeUuid the refex dynamic type uuid
+    * @param state the state
+    * @param time the time
+    * @return the sememe chronology
+    */
    public SememeChronology<DynamicSememe<?>> addRefsetMembership(ComponentReference referencedComponent,
          UUID refexDynamicTypeUuid,
          State state,
@@ -939,6 +1052,17 @@ public class IBDFCreationUtility {
                            null);
    }
 
+   /**
+    * Adds the relationship graph.
+    *
+    * @param concept the concept
+    * @param graphPrimordialUuid the graph primordial uuid
+    * @param logicalExpression the logical expression
+    * @param stated the stated
+    * @param time the time
+    * @param module the module
+    * @return the sememe chronology
+    */
    public SememeChronology<LogicGraphSememe<?>> addRelationshipGraph(ComponentReference concept,
          UUID graphPrimordialUuid,
          LogicalExpression logicalExpression,
@@ -1002,6 +1126,12 @@ public class IBDFCreationUtility {
 
    /**
     * uses the concept time, UUID is created from the component UUID, the annotation value and type.
+    *
+    * @param referencedComponent the referenced component
+    * @param annotationValue the annotation value
+    * @param refsetUuid the refset uuid
+    * @param state the state
+    * @return the sememe chronology
     */
    public SememeChronology<StringSememe<?>> addStaticStringAnnotation(ComponentReference referencedComponent,
          String annotationValue,
@@ -1042,6 +1172,12 @@ public class IBDFCreationUtility {
 
    /**
     * uses the concept time, UUID is created from the component UUID, the annotation value and type.
+    *
+    * @param referencedComponent the referenced component
+    * @param annotationValue the annotation value
+    * @param refsetUuid the refset uuid
+    * @param status the status
+    * @return the sememe chronology
     */
    public SememeChronology<DynamicSememe<?>> addStringAnnotation(ComponentReference referencedComponent,
          String annotationValue,
@@ -1058,6 +1194,13 @@ public class IBDFCreationUtility {
 
    /**
     * uses the concept time.
+    *
+    * @param referencedComponent the referenced component
+    * @param uuidForCreatedAnnotation the uuid for created annotation
+    * @param annotationValue the annotation value
+    * @param refsetUuid the refset uuid
+    * @param status the status
+    * @return the sememe chronology
     */
    public SememeChronology<DynamicSememe<?>> addStringAnnotation(ComponentReference referencedComponent,
          UUID uuidForCreatedAnnotation,
@@ -1075,6 +1218,9 @@ public class IBDFCreationUtility {
 
    /**
     * Add an alternate ID to the concept.
+    *
+    * @param existingUUID the existing UUID
+    * @param newUUID the new UUID
     */
    public void addUUID(UUID existingUUID, UUID newUUID) {
       final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
@@ -1085,7 +1231,12 @@ public class IBDFCreationUtility {
    }
 
    /**
-    * Generates the UUID, uses the component time
+    * Generates the UUID, uses the component time.
+    *
+    * @param object the object
+    * @param value the value
+    * @param refsetUuid the refset uuid
+    * @return the sememe chronology
     */
    public SememeChronology<DynamicSememe<?>> addUUIDAnnotation(ComponentReference object, UUID value, UUID refsetUuid) {
       return addAnnotation(object,
@@ -1097,14 +1248,18 @@ public class IBDFCreationUtility {
                            null);
    }
 
+   /**
+    * Clear load stats.
+    */
    public void clearLoadStats() {
       this.ls_ = new LoadStats();
    }
 
    /**
-    * This method probably shouldn't be used - better to use the PropertyAssotion type
-    * @param associationTypeConcept
-    * @param inverseName
+    * This method probably shouldn't be used - better to use the PropertyAssotion type.
+    *
+    * @param associationTypeConcept the association type concept
+    * @param inverseName the inverse name
     * @deprecated - Better to set things up as {@link BPT_Associations}
     */
    @Deprecated
@@ -1146,6 +1301,15 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
       BPT_Associations.registerAsAssociation(associationTypeConcept);
    }
 
+   /**
+    * Configure concept as dynamic refex.
+    *
+    * @param concept the concept
+    * @param refexDescription the refex description
+    * @param columns the columns
+    * @param referencedComponentTypeRestriction the referenced component type restriction
+    * @param referencedComponentTypeSubRestriction the referenced component type sub restriction
+    */
    public void configureConceptAsDynamicRefex(ComponentReference concept,
          String refexDescription,
          DynamicSememeColumnInfo[] columns,
@@ -1236,13 +1400,23 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
       }
    }
 
+   /**
+    * Creates the concept.
+    *
+    * @param conceptPrimordialUuid the concept primordial uuid
+    * @return the concept chronology<? extends concept version<?>>
+    */
    public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid) {
       return createConcept(conceptPrimordialUuid, (Long) null, State.ACTIVE, null);
    }
 
    /**
     * Create a concept, automatically setting as many fields as possible (adds a description, calculates
-    * the UUID, status current, etc)
+    * the UUID, status current, etc).
+    *
+    * @param fsn the fsn
+    * @param createSynonymFromFSN the create synonym from FSN
+    * @return the concept chronology<? extends concept version<?>>
     */
    public ConceptChronology<? extends ConceptVersion<?>> createConcept(String fsn, boolean createSynonymFromFSN) {
       return createConcept(ConverterUUID.createNamespaceUUIDFromString(fsn), fsn, createSynonymFromFSN);
@@ -1250,6 +1424,11 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
 
    /**
     * Create a concept, link it to a parent via is_a, setting as many fields as possible automatically.
+    *
+    * @param fsn the fsn
+    * @param createSynonymFromFSN the create synonym from FSN
+    * @param parentConceptPrimordial the parent concept primordial
+    * @return the concept chronology<? extends concept version<?>>
     */
    public ConceptChronology<? extends ConceptVersion<?>> createConcept(String fsn,
          boolean createSynonymFromFSN,
@@ -1262,7 +1441,12 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
 
    /**
     * Create a concept, automatically setting as many fields as possible (adds a description (en US)
-    * status current, etc
+    * status current, etc.
+    *
+    * @param conceptPrimordialUuid the concept primordial uuid
+    * @param fsn the fsn
+    * @param createSynonymFromFSN the create synonym from FSN
+    * @return the concept chronology<? extends concept version<?>>
     */
    public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid,
          String fsn,
@@ -1273,11 +1457,11 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
    /**
     * Just create a concept.
     *
-    * @param conceptPrimordialUuid
+    * @param conceptPrimordialUuid the concept primordial uuid
     * @param time - if null, set to default
     * @param status - if null, set to current
     * @param module - if null, uses the default
-    * @return
+    * @return the concept chronology<? extends concept version<?>>
     */
    public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid,
          Long time,
@@ -1294,6 +1478,12 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
 
    /**
     * Create a concept, link it to a parent via is_a, setting as many fields as possible automatically.
+    *
+    * @param conceptPrimordialUuid the concept primordial uuid
+    * @param fsn the fsn
+    * @param createSynonymFromFSN the create synonym from FSN
+    * @param relParentPrimordial the rel parent primordial
+    * @return the concept chronology<? extends concept version<?>>
     */
    public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid,
          String fsn,
@@ -1308,9 +1498,14 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
    }
 
    /**
-    * Create a concept, automatically setting as many fields as possible (adds a description (en US))
+    * Create a concept, automatically setting as many fields as possible (adds a description (en US)).
     *
+    * @param conceptPrimordialUuid the concept primordial uuid
+    * @param fsn the fsn
+    * @param createSynonymFromFSN the create synonym from FSN
     * @param time - set to now if null
+    * @param status the status
+    * @return the concept chronology<? extends concept version<?>>
     */
    public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid,
          String fsn,
@@ -1337,14 +1532,15 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
 
    /**
     * Utility method to build and store a concept.
+    *
     * @param primordial - optional
-    * @param fsnName
+    * @param fsnName the fsn name
     * @param preferredName - optional
     * @param altName - optional
     * @param definition - optional
-    * @param relParentPrimordial
+    * @param relParentPrimordial the rel parent primordial
     * @param secondParent - optional
-    * @return
+    * @return the concept chronology<? extends concept version<?>>
     */
    public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID primordial,
          String fsnName,
@@ -1410,11 +1606,12 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
    /**
     * Creates column concepts (for the column labels) for each provided columnName, then creates a property with a multi-column data set
     * each column being of type string, and optional.
-    * @param sememeName
+    *
+    * @param sememeName the sememe name
     * @param columnNames - Create concepts to represent column names for each item here.  Supports a stupid hack, where if the
     * first two characters of a string in this array are '[]' - it will create a dynamic sememe array type for strings, rather than a single string.
     * @param columnTypes - optional - if not provided, makes all columns strings.  If provided, must match size of columnNames
-    * @return
+    * @return the property
     */
    public Property createMultiColumnDynamicStringSememe(String sememeName,
          String[] columnNames,
@@ -1450,6 +1647,7 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
     *
     * @param state - state or null (for current)
     * @param time - time or null (for default)
+    * @return the int
     */
    public int createStamp(State state, Long time) {
       return createStamp(state, time, null);
@@ -1460,6 +1658,8 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
     *
     * @param state - state or null (for active)
     * @param time - time or null (for default)
+    * @param module the module
+    * @return the int
     */
    public int createStamp(State state, Long time, UUID module) {
       return Get.stampService()
@@ -1475,7 +1675,11 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
    }
 
    /**
-    * Create metadata concepts from the PropertyType structure
+    * Create metadata concepts from the PropertyType structure.
+    *
+    * @param propertyTypes the property types
+    * @param parentPrimordial the parent primordial
+    * @throws Exception the exception
     */
    public void loadMetaDataItems(Collection<PropertyType> propertyTypes, UUID parentPrimordial)
             throws Exception {
@@ -1573,7 +1777,11 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
 
    /**
     * Create metadata TtkConceptChronicles from the PropertyType structure
-    * NOTE - Refset types are not stored!
+    * NOTE - Refset types are not stored!.
+    *
+    * @param propertyType the property type
+    * @param parentPrimordial the parent primordial
+    * @throws Exception the exception
     */
    public void loadMetaDataItems(PropertyType propertyType, UUID parentPrimordial)
             throws Exception {
@@ -1583,6 +1791,16 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
       loadMetaDataItems(propertyTypes, parentPrimordial);
    }
 
+   /**
+    * Load terminology metadata attributes.
+    *
+    * @param terminologyMetadataRootConcept the terminology metadata root concept
+    * @param converterSourceArtifactVersion the converter source artifact version
+    * @param converterSourceReleaseDate the converter source release date
+    * @param converterOutputArtifactVersion the converter output artifact version
+    * @param converterOutputArtifactClassifier the converter output artifact classifier
+    * @param converterVersion the converter version
+    */
    public void loadTerminologyMetadataAttributes(ComponentReference terminologyMetadataRootConcept,
          String converterSourceArtifactVersion,
          Optional<String> converterSourceReleaseDate,
@@ -1618,14 +1836,24 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
       }
    }
 
+   /**
+    * Register dynamic sememe column info.
+    *
+    * @param sememeUUID the sememe UUID
+    * @param columnInfo the column info
+    */
    public void registerDynamicSememeColumnInfo(UUID sememeUUID, DynamicSememeColumnInfo[] columnInfo) {
       this.refexAllowedColumnTypes_.put(sememeUUID, columnInfo);
    }
 
    /**
     * uses providedTime first, if present, followed by readTimeFrom.
-    *
+    * 
     * Note, this still may return null.
+    *
+    * @param providedTime the provided time
+    * @param readTimeFrom the read time from
+    * @return the long
     */
    public Long selectTime(Long providedTime, ComponentReference readTimeFrom) {
       if (providedTime != null) {
@@ -1635,6 +1863,11 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
       }
    }
 
+   /**
+    * Shutdown.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void shutdown()
             throws IOException {
       this.writer_.close();
@@ -1643,6 +1876,12 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
       clearLoadStats();
    }
 
+   /**
+    * Find first not empty string.
+    *
+    * @param strings the strings
+    * @return the string
+    */
    private String findFirstNotEmptyString(String... strings) {
       for (final String s: strings) {
          if (StringUtils.isNotEmpty(s)) {
@@ -1653,6 +1892,14 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
       return "";
    }
 
+   /**
+    * Setup wb property metadata.
+    *
+    * @param refsetValueParent the refset value parent
+    * @param pt the pt
+    * @return the uuid
+    * @throws Exception the exception
+    */
    private UUID setupWbPropertyMetadata(UUID refsetValueParent, BPT_DualParentPropertyType pt)
             throws Exception {
       if (pt.getSecondParentName() == null) {
@@ -1671,8 +1918,10 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
    }
 
    /**
-    * @param refexDynamicTypeUuid
-    * @param values
+    * Validate data types.
+    *
+    * @param refexDynamicTypeUuid the refex dynamic type uuid
+    * @param values the values
     */
    private void validateDataTypes(UUID refexDynamicTypeUuid, DynamicSememeData[] values) {
       // TODO this should be a much better validator - checking all of the various things in RefexDynamicCAB.validateData - or in
@@ -1722,18 +1971,40 @@ public void configureConceptAsAssociation(UUID associationTypeConcept, String in
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if configured as dynamic sememe.
+    *
+    * @param refexDynamicTypeUuid the refex dynamic type uuid
+    * @return true, if configured as dynamic sememe
+    */
    private boolean isConfiguredAsDynamicSememe(UUID refexDynamicTypeUuid) {
       return this.refexAllowedColumnTypes_.containsKey(refexDynamicTypeUuid);
    }
 
+   /**
+    * Gets the load stats.
+    *
+    * @return the load stats
+    */
    public LoadStats getLoadStats() {
       return this.ls_;
    }
 
+   /**
+    * Gets the module.
+    *
+    * @return the module
+    */
    public ComponentReference getModule() {
       return this.module_;
    }
 
+   /**
+    * Gets the origin string for uuid.
+    *
+    * @param uuid the uuid
+    * @return the origin string for uuid
+    */
    private String getOriginStringForUuid(UUID uuid) {
       final String temp = ConverterUUID.getUUIDCreationString(uuid);
 

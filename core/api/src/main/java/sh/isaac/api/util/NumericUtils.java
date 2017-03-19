@@ -56,11 +56,19 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- * Various number related utilities
+ * Various number related utilities.
  *
  * @author darmbrust
  */
 public class NumericUtils {
+   
+   /**
+    * Compare.
+    *
+    * @param x the x
+    * @param y the y
+    * @return the int
+    */
    public static int compare(final Number x, final Number y) {
       if (isSpecial(x) || isSpecial(y)) {
          return Double.compare(x.doubleValue(), y.doubleValue());
@@ -69,6 +77,13 @@ public class NumericUtils {
       }
    }
 
+   /**
+    * Parses the unknown.
+    *
+    * @param value the value
+    * @return the number
+    * @throws NumberFormatException the number format exception
+    */
    public static Number parseUnknown(String value)
             throws NumberFormatException {
       if (value == null) {
@@ -98,6 +113,13 @@ public class NumericUtils {
       return Double.parseDouble(temp);
    }
 
+   /**
+    * Read number.
+    *
+    * @param value the value
+    * @return the number
+    * @throws NumberFormatException the number format exception
+    */
    public static Number readNumber(DynamicSememeData value)
             throws NumberFormatException {
       if (value instanceof DynamicSememeDouble) {
@@ -113,6 +135,13 @@ public class NumericUtils {
       }
    }
 
+   /**
+    * To big decimal.
+    *
+    * @param number the number
+    * @return the big decimal
+    * @throws NumberFormatException the number format exception
+    */
    public static BigDecimal toBigDecimal(final Number number)
             throws NumberFormatException {
       if ((number instanceof Integer) || (number instanceof Long)) {
@@ -126,6 +155,12 @@ public class NumericUtils {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the int.
+    *
+    * @param string the string
+    * @return the int
+    */
    public static Optional<Integer> getInt(String string) {
       try {
          return Optional.of(Integer.parseInt(string.trim()));
@@ -134,10 +169,22 @@ public class NumericUtils {
       }
    }
 
+   /**
+    * Checks if int.
+    *
+    * @param string the string
+    * @return true, if int
+    */
    public static boolean isInt(String string) {
       return (getInt(string).isPresent());
    }
 
+   /**
+    * Gets the long.
+    *
+    * @param string the string
+    * @return the long
+    */
    public static Optional<Long> getLong(String string) {
       try {
          return Optional.of(Long.parseLong(string.trim()));
@@ -146,14 +193,21 @@ public class NumericUtils {
       }
    }
 
+   /**
+    * Checks if long.
+    *
+    * @param string the string
+    * @return true, if long
+    */
    public static boolean isLong(String string) {
       return getLong(string).isPresent();
    }
 
    /**
     * Same as isInt / getInt - however - only returns a value if the parsed integer is negative.
-    * @param string
-    * @return
+    *
+    * @param string the string
+    * @return the nid
     */
    public static Optional<Integer> getNID(String string) {
       final Optional<Integer> possibleInt = getInt(string);
@@ -162,10 +216,22 @@ public class NumericUtils {
             : Optional.empty();
    }
 
+   /**
+    * Checks if nid.
+    *
+    * @param string the string
+    * @return true, if nid
+    */
    public static boolean isNID(String string) {
       return (getNID(string).isPresent());
    }
 
+   /**
+    * Checks if special.
+    *
+    * @param x the x
+    * @return true, if special
+    */
    private static boolean isSpecial(final Number x) {
       final boolean specialDouble = (x instanceof Double) && (Double.isNaN((Double) x) || Double.isInfinite((Double) x));
       final boolean specialFloat  = (x instanceof Float) && (Float.isNaN((Float) x) || Float.isInfinite((Float) x));

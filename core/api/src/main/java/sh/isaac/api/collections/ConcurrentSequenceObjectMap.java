@@ -56,33 +56,53 @@ import java.util.stream.IntStream;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ConcurrentSequenceObjectMap.
  *
  * @author kec
  * @param <E> Type of {@code Object} that are the values of the map.
  */
 public class ConcurrentSequenceObjectMap<E> {
+   
+   /** The Constant SEGMENT_SIZE. */
    private static final int SEGMENT_SIZE = 1280;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The lock. */
    ReentrantLock                                 lock           = new ReentrantLock();
+   
+   /** The object list list. */
    CopyOnWriteArrayList<AtomicReferenceArray<E>> objectListList = new CopyOnWriteArrayList<>();
+   
+   /** The max sequence. */
    AtomicInteger                                 maxSequence    = new AtomicInteger(0);
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concurrent sequence object map.
+    */
    public ConcurrentSequenceObjectMap() {
       this.objectListList.add(new AtomicReferenceArray<>(SEGMENT_SIZE));
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Clear.
+    */
    public void clear() {
       this.objectListList.clear();
       this.objectListList.add(new AtomicReferenceArray<>(SEGMENT_SIZE));
       this.maxSequence.set(0);
    }
 
+   /**
+    * Contains key.
+    *
+    * @param sequence the sequence
+    * @return true, if successful
+    */
    public boolean containsKey(int sequence) {
       final int segmentIndex   = sequence / SEGMENT_SIZE;
       final int indexInSegment = sequence % SEGMENT_SIZE;
@@ -95,6 +115,13 @@ public class ConcurrentSequenceObjectMap<E> {
                            .get(indexInSegment) != null;
    }
 
+   /**
+    * Put.
+    *
+    * @param sequence the sequence
+    * @param value the value
+    * @return the e
+    */
    public E put(int sequence, E value) {
       this.maxSequence.set(Math.max(sequence, this.maxSequence.get()));
 
@@ -125,6 +152,12 @@ public class ConcurrentSequenceObjectMap<E> {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the.
+    *
+    * @param sequence the sequence
+    * @return the optional
+    */
    public Optional<E> get(int sequence) {
       final int segmentIndex = sequence / SEGMENT_SIZE;
 
@@ -142,8 +175,8 @@ public class ConcurrentSequenceObjectMap<E> {
     * Provides no range or null checking. For use with a stream that already
     * filters out null values and out of range sequences.
     *
-    * @param sequence
-    * @return
+    * @param sequence the sequence
+    * @return the quick
     */
    private E getQuick(int sequence) {
       final int segmentIndex   = sequence / SEGMENT_SIZE;
@@ -153,6 +186,11 @@ public class ConcurrentSequenceObjectMap<E> {
                                .get(indexInSegment);
    }
 
+   /**
+    * Gets the sequences.
+    *
+    * @return the sequences
+    */
    public IntStream getSequences() {
       final int               maxSize = this.maxSequence.get();
       final IntStream.Builder builder = IntStream.builder();

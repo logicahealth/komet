@@ -72,11 +72,16 @@ import java.util.Comparator;
  */
 public class AlphanumComparator
          implements Comparator<String> {
+   
+   /** The case sensitive instance. */
    private static AlphanumComparator caseSensitiveInstance_;
+   
+   /** The case insensitive instance. */
    private static AlphanumComparator caseInsensitiveInstance_;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The ignore case. */
    private final boolean ignoreCase_;
 
    //~--- constructors --------------------------------------------------------
@@ -84,7 +89,7 @@ public class AlphanumComparator
    /**
     * Create a new instance of an AlphanumComparator.
     *
-    * @param caseSensitive
+    * @param ignoreCase the ignore case
     */
    public AlphanumComparator(boolean ignoreCase) {
       this.ignoreCase_ = ignoreCase;
@@ -92,6 +97,13 @@ public class AlphanumComparator
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare.
+    *
+    * @param s1 the s 1
+    * @param s2 the s 2
+    * @return the int
+    */
    @Override
    public int compare(String s1, String s2) {
       if (s1 == null) {
@@ -173,10 +185,24 @@ public class AlphanumComparator
       return s1Length - s2Length;
    }
 
+   /**
+    * Compare.
+    *
+    * @param left the left
+    * @param right the right
+    * @param ignoreCase the ignore case
+    * @return the int
+    */
    public static int compare(String left, String right, boolean ignoreCase) {
       return getCachedInstance(ignoreCase).compare(left, right);
    }
 
+   /**
+    * Sub chunk numeric.
+    *
+    * @param numericChunk the numeric chunk
+    * @return the int[]
+    */
    /*
     * Take in string (which we assume will pass Integer.ParseInt) and return an array of integers.
     * An array is returned so we don't exceed the limits of int.
@@ -205,7 +231,8 @@ public class AlphanumComparator
     * Get a reference to a cached, shared instance. Good for reuse, but would have multithreading issues if many threads are trying to sort at the
     * same time.
     *
-    * @param caseSensitive
+    * @param ignoreCase the ignore case
+    * @return the cached instance
     */
    public static synchronized AlphanumComparator getCachedInstance(boolean ignoreCase) {
       if (ignoreCase) {
@@ -224,7 +251,12 @@ public class AlphanumComparator
    }
 
    /**
-    * Length of string is passed in for improved efficiency (only need to calculate it once) 
+    * Length of string is passed in for improved efficiency (only need to calculate it once).
+    *
+    * @param s the s
+    * @param slength the slength
+    * @param marker the marker
+    * @return the chunk
     */
    private String getChunk(String s, int slength, int marker) {
       final StringBuilder chunk = new StringBuilder();
@@ -260,6 +292,12 @@ public class AlphanumComparator
       return chunk.toString();
    }
 
+   /**
+    * Checks if digit.
+    *
+    * @param ch the ch
+    * @return true, if digit
+    */
    private boolean isDigit(char ch) {
       return (ch >= 48) && (ch <= 57);
    }

@@ -65,6 +65,8 @@ import org.apache.commons.lang3.ArrayUtils;
  *
  */
 public class ConnectionUtils {
+   
+   /** The Constant CHARSET. */
    static final String CHARSET;
 
    //~--- static initializers -------------------------------------------------
@@ -79,6 +81,15 @@ public class ConnectionUtils {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Open connection.
+    *
+    * @param url the url
+    * @param username the username
+    * @param password the password
+    * @return the URL connection
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static URLConnection openConnection(String url, String username, char[] password)
             throws IOException {
       final URL           urlObject = new URL(url);
@@ -90,6 +101,15 @@ public class ConnectionUtils {
       return conn;
    }
 
+   /**
+    * Open read connection.
+    *
+    * @param url the url
+    * @param username the username
+    * @param password the password
+    * @return the URL connection
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static URLConnection openReadConnection(String url, String username, char[] password)
             throws IOException {
       final URLConnection conn = openConnection(url, username, password);
@@ -98,6 +118,12 @@ public class ConnectionUtils {
       return conn;
    }
 
+   /**
+    * To bytes.
+    *
+    * @param chars the chars
+    * @return the byte[]
+    */
    private static byte[] toBytes(char[] chars) {
       final CharBuffer charBuffer = CharBuffer.wrap(chars);
       final ByteBuffer byteBuffer = Charset.forName("UTF-8")
@@ -111,6 +137,13 @@ public class ConnectionUtils {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set authorization.
+    *
+    * @param conn the conn
+    * @param username the username
+    * @param password the password
+    */
    public static void setAuthorization(URLConnection conn, String username, char[] password) {
       if (!StringUtils.isEmpty(username) && ((password != null) && (password.length > 0))) {
          conn.setRequestProperty("Authorization",

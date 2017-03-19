@@ -47,26 +47,47 @@ import sh.isaac.api.logic.LogicNode;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class RelationshipKey.
  *
  * @author kec
  */
 public class RelationshipKey
          implements Comparable<RelationshipKey> {
+   
+   /** The concepts referenced at node or below. */
    ConceptSequenceSet conceptsReferencedAtNodeOrBelow = new ConceptSequenceSet();
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new relationship key.
+    *
+    * @param nodeId the node id
+    * @param expression the expression
+    */
    public RelationshipKey(int nodeId, LogicalExpressionOchreImpl expression) {
       addNodes(nodeId, expression);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(RelationshipKey o) {
       return this.conceptsReferencedAtNodeOrBelow.compareTo(o.conceptsReferencedAtNodeOrBelow);
    }
 
+   /**
+    * Adds the nodes.
+    *
+    * @param nodeId the node id
+    * @param expression the expression
+    */
    private void addNodes(int nodeId, LogicalExpressionOchreImpl expression) {
       final LogicNode logicNode = expression.getNode(nodeId);
 

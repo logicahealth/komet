@@ -84,21 +84,34 @@ import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 @Service
 @RunLevel(value = 5)
 public class ChangesetSyncService {
+   
+   /** The Constant LOG. */
    private static final Logger LOG           = LogManager.getLogger();
+   
+   /** The sync JSON files. */
    public static boolean       syncJSONFiles = true;  // TODO we can turn this off later
 
    //~--- fields --------------------------------------------------------------
 
+   /** The scheduled check. */
    private ScheduledFuture<?> scheduledCheck;
+   
+   /** The ssg. */
    private SyncServiceGIT     ssg;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new changeset sync service.
+    */
    // For HK2
    private ChangesetSyncService() {}
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       final Optional<RemoteServiceInfo> gitConfig = Get.configurationService()
@@ -215,6 +228,9 @@ public class ChangesetSyncService {
                   });
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       if (this.scheduledCheck != null) {
@@ -225,6 +241,9 @@ public class ChangesetSyncService {
       LOG.info("Finished ChangesetSyncService Provider preDestroy.");
    }
 
+   /**
+    * Sync check.
+    */
    private void syncCheck() {
       LOG.info("Launching sync check in background thread");
       Get.workExecutors().getExecutor().execute(() -> {

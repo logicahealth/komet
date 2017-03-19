@@ -62,8 +62,11 @@ import sh.isaac.api.sync.SyncFiles;
 @Service(name = "get-and-link-profiles-scm")
 public class LinkProfilesToSCMMojo
         extends ProfilesMojoBase {
+   
    /**
-    * @throws MojoExecutionException
+    * Instantiates a new link profiles to SCM mojo.
+    *
+    * @throws MojoExecutionException the mojo execution exception
     */
    public LinkProfilesToSCMMojo()
             throws MojoExecutionException {
@@ -72,6 +75,11 @@ public class LinkProfilesToSCMMojo
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException {

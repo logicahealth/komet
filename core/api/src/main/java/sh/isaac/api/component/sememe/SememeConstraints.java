@@ -40,6 +40,7 @@
 package sh.isaac.api.component.sememe;
 
 /**
+ * The Enum SememeConstraints.
  *
  * @author kec
  */

@@ -61,23 +61,33 @@ import sh.isaac.api.progress.ActiveTasks;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class WriteConceptChronicle.
  *
  * @author kec
  */
 public class WriteConceptChronicle
         extends Task<Void> {
+   
+   /** The cc. */
    private final ConceptChronology                                              cc;
+   
+   /** The write semaphore. */
    private final Semaphore                                                      writeSemaphore;
+   
+   /** The change listeners. */
    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
+   
+   /** The uncommitted tracking. */
    private final BiConsumer<ObjectChronology, Boolean>                          uncommittedTracking;
 
    //~--- constructors --------------------------------------------------------
 
    /**
+    * Instantiates a new write concept chronicle.
     *
-    * @param cc
-    * @param writeSemaphore
-    * @param changeListeners
+    * @param cc the cc
+    * @param writeSemaphore the write semaphore
+    * @param changeListeners the change listeners
     * @param uncommittedTracking A handle to call back to the caller to notify it that the concept has been
     * written to the ConceptService.  Parameter 1 is the Concept, Parameter two is false to indicate that the
     * change checker is not active for this implementation.
@@ -100,6 +110,12 @@ public class WriteConceptChronicle
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Call.
+    *
+    * @return the void
+    * @throws Exception the exception
+    */
    @Override
    public Void call()
             throws Exception {

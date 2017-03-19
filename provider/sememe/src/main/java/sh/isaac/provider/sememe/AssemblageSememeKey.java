@@ -40,16 +40,27 @@
 package sh.isaac.provider.sememe;
 
 /**
+ * The Class AssemblageSememeKey.
  *
  * @author kec
  */
 public class AssemblageSememeKey
          implements Comparable<AssemblageSememeKey> {
+   
+   /** The assemblage sequence. */
    int assemblageSequence;
+   
+   /** The sememe sequence. */
    int sememeSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new assemblage sememe key.
+    *
+    * @param assemblageKey the assemblage key
+    * @param sememeSequence the sememe sequence
+    */
    public AssemblageSememeKey(int assemblageKey, int sememeSequence) {
       this.assemblageSequence = assemblageKey;
       this.sememeSequence     = sememeSequence;
@@ -57,6 +68,12 @@ public class AssemblageSememeKey
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(AssemblageSememeKey o) {
       if (this.assemblageSequence != o.assemblageSequence) {
@@ -78,6 +95,12 @@ public class AssemblageSememeKey
       return 1;
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -97,6 +120,11 @@ public class AssemblageSememeKey
       return this.sememeSequence == otherKey.sememeSequence;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int result = this.assemblageSequence;
@@ -105,6 +133,11 @@ public class AssemblageSememeKey
       return result;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "AssemblageSememeKey{" + "assemblageSequence=" + this.assemblageSequence + ", sememeSequence=" +
@@ -113,10 +146,20 @@ public class AssemblageSememeKey
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the assemblage sequence.
+    *
+    * @return the assemblage sequence
+    */
    public int getAssemblageSequence() {
       return this.assemblageSequence;
    }
 
+   /**
+    * Gets the sememe sequence.
+    *
+    * @return the sememe sequence
+    */
    public int getSememeSequence() {
       return this.sememeSequence;
    }

@@ -77,21 +77,37 @@ import sh.isaac.api.LookupService;
  */
 public class MultipleDataWriterService
          implements DataWriterService {
+   
+   /** The writers. */
    ArrayList<DataWriterService>   writers_         = new ArrayList<>();
+   
+   /** The logger. */
    private final Logger                 logger           = LoggerFactory.getLogger(MultipleDataWriterService.class);
+   
+   /** The sdf. */
    private final SimpleDateFormat sdf              = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+   
+   /** The object write count. */
    private final AtomicInteger          objectWriteCount = new AtomicInteger();
+   
+   /** The rotate after. */
    private final int rotateAfter =
       10000;  // This will cause us to rotate files after ~ 1 MB of IBDF content, in rough testing.
+   
+   /** The prefix. */
    private String  prefix;
+   
+   /** The enable rotate. */
    private final boolean enableRotate;
 
    //~--- constructors --------------------------------------------------------
 
    /**
     * This constructor creates a multiple data writer service which writes to the specified files, and does not do any rotation or autonaming.
-    * @param jsonPath
-    * @param ibdfPath
+    *
+    * @param jsonPath the json path
+    * @param ibdfPath the ibdf path
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public MultipleDataWriterService(Optional<Path> jsonPath, Optional<Path> ibdfPath)
             throws IOException {
@@ -128,15 +144,15 @@ public class MultipleDataWriterService
    /**
     * This constructor sets up the multipleDataWriter in such a way that is will create date stamped and UUID unique file names, rotating them after
     * a certain number of writes, to prevent them from growing too large.
-    *
+    * 
     * This constructor will also start a mode where we do NOT keep 0 length files - therefore, if we start, and stop, and the last file that was being written
     * to is size 0, the last file will be deleted.
     *
-    * @param folderToWriteInto
-    * @param prefix
-    * @param jsonExtension
-    * @param ibdfExtension
-    * @throws IOException
+    * @param folderToWriteInto the folder to write into
+    * @param prefix the prefix
+    * @param jsonExtension the json extension
+    * @param ibdfExtension the ibdf extension
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public MultipleDataWriterService(Path folderToWriteInto,
                                     String prefix,
@@ -179,7 +195,9 @@ public class MultipleDataWriterService
    //~--- methods -------------------------------------------------------------
 
    /**
-    * @throws IOException
+    * Close.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
     * @see sh.isaac.api.externalizable.DataWriterService#close()
     */
    @Override
@@ -196,6 +214,10 @@ public class MultipleDataWriterService
    }
 
    /**
+    * Configure.
+    *
+    * @param path the path
+    * @throws UnsupportedOperationException the unsupported operation exception
     * @see sh.isaac.api.externalizable.DataWriterService#configure(java.nio.file.Path)
     */
    @Override
@@ -205,6 +227,9 @@ public class MultipleDataWriterService
    }
 
    /**
+    * Flush.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
     * @see sh.isaac.api.externalizable.DataWriterService#flush()
     */
    @Override
@@ -220,6 +245,12 @@ public class MultipleDataWriterService
                   });
    }
 
+   /**
+    * Handle multi.
+    *
+    * @param function the function
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void handleMulti(Function<DataWriterService, IOException> function)
             throws IOException {
       final ArrayList<IOException> exceptions = new ArrayList<>();
@@ -244,7 +275,9 @@ public class MultipleDataWriterService
    }
 
    /**
-    * @throws IOException
+    * Pause.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
     * @see sh.isaac.api.externalizable.DataWriterService#pause()
     */
    @Override
@@ -261,7 +294,10 @@ public class MultipleDataWriterService
    }
 
    /**
-    * @throws IOException
+    * Put.
+    *
+    * @param ochreObject the ochre object
+    * @throws RuntimeException the runtime exception
     * @see sh.isaac.api.externalizable.DataWriterService#put(sh.isaac.api.externalizable.OchreExternalizable)
     */
    @Override
@@ -291,7 +327,9 @@ public class MultipleDataWriterService
    }
 
    /**
-    * @throws IOException
+    * Resume.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
     * @see sh.isaac.api.externalizable.DataWriterService#resume()
     */
    @Override
@@ -307,6 +345,11 @@ public class MultipleDataWriterService
                   });
    }
 
+   /**
+    * Rotate files.
+    *
+    * @throws RuntimeException the runtime exception
+    */
    private void rotateFiles()
             throws RuntimeException {
       try {
@@ -335,6 +378,11 @@ public class MultipleDataWriterService
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the current path.
+    *
+    * @return the current path
+    */
    @Override
    public Path getCurrentPath() {
       throw new UnsupportedOperationException("Method not supported");

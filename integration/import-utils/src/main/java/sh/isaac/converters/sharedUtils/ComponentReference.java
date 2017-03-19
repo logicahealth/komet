@@ -59,15 +59,34 @@ import sh.isaac.api.identity.StampedVersion;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class ComponentReference.
+ */
 public class ComponentReference {
+   
+   /** The sequence provider. */
    private final IntSupplier      sequenceProvider_;
+   
+   /** The uuid provider. */
    private final Supplier<UUID>   uuidProvider_;
+   
+   /** The time provider. */
    private Supplier<Long>   timeProvider_;
+   
+   /** The nid provider. */
    private IntSupplier      nidProvider_;
+   
+   /** The type label supplier. */
    private Supplier<String> typeLabelSupplier_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new component reference.
+    *
+    * @param uuidProvider the uuid provider
+    * @param sequenceProvider the sequence provider
+    */
    private ComponentReference(Supplier<UUID> uuidProvider, IntSupplier sequenceProvider) {
       this.uuidProvider_     = uuidProvider;
       this.timeProvider_     = () -> null;                                     // a lambda that retuns null time.
@@ -76,6 +95,13 @@ public class ComponentReference {
                               .getNidForUuids(this.uuidProvider_.get());  // a lambda that returns a nid
    }
 
+   /**
+    * Instantiates a new component reference.
+    *
+    * @param uuidProvider the uuid provider
+    * @param sequenceProvider the sequence provider
+    * @param typeLabelSupplier the type label supplier
+    */
    private ComponentReference(Supplier<UUID> uuidProvider,
                               IntSupplier sequenceProvider,
                               Supplier<String> typeLabelSupplier) {
@@ -85,10 +111,23 @@ public class ComponentReference {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * From chronology.
+    *
+    * @param object the object
+    * @return the component reference
+    */
    public static ComponentReference fromChronology(ObjectChronology<?> object) {
       return fromChronology(object, null);
    }
 
+   /**
+    * From chronology.
+    *
+    * @param object the object
+    * @param typeLabelSupplier the type label supplier
+    * @return the component reference
+    */
    @SuppressWarnings("rawtypes")
    public static ComponentReference fromChronology(ObjectChronology<?> object, Supplier<String> typeLabelSupplier) {
       ComponentReference cr;
@@ -137,6 +176,12 @@ public class ComponentReference {
       return cr;
    }
 
+   /**
+    * From concept.
+    *
+    * @param concept the concept
+    * @return the component reference
+    */
    public static ComponentReference fromConcept(ConceptChronology<? extends ConceptVersion<?>> concept) {
       final ComponentReference cr = new ComponentReference(() -> concept.getPrimordialUuid(),
                                                      () -> concept.getConceptSequence(),
@@ -157,6 +202,12 @@ public class ComponentReference {
       return cr;
    }
 
+   /**
+    * From concept.
+    *
+    * @param uuid the uuid
+    * @return the component reference
+    */
    public static ComponentReference fromConcept(UUID uuid) {
       return new ComponentReference(() -> uuid,
                                     () -> Get.identifierService()
@@ -164,10 +215,23 @@ public class ComponentReference {
                                     () -> "Concept");
    }
 
+   /**
+    * From concept.
+    *
+    * @param uuid the uuid
+    * @param seq the seq
+    * @return the component reference
+    */
    public static ComponentReference fromConcept(UUID uuid, int seq) {
       return new ComponentReference(() -> uuid, () -> seq, () -> "Concept");
    }
 
+   /**
+    * From sememe.
+    *
+    * @param uuid the uuid
+    * @return the component reference
+    */
    public static ComponentReference fromSememe(UUID uuid) {
       return new ComponentReference(() -> uuid,
                                     () -> Get.identifierService()
@@ -177,10 +241,20 @@ public class ComponentReference {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the nid.
+    *
+    * @return the nid
+    */
    public int getNid() {
       return this.nidProvider_.getAsInt();
    }
 
+   /**
+    * Gets the primordial uuid.
+    *
+    * @return the primordial uuid
+    */
    public UUID getPrimordialUuid() {
       return this.uuidProvider_.get();
    }
@@ -188,15 +262,27 @@ public class ComponentReference {
    /**
     * Danger Danger
     * Don't use this unless you KNOW the type of component you have a handle to....
+    *
+    * @return the sequence
     */
    protected int getSequence() {
       return this.sequenceProvider_.getAsInt();
    }
 
+   /**
+    * Gets the time.
+    *
+    * @return the time
+    */
    public Long getTime() {
       return this.timeProvider_.get();
    }
 
+   /**
+    * Gets the type string.
+    *
+    * @return the type string
+    */
    public String getTypeString() {
       return this.typeLabelSupplier_.get();
    }

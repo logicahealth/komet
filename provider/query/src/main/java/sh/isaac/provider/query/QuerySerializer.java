@@ -65,6 +65,15 @@ import org.xml.sax.InputSource;
  * Created by kec on 10/30/14.
  */
 public class QuerySerializer {
+   
+   /**
+    * Marshall.
+    *
+    * @param q the q
+    * @return the string
+    * @throws JAXBException the JAXB exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static String marshall(Query q)
             throws JAXBException, IOException {
       // JAXBContext ctx = JaxbForQuery.get();
@@ -81,6 +90,16 @@ public class QuerySerializer {
       return builder.toString();
    }
 
+   /**
+    * Unmarshall.
+    *
+    * @param xmlData the xml data
+    * @return the query
+    * @throws JAXBException the JAXB exception
+    * @throws ParserConfigurationException the parser configuration exception
+    * @throws Exception the exception
+    * @throws Throwable the throwable
+    */
    public static Query unmarshall(Reader xmlData)
             throws JAXBException,
                    ParserConfigurationException,

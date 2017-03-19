@@ -50,7 +50,16 @@ import org.h2.mvstore.MVStore;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class MVStoreArbitraryTests.
+ */
 public class MVStoreArbitraryTests {
+   
+   /**
+    * The main method.
+    *
+    * @param args the arguments
+    */
    public static void main(String[] args) {
       long    temp = System.currentTimeMillis();
       final MVStore s    = MVStore.open("foo.test");

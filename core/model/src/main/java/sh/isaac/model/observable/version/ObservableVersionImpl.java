@@ -66,26 +66,53 @@ import sh.isaac.model.observable.ObservableFields;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableVersionImpl.
  *
  * @author kec
- * @param <OV>
- * @param <V>
+ * @param <OV> the generic type
+ * @param <V> the value type
  */
 public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V extends ObjectVersionImpl<?, ?>>
          implements ObservableVersion, CommittableComponent {
+   
+   /** The state property. */
    ObjectProperty<State>              stateProperty;
+   
+   /** The time property. */
    LongProperty                       timeProperty;
+   
+   /** The author sequence property. */
    IntegerProperty                    authorSequenceProperty;
+   
+   /** The module sequence property. */
    IntegerProperty                    moduleSequenceProperty;
+   
+   /** The path sequence property. */
    IntegerProperty                    pathSequenceProperty;
+   
+   /** The commit state property. */
    ObjectProperty<CommitStates>       commitStateProperty;
+   
+   /** The commit state binding. */
    ObjectBinding<CommitStates>        commitStateBinding;
+   
+   /** The stamp sequence property. */
    IntegerProperty                    stampSequenceProperty;
+   
+   /** The stamped version. */
    protected V                        stampedVersion;
+   
+   /** The chronology. */
    protected ObservableChronology<OV> chronology;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new observable version impl.
+    *
+    * @param stampedVersion the stamped version
+    * @param chronology the chronology
+    */
    public ObservableVersionImpl(V stampedVersion, ObservableChronology<OV> chronology) {
       this.stampedVersion = stampedVersion;
       this.chronology     = chronology;
@@ -93,6 +120,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Author sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public final IntegerProperty authorSequenceProperty() {
       if (this.authorSequenceProperty == null) {
@@ -104,6 +136,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
       return this.authorSequenceProperty;
    }
 
+   /**
+    * Commit state property.
+    *
+    * @return the object property
+    */
    @Override
    public final ObjectProperty<CommitStates> commitStateProperty() {
       if (this.commitStateProperty == null) {
@@ -126,6 +163,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
       return this.commitStateProperty;
    }
 
+   /**
+    * Module sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public final IntegerProperty moduleSequenceProperty() {
       if (this.moduleSequenceProperty == null) {
@@ -137,6 +179,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
       return this.moduleSequenceProperty;
    }
 
+   /**
+    * Path sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public final IntegerProperty pathSequenceProperty() {
       if (this.pathSequenceProperty == null) {
@@ -148,6 +195,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
       return this.pathSequenceProperty;
    }
 
+   /**
+    * Stamp sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public final IntegerProperty stampSequenceProperty() {
       if (this.stampSequenceProperty == null) {
@@ -159,6 +211,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
       return this.stampSequenceProperty;
    }
 
+   /**
+    * State property.
+    *
+    * @return the object property
+    */
    @Override
    public final ObjectProperty<State> stateProperty() {
       if (this.stateProperty == null) {
@@ -170,6 +227,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
       return this.stateProperty;
    }
 
+   /**
+    * Time property.
+    *
+    * @return the long property
+    */
    @Override
    public final LongProperty timeProperty() {
       if (this.timeProperty == null) {
@@ -181,11 +243,21 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
       return this.timeProperty;
    }
 
+   /**
+    * To user string.
+    *
+    * @return the string
+    */
    @Override
    public String toUserString() {
       return toString();
    }
 
+   /**
+    * Update version.
+    *
+    * @param stampedVersion the stamped version
+    */
    public void updateVersion(V stampedVersion) {
       this.stampedVersion = stampedVersion;
 
@@ -216,6 +288,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the author sequence.
+    *
+    * @return the author sequence
+    */
    @Override
    public final int getAuthorSequence() {
       if (this.authorSequenceProperty != null) {
@@ -227,6 +304,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the author sequence.
+    *
+    * @param authorSequence the new author sequence
+    */
    @Override
    public void setAuthorSequence(int authorSequence) {
       if (this.authorSequenceProperty != null) {
@@ -238,11 +320,21 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the chronology.
+    *
+    * @return the chronology
+    */
    @Override
    public ObservableChronology<OV> getChronology() {
       return this.chronology;
    }
 
+   /**
+    * Gets the commit state.
+    *
+    * @return the commit state
+    */
    @Override
    public final CommitStates getCommitState() {
       if (this.commitStateProperty != null) {
@@ -256,6 +348,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
       return CommitStates.COMMITTED;
    }
 
+   /**
+    * Gets the module sequence.
+    *
+    * @return the module sequence
+    */
    @Override
    public final int getModuleSequence() {
       if (this.moduleSequenceProperty != null) {
@@ -267,6 +364,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the module sequence.
+    *
+    * @param moduleSequence the new module sequence
+    */
    @Override
    public void setModuleSequence(int moduleSequence) {
       if (this.moduleSequenceProperty != null) {
@@ -278,11 +380,21 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the nid.
+    *
+    * @return the nid
+    */
    @Override
    public int getNid() {
       return this.stampedVersion.getNid();
    }
 
+   /**
+    * Gets the path sequence.
+    *
+    * @return the path sequence
+    */
    @Override
    public final int getPathSequence() {
       if (this.pathSequenceProperty != null) {
@@ -294,6 +406,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the path sequence.
+    *
+    * @param pathSequence the new path sequence
+    */
    @Override
    public void setPathSequence(int pathSequence) {
       if (this.pathSequenceProperty != null) {
@@ -305,11 +422,21 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the primordial uuid.
+    *
+    * @return the primordial uuid
+    */
    @Override
    public UUID getPrimordialUuid() {
       return this.stampedVersion.getPrimordialUuid();
    }
 
+   /**
+    * Gets the stamp sequence.
+    *
+    * @return the stamp sequence
+    */
    @Override
    public final int getStampSequence() {
       if (this.stampSequenceProperty != null) {
@@ -319,6 +446,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
       return this.stampedVersion.getStampSequence();
    }
 
+   /**
+    * Gets the state.
+    *
+    * @return the state
+    */
    @Override
    public final State getState() {
       if (this.stateProperty != null) {
@@ -328,6 +460,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
       return this.stampedVersion.getState();
    }
 
+   /**
+    * Gets the time.
+    *
+    * @return the time
+    */
    @Override
    public final long getTime() {
       if (this.timeProperty != null) {
@@ -339,6 +476,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the time.
+    *
+    * @param time the new time
+    */
    @Override
    public void setTime(long time) {
       if (this.timeProperty != null) {
@@ -350,16 +492,31 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if uncommitted.
+    *
+    * @return true, if uncommitted
+    */
    @Override
    public boolean isUncommitted() {
       return getCommitState() == CommitStates.UNCOMMITTED;
    }
 
+   /**
+    * Gets the uuid list.
+    *
+    * @return the uuid list
+    */
    @Override
    public List<UUID> getUuidList() {
       return this.stampedVersion.getUuidList();
    }
 
+   /**
+    * Gets the version sequence.
+    *
+    * @return the version sequence
+    */
    public short getVersionSequence() {
       return this.stampedVersion.getVersionSequence();
    }

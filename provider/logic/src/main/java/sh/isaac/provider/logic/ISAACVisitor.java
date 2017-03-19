@@ -78,30 +78,52 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link ISAACVisitor}
+ * {@link ISAACVisitor}.
  *
  * @author Tony Weida
  */
 public class ISAACVisitor
         extends SNOMEDCTExpressionBaseVisitor<Object> {
+   
+   /** The logger. */
    static Logger               logger        = LogManager.getLogger(ISAACVisitor.class);
 
    //~--- fields --------------------------------------------------------------
 
+   /** The default to primitive. */
    private final boolean                  defaultToPrimitive_;
+   
+   /** The def builder. */
    private final LogicalExpressionBuilder defBuilder_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new ISAAC visitor.
+    *
+    * @param defBuilder the def builder
+    */
    public ISAACVisitor(LogicalExpressionBuilder defBuilder) {
       this(defBuilder, null);
    }
 
+   /**
+    * Instantiates a new ISAAC visitor.
+    *
+    * @param defBuilder the def builder
+    * @param c the c
+    */
    public ISAACVisitor(LogicalExpressionBuilder defBuilder, ConceptChronology<?> c) {
       this(defBuilder, c, false);
    }
 
+   /**
+    * Instantiates a new ISAAC visitor.
+    *
+    * @param defBuilder the def builder
+    * @param c the c
+    * @param defaultToPrimitive the default to primitive
+    */
    public ISAACVisitor(LogicalExpressionBuilder defBuilder, ConceptChronology<?> c, boolean defaultToPrimitive) {
       super();
       this.defaultToPrimitive_ = defaultToPrimitive;
@@ -110,6 +132,12 @@ public class ISAACVisitor
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Visit attribute.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitAttribute(se.liu.imt.mi.snomedct.expression.SNOMEDCTExpressionParser.AttributeContext ctx) {
       logger.debug("visitAttribute: " + ctx.getText());
@@ -140,18 +168,36 @@ public class ISAACVisitor
       return role;
    }
 
+   /**
+    * Visit attribute group.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitAttributeGroup(AttributeGroupContext ctx) {
       logger.debug("visitAttributeGroup: " + ctx.getText());
       throw new RuntimeException("LOINC EXPRESSION SERVICE> Cannot (yet) handle attribute group");
    }
 
+   /**
+    * Visit attribute set.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitAttributeSet(AttributeSetContext ctx) {
       logger.debug("visitAttributeSet: " + ctx.getText());
       throw new RuntimeException("LOINC EXPRESSION SERVICE> Cannot (yet) handle attribute set");
    }
 
+   /**
+    * Visit concept reference.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitConceptReference(ConceptReferenceContext ctx) {
       logger.debug("visitConceptReference: " + ctx.getText());
@@ -166,6 +212,12 @@ public class ISAACVisitor
                 .getConcept(nid.get());
    }
 
+   /**
+    * Visit expression.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitExpression(ExpressionContext ctx) {
       logger.debug("visitExpression: " + ctx.getText());
@@ -181,6 +233,12 @@ public class ISAACVisitor
       }
    }
 
+   /**
+    * Visit focus concept.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitFocusConcept(FocusConceptContext ctx) {
       logger.debug("visitFocusConcept: " + ctx.getText());
@@ -192,6 +250,12 @@ public class ISAACVisitor
       return visit(ctx.conceptReference(0));
    }
 
+   /**
+    * Visit non grouped attribute set.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    // TODO: see more complex processing in OWLVisitor
    @Override
    public Object visitNonGroupedAttributeSet(NonGroupedAttributeSetContext ctx) {
@@ -207,12 +271,24 @@ public class ISAACVisitor
       return assertions;
    }
 
+   /**
+    * Visit refinement.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitRefinement(RefinementContext ctx) {
       logger.debug("visitRefinement: " + ctx.getText());
       return visit(ctx.nonGroupedAttributeSet());
    }
 
+   /**
+    * Visit sub expression.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitSubExpression(SubExpressionContext ctx) {
       logger.debug("visitSubExpression: " + ctx.getText());

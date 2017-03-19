@@ -46,16 +46,27 @@ import sh.isaac.api.Get;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class DestinationOriginRecord.
  *
  * @author kec
  */
 public class DestinationOriginRecord
          implements Comparable<DestinationOriginRecord> {
+   
+   /** The origin sequence. */
    private final int originSequence;
+   
+   /** The destination sequence. */
    private final int destinationSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new destination origin record.
+    *
+    * @param destinationSequence the destination sequence
+    * @param originSequence the origin sequence
+    */
    public DestinationOriginRecord(int destinationSequence, int originSequence) {
       if ((originSequence < 0) && (originSequence != Integer.MIN_VALUE)) {
          originSequence = Get.identifierService()
@@ -73,6 +84,12 @@ public class DestinationOriginRecord
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(DestinationOriginRecord o) {
       if (this.destinationSequence > o.destinationSequence) {
@@ -94,6 +111,12 @@ public class DestinationOriginRecord
       return 0;
    }
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
@@ -113,6 +136,11 @@ public class DestinationOriginRecord
       return this.destinationSequence == other.destinationSequence;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int hash = 7;
@@ -122,6 +150,11 @@ public class DestinationOriginRecord
       return hash;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return Get.conceptDescriptionText(this.originSequence) + "<" + this.originSequence + ">➞" +
@@ -130,10 +163,20 @@ public class DestinationOriginRecord
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the destination sequence.
+    *
+    * @return the destination sequence
+    */
    public int getDestinationSequence() {
       return this.destinationSequence;
    }
 
+   /**
+    * Gets the origin sequence.
+    *
+    * @return the origin sequence
+    */
    public int getOriginSequence() {
       return this.originSequence;
    }

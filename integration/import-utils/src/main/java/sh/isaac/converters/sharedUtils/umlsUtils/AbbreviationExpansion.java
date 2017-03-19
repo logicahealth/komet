@@ -56,11 +56,23 @@ import org.apache.commons.lang3.StringUtils;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class AbbreviationExpansion.
+ */
 public class AbbreviationExpansion {
+   
+   /** The description. */
    String abbreviation_, expansion_, description_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new abbreviation expansion.
+    *
+    * @param abbreviation the abbreviation
+    * @param expansion the expansion
+    * @param description the description
+    */
    protected AbbreviationExpansion(String abbreviation, String expansion, String description) {
       this.abbreviation_ = abbreviation;
       this.expansion_    = expansion;
@@ -69,6 +81,13 @@ public class AbbreviationExpansion {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Load.
+    *
+    * @param is the is
+    * @return the hash map
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static HashMap<String, AbbreviationExpansion> load(InputStream is)
             throws IOException {
       final HashMap<String, AbbreviationExpansion> results = new HashMap<>();
@@ -94,14 +113,29 @@ public class AbbreviationExpansion {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the abbreviation.
+    *
+    * @return the abbreviation
+    */
    public String getAbbreviation() {
       return this.abbreviation_;
    }
 
+   /**
+    * Gets the description.
+    *
+    * @return the description
+    */
    public String getDescription() {
       return this.description_;
    }
 
+   /**
+    * Gets the expansion.
+    *
+    * @return the expansion
+    */
    public String getExpansion() {
       return this.expansion_;
    }

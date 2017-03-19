@@ -62,13 +62,15 @@ public interface IndexStatusListenerBI {
    public void indexConfigurationChanged(IndexServiceBI indexConfigurationThatChanged);
 
    /**
-    * Called when a reindex sequence begins
+    * Called when a reindex sequence begins.
+    *
     * @param index - the index being recreated
     */
    public void reindexBegan(IndexServiceBI index);
 
    /**
-    * Called when a reindex sequence completes
+    * Called when a reindex sequence completes.
+    *
     * @param index - the index that was recreated
     */
    public void reindexCompleted(IndexServiceBI index);

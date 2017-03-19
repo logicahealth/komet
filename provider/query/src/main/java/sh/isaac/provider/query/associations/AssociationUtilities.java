@@ -69,17 +69,22 @@ import sh.isaac.utility.Frills;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link AssociationUtilities}
+ * {@link AssociationUtilities}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class AssociationUtilities {
+   
+   /** The association sequence. */
    private static int associationSequence = Integer.MIN_VALUE;
 
    //~--- methods -------------------------------------------------------------
 
    /**
-    * @param assemblageNidOrSequence
+    * Find target column index.
+    *
+    * @param assemblageNidOrSequence the assemblage nid or sequence
+    * @return the int
     */
    protected static int findTargetColumnIndex(int assemblageNidOrSequence) {
       final DynamicSememeUsageDescription rdud = LookupService.get()
@@ -100,8 +105,9 @@ public class AssociationUtilities {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Get a particular associations
-    * @param associationNid
+    * Get a particular associations.
+    *
+    * @param associationNid the association nid
     * @param stamp - optional - if not provided, uses the default from the config service
     * @return the found associationInstance, if present on the provided stamp path
     */
@@ -125,13 +131,20 @@ public class AssociationUtilities {
       return Optional.empty();
    }
 
+   /**
+    * Checks if association.
+    *
+    * @param sc the sc
+    * @return true, if association
+    */
    public static boolean isAssociation(SememeChronology<? extends SememeVersion<?>> sc) {
       return Frills.isAssociation(sc);
    }
 
    /**
     * Get a list of all of the concepts that identify a type of association - returning their concept sequence identifier.
-    * @return
+    *
+    * @return the association concept sequences
     */
    public static Set<Integer> getAssociationConceptSequences() {
       final HashSet<Integer> result = new HashSet<>();
@@ -145,6 +158,11 @@ public class AssociationUtilities {
       return result;
    }
 
+   /**
+    * Gets the association sequence.
+    *
+    * @return the association sequence
+    */
    private static int getAssociationSequence() {
       if (associationSequence == Integer.MIN_VALUE) {
          associationSequence = DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME
@@ -155,10 +173,11 @@ public class AssociationUtilities {
    }
 
    /**
+    * Gets the associations of type.
     *
-    * @param associationTypeConceptNid
+    * @param associationTypeConceptNid the association type concept nid
     * @param stamp - optional - if not provided, uses the default from the config service
-    * @return
+    * @return the associations of type
     */
    public static List<AssociationInstance> getAssociationsOfType(int associationTypeConceptNid, StampCoordinate stamp) {
       final ArrayList<AssociationInstance> results = new ArrayList<>();
@@ -183,9 +202,11 @@ public class AssociationUtilities {
    }
 
    /**
-    * Get all associations that originate on the specified componentNid
-    * @param componentNid
+    * Get all associations that originate on the specified componentNid.
+    *
+    * @param componentNid the component nid
     * @param stamp - optional - if not provided, uses the default from the config service
+    * @return the source associations
     */
    public static List<AssociationInstance> getSourceAssociations(int componentNid, StampCoordinate stamp) {
       final ArrayList<AssociationInstance> results = new ArrayList<>();
@@ -208,9 +229,11 @@ public class AssociationUtilities {
    }
 
    /**
-    * Get all association instances that have a target of the specified componentNid
-    * @param componentNid
+    * Get all association instances that have a target of the specified componentNid.
+    *
+    * @param componentNid the component nid
     * @param stamp - optional - if not provided, uses the default from the config service
+    * @return the target associations
     */
 
    // TODO should probabaly have a method here that takes in a target UUID, since that seems to be how I stored them?

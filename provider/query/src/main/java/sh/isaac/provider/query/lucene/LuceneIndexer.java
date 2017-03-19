@@ -148,21 +148,36 @@ import sh.isaac.utility.Frills;
 //~--- classes ----------------------------------------------------------------
 
 //See example for help with the Controlled Real-time indexing...
+/**
+ * The Class LuceneIndexer.
+ */
 //http://stackoverflow.com/questions/17993960/lucene-4-4-0-new-controlledrealtimereopenthread-sample-usage?answertab=votes#tab-top
 public abstract class LuceneIndexer
          implements IndexServiceBI {
+   
+   /** The Constant DEFAULT_LUCENE_FOLDER. */
    public static final String           DEFAULT_LUCENE_FOLDER = "lucene";
+   
+   /** The Constant log. */
    private static final Logger          log                   = LogManager.getLogger();
+   
+   /** The Constant luceneVersion. */
    public static final Version          luceneVersion         = Version.LUCENE_4_10_3;
+   
+   /** The Constant unindexedFuture. */
    private static final UnindexedFuture unindexedFuture       = new UnindexedFuture();
 
    // don't need to analyze this - and even though it is an integer, we index it as a string, as that is faster when we are only doing
+   /** The Constant FIELD_SEMEME_ASSEMBLAGE_SEQUENCE. */
    // exact matches.
    protected static final String FIELD_SEMEME_ASSEMBLAGE_SEQUENCE = "_sememe_type_sequence_" +
                                                                     PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;
 
+   /** The Constant FIELD_COMPONENT_NID. */
    // this isn't indexed
    public static final String       FIELD_COMPONENT_NID = "_component_nid_";
+   
+   /** The Constant FIELD_TYPE_INT_STORED_NOT_INDEXED. */
    protected static final FieldType FIELD_TYPE_INT_STORED_NOT_INDEXED;
 
    //~--- static initializers -------------------------------------------------
@@ -178,23 +193,56 @@ public abstract class LuceneIndexer
 
    //~--- fields --------------------------------------------------------------
 
+   /** The index folder. */
    private File                                                        indexFolder_               = null;
+   
+   /** The indexed component statistics. */
    private final HashMap<String, AtomicInteger>                        indexedComponentStatistics = new HashMap<>();
+   
+   /** The indexed component statistics block. */
    private final Semaphore indexedComponentStatisticsBlock                                              = new Semaphore(1);
+   
+   /** The component nid latch. */
    private final ConcurrentHashMap<Integer, IndexedGenerationCallable> componentNidLatch = new ConcurrentHashMap<>();
+   
+   /** The enabled. */
    private boolean                                                     enabled_                   = true;
+   
+   /** The db build mode. */
    private Boolean                                                     dbBuildMode                = null;
+   
+   /** The database validity. */
    private DatabaseValidity                                            databaseValidity = DatabaseValidity.NOT_SET;
+   
+   /** The change listener ref. */
    private ChronologyChangeListener                                    changeListenerRef_;
+   
+   /** The lucene writer service. */
    protected final ExecutorService                                     luceneWriterService;
+   
+   /** The lucene writer future checker service. */
    protected ExecutorService                                           luceneWriterFutureCheckerService;
+   
+   /** The reopen thread. */
    private final ControlledRealTimeReopenThread<IndexSearcher>         reopenThread;
+   
+   /** The tracking index writer. */
    private final TrackingIndexWriter                                   trackingIndexWriter;
+   
+   /** The searcher manager. */
    private final ReferenceManager<IndexSearcher>                       searcherManager;
+   
+   /** The index name. */
    private final String                                                indexName_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new lucene indexer.
+    *
+    * @param indexName the index name
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    protected LuceneIndexer(String indexName)
             throws IOException {
       try {
@@ -311,12 +359,18 @@ public abstract class LuceneIndexer
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Clear database validity value.
+    */
    @Override
    public void clearDatabaseValidityValue() {
       // Reset to enforce analysis
       this.databaseValidity = DatabaseValidity.NOT_SET;
    }
 
+   /**
+    * Clear index.
+    */
    @Override
    public final void clearIndex() {
       try {
@@ -326,11 +380,17 @@ public abstract class LuceneIndexer
       }
    }
 
+   /**
+    * Clear indexed statistics.
+    */
    @Override
    public void clearIndexedStatistics() {
       this.indexedComponentStatistics.clear();
    }
 
+   /**
+    * Close writer.
+    */
    @Override
    public final void closeWriter() {
       try {
@@ -347,6 +407,9 @@ public abstract class LuceneIndexer
       }
    }
 
+   /**
+    * Commit writer.
+    */
    @Override
    public final void commitWriter() {
       try {
@@ -358,6 +421,9 @@ public abstract class LuceneIndexer
       }
    }
 
+   /**
+    * Force merge.
+    */
    @Override
    public void forceMerge() {
       try {
@@ -369,11 +435,23 @@ public abstract class LuceneIndexer
       }
    }
 
+   /**
+    * Index.
+    *
+    * @param chronicle the chronicle
+    * @return the future
+    */
    @Override
    public final Future<Long> index(ObjectChronology<?> chronicle) {
       return index((() -> new AddDocument(chronicle)), (() -> indexChronicle(chronicle)), chronicle.getNid());
    }
 
+   /**
+    * Merge results on concept.
+    *
+    * @param searchResult the search result
+    * @return the list
+    */
    @Override
    public List<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult) {
       final HashMap<Integer, ConceptSearchResult> merged = new HashMap<>();
@@ -440,7 +518,7 @@ public abstract class LuceneIndexer
    /**
     * A generic query API that handles most common cases.  The cases handled for various component property types
     * are detailed below.
-    *
+    * 
     * NOTE - subclasses of LuceneIndexer may have other query(...) methods that allow for more specific and or complex
     * queries.  Specifically both {@link SememeIndexer} and {@link DescriptionIndexer} have their own
     * query(...) methods which allow for more advanced queries.
@@ -449,23 +527,19 @@ public abstract class LuceneIndexer
     * @param prefixSearch if true, utilize a search algorithm that is optimized for prefix searching, such as the searching
     * that would be done to implement a type-ahead style search.  Does not use the Lucene Query parser.  Every term (or token)
     * that is part of the query string will be required to be found in the result.
-    *
+    * 
     * Note, it is useful to NOT trim the text of the query before it is sent in - if the last word of the query has a
     * space character following it, that word will be required as a complete term.  If the last word of the query does not
     * have a space character following it, that word will be required as a prefix match only.
-    *
+    * 
     * For example:
     * The query "family test" will return results that contain 'Family Testudinidae'
     * The query "family test " will not match on  'Testudinidae', so that will be excluded.
-    *
-    * @param semeneConceptSequence optional - The concept seqeuence of the sememes that you wish to search within.  If null or empty
-    * searches all indexed content.  This would be set to the concept sequence of {@link MetaData#ENGLISH_DESCRIPTION_ASSEMBLAGE}
-    * or the concept sequence {@link MetaData#SCTID} for example.
+    * @param sememeConceptSequence the sememe concept sequence
     * @param sizeLimit The maximum size of the result list.
     * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need
     * to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any in progress
     * indexing operations are completed - and then use the latest index.
-    *
     * @return a List of {@link SearchResult} that contains the nid of the component that matched, and the score of that match relative
     * to other matches.
     */
@@ -476,6 +550,11 @@ public abstract class LuceneIndexer
          int sizeLimit,
          Long targetGeneration);
 
+   /**
+    * Report indexed items.
+    *
+    * @return the hash map
+    */
    @Override
    public HashMap<String, Integer> reportIndexedItems() {
       final HashMap<String, Integer> result = new HashMap<String, Integer>();
@@ -486,8 +565,23 @@ public abstract class LuceneIndexer
       return result;
    }
 
+   /**
+    * Adds the fields.
+    *
+    * @param chronicle the chronicle
+    * @param doc the doc
+    */
    protected abstract void addFields(ObjectChronology<?> chronicle, Document doc);
 
+   /**
+    * Builds the prefix query.
+    *
+    * @param searchString the search string
+    * @param field the field
+    * @param analyzer the analyzer
+    * @return the query
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    protected Query buildPrefixQuery(String searchString, String field, Analyzer analyzer)
             throws IOException {
       final StringReader textReader  = new StringReader(searchString);
@@ -524,6 +618,11 @@ public abstract class LuceneIndexer
     * Create a query that will match on the specified text using either the WhitespaceAnalyzer or the StandardAnalyzer.
     * Uses the Lucene Query Parser if prefixSearch is false, otherwise, uses a custom prefix algorithm.
     * See {@link LuceneIndexer#query(String, boolean, Integer, int, Long)} for details on the prefix search algorithm.
+    *
+    * @param query the query
+    * @param field the field
+    * @param prefixSearch the prefix search
+    * @return the query
     */
    protected Query buildTokenizedStringQuery(String query, String field, boolean prefixSearch) {
       try {
@@ -555,6 +654,11 @@ public abstract class LuceneIndexer
       }
    }
 
+   /**
+    * Increment indexed item count.
+    *
+    * @param name the name
+    */
    protected void incrementIndexedItemCount(String name) {
       AtomicInteger temp = this.indexedComponentStatistics.get(name);
 
@@ -575,8 +679,20 @@ public abstract class LuceneIndexer
       temp.incrementAndGet();
    }
 
+   /**
+    * Index chronicle.
+    *
+    * @param chronicle the chronicle
+    * @return true, if successful
+    */
    protected abstract boolean indexChronicle(ObjectChronology<?> chronicle);
 
+   /**
+    * Release latch.
+    *
+    * @param latchNid the latch nid
+    * @param indexGeneration the index generation
+    */
    protected void releaseLatch(int latchNid, long indexGeneration) {
       final IndexedGenerationCallable latch = this.componentNidLatch.remove(latchNid);
 
@@ -585,6 +701,13 @@ public abstract class LuceneIndexer
       }
    }
 
+   /**
+    * Restrict to sememe.
+    *
+    * @param query the query
+    * @param sememeConceptSequence the sememe concept sequence
+    * @return the query
+    */
    protected Query restrictToSememe(Query query, Integer[] sememeConceptSequence) {
       final ArrayList<Integer> nullSafe = new ArrayList<>();
 
@@ -617,6 +740,7 @@ public abstract class LuceneIndexer
 
    /**
     * Subclasses may call this method with much more specific queries than this generic class is capable of constructing.
+    *
     * @param q - the query
     * @param sizeLimit - how many results to return (at most)
     * @param targetGeneration - target generation that must be included in the search or Long.MIN_VALUE if there is no need
@@ -625,7 +749,7 @@ public abstract class LuceneIndexer
     * @param filter - an optional filter on results - if provided, the filter should expect nids, and can return true, if
     * the nid should be allowed in the result, false otherwise.  Note that this may cause large performance slowdowns, depending
     * on the implementation of your filter
-    * @return
+    * @return the list
     */
    protected final List<SearchResult> search(Query q, int sizeLimit, Long targetGeneration, Predicate<Integer> filter) {
       try {
@@ -695,6 +819,14 @@ public abstract class LuceneIndexer
       }
    }
 
+   /**
+    * Index.
+    *
+    * @param documentSupplier the document supplier
+    * @param indexChronicle the index chronicle
+    * @param chronicleNid the chronicle nid
+    * @return the future
+    */
    private Future<Long> index(Supplier<AddDocument> documentSupplier,
                               BooleanSupplier indexChronicle,
                               int chronicleNid) {
@@ -715,11 +847,17 @@ public abstract class LuceneIndexer
       return unindexedFuture;
    }
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       log.info("Starting " + getIndexerName() + " post-construct");
    }
 
+   /**
+    * Start thread.
+    */
    private void startThread() {
       this.reopenThread.setName("Lucene " + this.indexName_ + " Reopen Thread");
       this.reopenThread.setPriority(Math.min(Thread.currentThread()
@@ -728,6 +866,9 @@ public abstract class LuceneIndexer
       this.reopenThread.start();
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       log.info("Stopping " + getIndexerName() + " pre-destroy. ");
@@ -737,16 +878,31 @@ public abstract class LuceneIndexer
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the database folder.
+    *
+    * @return the database folder
+    */
    @Override
    public Path getDatabaseFolder() {
       return this.indexFolder_.toPath();
    }
 
+   /**
+    * Gets the database validity status.
+    *
+    * @return the database validity status
+    */
    @Override
    public DatabaseValidity getDatabaseValidityStatus() {
       return this.databaseValidity;
    }
 
+   /**
+    * Checks if enabled.
+    *
+    * @return true, if enabled
+    */
    @Override
    public boolean isEnabled() {
       return this.enabled_;
@@ -754,6 +910,11 @@ public abstract class LuceneIndexer
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the enabled.
+    *
+    * @param enabled the new enabled
+    */
    @Override
    public void setEnabled(boolean enabled) {
       this.enabled_ = enabled;
@@ -762,6 +923,7 @@ public abstract class LuceneIndexer
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the indexed generation callable.
     *
     * @param nid for the component that the caller wished to wait until it's document is added to the index.
     * @return a {@link IndexedGenerationCallable} object that will block until this indexer has added the
@@ -781,11 +943,21 @@ public abstract class LuceneIndexer
       return indexedLatch;
    }
 
+   /**
+    * Gets the indexer folder.
+    *
+    * @return the indexer folder
+    */
    @Override
    public File getIndexerFolder() {
       return this.indexFolder_;
    }
 
+   /**
+    * Gets the indexer name.
+    *
+    * @return the indexer name
+    */
    @Override
    public String getIndexerName() {
       return this.indexName_;
@@ -793,18 +965,34 @@ public abstract class LuceneIndexer
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class AddDocument.
+    */
    private class AddDocument
             implements Callable<Long> {
+      
+      /** The chronicle. */
       ObjectChronology<?> chronicle = null;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new adds the document.
+       *
+       * @param chronicle the chronicle
+       */
       public AddDocument(ObjectChronology<?> chronicle) {
          this.chronicle = chronicle;
       }
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Call.
+       *
+       * @return the long
+       * @throws Exception the exception
+       */
       @Override
       public Long call()
                throws Exception {
@@ -833,6 +1021,11 @@ public abstract class LuceneIndexer
 
       //~--- get methods ------------------------------------------------------
 
+      /**
+       * Gets the nid.
+       *
+       * @return the nid
+       */
       public int getNid() {
          return this.chronicle.getNid();
       }
@@ -844,16 +1037,26 @@ public abstract class LuceneIndexer
     */
    private static class FutureChecker
             implements Runnable {
+      
+      /** The future. */
       Future<Long> future_;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new future checker.
+       *
+       * @param future the future
+       */
       public FutureChecker(Future<Long> future) {
          this.future_ = future;
       }
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Run.
+       */
       @Override
       public void run() {
          try {
@@ -865,8 +1068,18 @@ public abstract class LuceneIndexer
    }
 
 
+   /**
+    * The Class UnindexedFuture.
+    */
    private static class UnindexedFuture
             implements Future<Long> {
+      
+      /**
+       * Cancel.
+       *
+       * @param mayInterruptIfRunning the may interrupt if running
+       * @return true, if successful
+       */
       @Override
       public boolean cancel(boolean mayInterruptIfRunning) {
          return false;
@@ -874,22 +1087,49 @@ public abstract class LuceneIndexer
 
       //~--- get methods ------------------------------------------------------
 
+      /**
+       * Checks if cancelled.
+       *
+       * @return true, if cancelled
+       */
       @Override
       public boolean isCancelled() {
          return false;
       }
 
+      /**
+       * Checks if done.
+       *
+       * @return true, if done
+       */
       @Override
       public boolean isDone() {
          return true;
       }
 
+      /**
+       * Gets the.
+       *
+       * @return the long
+       * @throws InterruptedException the interrupted exception
+       * @throws ExecutionException the execution exception
+       */
       @Override
       public Long get()
                throws InterruptedException, ExecutionException {
          return Long.MIN_VALUE;
       }
 
+      /**
+       * Gets the.
+       *
+       * @param timeout the timeout
+       * @param unit the unit
+       * @return the long
+       * @throws InterruptedException the interrupted exception
+       * @throws ExecutionException the execution exception
+       * @throws TimeoutException the timeout exception
+       */
       @Override
       public Long get(long timeout, TimeUnit unit)
                throws InterruptedException, ExecutionException, TimeoutException {

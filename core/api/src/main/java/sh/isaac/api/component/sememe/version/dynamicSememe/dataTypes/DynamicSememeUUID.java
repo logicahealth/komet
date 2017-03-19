@@ -52,15 +52,25 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeUUID}
+ * {@link DynamicSememeUUID}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface DynamicSememeUUID
         extends DynamicSememeData {
+   
+   /**
+    * Gets the data UUID.
+    *
+    * @return the data UUID
+    */
    public UUID getDataUUID();
 
+   /**
+    * Gets the data UUID property.
+    *
+    * @return the data UUID property
+    */
    public ReadOnlyObjectProperty<UUID> getDataUUIDProperty();
 }
 

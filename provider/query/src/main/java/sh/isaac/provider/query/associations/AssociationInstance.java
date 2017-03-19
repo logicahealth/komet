@@ -61,17 +61,29 @@ import sh.isaac.model.configuration.LanguageCoordinates;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link AssociationInstance}
+ * {@link AssociationInstance}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class AssociationInstance {
+   
+   /** The sememe. */
    private final DynamicSememe<?>          sememe_;
+   
+   /** The stamp coord. */
    private final StampCoordinate           stampCoord_;
+   
+   /** The assn type. */
    private transient AssociationType assnType_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new association instance.
+    *
+    * @param data the data
+    * @param stampCoordinate the stamp coordinate
+    */
    // TODO Write the code that checks the index states on startup
    private AssociationInstance(DynamicSememe<?> data, StampCoordinate stampCoordinate) {
       this.sememe_     = data;
@@ -82,16 +94,20 @@ public class AssociationInstance {
 
    /**
     * Read the dynamic sememe instance (that represents an association) and turn it into an association object.
+    *
     * @param data - the sememe to read
     * @param stampCoordinate - optional - only used during readback of the association type - will only be utilized
     * if one calls {@link AssociationInstance#getAssociationType()} - see {@link AssociationType#read(int, StampCoordinate)}
-    * @return
+    * @return the association instance
     */
    public static AssociationInstance read(DynamicSememe<?> data, StampCoordinate stampCoordinate) {
       return new AssociationInstance(data, stampCoordinate);
    }
 
    /**
+    * To string.
+    *
+    * @return the string
     * @see java.lang.Object#toString()
     */
    @Override
@@ -111,6 +127,11 @@ public class AssociationInstance {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the association type.
+    *
+    * @return the association type
+    */
    public AssociationType getAssociationType() {
       if (this.assnType_ == null) {
          this.assnType_ = AssociationType.read(this.sememe_.getAssemblageSequence(),
@@ -122,17 +143,26 @@ public class AssociationInstance {
    }
 
    /**
+    * Gets the association type sequenece.
+    *
     * @return the concept sequence of the association type concept (without incurring the overhead of reading the AssoicationType object)
     */
    public int getAssociationTypeSequenece() {
       return this.sememe_.getAssemblageSequence();
    }
 
+   /**
+    * Gets the data.
+    *
+    * @return the data
+    */
    public DynamicSememe<?> getData() {
       return this.sememe_;
    }
 
    /**
+    * Gets the source component.
+    *
     * @return the source component of the association.
     */
    public ObjectChronology<? extends StampedVersion> getSourceComponent() {
@@ -142,6 +172,8 @@ public class AssociationInstance {
    }
 
    /**
+    * Gets the source component data.
+    *
     * @return the nid of the source component of the association
     */
    public int getSourceComponentData() {
@@ -149,6 +181,8 @@ public class AssociationInstance {
    }
 
    /**
+    * Gets the target component.
+    *
     * @return - the target component (if any) linked by this association instance
     * This may return an empty if there was no target linked, or, if the target linked
     * was a UUID that isn't resolveable in this DB (in which case, see the {@link #getTargetComponentData()} method)
@@ -183,6 +217,8 @@ public class AssociationInstance {
    }
 
    /**
+    * Gets the target component data.
+    *
     * @return the raw target component data - which will be of type {@link DynamicSememeNidBI} or {@link DynamicSememeUUID}
     * or, it may be empty, if there was not target.
     */

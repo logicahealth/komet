@@ -97,40 +97,90 @@ import sh.isaac.provider.workflow.user.SimpleUserRoleService;
  */
 @HK2("integration")
 public class WorkflowFrameworkTest {
+   
+   /** The Constant LOG. */
    private static final Logger   LOG                        = LogManager.getLogger();
+   
+   /** The Constant LAUNCH_STATE. */
    private static final String   LAUNCH_STATE               = "Ready for Edit";
+   
+   /** The Constant LAUNCH_ACTION. */
    private static final String   LAUNCH_ACTION              = "Edit";
+   
+   /** The Constant LAUNCH_OUTCOME. */
    private static final String   LAUNCH_OUTCOME             = "Ready for Review";
+   
+   /** The Constant LAUNCH_COMMENT. */
    private static final String   LAUNCH_COMMENT             = "Launch Comment";
+   
+   /** The Constant SEND_TO_APPROVAL_STATE. */
    private static final String   SEND_TO_APPROVAL_STATE     = "Ready for Review";
+   
+   /** The Constant SEND_TO_APPROVAL_ACTION. */
    private static final String   SEND_TO_APPROVAL_ACTION    = "Review";
+   
+   /** The Constant SEND_TO_APPROVAL_OUTCOME. */
    private static final String   SEND_TO_APPROVAL_OUTCOME   = "Ready for Approve";
+   
+   /** The Constant SEND_TO_APPROVAL_COMMENT. */
    private static final String   SEND_TO_APPROVAL_COMMENT   = "Sending for Approval";
+   
+   /** The Constant REJECT_REVIEW_STATE. */
    private static final String   REJECT_REVIEW_STATE        = "Ready for Review";
+   
+   /** The Constant REJECT_REVIEW_ACTION. */
    private static final String   REJECT_REVIEW_ACTION       = "Reject QA";
+   
+   /** The Constant REJECT_REVIEW_OUTCOME. */
    private static final String   REJECT_REVIEW_OUTCOME      = "Ready for Edit";
+   
+   /** The Constant REJECT_REVIEW_COMMENT. */
    private static final String   REJECT_REVIEW_COMMENT      = "Rejecting QA sending back to Edit";
+   
+   /** The Constant CONCLUDED_WORKFLOW_COMMENT. */
    protected static final String CONCLUDED_WORKFLOW_COMMENT = "Concluded Workflow";
+   
+   /** The Constant CANCELED_WORKFLOW_COMMENT. */
    protected static final String CANCELED_WORKFLOW_COMMENT  = "Canceled Workflow";
 
    /** The bpmn file path. */
    private static final String BPMN_FILE_PATH =
       "/sh/isaac/integration/tests/StaticWorkflowIntegrationTestingDefinition.bpmn2";
+   
+   /** The user id. */
    private static UUID              userId;
+   
+   /** The first test concept nid. */
    private static int               firstTestConceptNid;
+   
+   /** The second test concept nid. */
    private static int               secondTestConceptNid;
+   
+   /** The cancel action. */
    protected static AvailableAction cancelAction;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The wp. */
    WorkflowProvider        wp_;
+   
+   /** The default edit coordinate. */
    private EditCoordinate  defaultEditCoordinate;
+   
+   /** The default stamp coordinate. */
    private StampCoordinate defaultStampCoordinate;
+   
+   /** The module seq. */
    private int             moduleSeq;
+   
+   /** The path seq. */
    private int             pathSeq;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Test cancel activation of components.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -140,6 +190,9 @@ public class WorkflowFrameworkTest {
       LOG.info("Testing Ability to cancel change on a concept and a sememe made active when originally was inactive");
    }
 
+   /**
+    * Test cancel editing of sememe.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -205,6 +258,9 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Test cancel inactivation of components.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -270,6 +326,9 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Test cancel new components.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -279,6 +338,9 @@ public class WorkflowFrameworkTest {
       LOG.info("Testing Ability to cancel new concept reverting it entirely");
    }
 
+   /**
+    * Test cancel new sememe.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -288,6 +350,9 @@ public class WorkflowFrameworkTest {
       LOG.info("Testing Ability to cancel new sememe reverting it entirely");
    }
 
+   /**
+    * Test cancel no launch.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -321,6 +386,9 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Test conclude no launch.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -354,6 +422,9 @@ public class WorkflowFrameworkTest {
             .getStatus());
    }
 
+   /**
+    * Test fail cancel call.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -403,6 +474,9 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Test fail conclude.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -469,6 +543,9 @@ public class WorkflowFrameworkTest {
 
    // TODO: Decide if prevent multiple processes with same name
 
+   /**
+    * Test fail define after launched.
+    */
    /*
     * @Test(groups = { "wf" }, dependsOnMethods = { "testLoadWorkflow" })
     * public void testFailDefineAfterDefineSameName() { LOG.
@@ -538,6 +615,9 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Test fail launch.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -568,6 +648,11 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Test integration add commit record to workflow.
+    *
+    * @throws Exception the exception
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -643,6 +728,11 @@ public class WorkflowFrameworkTest {
 //                  Assert.assertTrue(secondCommitRecordStamp.equals(details.getComponentToInitialEditMap().get(secondTestConceptNid)));
    }
 
+   /**
+    * Test integration failures with add remove components to process.
+    *
+    * @throws Exception the exception
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -742,6 +832,11 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Test integration remove components from process.
+    *
+    * @throws Exception the exception
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -799,6 +894,9 @@ public class WorkflowFrameworkTest {
                                     .size());
    }
 
+   /**
+    * Test load workflow.
+    */
    @Test(
       groups          = { "wf" },
       dependsOnGroups = { "load" }
@@ -830,6 +928,9 @@ public class WorkflowFrameworkTest {
       secondTestConceptNid = MetaData.ACCEPTABLE.getNid();
    }
 
+   /**
+    * Test process time fields.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -904,6 +1005,9 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Test redefine call.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -953,6 +1057,9 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Test start all fail conclude.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -1020,6 +1127,9 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Test start all pass conclude.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -1101,6 +1211,9 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Test start cancel.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -1148,6 +1261,9 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Test status accessor component in active workflow.
+    */
    @Test(
       groups           = { "wf" },
       dependsOnMethods = { "testLoadWorkflow" }
@@ -1225,6 +1341,11 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Cancel workflow.
+    *
+    * @param processId the process id
+    */
    protected void cancelWorkflow(UUID processId) {
       try {
          Thread.sleep(1);
@@ -1234,14 +1355,31 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Creates the first workflow process.
+    *
+    * @param requestedDefinitionId the requested definition id
+    * @return the uuid
+    */
    protected UUID createFirstWorkflowProcess(UUID requestedDefinitionId) {
       return createWorkflowProcess(requestedDefinitionId, "Main Process Name", "Main Process Description");
    }
 
+   /**
+    * Creates the second workflow process.
+    *
+    * @param requestedDefinitionId the requested definition id
+    * @return the uuid
+    */
    protected UUID createSecondWorkflowProcess(UUID requestedDefinitionId) {
       return createWorkflowProcess(requestedDefinitionId, "Secondary Process Name", "Secondary Process Description");
    }
 
+   /**
+    * Execute launch workflow.
+    *
+    * @param processId the process id
+    */
    protected void executeLaunchWorkflow(UUID processId) {
       try {
          Thread.sleep(1);
@@ -1258,6 +1396,11 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Execute reject review advancement.
+    *
+    * @param requestedProcessId the requested process id
+    */
    protected void executeRejectReviewAdvancement(UUID requestedProcessId) {
       try {
          Thread.sleep(1);
@@ -1281,6 +1424,11 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Execute send for approval advancement.
+    *
+    * @param requestedProcessId the requested process id
+    */
    protected void executeSendForApprovalAdvancement(UUID requestedProcessId) {
       try {
          Thread.sleep(1);
@@ -1304,6 +1452,11 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Execute send for review advancement.
+    *
+    * @param processId the process id
+    */
    protected void executeSendForReviewAdvancement(UUID processId) {
       final ProcessDetail entry = this.wp_.getProcessDetailStore()
                                .get(processId);
@@ -1330,6 +1483,9 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Clear stores.
+    */
    private void clearStores() {
       this.wp_.getProcessDetailStore()
          .clear();
@@ -1337,6 +1493,15 @@ public class WorkflowFrameworkTest {
          .clear();
    }
 
+   /**
+    * Clone version.
+    *
+    * @param semChron the sem chron
+    * @param state the state
+    * @return the description sememe impl
+    * @throws InterruptedException the interrupted exception
+    * @throws ExecutionException the execution exception
+    */
    private DescriptionSememeImpl cloneVersion(SememeChronologyImpl semChron,
          State state)
             throws InterruptedException,
@@ -1358,6 +1523,15 @@ public class WorkflowFrameworkTest {
       return createdVersion;
    }
 
+   /**
+    * Creates the new version.
+    *
+    * @param conNid the con nid
+    * @param semNid the sem nid
+    * @return the optional
+    * @throws InterruptedException the interrupted exception
+    * @throws ExecutionException the execution exception
+    */
    private Optional<CommitRecord> createNewVersion(Integer conNid,
          Integer semNid)
             throws InterruptedException,
@@ -1387,6 +1561,13 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Creates the stamp.
+    *
+    * @param userSeq the user seq
+    * @param state the state
+    * @return the stamp
+    */
    private Stamp createStamp(int userSeq, State state) {
       if ((this.moduleSeq < 0) || (this.pathSeq < 0)) {
          if (Get.configurationService()
@@ -1410,6 +1591,12 @@ public class WorkflowFrameworkTest {
       return new Stamp(state, new Date().getTime(), this.moduleSeq, userSeq, this.pathSeq);
    }
 
+   /**
+    * Creates the stamp from commit record.
+    *
+    * @param commitRecord the commit record
+    * @return the stamp
+    */
    private Stamp createStampFromCommitRecord(Optional<CommitRecord> commitRecord) {
       final int   stampSeq = commitRecord.get()
                                    .getStampsInCommit()
@@ -1429,6 +1616,14 @@ public class WorkflowFrameworkTest {
       return new Stamp(status, time, author, module, path);
    }
 
+   /**
+    * Creates the workflow process.
+    *
+    * @param requestedDefinitionId the requested definition id
+    * @param name the name
+    * @param description the description
+    * @return the uuid
+    */
    private UUID createWorkflowProcess(UUID requestedDefinitionId, String name, String description) {
       final AvailableAction startNodeAction = this.wp_.getBPMNInfo()
                                            .getDefinitionStartActionMap()
@@ -1468,6 +1663,16 @@ public class WorkflowFrameworkTest {
       return processId;
    }
 
+   /**
+    * Finish workflow process.
+    *
+    * @param processId the process id
+    * @param actionToProcess the action to process
+    * @param userId the user id
+    * @param comment the comment
+    * @param endType the end type
+    * @throws Exception the exception
+    */
    private void finishWorkflowProcess(UUID processId,
                                       AvailableAction actionToProcess,
                                       UUID userId,
@@ -1511,6 +1716,13 @@ public class WorkflowFrameworkTest {
       }
    }
 
+   /**
+    * Verify state.
+    *
+    * @param con the con
+    * @param descSem the desc sem
+    * @param state the state
+    */
    private void verifyState(ConceptChronology<? extends ConceptVersion<?>> con,
                             SememeChronology<? extends DescriptionSememe<?>> descSem,
                             State state) {
@@ -1537,6 +1749,11 @@ public class WorkflowFrameworkTest {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the cancel action.
+    *
+    * @return the cancel action
+    */
    private AvailableAction getCancelAction() {
       return this.wp_.getBPMNInfo()
                 .getEndWorkflowTypeMap()
@@ -1545,6 +1762,11 @@ public class WorkflowFrameworkTest {
                 .next();
    }
 
+   /**
+    * Gets the conclude action.
+    *
+    * @return the conclude action
+    */
    private AvailableAction getConcludeAction() {
       return this.wp_.getBPMNInfo()
                 .getEndWorkflowTypeMap()
@@ -1553,6 +1775,13 @@ public class WorkflowFrameworkTest {
                 .next();
    }
 
+   /**
+    * Checks if end state.
+    *
+    * @param state the state
+    * @param type the type
+    * @return true, if end state
+    */
    private boolean isEndState(String state, EndWorkflowType type) {
       for (final AvailableAction action: this.wp_.getBPMNInfo()
                                       .getEndWorkflowTypeMap()
@@ -1566,6 +1795,13 @@ public class WorkflowFrameworkTest {
       return false;
    }
 
+   /**
+    * Checks if start state.
+    *
+    * @param defId the def id
+    * @param state the state
+    * @return true, if start state
+    */
    private boolean isStartState(UUID defId, String state) {
       for (final AvailableAction action: this.wp_.getBPMNInfo()
                                       .getDefinitionStartActionMap()
@@ -1581,6 +1817,11 @@ public class WorkflowFrameworkTest {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set up users.
+    *
+    * @throws Exception the exception
+    */
    @BeforeGroups(groups = { "wf" })
    public void setUpUsers()
             throws Exception {

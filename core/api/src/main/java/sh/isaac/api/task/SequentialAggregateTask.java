@@ -52,24 +52,37 @@ import sh.isaac.api.Get;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class SequentialAggregateTask.
  *
  * @author kec
+ * @param <T> the generic type
  */
 public class SequentialAggregateTask<T>
         extends TimedTask<T> {
+   
+   /** The current task. */
    int       currentTask = 0;
+   
+   /** The sub tasks. */
    Task<?>[] subTasks;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new sequential aggregate task.
+    *
+    * @param title the title
+    * @param subTasks the sub tasks
+    */
    public SequentialAggregateTask(String title, Collection<Task<?>> subTasks) {
       this(title, subTasks.toArray(new Task<?>[subTasks.size()]));
    }
 
    /**
+    * Instantiates a new sequential aggregate task.
     *
     * @param title Title for the aggregate task
-    * @param subTasks
+    * @param subTasks the sub tasks
     */
    public SequentialAggregateTask(String title, Task<?>[] subTasks) {
       this.subTasks = subTasks;
@@ -125,6 +138,7 @@ public class SequentialAggregateTask<T>
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the sub tasks.
     *
     * @return the sub tasks of this aggregate task.
     */

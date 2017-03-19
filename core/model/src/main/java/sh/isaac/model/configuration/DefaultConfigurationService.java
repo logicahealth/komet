@@ -88,30 +88,56 @@ import sh.isaac.api.observable.coordinate.ObservableTaxonomyCoordinate;
 @Singleton
 public class DefaultConfigurationService
          implements ConfigurationService {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The data store folder path. */
    private Path              dataStoreFolderPath_       = null;
+   
+   /** The default coordinate provider. */
    DefaultCoordinateProvider defaultCoordinateProvider_ = new DefaultCoordinateProvider();
+   
+   /** The init complete. */
    private volatile boolean  initComplete_              = false;
+   
+   /** The bootstrap mode. */
    private boolean           bootstrapMode              = false;
+   
+   /** The db build mode. */
    private boolean           dbBuildMode                = false;
+   
+   /** The git config info. */
    private RemoteServiceInfo gitConfigInfo              = null;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new default configuration service.
+    */
    private DefaultConfigurationService() {
       // only for HK2
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * In bootstrap mode.
+    *
+    * @return true, if successful
+    */
    @Override
    public boolean inBootstrapMode() {
       return this.bootstrapMode;
    }
 
+   /**
+    * In DB build mode.
+    *
+    * @return true, if successful
+    */
    @Override
    public boolean inDBBuildMode() {
       return this.dbBuildMode;
@@ -119,11 +145,17 @@ public class DefaultConfigurationService
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set bootstrap mode.
+    */
    @Override
    public void setBootstrapMode() {
       this.bootstrapMode = true;
    }
 
+   /**
+    * Set DB build mode.
+    */
    @Override
    public void setDBBuildMode() {
       this.dbBuildMode = true;
@@ -132,8 +164,10 @@ public class DefaultConfigurationService
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * @see
-    * sh.isaac.api.ConfigurationService#getDataStoreFolderPath()
+    * Gets the data store folder path.
+    *
+    * @return the data store folder path
+    * @see sh.isaac.api.ConfigurationService#getDataStoreFolderPath()
     */
    @Override
    public Optional<Path> getDataStoreFolderPath() {
@@ -178,8 +212,12 @@ public class DefaultConfigurationService
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * @see
-    * sh.isaac.api.ConfigurationService#setDataStoreFolderPath(java.nio.file.Path)
+    * Sets the data store folder path.
+    *
+    * @param dataStoreFolderPath the new data store folder path
+    * @throws IllegalStateException the illegal state exception
+    * @throws IllegalArgumentException the illegal argument exception
+    * @see sh.isaac.api.ConfigurationService#setDataStoreFolderPath(java.nio.file.Path)
     */
    @Override
    public void setDataStoreFolderPath(Path dataStoreFolderPath)
@@ -207,21 +245,41 @@ public class DefaultConfigurationService
       this.dataStoreFolderPath_ = dataStoreFolderPath;
    }
 
+   /**
+    * Sets the default classifier.
+    *
+    * @param conceptId the new default classifier
+    */
    @Override
    public void setDefaultClassifier(int conceptId) {
       this.defaultCoordinateProvider_.setDefaultClassifier(conceptId);
    }
 
+   /**
+    * Sets the default description logic profile.
+    *
+    * @param conceptId the new default description logic profile
+    */
    @Override
    public void setDefaultDescriptionLogicProfile(int conceptId) {
       this.defaultCoordinateProvider_.setDefaultDescriptionLogicProfile(conceptId);
    }
 
+   /**
+    * Sets the default description type preference list.
+    *
+    * @param descriptionTypePreferenceList the new default description type preference list
+    */
    @Override
    public void setDefaultDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
       this.defaultCoordinateProvider_.setDefaultDescriptionTypePreferenceList(descriptionTypePreferenceList);
    }
 
+   /**
+    * Sets the default dialect assemblage preference list.
+    *
+    * @param dialectAssemblagePreferenceList the new default dialect assemblage preference list
+    */
    @Override
    public void setDefaultDialectAssemblagePreferenceList(int[] dialectAssemblagePreferenceList) {
       this.defaultCoordinateProvider_.setDefaultDialectAssemblagePreferenceList(dialectAssemblagePreferenceList);
@@ -229,6 +287,11 @@ public class DefaultConfigurationService
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the default edit coordinate.
+    *
+    * @return the default edit coordinate
+    */
    @Override
    public ObservableEditCoordinate getDefaultEditCoordinate() {
       return this.defaultCoordinateProvider_.getDefaultEditCoordinate();
@@ -236,11 +299,21 @@ public class DefaultConfigurationService
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the default inferred assemblage.
+    *
+    * @param conceptId the new default inferred assemblage
+    */
    @Override
    public void setDefaultInferredAssemblage(int conceptId) {
       this.defaultCoordinateProvider_.setDefaultInferredAssemblage(conceptId);
    }
 
+   /**
+    * Sets the default language.
+    *
+    * @param conceptId the new default language
+    */
    @Override
    public void setDefaultLanguage(int conceptId) {
       this.defaultCoordinateProvider_.setDefaultLanguage(conceptId);
@@ -248,11 +321,21 @@ public class DefaultConfigurationService
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the default language coordinate.
+    *
+    * @return the default language coordinate
+    */
    @Override
    public ObservableLanguageCoordinate getDefaultLanguageCoordinate() {
       return this.defaultCoordinateProvider_.getDefaultLanguageCoordinate();
    }
 
+   /**
+    * Gets the default logic coordinate.
+    *
+    * @return the default logic coordinate
+    */
    @Override
    public ObservableLogicCoordinate getDefaultLogicCoordinate() {
       return this.defaultCoordinateProvider_.getDefaultLogicCoordinate();
@@ -260,11 +343,21 @@ public class DefaultConfigurationService
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the default module.
+    *
+    * @param conceptId the new default module
+    */
    @Override
    public void setDefaultModule(int conceptId) {
       this.defaultCoordinateProvider_.setDefaultModule(conceptId);
    }
 
+   /**
+    * Sets the default path.
+    *
+    * @param conceptId the new default path
+    */
    @Override
    public void setDefaultPath(int conceptId) {
       this.defaultCoordinateProvider_.setDefaultPath(conceptId);
@@ -272,6 +365,11 @@ public class DefaultConfigurationService
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the default stamp coordinate.
+    *
+    * @return the default stamp coordinate
+    */
    @Override
    public ObservableStampCoordinate getDefaultStampCoordinate() {
       return this.defaultCoordinateProvider_.getDefaultStampCoordinate();
@@ -279,6 +377,11 @@ public class DefaultConfigurationService
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the default stated assemblage.
+    *
+    * @param conceptId the new default stated assemblage
+    */
    @Override
    public void setDefaultStatedAssemblage(int conceptId) {
       this.defaultCoordinateProvider_.setDefaultStatedAssemblage(conceptId);
@@ -286,6 +389,11 @@ public class DefaultConfigurationService
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the default taxonomy coordinate.
+    *
+    * @return the default taxonomy coordinate
+    */
    @Override
    public ObservableTaxonomyCoordinate getDefaultTaxonomyCoordinate() {
       return this.defaultCoordinateProvider_.getDefaultTaxonomyCoordinate();
@@ -293,11 +401,21 @@ public class DefaultConfigurationService
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the default time.
+    *
+    * @param timeInMs the new default time
+    */
    @Override
    public void setDefaultTime(long timeInMs) {
       this.defaultCoordinateProvider_.setDefaultTime(timeInMs);
    }
 
+   /**
+    * Sets the default user.
+    *
+    * @param conceptId the new default user
+    */
    @Override
    public void setDefaultUser(int conceptId) {
       this.defaultCoordinateProvider_.setDefaultUser(conceptId);
@@ -305,6 +423,11 @@ public class DefaultConfigurationService
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the git configuration.
+    *
+    * @return the git configuration
+    */
    @Override
    public Optional<RemoteServiceInfo> getGitConfiguration() {
       return Optional.ofNullable(this.gitConfigInfo);
@@ -312,6 +435,11 @@ public class DefaultConfigurationService
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the git configuration.
+    *
+    * @param gitConfiguration the new git configuration
+    */
    @Override
    public void setGitConfiguration(RemoteServiceInfo gitConfiguration) {
       this.gitConfigInfo = gitConfiguration;

@@ -94,6 +94,7 @@ import sh.isaac.api.identity.StampedVersion;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class IdentifierProvider.
  *
  * @author kec
  */
@@ -101,6 +102,8 @@ import sh.isaac.api.identity.StampedVersion;
 @RunLevel(value = 0)
 public class IdentifierProvider
          implements IdentifierService, IdentifiedObjectService {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    /**
@@ -111,6 +114,7 @@ public class IdentifierProvider
 // {
 //     watchSet.add(UUID.fromString("0418a591-f75b-39ad-be2c-3ab849326da9"));
 //     watchSet.add(UUID.fromString("4459d8cf-5a6f-3952-9458-6d64324b27b7"));
+/** The thread local cache. */
 // }
    private static ThreadLocal<LinkedHashMap<UUID, Integer>> THREAD_LOCAL_CACHE = new ThreadLocal() {
       @Override
@@ -121,15 +125,31 @@ public class IdentifierProvider
 
    //~--- fields --------------------------------------------------------------
 
+   /** The load required. */
    private final AtomicBoolean loadRequired     = new AtomicBoolean();
+   
+   /** The database validity. */
    private DatabaseValidity    databaseValidity = DatabaseValidity.NOT_SET;
+   
+   /** The folder path. */
    private final Path          folderPath;
+   
+   /** The uuid int map map. */
    private final UuidIntMapMap uuidIntMapMap;
+   
+   /** The concept sequence map. */
    private final SequenceMap   conceptSequenceMap;
+   
+   /** The sememe sequence map. */
    private final SequenceMap   sememeSequenceMap;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new identifier provider.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private IdentifierProvider()
             throws IOException {
       // for HK2
@@ -151,11 +171,20 @@ public class IdentifierProvider
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the uuid for nid.
+    *
+    * @param uuid the uuid
+    * @param nid the nid
+    */
    @Override
    public void addUuidForNid(UUID uuid, int nid) {
       this.uuidIntMapMap.put(uuid, nid);
    }
 
+   /**
+    * Clear database validity value.
+    */
    @Override
    public void clearDatabaseValidityValue() {
       // Reset to enforce analysis
@@ -199,6 +228,9 @@ public class IdentifierProvider
       // provide minimal gain
    }
 
+   /**
+    * Reset.
+    */
    protected static void reset() {
       THREAD_LOCAL_CACHE = new ThreadLocal() {
          @Override
@@ -208,6 +240,9 @@ public class IdentifierProvider
       };
    }
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       try {
@@ -246,6 +281,9 @@ public class IdentifierProvider
       }
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       try {
@@ -264,6 +302,12 @@ public class IdentifierProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the chronology type for nid.
+    *
+    * @param nid the nid
+    * @return the chronology type for nid
+    */
    @Override
    public ObjectChronologyType getChronologyTypeForNid(int nid) {
       if (this.sememeSequenceMap.containsNid(nid)) {
@@ -277,6 +321,14 @@ public class IdentifierProvider
       return ObjectChronologyType.UNKNOWN_NID;
    }
 
+   /**
+    * Gets the concept identifier for authority.
+    *
+    * @param conceptId the concept id
+    * @param identifierAuthorityUuid the identifier authority uuid
+    * @param stampCoordinate the stamp coordinate
+    * @return the concept identifier for authority
+    */
    @Override
    public Optional<LatestVersion<String>> getConceptIdentifierForAuthority(int conceptId,
          UUID identifierAuthorityUuid,
@@ -285,6 +337,12 @@ public class IdentifierProvider
       return getIdentifierForAuthority(conceptId, identifierAuthorityUuid, stampCoordinate);
    }
 
+   /**
+    * Gets the concept nid.
+    *
+    * @param conceptSequence the concept sequence
+    * @return the concept nid
+    */
    @Override
    public int getConceptNid(int conceptSequence) {
       if (conceptSequence < 0) {
@@ -300,6 +358,12 @@ public class IdentifierProvider
       return conceptNid;
    }
 
+   /**
+    * Gets the concept nids for concept sequences.
+    *
+    * @param conceptSequences the concept sequences
+    * @return the concept nids for concept sequences
+    */
    @Override
    public IntStream getConceptNidsForConceptSequences(IntStream conceptSequences) {
       return conceptSequences.map((sequence) -> {
@@ -307,6 +371,12 @@ public class IdentifierProvider
                                   });
    }
 
+   /**
+    * Gets the concept sequence.
+    *
+    * @param nid the nid
+    * @return the concept sequence
+    */
    @Override
    public int getConceptSequence(int nid) {
       if (nid >= 0) {
@@ -316,26 +386,55 @@ public class IdentifierProvider
       return this.conceptSequenceMap.addNidIfMissing(nid);
    }
 
+   /**
+    * Gets the concept sequence for proxy.
+    *
+    * @param conceptProxy the concept proxy
+    * @return the concept sequence for proxy
+    */
    @Override
    public int getConceptSequenceForProxy(ConceptSpecification conceptProxy) {
       return getConceptSequence(getNidForProxy(conceptProxy));
    }
 
+   /**
+    * Gets the concept sequence for uuids.
+    *
+    * @param uuids the uuids
+    * @return the concept sequence for uuids
+    */
    @Override
    public int getConceptSequenceForUuids(Collection<UUID> uuids) {
       return getConceptSequenceForUuids(uuids.toArray(new UUID[uuids.size()]));
    }
 
+   /**
+    * Gets the concept sequence for uuids.
+    *
+    * @param uuids the uuids
+    * @return the concept sequence for uuids
+    */
    @Override
    public int getConceptSequenceForUuids(UUID... uuids) {
       return getConceptSequence(getNidForUuids(uuids));
    }
 
+   /**
+    * Gets the concept sequence stream.
+    *
+    * @return the concept sequence stream
+    */
    @Override
    public IntStream getConceptSequenceStream() {
       return this.conceptSequenceMap.getSequenceStream();
    }
 
+   /**
+    * Gets the concept sequences for concept nids.
+    *
+    * @param conceptNidArray the concept nid array
+    * @return the concept sequences for concept nids
+    */
    @Override
    public ConceptSequenceSet getConceptSequencesForConceptNids(int[] conceptNidArray) {
       final ConceptSequenceSet sequences = new ConceptSequenceSet();
@@ -345,6 +444,12 @@ public class IdentifierProvider
       return sequences;
    }
 
+   /**
+    * Gets the concept sequences for concept nids.
+    *
+    * @param conceptNidSet the concept nid set
+    * @return the concept sequences for concept nids
+    */
    @Override
    public ConceptSequenceSet getConceptSequencesForConceptNids(NidSet conceptNidSet) {
       final ConceptSequenceSet sequences = new ConceptSequenceSet();
@@ -354,16 +459,32 @@ public class IdentifierProvider
       return sequences;
    }
 
+   /**
+    * Gets the database folder.
+    *
+    * @return the database folder
+    */
    @Override
    public Path getDatabaseFolder() {
       return this.folderPath;
    }
 
+   /**
+    * Gets the database validity status.
+    *
+    * @return the database validity status
+    */
    @Override
    public DatabaseValidity getDatabaseValidityStatus() {
       return this.databaseValidity;
    }
 
+   /**
+    * Gets the identified object chronology.
+    *
+    * @param nid the nid
+    * @return the identified object chronology
+    */
    @Override
    public Optional<? extends ObjectChronology<? extends StampedVersion>> getIdentifiedObjectChronology(int nid) {
       switch (getChronologyTypeForNid(nid)) {
@@ -382,6 +503,14 @@ public class IdentifierProvider
       throw new UnsupportedOperationException("Unknown chronology type: " + getChronologyTypeForNid(nid));
    }
 
+   /**
+    * Gets the identifier for authority.
+    *
+    * @param nid the nid
+    * @param identifierAuthorityUuid the identifier authority uuid
+    * @param stampCoordinate the stamp coordinate
+    * @return the identifier for authority
+    */
    @Override
    public Optional<LatestVersion<String>> getIdentifierForAuthority(int nid,
          UUID identifierAuthorityUuid,
@@ -411,22 +540,45 @@ public class IdentifierProvider
                           });
    }
 
+   /**
+    * Gets the max nid.
+    *
+    * @return the max nid
+    */
    @Override
    public int getMaxNid() {
       return UuidIntMapMap.getNextNidProvider()
                           .get();
    }
 
+   /**
+    * Gets the nid for proxy.
+    *
+    * @param conceptProxy the concept proxy
+    * @return the nid for proxy
+    */
    @Override
    public int getNidForProxy(ConceptSpecification conceptProxy) {
       return getNidForUuids(conceptProxy.getUuids());
    }
 
+   /**
+    * Gets the nid for uuids.
+    *
+    * @param uuids the uuids
+    * @return the nid for uuids
+    */
    @Override
    public int getNidForUuids(Collection<UUID> uuids) {
       return getNidForUuids(uuids.toArray(new UUID[uuids.size()]));
    }
 
+   /**
+    * Gets the nid for uuids.
+    *
+    * @param uuids the uuids
+    * @return the nid for uuids
+    */
    @Override
    public int getNidForUuids(UUID... uuids) {
       final LinkedHashMap<UUID, Integer> cacheMap = THREAD_LOCAL_CACHE.get();
@@ -460,18 +612,33 @@ public class IdentifierProvider
       return nid;
    }
 
+   /**
+    * Gets the parallel concept sequence stream.
+    *
+    * @return the parallel concept sequence stream
+    */
    @Override
    public IntStream getParallelConceptSequenceStream() {
       return this.conceptSequenceMap.getSequenceStream()
                                .parallel();
    }
 
+   /**
+    * Gets the parallel sememe sequence stream.
+    *
+    * @return the parallel sememe sequence stream
+    */
    @Override
    public IntStream getParallelSememeSequenceStream() {
       return this.sememeSequenceMap.getSequenceStream()
                               .parallel();
    }
 
+   /**
+    * Checks if populated.
+    *
+    * @return true, if populated
+    */
    /*
     * Investigate if "uuid-nid-map" directory is populated with at least one *.map file.
     */
@@ -482,6 +649,12 @@ public class IdentifierProvider
       return numberOfSegmentFiles > 0;
    }
 
+   /**
+    * Gets the sememe nid.
+    *
+    * @param sememeId the sememe id
+    * @return the sememe nid
+    */
    @Override
    public int getSememeNid(int sememeId) {
       if (sememeId < 0) {
@@ -491,6 +664,12 @@ public class IdentifierProvider
       return this.sememeSequenceMap.getNidFast(sememeId);
    }
 
+   /**
+    * Gets the sememe nids for sememe sequences.
+    *
+    * @param sememSequences the semem sequences
+    * @return the sememe nids for sememe sequences
+    */
    @Override
    public IntStream getSememeNidsForSememeSequences(IntStream sememSequences) {
       return sememSequences.map((sequence) -> {
@@ -498,6 +677,12 @@ public class IdentifierProvider
                                 });
    }
 
+   /**
+    * Gets the sememe sequence.
+    *
+    * @param sememeId the sememe id
+    * @return the sememe sequence
+    */
    @Override
    public int getSememeSequence(int sememeId) {
       if (sememeId >= 0) {
@@ -507,21 +692,44 @@ public class IdentifierProvider
       return this.sememeSequenceMap.addNidIfMissing(sememeId);
    }
 
+   /**
+    * Gets the sememe sequence for uuids.
+    *
+    * @param uuids the uuids
+    * @return the sememe sequence for uuids
+    */
    @Override
    public int getSememeSequenceForUuids(Collection<UUID> uuids) {
       return getSememeSequence(getNidForUuids(uuids));
    }
 
+   /**
+    * Gets the sememe sequence for uuids.
+    *
+    * @param uuids the uuids
+    * @return the sememe sequence for uuids
+    */
    @Override
    public int getSememeSequenceForUuids(UUID... uuids) {
       return getSememeSequence(getNidForUuids(uuids));
    }
 
+   /**
+    * Gets the sememe sequence stream.
+    *
+    * @return the sememe sequence stream
+    */
    @Override
    public IntStream getSememeSequenceStream() {
       return this.sememeSequenceMap.getSequenceStream();
    }
 
+   /**
+    * Gets the sememe sequences for sememe nids.
+    *
+    * @param sememeNidArray the sememe nid array
+    * @return the sememe sequences for sememe nids
+    */
    @Override
    public SememeSequenceSet getSememeSequencesForSememeNids(int[] sememeNidArray) {
       final SememeSequenceSet sequences = new SememeSequenceSet();
@@ -531,6 +739,12 @@ public class IdentifierProvider
       return sequences;
    }
 
+   /**
+    * Checks for uuid.
+    *
+    * @param uuids the uuids
+    * @return true, if successful
+    */
    @Override
    public boolean hasUuid(Collection<UUID> uuids) {
       if (uuids == null) {
@@ -551,6 +765,12 @@ public class IdentifierProvider
                   .anyMatch((uuid) -> (this.uuidIntMapMap.containsKey(uuid)));
    }
 
+   /**
+    * Checks for uuid.
+    *
+    * @param uuids the uuids
+    * @return true, if successful
+    */
    @Override
    public boolean hasUuid(UUID... uuids) {
       if (uuids == null) {
@@ -561,6 +781,12 @@ public class IdentifierProvider
                    .anyMatch((uuid) -> (this.uuidIntMapMap.containsKey(uuid)));
    }
 
+   /**
+    * Gets the uuid primordial for nid.
+    *
+    * @param nid the nid
+    * @return the uuid primordial for nid
+    */
    @Override
    public Optional<UUID> getUuidPrimordialForNid(int nid) {
       if (nid > 0) {
@@ -592,18 +818,32 @@ public class IdentifierProvider
       return Optional.empty();
    }
 
+   /**
+    * Gets the uuid primordial from concept id.
+    *
+    * @param conceptId the concept id
+    * @return the uuid primordial from concept id
+    */
    @Override
    public Optional<UUID> getUuidPrimordialFromConceptId(int conceptId) {
       return getUuidPrimordialForNid(getConceptNid(conceptId));
    }
 
+   /**
+    * Gets the uuid primordial from sememe id.
+    *
+    * @param sememeId the sememe id
+    * @return the uuid primordial from sememe id
+    */
    @Override
    public Optional<UUID> getUuidPrimordialFromSememeId(int sememeId) {
       return getUuidPrimordialForNid(getSememeNid(sememeId));
    }
 
    /**
-    * @param nid
+    * Gets the uuids for nid.
+    *
+    * @param nid the nid
     * @return A list of uuids corresponding with a nid.
     */
    @Override

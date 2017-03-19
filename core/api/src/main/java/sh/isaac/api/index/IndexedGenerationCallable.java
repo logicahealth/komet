@@ -58,11 +58,21 @@ import java.util.concurrent.CountDownLatch;
  */
 public class IndexedGenerationCallable
          implements Callable<Long> {
+   
+   /** The latch. */
    private final CountDownLatch latch = new CountDownLatch(1);
+   
+   /** The index generation. */
    private long           indexGeneration;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Call.
+    *
+    * @return the long
+    * @throws Exception the exception
+    */
    @Override
    public Long call()
             throws Exception {
@@ -72,6 +82,11 @@ public class IndexedGenerationCallable
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the index generation.
+    *
+    * @param indexGeneration the new index generation
+    */
    public void setIndexGeneration(long indexGeneration) {
       this.indexGeneration = indexGeneration;
       this.latch.countDown();

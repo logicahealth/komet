@@ -99,25 +99,47 @@ import sh.isaac.api.LookupService;
 @Service
 @RunLevel(value = -2)
 public class WorkExecutors {
+   
+   /** The Constant log. */
    private static final Logger           log             = LogManager.getLogger();
+   
+   /** The non HK 2 instance. */
    private volatile static WorkExecutors nonHK2Instance_ = null;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The fork join executor. */
    private ForkJoinPool             forkJoinExecutor_;
+   
+   /** The blocking thread pool executor. */
    private ThreadPoolExecutor       blockingThreadPoolExecutor_;
+   
+   /** The thread pool executor. */
    private ThreadPoolExecutor       threadPoolExecutor_;
+   
+   /** The io thread pool executor. */
    private ThreadPoolExecutor       ioThreadPoolExecutor_;
+   
+   /** The scheduled executor. */
    private ScheduledExecutorService scheduledExecutor_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new work executors.
+    */
    private WorkExecutors() {
       // For HK2 only
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * The main method.
+    *
+    * @param args the arguments
+    * @throws InterruptedException the interrupted exception
+    */
    public static void main(String[] args)
             throws InterruptedException {
       final WorkExecutors we = new WorkExecutors();
@@ -172,6 +194,9 @@ public class WorkExecutors {
       Thread.sleep(7000);
    }
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       log.info("Starting the WorkExecutors thread pools");
@@ -238,6 +263,9 @@ public class WorkExecutors {
       log.debug("WorkExecutors thread pools ready");
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       log.info("Stopping WorkExecutors thread pools");
@@ -274,6 +302,8 @@ public class WorkExecutors {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the executor.
+    *
     * @return The ISAAC common {@link ThreadPoolExecutor} - (behavior described in the class docs).
     * This is backed by an unbounded queue - it won't block / reject submissions because of being full.
     * This executor has processing threads linkes to the number of CPUs available.  It is good for compute
@@ -284,6 +314,8 @@ public class WorkExecutors {
    }
 
    /**
+    * Gets the fork join pool executor.
+    *
     * @return the ISAAC common {@link ForkJoinPool} instance - (behavior described in the class docs)
     * This is backed by an unbounded queue - it won't block / reject submissions because of being full.
     */
@@ -297,14 +329,15 @@ public class WorkExecutors {
     * A JVM shutdown listener is registered to handle the thread pool shutdown in this case.
     * It is illegal (and will throw a runtime error) to ask for the static instance of this before
     * starting HK2 and then start HK2 - if HK2 is in use in the system, that should manage the lifecycle.
-    *
+    * 
     * This method is the preferred mechanism to get a handle to the WorkExecutors class in an enviornment where
     * code may be executed both in and out of an HK2 managed instance.
-    *
+    * 
     * If your usage is only run inside an HK2 management environment, then you should prefer the HK2 standard mechanisms
     * such as:
     * {@link Get#workExecutors()} or {@link LookupService#getService(WorkExecutors.class)} (however the end result is the same)
-    * @return
+    *
+    * @return the work executors
     */
    public static WorkExecutors get() {
       log.debug("In WorkExectors.get()");
@@ -343,6 +376,8 @@ public class WorkExecutors {
    }
 
    /**
+    * Gets the IO executor.
+    *
     * @return The ISAAC common IO {@link ThreadPoolExecutor} - (behavior described in the class docs).
     * This is backed by an unbounded queue - it won't block / reject submissions because of being full.
     * This executor differs from {@link #getExecutor()} by having a much smaller number of threads - good for
@@ -353,6 +388,8 @@ public class WorkExecutors {
    }
 
    /**
+    * Gets the potentially blocking executor.
+    *
     * @return The ISAAC common {@link ThreadPoolExecutor} - (behavior described in the class docs).
     * This is a synchronous queue - if no thread is available to take a job, it will block until a thread
     * is available to accept the job.
@@ -362,6 +399,8 @@ public class WorkExecutors {
    }
 
    /**
+    * Gets the scheduled thread pool executor.
+    *
     * @return the ISAAC common {@link ScheduledThreadPoolExecutor} instance - (behavior described in the class docs)
     * This pool only has a single thread - submitted jobs should be fast executing.
     */

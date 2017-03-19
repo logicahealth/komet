@@ -62,11 +62,18 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeStringImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeValidatorTypeImplTest}
+ * {@link DynamicSememeValidatorTypeImplTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeValidatorTypeImplTest {
+   
+   /**
+    * Test four.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testFour()
             throws PropertyVetoException, IOException {
@@ -113,6 +120,12 @@ public class DynamicSememeValidatorTypeImplTest {
             null));
    }
 
+   /**
+    * Test interval.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testInterval()
             throws PropertyVetoException, IOException {
@@ -202,6 +215,12 @@ public class DynamicSememeValidatorTypeImplTest {
       }
    }
 
+   /**
+    * Test one.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testOne()
             throws PropertyVetoException, IOException {
@@ -248,6 +267,12 @@ public class DynamicSememeValidatorTypeImplTest {
             null));
    }
 
+   /**
+    * Test regexp.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testRegexp()
             throws PropertyVetoException, IOException {
@@ -277,6 +302,12 @@ public class DynamicSememeValidatorTypeImplTest {
             null));
    }
 
+   /**
+    * Test three.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testThree()
             throws PropertyVetoException, IOException {
@@ -329,6 +360,12 @@ public class DynamicSememeValidatorTypeImplTest {
             null));
    }
 
+   /**
+    * Test two.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testTwo()
             throws PropertyVetoException, IOException {

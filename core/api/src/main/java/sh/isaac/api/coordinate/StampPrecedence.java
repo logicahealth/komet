@@ -40,24 +40,38 @@
 package sh.isaac.api.coordinate;
 
 /**
+ * The Enum StampPrecedence.
  *
  * @author kec
  */
 public enum StampPrecedence {
+   
+   /** The time. */
    TIME("time precedence",
         "<html>If two versions are both on a route to the destination, " +
         "the version with the later time has higher precedence."),
+   
+   /** The path. */
    PATH("path precedence",
         "<html>If two versions are both on route to the destination, " +
         "but one version is on a path that is closer to the destination, " +
         "the version on the closer path has higher precedence.<br><br>If two versions " +
         "are on the same path, the version with the later time has higher precedence.");
 
+   /** The label. */
    private final String label;
+   
+   /** The description. */
    private final String description;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new stamp precedence.
+    *
+    * @param label the label
+    * @param description the description
+    */
    private StampPrecedence(String label, String description) {
       this.label       = label;
       this.description = description;
@@ -65,6 +79,11 @@ public enum StampPrecedence {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return this.label;
@@ -72,6 +91,11 @@ public enum StampPrecedence {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the description.
+    *
+    * @return the description
+    */
    public String getDescription() {
       return this.description;
    }

@@ -48,15 +48,25 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeInteger}
+ * {@link DynamicSememeInteger}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface DynamicSememeInteger
         extends DynamicSememeData {
+   
+   /**
+    * Gets the data integer.
+    *
+    * @return the data integer
+    */
    public int getDataInteger();
 
+   /**
+    * Gets the data integer property.
+    *
+    * @return the data integer property
+    */
    public ReadOnlyObjectProperty<Integer> getDataIntegerProperty();
 }
 

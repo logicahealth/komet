@@ -54,18 +54,35 @@ import sh.isaac.api.util.Hashcode;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class UncommittedStamp.
  *
  * @author kec
  */
 public class UncommittedStamp {
+   
+   /** The hash code. */
    public int   hashCode = Integer.MAX_VALUE;
+   
+   /** The status. */
    public State status;
+   
+   /** The author sequence. */
    public int   authorSequence;
+   
+   /** The module sequence. */
    public int   moduleSequence;
+   
+   /** The path sequence. */
    public int   pathSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new uncommitted stamp.
+    *
+    * @param input the input
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public UncommittedStamp(DataInput input)
             throws IOException {
       super();
@@ -81,6 +98,14 @@ public class UncommittedStamp {
       this.pathSequence   = input.readInt();
    }
 
+   /**
+    * Instantiates a new uncommitted stamp.
+    *
+    * @param status the status
+    * @param authorSequence the author sequence
+    * @param moduleSequence the module sequence
+    * @param pathSequence the path sequence
+    */
    public UncommittedStamp(State status, int authorSequence, int moduleSequence, int pathSequence) {
       super();
       this.status         = status;
@@ -99,6 +124,12 @@ public class UncommittedStamp {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj instanceof UncommittedStamp) {
@@ -115,6 +146,11 @@ public class UncommittedStamp {
       return false;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       if (this.hashCode == Integer.MAX_VALUE) {
@@ -124,6 +160,11 @@ public class UncommittedStamp {
       return this.hashCode;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();
@@ -140,6 +181,12 @@ public class UncommittedStamp {
       return sb.toString();
    }
 
+   /**
+    * Write.
+    *
+    * @param output the output
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void write(DataOutput output)
             throws IOException {
       output.writeBoolean(this.status.isActive());

@@ -58,13 +58,27 @@ import org.apache.mahout.math.map.OpenObjectIntHashMap;
  * @param <T> Type of object in map.
  */
 public class ConcurrentObjectIntMap<T> {
+   
+   /** The rwl. */
    private final ReentrantReadWriteLock rwl        = new ReentrantReadWriteLock();
+   
+   /** The read. */
    private final Lock                   read       = this.rwl.readLock();
+   
+   /** The write. */
    private final Lock                   write      = this.rwl.writeLock();
+   
+   /** The backing map. */
    OpenObjectIntHashMap<T>              backingMap = new OpenObjectIntHashMap<>();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Contains key.
+    *
+    * @param key the key
+    * @return true, if successful
+    */
    public boolean containsKey(T key) {
       try {
          this.read.lock();
@@ -76,6 +90,11 @@ public class ConcurrentObjectIntMap<T> {
       }
    }
 
+   /**
+    * For each pair.
+    *
+    * @param consumer the consumer
+    */
    public void forEachPair(ObjIntConsumer<T> consumer) {
       this.backingMap.forEachPair((T first,
                               int second) -> {
@@ -84,6 +103,13 @@ public class ConcurrentObjectIntMap<T> {
                              });
    }
 
+   /**
+    * Put.
+    *
+    * @param key the key
+    * @param value the value
+    * @return true, if successful
+    */
    public boolean put(T key, int value) {
       try {
          this.write.lock();
@@ -95,12 +121,23 @@ public class ConcurrentObjectIntMap<T> {
       }
    }
 
+   /**
+    * Size.
+    *
+    * @return the int
+    */
    public int size() {
       return this.backingMap.size();
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the.
+    *
+    * @param key the key
+    * @return the optional int
+    */
    public OptionalInt get(T key) {
       try {
          this.read.lock();

@@ -69,6 +69,12 @@ import sh.isaac.pombuilder.converter.ConverterOptionParam;
 @Service(name = "create-config-artifact")
 public class ConfigArtifactCreator
         extends QuasiMojo {
+   
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException {

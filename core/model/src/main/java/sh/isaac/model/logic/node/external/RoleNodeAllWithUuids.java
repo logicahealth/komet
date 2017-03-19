@@ -65,21 +65,42 @@ import sh.isaac.model.logic.node.internal.RoleNodeAllWithSequences;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class RoleNodeAllWithUuids.
  *
  * @author kec
  */
 public class RoleNodeAllWithUuids
         extends TypedNodeWithUuids {
+   
+   /**
+    * Instantiates a new role node all with uuids.
+    *
+    * @param internalFrom the internal from
+    */
    public RoleNodeAllWithUuids(RoleNodeAllWithSequences internalFrom) {
       super(internalFrom);
    }
 
+   /**
+    * Instantiates a new role node all with uuids.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public RoleNodeAllWithUuids(LogicalExpressionOchreImpl logicGraphVersion,
                                DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
    }
 
+   /**
+    * Instantiates a new role node all with uuids.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param typeConceptUuid the type concept uuid
+    * @param child the child
+    */
    public RoleNodeAllWithUuids(LogicalExpressionOchreImpl logicGraphVersion,
                                UUID typeConceptUuid,
                                AbstractLogicNode child) {
@@ -88,28 +109,57 @@ public class RoleNodeAllWithUuids
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "RoleNodeAll[" + getNodeIndex() + "]:" + super.toString();
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
       return "RoleNodeAll[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
 
+   /**
+    * Write node data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
       super.writeNodeData(dataOutput, dataTarget);
    }
 
+   /**
+    * Compare typed node fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    protected int compareTypedNodeFields(LogicNode o) {
       // node semantic already determined equals.
       return 0;
    }
 
+   /**
+    * Inits the node uuid.
+    *
+    * @return the uuid
+    */
    @Override
    protected UUID initNodeUuid() {
       return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), this.typeConceptUuid.toString());
@@ -117,6 +167,11 @@ public class RoleNodeAllWithUuids
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the node semantic.
+    *
+    * @return the node semantic
+    */
    @Override
    public NodeSemantic getNodeSemantic() {
       return NodeSemantic.ROLE_ALL;

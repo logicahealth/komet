@@ -72,21 +72,41 @@ import sh.isaac.model.sememe.version.StringSememeImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class SememeChronologyImpl.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
         extends ObjectChronologyImpl<V>
          implements SememeChronology<V>, OchreExternalizable {
+   
+   /** The sememe type token. */
    byte sememeTypeToken        = -1;
+   
+   /** The assemblage sequence. */
    int  assemblageSequence     = -1;
+   
+   /** The referenced component nid. */
    int  referencedComponentNid = Integer.MAX_VALUE;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new sememe chronology impl.
+    */
    private SememeChronologyImpl() {}
 
+   /**
+    * Instantiates a new sememe chronology impl.
+    *
+    * @param sememeType the sememe type
+    * @param primordialUuid the primordial uuid
+    * @param nid the nid
+    * @param assemblageSequence the assemblage sequence
+    * @param referencedComponentNid the referenced component nid
+    * @param containerSequence the container sequence
+    */
    public SememeChronologyImpl(SememeType sememeType,
                                UUID primordialUuid,
                                int nid,
@@ -101,6 +121,14 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Creates the mutable version.
+    *
+    * @param <M> the generic type
+    * @param type the type
+    * @param stampSequence the stamp sequence
+    * @return the m
+    */
    @Override
    public <M extends V> M createMutableVersion(Class<M> type, int stampSequence) {
       final M version = createMutableVersionInternal(type, stampSequence, nextVersionSequence());
@@ -109,6 +137,15 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
       return version;
    }
 
+   /**
+    * Creates the mutable version.
+    *
+    * @param <M> the generic type
+    * @param type the type
+    * @param status the status
+    * @param ec the ec
+    * @return the m
+    */
    @Override
    public <M extends V> M createMutableVersion(Class<M> type, State status, EditCoordinate ec) {
       final int stampSequence = Get.stampService()
@@ -123,6 +160,16 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
       return version;
    }
 
+   /**
+    * Creates the sememe.
+    *
+    * @param token the token
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    * @param bb the bb
+    * @return the sememe version impl
+    */
    public static SememeVersionImpl<?> createSememe(byte token,
          SememeChronologyImpl<?> container,
          int stampSequence,
@@ -177,6 +224,12 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
       }
    }
 
+   /**
+    * Make.
+    *
+    * @param data the data
+    * @return the sememe chronology impl
+    */
    public static SememeChronologyImpl make(ByteArrayDataBuffer data) {
       final SememeChronologyImpl sememeChronology = new SememeChronologyImpl();
 
@@ -184,6 +237,11 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
       return sememeChronology;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuilder builder = new StringBuilder();
@@ -230,11 +288,26 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
       return builder.toString();
    }
 
+   /**
+    * Write chronicle data.
+    *
+    * @param data the data
+    */
    @Override
    public void writeChronicleData(ByteArrayDataBuffer data) {
       super.writeChronicleData(data);
    }
 
+   /**
+    * Creates the mutable version internal.
+    *
+    * @param <M> the generic type
+    * @param type the type
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    * @return the m
+    * @throws UnsupportedOperationException the unsupported operation exception
+    */
    protected <M extends V> M createMutableVersionInternal(Class<M> type,
          int stampSequence,
          short versionSequence)
@@ -307,11 +380,23 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
             " cannot create version of type: " + type.getCanonicalName());
    }
 
+   /**
+    * Make version.
+    *
+    * @param stampSequence the stamp sequence
+    * @param db the db
+    * @return the v
+    */
    @Override
    protected V makeVersion(int stampSequence, ByteArrayDataBuffer db) {
       return (V) createSememe(this.sememeTypeToken, this, stampSequence, db.getShort(), db);
    }
 
+   /**
+    * Put additional chronicle fields.
+    *
+    * @param out the out
+    */
    @Override
    protected void putAdditionalChronicleFields(ByteArrayDataBuffer out) {
       out.putByte(this.sememeTypeToken);
@@ -319,6 +404,11 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
       out.putNid(this.referencedComponentNid);
    }
 
+   /**
+    * Skip additional chronicle fields.
+    *
+    * @param in the in
+    */
    @Override
    protected void skipAdditionalChronicleFields(ByteArrayDataBuffer in) {
       in.getByte();             // sememeTypeToken =
@@ -328,6 +418,12 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the additional chronicle fields.
+    *
+    * @param in the in
+    * @return the additional chronicle fields
+    */
    @Override
    protected void getAdditionalChronicleFields(ByteArrayDataBuffer in) {
       this.sememeTypeToken        = in.getByte();
@@ -335,31 +431,61 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
       this.referencedComponentNid = in.getNid();
    }
 
+   /**
+    * Gets the assemblage sequence.
+    *
+    * @return the assemblage sequence
+    */
    @Override
    public int getAssemblageSequence() {
       return this.assemblageSequence;
    }
 
+   /**
+    * Gets the data format version.
+    *
+    * @return the data format version
+    */
    @Override
    public byte getDataFormatVersion() {
       return 0;
    }
 
+   /**
+    * Gets the ochre object type.
+    *
+    * @return the ochre object type
+    */
    @Override
    public OchreExternalizableObjectType getOchreObjectType() {
       return OchreExternalizableObjectType.SEMEME;
    }
 
+   /**
+    * Gets the referenced component nid.
+    *
+    * @return the referenced component nid
+    */
    @Override
    public int getReferencedComponentNid() {
       return this.referencedComponentNid;
    }
 
+   /**
+    * Gets the sememe sequence.
+    *
+    * @return the sememe sequence
+    */
    @Override
    public int getSememeSequence() {
       return getContainerSequence();
    }
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    @Override
    public SememeType getSememeType() {
       return SememeType.getFromToken(this.sememeTypeToken);

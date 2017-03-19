@@ -81,12 +81,15 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObjectChronologyImpl.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
          implements ObjectChronology<V>, WaitFreeComparable {
+   
+   /** The Constant STAMPED_LOCKS. */
    private static final StampedLock[] STAMPED_LOCKS = new StampedLock[256];
 
    //~--- static initializers -------------------------------------------------
@@ -104,9 +107,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     */
    private short versionSequence = 0;
 
-   /**
-    * Position in the data where chronicle data ends, and version data starts
-    */
+   /** Position in the data where chronicle data ends, and version data starts. */
    private int versionStartPosition = -1;
 
    /**
@@ -119,24 +120,16 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     */
    private int writeSequence;
 
-   /**
-    * Primordial uuid most significant bits for this component
-    */
+   /** Primordial uuid most significant bits for this component. */
    private long primordialUuidMsb;
 
-   /**
-    * Primordial uuid least significant bits for this component
-    */
+   /** Primordial uuid least significant bits for this component. */
    private long primordialUuidLsb;
 
-   /**
-    * additional uuid most and least significant bits for this component
-    */
+   /** additional uuid most and least significant bits for this component. */
    protected long[] additionalUuidParts;
 
-   /**
-    * Native identifier of this component
-    */
+   /** Native identifier of this component. */
    private int nid;
 
    /**
@@ -190,6 +183,11 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the additional uuids.
+    *
+    * @param uuid the uuid
+    */
    public void addAdditionalUuids(UUID uuid) {
       final List<UUID> temp = getUuidList();
 
@@ -197,6 +195,12 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
       setAdditionalUuids(temp);
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -223,6 +227,11 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
                              .equals(StampSequenceSet.of(that.getVersionStampSequences()));
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       return this.nid;
@@ -230,7 +239,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
 
    /**
     * Merge this data, with data from another source to integrate into a single
-    * data sequence
+    * data sequence.
     *
     * @param writeSequence the write sequence to use for the merged data
     * @param dataToMerge data from another source to integrate with this data
@@ -300,6 +309,11 @@ public final void putExternal(ByteArrayDataBuffer out) {
       out.putInt(0);  // last data is a zero length version record
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuilder builder = new StringBuilder();
@@ -312,6 +326,11 @@ public final void putExternal(ByteArrayDataBuffer out) {
       return builder.toString();
    }
 
+   /**
+    * To string.
+    *
+    * @param builder the builder
+    */
    public void toString(StringBuilder builder) {
       builder  // .append("write:").append(writeSequence)
             .append("uuid:")
@@ -336,6 +355,11 @@ public final void putExternal(ByteArrayDataBuffer out) {
       builder.append("]");
    }
 
+   /**
+    * To user string.
+    *
+    * @return the string
+    */
    @Override
    public String toUserString() {
       return toString();
@@ -416,6 +440,13 @@ public final void putExternal(ByteArrayDataBuffer out) {
       }
    }
 
+   /**
+    * Merge data.
+    *
+    * @param dataToMerge the data to merge
+    * @param writtenStamps the written stamps
+    * @param db the db
+    */
    protected void mergeData(byte[] dataToMerge, OpenIntHashSet writtenStamps, ByteArrayDataBuffer db) {
       final ByteArrayDataBuffer writtenBuffer = new ByteArrayDataBuffer(dataToMerge);
 
@@ -444,16 +475,27 @@ public final void putExternal(ByteArrayDataBuffer out) {
       }
    }
 
+   /**
+    * Next version sequence.
+    *
+    * @return the short
+    */
    protected short nextVersionSequence() {
       return this.versionSequence++;
    }
 
+   /**
+    * Put additional chronicle fields.
+    *
+    * @param out the out
+    */
    protected abstract void putAdditionalChronicleFields(ByteArrayDataBuffer out);
 
    /**
     * Reads data from the ByteArrayDataBuffer. If the data is external, it reads all versions from the ByteArrayDataBuffer.
     * If the data is internal, versions are lazily read.
-    * @param data
+    *
+    * @param data the data
     */
    protected void readData(ByteArrayDataBuffer data) {
       if (data.getObjectDataFormatVersion() != 0) {
@@ -502,6 +544,11 @@ public final void putExternal(ByteArrayDataBuffer out) {
       }
    }
 
+   /**
+    * Skip additional chronicle fields.
+    *
+    * @param in the in
+    */
    protected abstract void skipAdditionalChronicleFields(ByteArrayDataBuffer in);
 
    /**
@@ -536,6 +583,11 @@ public final void putExternal(ByteArrayDataBuffer out) {
       putAdditionalChronicleFields(data);
    }
 
+   /**
+    * Go to version start.
+    *
+    * @param data the data
+    */
    private void goToVersionStart(ByteArrayDataBuffer data) {
       if (data.isExternalData()) {
          throw new UnsupportedOperationException("Can't handle external data for this method.");
@@ -551,6 +603,11 @@ public final void putExternal(ByteArrayDataBuffer out) {
       skipAdditionalChronicleFields(data);
    }
 
+   /**
+    * Read version list.
+    *
+    * @param bb the bb
+    */
    private void readVersionList(ByteArrayDataBuffer bb) {
       if (bb.isExternalData()) {
          int nextPosition = bb.getPosition();
@@ -575,6 +632,11 @@ public final void putExternal(ByteArrayDataBuffer out) {
       }
    }
 
+   /**
+    * Skip additional uuids.
+    *
+    * @param data the data
+    */
    private void skipAdditionalUuids(ByteArrayDataBuffer data) {
       final int additionalUuidPartsSize = data.getInt();
 
@@ -585,6 +647,13 @@ public final void putExternal(ByteArrayDataBuffer out) {
       }
    }
 
+   /**
+    * Write if not canceled.
+    *
+    * @param db the db
+    * @param version the version
+    * @param stampSequenceForVersion the stamp sequence for version
+    */
    private void writeIfNotCanceled(ByteArrayDataBuffer db, V version, int stampSequenceForVersion) {
       if (Get.stampService()
              .isNotCanceled(stampSequenceForVersion)) {
@@ -603,10 +672,21 @@ public final void putExternal(ByteArrayDataBuffer out) {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the additional chronicle fields.
+    *
+    * @param in the in
+    * @return the additional chronicle fields
+    */
    protected abstract void getAdditionalChronicleFields(ByteArrayDataBuffer in);
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the additional uuids.
+    *
+    * @param uuids the new additional uuids
+    */
    public void setAdditionalUuids(List<UUID> uuids) {
       this.additionalUuidParts = new long[uuids.size() * 2];
 
@@ -620,6 +700,12 @@ public final void putExternal(ByteArrayDataBuffer out) {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the additional uuids.
+    *
+    * @param data the data
+    * @return the additional uuids
+    */
    private void getAdditionalUuids(ByteArrayDataBuffer data) {
       final int additionalUuidPartsSize = data.getInt();
 
@@ -632,6 +718,11 @@ public final void putExternal(ByteArrayDataBuffer out) {
       }
    }
 
+   /**
+    * Gets the commit state.
+    *
+    * @return the commit state
+    */
    @Override
    public CommitStates getCommitState() {
       if (getVersionStampSequences().anyMatch((stampSequence) -> Get.stampService()
@@ -642,6 +733,11 @@ public final void putExternal(ByteArrayDataBuffer out) {
       return CommitStates.COMMITTED;
    }
 
+   /**
+    * Gets the concept sequence if a concept. Sememe sequence otherwise.
+    *
+    * @return the concept sequence if a concept
+    */
    public int getContainerSequence() {
       return this.containerSequence;
    }
@@ -704,6 +800,13 @@ public final void putExternal(ByteArrayDataBuffer out) {
       return db.getData();
    }
 
+   /**
+    * Gets the latest version.
+    *
+    * @param type the type
+    * @param coordinate the coordinate
+    * @return the latest version
+    */
    @Override
    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate coordinate) {
       final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
@@ -725,6 +828,12 @@ public final void putExternal(ByteArrayDataBuffer out) {
       return Optional.of(new LatestVersion<>(getVersionsForStamps(latestStampSequences)));
    }
 
+   /**
+    * Checks if latest version active.
+    *
+    * @param coordinate the coordinate
+    * @return true, if latest version active
+    */
    @Override
    public boolean isLatestVersionActive(StampCoordinate coordinate) {
       final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate.makeAnalog(State.ACTIVE,
@@ -742,20 +851,41 @@ public final void putExternal(ByteArrayDataBuffer out) {
                                        .getStatusForStamp(stampSequence) == State.ACTIVE);
    }
 
+   /**
+    * Gets the lock.
+    *
+    * @param key the key
+    * @return the lock
+    */
    protected static StampedLock getLock(int key) {
       return STAMPED_LOCKS[(((byte) key)) - Byte.MIN_VALUE];
    }
 
+   /**
+    * Gets the native identifier of this component.
+    *
+    * @return the native identifier of this component
+    */
    @Override
    public int getNid() {
       return this.nid;
    }
 
+   /**
+    * Gets the primordial uuid.
+    *
+    * @return the primordial uuid
+    */
    @Override
    public UUID getPrimordialUuid() {
       return new UUID(this.primordialUuidMsb, this.primordialUuidLsb);
    }
 
+   /**
+    * Gets the sememe list.
+    *
+    * @return the sememe list
+    */
    @Override
    public List<SememeChronology<? extends SememeVersion<?>>> getSememeList() {
       return Get.sememeService()
@@ -763,6 +893,12 @@ public final void putExternal(ByteArrayDataBuffer out) {
                 .collect(Collectors.toList());
    }
 
+   /**
+    * Gets the sememe list from assemblage.
+    *
+    * @param assemblageSequence the assemblage sequence
+    * @return the sememe list from assemblage
+    */
    @Override
    public List<SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
       return Get.sememeService()
@@ -770,6 +906,14 @@ public final void putExternal(ByteArrayDataBuffer out) {
                 .collect(Collectors.toList());
    }
 
+   /**
+    * Gets the sememe list from assemblage of type.
+    *
+    * @param <SV> the generic type
+    * @param assemblageSequence the assemblage sequence
+    * @param type the type
+    * @return the sememe list from assemblage of type
+    */
    @Override
    public <SV extends SememeVersion> List<SememeChronology<SV>> getSememeListFromAssemblageOfType(
            int assemblageSequence,
@@ -783,6 +927,7 @@ public final void putExternal(ByteArrayDataBuffer out) {
    }
 
    /**
+    * Gets the unwritten version list.
     *
     * @return a list of all unwritten versions contained in this chronicle.
     */
@@ -797,6 +942,11 @@ public final void putExternal(ByteArrayDataBuffer out) {
       return results;
    }
 
+   /**
+    * Gets the uuid list.
+    *
+    * @return the uuid list
+    */
    @Override
    public List<UUID> getUuidList() {
       final List<UUID> uuids = new ArrayList<>();
@@ -860,6 +1010,11 @@ public final void putExternal(ByteArrayDataBuffer out) {
       return Optional.empty();
    }
 
+   /**
+    * Gets the version graph list.
+    *
+    * @return the version graph list
+    */
    @Override
    public List<Graph<? extends V>> getVersionGraphList() {
       final HashMap<StampPath, TreeSet<V>> versionMap = new HashMap<>();
@@ -910,6 +1065,7 @@ public final void putExternal(ByteArrayDataBuffer out) {
    }
 
    /**
+    * Gets the version list.
     *
     * @return a list of all versions contained in this chronicle.
     */
@@ -948,6 +1104,7 @@ public final void putExternal(ByteArrayDataBuffer out) {
    }
 
    /**
+    * Gets the version stamp sequences.
     *
     * @return a stream of the stampSequences for each version of this
     * chronology.
@@ -977,6 +1134,14 @@ public final void putExternal(ByteArrayDataBuffer out) {
       return builder.build();
    }
 
+   /**
+    * Gets the version stamp sequences.
+    *
+    * @param index the index
+    * @param bb the bb
+    * @param builder the builder
+    * @return the version stamp sequences
+    */
    protected void getVersionStampSequences(int index, ByteArrayDataBuffer bb, IntStream.Builder builder) {
       final int limit = bb.getLimit();
 
@@ -1002,7 +1167,7 @@ public final void putExternal(ByteArrayDataBuffer out) {
     * Overwrites existing versions. Use to remove duplicates, etc. Deliberately
     * not advertised in standard API, as this call may lose audit data.
     *
-    * @param versions
+    * @param versions the new versions
     */
    public void setVersions(Collection<V> versions) {
       if (this.unwrittenData != null) {
@@ -1016,6 +1181,12 @@ public final void putExternal(ByteArrayDataBuffer out) {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the versions for stamps.
+    *
+    * @param stampSequences the stamp sequences
+    * @return the versions for stamps
+    */
    private List<V> getVersionsForStamps(StampSequenceSet stampSequences) {
       final List<V> versions = new ArrayList<>(stampSequences.size());
 
@@ -1024,6 +1195,12 @@ public final void putExternal(ByteArrayDataBuffer out) {
       return versions;
    }
 
+   /**
+    * Gets the visible ordered version list.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @return the visible ordered version list
+    */
    @Override
    public List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
       final RelativePositionCalculator calc              = RelativePositionCalculator.getCalculator(stampCoordinate);
@@ -1055,6 +1232,11 @@ public final void putExternal(ByteArrayDataBuffer out) {
                               .collect(Collectors.toList());
    }
 
+   /**
+    * Gets the write sequence is incremented each time data is written, and provides a check to see if this chronicle has had any changes written since the data for this chronicle was read. If the write sequence does not match the write sequences in the persistence storage, the data needs to be merged prior to writing, according to the principles of a {@code WaitFreeComparable} object.
+    *
+    * @return the write sequence is incremented each time data is written, and provides a check to see if this chronicle has had any changes written since the data for this chronicle was read
+    */
    @Override
    public int getWriteSequence() {
       return this.writeSequence;
@@ -1062,6 +1244,11 @@ public final void putExternal(ByteArrayDataBuffer out) {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set write sequence is incremented each time data is written, and provides a check to see if this chronicle has had any changes written since the data for this chronicle was read. If the write sequence does not match the write sequences in the persistence storage, the data needs to be merged prior to writing, according to the principles of a {@code WaitFreeComparable} object.
+    *
+    * @param writeSequence the new write sequence is incremented each time data is written, and provides a check to see if this chronicle has had any changes written since the data for this chronicle was read
+    */
    @Override
    public void setWriteSequence(int writeSequence) {
       this.writeSequence = writeSequence;
@@ -1071,7 +1258,8 @@ public final void putExternal(ByteArrayDataBuffer out) {
     * Called after merge and write operations to set the objects data to be the data
     * actually written so that the object in memory has the same value as the object
     * just written to the database.
-    * @param writtenData
+    *
+    * @param writtenData the new data previously persisted
     */
    public void setWrittenData(byte[] writtenData) {
       this.writtenData          = writtenData;

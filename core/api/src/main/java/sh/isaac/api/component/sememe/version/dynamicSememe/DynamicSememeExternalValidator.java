@@ -62,13 +62,16 @@ import sh.isaac.api.coordinate.TaxonomyCoordinate;
  */
 @Contract
 public interface DynamicSememeExternalValidator {
+   
    /**
+    * Validate.
+    *
     * @param userData - The user entry to validate.
     * @param validatorDefinitionData - The string used to locate the validator implementation is stored in the first position of the array.
     * see {@link DynamicSememeValidatorType} for details) and any other data that was stored with the validator assignment (any additional items
     * in the array)
     * @param sc - the stamp coordinate that was passed in to the validate call.
-    * @param c - the taxonomy coordinate that was passed in to the validate call.
+    * @param tc the tc
     * @return - true if valid, exception otherwise.
     * @throws RuntimeException - if it fails the validator, this exception should contain a user-friendly reason why.
     */
@@ -80,10 +83,12 @@ public interface DynamicSememeExternalValidator {
 
    /**
     * Return true or false, depending on whether this validator implementation supports the specified data type.
+    *
     * @param validatorDefinitionData - The string used to locate the validator implementation is stored in the first position of the array.
     * see {@link DynamicSememeValidatorType} for details) and any other data that was stored with the validator assignment (any additional items
     * in the array)
     * @param dataType - The datatype to inquire about
+    * @return true, if successful
     */
    public boolean validatorSupportsType(DynamicSememeArray<DynamicSememeString> validatorDefinitionData,
          DynamicSememeDataType dataType);

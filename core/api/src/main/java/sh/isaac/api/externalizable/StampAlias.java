@@ -49,16 +49,26 @@ import sh.isaac.api.externalizable.OchreExternalizableObjectType;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StampAlias.
  *
  * @author kec
  */
 public class StampAlias
          implements OchreExternalizable {
+   
+   /** The stamp sequence. */
    int stampSequence;
+   
+   /** The stamp alias. */
    int stampAlias;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new stamp alias.
+    *
+    * @param in the in
+    */
    public StampAlias(ByteArrayDataBuffer in) {
       final byte version = in.getByte();
 
@@ -72,6 +82,12 @@ public class StampAlias
       }
    }
 
+   /**
+    * Instantiates a new stamp alias.
+    *
+    * @param stampSequence the stamp sequence
+    * @param stampAlias the stamp alias
+    */
    public StampAlias(int stampSequence, int stampAlias) {
       this.stampSequence = stampSequence;
       this.stampAlias    = stampAlias;
@@ -79,6 +95,12 @@ public class StampAlias
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -98,6 +120,11 @@ public class StampAlias
       return this.stampAlias == that.stampAlias;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int result = this.stampSequence;
@@ -106,6 +133,11 @@ public class StampAlias
       return result;
    }
 
+   /**
+    * Put external.
+    *
+    * @param out the out
+    */
    @Override
    public void putExternal(ByteArrayDataBuffer out) {
       out.putByte(getDataFormatVersion());
@@ -115,6 +147,11 @@ public class StampAlias
                     .writeExternal(out);
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "StampAlias{" + "stampSequence=" + this.stampSequence + ", stampAlias=" + this.stampAlias + '}';
@@ -122,20 +159,40 @@ public class StampAlias
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the data format version.
+    *
+    * @return the data format version
+    */
    @Override
    public byte getDataFormatVersion() {
       return 0;
    }
 
+   /**
+    * Gets the ochre object type.
+    *
+    * @return the ochre object type
+    */
    @Override
    public OchreExternalizableObjectType getOchreObjectType() {
       return OchreExternalizableObjectType.STAMP_ALIAS;
    }
 
+   /**
+    * Gets the stamp alias.
+    *
+    * @return the stamp alias
+    */
    public int getStampAlias() {
       return this.stampAlias;
    }
 
+   /**
+    * Gets the stamp sequence.
+    *
+    * @return the stamp sequence
+    */
    public int getStampSequence() {
       return this.stampSequence;
    }

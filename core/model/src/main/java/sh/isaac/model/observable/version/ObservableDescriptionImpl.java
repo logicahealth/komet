@@ -54,19 +54,34 @@ import sh.isaac.model.sememe.version.DescriptionSememeImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableDescriptionImpl.
  *
  * @author kec
  */
 public class ObservableDescriptionImpl
         extends ObservableSememeVersionImpl<ObservableDescriptionImpl>
          implements ObservableDescriptionSememe<ObservableDescriptionImpl> {
+   
+   /** The case significance concept sequence property. */
    IntegerProperty caseSignificanceConceptSequenceProperty;
+   
+   /** The language concept sequence property. */
    IntegerProperty languageConceptSequenceProperty;
+   
+   /** The text property. */
    StringProperty  textProperty;
+   
+   /** The description type concept sequence property. */
    IntegerProperty descriptionTypeConceptSequenceProperty;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new observable description impl.
+    *
+    * @param stampedVersion the stamped version
+    * @param chronology the chronology
+    */
    public ObservableDescriptionImpl(DescriptionSememeImpl stampedVersion,
                                     ObservableSememeChronology<ObservableDescriptionImpl> chronology) {
       super(stampedVersion, chronology);
@@ -74,6 +89,11 @@ public class ObservableDescriptionImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Case significance concept sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty caseSignificanceConceptSequenceProperty() {
       if (this.caseSignificanceConceptSequenceProperty == null) {
@@ -85,6 +105,11 @@ public class ObservableDescriptionImpl
       return this.caseSignificanceConceptSequenceProperty;
    }
 
+   /**
+    * Description type concept sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty descriptionTypeConceptSequenceProperty() {
       if (this.descriptionTypeConceptSequenceProperty == null) {
@@ -96,6 +121,11 @@ public class ObservableDescriptionImpl
       return this.descriptionTypeConceptSequenceProperty;
    }
 
+   /**
+    * Language concept sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty languageConceptSequenceProperty() {
       if (this.languageConceptSequenceProperty == null) {
@@ -107,6 +137,11 @@ public class ObservableDescriptionImpl
       return this.languageConceptSequenceProperty;
    }
 
+   /**
+    * Text property.
+    *
+    * @return the string property
+    */
    @Override
    public StringProperty textProperty() {
       if (this.textProperty == null) {
@@ -120,6 +155,11 @@ public class ObservableDescriptionImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the case significance concept sequence.
+    *
+    * @return the case significance concept sequence
+    */
    @Override
    public int getCaseSignificanceConceptSequence() {
       if (this.caseSignificanceConceptSequenceProperty != null) {
@@ -131,6 +171,11 @@ public class ObservableDescriptionImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the case significance concept sequence.
+    *
+    * @param caseSignificanceConceptSequence the new case significance concept sequence
+    */
    @Override
    public void setCaseSignificanceConceptSequence(int caseSignificanceConceptSequence) {
       if (this.caseSignificanceConceptSequenceProperty != null) {
@@ -142,6 +187,11 @@ public class ObservableDescriptionImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the description type concept sequence.
+    *
+    * @return the description type concept sequence
+    */
    @Override
    public int getDescriptionTypeConceptSequence() {
       if (this.descriptionTypeConceptSequenceProperty != null) {
@@ -153,6 +203,11 @@ public class ObservableDescriptionImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the description type concept sequence.
+    *
+    * @param descriptionTypeConceptSequence the new description type concept sequence
+    */
    @Override
    public void setDescriptionTypeConceptSequence(int descriptionTypeConceptSequence) {
       if (this.descriptionTypeConceptSequenceProperty != null) {
@@ -164,6 +219,11 @@ public class ObservableDescriptionImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the language concept sequence.
+    *
+    * @return the language concept sequence
+    */
    @Override
    public int getLanguageConceptSequence() {
       if (this.languageConceptSequenceProperty != null) {
@@ -175,6 +235,11 @@ public class ObservableDescriptionImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the language concept sequence.
+    *
+    * @param languageConceptSequence the new language concept sequence
+    */
    @Override
    public void setLanguageConceptSequence(int languageConceptSequence) {
       if (this.languageConceptSequenceProperty != null) {
@@ -186,6 +251,11 @@ public class ObservableDescriptionImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the text.
+    *
+    * @return the text
+    */
    @Override
    public String getText() {
       if (this.textProperty != null) {
@@ -197,6 +267,11 @@ public class ObservableDescriptionImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the text.
+    *
+    * @param text the new text
+    */
    @Override
    public void setText(String text) {
       if (this.textProperty != null) {

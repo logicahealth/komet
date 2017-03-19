@@ -60,43 +60,81 @@ import sh.isaac.api.util.StringUtils;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link StampedItem}
+ * {@link StampedItem}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public abstract class StampedItem {
+   
+   /** The Constant statusComparator. */
    public static final Comparator<StampedItem> statusComparator = (o1, o2) -> Boolean.compare(o2.isActive(), o1.isActive());
+   
+   /** The Constant timeComparator. */
    public static final Comparator<StampedItem> timeComparator = (o1, o2) -> Long.compare(o1.getTime(), o2.getTime());
+   
+   /** The Constant authorComparator. */
    public static final Comparator<StampedItem> authorComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getAuthorProperty()
        .get(), o2.getAuthorProperty()
                  .get());
+   
+   /** The Constant moduleComparator. */
    public static final Comparator<StampedItem> moduleComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getModuleProperty()
        .get(), o2.getModuleProperty()
                  .get());
+   
+   /** The Constant pathComparator. */
    public static final Comparator<StampedItem> pathComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getPathProperty()
        .get(), o2.getPathProperty()
                  .get());
 
    //~--- fields --------------------------------------------------------------
 
+   /** The lazy load finished. */
    private transient boolean              lazyLoadFinished_ = false;
+   
+   /** The author SSP. */
    private transient SimpleStringProperty authorSSP         = new SimpleStringProperty("-");
+   
+   /** The module SSP. */
    private transient SimpleStringProperty moduleSSP         = new SimpleStringProperty("-");;
+   
+   /** The path SSP. */
    private transient SimpleStringProperty pathSSP           = new SimpleStringProperty("-");;
+   
+   /** The status SSP. */
    private transient SimpleStringProperty statusSSP         = new SimpleStringProperty("-");;
+   
+   /** The time SSP. */
    private transient SimpleStringProperty timeSSP           = new SimpleStringProperty("-");;
+   
+   /** The component version. */
    private StampedVersion                 componentVersion_;
+   
+   /** The author UUID. */
    private transient UUID                 authorUUID;
+   
+   /** The module UUID. */
    private transient UUID                 moduleUUID;
+   
+   /** The path UUID. */
    private transient UUID                 pathUUID;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read stamp details.
+    *
+    * @param componentVersion the component version
+    * @throws RuntimeException the runtime exception
+    */
    protected void readStampDetails(StampedVersion componentVersion)
             throws RuntimeException {
       this.componentVersion_ = componentVersion;
    }
 
+   /**
+    * Lazy load.
+    */
    private void lazyLoad() {
       if (!this.lazyLoadFinished_) {
          this.authorUUID = Get.identifierService()
@@ -133,17 +171,26 @@ public abstract class StampedItem {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Checks if active.
+    *
     * @return the isActive
     */
    public boolean isActive() {
       return this.componentVersion_.getState() == State.ACTIVE;
    }
 
+   /**
+    * Gets the author.
+    *
+    * @return the author
+    */
    public int getAuthor() {
       return this.componentVersion_.getAuthorSequence();
    }
 
    /**
+    * Gets the author name.
+    *
     * @return the authorName - a UUID that identifies a concept that represents the Author
     */
    public UUID getAuthorName() {
@@ -151,25 +198,47 @@ public abstract class StampedItem {
       return this.authorUUID;
    }
 
+   /**
+    * Gets the author property.
+    *
+    * @return the author property
+    */
    public SimpleStringProperty getAuthorProperty() {
       lazyLoad();
       return this.authorSSP;
    }
 
+   /**
+    * Gets the component version.
+    *
+    * @return the component version
+    */
    public StampedVersion getComponentVersion() {
       return this.componentVersion_;
    }
 
+   /**
+    * Gets the module.
+    *
+    * @return the module
+    */
    public int getModule() {
       return this.componentVersion_.getModuleSequence();
    }
 
+   /**
+    * Gets the module property.
+    *
+    * @return the module property
+    */
    public SimpleStringProperty getModuleProperty() {
       lazyLoad();
       return this.moduleSSP;
    }
 
    /**
+    * Gets the module UUID.
+    *
     * @return the moduleUUID
     */
    public UUID getModuleUUID() {
@@ -177,16 +246,28 @@ public abstract class StampedItem {
       return this.moduleUUID;
    }
 
+   /**
+    * Gets the path.
+    *
+    * @return the path
+    */
    public int getPath() {
       return this.componentVersion_.getPathSequence();
    }
 
+   /**
+    * Gets the path property.
+    *
+    * @return the path property
+    */
    public SimpleStringProperty getPathProperty() {
       lazyLoad();
       return this.pathSSP;
    }
 
    /**
+    * Gets the path UUID.
+    *
     * @return the pathUUID
     */
    public UUID getPathUUID() {
@@ -194,18 +275,30 @@ public abstract class StampedItem {
       return this.pathUUID;
    }
 
+   /**
+    * Gets the status property.
+    *
+    * @return the status property
+    */
    public SimpleStringProperty getStatusProperty() {
       lazyLoad();
       return this.statusSSP;
    }
 
    /**
+    * Gets the time.
+    *
     * @return the creationDate
     */
    public long getTime() {
       return this.componentVersion_.getTime();
    }
 
+   /**
+    * Gets the time property.
+    *
+    * @return the time property
+    */
    public SimpleStringProperty getTimeProperty() {
       lazyLoad();
       return this.timeSSP;

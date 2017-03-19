@@ -62,6 +62,7 @@ import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class IntegrationSuiteManagement.
  *
  * @author kec
  */
@@ -70,10 +71,17 @@ import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY
 //https://github.com/saden1/hk2-testng
 @HK2("integration")
 public class IntegrationSuiteManagement {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Tear down suite.
+    *
+    * @throws Exception the exception
+    */
    @AfterGroups(groups = { "db", "load", "wf" })
    public void tearDownSuite()
             throws Exception {
@@ -85,6 +93,11 @@ public class IntegrationSuiteManagement {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set up suite.
+    *
+    * @throws Exception the exception
+    */
    @BeforeGroups(groups = { "db", "load", "wf" })
    public void setUpSuite()
             throws Exception {

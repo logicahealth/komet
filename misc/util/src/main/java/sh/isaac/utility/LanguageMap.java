@@ -58,6 +58,13 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class LanguageMap {
+   
+   /**
+    * Gets the concept for language code.
+    *
+    * @param lc the lc
+    * @return the concept for language code
+    */
    public static ConceptSpecification getConceptForLanguageCode(LanguageCode lc) {
       switch (lc) {
       case EN:
@@ -138,6 +145,12 @@ public class LanguageMap {
       }
    }
 
+   /**
+    * Gets the language code for UUID.
+    *
+    * @param uuid the uuid
+    * @return the language code for UUID
+    */
    public static Optional<LanguageCode> getLanguageCodeForUUID(UUID uuid) {
       for (final LanguageCode lc: LanguageCode.values()) {
          if (lc == LanguageCode.ZZ) {

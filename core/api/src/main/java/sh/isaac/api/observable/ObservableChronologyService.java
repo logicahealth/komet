@@ -49,12 +49,15 @@ import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ObservableChronologyService.
  *
  * @author kec
  */
 @Contract
 public interface ObservableChronologyService {
+   
    /**
+    * Gets the observable concept chronology.
     *
     * @param id either a nid or a concept sequence
     * @return the ObservableConceptChronology with the provided id
@@ -62,6 +65,7 @@ public interface ObservableChronologyService {
    ObservableConceptChronology<?> getObservableConceptChronology(int id);
 
    /**
+    * Gets the observable sememe chronology.
     *
     * @param id either a nid or a sememe sequence
     * @return the ObservableSememeChronology with the provided id

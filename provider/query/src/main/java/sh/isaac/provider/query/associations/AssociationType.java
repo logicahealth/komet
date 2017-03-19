@@ -76,18 +76,35 @@ import sh.isaac.utility.Frills;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class AssociationType.
+ */
 public class AssociationType {
+   
+   /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The association sequence. */
    private final int              associationSequence_;
+   
+   /** The association name. */
    private String           associationName_;
+   
+   /** The association inverse name. */
    private Optional<String> associationInverseName_;
+   
+   /** The description. */
    private String           description_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new association type.
+    *
+    * @param conceptNidOrSequence the concept nid or sequence
+    */
    private AssociationType(int conceptNidOrSequence) {
       this.associationSequence_ = Get.identifierService()
                                      .getConceptSequence(conceptNidOrSequence);
@@ -199,10 +216,11 @@ public class AssociationType {
 
    /**
     * Read all details that define an Association.
+    *
     * @param conceptNidOrSequence The concept that represents the association
     * @param stamp optional - uses system default if not provided.
     * @param language optional - uses system default if not provided
-    * @return
+    * @return the association type
     */
    @SuppressWarnings({ "unchecked", "rawtypes" })
    public static AssociationType read(int conceptNidOrSequence, StampCoordinate stamp, LanguageCoordinate language) {
@@ -274,17 +292,26 @@ public class AssociationType {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the association inverse name.
+    *
     * @return the inverse name of the association (if present) (Read from the association type concept)
     */
    public Optional<String> getAssociationInverseName() {
       return this.associationInverseName_;
    }
 
+   /**
+    * Gets the association name.
+    *
+    * @return the association name
+    */
    public String getAssociationName() {
       return this.associationName_;
    }
 
    /**
+    * Gets the association type concept.
+    *
     * @return the association type concept
     */
    public ConceptChronology<? extends ConceptVersion<?>> getAssociationTypeConcept() {
@@ -293,12 +320,19 @@ public class AssociationType {
    }
 
    /**
+    * Gets the association type sequenece.
+    *
     * @return the concept sequence of the association type concept
     */
    public int getAssociationTypeSequenece() {
       return this.associationSequence_;
    }
 
+   /**
+    * Gets the description.
+    *
+    * @return the description
+    */
    public String getDescription() {
       return this.description_;
    }

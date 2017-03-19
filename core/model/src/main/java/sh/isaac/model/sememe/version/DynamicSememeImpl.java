@@ -68,29 +68,46 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeImpl}
+ * {@link DynamicSememeImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeImpl
         extends SememeVersionImpl<DynamicSememeImpl>
          implements MutableDynamicSememe<DynamicSememeImpl> {
+   
+   /** The bootstrap mode. */
    private static boolean bootstrapMode = Get.configurationService()
                                              .inBootstrapMode();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The data. */
    private DynamicSememeData[] data_ = null;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    */
    public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container,
                             int stampSequence,
                             short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
+   /**
+    * Instantiates a new dynamic sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    * @param data the data
+    */
    public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container,
                             int stampSequence,
                             short versionSequence,
@@ -131,11 +148,21 @@ public class DynamicSememeImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Data to string.
+    *
+    * @return the string
+    */
    @Override
    public String dataToString() {
       return DynamicSememeUtilityImpl.toString(getData());
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();
@@ -157,6 +184,11 @@ public class DynamicSememeImpl
       return sb.toString();
    }
 
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
@@ -192,6 +224,9 @@ public class DynamicSememeImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data.
+    *
+    * @return the data
     * @see sh.isaac.api.component.sememe.version.DynamicSememe#getData()
     */
    @Override
@@ -200,12 +235,26 @@ public class DynamicSememeImpl
                              : this.data_;
    }
 
+   /**
+    * Gets the data.
+    *
+    * @param columnNumber the column number
+    * @return the data
+    * @throws IndexOutOfBoundsException the index out of bounds exception
+    */
    @Override
    public DynamicSememeData getData(int columnNumber)
             throws IndexOutOfBoundsException {
       return getData()[columnNumber];
    }
 
+   /**
+    * Gets the data.
+    *
+    * @param columnName the column name
+    * @return the data
+    * @throws InvalidNameException the invalid name exception
+    */
    @Override
    public DynamicSememeData getData(String columnName)
             throws InvalidNameException {
@@ -221,6 +270,11 @@ public class DynamicSememeImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the data.
+    *
+    * @param data the new data
+    */
    @Override
    public void setData(DynamicSememeData[] data) {
       if (this.data_ != null) {
@@ -243,11 +297,21 @@ public class DynamicSememeImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the dynamic sememe usage description.
+    *
+    * @return the dynamic sememe usage description
+    */
    @Override
    public DynamicSememeUsageDescription getDynamicSememeUsageDescription() {
       return DynamicSememeUsageDescriptionImpl.read(this.getAssemblageSequence());
    }
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    @Override
    public SememeType getSememeType() {
       return SememeType.DYNAMIC;

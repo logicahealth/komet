@@ -118,6 +118,8 @@ import static sh.isaac.model.observable.ObservableFields.VERSION_LIST_FOR_CHRONI
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class IsaacMetadataAuxiliary.
+ *
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
@@ -126,6 +128,8 @@ import static sh.isaac.model.observable.ObservableFields.VERSION_LIST_FOR_CHRONI
 @Singleton
 public class IsaacMetadataAuxiliary
         extends IsaacTaxonomy {
+   
+   /** The Constant METADATA_SEMANTIC_TAG. */
    public static final String METADATA_SEMANTIC_TAG = "ISAAC";
 
    //~--- constructors --------------------------------------------------------
@@ -133,6 +137,9 @@ public class IsaacMetadataAuxiliary
    /**
     * If you are looking for the code that creates / uses this, see the class {@link ExportTaxonomy}
     * To override this class with a different taxonomy, provide another implementation with a higher rank.
+    *
+    * @throws NoSuchAlgorithmException the no such algorithm exception
+    * @throws UnsupportedEncodingException the unsupported encoding exception
     */
    public IsaacMetadataAuxiliary()
             throws NoSuchAlgorithmException, UnsupportedEncodingException {
@@ -485,6 +492,11 @@ public class IsaacMetadataAuxiliary
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * The main method.
+    *
+    * @param args the arguments
+    */
    public static void main(String[] args) {
       try {
          final IsaacMetadataAuxiliary aux = new IsaacMetadataAuxiliary();

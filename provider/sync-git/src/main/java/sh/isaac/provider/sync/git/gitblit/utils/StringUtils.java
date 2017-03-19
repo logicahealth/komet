@@ -51,12 +51,13 @@ import java.util.Locale;
  *
  */
 public class StringUtils {
+   
    /**
     * Compare two repository names for proper group sorting.
     *
-    * @param r1
-    * @param r2
-    * @return
+    * @param r1 the r 1
+    * @param r2 the r 2
+    * @return the int
     */
    public static int compareRepositoryNames(String r1, String r2) {
       // sort root repositories first, alphabetically
@@ -85,7 +86,7 @@ public class StringUtils {
    /**
     * Encodes a url parameter by escaping troublesome characters.
     *
-    * @param inStr
+    * @param inStr the in str
     * @return properly escaped url
     */
    public static String encodeURL(String inStr) {
@@ -114,7 +115,7 @@ public class StringUtils {
    /**
     * Strips a trailing ".git" from the value.
     *
-    * @param value
+    * @param value the value
     * @return a stripped value or the original value if .git is not found
     */
    public static String stripDotGit(String value) {
@@ -131,7 +132,7 @@ public class StringUtils {
    /**
     * Returns true if the string is null or empty.
     *
-    * @param value
+    * @param value the value
     * @return true if string is null or empty
     */
    public static boolean isEmpty(String value) {
@@ -142,7 +143,7 @@ public class StringUtils {
     * Returns the first path element of a path string.  If no path separator is
     * found in the path, an empty string is returned.
     *
-    * @param path
+    * @param path the path
     * @return the first element in the path
     */
    public static String getFirstPathElement(String path) {

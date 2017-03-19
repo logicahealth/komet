@@ -62,13 +62,18 @@ import sh.isaac.api.index.SearchResult;
  */
 public class CompositeSearchResultComparator
          implements Comparator<CompositeSearchResult> {
+   
+   /** The Constant LOG. */
    protected static final Logger LOG = LoggerFactory.getLogger(CompositeSearchResultComparator.class);
 
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Note, the primary getBestScore() sort is in reverse, so it goes highest to lowest
+    * Note, the primary getBestScore() sort is in reverse, so it goes highest to lowest.
     *
+    * @param o1 the o 1
+    * @param o2 the o 2
+    * @return the int
     * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
     */
    @Override

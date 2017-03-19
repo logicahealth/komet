@@ -51,20 +51,43 @@ import sh.isaac.api.relationship.RelationshipAdaptorChronicleKey;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class RelationshipAdaptorChronicleKeyImpl.
  *
  * @author kec
  */
 public class RelationshipAdaptorChronicleKeyImpl
          implements RelationshipAdaptorChronicleKey {
+   
+   /** The origin sequence. */
    int         originSequence;
+   
+   /** The destination sequence. */
    int         destinationSequence;
+   
+   /** The type sequence. */
    int         typeSequence;
+   
+   /** The group. */
    int         group;
+   
+   /** The premise type. */
    PremiseType premiseType;
+   
+   /** The node sequence. */
    short       nodeSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new relationship adaptor chronicle key impl.
+    *
+    * @param originSequence the origin sequence
+    * @param destinationSequence the destination sequence
+    * @param typeSequence the type sequence
+    * @param group the group
+    * @param premiseType the premise type
+    * @param nodeSequence the node sequence
+    */
    public RelationshipAdaptorChronicleKeyImpl(int originSequence,
          int destinationSequence,
          int typeSequence,
@@ -81,6 +104,12 @@ public class RelationshipAdaptorChronicleKeyImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
@@ -112,6 +141,11 @@ public class RelationshipAdaptorChronicleKeyImpl
       return this.premiseType == other.premiseType;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int hash = 3;
@@ -124,6 +158,11 @@ public class RelationshipAdaptorChronicleKeyImpl
       return hash;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return "RelAdaptorKey{" + "originSequence=" + this.originSequence + ", destinationSequence=" + this.destinationSequence +
@@ -133,31 +172,61 @@ public class RelationshipAdaptorChronicleKeyImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the destination sequence.
+    *
+    * @return the destination sequence
+    */
    @Override
    public int getDestinationSequence() {
       return this.destinationSequence;
    }
 
+   /**
+    * Gets the group.
+    *
+    * @return the group
+    */
    @Override
    public int getGroup() {
       return this.group;
    }
 
+   /**
+    * Gets the node sequence.
+    *
+    * @return the node sequence
+    */
    @Override
    public short getNodeSequence() {
       return this.nodeSequence;
    }
 
+   /**
+    * Gets the origin sequence.
+    *
+    * @return the origin sequence
+    */
    @Override
    public int getOriginSequence() {
       return this.originSequence;
    }
 
+   /**
+    * Gets the premise type.
+    *
+    * @return the premise type
+    */
    @Override
    public PremiseType getPremiseType() {
       return this.premiseType;
    }
 
+   /**
+    * Gets the type sequence.
+    *
+    * @return the type sequence
+    */
    @Override
    public int getTypeSequence() {
       return this.typeSequence;

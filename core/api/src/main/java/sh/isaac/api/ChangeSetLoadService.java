@@ -49,11 +49,18 @@ import org.jvnet.hk2.annotations.Contract;
 
 //~--- interfaces -------------------------------------------------------------
 
+/**
+ * The Interface ChangeSetLoadService.
+ */
 @Contract
 public interface ChangeSetLoadService {
+   
    /**
     * Call to trigger a re-read of changeset files - which may be necessary after a remote sync, for example.
     * returns the number of files loaded
+    *
+    * @return the int
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public int readChangesetFiles()
             throws IOException;

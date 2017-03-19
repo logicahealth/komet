@@ -71,16 +71,24 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class MappingItemDAO.
+ */
 public class MappingItemDAO
         extends MappingDAO {
+   
    /**
     * Construct (and save to the DB) a new MappingItem.
+    *
     * @param sourceConcept - the primary ID of the source concept
     * @param mappingSetID - the primary ID of the mapping type
     * @param targetConcept - the primary ID of the target concept
     * @param qualifierID - (optional) the primary ID of the qualifier concept
     * @param editorStatusID - (optional) the primary ID of the status concept
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @return the mapping item
+    * @throws RuntimeException the runtime exception
     */
    public static MappingItem createMappingItem(ConceptSnapshot sourceConcept,
          UUID mappingSetID,
@@ -141,8 +149,12 @@ public class MappingItemDAO
    }
 
    /**
+    * Retire mapping item.
+    *
     * @param mappingItemPrimordial - The identifier of the mapping item to be retired
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void retireMappingItem(UUID mappingItemPrimordial,
          StampCoordinate stampCoord,
@@ -152,8 +164,12 @@ public class MappingItemDAO
    }
 
    /**
+    * Un retire mapping item.
+    *
     * @param mappingItemPrimordial - The identifier of the mapping item to be re-activated
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void unRetireMappingItem(UUID mappingItemPrimordial,
          StampCoordinate stampCoord,
@@ -163,9 +179,12 @@ public class MappingItemDAO
    }
 
    /**
-    * Just test / demo code
-    * @param mappingSetUUID
-    * @throws IOException
+    * Just test / demo code.
+    *
+    * @param mappingItem the mapping item
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
     */
 
    /*
@@ -238,8 +257,9 @@ public class MappingItemDAO
     * Read all of the mappings items which are defined as part of the specified mapping set.
     *
     * @param mappingSetID - the mapping set that contains the mapping items
-    * @return
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @return the mapping items
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static List<MappingItem> getMappingItems(UUID mappingSetID, StampCoordinate stampCoord)
             throws IOException {

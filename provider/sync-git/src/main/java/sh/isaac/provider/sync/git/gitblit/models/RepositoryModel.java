@@ -64,26 +64,61 @@ import sh.isaac.provider.sync.git.gitblit.utils.StringUtils;
  */
 public class RepositoryModel
          implements Serializable, Comparable<RepositoryModel> {
+   
+   /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 1L;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The name. */
    public String       name;
+   
+   /** The description. */
    public String       description;
+   
+   /** The owners. */
    public List<String> owners;
+   
+   /** The last change. */
    public Date         lastChange;
+   
+   /** The access restriction. */
    public String       accessRestriction;
+   
+   /** The authorization control. */
    public String       authorizationControl;
+   
+   /** The federation strategy. */
    public String       federationStrategy;
+   
+   /** The federation sets. */
    public List<String> federationSets;
+   
+   /** The is bare. */
    public boolean      isBare;
+   
+   /** The project path. */
    public String       projectPath;
+   
+   /** The display name. */
    private String      displayName;
+   
+   /** The accept new patchsets. */
    public boolean      acceptNewPatchsets;
+   
+   /** The accept new tickets. */
    public boolean      acceptNewTickets;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new repository model.
+    *
+    * @param name the name
+    * @param description the description
+    * @param owner the owner
+    * @param lastchange the lastchange
+    */
    public RepositoryModel(String name, String description, String owner, Date lastchange) {
       this.name                 = name;
       this.description          = description;
@@ -102,6 +137,11 @@ public class RepositoryModel
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the owner.
+    *
+    * @param username the username
+    */
    public void addOwner(String username) {
       if (!StringUtils.isEmpty(username)) {
          final String name = username.toLowerCase();
@@ -114,11 +154,23 @@ public class RepositoryModel
       }
    }
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(RepositoryModel o) {
       return StringUtils.compareRepositoryNames(this.name, o.name);
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (o instanceof RepositoryModel) {
@@ -128,11 +180,21 @@ public class RepositoryModel
       return false;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       return this.name.hashCode();
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       if (this.displayName == null) {

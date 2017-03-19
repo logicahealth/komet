@@ -72,6 +72,8 @@ import sh.isaac.provider.sync.git.gitblit.utils.RpcUtils.AccessRestrictionType;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class GitBlitUtils {
+   
+   /** The log. */
    private static Logger log = LoggerFactory.getLogger(GitBlitUtils.class);
 
    //~--- methods -------------------------------------------------------------
@@ -79,11 +81,12 @@ public class GitBlitUtils {
    /**
     * This hackery is being done because of a code-sync issue between PRISME and ISAAC-Rest, where PRISME is putting a bare URL into the props file.
     * It will be fixed on the PRISME side, eventually, making this method a noop - but for now, handle either the old or new style.
-    *
+    * 
     * Essentially, if we see a bare URL like https://vaauscttdbs80.aac.va.gov:8080 we add /git to the end of it.
     * If we see a URL that includes a location - like https://vaauscttdbs80.aac.va.gov:8080/gitServer - we do nothing more than add a trailing forward slash
-    * @param url
-    * @return
+    *
+    * @param url the url
+    * @return the string
     */
    public static String adjustBareUrlForGitBlit(String url) {
       String temp = url;
@@ -100,14 +103,15 @@ public class GitBlitUtils {
    }
 
    /**
-    * Create a repository on a remote gitblit server
+    * Create a repository on a remote gitblit server.
+    *
     * @param baseRemoteAddress - should be a url like https://git.isaac.sh/git/ (though {@link #adjustBareUrlForGitBlit(String)} is utilized
     * @param repoName a name such a foo or foo.git
     * @param repoDesc the description
-    * @param username
-    * @param password
+    * @param username the username
+    * @param password the password
     * @param allowRead true to allow unauthenticated users to read / clone the repository.  False to lock down the repository
-    * @throws IOException
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void createRepository(String baseRemoteAddress,
          String repoName,
@@ -139,9 +143,10 @@ public class GitBlitUtils {
    /**
     * Take in a URL like https://git.isaac.sh/git/r/db_test.git
     * and turn it into https://git.isaac.sh/git
-    * @param url
-    * @return
-    * @throws IOException
+    *
+    * @param url the url
+    * @return the string
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static String parseBaseRemoteAddress(String url)
             throws IOException {
@@ -156,6 +161,15 @@ public class GitBlitUtils {
       throw new IOException("Not a known giblit url pattern!");
    }
 
+   /**
+    * Read repositories.
+    *
+    * @param baseRemoteAddress the base remote address
+    * @param username the username
+    * @param password the password
+    * @return the set
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static Set<String> readRepositories(String baseRemoteAddress,
          String username,
          char[] password)

@@ -50,27 +50,45 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeSequenceImpl}
+ * {@link DynamicSememeSequenceImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeSequenceImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeSequence {
+   
+   /** The property. */
    private ObjectProperty<Integer> property_;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe sequence impl.
+    *
+    * @param data the data
+    */
    protected DynamicSememeSequenceImpl(byte[] data) {
       super(data);
    }
 
+   /**
+    * Instantiates a new dynamic sememe sequence impl.
+    *
+    * @param nid the nid
+    */
    public DynamicSememeSequenceImpl(int nid) {
       super();
       this.data_ = DynamicSememeIntegerImpl.intToByteArray(nid);
    }
 
+   /**
+    * Instantiates a new dynamic sememe sequence impl.
+    *
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    protected DynamicSememeSequenceImpl(byte[] data, int assemblageSequence, int columnNumber) {
       super(data, assemblageSequence, columnNumber);
    }
@@ -78,6 +96,9 @@ public class DynamicSememeSequenceImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data object.
+    *
+    * @return the data object
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
     */
    @Override
@@ -86,6 +107,9 @@ public class DynamicSememeSequenceImpl
    }
 
    /**
+    * Gets the data object property.
+    *
+    * @return the data object property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
     */
    @Override
@@ -94,6 +118,9 @@ public class DynamicSememeSequenceImpl
    }
 
    /**
+    * Gets the data sequence.
+    *
+    * @return the data sequence
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicNidBI#getDataNid()
     */
    @Override
@@ -102,6 +129,9 @@ public class DynamicSememeSequenceImpl
    }
 
    /**
+    * Gets the data sequence property.
+    *
+    * @return the data sequence property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicNidBI#getDataNidProperty()
     */
    @Override

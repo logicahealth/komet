@@ -53,11 +53,19 @@ import sh.isaac.api.identity.StampedVersion;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface IdentifiedObjectService.
  *
  * @author kec
  */
 @Contract
 public interface IdentifiedObjectService {
+   
+   /**
+    * Gets the identified object chronology.
+    *
+    * @param nid the nid
+    * @return the identified object chronology
+    */
    Optional<? extends ObjectChronology<? extends StampedVersion>> getIdentifiedObjectChronology(int nid);
 }
 

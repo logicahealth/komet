@@ -100,6 +100,7 @@ import sh.isaac.model.waitfree.CasSequenceObjectMap;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class SememeProvider.
  *
  * @author kec
  */
@@ -108,21 +109,41 @@ import sh.isaac.model.waitfree.CasSequenceObjectMap;
 @Rank(value = 10)
 public class SememeProvider
          implements SememeService {
+   
+   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The assemblage sequence sememe sequence map. */
    final ConcurrentSkipListSet<AssemblageSememeKey> assemblageSequenceSememeSequenceMap = new ConcurrentSkipListSet<>();
+   
+   /** The referenced nid assemblage sequence sememe sequence map. */
    final ConcurrentSkipListSet<ReferencedNidAssemblageSequenceSememeSequenceKey> referencedNidAssemblageSequenceSememeSequenceMap =
       new ConcurrentSkipListSet<>();
+   
+   /** The in use assemblages. */
    private transient HashSet<Integer>                                           inUseAssemblages = new HashSet<>();
+   
+   /** The load required. */
    private final AtomicBoolean                                                        loadRequired     = new AtomicBoolean();
+   
+   /** The database validity. */
    private DatabaseValidity databaseValidity = DatabaseValidity.NOT_SET;
+   
+   /** The sememe map. */
    final CasSequenceObjectMap<SememeChronologyImpl<? extends SememeVersion<?>>> sememeMap;
+   
+   /** The sememe path. */
    final Path                                                                   sememePath;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new sememe provider.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    // For HK2
    private SememeProvider()
             throws IOException {
@@ -148,17 +169,33 @@ public class SememeProvider
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Clear database validity value.
+    */
    @Override
    public void clearDatabaseValidityValue() {
       // Reset to enforce analysis
       this.databaseValidity = DatabaseValidity.NOT_SET;
    }
 
+   /**
+    * Of type.
+    *
+    * @param <V> the value type
+    * @param versionType the version type
+    * @return the sememe service typed
+    */
    @Override
    public <V extends SememeVersion> SememeServiceTyped<V> ofType(Class<V> versionType) {
       return new SememeTypeProvider<>(versionType, this);
    }
 
+   /**
+    * Write sememe.
+    *
+    * @param sememeChronicle the sememe chronicle
+    * @param constraints the constraints
+    */
    @Override
    public void writeSememe(SememeChronology<?> sememeChronicle, SememeConstraints... constraints) {
       Arrays.stream(constraints).forEach((constraint) -> {
@@ -204,6 +241,9 @@ public class SememeProvider
       this.sememeMap.put(sememeChronicle.getSememeSequence(), (SememeChronologyImpl<?>) sememeChronicle);
    }
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       try {
@@ -275,6 +315,9 @@ public class SememeProvider
       }
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping SememeProvider pre-destroy. ");
@@ -318,21 +361,42 @@ public class SememeProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the assemblage types.
+    *
+    * @return the assemblage types
+    */
    @Override
    public Stream<Integer> getAssemblageTypes() {
       return this.inUseAssemblages.stream();
    }
 
+   /**
+    * Gets the database folder.
+    *
+    * @return the database folder
+    */
    @Override
    public Path getDatabaseFolder() {
       return this.sememePath;
    }
 
+   /**
+    * Gets the database validity status.
+    *
+    * @return the database validity status
+    */
    @Override
    public DatabaseValidity getDatabaseValidityStatus() {
       return this.databaseValidity;
    }
 
+   /**
+    * Gets the descriptions for component.
+    *
+    * @param componentNid the component nid
+    * @return the descriptions for component
+    */
    @Override
    public Stream<SememeChronology<? extends DescriptionSememe<?>>> getDescriptionsForComponent(int componentNid) {
       final SememeSequenceSet sequences = getSememeSequencesForComponent(componentNid);
@@ -352,6 +416,12 @@ public class SememeProvider
                       .mapToObj(mapper);
    }
 
+   /**
+    * Gets the optional sememe.
+    *
+    * @param sememeSequence the sememe sequence
+    * @return the optional sememe
+    */
    @Override
    public Optional<? extends SememeChronology<? extends SememeVersion<?>>> getOptionalSememe(int sememeSequence) {
       sememeSequence = Get.identifierService()
@@ -359,6 +429,11 @@ public class SememeProvider
       return this.sememeMap.get(sememeSequence);
    }
 
+   /**
+    * Gets the parallel sememe stream.
+    *
+    * @return the parallel sememe stream
+    */
    @Override
    public Stream<SememeChronology<? extends SememeVersion<?>>> getParallelSememeStream() {
       return this.sememeMap.getParallelStream().map((s) -> {
@@ -366,6 +441,12 @@ public class SememeProvider
                            });
    }
 
+   /**
+    * Gets the sememe.
+    *
+    * @param sememeId the sememe id
+    * @return the sememe
+    */
    @Override
    public SememeChronology<? extends SememeVersion<?>> getSememe(int sememeId) {
       sememeId = Get.identifierService()
@@ -373,6 +454,12 @@ public class SememeProvider
       return this.sememeMap.getQuick(sememeId);
    }
 
+   /**
+    * Checks for sememe.
+    *
+    * @param sememeId the sememe id
+    * @return true, if successful
+    */
    @Override
    public boolean hasSememe(int sememeId) {
       if (sememeId < 0) {
@@ -383,6 +470,11 @@ public class SememeProvider
       return this.sememeMap.containsKey(sememeId);
    }
 
+   /**
+    * Gets the sememe chronology stream.
+    *
+    * @return the sememe chronology stream
+    */
    @Override
    public Stream<SememeChronology<? extends SememeVersion<?>>> getSememeChronologyStream() {
       return this.sememeMap.getStream().map((s) -> {
@@ -390,26 +482,54 @@ public class SememeProvider
                            });
    }
 
+   /**
+    * Gets the sememe count.
+    *
+    * @return the sememe count
+    */
    @Override
    public int getSememeCount() {
       return this.sememeMap.getSize();
    }
 
+   /**
+    * Gets the sememe key parallel stream.
+    *
+    * @return the sememe key parallel stream
+    */
    @Override
    public IntStream getSememeKeyParallelStream() {
       return this.sememeMap.getKeyParallelStream();
    }
 
+   /**
+    * Gets the sememe key stream.
+    *
+    * @return the sememe key stream
+    */
    @Override
    public IntStream getSememeKeyStream() {
       return this.sememeMap.getKeyStream();
    }
 
+   /**
+    * Gets the sememe sequences for component.
+    *
+    * @param componentNid the component nid
+    * @return the sememe sequences for component
+    */
    @Override
    public SememeSequenceSet getSememeSequencesForComponent(int componentNid) {
       return getSememeSequencesForComponentFromAssemblages(componentNid, null);
    }
 
+   /**
+    * Gets the sememe sequences for component from assemblage.
+    *
+    * @param componentNid the component nid
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the sememe sequences for component from assemblage
+    */
    @Override
    public SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence) {
@@ -440,6 +560,13 @@ public class SememeProvider
       return referencedComponentSet;
    }
 
+   /**
+    * Gets the sememe sequences for component from assemblages.
+    *
+    * @param componentNid the component nid
+    * @param allowedAssemblageSequences the allowed assemblage sequences
+    * @return the sememe sequences for component from assemblages
+    */
    @Override
    public SememeSequenceSet getSememeSequencesForComponentFromAssemblages(int componentNid,
          Set<Integer> allowedAssemblageSequences) {
@@ -471,6 +598,13 @@ public class SememeProvider
             .mapToInt((ReferencedNidAssemblageSequenceSememeSequenceKey key) -> key.sememeSequence));
    }
 
+   /**
+    * Gets the sememe sequences for components from assemblage.
+    *
+    * @param componentNidSet the component nid set
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the sememe sequences for components from assemblage
+    */
    @Override
    public SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet,
          final int assemblageConceptSequence) {
@@ -502,6 +636,14 @@ public class SememeProvider
       return resultSet;
    }
 
+   /**
+    * Gets the sememe sequences for components from assemblage modified after position.
+    *
+    * @param componentNidSet the component nid set
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param position the position
+    * @return the sememe sequences for components from assemblage modified after position
+    */
    @Override
    public SememeSequenceSet getSememeSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet,
          int assemblageConceptSequence,
@@ -525,6 +667,12 @@ public class SememeProvider
       return sequencesThatPassedTest;
    }
 
+   /**
+    * Gets the sememe sequences from assemblage.
+    *
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the sememe sequences from assemblage
+    */
    @Override
    public SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageConceptSequence) {
       assemblageConceptSequence = Get.identifierService()
@@ -541,11 +689,24 @@ public class SememeProvider
             .mapToInt((AssemblageSememeKey key) -> key.sememeSequence));
    }
 
+   /**
+    * Gets the sememes for component.
+    *
+    * @param componentNid the component nid
+    * @return the sememes for component
+    */
    @Override
    public Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponent(int componentNid) {
       return getSememesForComponentFromAssemblages(componentNid, null);
    }
 
+   /**
+    * Gets the sememes for component from assemblage.
+    *
+    * @param componentNid the component nid
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the sememes for component from assemblage
+    */
    @Override
    public Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence) {
@@ -566,6 +727,13 @@ public class SememeProvider
                             .mapToObj((int sememeSequence) -> getSememe(sememeSequence));
    }
 
+   /**
+    * Gets the sememes for component from assemblages.
+    *
+    * @param componentNid the component nid
+    * @param allowedAssemblageSequences the allowed assemblage sequences
+    * @return the sememes for component from assemblages
+    */
    @Override
    public Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblages(int componentNid,
          Set<Integer> allowedAssemblageSequences) {
@@ -576,6 +744,12 @@ public class SememeProvider
                             .mapToObj((int sememeSequence) -> getSememe(sememeSequence));
    }
 
+   /**
+    * Gets the sememes from assemblage.
+    *
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the sememes from assemblage
+    */
    @Override
    public Stream<SememeChronology<? extends SememeVersion<?>>> getSememesFromAssemblage(int assemblageConceptSequence) {
       final SememeSequenceSet sememeSequences = getSememeSequencesFromAssemblage(assemblageConceptSequence);
@@ -584,6 +758,14 @@ public class SememeProvider
                             .mapToObj((int sememeSequence) -> getSememe(sememeSequence));
    }
 
+   /**
+    * Gets the snapshot.
+    *
+    * @param <V> the value type
+    * @param versionType the version type
+    * @param stampCoordinate the stamp coordinate
+    * @return the snapshot
+    */
    @Override
    public <V extends SememeVersion> SememeSnapshotService<V> getSnapshot(Class<V> versionType,
          StampCoordinate stampCoordinate) {

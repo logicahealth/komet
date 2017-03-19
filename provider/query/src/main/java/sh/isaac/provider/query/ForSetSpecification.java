@@ -62,23 +62,41 @@ import sh.isaac.api.collections.SememeSequenceSet;
 @XmlRootElement(name = "for-set")
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ForSetSpecification {
+   
+   /** The for collection types. */
    @XmlElementWrapper(name = "for")
    @XmlElement(name = "component")
    private List<ComponentCollectionTypes> forCollectionTypes = new ArrayList<>();
+   
+   /** The custom collection. */
    @XmlElementWrapper(name = "custom-for")
    @XmlElement(name = "uuid")
    private Set<UUID>                      customCollection   = new HashSet<>();
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new for set specification.
+    */
    public ForSetSpecification() {}
 
+   /**
+    * Instantiates a new for set specification.
+    *
+    * @param forCollectionTypes the for collection types
+    */
    public ForSetSpecification(ComponentCollectionTypes... forCollectionTypes) {
       this.forCollectionTypes.addAll(Arrays.asList(forCollectionTypes));
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the collection.
+    *
+    * @return the collection
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public NidSet getCollection()
             throws IOException {
       final NidSet forSet = NidSet.of();
@@ -115,24 +133,44 @@ public class ForSetSpecification {
       return forSet;
    }
 
+   /**
+    * Gets the custom collection.
+    *
+    * @return the custom collection
+    */
    public Set<UUID> getCustomCollection() {
       return this.customCollection;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the custom collection.
+    *
+    * @param customCollection the new custom collection
+    */
    public void setCustomCollection(Set<UUID> customCollection) {
       this.customCollection = customCollection;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the for collection types.
+    *
+    * @return the for collection types
+    */
    public List<ComponentCollectionTypes> getForCollectionTypes() {
       return this.forCollectionTypes;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the for collection types.
+    *
+    * @param forCollectionTypes the new for collection types
+    */
    public void setForCollectionTypes(List<ComponentCollectionTypes> forCollectionTypes) {
       this.forCollectionTypes = forCollectionTypes;
    }

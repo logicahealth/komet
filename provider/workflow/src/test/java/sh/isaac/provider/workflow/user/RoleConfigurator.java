@@ -53,19 +53,23 @@ import sh.isaac.provider.workflow.user.SimpleUserRoleService;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link RoleConfigurator}
+ * {@link RoleConfigurator}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class RoleConfigurator {
-   /** The Constant firstUserId (for Unit Testing) */
+   
+   /**  The Constant firstUserId (for Unit Testing). */
    private static final UUID firstUserId = UUID.randomUUID();
 
-   /** The Constant secondUserId (for Unit Testing) */
+   /**  The Constant secondUserId (for Unit Testing). */
    private static final UUID secondUserId = UUID.randomUUID();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Configure for test.
+    */
    public static void configureForTest() {
       final SimpleUserRoleService rolesService = LookupService.get()
                                                         .getService(SimpleUserRoleService.class);
@@ -89,7 +93,7 @@ public class RoleConfigurator {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Returns the first test user (for Unit Testing)
+    * Returns the first test user (for Unit Testing).
     *
     * @return the first test user
     */
@@ -98,7 +102,7 @@ public class RoleConfigurator {
    }
 
    /**
-    * Returns the first test user seq (Value doesn't matter as long as consistent)
+    * Returns the first test user seq (Value doesn't matter as long as consistent).
     *
     * @return the first test user seq
     */
@@ -107,7 +111,7 @@ public class RoleConfigurator {
    }
 
    /**
-    * Returns the second test user (for Unit Testing)
+    * Returns the second test user (for Unit Testing).
     *
     * @return the second test user
     */
@@ -116,7 +120,7 @@ public class RoleConfigurator {
    }
 
    /**
-    * Returns the second test user seq (Value doesn't matter as long as consistent)
+    * Returns the second test user seq (Value doesn't matter as long as consistent).
     *
     * @return the second test user seq
     */

@@ -47,10 +47,16 @@ import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class PT_Relationship_Metadata.
+ *
  * @author Daniel Armbrust
  */
 public class PT_Relationship_Metadata
         extends PropertyType {
+   
+   /**
+    * Instantiates a new p T relationship metadata.
+    */
    public PT_Relationship_Metadata() {
       super("Relationship Metadata", true, DynamicSememeDataType.UUID);
       indexByAltNames();

@@ -68,8 +68,12 @@ import sh.isaac.api.component.concept.ConceptVersion;
 @XmlRootElement()
 public class Not
         extends ParentClause {
+   
+   /** The for set. */
    @XmlTransient
    NidSet forSet;
+   
+   /** The not set. */
    @XmlTransient
    NidSet notSet;
 
@@ -82,12 +86,24 @@ public class Not
       super();
    }
 
+   /**
+    * Instantiates a new not.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param child the child
+    */
    public Not(Query enclosingQuery, Clause child) {
       super(enclosingQuery, child);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute components.
+    *
+    * @param incomingComponents the incoming components
+    * @return the nid set
+    */
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
       this.forSet = this.enclosingQuery.getForSet();
@@ -111,6 +127,12 @@ public class Not
       return this.forSet;
    }
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       this.notSet = new NidSet();
@@ -138,6 +160,11 @@ public class Not
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();

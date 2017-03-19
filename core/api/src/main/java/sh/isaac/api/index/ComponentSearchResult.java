@@ -58,6 +58,12 @@ public class ComponentSearchResult
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new component search result.
+    *
+    * @param nid the nid
+    * @param score the score
+    */
    public ComponentSearchResult(int nid, float score) {
       this.nid   = nid;
       this.score = score;
@@ -65,6 +71,11 @@ public class ComponentSearchResult
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the native id of the component that matches the search.
+    *
+    * @return the native id of the component that matches the search
+    */
    @Override
    public int getNid() {
       return this.nid;
@@ -72,12 +83,22 @@ public class ComponentSearchResult
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set native id of the component that matches the search.
+    *
+    * @param nid the new native id of the component that matches the search
+    */
    public void setNid(int nid) {
       this.nid = nid;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the score of the components match relative to other matches.
+    *
+    * @return the score of the components match relative to other matches
+    */
    @Override
    public float getScore() {
       return this.score;
@@ -85,6 +106,11 @@ public class ComponentSearchResult
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set score of the components match relative to other matches.
+    *
+    * @param score the new score of the components match relative to other matches
+    */
    public void setScore(float score) {
       this.score = score;
    }

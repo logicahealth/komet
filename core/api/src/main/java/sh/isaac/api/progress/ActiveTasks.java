@@ -52,17 +52,34 @@ import org.jvnet.hk2.annotations.Contract;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ActiveTasks.
  *
  * @author kec
  */
 @Contract
 public interface ActiveTasks {
+   
+   /**
+    * Adds the.
+    *
+    * @param task the task
+    */
    void add(Task<?> task);
 
+   /**
+    * Removes the.
+    *
+    * @param task the task
+    */
    void remove(Task<?> task);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the.
+    *
+    * @return the set
+    */
    Set<Task<?>> get();
 }
 

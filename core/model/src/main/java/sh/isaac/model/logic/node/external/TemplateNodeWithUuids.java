@@ -66,14 +66,14 @@ import sh.isaac.model.logic.node.internal.TemplateNodeWithSequences;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class TemplateNodeWithUuids.
  *
  * @author kec
  */
 public class TemplateNodeWithUuids
         extends AbstractLogicNode {
-   /**
-    * Sequence of the concept that defines the template
-    */
+   
+   /** Sequence of the concept that defines the template. */
    UUID templateConceptUuid;
 
    /**
@@ -84,6 +84,11 @@ public class TemplateNodeWithUuids
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new template node with uuids.
+    *
+    * @param internalForm the internal form
+    */
    public TemplateNodeWithUuids(TemplateNodeWithSequences internalForm) {
       super(internalForm);
       this.templateConceptUuid = Get.identifierService()
@@ -94,6 +99,13 @@ public class TemplateNodeWithUuids
                                       .get();
    }
 
+   /**
+    * Instantiates a new template node with uuids.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public TemplateNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion,
                                 DataInputStream dataInputStream)
             throws IOException {
@@ -102,6 +114,13 @@ public class TemplateNodeWithUuids
       this.assemblageConceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
    }
 
+   /**
+    * Instantiates a new template node with uuids.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param templateConceptUuid the template concept uuid
+    * @param assemblageConceptUuid the assemblage concept uuid
+    */
    public TemplateNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion,
                                 UUID templateConceptUuid,
                                 UUID assemblageConceptUuid) {
@@ -112,11 +131,22 @@ public class TemplateNodeWithUuids
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the children.
+    *
+    * @param children the children
+    */
    @Override
    public final void addChildren(LogicNode... children) {
       throw new UnsupportedOperationException();
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -140,6 +170,11 @@ public class TemplateNodeWithUuids
       return this.templateConceptUuid.equals(that.templateConceptUuid);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int result = super.hashCode();
@@ -149,11 +184,22 @@ public class TemplateNodeWithUuids
       return result;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
       return "TemplateNode[" + getNodeIndex() + nodeIdSuffix + "] " + "assemblage: " +
@@ -161,6 +207,13 @@ public class TemplateNodeWithUuids
              Get.conceptService().getConcept(this.templateConceptUuid).toUserString() + super.toString(nodeIdSuffix);
    }
 
+   /**
+    * Write node data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
@@ -184,6 +237,12 @@ public class TemplateNodeWithUuids
       }
    }
 
+   /**
+    * Compare fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    protected int compareFields(LogicNode o) {
       final TemplateNodeWithUuids that = (TemplateNodeWithUuids) o;
@@ -195,6 +254,11 @@ public class TemplateNodeWithUuids
       return this.templateConceptUuid.compareTo(that.templateConceptUuid);
    }
 
+   /**
+    * Inits the node uuid.
+    *
+    * @return the uuid
+    */
    @Override
    protected UUID initNodeUuid() {
       return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
@@ -203,20 +267,40 @@ public class TemplateNodeWithUuids
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the sequence of the assemblage concept that provides the substitution values for the template.
+    *
+    * @return the sequence of the assemblage concept that provides the substitution values for the template
+    */
    public UUID getAssemblageConceptUuid() {
       return this.assemblageConceptUuid;
    }
 
+   /**
+    * Gets the children.
+    *
+    * @return the children
+    */
    @Override
    public final AbstractLogicNode[] getChildren() {
       return new AbstractLogicNode[0];
    }
 
+   /**
+    * Gets the node semantic.
+    *
+    * @return the node semantic
+    */
    @Override
    public NodeSemantic getNodeSemantic() {
       return NodeSemantic.TEMPLATE;
    }
 
+   /**
+    * Gets the sequence of the concept that defines the template.
+    *
+    * @return the sequence of the concept that defines the template
+    */
    public UUID getTemplateConceptUuid() {
       return this.templateConceptUuid;
    }
