@@ -12,7 +12,7 @@
   <name>ISAAC: Integration tests</name>
     <dependencies>
         <dependency>
-            <groupId>sh.isaac.modules</groupId>
+            <groupId>sh.isaac.core</groupId>
             <artifactId>metadata</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -115,7 +115,7 @@
                            <skip>${skipTests}</skip>
                            <artifactItems>
                                 <artifact>
-                                    <groupId>sh.isaac.modules</groupId>
+                                    <groupId>sh.isaac.core</groupId>
                                     <artifactId>metadata</artifactId>
                                     <version>${project.version}</version>
                                     <classifier>all</classifier>

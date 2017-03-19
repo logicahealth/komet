@@ -85,7 +85,7 @@ public class DBConfigurationCreator {
    private static final Logger LOG = LogManager.getLogger();
 
    /** The Constant parentGroupId. */
-   private static final String parentGroupId = "sh.isaac.modules";
+   private static final String parentGroupId = "sh.isaac.integration";
 
    /** The Constant parentArtifactId. */
    private static final String parentArtifactId = "db-builder";
@@ -189,8 +189,8 @@ public class DBConfigurationCreator {
       final Dependencies dependencies = new Dependencies();
       Dependency         dependency   = new Dependency();
 
-      dependency.setGroupId("sh.isaac.modules");
-      dependency.setArtifactId("ochre-metadata");
+      dependency.setGroupId("sh.isaac.core");
+      dependency.setArtifactId("metadata");
       dependency.setClassifier("all");
       dependency.setVersion(metadataVersion);
       dependency.setType("ibdf.zip");
@@ -259,8 +259,8 @@ public class DBConfigurationCreator {
 
       // new plugin
       plugin = new Plugin();
-      plugin.setGroupId("sh.isaac.modules");
-      plugin.setArtifactId("ochre-mojo");
+      plugin.setGroupId("sh.isaac.core");
+      plugin.setArtifactId("mojo");
       executions = new Executions();
 
       // setup isaac

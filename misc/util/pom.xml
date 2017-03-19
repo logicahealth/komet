@@ -23,7 +23,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>sh.isaac.modules</groupId>
+            <groupId>sh.isaac.core</groupId>
             <artifactId>metadata</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -5,7 +5,7 @@
         <artifactId>provider</artifactId>
 		<version>4.2-SNAPSHOT</version>
 	</parent>
-	<groupId>sh.isaac.modules</groupId>
+	<groupId>sh.isaac.provider</groupId>
 	<artifactId>sync-git</artifactId>
 	<packaging>jar</packaging>
 
