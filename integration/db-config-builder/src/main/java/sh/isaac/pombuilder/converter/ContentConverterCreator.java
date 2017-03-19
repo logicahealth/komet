@@ -180,8 +180,8 @@ public class ContentConverterCreator {
             }
 
             temp = FileUtil.readFile("converterProjectTemplate/pomSnippits/ibdfDependency.xml");
-            temp = temp.replace("#GROUPID#", "sh.isaac.modules");
-            temp = temp.replace("#ARTIFACTID#", "ochre-metadata");
+            temp = temp.replace("#GROUPID#", "sh.isaac.core");
+            temp = temp.replace("#ARTIFACTID#", "metadata");
             temp = temp.replace("#CLASSIFIER#", "all");
             temp = temp.replace("#VERSION#", VersionFinder.findProjectVersion());
             dependencies.append(temp);

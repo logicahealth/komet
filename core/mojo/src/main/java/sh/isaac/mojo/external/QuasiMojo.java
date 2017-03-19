@@ -60,7 +60,7 @@ import org.jvnet.hk2.annotations.Contract;
  * Your code can then be executed with a configuration like this:
  *
  *      <plugin>
- *              <groupId>sh.isaac.modules</groupId>
+ *              <groupId>sh.isaac.core</groupId>
  *              <artifactId>mojo</artifactId>
  *              <dependencies>
  *                      <dependency>

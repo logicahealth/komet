@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
         <artifactId>integration</artifactId>
-		<version>4.1</version>
+		<version>4.2</version>
 	</parent>
 
 	<groupId>sh.isaac.integration</groupId>
@@ -18,7 +18,7 @@
 			<artifactId>log4j-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>sh.isaac.modules</groupId>
+			<groupId>sh.isaac.provider</groupId>
 			<artifactId>sync-git</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>

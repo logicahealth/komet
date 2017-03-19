@@ -4,10 +4,10 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
         <artifactId>provider</artifactId>
-		<version>4.1</version>
+		<version>4.2</version>
 	</parent>
 	
-	<groupId>sh.isaac.modules</groupId>
+	<groupId>sh.isaac.core</groupId>
 	<artifactId>metacontent</artifactId>
 	<packaging>jar</packaging>
 	<name>ISAAC: MetaContent Store</name>

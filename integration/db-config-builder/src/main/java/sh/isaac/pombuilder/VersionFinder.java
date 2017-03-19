@@ -78,7 +78,7 @@ public class VersionFinder {
     */
    public static String findProjectVersion() {
       try (InputStream is =
-            VersionFinder.class.getResourceAsStream("/META-INF/maven/sh.isaac.modules/db-config-builder/pom.xml");) {
+            VersionFinder.class.getResourceAsStream("/META-INF/maven/sh.isaac.integration/db-config-builder/pom.xml");) {
          final DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 
          // added to avoid XXE injections

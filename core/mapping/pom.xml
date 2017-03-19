@@ -4,10 +4,10 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>core</artifactId>
-        <version>4.1</version>
+        <version>4.2</version>
     </parent>
     
-    <groupId>sh.isaac.modules</groupId>
+    <groupId>sh.isaac.core</groupId>
     <artifactId>mapping</artifactId>
     <packaging>jar</packaging>
     <name>ISAAC: Mapping</name>
