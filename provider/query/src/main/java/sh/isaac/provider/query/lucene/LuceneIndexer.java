@@ -587,19 +587,17 @@ public abstract class LuceneIndexer
     */
    protected Query buildPrefixQuery(String searchString, String field, Analyzer analyzer)
             throws IOException {
-      final StringReader textReader  = new StringReader(searchString);
-      final TokenStream  tokenStream = analyzer.tokenStream(field, textReader);
-
-      tokenStream.reset();
-
-      final List<String>      terms             = new ArrayList<>();
-      final CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
-
-      while (tokenStream.incrementToken()) {
-         terms.add(charTermAttribute.toString());
+      final TokenStream tokenStream;
+      final List<String>  terms;
+      try (StringReader textReader = new StringReader(searchString)) {
+         tokenStream = analyzer.tokenStream(field, textReader);
+         tokenStream.reset();
+         terms = new ArrayList<>();
+         final CharTermAttribute charTermAttribute = tokenStream.addAttribute(CharTermAttribute.class);
+         while (tokenStream.incrementToken()) {
+            terms.add(charTermAttribute.toString());
+         }
       }
-
-      textReader.close();
       tokenStream.close();
       analyzer.close();
 

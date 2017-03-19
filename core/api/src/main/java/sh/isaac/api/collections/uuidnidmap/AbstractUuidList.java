@@ -371,7 +371,7 @@ public abstract class AbstractUuidList
       AbstractList.checkRangeFromTo(from, to, size());
 
       for (int i = to; i >= from; i--) {
-         if (element.equals(getQuick(i))) {
+         if (java.util.Arrays.equals(element, getQuick(i))) {
             return i;  // found
          }
       }

@@ -93,8 +93,8 @@ public class MemoryUtil {
 
             final String[] memoryPoolNames = gcmbean.getMemoryPoolNames();
 
-            for (int i = 0; i < memoryPoolNames.length; i++) {
-               System.out.println("\t" + memoryPoolNames[i]);
+            for (String memoryPoolName : memoryPoolNames) {
+               System.out.println("\t" + memoryPoolName);
             }
          }
 
@@ -113,8 +113,8 @@ public class MemoryUtil {
 
             final String[] memManagerNames = mempoolmbean.getMemoryManagerNames();
 
-            for (int i = 0; i < memManagerNames.length; i++) {
-               System.out.println("\t" + memManagerNames[i]);
+            for (String memManagerName : memManagerNames) {
+               System.out.println("\t" + memManagerName);
             }
 
             System.out.println("\n");
@@ -151,14 +151,13 @@ public class MemoryUtil {
       final double        committedInGB = heapCommitted / 1000000000;
       final double        maxInGB       = maxHeap / 1000000000;
       final StringBuilder sb            = new StringBuilder();
-      final Formatter     formatter     = new Formatter(sb, Locale.US);
-
-      formatter.format(" Heap used: %1$,3.2f/%2$,3.2f GB (%3$,3.1f%%) %4$,3.2f GB requested max",
-                       sizeUsedInGB,
-                       committedInGB,
-                       percentUsed,
-                       maxInGB);
-      formatter.close();
+      try (Formatter formatter = new Formatter(sb, Locale.US)) {
+         formatter.format(" Heap used: %1$,3.2f/%2$,3.2f GB (%3$,3.1f%%) %4$,3.2f GB requested max",
+                 sizeUsedInGB,
+                 committedInGB,
+                 percentUsed,
+                 maxInGB);
+      }
       return sb.toString();
    }
 

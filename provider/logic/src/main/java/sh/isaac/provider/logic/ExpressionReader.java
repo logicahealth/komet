@@ -121,13 +121,14 @@ public class ExpressionReader {
 
                              final String definitionSctid = strTokens[8];
 
-                             if (definitionSctid.equals(sufficientSctid)) {
-                                return SNOMEDCTParserUtil.parseExpression(strTokens[7]);
-                             } else if (definitionSctid.equals(necessarySctid)) {
-                                return SNOMEDCTParserUtil.parseExpression("<<< " + strTokens[7]);
-                             } else {
-                                throw new RuntimeException("Unexpected definition status: " + definitionSctid +
-                                " on line " + lineCount);
+                             switch (definitionSctid) {
+                                case sufficientSctid:
+                                   return SNOMEDCTParserUtil.parseExpression(strTokens[7]);
+                                case necessarySctid:
+                                   return SNOMEDCTParserUtil.parseExpression("<<< " + strTokens[7]);
+                                default:
+                                   throw new RuntimeException("Unexpected definition status: " + definitionSctid +
+                                           " on line " + lineCount);
                              }
                           } catch (final Exception e) {
                              throw new RuntimeException(e);

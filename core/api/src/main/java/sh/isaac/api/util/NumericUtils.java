@@ -122,13 +122,13 @@ public class NumericUtils {
    public static Number readNumber(DynamicSememeData value)
             throws NumberFormatException {
       if (value instanceof DynamicSememeDouble) {
-         return Double.valueOf(((DynamicSememeDouble) value).getDataDouble());
+         return ((DynamicSememeDouble) value).getDataDouble();
       } else if (value instanceof DynamicSememeFloat) {
-         return Float.valueOf(((DynamicSememeFloat) value).getDataFloat());
+         return ((DynamicSememeFloat) value).getDataFloat();
       } else if (value instanceof DynamicSememeInteger) {
-         return Integer.valueOf(((DynamicSememeInteger) value).getDataInteger());
+         return ((DynamicSememeInteger) value).getDataInteger();
       } else if (value instanceof DynamicSememeLong) {
-         return Long.valueOf(((DynamicSememeLong) value).getDataLong());
+         return ((DynamicSememeLong) value).getDataLong();
       } else {
          throw new NumberFormatException("The value passed in to the validator is not a number");
       }
@@ -211,7 +211,7 @@ public class NumericUtils {
    public static Optional<Integer> getNID(String string) {
       final Optional<Integer> possibleInt = getInt(string);
 
-      return (possibleInt.isPresent() && (possibleInt.get().intValue() < 0)) ? possibleInt
+      return (possibleInt.isPresent() && (possibleInt.get() < 0)) ? possibleInt
             : Optional.empty();
    }
 
