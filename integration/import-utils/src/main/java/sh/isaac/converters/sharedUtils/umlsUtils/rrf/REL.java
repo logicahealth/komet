@@ -113,10 +113,10 @@ public class REL {
    private final String sourceSAB;
 
    /** The rel hash. */
-   private UUID sourceUUID_, targetUUID_, relHash_;
+   private UUID sourceUUID, targetUUID, relHash;
 
    /** The looked up 2. */
-   private final boolean lookedUp2_;
+   private final boolean lookedUp2;
 
    //~--- constructors --------------------------------------------------------
 
@@ -137,7 +137,7 @@ public class REL {
                Function<String, String> relReverser)
             throws SQLException {
       this.sourceSAB  = sourceSab;
-      this.lookedUp2_ = lookedUp2;
+      this.lookedUp2 = lookedUp2;
       this.cui1       = rs.getString(isRxNorm ? "RXCUI1"
             : "CUI1");
       this.aui1       = rs.getString(isRxNorm ? "RXAUI1"
@@ -167,7 +167,7 @@ public class REL {
          this.targetCODE = rs.getString("targetCODE");
       }
 
-      if (!this.lookedUp2_) {
+      if (!this.lookedUp2) {
          this.rel  = relReverser.apply(this.rel);
          this.rela = relReverser.apply(this.rela);
       }
@@ -250,8 +250,8 @@ public class REL {
                                       .getFSNName();
       }
 
-      return UUID.nameUUIDFromBytes(new String(relInverse + relaInverse + this.targetUUID_ +
-            this.sourceUUID_).getBytes());
+      return UUID.nameUUIDFromBytes(new String(relInverse + relaInverse + this.targetUUID +
+            this.sourceUUID).getBytes());
    }
 
    /**
@@ -269,12 +269,12 @@ public class REL {
     * @return the rel hash
     */
    public UUID getRelHash() {
-      if (this.relHash_ == null) {
-         this.relHash_ = UUID.nameUUIDFromBytes(new String(this.rel + this.rela + this.sourceUUID_ +
-               this.targetUUID_).getBytes());
+      if (this.relHash == null) {
+         this.relHash = UUID.nameUUIDFromBytes(new String(this.rel + this.rela + this.sourceUUID +
+               this.targetUUID).getBytes());
       }
 
-      return this.relHash_;
+      return this.relHash;
    }
 
    /**
@@ -328,7 +328,7 @@ public class REL {
     * @return the source AUI
     */
    public String getSourceAUI() {
-      return this.lookedUp2_ ? this.aui2
+      return this.lookedUp2 ? this.aui2
                              : this.aui1;
    }
 
@@ -338,7 +338,7 @@ public class REL {
     * @return the source CUI
     */
    public String getSourceCUI() {
-      return this.lookedUp2_ ? this.cui2
+      return this.lookedUp2 ? this.cui2
                              : this.cui1;
    }
 
@@ -357,7 +357,7 @@ public class REL {
     * @return the source UUID
     */
    public UUID getSourceUUID() {
-      return this.sourceUUID_;
+      return this.sourceUUID;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -368,8 +368,8 @@ public class REL {
     * @param sourceUUID the new source UUID
     */
    public void setSourceUUID(UUID sourceUUID) {
-      this.sourceUUID_ = sourceUUID;
-      this.relHash_    = null;
+      this.sourceUUID = sourceUUID;
+      this.relHash    = null;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -416,7 +416,7 @@ public class REL {
     * @return the target AUI
     */
    public String getTargetAUI() {
-      return this.lookedUp2_ ? this.aui1
+      return this.lookedUp2 ? this.aui1
                              : this.aui2;
    }
 
@@ -426,7 +426,7 @@ public class REL {
     * @return the target CUI
     */
    public String getTargetCUI() {
-      return this.lookedUp2_ ? this.cui1
+      return this.lookedUp2 ? this.cui1
                              : this.cui2;
    }
 
@@ -454,7 +454,7 @@ public class REL {
     * @return the target UUID
     */
    public UUID getTargetUUID() {
-      return this.targetUUID_;
+      return this.targetUUID;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -465,8 +465,8 @@ public class REL {
     * @param targetUUID the new target UUID
     */
    public void setTargetUUID(UUID targetUUID) {
-      this.targetUUID_ = targetUUID;
-      this.relHash_    = null;
+      this.targetUUID = targetUUID;
+      this.relHash    = null;
    }
 }
 

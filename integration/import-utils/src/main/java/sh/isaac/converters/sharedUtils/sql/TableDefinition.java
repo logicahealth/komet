@@ -50,10 +50,10 @@ import java.util.LinkedHashMap;
  */
 public class TableDefinition {
    /** The columns. */
-   private final LinkedHashMap<String, ColumnDefinition> columns_ = new LinkedHashMap<>();
+   private final LinkedHashMap<String, ColumnDefinition> columns = new LinkedHashMap<>();
 
    /** The table name. */
-   private final String tableName_;
+   private final String tableName;
 
    //~--- constructors --------------------------------------------------------
 
@@ -63,7 +63,7 @@ public class TableDefinition {
     * @param tableName the table name
     */
    public TableDefinition(String tableName) {
-      this.tableName_ = tableName;
+      this.tableName = tableName;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -74,7 +74,7 @@ public class TableDefinition {
     * @param cd the cd
     */
    public void addColumn(ColumnDefinition cd) {
-      this.columns_.put(cd.getColumnName()
+      this.columns.put(cd.getColumnName()
                           .toLowerCase(), cd);
    }
 
@@ -87,7 +87,7 @@ public class TableDefinition {
     * @return the col data type
     */
    public DataType getColDataType(String columnName) {
-      final ColumnDefinition x = this.columns_.get(columnName.toLowerCase());
+      final ColumnDefinition x = this.columns.get(columnName.toLowerCase());
 
       return (x == null) ? null
                          : x.getDataType();
@@ -99,8 +99,8 @@ public class TableDefinition {
     * @return the columns
     */
    public ColumnDefinition[] getColumns() {
-      return this.columns_.values()
-                          .toArray(new ColumnDefinition[this.columns_.size()]);
+      return this.columns.values()
+                          .toArray(new ColumnDefinition[this.columns.size()]);
    }
 
    /**
@@ -109,7 +109,7 @@ public class TableDefinition {
     * @return the table name
     */
    public String getTableName() {
-      return this.tableName_;
+      return this.tableName;
    }
 }
 

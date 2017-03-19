@@ -64,7 +64,7 @@ public class DynamicSememeUUIDImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeUUID {
    /** The property. */
-   private ObjectProperty<UUID> property_;
+   private ObjectProperty<UUID> property;
 
    //~--- constructors --------------------------------------------------------
 
@@ -93,7 +93,7 @@ public class DynamicSememeUUIDImpl
 
       b.putLong(uuid.getMostSignificantBits());
       b.putLong(uuid.getLeastSignificantBits());
-      this.data_ = b.array();
+      this.data = b.array();
    }
 
    /**
@@ -139,7 +139,7 @@ public class DynamicSememeUUIDImpl
     */
    @Override
    public UUID getDataUUID() {
-      final ByteBuffer b     = ByteBuffer.wrap(this.data_);
+      final ByteBuffer b     = ByteBuffer.wrap(this.data);
       final long       most  = b.getLong();
       final long       least = b.getLong();
 
@@ -154,11 +154,11 @@ public class DynamicSememeUUIDImpl
     */
    @Override
    public ReadOnlyObjectProperty<UUID> getDataUUIDProperty() {
-      if (this.property_ == null) {
-         this.property_ = new SimpleObjectProperty<>(null, getName(), getDataUUID());
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<>(null, getName(), getDataUUID());
       }
 
-      return this.property_;
+      return this.property;
    }
 }
 

@@ -219,34 +219,34 @@ public enum SupportedConverterTypes {
    // TODO
    ;
 
-   private final String converterGroupId_ = "sh.isaac.terminology.converters";
+   private final String converterGroupId = "sh.isaac.terminology.converters";
 
    /** The src artifact id. */
-   private String srcArtifactId_;
+   private String srcArtifactId;
 
    /** The artifact src dependencies. */
-   private List<String> artifactSrcDependencies_;
+   private List<String> artifactSrcDependencies;
 
    /** The artifact IBDF dependencies. */
-   private List<String> artifactIBDFDependencies_;
+   private List<String> artifactIBDFDependencies;
 
    /** The upload file info. */
-   private List<UploadFileInfo> uploadFileInfo_;  // If we were really clever, we would pull this from an options file published with the converter itself.
+   private List<UploadFileInfo> uploadFileInfo;  // If we were really clever, we would pull this from an options file published with the converter itself.
 
    /** The converter artifact id. */
-   private String converterArtifactId_;
+   private String converterArtifactId;
 
    /** The converter output artifact id. */
-   private String converterOutputArtifactId_;
+   private String converterOutputArtifactId;
 
    /** The converter mojo name. */
-   private String converterMojoName_;  // Must match the value from the mojo - aka - @ Mojo( name = "convert-loinc-to-ibdf", defaultPhase... used as the goal in the pom.
+   private String converterMojoName;  // Must match the value from the mojo - aka - @ Mojo( name = "convert-loinc-to-ibdf", defaultPhase... used as the goal in the pom.
 
    /** The source upload group id. */
-   private String sourceUploadGroupId_;
+   private String sourceUploadGroupId;
 
    /** The nice name. */
-   private String niceName_;
+   private String niceName;
 
    /** The license information. */
    private String[] licenseInformation;
@@ -288,15 +288,15 @@ public enum SupportedConverterTypes {
                                    String niceName,
                                    String[] licenseFilePaths,
                                    String[] noticeFilePaths) {
-      this.srcArtifactId_             = artifactId;
-      this.artifactSrcDependencies_   = Arrays.asList(artifactSourceDependencies);
-      this.artifactIBDFDependencies_  = Arrays.asList(artifactIBDFDependencies);
-      this.uploadFileInfo_            = Arrays.asList(uploadFileInfo);
-      this.converterArtifactId_       = converterArtifactId;
-      this.converterOutputArtifactId_ = converterOutputArtifactId;
-      this.converterMojoName_         = converterMojoName;
-      this.sourceUploadGroupId_       = sourceUploadGroupId;
-      this.niceName_                  = niceName;
+      this.srcArtifactId             = artifactId;
+      this.artifactSrcDependencies   = Arrays.asList(artifactSourceDependencies);
+      this.artifactIBDFDependencies  = Arrays.asList(artifactIBDFDependencies);
+      this.uploadFileInfo            = Arrays.asList(uploadFileInfo);
+      this.converterArtifactId       = converterArtifactId;
+      this.converterOutputArtifactId = converterOutputArtifactId;
+      this.converterMojoName         = converterMojoName;
+      this.sourceUploadGroupId       = sourceUploadGroupId;
+      this.niceName                  = niceName;
       this.licenseInformation         = new String[licenseFilePaths.length];
       this.noticeInformation          = new String[noticeFilePaths.length];
 
@@ -332,7 +332,7 @@ public enum SupportedConverterTypes {
     * @return the artifact dependencies
     */
    public List<String> getArtifactDependencies() {
-      return this.artifactSrcDependencies_;
+      return this.artifactSrcDependencies;
    }
 
    /**
@@ -344,7 +344,7 @@ public enum SupportedConverterTypes {
     * @return the artifact id
     */
    public String getArtifactId() {
-      return this.srcArtifactId_;
+      return this.srcArtifactId;
    }
 
    /**
@@ -353,7 +353,7 @@ public enum SupportedConverterTypes {
     * @return the converter artifact id
     */
    protected String getConverterArtifactId() {
-      return this.converterArtifactId_;
+      return this.converterArtifactId;
    }
 
    /**
@@ -362,7 +362,7 @@ public enum SupportedConverterTypes {
     * @return the converter group id
     */
    protected String getConverterGroupId() {
-      return this.converterGroupId_;
+      return this.converterGroupId;
    }
 
    /**
@@ -371,7 +371,7 @@ public enum SupportedConverterTypes {
     * @return the converter mojo name
     */
    protected String getConverterMojoName() {
-      return this.converterMojoName_;
+      return this.converterMojoName;
    }
 
    /**
@@ -380,7 +380,7 @@ public enum SupportedConverterTypes {
     * @return the converter output artifact id
     */
    protected String getConverterOutputArtifactId() {
-      return this.converterOutputArtifactId_;
+      return this.converterOutputArtifactId;
    }
 
    /**
@@ -392,7 +392,7 @@ public enum SupportedConverterTypes {
     * @return the IBDF dependencies
     */
    public List<String> getIBDFDependencies() {
-      return this.artifactIBDFDependencies_;
+      return this.artifactIBDFDependencies;
    }
 
    /**
@@ -410,7 +410,7 @@ public enum SupportedConverterTypes {
     * @return the nice name
     */
    public String getNiceName() {
-      return this.niceName_;
+      return this.niceName;
    }
 
    /**
@@ -428,7 +428,7 @@ public enum SupportedConverterTypes {
     * @return the source upload group id
     */
    public String getSourceUploadGroupId() {
-      return this.sourceUploadGroupId_;
+      return this.sourceUploadGroupId;
    }
 
    /**
@@ -439,7 +439,7 @@ public enum SupportedConverterTypes {
     * @return the upload file info
     */
    public List<UploadFileInfo> getUploadFileInfo() {
-      return this.uploadFileInfo_;
+      return this.uploadFileInfo;
    }
 }
 

@@ -99,7 +99,7 @@ public enum SememeType {
    final byte sememeToken;
 
    /** The nice name. */
-   final String niceName_;
+   final String niceName;
 
    //~--- constructors --------------------------------------------------------
 
@@ -111,7 +111,7 @@ public enum SememeType {
     */
    private SememeType(byte sememeToken, String niceName) {
       this.sememeToken = sememeToken;
-      this.niceName_   = niceName;
+      this.niceName   = niceName;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -137,7 +137,7 @@ public enum SememeType {
 
       for (final SememeType ct: values()) {
          if (ct.name().toLowerCase(Locale.ENGLISH).equals(clean) ||
-               ct.niceName_.toLowerCase(Locale.ENGLISH).equals(clean) ||
+               ct.niceName.toLowerCase(Locale.ENGLISH).equals(clean) ||
                (ct.ordinal() + "").equals(clean)) {
             return ct;
          }
@@ -157,7 +157,7 @@ public enum SememeType {
     */
    @Override
    public String toString() {
-      return this.niceName_;
+      return this.niceName;
    }
 
    //~--- get methods ---------------------------------------------------------

@@ -94,13 +94,13 @@ public class DefaultConfigurationService
    //~--- fields --------------------------------------------------------------
 
    /** The data store folder path. */
-   private Path dataStoreFolderPath_ = null;
+   private Path dataStoreFolderPath = null;
 
    /** The default coordinate provider. */
-   DefaultCoordinateProvider defaultCoordinateProvider_ = new DefaultCoordinateProvider();
+   DefaultCoordinateProvider defaultCoordinateProvider = new DefaultCoordinateProvider();
 
    /** The init complete. */
-   private volatile boolean initComplete_ = false;
+   private volatile boolean initComplete = false;
 
    /** The bootstrap mode. */
    private boolean bootstrapMode = false;
@@ -170,9 +170,9 @@ public class DefaultConfigurationService
     */
    @Override
    public Optional<Path> getDataStoreFolderPath() {
-      if ((this.dataStoreFolderPath_ == null) &&!this.initComplete_) {
+      if ((this.dataStoreFolderPath == null) &&!this.initComplete) {
          synchronized (this) {
-            if ((this.dataStoreFolderPath_ == null) &&!this.initComplete_) {
+            if ((this.dataStoreFolderPath == null) &&!this.initComplete) {
                // This hacking is to prevent fortify from flagging an external data source path
                final StringBuilder dataStoreRootFolder = new StringBuilder();
 
@@ -181,31 +181,31 @@ public class DefaultConfigurationService
                      .forEach(c -> dataStoreRootFolder.append((char) c));
 
                if (!StringUtils.isBlank(dataStoreRootFolder.toString())) {
-                  this.dataStoreFolderPath_ = Paths.get(dataStoreRootFolder.toString());
+                  this.dataStoreFolderPath = Paths.get(dataStoreRootFolder.toString());
 
-                  if (!Files.exists(this.dataStoreFolderPath_)) {
+                  if (!Files.exists(this.dataStoreFolderPath)) {
                      try {
-                        Files.createDirectories(this.dataStoreFolderPath_);
+                        Files.createDirectories(this.dataStoreFolderPath);
                      } catch (final IOException e) {
                         throw new RuntimeException("Failure creating dataStoreRootFolder folder: " +
-                                                   this.dataStoreFolderPath_.toString(),
+                                                   this.dataStoreFolderPath.toString(),
                                                    e);
                      }
                   }
 
-                  if (!Files.isDirectory(this.dataStoreFolderPath_)) {
+                  if (!Files.isDirectory(this.dataStoreFolderPath)) {
                      throw new IllegalStateException(
                          "The specified path to the db folder appears to be a file, rather than a folder, as expected.  " +
-                         " Found: " + this.dataStoreFolderPath_.toAbsolutePath().toString());
+                         " Found: " + this.dataStoreFolderPath.toAbsolutePath().toString());
                   }
                }
 
-               this.initComplete_ = true;
+               this.initComplete = true;
             }
          }
       }
 
-      return Optional.ofNullable(this.dataStoreFolderPath_);
+      return Optional.ofNullable(this.dataStoreFolderPath);
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -231,7 +231,7 @@ public class DefaultConfigurationService
       if (Files.exists(dataStoreFolderPath) &&!Files.isDirectory(dataStoreFolderPath)) {
          throw new IllegalArgumentException(
              "The specified path to the db folder appears to be a file, rather than a folder, as expected.  " +
-             " Found: " + this.dataStoreFolderPath_.toAbsolutePath().toString());
+             " Found: " + this.dataStoreFolderPath.toAbsolutePath().toString());
       }
 
       try {
@@ -241,7 +241,7 @@ public class DefaultConfigurationService
                                     e);
       }
 
-      this.dataStoreFolderPath_ = dataStoreFolderPath;
+      this.dataStoreFolderPath = dataStoreFolderPath;
    }
 
    /**
@@ -251,7 +251,7 @@ public class DefaultConfigurationService
     */
    @Override
    public void setDefaultClassifier(int conceptId) {
-      this.defaultCoordinateProvider_.setDefaultClassifier(conceptId);
+      this.defaultCoordinateProvider.setDefaultClassifier(conceptId);
    }
 
    /**
@@ -261,7 +261,7 @@ public class DefaultConfigurationService
     */
    @Override
    public void setDefaultDescriptionLogicProfile(int conceptId) {
-      this.defaultCoordinateProvider_.setDefaultDescriptionLogicProfile(conceptId);
+      this.defaultCoordinateProvider.setDefaultDescriptionLogicProfile(conceptId);
    }
 
    /**
@@ -271,7 +271,7 @@ public class DefaultConfigurationService
     */
    @Override
    public void setDefaultDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
-      this.defaultCoordinateProvider_.setDefaultDescriptionTypePreferenceList(descriptionTypePreferenceList);
+      this.defaultCoordinateProvider.setDefaultDescriptionTypePreferenceList(descriptionTypePreferenceList);
    }
 
    /**
@@ -281,7 +281,7 @@ public class DefaultConfigurationService
     */
    @Override
    public void setDefaultDialectAssemblagePreferenceList(int[] dialectAssemblagePreferenceList) {
-      this.defaultCoordinateProvider_.setDefaultDialectAssemblagePreferenceList(dialectAssemblagePreferenceList);
+      this.defaultCoordinateProvider.setDefaultDialectAssemblagePreferenceList(dialectAssemblagePreferenceList);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -293,7 +293,7 @@ public class DefaultConfigurationService
     */
    @Override
    public ObservableEditCoordinate getDefaultEditCoordinate() {
-      return this.defaultCoordinateProvider_.getDefaultEditCoordinate();
+      return this.defaultCoordinateProvider.getDefaultEditCoordinate();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -305,7 +305,7 @@ public class DefaultConfigurationService
     */
    @Override
    public void setDefaultInferredAssemblage(int conceptId) {
-      this.defaultCoordinateProvider_.setDefaultInferredAssemblage(conceptId);
+      this.defaultCoordinateProvider.setDefaultInferredAssemblage(conceptId);
    }
 
    /**
@@ -315,7 +315,7 @@ public class DefaultConfigurationService
     */
    @Override
    public void setDefaultLanguage(int conceptId) {
-      this.defaultCoordinateProvider_.setDefaultLanguage(conceptId);
+      this.defaultCoordinateProvider.setDefaultLanguage(conceptId);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -327,7 +327,7 @@ public class DefaultConfigurationService
     */
    @Override
    public ObservableLanguageCoordinate getDefaultLanguageCoordinate() {
-      return this.defaultCoordinateProvider_.getDefaultLanguageCoordinate();
+      return this.defaultCoordinateProvider.getDefaultLanguageCoordinate();
    }
 
    /**
@@ -337,7 +337,7 @@ public class DefaultConfigurationService
     */
    @Override
    public ObservableLogicCoordinate getDefaultLogicCoordinate() {
-      return this.defaultCoordinateProvider_.getDefaultLogicCoordinate();
+      return this.defaultCoordinateProvider.getDefaultLogicCoordinate();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -349,7 +349,7 @@ public class DefaultConfigurationService
     */
    @Override
    public void setDefaultModule(int conceptId) {
-      this.defaultCoordinateProvider_.setDefaultModule(conceptId);
+      this.defaultCoordinateProvider.setDefaultModule(conceptId);
    }
 
    /**
@@ -359,7 +359,7 @@ public class DefaultConfigurationService
     */
    @Override
    public void setDefaultPath(int conceptId) {
-      this.defaultCoordinateProvider_.setDefaultPath(conceptId);
+      this.defaultCoordinateProvider.setDefaultPath(conceptId);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -371,7 +371,7 @@ public class DefaultConfigurationService
     */
    @Override
    public ObservableStampCoordinate getDefaultStampCoordinate() {
-      return this.defaultCoordinateProvider_.getDefaultStampCoordinate();
+      return this.defaultCoordinateProvider.getDefaultStampCoordinate();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -383,7 +383,7 @@ public class DefaultConfigurationService
     */
    @Override
    public void setDefaultStatedAssemblage(int conceptId) {
-      this.defaultCoordinateProvider_.setDefaultStatedAssemblage(conceptId);
+      this.defaultCoordinateProvider.setDefaultStatedAssemblage(conceptId);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -395,7 +395,7 @@ public class DefaultConfigurationService
     */
    @Override
    public ObservableTaxonomyCoordinate getDefaultTaxonomyCoordinate() {
-      return this.defaultCoordinateProvider_.getDefaultTaxonomyCoordinate();
+      return this.defaultCoordinateProvider.getDefaultTaxonomyCoordinate();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -407,7 +407,7 @@ public class DefaultConfigurationService
     */
    @Override
    public void setDefaultTime(long timeInMs) {
-      this.defaultCoordinateProvider_.setDefaultTime(timeInMs);
+      this.defaultCoordinateProvider.setDefaultTime(timeInMs);
    }
 
    /**
@@ -417,7 +417,7 @@ public class DefaultConfigurationService
     */
    @Override
    public void setDefaultUser(int conceptId) {
-      this.defaultCoordinateProvider_.setDefaultUser(conceptId);
+      this.defaultCoordinateProvider.setDefaultUser(conceptId);
    }
 
    //~--- get methods ---------------------------------------------------------

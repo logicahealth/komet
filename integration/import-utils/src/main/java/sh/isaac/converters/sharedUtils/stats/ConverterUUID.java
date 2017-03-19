@@ -72,13 +72,13 @@ import sh.isaac.MetaData;
  */
 public class ConverterUUID {
    /** The disable UUID map. */
-   public static boolean disableUUIDMap_ = false;  // Some loaders need to disable this due to memory constraints
+   public static boolean disableUUIDMap = false;  // Some loaders need to disable this due to memory constraints
 
    /** The master UUID map. */
-   private static Hashtable<UUID, String> masterUUIDMap_ = new Hashtable<UUID, String>();
+   private static Hashtable<UUID, String> masterUUIDMap = new Hashtable<UUID, String>();
 
    /** The namespace. */
-   private static UUID namespace_ = null;
+   private static UUID namespace = null;
 
    /** The constants. */
    private static ConceptSpecification[] constants = new ConceptSpecification[] {
@@ -101,8 +101,8 @@ public class ConverterUUID {
     * @param uuid the uuid
     */
    public static void addMapping(String value, UUID uuid) {
-      if (!disableUUIDMap_) {
-         final String putResult = masterUUIDMap_.put(uuid, value);
+      if (!disableUUIDMap) {
+         final String putResult = masterUUIDMap.put(uuid, value);
 
          if (putResult != null) {
             throw new RuntimeException("Just made a duplicate UUID! '" + value + "' -> " + uuid);
@@ -114,7 +114,7 @@ public class ConverterUUID {
     * Clear cache.
     */
    public static void clearCache() {
-      masterUUIDMap_.clear();
+      masterUUIDMap.clear();
    }
 
    /**
@@ -123,11 +123,11 @@ public class ConverterUUID {
     * @param namespace the namespace
     */
    public static void configureNamespace(UUID namespace) {
-      if (namespace_ != null) {
+      if (namespace != null) {
          ConsoleUtil.println("Reconfiguring Namespace!");
       }
 
-      namespace_ = namespace;
+      namespace = namespace;
    }
 
    /**
@@ -155,7 +155,7 @@ public class ConverterUUID {
     */
    public static UUID createNamespaceUUIDFromString(String name, boolean skipDupeCheck) {
       initCheck();
-      return createNamespaceUUIDFromString(namespace_, name, skipDupeCheck);
+      return createNamespaceUUIDFromString(namespace, name, skipDupeCheck);
    }
 
    /**
@@ -188,8 +188,8 @@ public class ConverterUUID {
          throw new RuntimeException("Unexpected error configuring UUID generator");
       }
 
-      if (!disableUUIDMap_) {
-         final String putResult = masterUUIDMap_.put(uuid, name);
+      if (!disableUUIDMap) {
+         final String putResult = masterUUIDMap.put(uuid, name);
 
          if (!skipDupeCheck && (putResult != null)) {
             throw new RuntimeException("Just made a duplicate UUID! '" + name + "' -> " + uuid);
@@ -237,13 +237,13 @@ public class ConverterUUID {
             throws IOException {
       try (BufferedWriter br = new BufferedWriter(new FileWriter(new File(outputDirectory,
                                                                           prefix + "DebugMap.txt")));) {
-         if (disableUUIDMap_) {
+         if (disableUUIDMap) {
             ConsoleUtil.println("UUID Debug map was disabled");
             br.write("Note - the UUID debug feature was disabled, this file is incomplete" +
                      System.getProperty("line.separator"));
          }
 
-         for (final Map.Entry<UUID, String> entry: masterUUIDMap_.entrySet()) {
+         for (final Map.Entry<UUID, String> entry: masterUUIDMap.entrySet()) {
             br.write(entry.getKey() + " - " + entry.getValue() + System.getProperty("line.separator"));
          }
       }
@@ -255,14 +255,14 @@ public class ConverterUUID {
     * @param uuid the uuid
     */
    public static void removeMapping(UUID uuid) {
-      masterUUIDMap_.remove(uuid);
+      masterUUIDMap.remove(uuid);
    }
 
    /**
     * Inits the check.
     */
    private static void initCheck() {
-      if (namespace_ == null) {
+      if (namespace == null) {
          throw new RuntimeException("Namespace UUID has not yet been initialized");
       }
    }
@@ -275,7 +275,7 @@ public class ConverterUUID {
     * @return the namespace
     */
    public static UUID getNamespace() {
-      return namespace_;
+      return namespace;
    }
 
    /**
@@ -289,7 +289,7 @@ public class ConverterUUID {
          return null;
       }
 
-      final String found = masterUUIDMap_.get(uuid);
+      final String found = masterUUIDMap.get(uuid);
 
       if (found == null) {
          for (final ConceptSpecification cs: constants) {

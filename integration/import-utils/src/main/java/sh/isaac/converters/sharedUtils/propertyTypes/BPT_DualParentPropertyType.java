@@ -59,10 +59,10 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
 public abstract class BPT_DualParentPropertyType
         extends PropertyType {
    /** The second parent name. */
-   private final String secondParentName_;  // Typically "Term-name Refsets" under "Project Refsets" or "Term-name Descriptions" under "Descriptions in source terminology, etc
+   private final String secondParentName;  // Typically "Term-name Refsets" under "Project Refsets" or "Term-name Descriptions" under "Descriptions in source terminology, etc
 
    /** The second parent id. */
-   private UUID secondParentId_;  // calculated from above, but may have semantic tag stuff added.
+   private UUID secondParentId;  // calculated from above, but may have semantic tag stuff added.
 
    //~--- constructors --------------------------------------------------------
 
@@ -81,7 +81,7 @@ public abstract class BPT_DualParentPropertyType
          boolean createAsDynamicRefex,
          DynamicSememeDataType defaultDynamicRefexColumnType) {
       super(propertyTypeDescription, createAsDynamicRefex, defaultDynamicRefexColumnType);
-      this.secondParentName_ = descriptionWithCodeSystemName;
+      this.secondParentName = descriptionWithCodeSystemName;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -92,7 +92,7 @@ public abstract class BPT_DualParentPropertyType
     * @param secondParentId the new second parent id
     */
    public void setSecondParentId(UUID secondParentId) {
-      this.secondParentId_ = secondParentId;
+      this.secondParentId = secondParentId;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -103,7 +103,7 @@ public abstract class BPT_DualParentPropertyType
     * @return the second parent name
     */
    public String getSecondParentName() {
-      return this.secondParentName_;
+      return this.secondParentName;
    }
 
    /**
@@ -112,11 +112,11 @@ public abstract class BPT_DualParentPropertyType
     * @return the second parent UUID
     */
    public UUID getSecondParentUUID() {
-      if (this.secondParentId_ == null) {
+      if (this.secondParentId == null) {
          throw new RuntimeException("Second parent ID not yet calculated!");
       }
 
-      return this.secondParentId_;
+      return this.secondParentId;
    }
 }
 

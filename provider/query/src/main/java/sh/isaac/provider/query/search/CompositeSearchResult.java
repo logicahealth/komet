@@ -92,7 +92,7 @@ public class CompositeSearchResult {
    private final Set<ObjectChronology<?>> matchingComponents = new HashSet<>();
 
    /** The matching component nid. */
-   private int matchingComponentNid_;
+   private int matchingComponentNid;
 
    /** The best score. */
    private float bestScore;  // best score, rather than score, as multiple matches may go into a SearchResult
@@ -110,7 +110,7 @@ public class CompositeSearchResult {
 
       // matchingComponent may be null, if the match is not on our view path...
       this.containingConcept     = Optional.empty();
-      this.matchingComponentNid_ = matchingComponentNid;
+      this.matchingComponentNid = matchingComponentNid;
    }
 
    /**
@@ -127,7 +127,7 @@ public class CompositeSearchResult {
       if (matchingComponent == null) {
          throw new RuntimeException("Please call the constructor that takes a nid, if matchingComponent is null...");
       } else {
-         this.matchingComponentNid_ = matchingComponent.getNid();
+         this.matchingComponentNid = matchingComponent.getNid();
       }
 
       this.containingConcept = locateContainingConcept(matchingComponent.getNid());
@@ -169,7 +169,7 @@ public class CompositeSearchResult {
       builder.append(this.containingConcept.isPresent() ? this.containingConcept.get()
             : "null");
       builder.append(", matchingComponentNid_=");
-      builder.append(this.matchingComponentNid_);
+      builder.append(this.matchingComponentNid);
       builder.append(", bestScore=");
       builder.append(this.bestScore);
       builder.append(", getMatchingComponents()=");
@@ -199,9 +199,9 @@ public class CompositeSearchResult {
             .getNid()
             : null);
 
-      if (this.matchingComponentNid_ != 0) {
+      if (this.matchingComponentNid != 0) {
          builder.append(", matchingComponentNid_=");
-         builder.append(this.matchingComponentNid_);
+         builder.append(this.matchingComponentNid);
       }
 
       builder.append(", bestScore=");
@@ -247,15 +247,15 @@ public class CompositeSearchResult {
 
       builder.append(containingConceptDesc);
       builder.append(", matchingComponentNid_=");
-      builder.append(this.matchingComponentNid_);
+      builder.append(this.matchingComponentNid);
 
       String matchingComponentDesc = null;
 
-      if (this.matchingComponentNid_ != 0) {
+      if (this.matchingComponentNid != 0) {
          try {
             final Optional<? extends ObjectChronology<?>> cc = Get.identifiedObjectService()
                                                                   .getIdentifiedObjectChronology(
-                                                                     this.matchingComponentNid_);
+                                                                     this.matchingComponentNid);
 
             if (cc.isPresent()) {
                matchingComponentDesc = cc.get()
@@ -396,7 +396,7 @@ public class CompositeSearchResult {
 
       if (this.matchingComponents.size() == 0) {
          if (!this.containingConcept.isPresent()) {
-            strings.add("Match to NID (not on path):" + this.matchingComponentNid_);
+            strings.add("Match to NID (not on path):" + this.matchingComponentNid);
          } else {
             throw new RuntimeException("Unexpected");
          }

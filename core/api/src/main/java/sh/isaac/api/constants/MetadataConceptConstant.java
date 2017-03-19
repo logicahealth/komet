@@ -59,20 +59,20 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 public abstract class MetadataConceptConstant
          implements ConceptSpecification {
    /** The synonyms. */
-   private final List<String> synonyms_ = new ArrayList<>();
+   private final List<String> synonyms = new ArrayList<>();
 
    /** The definitions. */
-   private final List<String> definitions_ = new ArrayList<>();
+   private final List<String> definitions = new ArrayList<>();
 
    /** The parent. */
-   private ConceptSpecification parent_ =
+   private ConceptSpecification parent =
       null;  // Optional use - most constants have their parent set by the IsaacMetadataAuxiliary parent/child mechanism
 
    /** The primary name. */
-   private final String primaryName_;
+   private final String primaryName;
 
    /** The uuid. */
-   private final UUID uuid_;
+   private final UUID uuid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -83,8 +83,8 @@ public abstract class MetadataConceptConstant
     * @param uuid the uuid
     */
    protected MetadataConceptConstant(String primaryName, UUID uuid) {
-      this.primaryName_ = primaryName;
-      this.uuid_        = uuid;
+      this.primaryName = primaryName;
+      this.uuid        = uuid;
    }
 
    /**
@@ -95,8 +95,8 @@ public abstract class MetadataConceptConstant
     * @param definition the definition
     */
    protected MetadataConceptConstant(String primaryName, UUID uuid, String definition) {
-      this.primaryName_ = primaryName;
-      this.uuid_        = uuid;
+      this.primaryName = primaryName;
+      this.uuid        = uuid;
       addDefinition(definition);
    }
 
@@ -109,8 +109,8 @@ public abstract class MetadataConceptConstant
     * @param parent the parent
     */
    protected MetadataConceptConstant(String primaryName, UUID uuid, String definition, ConceptSpecification parent) {
-      this.primaryName_ = primaryName;
-      this.uuid_        = uuid;
+      this.primaryName = primaryName;
+      this.uuid        = uuid;
       addDefinition(definition);
       setParent(parent);
    }
@@ -123,7 +123,7 @@ public abstract class MetadataConceptConstant
     * @param definition the definition
     */
    protected void addDefinition(String definition) {
-      this.definitions_.add(definition);
+      this.definitions.add(definition);
    }
 
    /**
@@ -132,7 +132,7 @@ public abstract class MetadataConceptConstant
     * @param synonym the synonym
     */
    protected void addSynonym(String synonym) {
-      this.synonyms_.add(synonym);
+      this.synonyms.add(synonym);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -145,7 +145,7 @@ public abstract class MetadataConceptConstant
     */
    @Override
    public String getConceptDescriptionText() {
-      return this.primaryName_;
+      return this.primaryName;
    }
 
    /**
@@ -154,7 +154,7 @@ public abstract class MetadataConceptConstant
     * @return The descriptions for this concept (if any). Will not return null.
     */
    public List<String> getDefinitions() {
-      return this.definitions_;
+      return this.definitions;
    }
 
    /**
@@ -175,7 +175,7 @@ public abstract class MetadataConceptConstant
     * @return the parent
     */
    public ConceptSpecification getParent() {
-      return this.parent_;
+      return this.parent;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -186,7 +186,7 @@ public abstract class MetadataConceptConstant
     * @param parent the new parent
     */
    protected void setParent(ConceptSpecification parent) {
-      this.parent_ = parent;
+      this.parent = parent;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -198,7 +198,7 @@ public abstract class MetadataConceptConstant
     * This method is identical to {@link #getConceptDescriptionText()}
     */
    public String getPrimaryName() {
-      return this.primaryName_;
+      return this.primaryName;
    }
 
    /**
@@ -229,7 +229,7 @@ public abstract class MetadataConceptConstant
     * include the preferred synonym. Will not return null.
     */
    public List<String> getSynonyms() {
-      return this.synonyms_;
+      return this.synonyms;
    }
 
    /**
@@ -238,7 +238,7 @@ public abstract class MetadataConceptConstant
     * @return The UUID for the concept
     */
    public UUID getUUID() {
-      return this.uuid_;
+      return this.uuid;
    }
 
    /**
@@ -248,7 +248,7 @@ public abstract class MetadataConceptConstant
     */
    @Override
    public List<UUID> getUuidList() {
-      return Arrays.asList(new UUID[] { this.uuid_ });
+      return Arrays.asList(new UUID[] { this.uuid });
    }
 }
 

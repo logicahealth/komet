@@ -67,13 +67,13 @@ import sh.isaac.model.configuration.LanguageCoordinates;
  */
 public class AssociationInstance {
    /** The sememe. */
-   private final DynamicSememe<?> sememe_;
+   private final DynamicSememe<?> sememe;
 
    /** The stamp coord. */
-   private final StampCoordinate stampCoord_;
+   private final StampCoordinate stampCoord;
 
    /** The assn type. */
-   private transient AssociationType assnType_;
+   private transient AssociationType assnType;
 
    //~--- constructors --------------------------------------------------------
 
@@ -86,8 +86,8 @@ public class AssociationInstance {
 
    // TODO Write the code that checks the index states on startup
    private AssociationInstance(DynamicSememe<?> data, StampCoordinate stampCoordinate) {
-      this.sememe_     = data;
-      this.stampCoord_ = stampCoordinate;
+      this.sememe     = data;
+      this.stampCoord = stampCoordinate;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -121,7 +121,7 @@ public class AssociationInstance {
       } catch (final Exception e) {
          LogManager.getLogger()
                    .error("Error formatting association instance", e);
-         return this.sememe_.toString();
+         return this.sememe.toString();
       }
    }
 
@@ -133,13 +133,13 @@ public class AssociationInstance {
     * @return the association type
     */
    public AssociationType getAssociationType() {
-      if (this.assnType_ == null) {
-         this.assnType_ = AssociationType.read(this.sememe_.getAssemblageSequence(),
-               this.stampCoord_,
+      if (this.assnType == null) {
+         this.assnType = AssociationType.read(this.sememe.getAssemblageSequence(),
+               this.stampCoord,
                LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate());
       }
 
-      return this.assnType_;
+      return this.assnType;
    }
 
    /**
@@ -148,7 +148,7 @@ public class AssociationInstance {
     * @return the concept sequence of the association type concept (without incurring the overhead of reading the AssoicationType object)
     */
    public int getAssociationTypeSequenece() {
-      return this.sememe_.getAssemblageSequence();
+      return this.sememe.getAssemblageSequence();
    }
 
    /**
@@ -157,7 +157,7 @@ public class AssociationInstance {
     * @return the data
     */
    public DynamicSememe<?> getData() {
-      return this.sememe_;
+      return this.sememe;
    }
 
    /**
@@ -167,7 +167,7 @@ public class AssociationInstance {
     */
    public ObjectChronology<? extends StampedVersion> getSourceComponent() {
       return Get.identifiedObjectService()
-                .getIdentifiedObjectChronology(this.sememe_.getReferencedComponentNid())
+                .getIdentifiedObjectChronology(this.sememe.getReferencedComponentNid())
                 .get();
    }
 
@@ -177,7 +177,7 @@ public class AssociationInstance {
     * @return the nid of the source component of the association
     */
    public int getSourceComponentData() {
-      return this.sememe_.getReferencedComponentNid();
+      return this.sememe.getReferencedComponentNid();
    }
 
    /**
@@ -188,10 +188,10 @@ public class AssociationInstance {
     * was a UUID that isn't resolveable in this DB (in which case, see the {@link #getTargetComponentData()} method)
     */
    public Optional<? extends ObjectChronology<? extends StampedVersion>> getTargetComponent() {
-      final int targetColIndex = AssociationUtilities.findTargetColumnIndex(this.sememe_.getAssemblageSequence());
+      final int targetColIndex = AssociationUtilities.findTargetColumnIndex(this.sememe.getAssemblageSequence());
 
       if (targetColIndex >= 0) {
-         final DynamicSememeData[] data = this.sememe_.getData();
+         final DynamicSememeData[] data = this.sememe.getData();
 
          if ((data != null) && (data.length > targetColIndex) && (data[targetColIndex] != null)) {
             int nid = 0;
@@ -223,10 +223,10 @@ public class AssociationInstance {
     * or, it may be empty, if there was not target.
     */
    public Optional<DynamicSememeData> getTargetComponentData() {
-      final int targetColIndex = AssociationUtilities.findTargetColumnIndex(this.sememe_.getAssemblageSequence());
+      final int targetColIndex = AssociationUtilities.findTargetColumnIndex(this.sememe.getAssemblageSequence());
 
       if (targetColIndex >= 0) {
-         final DynamicSememeData[] data = this.sememe_.getData();
+         final DynamicSememeData[] data = this.sememe.getData();
 
          if ((data != null) && (data.length > targetColIndex) && (data[targetColIndex] != null)) {
             if (data[targetColIndex].getDynamicSememeDataType() == DynamicSememeDataType.UUID) {

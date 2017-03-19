@@ -75,7 +75,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PasswordHasher {
    /** The Constant log_. */
-   private static final Logger log_ = LoggerFactory.getLogger(PasswordHasher.class);
+   private static final Logger log = LoggerFactory.getLogger(PasswordHasher.class);
 
    // The higher the number of iterations the more expensive computing the hash is for us
 
@@ -150,7 +150,7 @@ public class PasswordHasher {
       final byte[] result = decrypt(password, Base64.getUrlDecoder()
                                                     .decode(saltAndPass[0]), saltAndPass[1]);
 
-      log_.debug("Decrypt Time {} ms", System.currentTimeMillis() - startTime);
+      log.debug("Decrypt Time {} ms", System.currentTimeMillis() - startTime);
       return result;
    }
 
@@ -186,7 +186,7 @@ public class PasswordHasher {
       final String result = Base64.getUrlEncoder()
                                   .encodeToString(salt) + "$$$" + encrypt(password, salt, data);
 
-      log_.debug("Encrypt Time {} ms", System.currentTimeMillis() - startTime);
+      log.debug("Encrypt Time {} ms", System.currentTimeMillis() - startTime);
       return result;
    }
 
@@ -241,7 +241,7 @@ public class PasswordHasher {
       final String           result = Base64.getUrlEncoder()
                                             .encodeToString(key.getEncoded());
 
-      log_.debug("Password compute time: {} ms", System.currentTimeMillis() - startTime);
+      log.debug("Password compute time: {} ms", System.currentTimeMillis() - startTime);
       return result;
    }
 
@@ -344,7 +344,7 @@ public class PasswordHasher {
       final String result = Base64.getUrlEncoder()
                                   .encodeToString(salt) + "$$$" + hash(password, salt);
 
-      log_.debug("Compute Salted Hash time {} ms", System.currentTimeMillis() - startTime);
+      log.debug("Compute Salted Hash time {} ms", System.currentTimeMillis() - startTime);
       return result;
    }
 }

@@ -58,7 +58,7 @@ public class DynamicSememeStringImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeString {
    /** The property. */
-   private ObjectProperty<String> property_;
+   private ObjectProperty<String> property;
 
    //~--- constructors --------------------------------------------------------
 
@@ -83,7 +83,7 @@ public class DynamicSememeStringImpl
          throw new RuntimeException("The string value cannot be null", null);
       }
 
-      this.data_ = string.getBytes();
+      this.data = string.getBytes();
    }
 
    /**
@@ -129,7 +129,7 @@ public class DynamicSememeStringImpl
     */
    @Override
    public String getDataString() {
-      return new String(this.data_);
+      return new String(this.data);
    }
 
    /**
@@ -140,11 +140,11 @@ public class DynamicSememeStringImpl
     */
    @Override
    public ReadOnlyObjectProperty<String> getDataStringProperty() {
-      if (this.property_ == null) {
-         this.property_ = new SimpleObjectProperty<>(null, getName(), getDataString());
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<>(null, getName(), getDataString());
       }
 
-      return this.property_;
+      return this.property;
    }
 }
 

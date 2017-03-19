@@ -58,7 +58,7 @@ public class SearchHandle {
    private final long searchStartTime = System.currentTimeMillis();
 
    /** The result block. */
-   private final Semaphore resultBlock_ = new Semaphore(1);
+   private final Semaphore resultBlock = new Semaphore(1);
 
    /** The cancelled. */
    private volatile boolean cancelled = false;
@@ -67,10 +67,10 @@ public class SearchHandle {
    private Exception error = null;
 
    /** The search I D. */
-   private final Integer searchID_;
+   private final Integer searchID;
 
    /** The result. */
-   private List<CompositeSearchResult> result_;
+   private List<CompositeSearchResult> result;
 
    //~--- constructors --------------------------------------------------------
 
@@ -80,7 +80,7 @@ public class SearchHandle {
     * @param searchID the search ID
     */
    SearchHandle(Integer searchID) {
-      this.searchID_ = searchID;
+      this.searchID = searchID;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -145,11 +145,11 @@ public class SearchHandle {
     */
    public Collection<CompositeSearchResult> getResults()
             throws Exception {
-      if (this.result_ == null) {
+      if (this.result == null) {
          try {
-            this.resultBlock_.acquireUninterruptibly();
+            this.resultBlock.acquireUninterruptibly();
 
-            while ((this.result_ == null) && (this.error == null) &&!this.cancelled) {
+            while ((this.result == null) && (this.error == null) &&!this.cancelled) {
                try {
                   SearchHandle.this.wait();
                } catch (final InterruptedException e) {
@@ -157,7 +157,7 @@ public class SearchHandle {
                }
             }
          } finally {
-            this.resultBlock_.release();
+            this.resultBlock.release();
          }
       }
 
@@ -165,7 +165,7 @@ public class SearchHandle {
          throw this.error;
       }
 
-      return this.result_;
+      return this.result;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -177,7 +177,7 @@ public class SearchHandle {
     */
    protected void setResults(List<CompositeSearchResult> results) {
       synchronized (SearchHandle.this) {
-         this.result_ = results;
+         this.result = results;
          SearchHandle.this.notifyAll();
       }
    }
@@ -199,7 +199,7 @@ public class SearchHandle {
     * @return the task id
     */
    public Integer getTaskId() {
-      return this.searchID_;
+      return this.searchID;
    }
 }
 

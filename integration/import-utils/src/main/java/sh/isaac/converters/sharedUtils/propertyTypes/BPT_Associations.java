@@ -62,7 +62,7 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnIn
 public class BPT_Associations
         extends PropertyType {
    /** The all associations. */
-   private static HashSet<UUID> allAssociations_ = new HashSet<>();
+   private static HashSet<UUID> allAssociations = new HashSet<>();
 
    //~--- constructors --------------------------------------------------------
 
@@ -89,7 +89,7 @@ public class BPT_Associations
 
       final Property p = super.addProperty(property);
 
-      allAssociations_.add(p.getUUID());  // For stats, later
+      allAssociations.add(p.getUUID());  // For stats, later
       return p;
    }
 
@@ -210,7 +210,7 @@ public class BPT_Associations
     * @param uuid the uuid
     */
    public static void registerAsAssociation(UUID uuid) {
-      allAssociations_.add(uuid);
+      allAssociations.add(uuid);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -222,7 +222,7 @@ public class BPT_Associations
     * @return true, if association
     */
    public static boolean isAssociation(UUID uuid) {
-      return allAssociations_.contains(uuid);
+      return allAssociations.contains(uuid);
    }
 }
 

@@ -55,13 +55,13 @@ import sh.isaac.api.constants.DynamicSememeConstants;
 public class PropertyAssociation
         extends Property {
    /** The association inverse name. */
-   private final String associationInverseName_;
+   private final String associationInverseName;
 
    /** The association component type restriction. */
-   private final ObjectChronologyType associationComponentTypeRestriction_;
+   private final ObjectChronologyType associationComponentTypeRestriction;
 
    /** The association component type sub restriction. */
-   private final SememeType associationComponentTypeSubRestriction_;
+   private final SememeType associationComponentTypeSubRestriction;
 
    //~--- constructors --------------------------------------------------------
 
@@ -123,9 +123,9 @@ public class PropertyAssociation
          throw new RuntimeException("association description is required");
       }
 
-      this.associationInverseName_                 = associationInverseName;
-      this.associationComponentTypeRestriction_    = associationComponentTypeRestriction;
-      this.associationComponentTypeSubRestriction_ = associationComponentTypeSubRestriction;
+      this.associationInverseName                 = associationInverseName;
+      this.associationComponentTypeRestriction    = associationComponentTypeRestriction;
+      this.associationComponentTypeSubRestriction = associationComponentTypeSubRestriction;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -136,7 +136,7 @@ public class PropertyAssociation
     * @return the association component type restriction
     */
    public ObjectChronologyType getAssociationComponentTypeRestriction() {
-      return this.associationComponentTypeRestriction_;
+      return this.associationComponentTypeRestriction;
    }
 
    /**
@@ -145,7 +145,7 @@ public class PropertyAssociation
     * @return the association component type sub restriction
     */
    public SememeType getAssociationComponentTypeSubRestriction() {
-      return this.associationComponentTypeSubRestriction_;
+      return this.associationComponentTypeSubRestriction;
    }
 
    /**
@@ -154,7 +154,7 @@ public class PropertyAssociation
     * @return the association inverse name
     */
    public String getAssociationInverseName() {
-      return this.associationInverseName_;
+      return this.associationInverseName;
    }
 
    /**

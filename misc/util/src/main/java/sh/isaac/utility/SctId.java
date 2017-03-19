@@ -66,7 +66,7 @@ public class SctId {
    /** The Fn F. */
 
    // parts of the SCTID algorithm
-   private static int[][] FnF_ = {
+   private static int[][] FnF = {
       {
          0, 1, 2, 3, 4, 5, 6, 7, 8, 9
       }, {
@@ -89,7 +89,7 @@ public class SctId {
    };
 
    /** The Dihedral. */
-   private static int[][] Dihedral_ = {
+   private static int[][] Dihedral = {
       {
          0, 1, 2, 3, 4, 5, 6, 7, 8, 9
       }, {
@@ -118,7 +118,7 @@ public class SctId {
    static {
       for (int i = 2; i < 8; i++) {
          for (int j = 0; j < 10; j++) {
-            FnF_[i][j] = FnF_[i - 1][FnF_[1][j]];
+            FnF[i][j] = FnF[i - 1][FnF[1][j]];
          }
       }
    }
@@ -155,7 +155,7 @@ public class SctId {
       SUBSET("13");
 
       /** The digits. */
-      private final String digits_;
+      private final String digits;
 
       //~--- constructors -----------------------------------------------------
 
@@ -165,7 +165,7 @@ public class SctId {
        * @param digits the digits specifying the SCT ID type
        */
       private TYPE(String digits) {
-         this.digits_ = digits;
+         this.digits = digits;
       }
 
       //~--- get methods ------------------------------------------------------
@@ -176,7 +176,7 @@ public class SctId {
        * @return the digits specifying the SCT ID type
        */
       public String getDigits() {
-         return this.digits_;
+         return this.digits;
       }
    }
 
@@ -220,7 +220,7 @@ public class SctId {
 //                 throw new RuntimeException("sequence must be > 0");
 //         }
 //
-//         String mergedid = Long.toString(sequence) + projectId + namespaceId + type.digits_;
+//         String mergedid = Long.toString(sequence) + projectId + namespaceId + type.digits;
 //
 //         return mergedid + verhoeffCompute(mergedid);
 // }
@@ -239,7 +239,7 @@ public class SctId {
 //         {
 //                 throw new RuntimeException("sequence must be > 0");
 //         }
-//         String mergedid = Long.toString(sequence) + namespaceString + type.digits_;
+//         String mergedid = Long.toString(sequence) + namespaceString + type.digits;
 //         return mergedid + verhoeffCompute(mergedid);
 // }
 //
@@ -259,7 +259,7 @@ public class SctId {
 //                 throw new RuntimeException("sequence must be > 0");
 //         }
 //
-//         String mergedid = Long.toString(sequence) + namespaceId + type.digits_;
+//         String mergedid = Long.toString(sequence) + namespaceId + type.digits;
 //
 //         return mergedid + verhoeffCompute(mergedid);
 // }
@@ -308,7 +308,7 @@ public class SctId {
 
       for (int i = idAsString.length() - 1; i >= 0; i--) {
          check =
-            Dihedral_[check][FnF_[(idAsString.length() - i - 1) % 8][new Integer(new String(new char[] { idAsString.charAt(i) }))]];
+            Dihedral[check][FnF[(idAsString.length() - i - 1) % 8][new Integer(new String(new char[] { idAsString.charAt(i) }))]];
       }
 
       if (check != 0) {

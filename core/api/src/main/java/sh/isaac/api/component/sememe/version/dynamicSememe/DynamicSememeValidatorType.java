@@ -168,12 +168,12 @@ public enum DynamicSememeValidatorType {
    // but we may need to store / retreive
 
    /** The logger. */
-   private static Logger logger = Logger.getLogger(DynamicSememeValidatorType.class.getName());
+   private static final Logger logger = Logger.getLogger(DynamicSememeValidatorType.class.getName());
 
    //~--- fields --------------------------------------------------------------
 
    /** The display name. */
-   private String displayName_;
+   private final String displayName;
 
    //~--- constructors --------------------------------------------------------
 
@@ -183,7 +183,7 @@ public enum DynamicSememeValidatorType {
     * @param displayName the display name
     */
    private DynamicSememeValidatorType(String displayName) {
-      this.displayName_ = displayName;
+      this.displayName = displayName;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -214,7 +214,7 @@ public enum DynamicSememeValidatorType {
          return DynamicSememeValidatorType.values()[i];
       } catch (final NumberFormatException e) {
          for (final DynamicSememeValidatorType x: DynamicSememeValidatorType.values()) {
-            if (x.displayName_.equalsIgnoreCase(clean) || x.name().toLowerCase().equals(clean)) {
+            if (x.displayName.equalsIgnoreCase(clean) || x.name().toLowerCase().equals(clean)) {
                return x;
             }
          }
@@ -588,7 +588,7 @@ public enum DynamicSememeValidatorType {
     * @return the display name
     */
    public String getDisplayName() {
-      return this.displayName_;
+      return this.displayName;
    }
 }
 

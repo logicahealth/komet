@@ -68,13 +68,13 @@ import sh.isaac.provider.query.lucene.LuceneIndexer;
 public class TopDocsFilteredCollector
         extends Collector {
    /** The collector. */
-   TopScoreDocCollector collector_;
+   TopScoreDocCollector collector;
 
    /** The searcher. */
-   IndexSearcher searcher_;
+   IndexSearcher searcher;
 
    /** The filter. */
-   Predicate<Integer> filter_;
+   Predicate<Integer> filter;
 
    //~--- constructors --------------------------------------------------------
 
@@ -92,12 +92,12 @@ public class TopDocsFilteredCollector
                                    IndexSearcher searcher,
                                    Predicate<Integer> filter)
             throws IOException {
-      this.collector_ = TopScoreDocCollector.create(numHits,
+      this.collector = TopScoreDocCollector.create(numHits,
             null,
             !searcher.createNormalizedWeight(query)
                      .scoresDocsOutOfOrder());
-      this.searcher_ = searcher;
-      this.filter_   = filter;
+      this.searcher = searcher;
+      this.filter   = filter;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -109,7 +109,7 @@ public class TopDocsFilteredCollector
     */
    @Override
    public boolean acceptsDocsOutOfOrder() {
-      return this.collector_.acceptsDocsOutOfOrder();
+      return this.collector.acceptsDocsOutOfOrder();
    }
 
    /**
@@ -121,13 +121,13 @@ public class TopDocsFilteredCollector
    @Override
    public void collect(int docId)
             throws IOException {
-      final Document document     = this.searcher_.doc(docId);
+      final Document document     = this.searcher.doc(docId);
       final int      componentNid = document.getField(LuceneIndexer.FIELD_COMPONENT_NID)
                                             .numericValue()
                                             .intValue();
 
-      if (this.filter_.test(componentNid)) {
-         this.collector_.collect(docId);
+      if (this.filter.test(componentNid)) {
+         this.collector.collect(docId);
       }
    }
 
@@ -142,7 +142,7 @@ public class TopDocsFilteredCollector
    @Override
    public void setNextReader(AtomicReaderContext context)
             throws IOException {
-      this.collector_.setNextReader(context);
+      this.collector.setNextReader(context);
    }
 
    /**
@@ -154,7 +154,7 @@ public class TopDocsFilteredCollector
    @Override
    public void setScorer(Scorer scorer)
             throws IOException {
-      this.collector_.setScorer(scorer);
+      this.collector.setScorer(scorer);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -165,7 +165,7 @@ public class TopDocsFilteredCollector
     * @return the top docs
     */
    public TopDocs getTopDocs() {
-      return this.collector_.topDocs();
+      return this.collector.topDocs();
    }
 }
 

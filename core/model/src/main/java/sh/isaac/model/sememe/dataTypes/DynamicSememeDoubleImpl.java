@@ -62,7 +62,7 @@ public class DynamicSememeDoubleImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeDouble {
    /** The property. */
-   private ObjectProperty<Double> property_;
+   private ObjectProperty<Double> property;
 
    //~--- constructors --------------------------------------------------------
 
@@ -82,7 +82,7 @@ public class DynamicSememeDoubleImpl
     */
    public DynamicSememeDoubleImpl(double d) {
       super();
-      this.data_ = ByteBuffer.allocate(8)
+      this.data = ByteBuffer.allocate(8)
                              .putDouble(d)
                              .array();
    }
@@ -108,7 +108,7 @@ public class DynamicSememeDoubleImpl
     */
    @Override
    public double getDataDouble() {
-      return ByteBuffer.wrap(this.data_)
+      return ByteBuffer.wrap(this.data)
                        .getDouble();
    }
 
@@ -120,11 +120,11 @@ public class DynamicSememeDoubleImpl
     */
    @Override
    public ReadOnlyObjectProperty<Double> getDataDoubleProperty() {
-      if (this.property_ == null) {
-         this.property_ = new SimpleObjectProperty<>(null, getName(), getDataDouble());
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<>(null, getName(), getDataDouble());
       }
 
-      return this.property_;
+      return this.property;
    }
 
    /**

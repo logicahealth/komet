@@ -103,24 +103,24 @@ public class WorkExecutors {
    private static final Logger log = LogManager.getLogger();
 
    /** The non HK 2 instance. */
-   private volatile static WorkExecutors nonHK2Instance_ = null;
+   private volatile static WorkExecutors nonHK2Instance = null;
 
    //~--- fields --------------------------------------------------------------
 
    /** The fork join executor. */
-   private ForkJoinPool forkJoinExecutor_;
+   private ForkJoinPool forkJoinExecutor;
 
    /** The blocking thread pool executor. */
-   private ThreadPoolExecutor blockingThreadPoolExecutor_;
+   private ThreadPoolExecutor blockingThreadPoolExecutor;
 
    /** The thread pool executor. */
-   private ThreadPoolExecutor threadPoolExecutor_;
+   private ThreadPoolExecutor threadPoolExecutor;
 
    /** The io thread pool executor. */
-   private ThreadPoolExecutor ioThreadPoolExecutor_;
+   private ThreadPoolExecutor ioThreadPoolExecutor;
 
    /** The scheduled executor. */
-   private ScheduledExecutorService scheduledExecutor_;
+   private ScheduledExecutorService scheduledExecutor;
 
    //~--- constructors --------------------------------------------------------
 
@@ -200,7 +200,7 @@ public class WorkExecutors {
    private void startMe() {
       log.info("Starting the WorkExecutors thread pools");
 
-      if (nonHK2Instance_ != null) {
+      if (nonHK2Instance != null) {
          throw new RuntimeException(
              "Two instances of WorkExectors started!  If HK2 will manage, startup HK2 properly first!");
       }
@@ -211,7 +211,7 @@ public class WorkExecutors {
       final int parallelism = ((procCount - 1) < 6 ? 6
             : procCount - 1);  // set between 6 and 1 less than proc count (not less than 6)
 
-      this.forkJoinExecutor_ = new ForkJoinPool(parallelism);
+      this.forkJoinExecutor = new ForkJoinPool(parallelism);
 
       final int      corePoolSize    = 2;
       final int      maximumPoolSize = parallelism;
@@ -219,13 +219,13 @@ public class WorkExecutors {
       final TimeUnit timeUnit        = TimeUnit.SECONDS;
 
       // The blocking executor
-      this.blockingThreadPoolExecutor_ = new ThreadPoolExecutor(corePoolSize,
+      this.blockingThreadPoolExecutor = new ThreadPoolExecutor(corePoolSize,
             maximumPoolSize,
             keepAliveTime,
             timeUnit,
             new SynchronousQueue<Runnable>(),
             new NamedThreadFactory("ISAAC-B-work-thread", true));
-      this.blockingThreadPoolExecutor_.setRejectedExecutionHandler((runnable, executor) -> {
+      this.blockingThreadPoolExecutor.setRejectedExecutionHandler((runnable, executor) -> {
                try {
                   executor.getQueue()
                           .offer(runnable, Long.MAX_VALUE, TimeUnit.HOURS);
@@ -236,29 +236,29 @@ public class WorkExecutors {
 
       // The non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
       // with an unbounded queue.
-      this.threadPoolExecutor_ = new ThreadPoolExecutor(maximumPoolSize,
+      this.threadPoolExecutor = new ThreadPoolExecutor(maximumPoolSize,
             maximumPoolSize,
             keepAliveTime,
             timeUnit,
             new LinkedBlockingQueue<Runnable>(),
             new NamedThreadFactory("ISAAC-Q-work-thread", true));
-      this.threadPoolExecutor_.allowCoreThreadTimeOut(true);
+      this.threadPoolExecutor.allowCoreThreadTimeOut(true);
 
       // The IO non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
       // with an unbounded queue.
-      this.ioThreadPoolExecutor_ = new ThreadPoolExecutor(4,
+      this.ioThreadPoolExecutor = new ThreadPoolExecutor(4,
             4,
             keepAliveTime,
             timeUnit,
             new LinkedBlockingQueue<Runnable>(),
             new NamedThreadFactory("ISAAC-IO-work-thread", true));
-      this.ioThreadPoolExecutor_.allowCoreThreadTimeOut(true);
+      this.ioThreadPoolExecutor.allowCoreThreadTimeOut(true);
 
       // Execute this once, early on, in a background thread - as randomUUID uses secure random - and the initial
       // init of secure random can block on many systems that don't have enough entropy occuring.  The DB load process
       // should provide enough entropy to get it initialized, so it doesn't pause things later when someone requests a random UUID.
       getExecutor().execute(() -> UUID.randomUUID());
-      this.scheduledExecutor_ = Executors.newScheduledThreadPool(1,
+      this.scheduledExecutor = Executors.newScheduledThreadPool(1,
             new NamedThreadFactory("ISAAC-Scheduled-Thread", true));
       log.debug("WorkExecutors thread pools ready");
    }
@@ -270,32 +270,32 @@ public class WorkExecutors {
    private void stopMe() {
       log.info("Stopping WorkExecutors thread pools");
 
-      if (this.forkJoinExecutor_ != null) {
-         this.forkJoinExecutor_.shutdownNow();
-         this.forkJoinExecutor_ = null;
+      if (this.forkJoinExecutor != null) {
+         this.forkJoinExecutor.shutdownNow();
+         this.forkJoinExecutor = null;
       }
 
-      if (this.blockingThreadPoolExecutor_ != null) {
-         this.blockingThreadPoolExecutor_.shutdownNow();
-         this.blockingThreadPoolExecutor_ = null;
+      if (this.blockingThreadPoolExecutor != null) {
+         this.blockingThreadPoolExecutor.shutdownNow();
+         this.blockingThreadPoolExecutor = null;
       }
 
-      if (this.threadPoolExecutor_ != null) {
-         this.threadPoolExecutor_.shutdownNow();
-         this.threadPoolExecutor_ = null;
+      if (this.threadPoolExecutor != null) {
+         this.threadPoolExecutor.shutdownNow();
+         this.threadPoolExecutor = null;
       }
 
-      if (this.ioThreadPoolExecutor_ != null) {
-         this.ioThreadPoolExecutor_.shutdownNow();
-         this.ioThreadPoolExecutor_ = null;
+      if (this.ioThreadPoolExecutor != null) {
+         this.ioThreadPoolExecutor.shutdownNow();
+         this.ioThreadPoolExecutor = null;
       }
 
-      if (this.scheduledExecutor_ != null) {
-         this.scheduledExecutor_.shutdownNow();
-         this.scheduledExecutor_ = null;
+      if (this.scheduledExecutor != null) {
+         this.scheduledExecutor.shutdownNow();
+         this.scheduledExecutor = null;
       }
 
-      nonHK2Instance_ = null;
+      nonHK2Instance = null;
       log.debug("Stopped WorkExecutors thread pools");
    }
 
@@ -310,7 +310,7 @@ public class WorkExecutors {
     * intensive jobs.
     */
    public ThreadPoolExecutor getExecutor() {
-      return this.threadPoolExecutor_;
+      return this.threadPoolExecutor;
    }
 
    /**
@@ -320,7 +320,7 @@ public class WorkExecutors {
     * This is backed by an unbounded queue - it won't block / reject submissions because of being full.
     */
    public ForkJoinPool getForkJoinPoolExecutor() {
-      return this.forkJoinExecutor_;
+      return this.forkJoinExecutor;
    }
 
    /**
@@ -349,9 +349,9 @@ public class WorkExecutors {
       } else {
          log.debug("Returning static WorkExecutors instance");
 
-         if (nonHK2Instance_ == null) {
+         if (nonHK2Instance == null) {
             synchronized (log) {
-               if (nonHK2Instance_ == null) {
+               if (nonHK2Instance == null) {
                   log.debug("Setting up static WorkExecutors");
 
                   // if we aren't relying on the lookup service, we need to make sure the headless toolkit was installed (otherwise, the task APIs end up broken)
@@ -360,18 +360,18 @@ public class WorkExecutors {
                   final WorkExecutors temp = new WorkExecutors();
 
                   temp.startMe();
-                  nonHK2Instance_ = temp;
+                  nonHK2Instance = temp;
                   Runtime.getRuntime()
                          .addShutdownHook(new Thread(() -> {
                                                         log.debug("Shutting down static instance of WorkExecutors");
-                                                        nonHK2Instance_.stopMe();
+                                                        nonHK2Instance.stopMe();
                                                         log.debug("stopped static instance of WorkExecutors");
                                                      }));
                }
             }
          }
 
-         return nonHK2Instance_;
+         return nonHK2Instance;
       }
    }
 
@@ -384,7 +384,7 @@ public class WorkExecutors {
     * jobs that tend to block on IO.
     */
    public ThreadPoolExecutor getIOExecutor() {
-      return this.ioThreadPoolExecutor_;
+      return this.ioThreadPoolExecutor;
    }
 
    /**
@@ -395,7 +395,7 @@ public class WorkExecutors {
     * is available to accept the job.
     */
    public ThreadPoolExecutor getPotentiallyBlockingExecutor() {
-      return this.blockingThreadPoolExecutor_;
+      return this.blockingThreadPoolExecutor;
    }
 
    /**
@@ -405,7 +405,7 @@ public class WorkExecutors {
     * This pool only has a single thread - submitted jobs should be fast executing.
     */
    public ScheduledExecutorService getScheduledThreadPoolExecutor() {
-      return this.scheduledExecutor_;
+      return this.scheduledExecutor;
    }
 }
 

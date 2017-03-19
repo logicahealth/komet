@@ -90,10 +90,10 @@ public class ISAACVisitor
    //~--- fields --------------------------------------------------------------
 
    /** The default to primitive. */
-   private final boolean defaultToPrimitive_;
+   private final boolean defaultToPrimitive;
 
    /** The def builder. */
-   private final LogicalExpressionBuilder defBuilder_;
+   private final LogicalExpressionBuilder defBuilder;
 
    //~--- constructors --------------------------------------------------------
 
@@ -125,8 +125,8 @@ public class ISAACVisitor
     */
    public ISAACVisitor(LogicalExpressionBuilder defBuilder, ConceptChronology<?> c, boolean defaultToPrimitive) {
       super();
-      this.defaultToPrimitive_ = defaultToPrimitive;
-      this.defBuilder_         = defBuilder;
+      this.defaultToPrimitive = defaultToPrimitive;
+      this.defBuilder         = defBuilder;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -150,7 +150,7 @@ public class ISAACVisitor
          final ConceptChronology<?> value = (ConceptChronology<?>) visitConceptReference(ctx.attributeValue()
                                                                                             .conceptReference());
 
-         role = SomeRole(property, ConceptAssertion(value, this.defBuilder_));
+         role = SomeRole(property, ConceptAssertion(value, this.defBuilder));
       } else if (ctx.attributeValue()
                     .getChild(0)
                     .getClass() == SNOMEDCTExpressionParser.NestedExpressionContext.class) {
@@ -223,7 +223,7 @@ public class ISAACVisitor
 
       final Object subExpression = visit(ctx.subExpression());
 
-      if (((ctx.definitionStatus() == null) && (this.defaultToPrimitive_ == true)) ||
+      if (((ctx.definitionStatus() == null) && (this.defaultToPrimitive == true)) ||
             (((ctx.definitionStatus() != null) &&
               (ctx.definitionStatus().start.getType() == SNOMEDCTExpressionLexer.SC_OF)))) {
          return NecessarySet((And) subExpression);
@@ -299,11 +299,11 @@ public class ISAACVisitor
          final Assertion[] refinementAssertions = (Assertion[]) visit(ctx.refinement());
          final Assertion[] assertions           = new Assertion[refinementAssertions.length + 1];
 
-         assertions[0] = ConceptAssertion((ConceptChronology<?>) visit(ctx.focusConcept()), this.defBuilder_);
+         assertions[0] = ConceptAssertion((ConceptChronology<?>) visit(ctx.focusConcept()), this.defBuilder);
          System.arraycopy(refinementAssertions, 0, assertions, 1, refinementAssertions.length);
          result = And(assertions);
       } else {
-         result = ConceptAssertion((ConceptChronology<?>) visit(ctx.focusConcept()), this.defBuilder_);
+         result = ConceptAssertion((ConceptChronology<?>) visit(ctx.focusConcept()), this.defBuilder);
       }
 
       return result;

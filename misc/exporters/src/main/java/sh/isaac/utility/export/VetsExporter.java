@@ -386,13 +386,13 @@ public class VetsExporter {
       try {
          final SimpleDateFormat     sdf           = new SimpleDateFormat("yyyy-MM-dd");
          final String               formattedDate = sdf.format(System.currentTimeMillis());
-         final XMLGregorianCalendar _xmlEffDate   = DatatypeFactory.newInstance()
+         final XMLGregorianCalendar xmlEffDate   = DatatypeFactory.newInstance()
                                                                    .newXMLGregorianCalendar(formattedDate);
-         final XMLGregorianCalendar _xmlRelDate   = DatatypeFactory.newInstance()
+         final XMLGregorianCalendar xmlRelDate   = DatatypeFactory.newInstance()
                                                                    .newXMLGregorianCalendar(formattedDate);
 
-         xmlVersion.setEffectiveDate(_xmlEffDate);
-         xmlVersion.setReleaseDate(_xmlRelDate);
+         xmlVersion.setEffectiveDate(xmlEffDate);
+         xmlVersion.setReleaseDate(xmlRelDate);
       } catch (final Exception pe) {
          this.log.error("Misconfiguration of date parser!", pe);
       }

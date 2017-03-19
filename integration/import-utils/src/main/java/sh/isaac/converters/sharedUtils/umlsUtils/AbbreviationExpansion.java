@@ -61,7 +61,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class AbbreviationExpansion {
    /** The description. */
-   String abbreviation_, expansion_, description_;
+   String abbreviation, expansion, description;
 
    //~--- constructors --------------------------------------------------------
 
@@ -73,9 +73,9 @@ public class AbbreviationExpansion {
     * @param description the description
     */
    protected AbbreviationExpansion(String abbreviation, String expansion, String description) {
-      this.abbreviation_ = abbreviation;
-      this.expansion_    = expansion;
-      this.description_  = description;
+      this.abbreviation = abbreviation;
+      this.expansion    = expansion;
+      this.description  = description;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -118,7 +118,7 @@ public class AbbreviationExpansion {
     * @return the abbreviation
     */
    public String getAbbreviation() {
-      return this.abbreviation_;
+      return this.abbreviation;
    }
 
    /**
@@ -127,7 +127,7 @@ public class AbbreviationExpansion {
     * @return the description
     */
    public String getDescription() {
-      return this.description_;
+      return this.description;
    }
 
    /**
@@ -136,7 +136,7 @@ public class AbbreviationExpansion {
     * @return the expansion
     */
    public String getExpansion() {
-      return this.expansion_;
+      return this.expansion;
    }
 }
 

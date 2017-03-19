@@ -47,16 +47,16 @@ package sh.isaac.pombuilder.artifacts;
  */
 public abstract class Artifact {
    /** The group id. */
-   private final String groupId_;
+   private final String groupId;
 
    /** The artifact id. */
-   private final String artifactId_;
+   private final String artifactId;
 
    /** The version. */
-   private final String version_;
+   private final String version;
 
    /** The classifier. */
-   private final String classifier_;
+   private final String classifier;
 
    //~--- constructors --------------------------------------------------------
 
@@ -80,10 +80,10 @@ public abstract class Artifact {
     * @param classifier the classifier
     */
    public Artifact(String groupId, String artifactId, String version, String classifier) {
-      this.groupId_    = groupId;
-      this.artifactId_ = artifactId;
-      this.version_    = version;
-      this.classifier_ = classifier;
+      this.groupId    = groupId;
+      this.artifactId = artifactId;
+      this.version    = version;
+      this.classifier = classifier;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -95,8 +95,8 @@ public abstract class Artifact {
     */
    @Override
    public String toString() {
-      return "Artifact [groupId_=" + this.groupId_ + ", artifactId_=" + this.artifactId_ + ", version_=" +
-             this.version_ + ", classifier_=" + this.classifier_ + "]";
+      return "Artifact [groupId_=" + this.groupId + ", artifactId_=" + this.artifactId + ", version_=" +
+             this.version + ", classifier_=" + this.classifier + "]";
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -107,7 +107,7 @@ public abstract class Artifact {
     * @return the artifact id
     */
    public String getArtifactId() {
-      return this.artifactId_;
+      return this.artifactId;
    }
 
    /**
@@ -116,7 +116,7 @@ public abstract class Artifact {
     * @return the classifier
     */
    public String getClassifier() {
-      return this.classifier_;
+      return this.classifier;
    }
 
    /**
@@ -125,7 +125,7 @@ public abstract class Artifact {
     * @return true, if successful
     */
    public boolean hasClassifier() {
-      if ((this.classifier_ == null) || (this.classifier_.trim().length() == 0)) {
+      if ((this.classifier == null) || (this.classifier.trim().length() == 0)) {
          return false;
       }
 
@@ -138,7 +138,7 @@ public abstract class Artifact {
     * @return the group id
     */
    public String getGroupId() {
-      return this.groupId_;
+      return this.groupId;
    }
 
    /**
@@ -147,7 +147,7 @@ public abstract class Artifact {
     * @return the version
     */
    public String getVersion() {
-      return this.version_;
+      return this.version;
    }
 }
 

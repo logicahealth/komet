@@ -55,34 +55,34 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class LoadStats {
    /** The concepts. */
-   private final AtomicInteger concepts_ = new AtomicInteger();
+   private final AtomicInteger concepts = new AtomicInteger();
 
    /** The graphs. */
-   private final AtomicInteger graphs_ = new AtomicInteger();
+   private final AtomicInteger graphs = new AtomicInteger();
 
    /** The cloned concepts. */
-   private final AtomicInteger clonedConcepts_ = new AtomicInteger();
+   private final AtomicInteger clonedConcepts = new AtomicInteger();
 
    /** The skipped properties counter. */
-   private final AtomicInteger skippedPropertiesCounter_ = new AtomicInteger();
+   private final AtomicInteger skippedPropertiesCounter = new AtomicInteger();
 
    /** The generated preferred term count. */
-   private final AtomicInteger generatedPreferredTermCount_ = new AtomicInteger();
+   private final AtomicInteger generatedPreferredTermCount = new AtomicInteger();
 
    /** The descriptions. */
-   private final TreeMap<String, Integer> descriptions_ = new TreeMap<String, Integer>();
+   private final TreeMap<String, Integer> descriptions = new TreeMap<String, Integer>();
 
    /** The refset members. */
-   private final TreeMap<String, Integer> refsetMembers_ = new TreeMap<String, Integer>();
+   private final TreeMap<String, Integer> refsetMembers = new TreeMap<String, Integer>();
 
    /** The relationships. */
-   private final TreeMap<String, Integer> relationships_ = new TreeMap<String, Integer>();
+   private final TreeMap<String, Integer> relationships = new TreeMap<String, Integer>();
 
    /** The associations. */
-   private final TreeMap<String, Integer> associations_ = new TreeMap<String, Integer>();
+   private final TreeMap<String, Integer> associations = new TreeMap<String, Integer>();
 
    /** The annotations. */
-   private final TreeMap<String, TreeMap<String, Integer>> annotations_ = new TreeMap<String,
+   private final TreeMap<String, TreeMap<String, Integer>> annotations = new TreeMap<String,
                                                                              TreeMap<String, Integer>>();
 
    /** The sync lock. */
@@ -97,7 +97,7 @@ public class LoadStats {
     * @param annotationName the annotation name
     */
    public void addAnnotation(String annotatedItem, String annotationName) {
-      increment(this.annotations_, annotatedItem, annotationName);
+      increment(this.annotations, annotatedItem, annotationName);
    }
 
    /**
@@ -106,21 +106,21 @@ public class LoadStats {
     * @param assnName the assn name
     */
    public void addAssociation(String assnName) {
-      increment(this.associations_, assnName);
+      increment(this.associations, assnName);
    }
 
    /**
     * Adds the concept.
     */
    public void addConcept() {
-      this.concepts_.incrementAndGet();
+      this.concepts.incrementAndGet();
    }
 
    /**
     * Adds the concept clone.
     */
    public void addConceptClone() {
-      this.clonedConcepts_.incrementAndGet();
+      this.clonedConcepts.incrementAndGet();
    }
 
    /**
@@ -129,14 +129,14 @@ public class LoadStats {
     * @param descName the desc name
     */
    public void addDescription(String descName) {
-      increment(this.descriptions_, descName);
+      increment(this.descriptions, descName);
    }
 
    /**
     * Adds the graph.
     */
    public void addGraph() {
-      this.graphs_.incrementAndGet();
+      this.graphs.incrementAndGet();
    }
 
    /**
@@ -145,7 +145,7 @@ public class LoadStats {
     * @param refsetName the refset name
     */
    public void addRefsetMember(String refsetName) {
-      increment(this.refsetMembers_, refsetName);
+      increment(this.refsetMembers, refsetName);
    }
 
    /**
@@ -154,21 +154,21 @@ public class LoadStats {
     * @param relName the rel name
     */
    public void addRelationship(String relName) {
-      increment(this.relationships_, relName);
+      increment(this.relationships, relName);
    }
 
    /**
     * Adds the skipped property.
     */
    public void addSkippedProperty() {
-      this.skippedPropertiesCounter_.incrementAndGet();
+      this.skippedPropertiesCounter.incrementAndGet();
    }
 
    /**
     * Inc description copied from FSN count.
     */
    public void incDescriptionCopiedFromFSNCount() {
-      this.generatedPreferredTermCount_.incrementAndGet();
+      this.generatedPreferredTermCount.incrementAndGet();
    }
 
    /**
@@ -227,7 +227,7 @@ public class LoadStats {
     * @return the cloned concept count
     */
    public int getClonedConceptCount() {
-      return this.clonedConcepts_.get();
+      return this.clonedConcepts.get();
    }
 
    /**
@@ -236,7 +236,7 @@ public class LoadStats {
     * @return the concept count
     */
    public int getConceptCount() {
-      return this.concepts_.get();
+      return this.concepts.get();
    }
 
    /**
@@ -245,7 +245,7 @@ public class LoadStats {
     * @return the skipped property count
     */
    public int getSkippedPropertyCount() {
-      return this.skippedPropertiesCounter_.get();
+      return this.skippedPropertiesCounter.get();
    }
 
    /**
@@ -256,16 +256,16 @@ public class LoadStats {
    public ArrayList<String> getSummary() {
       final ArrayList<String> result = new ArrayList<String>();
 
-      result.add("Concepts: " + this.concepts_.get());
-      result.add("Graphs: " + this.graphs_.get());
+      result.add("Concepts: " + this.concepts.get());
+      result.add("Graphs: " + this.graphs.get());
 
-      if (this.clonedConcepts_.get() > 0) {
-         result.add("Cloned Concepts: " + this.clonedConcepts_.get());
+      if (this.clonedConcepts.get() > 0) {
+         result.add("Cloned Concepts: " + this.clonedConcepts.get());
       }
 
       int sum = 0;
 
-      for (final Map.Entry<String, Integer> value: this.relationships_.entrySet()) {
+      for (final Map.Entry<String, Integer> value: this.relationships.entrySet()) {
          sum += value.getValue();
          result.add("Relationship '" + value.getKey() + "': " + value.getValue());
       }
@@ -273,7 +273,7 @@ public class LoadStats {
       result.add("Relationships Total: " + sum);
       sum = 0;
 
-      for (final Map.Entry<String, Integer> value: this.associations_.entrySet()) {
+      for (final Map.Entry<String, Integer> value: this.associations.entrySet()) {
          sum += value.getValue();
          result.add("Association '" + value.getKey() + "': " + value.getValue());
       }
@@ -281,22 +281,22 @@ public class LoadStats {
       result.add("Associations Total: " + sum);
       sum = 0;
 
-      for (final Map.Entry<String, Integer> value: this.descriptions_.entrySet()) {
+      for (final Map.Entry<String, Integer> value: this.descriptions.entrySet()) {
          sum += value.getValue();
          result.add("Description '" + value.getKey() + "': " + value.getValue());
       }
 
       result.add("Descriptions Total: " + sum);
 
-      if (this.generatedPreferredTermCount_.get() > 0) {
-         result.add("Descriptions duplicated from FSN: " + this.generatedPreferredTermCount_.get());
+      if (this.generatedPreferredTermCount.get() > 0) {
+         result.add("Descriptions duplicated from FSN: " + this.generatedPreferredTermCount.get());
       }
 
       sum = 0;
 
       int nestedSum = 0;
 
-      for (final Map.Entry<String, TreeMap<String, Integer>> value: this.annotations_.entrySet()) {
+      for (final Map.Entry<String, TreeMap<String, Integer>> value: this.annotations.entrySet()) {
          nestedSum = 0;
 
          for (final Map.Entry<String, Integer> nestedValue: value.getValue()
@@ -315,13 +315,13 @@ public class LoadStats {
 
       result.add("Annotations Total: " + sum);
 
-      if (this.skippedPropertiesCounter_.get() > 0) {
-         result.add("Skipped Properties: " + this.skippedPropertiesCounter_.get());
+      if (this.skippedPropertiesCounter.get() > 0) {
+         result.add("Skipped Properties: " + this.skippedPropertiesCounter.get());
       }
 
       sum = 0;
 
-      for (final Map.Entry<String, Integer> value: this.refsetMembers_.entrySet()) {
+      for (final Map.Entry<String, Integer> value: this.refsetMembers.entrySet()) {
          sum += value.getValue();
          result.add("Refset Members '" + value.getKey() + "': " + value.getValue());
       }

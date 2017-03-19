@@ -58,7 +58,7 @@ public class DynamicSememeFloatImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeFloat {
    /** The property. */
-   private ObjectProperty<Float> property_;
+   private ObjectProperty<Float> property;
 
    //~--- constructors --------------------------------------------------------
 
@@ -78,7 +78,7 @@ public class DynamicSememeFloatImpl
     */
    public DynamicSememeFloatImpl(float f) {
       super();
-      this.data_ = DynamicSememeIntegerImpl.intToByteArray(Float.floatToIntBits(f));
+      this.data = DynamicSememeIntegerImpl.intToByteArray(Float.floatToIntBits(f));
    }
 
    /**
@@ -102,7 +102,7 @@ public class DynamicSememeFloatImpl
     */
    @Override
    public float getDataFloat() {
-      return Float.intBitsToFloat(DynamicSememeIntegerImpl.getIntFromByteArray(this.data_));
+      return Float.intBitsToFloat(DynamicSememeIntegerImpl.getIntFromByteArray(this.data));
    }
 
    /**
@@ -113,11 +113,11 @@ public class DynamicSememeFloatImpl
     */
    @Override
    public ReadOnlyObjectProperty<Float> getDataFloatProperty() {
-      if (this.property_ == null) {
-         this.property_ = new SimpleObjectProperty<>(null, getName(), getDataFloat());
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<>(null, getName(), getDataFloat());
       }
 
-      return this.property_;
+      return this.property;
    }
 
    /**

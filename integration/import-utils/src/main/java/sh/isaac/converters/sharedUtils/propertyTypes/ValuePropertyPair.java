@@ -51,19 +51,19 @@ import java.util.UUID;
 public class ValuePropertyPair
          implements Comparable<ValuePropertyPair> {
    /** The value disabled. */
-   private Boolean valueDisabled_ = null;  // used for overriding the property default with instance data
+   private Boolean valueDisabled = null;  // used for overriding the property default with instance data
 
    /** The time. */
-   protected Long time_ = null;
+   protected Long time = null;
 
    /** The property. */
-   private final Property property_;
+   private final Property property;
 
    /** The value. */
-   private final String value_;
+   private final String value;
 
    /** The description UUI D. */
-   private UUID descriptionUUID_;
+   private UUID descriptionUUID;
 
    //~--- constructors --------------------------------------------------------
 
@@ -74,9 +74,9 @@ public class ValuePropertyPair
     * @param property the property
     */
    public ValuePropertyPair(String value, Property property) {
-      this.value_           = value;
-      this.property_        = property;
-      this.descriptionUUID_ = null;
+      this.value           = value;
+      this.property        = property;
+      this.descriptionUUID = null;
    }
 
    /**
@@ -87,9 +87,9 @@ public class ValuePropertyPair
     * @param property the property
     */
    public ValuePropertyPair(String value, UUID descriptionUUID, Property property) {
-      this.value_           = value;
-      this.property_        = property;
-      this.descriptionUUID_ = descriptionUUID;
+      this.value           = value;
+      this.property        = property;
+      this.descriptionUUID = descriptionUUID;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -102,22 +102,22 @@ public class ValuePropertyPair
     */
    @Override
    public int compareTo(ValuePropertyPair o) {
-      int result = this.property_.getPropertyType()
+      int result = this.property.getPropertyType()
                                  .getClass()
                                  .getName()
-                                 .compareTo(o.property_.getPropertyType()
+                                 .compareTo(o.property.getPropertyType()
                                        .getClass()
                                        .getName());
 
       if (result == 0) {
-         result = this.property_.getPropertySubType() - o.property_.getPropertySubType();
+         result = this.property.getPropertySubType() - o.property.getPropertySubType();
 
          if (result == 0) {
-            result = this.property_.getSourcePropertyNameFSN()
-                                   .compareTo(o.property_.getSourcePropertyNameFSN());
+            result = this.property.getSourcePropertyNameFSN()
+                                   .compareTo(o.property.getSourcePropertyNameFSN());
 
             if (result == 0) {
-               result = this.value_.compareTo(o.value_);
+               result = this.value.compareTo(o.value);
             }
          }
       }
@@ -133,10 +133,10 @@ public class ValuePropertyPair
     * @return true, if disabled
     */
    public boolean isDisabled() {
-      if (this.valueDisabled_ != null) {
-         return this.valueDisabled_;
+      if (this.valueDisabled != null) {
+         return this.valueDisabled;
       } else {
-         return this.property_.isDisabled();
+         return this.property.isDisabled();
       }
    }
 
@@ -148,7 +148,7 @@ public class ValuePropertyPair
     * @param disabled the new disabled
     */
    public void setDisabled(boolean disabled) {
-      this.valueDisabled_ = disabled;
+      this.valueDisabled = disabled;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -159,7 +159,7 @@ public class ValuePropertyPair
     * @return the property
     */
    public Property getProperty() {
-      return this.property_;
+      return this.property;
    }
 
    /**
@@ -168,7 +168,7 @@ public class ValuePropertyPair
     * @return the time
     */
    public Long getTime() {
-      return this.time_;
+      return this.time;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -179,7 +179,7 @@ public class ValuePropertyPair
     * @param time the new time
     */
    public void setTime(long time) {
-      this.time_ = time;
+      this.time = time;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -190,7 +190,7 @@ public class ValuePropertyPair
     * @return the uuid
     */
    public UUID getUUID() {
-      return this.descriptionUUID_;
+      return this.descriptionUUID;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -201,7 +201,7 @@ public class ValuePropertyPair
     * @param uuid the new uuid
     */
    public void setUUID(UUID uuid) {
-      this.descriptionUUID_ = uuid;
+      this.descriptionUUID = uuid;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -212,7 +212,7 @@ public class ValuePropertyPair
     * @return the value
     */
    public String getValue() {
-      return this.value_;
+      return this.value;
    }
 }
 

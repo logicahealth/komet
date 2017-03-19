@@ -69,7 +69,7 @@ import sh.isaac.converters.sharedUtils.ConsoleUtil;
  */
 public class H2DatabaseHandle {
    /** The connection. */
-   protected Connection connection_;
+   protected Connection connection;
 
    //~--- constructors --------------------------------------------------------
 
@@ -106,9 +106,9 @@ public class H2DatabaseHandle {
       Class.forName("org.h2.Driver");
 
       if (dbFile == null) {
-         this.connection_ = DriverManager.getConnection("jdbc:h2:mem:;MV_STORE=FALSE");
+         this.connection = DriverManager.getConnection("jdbc:h2:mem:;MV_STORE=FALSE");
       } else {
-         this.connection_ = DriverManager.getConnection("jdbc:h2:" + dbFile.getAbsolutePath() +
+         this.connection = DriverManager.getConnection("jdbc:h2:" + dbFile.getAbsolutePath() +
                ";LOG=0;CACHE_SIZE=1024000;LOCK_MODE=0;;MV_STORE=FALSE");
       }
 
@@ -123,7 +123,7 @@ public class H2DatabaseHandle {
     */
    public void createTable(TableDefinition td)
             throws SQLException {
-      final Statement     s         = this.connection_.createStatement();
+      final Statement     s         = this.connection.createStatement();
       final StringBuilder sql       = new StringBuilder();
       String              tableName = td.getTableName();
 
@@ -207,7 +207,7 @@ public class H2DatabaseHandle {
       insert.setLength(insert.length() - 1);
       insert.append(")");
 
-      final PreparedStatement ps           = this.connection_.prepareStatement(insert.toString());
+      final PreparedStatement ps           = this.connection.prepareStatement(insert.toString());
       int                     filterColumn = -1;
       HashSet<String>         sabHashSet   = null;
 
@@ -319,7 +319,7 @@ public class H2DatabaseHandle {
     */
    public void shutdown()
             throws SQLException {
-      this.connection_.close();
+      this.connection.close();
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -330,7 +330,7 @@ public class H2DatabaseHandle {
     * @return the connection
     */
    public Connection getConnection() {
-      return this.connection_;
+      return this.connection;
    }
 }
 

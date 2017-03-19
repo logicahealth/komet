@@ -67,7 +67,7 @@ public enum ObjectChronologyType {
    UNKNOWN_NID("Unknown");
 
    /** The nice name. */
-   private String niceName_;
+   private String niceName;
 
    //~--- constructors --------------------------------------------------------
 
@@ -77,7 +77,7 @@ public enum ObjectChronologyType {
     * @param niceName the nice name
     */
    private ObjectChronologyType(String niceName) {
-      this.niceName_ = niceName;
+      this.niceName = niceName;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -103,7 +103,7 @@ public enum ObjectChronologyType {
 
       for (final ObjectChronologyType ct: values()) {
          if (ct.name().toLowerCase(Locale.ENGLISH).equals(clean) ||
-               ct.niceName_.toLowerCase(Locale.ENGLISH).equals(clean) ||
+               ct.niceName.toLowerCase(Locale.ENGLISH).equals(clean) ||
                (ct.ordinal() + "").equals(clean)) {
             return ct;
          }
@@ -124,7 +124,7 @@ public enum ObjectChronologyType {
     */
    @Override
    public String toString() {
-      return this.niceName_;
+      return this.niceName;
    }
 }
 

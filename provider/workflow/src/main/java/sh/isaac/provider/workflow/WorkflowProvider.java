@@ -98,35 +98,35 @@ public class WorkflowProvider
     * initial state. Initialized during the importing of a BPMN2 file (containing
     * the definition) and static from then on.
     */
-   private WorkflowContentStore<AvailableAction> availableActionContentStore_;
+   private WorkflowContentStore<AvailableAction> availableActionContentStore;
 
    /**
     * Workflow-based Data Store containing the details associated with a given
     * project. Initialized during the importing of a BPMN2 file (containing the
     * definition) and static from then on.
     */
-   private WorkflowContentStore<DefinitionDetail> definitionDetailContentStore_;
+   private WorkflowContentStore<DefinitionDetail> definitionDetailContentStore;
 
    /**
     * Workflow-based Data Store containing the workflow process instance entries.
     * Initialized by user during process creation and updated by users thereafter.
     */
-   private WorkflowContentStore<ProcessDetail> processDetailContentStore_;
+   private WorkflowContentStore<ProcessDetail> processDetailContentStore;
 
    /**
     * Workflow-based Data Store containing the process instance historical entries.
     * Updated each time a user advances workflow.
     */
-   private WorkflowContentStore<ProcessHistory> processHistoryContentStore_;
+   private WorkflowContentStore<ProcessHistory> processHistoryContentStore;
 
    /**
     * Workflow-based Data Store containing the workflow User Role entries.
     * Initialized during reading of WF Definition only and static from then on.
     */
-   private UserRoleService userRoleContentStore_;
+   private UserRoleService userRoleContentStore;
 
    /** The bpmn info. */
-   private BPMNInfo bpmnInfo_;
+   private BPMNInfo bpmnInfo;
 
    //~--- constant enums ------------------------------------------------------
 
@@ -169,12 +169,12 @@ public class WorkflowProvider
    @Override
    public void reset() {
       this.logger.info("Clearing cache due to metastore shutdown");
-      this.availableActionContentStore_  = null;
-      this.definitionDetailContentStore_ = null;
-      this.processDetailContentStore_    = null;
-      this.processHistoryContentStore_   = null;
-      this.userRoleContentStore_         = null;
-      this.bpmnInfo_                     = null;
+      this.availableActionContentStore  = null;
+      this.definitionDetailContentStore = null;
+      this.processDetailContentStore    = null;
+      this.processHistoryContentStore   = null;
+      this.userRoleContentStore         = null;
+      this.bpmnInfo                     = null;
    }
 
    /**
@@ -182,28 +182,28 @@ public class WorkflowProvider
     */
    private synchronized void reCacheStoreRefs() {
       this.logger.info("Getting storage refs from metastore " + this);
-      this.availableActionContentStore_ = new WorkflowContentStore<AvailableAction>(Get.metaContentService().<UUID,
+      this.availableActionContentStore = new WorkflowContentStore<AvailableAction>(Get.metaContentService().<UUID,
             byte[]>openStore(WorkflowContentStoreType.AVAILABLE_ACTION.toString()),
             (bytes) -> (bytes == null) ? null
                                        : new AvailableAction(bytes));
-      this.definitionDetailContentStore_ = new WorkflowContentStore<DefinitionDetail>(Get.metaContentService().<UUID,
+      this.definitionDetailContentStore = new WorkflowContentStore<DefinitionDetail>(Get.metaContentService().<UUID,
             byte[]>openStore(WorkflowContentStoreType.DEFINITION_DETAIL.toString()),
             (bytes) -> (bytes == null) ? null
                                        : new DefinitionDetail(bytes));
-      this.processDetailContentStore_ = new WorkflowContentStore<ProcessDetail>(Get.metaContentService().<UUID,
+      this.processDetailContentStore = new WorkflowContentStore<ProcessDetail>(Get.metaContentService().<UUID,
             byte[]>openStore(WorkflowContentStoreType.PROCESS_DEFINITION.toString()),
             (bytes) -> (bytes == null) ? null
                                        : new ProcessDetail(bytes));
-      this.processHistoryContentStore_ = new WorkflowContentStore<ProcessHistory>(Get.metaContentService().<UUID,
+      this.processHistoryContentStore = new WorkflowContentStore<ProcessHistory>(Get.metaContentService().<UUID,
             byte[]>openStore(WorkflowContentStoreType.HISTORICAL_WORKFLOW.toString()),
             (bytes) -> (bytes == null) ? null
                                        : new ProcessHistory(bytes));
-      this.userRoleContentStore_ = LookupService.getService(UserRoleService.class);
+      this.userRoleContentStore = LookupService.getService(UserRoleService.class);
 
       // this needs rework to load 1 (or more) BPMN2 Files from the classpath
       if (BPMN_PATH != null)  // Null is to support a test case where it doesn't want the file loaded by default
       {
-         this.bpmnInfo_ = new Bpmn2FileImporter(BPMN_PATH, this).getBPMNInfo();
+         this.bpmnInfo = new Bpmn2FileImporter(BPMN_PATH, this).getBPMNInfo();
       }
    }
 
@@ -225,11 +225,11 @@ public class WorkflowProvider
     * @return the available action store
     */
    public WorkflowContentStore<AvailableAction> getAvailableActionStore() {
-      if (this.availableActionContentStore_ == null) {
+      if (this.availableActionContentStore == null) {
          reCacheStoreRefs();
       }
 
-      return this.availableActionContentStore_;
+      return this.availableActionContentStore;
    }
 
    /**
@@ -238,11 +238,11 @@ public class WorkflowProvider
     * @return the BPMN info
     */
    public BPMNInfo getBPMNInfo() {
-      if (this.bpmnInfo_ == null) {
+      if (this.bpmnInfo == null) {
          reCacheStoreRefs();
       }
 
-      return this.bpmnInfo_;
+      return this.bpmnInfo;
    }
 
    /**
@@ -251,11 +251,11 @@ public class WorkflowProvider
     * @return the definition detail store
     */
    public WorkflowContentStore<DefinitionDetail> getDefinitionDetailStore() {
-      if (this.definitionDetailContentStore_ == null) {
+      if (this.definitionDetailContentStore == null) {
          reCacheStoreRefs();
       }
 
-      return this.definitionDetailContentStore_;
+      return this.definitionDetailContentStore;
    }
 
    /**
@@ -264,11 +264,11 @@ public class WorkflowProvider
     * @return the process detail store
     */
    public WorkflowContentStore<ProcessDetail> getProcessDetailStore() {
-      if (this.processDetailContentStore_ == null) {
+      if (this.processDetailContentStore == null) {
          reCacheStoreRefs();
       }
 
-      return this.processDetailContentStore_;
+      return this.processDetailContentStore;
    }
 
    /**
@@ -277,11 +277,11 @@ public class WorkflowProvider
     * @return the process history store
     */
    public WorkflowContentStore<ProcessHistory> getProcessHistoryStore() {
-      if (this.processHistoryContentStore_ == null) {
+      if (this.processHistoryContentStore == null) {
          reCacheStoreRefs();
       }
 
-      return this.processHistoryContentStore_;
+      return this.processHistoryContentStore;
    }
 
    /**
@@ -290,11 +290,11 @@ public class WorkflowProvider
     * @return the user role store
     */
    public UserRoleService getUserRoleStore() {
-      if (this.userRoleContentStore_ == null) {
+      if (this.userRoleContentStore == null) {
          reCacheStoreRefs();
       }
 
-      return this.userRoleContentStore_;
+      return this.userRoleContentStore;
    }
 
    /**

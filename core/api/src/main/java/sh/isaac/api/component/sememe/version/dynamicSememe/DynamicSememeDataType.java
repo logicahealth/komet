@@ -124,13 +124,13 @@ public enum DynamicSememeDataType {
    UNKNOWN(Byte.MAX_VALUE, null, "Unknown");
 
    /** The externalized token. */
-   private int externalizedToken_;
+   private int externalizedToken;
 
    /** The data class. */
-   private Class<? extends DynamicSememeData> dataClass_;
+   private Class<? extends DynamicSememeData> dataClass;
 
    /** The display name. */
-   private String displayName_;
+   private String displayName;
 
    //~--- constructors --------------------------------------------------------
 
@@ -144,9 +144,9 @@ public enum DynamicSememeDataType {
    private DynamicSememeDataType(int externalizedToken,
                                  Class<? extends DynamicSememeData> dataClass,
                                  String displayName) {
-      this.externalizedToken_ = externalizedToken;
-      this.dataClass_         = dataClass;
-      this.displayName_       = displayName;
+      this.externalizedToken = externalizedToken;
+      this.dataClass         = dataClass;
+      this.displayName       = displayName;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -241,7 +241,7 @@ public enum DynamicSememeDataType {
          }
       } catch (final NumberFormatException e) {
          for (final DynamicSememeDataType x: DynamicSememeDataType.values()) {
-            if (x.displayName_.equalsIgnoreCase(clean) || x.name().toLowerCase().equals(clean)) {
+            if (x.displayName.equalsIgnoreCase(clean) || x.name().toLowerCase().equals(clean)) {
                return x;
             }
          }
@@ -331,7 +331,7 @@ public enum DynamicSememeDataType {
     * @return the display name
     */
    public String getDisplayName() {
-      return this.displayName_;
+      return this.displayName;
    }
 
    /**
@@ -340,7 +340,7 @@ public enum DynamicSememeDataType {
     * @return the dynamic sememe member class
     */
    public Class<? extends DynamicSememeData> getDynamicSememeMemberClass() {
-      return this.dataClass_;
+      return this.dataClass;
    }
 
    /**
@@ -400,7 +400,7 @@ public enum DynamicSememeDataType {
     * @return the type token
     */
    public int getTypeToken() {
-      return this.externalizedToken_;
+      return this.externalizedToken;
    }
 }
 

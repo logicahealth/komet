@@ -58,7 +58,7 @@ public class DynamicSememeIntegerImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeInteger {
    /** The property. */
-   private ObjectProperty<Integer> property_;
+   private ObjectProperty<Integer> property;
 
    //~--- constructors --------------------------------------------------------
 
@@ -78,7 +78,7 @@ public class DynamicSememeIntegerImpl
     */
    public DynamicSememeIntegerImpl(int integer) {
       super();
-      this.data_ = intToByteArray(integer);
+      this.data = intToByteArray(integer);
    }
 
    /**
@@ -120,7 +120,7 @@ public class DynamicSememeIntegerImpl
     */
    @Override
    public int getDataInteger() {
-      return getIntFromByteArray(this.data_);
+      return getIntFromByteArray(this.data);
    }
 
    /**
@@ -131,11 +131,11 @@ public class DynamicSememeIntegerImpl
     */
    @Override
    public ReadOnlyObjectProperty<Integer> getDataIntegerProperty() {
-      if (this.property_ == null) {
-         this.property_ = new SimpleObjectProperty<>(null, getName(), getDataInteger());
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<>(null, getName(), getDataInteger());
       }
 
-      return this.property_;
+      return this.property;
    }
 
    /**

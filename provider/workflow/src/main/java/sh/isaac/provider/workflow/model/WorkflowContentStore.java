@@ -82,7 +82,7 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    private ConcurrentMap<UUID, byte[]> map = null;
 
    /** The deserializer. */
-   private final Function<byte[], T> deserializer_;
+   private final Function<byte[], T> deserializer;
 
    //~--- constructors --------------------------------------------------------
 
@@ -94,7 +94,7 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
     * @param deserializer            How to create a new object of type T from the submitted bytes
     */
    public WorkflowContentStore(ConcurrentMap<UUID, byte[]> dataStore, Function<byte[], T> deserializer) {
-      this.deserializer_ = deserializer;
+      this.deserializer = deserializer;
       this.map           = dataStore;
    }
 
@@ -163,7 +163,7 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
       final HashMap<UUID, T> retSet = new HashMap<>();
 
       for (final java.util.Map.Entry<UUID, byte[]> x: this.map.entrySet()) {
-         retSet.put(x.getKey(), this.deserializer_.apply(x.getValue()));
+         retSet.put(x.getKey(), this.deserializer.apply(x.getValue()));
       }
 
       return retSet.entrySet();
@@ -214,7 +214,7 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
          throw new RuntimeException("Attempt to store an object with a mis-matched key");
       }
 
-      return this.deserializer_.apply(this.map.put(key, value.getDataToWrite()));
+      return this.deserializer.apply(this.map.put(key, value.getDataToWrite()));
    }
 
    /**
@@ -236,7 +236,7 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
     */
    @Override
    public T remove(Object key) {
-      return this.deserializer_.apply(this.map.remove(key));
+      return this.deserializer.apply(this.map.remove(key));
    }
 
    /**
@@ -278,7 +278,7 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    public Collection<T> values() {
       return this.map.values()
                      .stream()
-                     .map((bytes) -> this.deserializer_.apply(bytes))
+                     .map((bytes) -> this.deserializer.apply(bytes))
                      .collect(Collectors.toList());
    }
 
@@ -304,7 +304,7 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
     */
    @Override
    public T get(Object key) {
-      return this.deserializer_.apply(this.map.get(key));
+      return this.deserializer.apply(this.map.get(key));
    }
 }
 

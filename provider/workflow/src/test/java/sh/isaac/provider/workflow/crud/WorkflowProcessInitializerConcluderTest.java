@@ -87,9 +87,9 @@ public class WorkflowProcessInitializerConcluderTest
     */
    @Before
    public void beforeTest() {
-      wp_.getProcessDetailStore()
+      wp.getProcessDetailStore()
          .clear();
-      wp_.getProcessHistoryStore()
+      wp.getProcessHistoryStore()
          .clear();
    }
 
@@ -129,7 +129,7 @@ public class WorkflowProcessInitializerConcluderTest
          Assert.assertTrue(true);
       }
 
-      final UUID processId = wp_.getWorkflowProcessInitializerConcluder()
+      final UUID processId = wp.getWorkflowProcessInitializerConcluder()
                                 .createWorkflowProcess(mainDefinitionId,
                                       RoleConfigurator.getFirstTestUser(),
                                       "Main Process Name",
@@ -138,7 +138,7 @@ public class WorkflowProcessInitializerConcluderTest
       Thread.sleep(1);
       addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
       executeSendForReviewAdvancement(processId);
-      wp_.getWorkflowProcessInitializerConcluder()
+      wp.getWorkflowProcessInitializerConcluder()
          .launchProcess(processId);
       Thread.sleep(1);
       executeSendForApprovalAdvancement(processId);
@@ -146,7 +146,7 @@ public class WorkflowProcessInitializerConcluderTest
 
       final SortedSet<ProcessHistory> hxEntries = new TreeSet<>(new ProcessHistoryComparator());
 
-      hxEntries.addAll(wp_.getProcessHistoryStore()
+      hxEntries.addAll(wp.getProcessHistoryStore()
                           .values());
       Assert.assertEquals(3, hxEntries.size());
       assertHistoryForProcess(hxEntries, processId);
@@ -157,7 +157,7 @@ public class WorkflowProcessInitializerConcluderTest
                          EndWorkflowType.CANCELED);
       assertProcessDefinition(ProcessStatus.CANCELED, mainDefinitionId, processId);
       hxEntries.clear();
-      hxEntries.addAll(wp_.getProcessHistoryStore()
+      hxEntries.addAll(wp.getProcessHistoryStore()
                           .values());
       assertCancelHistory(hxEntries.last(), processId);
 
@@ -201,7 +201,7 @@ public class WorkflowProcessInitializerConcluderTest
          Assert.assertTrue(true);
       }
 
-      final UUID processId = wp_.getWorkflowProcessInitializerConcluder()
+      final UUID processId = wp.getWorkflowProcessInitializerConcluder()
                                 .createWorkflowProcess(mainDefinitionId,
                                       RoleConfigurator.getFirstTestUser(),
                                       "Main Process Name",
@@ -223,7 +223,7 @@ public class WorkflowProcessInitializerConcluderTest
 
       addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
       executeSendForReviewAdvancement(processId);
-      wp_.getWorkflowProcessInitializerConcluder()
+      wp.getWorkflowProcessInitializerConcluder()
          .launchProcess(processId);
       Thread.sleep(1);
 
@@ -244,7 +244,7 @@ public class WorkflowProcessInitializerConcluderTest
 
       final SortedSet<ProcessHistory> hxEntries = new TreeSet<>(new ProcessHistoryComparator());
 
-      hxEntries.addAll(wp_.getProcessHistoryStore()
+      hxEntries.addAll(wp.getProcessHistoryStore()
                           .values());
       Assert.assertEquals(3, hxEntries.size());
       assertHistoryForProcess(hxEntries, processId);
@@ -255,7 +255,7 @@ public class WorkflowProcessInitializerConcluderTest
                          EndWorkflowType.CONCLUDED);
       assertProcessDefinition(ProcessStatus.CONCLUDED, mainDefinitionId, processId);
       hxEntries.clear();
-      hxEntries.addAll(wp_.getProcessHistoryStore()
+      hxEntries.addAll(wp.getProcessHistoryStore()
                           .values());
       assertConcludeHistory(hxEntries.last(), processId);
 
@@ -282,7 +282,7 @@ public class WorkflowProcessInitializerConcluderTest
    public void testCreateWorkflowProcess()
             throws Exception {
       // Initialization
-      final UUID processId = wp_.getWorkflowProcessInitializerConcluder()
+      final UUID processId = wp.getWorkflowProcessInitializerConcluder()
                                 .createWorkflowProcess(mainDefinitionId,
                                       RoleConfigurator.getFirstTestUser(),
                                       "Main Process Name",
@@ -295,7 +295,7 @@ public class WorkflowProcessInitializerConcluderTest
 
       final SortedSet<ProcessHistory> hxEntries = new TreeSet<>(new ProcessHistoryComparator());
 
-      hxEntries.addAll(wp_.getProcessHistoryStore()
+      hxEntries.addAll(wp.getProcessHistoryStore()
                           .values());
       Assert.assertEquals(1, hxEntries.size());
       assertHistoryForProcess(hxEntries, processId);
@@ -315,14 +315,14 @@ public class WorkflowProcessInitializerConcluderTest
             throws Exception {
       // Attempt to launch a process that hasn't yet been created
       try {
-         wp_.getWorkflowProcessInitializerConcluder()
+         wp.getWorkflowProcessInitializerConcluder()
             .launchProcess(UUID.randomUUID());
          Assert.fail();
       } catch (final Exception e) {
          Assert.assertTrue(true);
       }
 
-      final UUID processId = wp_.getWorkflowProcessInitializerConcluder()
+      final UUID processId = wp.getWorkflowProcessInitializerConcluder()
                                 .createWorkflowProcess(mainDefinitionId,
                                       RoleConfigurator.getFirstTestUser(),
                                       "Main Process Name",
@@ -331,20 +331,20 @@ public class WorkflowProcessInitializerConcluderTest
       Thread.sleep(1);
       addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
       executeSendForReviewAdvancement(processId);
-      wp_.getWorkflowProcessInitializerConcluder()
+      wp.getWorkflowProcessInitializerConcluder()
          .launchProcess(processId);
       assertProcessDefinition(ProcessStatus.LAUNCHED, mainDefinitionId, processId);
 
       final SortedSet<ProcessHistory> hxEntries = new TreeSet<>(new ProcessHistoryComparator());
 
-      hxEntries.addAll(wp_.getProcessHistoryStore()
+      hxEntries.addAll(wp.getProcessHistoryStore()
                           .values());
       Assert.assertEquals(2, hxEntries.size());
       assertHistoryForProcess(hxEntries, processId);
 
       // Attempt to launch an already launched process
       try {
-         wp_.getWorkflowProcessInitializerConcluder()
+         wp.getWorkflowProcessInitializerConcluder()
             .launchProcess(processId);
          Assert.fail();
       } catch (final Exception e) {
@@ -362,7 +362,7 @@ public class WorkflowProcessInitializerConcluderTest
    private void assertProcessDefinition(ProcessStatus processStatus, UUID definitionId, UUID processId) {
       final Set<ProcessDetail> detailEntries = new HashSet<>();
 
-      detailEntries.addAll(wp_.getProcessDetailStore()
+      detailEntries.addAll(wp.getProcessDetailStore()
                               .values());
 
       final ProcessDetail entry = detailEntries.iterator()

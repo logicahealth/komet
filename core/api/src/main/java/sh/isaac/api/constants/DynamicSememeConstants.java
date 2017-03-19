@@ -92,7 +92,7 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 public class DynamicSememeConstants
          implements ModuleProvidedConstants {
    /** The cache. */
-   private static DynamicSememeConstants cache_;
+   private static DynamicSememeConstants cache;
 
    //~--- fields --------------------------------------------------------------
 
@@ -658,11 +658,11 @@ public class DynamicSememeConstants
     * @return the dynamic sememe constants
     */
    public static DynamicSememeConstants get() {
-      if (cache_ == null) {
-         cache_ = LookupService.getService(DynamicSememeConstants.class);
+      if (cache == null) {
+         cache = LookupService.getService(DynamicSememeConstants.class);
       }
 
-      return cache_;
+      return cache;
    }
 }
 

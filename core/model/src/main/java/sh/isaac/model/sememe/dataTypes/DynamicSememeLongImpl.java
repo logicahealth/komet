@@ -62,7 +62,7 @@ public class DynamicSememeLongImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeLong {
    /** The property. */
-   private ObjectProperty<Long> property_;
+   private ObjectProperty<Long> property;
 
    //~--- constructors --------------------------------------------------------
 
@@ -82,7 +82,7 @@ public class DynamicSememeLongImpl
     */
    public DynamicSememeLongImpl(long l) {
       super();
-      this.data_ = ByteBuffer.allocate(8)
+      this.data = ByteBuffer.allocate(8)
                              .putLong(l)
                              .array();
    }
@@ -108,7 +108,7 @@ public class DynamicSememeLongImpl
     */
    @Override
    public long getDataLong() {
-      return ByteBuffer.wrap(this.data_)
+      return ByteBuffer.wrap(this.data)
                        .getLong();
    }
 
@@ -120,11 +120,11 @@ public class DynamicSememeLongImpl
     */
    @Override
    public ReadOnlyObjectProperty<Long> getDataLongProperty() {
-      if (this.property_ == null) {
-         this.property_ = new SimpleObjectProperty<>(null, getName(), getDataLong());
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<>(null, getName(), getDataLong());
       }
 
-      return this.property_;
+      return this.property;
    }
 
    /**

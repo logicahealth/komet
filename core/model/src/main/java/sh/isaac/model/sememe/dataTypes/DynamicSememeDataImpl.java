@@ -64,10 +64,10 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 public abstract class DynamicSememeDataImpl
          implements DynamicSememeData {
    /** The name provider. */
-   private transient Supplier<String> nameProvider_ = null;
+   private transient Supplier<String> nameProvider = null;
 
    /** The data. */
-   protected byte[] data_;
+   protected byte[] data;
 
    //~--- constructors --------------------------------------------------------
 
@@ -82,7 +82,7 @@ public abstract class DynamicSememeDataImpl
     * @param data the data
     */
    protected DynamicSememeDataImpl(byte[] data) {
-      this.data_ = data;
+      this.data = data;
    }
 
    /**
@@ -93,7 +93,7 @@ public abstract class DynamicSememeDataImpl
     * @param columnNumber the column number
     */
    protected DynamicSememeDataImpl(byte[] data, int assemblageSequence, int columnNumber) {
-      this.data_ = data;
+      this.data = data;
       configureNameProvider(assemblageSequence, columnNumber);
    }
 
@@ -107,12 +107,12 @@ public abstract class DynamicSememeDataImpl
     */
    @Override
    public void configureNameProvider(int assemblageSequence, int columnNumber) {
-      if (this.nameProvider_ == null) {
-         this.nameProvider_ = new Supplier<String>() {
-            private String nameCache_ = null;
+      if (this.nameProvider == null) {
+         this.nameProvider = new Supplier<String>() {
+            private String nameCache = null;
             @Override
             public String get() {
-               if (this.nameCache_ == null) {
+               if (this.nameCache == null) {
                   final DynamicSememeUtility ls = LookupService.get()
                                                                .getService(DynamicSememeUtility.class);
 
@@ -120,13 +120,13 @@ public abstract class DynamicSememeDataImpl
                      throw new RuntimeException(
                          "An implementation of DynamicSememeUtility is not available on the classpath");
                   } else {
-                     this.nameCache_ = ls.readDynamicSememeUsageDescription(assemblageSequence)
+                     this.nameCache = ls.readDynamicSememeUsageDescription(assemblageSequence)
                                          .getColumnInfo()[columnNumber]
                                          .getColumnName();
                   }
                }
 
-               return this.nameCache_;
+               return this.nameCache;
             }
          };
       }
@@ -166,7 +166,7 @@ public abstract class DynamicSememeDataImpl
          return temp;
 
       case BYTEARRAY:
-         return "[-byte array size " + this.data_.length + "]";
+         return "[-byte array size " + this.data.length + "]";
 
       case POLYMORPHIC:
       case UNKNOWN:
@@ -200,7 +200,7 @@ public abstract class DynamicSememeDataImpl
 
       final DynamicSememeDataImpl other = (DynamicSememeDataImpl) obj;
 
-      if (!Arrays.equals(this.data_, other.data_)) {
+      if (!Arrays.equals(this.data, other.data)) {
          return false;
       }
 
@@ -218,7 +218,7 @@ public abstract class DynamicSememeDataImpl
       final int prime  = 31;
       int       result = 1;
 
-      result = prime * result + Arrays.hashCode(this.data_);
+      result = prime * result + Arrays.hashCode(this.data);
       return result;
    }
 
@@ -243,7 +243,7 @@ public abstract class DynamicSememeDataImpl
     */
    @Override
    public byte[] getData() {
-      return this.data_;
+      return this.data;
    }
 
    /**
@@ -263,8 +263,8 @@ public abstract class DynamicSememeDataImpl
     * @return the name
     */
    protected String getName() {
-      return ((this.nameProvider_ == null) ? "???"
-            : this.nameProvider_.get());
+      return ((this.nameProvider == null) ? "???"
+            : this.nameProvider.get());
    }
 }
 

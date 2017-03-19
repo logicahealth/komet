@@ -58,7 +58,7 @@ public class DynamicSememeNidImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeNid {
    /** The property. */
-   private ObjectProperty<Integer> property_;
+   private ObjectProperty<Integer> property;
 
    //~--- constructors --------------------------------------------------------
 
@@ -78,7 +78,7 @@ public class DynamicSememeNidImpl
     */
    public DynamicSememeNidImpl(int nid) {
       super();
-      this.data_ = DynamicSememeIntegerImpl.intToByteArray(nid);
+      this.data = DynamicSememeIntegerImpl.intToByteArray(nid);
    }
 
    /**
@@ -102,7 +102,7 @@ public class DynamicSememeNidImpl
     */
    @Override
    public int getDataNid() {
-      return DynamicSememeIntegerImpl.getIntFromByteArray(this.data_);
+      return DynamicSememeIntegerImpl.getIntFromByteArray(this.data);
    }
 
    /**
@@ -113,11 +113,11 @@ public class DynamicSememeNidImpl
     */
    @Override
    public ReadOnlyObjectProperty<Integer> getDataNidProperty() {
-      if (this.property_ == null) {
-         this.property_ = new SimpleObjectProperty<>(null, getName(), getDataNid());
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<>(null, getName(), getDataNid());
       }
 
-      return this.property_;
+      return this.property;
    }
 
    /**

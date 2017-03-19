@@ -69,7 +69,7 @@ public class DynamicSememeArrayImpl<T extends DynamicSememeData>
         extends DynamicSememeDataImpl
          implements DynamicSememeArray<T> {
    /** The property. */
-   private ReadOnlyObjectProperty<T[]> property_;
+   private ReadOnlyObjectProperty<T[]> property;
 
    //~--- constructors --------------------------------------------------------
 
@@ -109,9 +109,9 @@ public class DynamicSememeArrayImpl<T extends DynamicSememeData>
 
       final int expectedDataSize = (int) totalBytes + (dataArray.length * 8);
 
-      this.data_ = new byte[expectedDataSize];
+      this.data = new byte[expectedDataSize];
 
-      final ByteBuffer data = ByteBuffer.wrap(this.data_);
+      final ByteBuffer data = ByteBuffer.wrap(this.data);
 
       // Then, for each data item, 4 bytes for the type, 4 bytes for the int size marker of the data, then the data.
       for (int i = 0; i < dataArray.length; i++) {
@@ -146,7 +146,7 @@ public class DynamicSememeArrayImpl<T extends DynamicSememeData>
    @Override
    public T[] getDataArray() {
       final ArrayList<T>                   result     = new ArrayList<>();
-      final ByteBuffer                     bb         = ByteBuffer.wrap(this.data_);
+      final ByteBuffer                     bb         = ByteBuffer.wrap(this.data);
       final HashSet<DynamicSememeDataType> foundTypes = new HashSet<>();
 
       while (bb.hasRemaining()) {
@@ -178,11 +178,11 @@ public class DynamicSememeArrayImpl<T extends DynamicSememeData>
     */
    @Override
    public ReadOnlyObjectProperty<T[]> getDataArrayProperty() {
-      if (this.property_ == null) {
-         this.property_ = new SimpleObjectProperty<T[]>(null, getName(), getDataArray());
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<T[]>(null, getName(), getDataArray());
       }
 
-      return this.property_;
+      return this.property;
    }
 
    /**

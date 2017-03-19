@@ -86,9 +86,9 @@ public class Bpmn2FileImporterTest
     */
    @Before
    public void beforeTest() {
-      wp_.getProcessDetailStore()
+      wp.getProcessDetailStore()
          .clear();
-      wp_.getProcessHistoryStore()
+      wp.getProcessHistoryStore()
          .clear();
    }
 

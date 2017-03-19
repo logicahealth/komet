@@ -60,7 +60,7 @@ public class PT_Descriptions
    public PT_Descriptions(String termName) {
       super(termName);
 
-      // from relationship metadata, but needs to be here because they are loaded as description_ types
+      // from relationship metadata, but needs to be here because they are loaded as description types
       addProperty("Inverse FSN");
       addProperty("Inverse Synonym");
       addProperty("Inverse Description");

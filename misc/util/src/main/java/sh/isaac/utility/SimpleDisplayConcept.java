@@ -67,16 +67,16 @@ import sh.isaac.api.component.concept.ConceptVersion;
 public class SimpleDisplayConcept
          implements Comparable<SimpleDisplayConcept> {
    /** The uncommitted. */
-   private boolean uncommitted_ = false;
+   private boolean uncommitted = false;
 
    /** The description. */
-   protected String description_;
+   protected String description;
 
    /** The nid. */
-   private int nid_;
+   private int nid;
 
    /** The custom logic. */
-   private Supplier<Boolean> customLogic_;
+   private Supplier<Boolean> customLogic;
 
    //~--- constructors --------------------------------------------------------
 
@@ -123,10 +123,10 @@ public class SimpleDisplayConcept
             }
             : descriptionReader);
 
-      this.description_ = dr.apply(c);
-      this.nid_         = (c == null) ? 0
+      this.description = dr.apply(c);
+      this.nid         = (c == null) ? 0
                                       : c.getNid();
-      this.customLogic_ = null;
+      this.customLogic = null;
    }
 
    /**
@@ -161,9 +161,9 @@ public class SimpleDisplayConcept
     * See {@link #shouldIgnoreChange()}
     */
    public SimpleDisplayConcept(String description, int nid, Supplier<Boolean> customLogic) {
-      this.description_ = description;
-      this.nid_         = nid;
-      this.customLogic_ = customLogic;
+      this.description = description;
+      this.nid         = nid;
+      this.customLogic = customLogic;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -175,7 +175,7 @@ public class SimpleDisplayConcept
     */
    @Override
    public SimpleDisplayConcept clone() {
-      return new SimpleDisplayConcept(this.description_, this.nid_, this.customLogic_);
+      return new SimpleDisplayConcept(this.description, this.nid, this.customLogic);
    }
 
    /**
@@ -196,7 +196,7 @@ public class SimpleDisplayConcept
     * @return the supplier
     */
    public Supplier<Boolean> customLogic() {
-      return this.customLogic_;
+      return this.customLogic;
    }
 
    /**
@@ -215,7 +215,7 @@ public class SimpleDisplayConcept
       if (obj instanceof SimpleDisplayConcept) {
          final SimpleDisplayConcept other = (SimpleDisplayConcept) obj;
 
-         return (this.nid_ == other.nid_) && StringUtils.equals(this.description_, other.description_);
+         return (this.nid == other.nid) && StringUtils.equals(this.description, other.description);
       }
 
       return false;
@@ -232,9 +232,9 @@ public class SimpleDisplayConcept
       final int prime  = 31;
       int       result = 1;
 
-      result = prime * result + ((this.description_ == null) ? 0
-            : this.description_.hashCode());
-      result = prime * result + this.nid_;
+      result = prime * result + ((this.description == null) ? 0
+            : this.description.hashCode());
+      result = prime * result + this.nid;
       return result;
    }
 
@@ -245,7 +245,7 @@ public class SimpleDisplayConcept
     */
    @Override
    public String toString() {
-      return this.description_;
+      return this.description;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -256,7 +256,7 @@ public class SimpleDisplayConcept
     * @return the description
     */
    public String getDescription() {
-      return this.description_;
+      return this.description;
    }
 
    /**
@@ -265,7 +265,7 @@ public class SimpleDisplayConcept
     * @return the nid
     */
    public int getNid() {
-      return this.nid_;
+      return this.nid;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -276,7 +276,7 @@ public class SimpleDisplayConcept
     * @param nid the new nid
     */
    public void setNid(int nid) {
-      this.nid_ = nid;
+      this.nid = nid;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -287,7 +287,7 @@ public class SimpleDisplayConcept
     * @return true, if uncommitted
     */
    public boolean isUncommitted() {
-      return this.uncommitted_;
+      return this.uncommitted;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -298,7 +298,7 @@ public class SimpleDisplayConcept
     * @param val the new uncommitted
     */
    public void setUncommitted(boolean val) {
-      this.uncommitted_ = val;
+      this.uncommitted = val;
    }
 }
 

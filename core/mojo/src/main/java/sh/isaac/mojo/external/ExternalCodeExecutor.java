@@ -134,7 +134,7 @@ public class ExternalCodeExecutor
 
          quasiMojo.outputDirectory = this.outputDirectory;
          quasiMojo.projectVersion  = this.projectVersion;
-         quasiMojo.log_            = getLog();
+         quasiMojo.log            = getLog();
 
          if ((this.parameters != null) && (this.parameters.size() > 0)) {
             final Class<?>         myClass = quasiMojo.getClass();

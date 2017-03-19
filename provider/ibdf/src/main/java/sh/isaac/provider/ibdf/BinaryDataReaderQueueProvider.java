@@ -121,7 +121,7 @@ public class BinaryDataReaderQueueProvider
    int streamBytes;
 
    /** The es. */
-   ExecutorService es_;
+   ExecutorService es;
 
    //~--- constructors --------------------------------------------------------
 
@@ -178,14 +178,14 @@ public class BinaryDataReaderQueueProvider
             this.complete.countDown();
          }
 
-         this.es_.shutdown();
+         this.es.shutdown();
 
          while (!this.readData.isEmpty()) {
             Thread.sleep(10);
          }
 
-         this.es_.shutdownNow();
-         this.es_.awaitTermination(50, TimeUnit.MINUTES);
+         this.es.shutdownNow();
+         this.es.awaitTermination(50, TimeUnit.MINUTES);
 
          if (this.complete.getCount() == this.DONEREADING) {
             this.complete.countDown();
@@ -290,10 +290,10 @@ public class BinaryDataReaderQueueProvider
 
                threadCount = ((threadCount < 2) ? 2
                                                 : threadCount);
-               this.es_    = Executors.newFixedThreadPool(threadCount);
+               this.es    = Executors.newFixedThreadPool(threadCount);
 
                for (int i = 0; i < threadCount; i++) {
-                  this.es_.execute(() -> {
+                  this.es.execute(() -> {
                                       while ((this.complete.getCount() > this.COMLETE) ||!this.readData.isEmpty()) {
                                          boolean accepted;
 

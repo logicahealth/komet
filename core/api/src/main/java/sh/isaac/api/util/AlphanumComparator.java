@@ -73,15 +73,15 @@ import java.util.Comparator;
 public class AlphanumComparator
          implements Comparator<String> {
    /** The case sensitive instance. */
-   private static AlphanumComparator caseSensitiveInstance_;
+   private static AlphanumComparator caseSensitiveInstance;
 
    /** The case insensitive instance. */
-   private static AlphanumComparator caseInsensitiveInstance_;
+   private static AlphanumComparator caseInsensitiveInstance;
 
    //~--- fields --------------------------------------------------------------
 
    /** The ignore case. */
-   private final boolean ignoreCase_;
+   private final boolean ignoreCase;
 
    //~--- constructors --------------------------------------------------------
 
@@ -91,7 +91,7 @@ public class AlphanumComparator
     * @param ignoreCase the ignore case
     */
    public AlphanumComparator(boolean ignoreCase) {
-      this.ignoreCase_ = ignoreCase;
+      this.ignoreCase = ignoreCase;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -169,7 +169,7 @@ public class AlphanumComparator
                }
             }
          } else {
-            if (this.ignoreCase_) {
+            if (this.ignoreCase) {
                result = thisChunk.compareToIgnoreCase(thatChunk);
             } else {
                result = thisChunk.compareTo(thatChunk);
@@ -236,17 +236,17 @@ public class AlphanumComparator
     */
    public static synchronized AlphanumComparator getCachedInstance(boolean ignoreCase) {
       if (ignoreCase) {
-         if (caseSensitiveInstance_ == null) {
-            caseSensitiveInstance_ = new AlphanumComparator(true);
+         if (caseSensitiveInstance == null) {
+            caseSensitiveInstance = new AlphanumComparator(true);
          }
 
-         return caseSensitiveInstance_;
+         return caseSensitiveInstance;
       } else {
-         if (caseInsensitiveInstance_ == null) {
-            caseInsensitiveInstance_ = new AlphanumComparator(false);
+         if (caseInsensitiveInstance == null) {
+            caseInsensitiveInstance = new AlphanumComparator(false);
          }
 
-         return caseInsensitiveInstance_;
+         return caseInsensitiveInstance;
       }
    }
 

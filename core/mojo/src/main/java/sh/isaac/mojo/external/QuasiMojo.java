@@ -99,7 +99,7 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public abstract class QuasiMojo {
    /** The log. */
-   protected Log log_ = null;
+   protected Log log = null;
 
    /** The project version. */
    protected String projectVersion;
@@ -125,7 +125,7 @@ public abstract class QuasiMojo {
     * @return the log
     */
    public Log getLog() {
-      return this.log_;
+      return this.log;
    }
 }
 

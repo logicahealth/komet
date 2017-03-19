@@ -171,7 +171,7 @@ public abstract class AbstractWorkflowProviderTestPackage {
    private static String createOutcome;
 
    /** The wp. */
-   protected static WorkflowProvider wp_;
+   protected static WorkflowProvider wp;
 
    //~--- methods -------------------------------------------------------------
 
@@ -183,7 +183,7 @@ public abstract class AbstractWorkflowProviderTestPackage {
     * @param state the state
     */
    protected void addComponentsToProcess(UUID processId, int userSeq, State state) {
-      final ProcessDetail entry = wp_.getProcessDetailStore()
+      final ProcessDetail entry = wp.getProcessDetailStore()
                                      .get(processId);
       final Stamp         s     = createStamp(userSeq, state);
 
@@ -192,7 +192,7 @@ public abstract class AbstractWorkflowProviderTestPackage {
               .put(con, s);
       }
 
-      wp_.getProcessDetailStore()
+      wp.getProcessDetailStore()
          .put(processId, entry);
    }
 
@@ -211,7 +211,7 @@ public abstract class AbstractWorkflowProviderTestPackage {
                                      String actionRequested,
                                      String comment)
             throws Exception {
-      return wp_.getWorkflowUpdater()
+      return wp.getWorkflowUpdater()
                 .advanceWorkflow(processId, userId, actionRequested, comment, null);
    }
 
@@ -361,13 +361,13 @@ public abstract class AbstractWorkflowProviderTestPackage {
                                                                  "1.0",
                                                                  roles,
                                                                  "Description of BPMN2 ID-X");
-      final UUID defId = wp_.getDefinitionDetailStore()
+      final UUID defId = wp.getDefinitionDetailStore()
                             .add(createdEntry);
 
       // Duplicate AvailableActions
       final Set<AvailableAction> actionsToAdd = new HashSet<>();
 
-      for (final AvailableAction action: wp_.getAvailableActionStore()
+      for (final AvailableAction action: wp.getAvailableActionStore()
             .values()) {
          actionsToAdd.add(new AvailableAction(defId,
                action.getInitialState(),
@@ -377,7 +377,7 @@ public abstract class AbstractWorkflowProviderTestPackage {
       }
 
       for (final AvailableAction action: actionsToAdd) {
-         wp_.getAvailableActionStore()
+         wp.getAvailableActionStore()
             .add(action);
       }
 
@@ -411,7 +411,7 @@ public abstract class AbstractWorkflowProviderTestPackage {
                                      String comment,
                                      EndWorkflowType endType)
             throws Exception {
-      wp_.getWorkflowProcessInitializerConcluder()
+      wp.getWorkflowProcessInitializerConcluder()
          .endWorkflowProcess(processId, actionToProcess, userId, comment, endType, null);
    }
 
@@ -424,12 +424,12 @@ public abstract class AbstractWorkflowProviderTestPackage {
       try {
          Thread.sleep(1);
 
-         final ProcessDetail entry = wp_.getProcessDetailStore()
+         final ProcessDetail entry = wp.getProcessDetailStore()
                                         .get(processId);
 
          entry.setStatus(ProcessStatus.LAUNCHED);
          entry.setTimeLaunched(new Date().getTime());
-         wp_.getProcessDetailStore()
+         wp.getProcessDetailStore()
             .put(processId, entry);
       } catch (final InterruptedException e) {
          throw new RuntimeException(e);
@@ -447,9 +447,9 @@ public abstract class AbstractWorkflowProviderTestPackage {
 
          int historySequence = 1;
 
-         if (wp_.getWorkflowAccessor()
+         if (wp.getWorkflowAccessor()
                 .getProcessHistory(requestedProcessId) != null) {
-            historySequence = wp_.getWorkflowAccessor()
+            historySequence = wp.getWorkflowAccessor()
                                  .getProcessHistory(requestedProcessId)
                                  .last()
                                  .getHistorySequence();
@@ -464,7 +464,7 @@ public abstract class AbstractWorkflowProviderTestPackage {
                                                          REJECT_REVIEW_COMMENT,
                                                          historySequence + 1);
 
-         wp_.getProcessHistoryStore()
+         wp.getProcessHistoryStore()
             .add(entry);
       } catch (final InterruptedException e) {
          throw new RuntimeException(e);
@@ -482,9 +482,9 @@ public abstract class AbstractWorkflowProviderTestPackage {
 
          int historySequence = 1;
 
-         if (wp_.getWorkflowAccessor()
+         if (wp.getWorkflowAccessor()
                 .getProcessHistory(requestedProcessId) != null) {
-            historySequence = wp_.getWorkflowAccessor()
+            historySequence = wp.getWorkflowAccessor()
                                  .getProcessHistory(requestedProcessId)
                                  .last()
                                  .getHistorySequence();
@@ -499,7 +499,7 @@ public abstract class AbstractWorkflowProviderTestPackage {
                                                          SEND_TO_APPROVAL_COMMENT,
                                                          historySequence + 1);
 
-         wp_.getProcessHistoryStore()
+         wp.getProcessHistoryStore()
             .add(entry);
       } catch (final InterruptedException e) {
          throw new RuntimeException(e);
@@ -512,7 +512,7 @@ public abstract class AbstractWorkflowProviderTestPackage {
     * @param processId the process id
     */
    protected void executeSendForReviewAdvancement(UUID processId) {
-      final ProcessDetail entry = wp_.getProcessDetailStore()
+      final ProcessDetail entry = wp.getProcessDetailStore()
                                      .get(processId);
 
       try {
@@ -520,9 +520,9 @@ public abstract class AbstractWorkflowProviderTestPackage {
 
          int historySequence = 1;
 
-         if (wp_.getWorkflowAccessor()
+         if (wp.getWorkflowAccessor()
                 .getProcessHistory(processId) != null) {
-            historySequence = wp_.getWorkflowAccessor()
+            historySequence = wp.getWorkflowAccessor()
                                  .getProcessHistory(processId)
                                  .last()
                                  .getHistorySequence();
@@ -537,7 +537,7 @@ public abstract class AbstractWorkflowProviderTestPackage {
                                                                 LAUNCH_COMMENT,
                                                                 historySequence + 1);
 
-         wp_.getProcessHistoryStore()
+         wp.getProcessHistoryStore()
             .add(advanceEntry);
       } catch (final InterruptedException e) {
          throw new RuntimeException(e);
@@ -549,12 +549,12 @@ public abstract class AbstractWorkflowProviderTestPackage {
     */
    protected static void globalSetup() {
       RoleConfigurator.configureForTest();
-      wp_              = LookupService.get()
+      wp              = LookupService.get()
                                       .getService(WorkflowProvider.class);
-      mainDefinitionId = wp_.getBPMNInfo()
+      mainDefinitionId = wp.getBPMNInfo()
                             .getDefinitionId();
 
-      final AvailableAction startNodeAction = wp_.getBPMNInfo()
+      final AvailableAction startNodeAction = wp.getBPMNInfo()
                                                  .getDefinitionStartActionMap()
                                                  .get(mainDefinitionId)
                                                  .iterator()
@@ -563,12 +563,12 @@ public abstract class AbstractWorkflowProviderTestPackage {
       createState    = startNodeAction.getInitialState();
       createAction   = startNodeAction.getAction();
       createOutcome  = startNodeAction.getOutcomeState();
-      cancelAction   = wp_.getBPMNInfo()
+      cancelAction   = wp.getBPMNInfo()
                           .getEndWorkflowTypeMap()
                           .get(EndWorkflowType.CONCLUDED)
                           .iterator()
                           .next();
-      concludeAction = wp_.getBPMNInfo()
+      concludeAction = wp.getBPMNInfo()
                           .getEndWorkflowTypeMap()
                           .get(EndWorkflowType.CONCLUDED)
                           .iterator()
@@ -612,7 +612,7 @@ public abstract class AbstractWorkflowProviderTestPackage {
                                                       ProcessStatus.DEFINED,
                                                       name,
                                                       description);
-      final UUID processId = wp_.getProcessDetailStore()
+      final UUID processId = wp.getProcessDetailStore()
                                 .add(details);
 
       // Add Process History with START_STATE-AUTOMATED-EDIT_STATE
@@ -630,7 +630,7 @@ public abstract class AbstractWorkflowProviderTestPackage {
                                                              "",
                                                              0);
 
-      wp_.getProcessHistoryStore()
+      wp.getProcessHistoryStore()
          .add(advanceEntry);
       return processId;
    }
@@ -652,7 +652,7 @@ public abstract class AbstractWorkflowProviderTestPackage {
                                       EndWorkflowType endType)
             throws Exception {
       // Mimick the initConcluder's finish workflow process
-      final ProcessDetail entry = wp_.getProcessDetailStore()
+      final ProcessDetail entry = wp.getProcessDetailStore()
                                      .get(processId);
 
       if (endType.equals(EndWorkflowType.CANCELED)) {
@@ -662,16 +662,16 @@ public abstract class AbstractWorkflowProviderTestPackage {
       }
 
       entry.setTimeCanceledOrConcluded(new Date().getTime());
-      wp_.getProcessDetailStore()
+      wp.getProcessDetailStore()
          .put(processId, entry);
 
       // Only add Cancel state in Workflow if process has already been
       // launched
       int historySequence = 1;
 
-      if (wp_.getWorkflowAccessor()
+      if (wp.getWorkflowAccessor()
              .getProcessHistory(processId) != null) {
-         historySequence = wp_.getWorkflowAccessor()
+         historySequence = wp.getWorkflowAccessor()
                               .getProcessHistory(processId)
                               .last()
                               .getHistorySequence();
@@ -686,7 +686,7 @@ public abstract class AbstractWorkflowProviderTestPackage {
                                                              comment,
                                                              historySequence + 1);
 
-      wp_.getProcessHistoryStore()
+      wp.getProcessHistoryStore()
          .add(advanceEntry);
 
       if (endType.equals(EndWorkflowType.CANCELED)) {

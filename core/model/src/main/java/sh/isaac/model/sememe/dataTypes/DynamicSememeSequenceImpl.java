@@ -58,7 +58,7 @@ public class DynamicSememeSequenceImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeSequence {
    /** The property. */
-   private ObjectProperty<Integer> property_;
+   private ObjectProperty<Integer> property;
 
    //~--- constructors --------------------------------------------------------
 
@@ -78,7 +78,7 @@ public class DynamicSememeSequenceImpl
     */
    public DynamicSememeSequenceImpl(int nid) {
       super();
-      this.data_ = DynamicSememeIntegerImpl.intToByteArray(nid);
+      this.data = DynamicSememeIntegerImpl.intToByteArray(nid);
    }
 
    /**
@@ -124,7 +124,7 @@ public class DynamicSememeSequenceImpl
     */
    @Override
    public int getDataSequence() {
-      return DynamicSememeIntegerImpl.getIntFromByteArray(this.data_);
+      return DynamicSememeIntegerImpl.getIntFromByteArray(this.data);
    }
 
    /**
@@ -135,11 +135,11 @@ public class DynamicSememeSequenceImpl
     */
    @Override
    public ReadOnlyObjectProperty<Integer> getDataSequenceProperty() {
-      if (this.property_ == null) {
-         this.property_ = new SimpleObjectProperty<>(null, getName(), getDataSequence());
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<>(null, getName(), getDataSequence());
       }
 
-      return this.property_;
+      return this.property;
    }
 }
 

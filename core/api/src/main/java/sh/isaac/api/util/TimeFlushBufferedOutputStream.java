@@ -72,13 +72,13 @@ import sh.isaac.api.Get;
 public class TimeFlushBufferedOutputStream
         extends BufferedOutputStream {
    /** The Constant instances_. */
-   private static final ArrayList<WeakReference<TimeFlushBufferedOutputStream>> instances_ = new ArrayList<>();
+   private static final ArrayList<WeakReference<TimeFlushBufferedOutputStream>> instances = new ArrayList<>();
 
    /** The Constant logger. */
    private static final Logger logger = LoggerFactory.getLogger(TimeFlushBufferedOutputStream.class);
 
    /** The scheduled job. */
-   private static ScheduledFuture<?> scheduledJob_;
+   private static ScheduledFuture<?> scheduledJob;
 
    //~--- constructors --------------------------------------------------------
 
@@ -113,8 +113,8 @@ public class TimeFlushBufferedOutputStream
    @Override
    public void close()
             throws IOException {
-      synchronized (instances_) {
-         final Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = instances_.iterator();
+      synchronized (instances) {
+         final Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = instances.iterator();
 
          while (it.hasNext()) {
             if (it.next()
@@ -132,24 +132,24 @@ public class TimeFlushBufferedOutputStream
     * Schedule flush.
     */
    private void scheduleFlush() {
-      synchronized (instances_) {
-         instances_.add(new WeakReference<TimeFlushBufferedOutputStream>(this));
+      synchronized (instances) {
+         instances.add(new WeakReference<TimeFlushBufferedOutputStream>(this));
       }
 
       // Just sync on something at the class level
       synchronized (logger) {
-         if (scheduledJob_ == null) {
+         if (scheduledJob == null) {
             logger.info("Scheduling thread to flush time flush buffers");
-            scheduledJob_ = Get.workExecutors().getScheduledThreadPoolExecutor().scheduleAtFixedRate(() -> {
-                     if (instances_.size() == 0) {
-                        scheduledJob_.cancel(false);
-                        scheduledJob_ = null;
+            scheduledJob = Get.workExecutors().getScheduledThreadPoolExecutor().scheduleAtFixedRate(() -> {
+                     if (instances.size() == 0) {
+                        scheduledJob.cancel(false);
+                        scheduledJob = null;
                         logger.info("Stopping time flush buffer thread, as no instances are registered");
                      } else {
-                        logger.debug("Calling flush on " + instances_.size() + " buffered writers");
+                        logger.debug("Calling flush on " + instances.size() + " buffered writers");
 
-                        synchronized (instances_) {
-                           final Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = instances_.iterator();
+                        synchronized (instances) {
+                           final Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = instances.iterator();
 
                            while (it.hasNext()) {
                               final WeakReference<TimeFlushBufferedOutputStream> item = it.next();

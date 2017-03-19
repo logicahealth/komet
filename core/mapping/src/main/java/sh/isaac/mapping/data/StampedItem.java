@@ -96,7 +96,7 @@ public abstract class StampedItem {
    //~--- fields --------------------------------------------------------------
 
    /** The lazy load finished. */
-   private transient boolean lazyLoadFinished_ = false;
+   private transient boolean lazyLoadFinished = false;
 
    /** The author SSP. */
    private transient SimpleStringProperty authorSSP = new SimpleStringProperty("-");
@@ -114,7 +114,7 @@ public abstract class StampedItem {
    private transient SimpleStringProperty timeSSP = new SimpleStringProperty("-");;
 
    /** The component version. */
-   private StampedVersion componentVersion_;
+   private StampedVersion componentVersion;
 
    /** The author UUID. */
    private transient UUID authorUUID;
@@ -135,22 +135,22 @@ public abstract class StampedItem {
     */
    protected void readStampDetails(StampedVersion componentVersion)
             throws RuntimeException {
-      this.componentVersion_ = componentVersion;
+      this.componentVersion = componentVersion;
    }
 
    /**
     * Lazy load.
     */
    private void lazyLoad() {
-      if (!this.lazyLoadFinished_) {
+      if (!this.lazyLoadFinished) {
          this.authorUUID = Get.identifierService()
-                              .getUuidPrimordialFromConceptId(this.componentVersion_.getAuthorSequence())
+                              .getUuidPrimordialFromConceptId(this.componentVersion.getAuthorSequence())
                               .get();
          this.moduleUUID = Get.identifierService()
-                              .getUuidPrimordialFromConceptId(this.componentVersion_.getModuleSequence())
+                              .getUuidPrimordialFromConceptId(this.componentVersion.getModuleSequence())
                               .get();
          this.pathUUID = Get.identifierService()
-                            .getUuidPrimordialFromConceptId(this.componentVersion_.getPathSequence())
+                            .getUuidPrimordialFromConceptId(this.componentVersion.getPathSequence())
                             .get();
          Get.workExecutors().getExecutor().execute(() -> {
                         final String authorName = Get.conceptDescriptionText(Get.identifierService()
@@ -175,7 +175,7 @@ public abstract class StampedItem {
                      });
       }
 
-      this.lazyLoadFinished_ = true;
+      this.lazyLoadFinished = true;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -186,7 +186,7 @@ public abstract class StampedItem {
     * @return the isActive
     */
    public boolean isActive() {
-      return this.componentVersion_.getState() == State.ACTIVE;
+      return this.componentVersion.getState() == State.ACTIVE;
    }
 
    /**
@@ -195,7 +195,7 @@ public abstract class StampedItem {
     * @return the author
     */
    public int getAuthor() {
-      return this.componentVersion_.getAuthorSequence();
+      return this.componentVersion.getAuthorSequence();
    }
 
    /**
@@ -224,7 +224,7 @@ public abstract class StampedItem {
     * @return the component version
     */
    public StampedVersion getComponentVersion() {
-      return this.componentVersion_;
+      return this.componentVersion;
    }
 
    /**
@@ -233,7 +233,7 @@ public abstract class StampedItem {
     * @return the module
     */
    public int getModule() {
-      return this.componentVersion_.getModuleSequence();
+      return this.componentVersion.getModuleSequence();
    }
 
    /**
@@ -262,7 +262,7 @@ public abstract class StampedItem {
     * @return the path
     */
    public int getPath() {
-      return this.componentVersion_.getPathSequence();
+      return this.componentVersion.getPathSequence();
    }
 
    /**
@@ -301,7 +301,7 @@ public abstract class StampedItem {
     * @return the creationDate
     */
    public long getTime() {
-      return this.componentVersion_.getTime();
+      return this.componentVersion.getTime();
    }
 
    /**

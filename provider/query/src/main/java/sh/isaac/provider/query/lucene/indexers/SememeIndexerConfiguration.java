@@ -103,14 +103,14 @@ public class SememeIndexerConfiguration {
    /** The what to index sequence to col. */
 
    // store assemblage sequences that should be indexed - and then - for COLUMN_DATA keys, keep the 0 indexed column order numbers that need to be indexed.
-   private HashMap<Integer, Integer[]> whatToIndexSequenceToCol_ = new HashMap<>();
+   private HashMap<Integer, Integer[]> whatToIndexSequenceToCol = new HashMap<>();
 
    /** The read needed. */
-   private final AtomicInteger readNeeded_ =
+   private final AtomicInteger readNeeded =
       new AtomicInteger(1);  // 0 means no readNeeded, anything greater than 0 means it does need a re-read
 
    /** The read needed block. */
-   private final Semaphore readNeededBlock_ = new Semaphore(1);
+   private final Semaphore readNeededBlock = new Semaphore(1);
 
    //~--- methods -------------------------------------------------------------
 
@@ -134,7 +134,7 @@ public class SememeIndexerConfiguration {
                    InterruptedException,
                    ExecutionException {
       LookupService.get()
-                   .getService(SememeIndexerConfiguration.class).readNeeded_
+                   .getService(SememeIndexerConfiguration.class).readNeeded
                    .incrementAndGet();
 
       final List<IndexStatusListenerBI> islList = LookupService.get()
@@ -209,7 +209,7 @@ public class SememeIndexerConfiguration {
                    InterruptedException,
                    ExecutionException {
       LookupService.get()
-                   .getService(SememeIndexerConfiguration.class).readNeeded_
+                   .getService(SememeIndexerConfiguration.class).readNeeded
                    .incrementAndGet();
 
       final List<IndexStatusListenerBI> islList = LookupService.get()
@@ -280,7 +280,7 @@ public class SememeIndexerConfiguration {
 
       if ((rdv != null) && (rdv.getState() == State.ACTIVE)) {
          LookupService.get()
-                      .getService(SememeIndexerConfiguration.class).readNeeded_
+                      .getService(SememeIndexerConfiguration.class).readNeeded
                       .incrementAndGet();
 
          final List<IndexStatusListenerBI> islList = LookupService.get()
@@ -332,7 +332,7 @@ public class SememeIndexerConfiguration {
     */
    protected boolean needsIndexing(int assemblageConceptSequence) {
       initCheck();
-      return this.whatToIndexSequenceToCol_.containsKey(assemblageConceptSequence);
+      return this.whatToIndexSequenceToCol.containsKey(assemblageConceptSequence);
    }
 
    /**
@@ -343,7 +343,7 @@ public class SememeIndexerConfiguration {
     */
    protected Integer[] whatColumnsToIndex(int assemblageConceptSequence) {
       initCheck();
-      return this.whatToIndexSequenceToCol_.get(assemblageConceptSequence);
+      return this.whatToIndexSequenceToCol.get(assemblageConceptSequence);
    }
 
    /**
@@ -380,12 +380,12 @@ public class SememeIndexerConfiguration {
     * Inits the check.
     */
    private void initCheck() {
-      if (this.readNeeded_.get() > 0) {
+      if (this.readNeeded.get() > 0) {
          // During bulk index, prevent all threads from doing this at the same time...
          try {
-            this.readNeededBlock_.acquireUninterruptibly();
+            this.readNeededBlock.acquireUninterruptibly();
 
-            if (this.readNeeded_.get() > 0) {
+            if (this.readNeeded.get() > 0) {
                log.debug("Reading Dynamic Sememe Index Configuration");
 
                try {
@@ -432,8 +432,8 @@ public class SememeIndexerConfiguration {
                                          }
                                       }
                                    });
-                  this.whatToIndexSequenceToCol_ = updatedWhatToIndex;
-                  this.readNeeded_.decrementAndGet();
+                  this.whatToIndexSequenceToCol = updatedWhatToIndex;
+                  this.readNeeded.decrementAndGet();
                } catch (final Exception e) {
                   log.error(
                       "Unexpected error reading Dynamic Sememe Index Configuration - generated index will be incomplete!",
@@ -441,7 +441,7 @@ public class SememeIndexerConfiguration {
                }
             }
          } finally {
-            this.readNeededBlock_.release();
+            this.readNeededBlock.release();
          }
       }
    }

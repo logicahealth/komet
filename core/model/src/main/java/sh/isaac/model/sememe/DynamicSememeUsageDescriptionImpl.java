@@ -87,28 +87,28 @@ public class DynamicSememeUsageDescriptionImpl
    protected static final Logger logger = Logger.getLogger(DynamicSememeUsageDescription.class.getName());
 
    /** The cache. */
-   private static LruCache<Integer, DynamicSememeUsageDescriptionImpl> cache_ =
+   private static LruCache<Integer, DynamicSememeUsageDescriptionImpl> cache =
       new LruCache<Integer, DynamicSememeUsageDescriptionImpl>(25);
 
    //~--- fields --------------------------------------------------------------
 
    /** The refex usage descriptor sequence. */
-   int refexUsageDescriptorSequence_;
+   int refexUsageDescriptorSequence;
 
    /** The sememe usage description. */
-   String sememeUsageDescription_;
+   String sememeUsageDescription;
 
    /** The name. */
-   String name_;
+   String name;
 
    /** The refex column info. */
-   DynamicSememeColumnInfo[] refexColumnInfo_;
+   DynamicSememeColumnInfo[] refexColumnInfo;
 
    /** The referenced component type restriction. */
-   ObjectChronologyType referencedComponentTypeRestriction_;
+   ObjectChronologyType referencedComponentTypeRestriction;
 
    /** The referenced component type sub restriction. */
-   SememeType referencedComponentTypeSubRestriction_;
+   SememeType referencedComponentTypeSubRestriction;
 
    //~--- constructors --------------------------------------------------------
 
@@ -132,7 +132,7 @@ public class DynamicSememeUsageDescriptionImpl
       final ConceptChronology<?> assemblageConcept = Get.conceptService()
                                                         .getConcept(refexUsageDescriptorId);
 
-      this.refexUsageDescriptorSequence_ = assemblageConcept.getConceptSequence();
+      this.refexUsageDescriptorSequence = assemblageConcept.getConceptSequence();
 
       final TreeMap<Integer, DynamicSememeColumnInfo> allowedColumnInfo = new TreeMap<>();
 
@@ -157,23 +157,23 @@ public class DynamicSememeUsageDescriptionImpl
                                                                                                .findAny();
 
                if (nestesdSememe.isPresent()) {
-                  this.sememeUsageDescription_ = ds.getText();
+                  this.sememeUsageDescription = ds.getText();
                }
                ;
             }
 
             if (ds.getDescriptionTypeConceptSequence() ==
                   TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence()) {
-               this.name_ = ds.getText();
+               this.name = ds.getText();
             }
 
-            if ((this.sememeUsageDescription_ != null) && (this.name_ != null)) {
+            if ((this.sememeUsageDescription != null) && (this.name != null)) {
                break;
             }
          }
       }
 
-      if (StringUtils.isEmpty(this.sememeUsageDescription_)) {
+      if (StringUtils.isEmpty(this.sememeUsageDescription)) {
          throw new RuntimeException(
              "The Assemblage concept: " + assemblageConcept +
              " is not correctly assembled for use as an Assemblage for " +
@@ -321,7 +321,7 @@ public class DynamicSememeUsageDescriptionImpl
                                  if (type == ObjectChronologyType.UNKNOWN_NID) {
                                     // just ignore - it shouldn't have been saved that way anyway.
                                  } else {
-                                    this.referencedComponentTypeRestriction_ = type;
+                                    this.referencedComponentTypeRestriction = type;
                                  }
                               } catch (final Exception e) {
                                  throw new RuntimeException("The Assemblage concept: " + assemblageConcept +
@@ -339,7 +339,7 @@ public class DynamicSememeUsageDescriptionImpl
                                     if (type == SememeType.UNKNOWN) {
                                        // just ignore - it shouldn't have been saved that way anyway.
                                     } else {
-                                       this.referencedComponentTypeSubRestriction_ = type;
+                                       this.referencedComponentTypeSubRestriction = type;
                                     }
                                  } catch (final Exception e) {
                                     throw new RuntimeException("The Assemblage concept: " + assemblageConcept +
@@ -347,13 +347,13 @@ public class DynamicSememeUsageDescriptionImpl
                                     "a DynamicSememeData Refex Type.  The component type restriction annotation has an invalid value");
                                  }
                               } else {
-                                 this.referencedComponentTypeSubRestriction_ = null;
+                                 this.referencedComponentTypeSubRestriction = null;
                               }
                            }
                         }
                      }
                   });
-      this.refexColumnInfo_ = new DynamicSememeColumnInfo[allowedColumnInfo.size()];
+      this.refexColumnInfo = new DynamicSememeColumnInfo[allowedColumnInfo.size()];
 
       int i = 0;
 
@@ -365,7 +365,7 @@ public class DynamicSememeUsageDescriptionImpl
                 "a DynamicSememeData Refex Type.  It must contain sequential column numbers, with no gaps, which start at 0.");
          }
 
-         this.refexColumnInfo_[i++] = allowedColumnInfo.get(key);
+         this.refexColumnInfo[i++] = allowedColumnInfo.get(key);
       }
    }
 
@@ -394,7 +394,7 @@ public class DynamicSememeUsageDescriptionImpl
 
       final DynamicSememeUsageDescriptionImpl other = (DynamicSememeUsageDescriptionImpl) obj;
 
-      if (this.refexUsageDescriptorSequence_ != other.refexUsageDescriptorSequence_) {
+      if (this.refexUsageDescriptorSequence != other.refexUsageDescriptorSequence) {
          return false;
       }
 
@@ -412,7 +412,7 @@ public class DynamicSememeUsageDescriptionImpl
       final int prime  = 31;
       int       result = 1;
 
-      result = prime * result + this.refexUsageDescriptorSequence_;
+      result = prime * result + this.refexUsageDescriptorSequence;
       return result;
    }
 
@@ -427,15 +427,15 @@ public class DynamicSememeUsageDescriptionImpl
    public static DynamicSememeUsageDescription mockOrRead(SememeChronology<?> sememe) {
       final DynamicSememeUsageDescriptionImpl dsud = new DynamicSememeUsageDescriptionImpl();
 
-      dsud.name_                                  = Get.conceptDescriptionText(sememe.getAssemblageSequence());
-      dsud.referencedComponentTypeRestriction_    = null;
-      dsud.referencedComponentTypeSubRestriction_ = null;
-      dsud.refexUsageDescriptorSequence_          = sememe.getAssemblageSequence();
-      dsud.sememeUsageDescription_                = "-";
+      dsud.name                                  = Get.conceptDescriptionText(sememe.getAssemblageSequence());
+      dsud.referencedComponentTypeRestriction    = null;
+      dsud.referencedComponentTypeSubRestriction = null;
+      dsud.refexUsageDescriptorSequence          = sememe.getAssemblageSequence();
+      dsud.sememeUsageDescription                = "-";
 
       switch (sememe.getSememeType()) {
       case COMPONENT_NID:
-         dsud.refexColumnInfo_ = new DynamicSememeColumnInfo[] {
+         dsud.refexColumnInfo = new DynamicSememeColumnInfo[] {
             new DynamicSememeColumnInfo(
                 Get.identifierService().getUuidPrimordialFromConceptId(sememe.getAssemblageSequence()).get(),
                 0,
@@ -449,7 +449,7 @@ public class DynamicSememeUsageDescriptionImpl
          break;
 
       case LONG:
-         dsud.refexColumnInfo_ = new DynamicSememeColumnInfo[] {
+         dsud.refexColumnInfo = new DynamicSememeColumnInfo[] {
             new DynamicSememeColumnInfo(
                 Get.identifierService().getUuidPrimordialFromConceptId(sememe.getAssemblageSequence()).get(),
                 0,
@@ -465,7 +465,7 @@ public class DynamicSememeUsageDescriptionImpl
       case DESCRIPTION:
       case STRING:
       case LOGIC_GRAPH:
-         dsud.refexColumnInfo_ = new DynamicSememeColumnInfo[] {
+         dsud.refexColumnInfo = new DynamicSememeColumnInfo[] {
             new DynamicSememeColumnInfo(
                 Get.identifierService().getUuidPrimordialFromConceptId(sememe.getAssemblageSequence()).get(),
                 0,
@@ -479,7 +479,7 @@ public class DynamicSememeUsageDescriptionImpl
          break;
 
       case MEMBER:
-         dsud.refexColumnInfo_ = new DynamicSememeColumnInfo[] {};
+         dsud.refexColumnInfo = new DynamicSememeColumnInfo[] {};
          break;
 
       case DYNAMIC:
@@ -505,12 +505,12 @@ public class DynamicSememeUsageDescriptionImpl
       // implement a callback to clear the cache when we know a change of  a certain type happened instead?
       final int                         sequence = Get.identifierService()
                                                       .getConceptSequence(assemblageNidOrSequence);
-      DynamicSememeUsageDescriptionImpl temp     = cache_.get(sequence);
+      DynamicSememeUsageDescriptionImpl temp     = cache.get(sequence);
 
       if (temp == null) {
          logger.log(Level.FINEST, "Cache miss on DynamicSememeUsageDescription Cache");
          temp = new DynamicSememeUsageDescriptionImpl(sequence);
-         cache_.put(sequence, temp);
+         cache.put(sequence, temp);
       }
 
       return temp;
@@ -529,11 +529,11 @@ public class DynamicSememeUsageDescriptionImpl
     */
    @Override
    public DynamicSememeColumnInfo[] getColumnInfo() {
-      if (this.refexColumnInfo_ == null) {
-         this.refexColumnInfo_ = new DynamicSememeColumnInfo[] {};
+      if (this.refexColumnInfo == null) {
+         this.refexColumnInfo = new DynamicSememeColumnInfo[] {};
       }
 
-      return this.refexColumnInfo_;
+      return this.refexColumnInfo;
    }
 
    /**
@@ -568,7 +568,7 @@ public class DynamicSememeUsageDescriptionImpl
     */
    @Override
    public String getDynamicSememeName() {
-      return this.name_;
+      return this.name;
    }
 
    /**
@@ -582,7 +582,7 @@ public class DynamicSememeUsageDescriptionImpl
     */
    @Override
    public String getDynamicSememeUsageDescription() {
-      return this.sememeUsageDescription_;
+      return this.sememeUsageDescription;
    }
 
    /**
@@ -596,7 +596,7 @@ public class DynamicSememeUsageDescriptionImpl
     */
    @Override
    public int getDynamicSememeUsageDescriptorSequence() {
-      return this.refexUsageDescriptorSequence_;
+      return this.refexUsageDescriptorSequence;
    }
 
    /**
@@ -610,7 +610,7 @@ public class DynamicSememeUsageDescriptionImpl
     */
    @Override
    public ObjectChronologyType getReferencedComponentTypeRestriction() {
-      return this.referencedComponentTypeRestriction_;
+      return this.referencedComponentTypeRestriction;
    }
 
    /**
@@ -624,7 +624,7 @@ public class DynamicSememeUsageDescriptionImpl
     */
    @Override
    public SememeType getReferencedComponentTypeSubRestriction() {
-      return this.referencedComponentTypeSubRestriction_;
+      return this.referencedComponentTypeSubRestriction;
    }
 }
 

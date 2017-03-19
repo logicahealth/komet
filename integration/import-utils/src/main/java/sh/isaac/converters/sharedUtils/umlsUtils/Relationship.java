@@ -112,7 +112,7 @@ public class Relationship {
    private String name2RelType;
 
    /** The is rela. */
-   private final boolean isRela_;
+   private final boolean isRela;
 
    /** The swap. */
    private Boolean swap;
@@ -125,7 +125,7 @@ public class Relationship {
     * @param isRela the is rela
     */
    public Relationship(boolean isRela) {
-      this.isRela_ = isRela;
+      this.isRela = isRela;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -315,7 +315,7 @@ public class Relationship {
     * @return the checks if rela
     */
    public boolean getIsRela() {
-      return this.isRela_;
+      return this.isRela;
    }
 
    /**

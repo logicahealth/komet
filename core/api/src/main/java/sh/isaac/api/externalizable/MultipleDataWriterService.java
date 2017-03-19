@@ -78,7 +78,7 @@ import sh.isaac.api.LookupService;
 public class MultipleDataWriterService
          implements DataWriterService {
    /** The writers. */
-   ArrayList<DataWriterService> writers_ = new ArrayList<>();
+   ArrayList<DataWriterService> writers = new ArrayList<>();
 
    /** The logger. */
    private final Logger logger = LoggerFactory.getLogger(MultipleDataWriterService.class);
@@ -119,7 +119,7 @@ public class MultipleDataWriterService
 
          if (writer != null) {
             writer.configure(jsonPath.get());
-            this.writers_.add(writer);
+            this.writers.add(writer);
          } else {
             LogManager.getLogger()
                       .warn("json writer was requested, but not found on classpath!");
@@ -132,7 +132,7 @@ public class MultipleDataWriterService
 
          if (writer != null) {
             writer.configure(ibdfPath.get());
-            this.writers_.add(writer);
+            this.writers.add(writer);
          } else {
             LogManager.getLogger()
                       .warn("ibdf writer was requested, but not found on classpath!");
@@ -170,7 +170,7 @@ public class MultipleDataWriterService
 
          if (writer != null) {
             writer.configure(folderToWriteInto.resolve(fileNamePrefix + jsonExtension.get()));
-            this.writers_.add(writer);
+            this.writers.add(writer);
          } else {
             LogManager.getLogger()
                       .warn("json writer was requested, but not found on classpath!");
@@ -183,7 +183,7 @@ public class MultipleDataWriterService
 
          if (writer != null) {
             writer.configure(folderToWriteInto.resolve(fileNamePrefix + ibdfExtension.get()));
-            this.writers_.add(writer);
+            this.writers.add(writer);
          } else {
             LogManager.getLogger()
                       .warn("ibdf writer was requested, but not found on classpath!");
@@ -254,7 +254,7 @@ public class MultipleDataWriterService
             throws IOException {
       final ArrayList<IOException> exceptions = new ArrayList<>();
 
-      for (final DataWriterService writer: this.writers_) {
+      for (final DataWriterService writer: this.writers) {
          final IOException e = function.apply(writer);
 
          if (e != null) {
@@ -356,7 +356,7 @@ public class MultipleDataWriterService
 
          final String fileNamePrefix = this.prefix + this.sdf.format(new Date()) + "_" + UUID.randomUUID().toString();
 
-         for (final DataWriterService writer: this.writers_) {
+         for (final DataWriterService writer: this.writers) {
             String extension = writer.getCurrentPath()
                                      .getFileName()
                                      .toString();

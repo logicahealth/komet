@@ -64,19 +64,19 @@ import sh.isaac.api.identity.StampedVersion;
  */
 public class ComponentReference {
    /** The sequence provider. */
-   private final IntSupplier sequenceProvider_;
+   private final IntSupplier sequenceProvider;
 
    /** The uuid provider. */
-   private final Supplier<UUID> uuidProvider_;
+   private final Supplier<UUID> uuidProvider;
 
    /** The time provider. */
-   private Supplier<Long> timeProvider_;
+   private Supplier<Long> timeProvider;
 
    /** The nid provider. */
-   private IntSupplier nidProvider_;
+   private IntSupplier nidProvider;
 
    /** The type label supplier. */
-   private Supplier<String> typeLabelSupplier_;
+   private Supplier<String> typeLabelSupplier;
 
    //~--- constructors --------------------------------------------------------
 
@@ -87,11 +87,11 @@ public class ComponentReference {
     * @param sequenceProvider the sequence provider
     */
    private ComponentReference(Supplier<UUID> uuidProvider, IntSupplier sequenceProvider) {
-      this.uuidProvider_     = uuidProvider;
-      this.timeProvider_     = () -> null;                                     // a lambda that retuns null time.
-      this.sequenceProvider_ = sequenceProvider;
-      this.nidProvider_ = () -> Get.identifierService()
-                                   .getNidForUuids(this.uuidProvider_.get());  // a lambda that returns a nid
+      this.uuidProvider     = uuidProvider;
+      this.timeProvider     = () -> null;                                     // a lambda that retuns null time.
+      this.sequenceProvider = sequenceProvider;
+      this.nidProvider = () -> Get.identifierService()
+                                   .getNidForUuids(this.uuidProvider.get());  // a lambda that returns a nid
    }
 
    /**
@@ -105,7 +105,7 @@ public class ComponentReference {
                               IntSupplier sequenceProvider,
                               Supplier<String> typeLabelSupplier) {
       this(uuidProvider, sequenceProvider);
-      this.typeLabelSupplier_ = typeLabelSupplier;
+      this.typeLabelSupplier = typeLabelSupplier;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -135,7 +135,7 @@ public class ComponentReference {
          cr = new ComponentReference(() -> object.getPrimordialUuid(),
                                      () -> Get.identifierService()
                                            .getSememeSequence(object.getNid()));
-         cr.typeLabelSupplier_ = () -> {
+         cr.typeLabelSupplier = () -> {
                                     if (((SememeChronology) object).getSememeType() == SememeType.DESCRIPTION) {
                                        return "Description";
                                     } else if (((SememeChronology) object).getSememeType() == SememeType.LOGIC_GRAPH) {
@@ -157,15 +157,15 @@ public class ComponentReference {
       }
 
       if (typeLabelSupplier != null) {
-         cr.typeLabelSupplier_ = typeLabelSupplier;
+         cr.typeLabelSupplier = typeLabelSupplier;
       }
 
-      cr.nidProvider_  = () -> object.getNid();
-      cr.timeProvider_ = () -> {
+      cr.nidProvider  = () -> object.getNid();
+      cr.timeProvider = () -> {
                             @SuppressWarnings({ "unchecked" })
                             final Optional<LatestVersion<StampedVersion>> latest =
                                ((ObjectChronology) object).getLatestVersion(StampedVersion.class,
-                                                                            IBDFCreationUtility.readBackStamp_);
+                                                                            IBDFCreationUtility.readBackStamp);
 
                             return latest.get()
                                          .value()
@@ -185,12 +185,12 @@ public class ComponentReference {
                                                            () -> concept.getConceptSequence(),
                                                            () -> "Concept");
 
-      cr.nidProvider_  = () -> concept.getNid();
-      cr.timeProvider_ = () -> {
+      cr.nidProvider  = () -> concept.getNid();
+      cr.timeProvider = () -> {
                             @SuppressWarnings({ "rawtypes", "unchecked" })
                             final Optional<LatestVersion<StampedVersion>> latest =
                                ((ObjectChronology) concept).getLatestVersion(StampedVersion.class,
-                                                                             IBDFCreationUtility.readBackStamp_);
+                                                                             IBDFCreationUtility.readBackStamp);
 
                             return latest.get()
                                          .value()
@@ -244,7 +244,7 @@ public class ComponentReference {
     * @return the nid
     */
    public int getNid() {
-      return this.nidProvider_.getAsInt();
+      return this.nidProvider.getAsInt();
    }
 
    /**
@@ -253,7 +253,7 @@ public class ComponentReference {
     * @return the primordial uuid
     */
    public UUID getPrimordialUuid() {
-      return this.uuidProvider_.get();
+      return this.uuidProvider.get();
    }
 
    /**
@@ -263,7 +263,7 @@ public class ComponentReference {
     * @return the sequence
     */
    protected int getSequence() {
-      return this.sequenceProvider_.getAsInt();
+      return this.sequenceProvider.getAsInt();
    }
 
    /**
@@ -272,7 +272,7 @@ public class ComponentReference {
     * @return the time
     */
    public Long getTime() {
-      return this.timeProvider_.get();
+      return this.timeProvider.get();
    }
 
    /**
@@ -281,7 +281,7 @@ public class ComponentReference {
     * @return the type string
     */
    public String getTypeString() {
-      return this.typeLabelSupplier_.get();
+      return this.typeLabelSupplier.get();
    }
 }
 

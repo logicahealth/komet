@@ -152,10 +152,10 @@ public class SyncServiceGIT
    private File localFolder = null;
 
    /** The read me file content. */
-   private String readMeFileContent_ = DEFAULT_README_CONTENT;
+   private String readMeFileContent = DEFAULT_README_CONTENT;
 
    /** The git ignore text. */
-   private String gitIgnoreText_ = "lastUser.txt\r\n";
+   private String gitIgnoreText = "lastUser.txt\r\n";
 
    //~--- constructors --------------------------------------------------------
 
@@ -1069,7 +1069,7 @@ public class SyncServiceGIT
 
       if (!readme.isFile()) {
          log.debug("Creating {}", readme.getAbsolutePath());
-         Files.write(readme.toPath(), new String(this.readMeFileContent_).getBytes(), StandardOpenOption.CREATE_NEW);
+         Files.write(readme.toPath(), new String(this.readMeFileContent).getBytes(), StandardOpenOption.CREATE_NEW);
          result.add(readme.getName());
       } else {
          log.debug("README.md already exists");
@@ -1079,15 +1079,15 @@ public class SyncServiceGIT
 
       if (!ignore.isFile()) {
          log.debug("Creating {}", ignore.getAbsolutePath());
-         Files.write(ignore.toPath(), new String(this.gitIgnoreText_).getBytes(), StandardOpenOption.CREATE_NEW);
+         Files.write(ignore.toPath(), new String(this.gitIgnoreText).getBytes(), StandardOpenOption.CREATE_NEW);
          result.add(ignore.getName());
       } else {
          log.debug(".gitignore already exists");
 
-         if (!new String(Files.readAllBytes(ignore.toPath())).contains(this.gitIgnoreText_)) {
+         if (!new String(Files.readAllBytes(ignore.toPath())).contains(this.gitIgnoreText)) {
             log.debug("Appending onto existing .gitignore file");
             Files.write(ignore.toPath(),
-                        new String("\r\n" + this.gitIgnoreText_).getBytes(),
+                        new String("\r\n" + this.gitIgnoreText).getBytes(),
                         StandardOpenOption.APPEND);
             result.add(ignore.getName());
          }
@@ -1316,7 +1316,7 @@ public class SyncServiceGIT
     * @param gitIgnoreContent the new git ignore content
     */
    public void setGitIgnoreContent(String gitIgnoreContent) {
-      this.gitIgnoreText_ = gitIgnoreContent;
+      this.gitIgnoreText = gitIgnoreContent;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -1352,7 +1352,7 @@ public class SyncServiceGIT
     */
    @Override
    public void setReadmeFileContent(String readmeFileContent) {
-      this.readMeFileContent_ = readmeFileContent;
+      this.readMeFileContent = readmeFileContent;
    }
 
    //~--- get methods ---------------------------------------------------------

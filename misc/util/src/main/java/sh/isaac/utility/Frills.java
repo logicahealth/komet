@@ -2194,7 +2194,7 @@ public class Frills
     */
    public final static class IdInfo {
       /** The map. */
-      private final Map<String, Object> map_;
+      private final Map<String, Object> map;
 
       //~--- constructors -----------------------------------------------------
 
@@ -2204,7 +2204,7 @@ public class Frills
        * @param map the map
        */
       private IdInfo(Map<String, Object> map) {
-         this.map_ = map;
+         this.map = map;
       }
 
       //~--- methods ----------------------------------------------------------
@@ -2216,7 +2216,7 @@ public class Frills
        */
       @Override
       public String toString() {
-         return this.map_.toString();
+         return this.map.toString();
       }
    }
 

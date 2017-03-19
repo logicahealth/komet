@@ -58,7 +58,7 @@ public class DynamicSememeBooleanImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeBoolean {
    /** The property. */
-   private ObjectProperty<Boolean> property_;
+   private ObjectProperty<Boolean> property;
 
    //~--- constructors --------------------------------------------------------
 
@@ -69,7 +69,7 @@ public class DynamicSememeBooleanImpl
     */
    public DynamicSememeBooleanImpl(boolean b) {
       super();
-      this.data_ = (b ? new byte[] { 1 }
+      this.data = (b ? new byte[] { 1 }
                       : new byte[] { 0 });
    }
 
@@ -103,7 +103,7 @@ public class DynamicSememeBooleanImpl
     */
    @Override
    public boolean getDataBoolean() {
-      return (this.data_[0] == 1) ? true
+      return (this.data[0] == 1) ? true
                                   : false;
    }
 
@@ -115,11 +115,11 @@ public class DynamicSememeBooleanImpl
     */
    @Override
    public ReadOnlyObjectProperty<Boolean> getDataBooleanProperty() {
-      if (this.property_ == null) {
-         this.property_ = new SimpleObjectProperty<Boolean>(null, getName(), getDataBoolean());
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<Boolean>(null, getName(), getDataBoolean());
       }
 
-      return this.property_;
+      return this.property;
    }
 
    /**

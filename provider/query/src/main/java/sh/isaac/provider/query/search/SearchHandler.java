@@ -97,7 +97,7 @@ public class SearchHandler {
    private static final Logger LOG = LoggerFactory.getLogger(SearchHandler.class);
 
    /** The description sememe assemblages cache. */
-   private static Integer[] descriptionSememeAssemblagesCache_ = null;
+   private static Integer[] descriptionSememeAssemblagesCache = null;
 
    //~--- methods -------------------------------------------------------------
 
@@ -725,17 +725,17 @@ public class SearchHandler {
     * @return the description sememe assemblages
     */
    private static Integer[] getDescriptionSememeAssemblages() {
-      if (descriptionSememeAssemblagesCache_ == null) {
+      if (descriptionSememeAssemblagesCache == null) {
          final Set<Integer> descSememes =
             Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_ASSEMBLAGE.getConceptSequence(),
                                            true,
                                            false);
 
          descSememes.add(MetaData.DESCRIPTION_ASSEMBLAGE.getConceptSequence());
-         descriptionSememeAssemblagesCache_ = descSememes.toArray(new Integer[descSememes.size()]);
+         descriptionSememeAssemblagesCache = descSememes.toArray(new Integer[descSememes.size()]);
       }
 
-      return descriptionSememeAssemblagesCache_;
+      return descriptionSememeAssemblagesCache;
    }
 }
 

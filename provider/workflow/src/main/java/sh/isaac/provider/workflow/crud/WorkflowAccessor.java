@@ -101,7 +101,7 @@ import sh.isaac.utility.Frills;
 @Singleton
 public class WorkflowAccessor {
    /** The workflow provider. */
-   private final WorkflowProvider workflowProvider_;
+   private final WorkflowProvider workflowProvider;
 
    //~--- constructors --------------------------------------------------------
 
@@ -111,7 +111,7 @@ public class WorkflowAccessor {
 
    // for HK2
    private WorkflowAccessor() {
-      this.workflowProvider_ = LookupService.get()
+      this.workflowProvider = LookupService.get()
             .getService(WorkflowProvider.class);
    }
 
@@ -212,7 +212,7 @@ public class WorkflowAccessor {
 
       // For each ActiveProcesses, see if its current state is "applicable
       // current state" and if
-      for (final ProcessDetail process: this.workflowProvider_.getProcessDetailStore()
+      for (final ProcessDetail process: this.workflowProvider.getProcessDetailStore()
             .values()) {
          if (process.isActive() && process.getDefinitionId().equals(definitionId)) {
             final SortedSet<ProcessHistory> hx = getProcessHistory(process.getId());
@@ -245,7 +245,7 @@ public class WorkflowAccessor {
     * @return True if the component is in an active workflow.
     */
    public boolean isComponentInActiveWorkflow(UUID definitionId, int compNid) {
-      for (final ProcessDetail proc: this.workflowProvider_.getProcessDetailStore()
+      for (final ProcessDetail proc: this.workflowProvider.getProcessDetailStore()
             .values()) {
          if (proc.getDefinitionId().equals(definitionId) &&
                proc.isActive() &&
@@ -388,7 +388,7 @@ public class WorkflowAccessor {
     * @return The definition details entry requested
     */
    public DefinitionDetail getDefinitionDetails(UUID definitionId) {
-      return this.workflowProvider_.getDefinitionDetailStore()
+      return this.workflowProvider.getDefinitionDetailStore()
                                    .get(definitionId);
    }
 
@@ -403,7 +403,7 @@ public class WorkflowAccessor {
     * @return the sorted history of the process.
     */
    public ProcessHistory getLastProcessHistory(UUID processId) {
-      for (final ProcessDetail process: this.workflowProvider_.getProcessDetailStore()
+      for (final ProcessDetail process: this.workflowProvider.getProcessDetailStore()
             .values()) {
          if (process.getId()
                     .compareTo(processId) == 0) {
@@ -428,7 +428,7 @@ public class WorkflowAccessor {
     * @return The process details entry requested.  If none exists, return null
     */
    public ProcessDetail getProcessDetails(UUID processId) {
-      return this.workflowProvider_.getProcessDetailStore()
+      return this.workflowProvider.getProcessDetailStore()
                                    .get(processId);
    }
 
@@ -448,7 +448,7 @@ public class WorkflowAccessor {
    public SortedSet<ProcessHistory> getProcessHistory(UUID processId) {
       final SortedSet<ProcessHistory> allHistoryForProcess = new TreeSet<>(new ProcessHistoryComparator());
 
-      for (final ProcessHistory hx: this.workflowProvider_.getProcessHistoryStore()
+      for (final ProcessHistory hx: this.workflowProvider.getProcessHistoryStore()
             .values()) {
          if (hx.getProcessId()
                .equals(processId)) {
@@ -480,7 +480,7 @@ public class WorkflowAccessor {
        */
 
       // For each process, see if its current state is "applicable current state"
-      for (final ProcessDetail process: this.workflowProvider_.getProcessDetailStore()
+      for (final ProcessDetail process: this.workflowProvider.getProcessDetailStore()
             .values()) {
          if (process.getDefinitionId().equals(definitionId) && status.contains(process.getStatus())) {
             processes.add(process);
@@ -506,12 +506,12 @@ public class WorkflowAccessor {
       final Map<String, Set<AvailableAction>> applicableActions = new HashMap<>();
 
       // Get User Roles
-      final Set<UserRole> userRoles = this.workflowProvider_.getUserRoleStore()
+      final Set<UserRole> userRoles = this.workflowProvider.getUserRoleStore()
                                                             .getUserRoles(userId);
 
       // Get Map of available actions (by initialState) that can be executed
       // based on userRoles
-      for (final AvailableAction action: this.workflowProvider_.getAvailableActionStore()
+      for (final AvailableAction action: this.workflowProvider.getAvailableActionStore()
             .values()) {
          if (action.getDefinitionId().equals(definitionId) && userRoles.contains(action.getRole())) {
             if (!applicableActions.containsKey(action.getInitialState())) {

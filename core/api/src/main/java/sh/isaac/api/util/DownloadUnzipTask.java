@@ -82,22 +82,22 @@ public class DownloadUnzipTask
    //~--- fields --------------------------------------------------------------
 
    /** The cancel. */
-   private boolean cancel_ = false;
+   private boolean cancel = false;
 
    /** The psswrd. */
-   String username_, psswrd_;
+   String username, psswrd;
 
    /** The url. */
-   URL url_;
+   URL url;
 
    /** The unzip. */
-   private final boolean unzip_;
+   private final boolean unzip;
 
    /** The fail on bad cheksum. */
-   private final boolean failOnBadCheksum_;
+   private final boolean failOnBadCheksum;
 
    /** The target folder. */
-   private File targetFolder_;
+   private File targetFolder;
 
    //~--- constructors --------------------------------------------------------
 
@@ -121,21 +121,21 @@ public class DownloadUnzipTask
                             boolean failOnBadChecksum,
                             File targetFolder)
             throws IOException {
-      this.username_         = username;
-      this.psswrd_           = psswrd;
-      this.url_              = url;
-      this.unzip_            = unzip;
-      this.targetFolder_     = targetFolder;
-      this.failOnBadCheksum_ = failOnBadChecksum;
+      this.username         = username;
+      this.psswrd           = psswrd;
+      this.url              = url;
+      this.unzip            = unzip;
+      this.targetFolder     = targetFolder;
+      this.failOnBadCheksum = failOnBadChecksum;
 
-      if (this.targetFolder_ == null) {
-         this.targetFolder_ = File.createTempFile("ISAAC", "");
-         this.targetFolder_.delete();
+      if (this.targetFolder == null) {
+         this.targetFolder = File.createTempFile("ISAAC", "");
+         this.targetFolder.delete();
       } else {
-         this.targetFolder_ = this.targetFolder_.getAbsoluteFile();
+         this.targetFolder = this.targetFolder.getAbsoluteFile();
       }
 
-      this.targetFolder_.mkdirs();
+      this.targetFolder.mkdirs();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -150,7 +150,7 @@ public class DownloadUnzipTask
    @Override
    public boolean cancel(boolean mayInterruptIfRunning) {
       super.cancel(mayInterruptIfRunning);
-      this.cancel_ = true;
+      this.cancel = true;
       return true;
    }
 
@@ -164,14 +164,14 @@ public class DownloadUnzipTask
    @Override
    protected File call()
             throws Exception {
-      final File dataFile            = download(this.url_);
+      final File dataFile            = download(this.url);
       String     calculatedSha1Value = null;
       String     expectedSha1Value   = null;;
 
       try {
          log.debug("Attempting to get .sha1 file");
 
-         final File sha1File = download(new URL(this.url_.toString() + ".sha1"));
+         final File sha1File = download(new URL(this.url.toString() + ".sha1"));
 
          expectedSha1Value = Files.readAllLines(sha1File.toPath())
                                   .get(0);
@@ -195,31 +195,31 @@ public class DownloadUnzipTask
       }
 
       if ((calculatedSha1Value != null) &&!calculatedSha1Value.equals(expectedSha1Value)) {
-         if (this.failOnBadCheksum_) {
-            throw new RuntimeException("Checksum of downloaded file '" + this.url_.toString() +
+         if (this.failOnBadCheksum) {
+            throw new RuntimeException("Checksum of downloaded file '" + this.url.toString() +
                                        "' does not match the expected value!");
          } else {
-            log.warn("Checksum of downloaded file '" + this.url_.toString() + "' does not match the expected value!");
+            log.warn("Checksum of downloaded file '" + this.url.toString() + "' does not match the expected value!");
          }
       }
 
-      if (this.cancel_) {
+      if (this.cancel) {
          log.debug("Download cancelled");
          throw new Exception("Cancelled!");
       }
 
-      if (this.unzip_) {
+      if (this.unzip) {
          updateTitle("Unzipping");
 
          try {
             final ZipFile zipFile = new ZipFile(dataFile);
 
             zipFile.setRunInThread(true);
-            zipFile.extractAll(this.targetFolder_.getAbsolutePath());
+            zipFile.extractAll(this.targetFolder.getAbsolutePath());
 
             while (zipFile.getProgressMonitor()
                           .getState() == ProgressMonitor.STATE_BUSY) {
-               if (this.cancel_) {
+               if (this.cancel) {
                   zipFile.getProgressMonitor()
                          .cancelAllTasks();
                   log.debug("Download cancelled");
@@ -247,7 +247,7 @@ public class DownloadUnzipTask
             dataFile.delete();
          }
 
-         return this.targetFolder_;
+         return this.targetFolder;
       } else {
          return dataFile;
       }
@@ -267,9 +267,9 @@ public class DownloadUnzipTask
 
       final HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
 
-      if (StringUtils.isNotBlank(this.username_) || StringUtils.isNotBlank(this.psswrd_)) {
+      if (StringUtils.isNotBlank(this.username) || StringUtils.isNotBlank(this.psswrd)) {
          final String encoded = Base64.getEncoder()
-                                      .encodeToString((this.username_ + ":" + this.psswrd_).getBytes());
+                                      .encodeToString((this.username + ":" + this.psswrd).getBytes());
 
          httpCon.setRequestProperty("Authorization", "Basic " + encoded);
       }
@@ -284,7 +284,7 @@ public class DownloadUnzipTask
 
       temp = temp.substring(temp.lastIndexOf('/') + 1, temp.length());
 
-      final File file = new File(this.targetFolder_, temp);
+      final File file = new File(this.targetFolder, temp);
 
       try (InputStream in = httpCon.getInputStream();
          FileOutputStream fos = new FileOutputStream(file);) {
@@ -292,7 +292,7 @@ public class DownloadUnzipTask
          int          read      = 0;
          long         totalRead = 0;
 
-         while (!this.cancel_ && (read = in.read(buf, 0, buf.length)) > 0) {
+         while (!this.cancel && (read = in.read(buf, 0, buf.length)) > 0) {
             totalRead += read;
 
             // update every 1 MB
@@ -305,7 +305,7 @@ public class DownloadUnzipTask
          }
       }
 
-      if (this.cancel_) {
+      if (this.cancel) {
          log.debug("Download cancelled");
          throw new Exception("Cancelled!");
       } else {

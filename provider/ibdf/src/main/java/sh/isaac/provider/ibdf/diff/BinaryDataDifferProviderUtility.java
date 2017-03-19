@@ -126,7 +126,7 @@ public class BinaryDataDifferProviderUtility {
    boolean diffOnPath;
 
    /** The sememe builder service. */
-   private final SememeBuilderService<?> sememeBuilderService_;
+   private final SememeBuilderService<?> sememeBuilderService;
 
    //~--- constructors --------------------------------------------------------
 
@@ -149,7 +149,7 @@ public class BinaryDataDifferProviderUtility {
       this.diffOnAuthor          = diffOnAuthor;
       this.diffOnModule          = diffOnModule;
       this.diffOnPath            = diffOnPath;
-      this.sememeBuilderService_ = Get.sememeBuilderService();
+      this.sememeBuilderService = Get.sememeBuilderService();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -378,7 +378,7 @@ public class BinaryDataDifferProviderUtility {
       case COMPONENT_NID:
          final ComponentNidSememe<?> compNidSememe = (ComponentNidSememe<?>) version;
 
-         builder = this.sememeBuilderService_.getComponentSememeBuilder(compNidSememe.getComponentNid(),
+         builder = this.sememeBuilderService.getComponentSememeBuilder(compNidSememe.getComponentNid(),
                compNidSememe.getReferencedComponentNid(),
                compNidSememe.getAssemblageSequence());
          break;
@@ -387,7 +387,7 @@ public class BinaryDataDifferProviderUtility {
          final DescriptionSememe<?> descSememe = (DescriptionSememe<?>) version;
 
          builder =
-            this.sememeBuilderService_.getDescriptionSememeBuilder(descSememe.getCaseSignificanceConceptSequence(),
+            this.sememeBuilderService.getDescriptionSememeBuilder(descSememe.getCaseSignificanceConceptSequence(),
                   descSememe.getLanguageConceptSequence(),
                   descSememe.getDescriptionTypeConceptSequence(),
                   descSememe.getText(),
@@ -397,7 +397,7 @@ public class BinaryDataDifferProviderUtility {
       case DYNAMIC:
          final DynamicSememe<?> dynSememe = (DynamicSememe<?>) version;
 
-         builder = this.sememeBuilderService_.getDynamicSememeBuilder(dynSememe.getReferencedComponentNid(),
+         builder = this.sememeBuilderService.getDynamicSememeBuilder(dynSememe.getReferencedComponentNid(),
                dynSememe.getAssemblageSequence(),
                dynSememe.getData());
          break;
@@ -405,20 +405,20 @@ public class BinaryDataDifferProviderUtility {
       case LONG:
          final LongSememe<?> longSememe = (LongSememe<?>) version;
 
-         builder = this.sememeBuilderService_.getLongSememeBuilder(longSememe.getLongValue(),
+         builder = this.sememeBuilderService.getLongSememeBuilder(longSememe.getLongValue(),
                longSememe.getReferencedComponentNid(),
                longSememe.getAssemblageSequence());
          break;
 
       case MEMBER:
-         builder = this.sememeBuilderService_.getMembershipSememeBuilder(version.getReferencedComponentNid(),
+         builder = this.sememeBuilderService.getMembershipSememeBuilder(version.getReferencedComponentNid(),
                version.getAssemblageSequence());
          break;
 
       case STRING:
          final StringSememe<?> stringSememe = (StringSememe<?>) version;
 
-         builder = this.sememeBuilderService_.getStringSememeBuilder(stringSememe.getString(),
+         builder = this.sememeBuilderService.getStringSememeBuilder(stringSememe.getString(),
                stringSememe.getReferencedComponentNid(),
                stringSememe.getAssemblageSequence());
          break;
@@ -426,7 +426,7 @@ public class BinaryDataDifferProviderUtility {
       case LOGIC_GRAPH:
          final LogicGraphSememe<?> logicGraphSememe = (LogicGraphSememe<?>) version;
 
-         builder = this.sememeBuilderService_.getLogicalExpressionSememeBuilder(logicGraphSememe.getLogicalExpression(),
+         builder = this.sememeBuilderService.getLogicalExpressionSememeBuilder(logicGraphSememe.getLogicalExpression(),
                logicGraphSememe.getReferencedComponentNid(),
                logicGraphSememe.getAssemblageSequence());
          break;

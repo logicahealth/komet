@@ -59,10 +59,10 @@ public class MergeFailure
    //~--- fields --------------------------------------------------------------
 
    /** The files with merge failures. */
-   private final Set<String> filesWithMergeFailures_;
+   private final Set<String> filesWithMergeFailures;
 
    /** The files changed during merge attempt. */
-   private final Set<String> filesChangedDuringMergeAttempt_;
+   private final Set<String> filesChangedDuringMergeAttempt;
 
    //~--- constructors --------------------------------------------------------
 
@@ -74,8 +74,8 @@ public class MergeFailure
     */
    public MergeFailure(Set<String> filesWithMergeFailures, Set<String> filesChangedDuringMergeAttempt) {
       super("Merge Failure");
-      this.filesWithMergeFailures_         = filesWithMergeFailures;
-      this.filesChangedDuringMergeAttempt_ = filesChangedDuringMergeAttempt;
+      this.filesWithMergeFailures         = filesWithMergeFailures;
+      this.filesChangedDuringMergeAttempt = filesChangedDuringMergeAttempt;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -86,7 +86,7 @@ public class MergeFailure
     * @return All files that were changed (successfully or not) during the merge.
     */
    public Set<String> getFilesChangedDuringMergeAttempt() {
-      return this.filesChangedDuringMergeAttempt_;
+      return this.filesChangedDuringMergeAttempt;
    }
 
    /**
@@ -97,8 +97,8 @@ public class MergeFailure
     */
    @Override
    public String getLocalizedMessage() {
-      return super.getLocalizedMessage() + " on " + this.filesWithMergeFailures_ + " while updating the files " +
-             this.filesChangedDuringMergeAttempt_;
+      return super.getLocalizedMessage() + " on " + this.filesWithMergeFailures + " while updating the files " +
+             this.filesChangedDuringMergeAttempt;
    }
 
    /**
@@ -107,7 +107,7 @@ public class MergeFailure
     * @return The files that were left in a conflicted, unusable state - much be corrected with a call to resolveMergeFailures.
     */
    public Set<String> getMergeFailures() {
-      return this.filesWithMergeFailures_;
+      return this.filesWithMergeFailures;
    }
 }
 

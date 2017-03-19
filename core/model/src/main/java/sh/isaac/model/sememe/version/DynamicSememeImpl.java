@@ -82,7 +82,7 @@ public class DynamicSememeImpl
    //~--- fields --------------------------------------------------------------
 
    /** The data. */
-   private DynamicSememeData[] data_ = null;
+   private DynamicSememeData[] data = null;
 
    //~--- constructors --------------------------------------------------------
 
@@ -116,13 +116,13 @@ public class DynamicSememeImpl
       // read the following format - dataFieldCount [dataFieldType dataFieldBytes] [dataFieldType dataFieldBytes] ...
       final int colCount = data.getInt();
 
-      this.data_ = new DynamicSememeData[colCount];
+      this.data = new DynamicSememeData[colCount];
 
       for (int i = 0; i < colCount; i++) {
          final DynamicSememeDataType dt = DynamicSememeDataType.getFromToken(data.getInt());
 
          if (dt == DynamicSememeDataType.UNKNOWN) {
-            this.data_[i] = null;
+            this.data[i] = null;
          } else {
             if (data.isExternalData() && (dt == DynamicSememeDataType.NID)) {
                final UUID temp =
@@ -131,12 +131,12 @@ public class DynamicSememeImpl
                                                                                        0,
                                                                                        0)).getDataUUID();
 
-               this.data_[i] = DynamicSememeTypeToClassUtility.typeToClass(dt,
+               this.data[i] = DynamicSememeTypeToClassUtility.typeToClass(dt,
                      new DynamicSememeNidImpl(Get.identifierService().getNidForUuids(temp)).getData(),
                      getAssemblageSequence(),
                      i);
             } else {
-               this.data_[i] = DynamicSememeTypeToClassUtility.typeToClass(dt,
+               this.data[i] = DynamicSememeTypeToClassUtility.typeToClass(dt,
                      data.getByteArrayField(),
                      getAssemblageSequence(),
                      i);
@@ -230,8 +230,8 @@ public class DynamicSememeImpl
     */
    @Override
    public DynamicSememeData[] getData() {
-      return (this.data_ == null) ? new DynamicSememeData[] {}
-                                  : this.data_;
+      return (this.data == null) ? new DynamicSememeData[] {}
+                                  : this.data;
    }
 
    /**
@@ -276,7 +276,7 @@ public class DynamicSememeImpl
     */
    @Override
    public void setData(DynamicSememeData[] data) {
-      if (this.data_ != null) {
+      if (this.data != null) {
          checkUncommitted();
       }
 
@@ -290,7 +290,7 @@ public class DynamicSememeImpl
                       .validate(dsud, data, getReferencedComponentNid(), null, null);
       }
 
-      this.data_ = (data == null) ? new DynamicSememeData[] {}
+      this.data = (data == null) ? new DynamicSememeData[] {}
                                   : data;
    }
 

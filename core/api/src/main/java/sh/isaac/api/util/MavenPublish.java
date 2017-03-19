@@ -82,28 +82,28 @@ public class MavenPublish
    //~--- fields --------------------------------------------------------------
 
    /** The group id. */
-   String groupId_;
+   String groupId;
 
    /** The artifact id. */
-   String artifactId_;
+   String artifactId;
 
    /** The version. */
-   String version_;
+   String version;
 
    /** The pom file. */
-   File pomFile_;
+   File pomFile;
 
    /** The data files. */
-   File[] dataFiles_;
+   File[] dataFiles;
 
    /** The url. */
-   String url_;
+   String url;
 
    /** The username. */
-   String username_;
+   String username;
 
    /** The psswrd. */
-   String psswrd_;
+   String psswrd;
 
    //~--- constructors --------------------------------------------------------
 
@@ -129,14 +129,14 @@ public class MavenPublish
                        String username,
                        String psswrd)
             throws Exception {
-      this.groupId_    = groupId;
-      this.artifactId_ = artifactId;
-      this.version_    = version;
-      this.pomFile_    = pomFile;
-      this.dataFiles_  = dataFiles;
-      this.url_        = url;
-      this.username_   = username;
-      this.psswrd_     = psswrd;
+      this.groupId    = groupId;
+      this.artifactId = artifactId;
+      this.version    = version;
+      this.pomFile    = pomFile;
+      this.dataFiles  = dataFiles;
+      this.url        = url;
+      this.username   = username;
+      this.psswrd     = psswrd;
       log.debug("Maven Publish task constructed for GAV: {}:{}:{}", groupId, artifactId, version);
    }
 
@@ -155,17 +155,17 @@ public class MavenPublish
       log.debug("Maven publish task begins");
       updateProgress(-1, 0);
       updateMessage("Creating Checksum Files");
-      writeChecksumFile(this.pomFile_, "MD5");
-      writeChecksumFile(this.pomFile_, "SHA1");
+      writeChecksumFile(this.pomFile, "MD5");
+      writeChecksumFile(this.pomFile, "SHA1");
 
-      for (final File f: this.dataFiles_) {
+      for (final File f: this.dataFiles) {
          writeChecksumFile(f, "MD5");
          writeChecksumFile(f, "SHA1");
       }
 
       updateMessage("Uploading data files");
 
-      for (final File f: this.dataFiles_) {
+      for (final File f: this.dataFiles) {
          // TODO check maven upload order
          putFile(f, null);
          putFile(new File(f.getParentFile(), f.getName() + ".md5"), null);
@@ -173,9 +173,9 @@ public class MavenPublish
       }
 
       updateMessage("Uploading pom files");
-      putFile(this.pomFile_, "pom");
-      putFile(new File(this.pomFile_.getParentFile(), this.pomFile_.getName() + ".md5"), "pom.md5");
-      putFile(new File(this.pomFile_.getParentFile(), this.pomFile_.getName() + ".sha1"), "pom.sha1");
+      putFile(this.pomFile, "pom");
+      putFile(new File(this.pomFile.getParentFile(), this.pomFile.getName() + ".md5"), "pom.md5");
+      putFile(new File(this.pomFile.getParentFile(), this.pomFile.getName() + ".sha1"), "pom.sha1");
       updateMessage("Publish Complete");
       updateProgress(10, 10);
       log.debug("Maven Publish Task Complete");
@@ -191,9 +191,9 @@ public class MavenPublish
     */
    private void putFile(File file, String targetFileName)
             throws Exception {
-      final String groupIdTemp = this.groupId_.replaceAll("\\.", "//");
-      final URL    url         = new URL(this.url_ + (this.url_.endsWith("/") ? ""
-            : "/") + groupIdTemp + "/" + this.artifactId_ + "/" + this.version_ + "/" +
+      final String groupIdTemp = this.groupId.replaceAll("\\.", "//");
+      final URL    url         = new URL(this.url + (this.url.endsWith("/") ? ""
+            : "/") + groupIdTemp + "/" + this.artifactId + "/" + this.version + "/" +
                      ((targetFileName == null) ? file.getName()
             : targetFileName));
 
@@ -203,9 +203,9 @@ public class MavenPublish
 
       final HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
 
-      if ((this.username_.length() > 0) || (this.psswrd_.length() > 0)) {
+      if ((this.username.length() > 0) || (this.psswrd.length() > 0)) {
          final String encoded = Base64.getEncoder()
-                                      .encodeToString((this.username_ + ":" + this.psswrd_).getBytes());
+                                      .encodeToString((this.username + ":" + this.psswrd).getBytes());
 
          httpCon.setRequestProperty("Authorization", "Basic " + encoded);
       }

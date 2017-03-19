@@ -163,7 +163,7 @@ public abstract class ConverterBaseMojo
    protected List<String> relationshipSkipList;
 
    /** The import util. */
-   protected IBDFCreationUtility importUtil_;
+   protected IBDFCreationUtility importUtil;
 
    //~--- methods -------------------------------------------------------------
 
@@ -177,11 +177,11 @@ public abstract class ConverterBaseMojo
             throws MojoExecutionException {
       Get.configurationService()
          .setBootstrapMode();
-      ConverterUUID.disableUUIDMap_ = (((this.createDebugUUIDMap == null) ||
+      ConverterUUID.disableUUIDMap = (((this.createDebugUUIDMap == null) ||
                                         (this.createDebugUUIDMap.length() == 0)) ? false
             : Boolean.parseBoolean(this.createDebugUUIDMap));
 
-      if (ConverterUUID.disableUUIDMap_) {
+      if (ConverterUUID.disableUUIDMap) {
          ConsoleUtil.println("The UUID Debug map is disabled - this also prevents duplicate ID detection");
       }
 

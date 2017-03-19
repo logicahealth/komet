@@ -120,7 +120,7 @@ public class IsaacMappingConstants
    ;
 
    /** The cache. */
-   private static IsaacMappingConstants cache_;
+   private static IsaacMappingConstants cache;
 
    //~--- fields --------------------------------------------------------------
 
@@ -415,11 +415,11 @@ public class IsaacMappingConstants
     * @return the isaac mapping constants
     */
    public static IsaacMappingConstants get() {
-      if (cache_ == null) {
-         cache_ = LookupService.getService(IsaacMappingConstants.class);
+      if (cache == null) {
+         cache = LookupService.getService(IsaacMappingConstants.class);
       }
 
-      return cache_;
+      return cache;
    }
 }
 

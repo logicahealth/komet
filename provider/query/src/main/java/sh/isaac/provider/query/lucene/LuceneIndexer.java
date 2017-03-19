@@ -195,7 +195,7 @@ public abstract class LuceneIndexer
    //~--- fields --------------------------------------------------------------
 
    /** The index folder. */
-   private File indexFolder_ = null;
+   private File indexFolder = null;
 
    /** The indexed component statistics. */
    private final HashMap<String, AtomicInteger> indexedComponentStatistics = new HashMap<>();
@@ -207,7 +207,7 @@ public abstract class LuceneIndexer
    private final ConcurrentHashMap<Integer, IndexedGenerationCallable> componentNidLatch = new ConcurrentHashMap<>();
 
    /** The enabled. */
-   private boolean enabled_ = true;
+   private boolean enabled = true;
 
    /** The db build mode. */
    private Boolean dbBuildMode = null;
@@ -216,7 +216,7 @@ public abstract class LuceneIndexer
    private DatabaseValidity databaseValidity = DatabaseValidity.NOT_SET;
 
    /** The change listener ref. */
-   private ChronologyChangeListener changeListenerRef_;
+   private ChronologyChangeListener changeListenerRef;
 
    /** The lucene writer service. */
    protected final ExecutorService luceneWriterService;
@@ -234,7 +234,7 @@ public abstract class LuceneIndexer
    private final ReferenceManager<IndexSearcher> searcherManager;
 
    /** The index name. */
-   private final String indexName_;
+   private final String indexName;
 
    //~--- constructors --------------------------------------------------------
 
@@ -247,7 +247,7 @@ public abstract class LuceneIndexer
    protected LuceneIndexer(String indexName)
             throws IOException {
       try {
-         this.indexName_          = indexName;
+         this.indexName          = indexName;
          this.luceneWriterService = LookupService.getService(WorkExecutors.class)
                .getIOExecutor();
          this.luceneWriterFutureCheckerService = Executors.newFixedThreadPool(1,
@@ -258,20 +258,20 @@ public abstract class LuceneIndexer
          final File luceneRootFolder = new File(searchFolder.toFile(), DEFAULT_LUCENE_FOLDER);
 
          luceneRootFolder.mkdirs();
-         this.indexFolder_ = new File(luceneRootFolder, indexName);
+         this.indexFolder = new File(luceneRootFolder, indexName);
 
-         if (!this.indexFolder_.exists()) {
+         if (!this.indexFolder.exists()) {
             this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
-            log.info("Index folder missing: " + this.indexFolder_.getAbsolutePath());
-         } else if (this.indexFolder_.list().length > 0) {
+            log.info("Index folder missing: " + this.indexFolder.getAbsolutePath());
+         } else if (this.indexFolder.list().length > 0) {
             this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
          }
 
-         this.indexFolder_.mkdirs();
-         log.info("Index: " + this.indexFolder_.getAbsolutePath());
+         this.indexFolder.mkdirs();
+         log.info("Index: " + this.indexFolder.getAbsolutePath());
 
          final Directory indexDirectory =
-            new MMapDirectory(this.indexFolder_);  // switch over to MMapDirectory - in theory - this gives us back some
+            new MMapDirectory(this.indexFolder);  // switch over to MMapDirectory - in theory - this gives us back some
 
          // room on the JDK stack, letting the OS directly manage the caching of the index files - and more importantly, gives us a huge
          // performance boost during any operation that tries to do multi-threaded reads of the index (like the SOLOR rules processing) because
@@ -308,7 +308,7 @@ public abstract class LuceneIndexer
 
          // Register for commits:
          log.info("Registering indexer " + getIndexerName() + " for commits");
-         this.changeListenerRef_ = new ChronologyChangeListener() {
+         this.changeListenerRef = new ChronologyChangeListener() {
             @Override
             public void handleCommit(CommitRecord commitRecord) {
                if (LuceneIndexer.this.dbBuildMode == null) {
@@ -352,7 +352,7 @@ public abstract class LuceneIndexer
             }
          };
          Get.commitService()
-            .addChangeListener(this.changeListenerRef_);
+            .addChangeListener(this.changeListenerRef);
       } catch (final Exception e) {
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure(indexName, e);
@@ -833,7 +833,7 @@ public abstract class LuceneIndexer
    private Future<Long> index(Supplier<AddDocument> documentSupplier,
                               BooleanSupplier indexChronicle,
                               int chronicleNid) {
-      if (!this.enabled_) {
+      if (!this.enabled) {
          releaseLatch(chronicleNid, Long.MIN_VALUE);
          return null;
       }
@@ -862,7 +862,7 @@ public abstract class LuceneIndexer
     * Start thread.
     */
    private void startThread() {
-      this.reopenThread.setName("Lucene " + this.indexName_ + " Reopen Thread");
+      this.reopenThread.setName("Lucene " + this.indexName + " Reopen Thread");
       this.reopenThread.setPriority(Math.min(Thread.currentThread()
             .getPriority() + 2, Thread.MAX_PRIORITY));
       this.reopenThread.setDaemon(true);
@@ -888,7 +888,7 @@ public abstract class LuceneIndexer
     */
    @Override
    public Path getDatabaseFolder() {
-      return this.indexFolder_.toPath();
+      return this.indexFolder.toPath();
    }
 
    /**
@@ -908,7 +908,7 @@ public abstract class LuceneIndexer
     */
    @Override
    public boolean isEnabled() {
-      return this.enabled_;
+      return this.enabled;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -920,7 +920,7 @@ public abstract class LuceneIndexer
     */
    @Override
    public void setEnabled(boolean enabled) {
-      this.enabled_ = enabled;
+      this.enabled = enabled;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -953,7 +953,7 @@ public abstract class LuceneIndexer
     */
    @Override
    public File getIndexerFolder() {
-      return this.indexFolder_;
+      return this.indexFolder;
    }
 
    /**
@@ -963,7 +963,7 @@ public abstract class LuceneIndexer
     */
    @Override
    public String getIndexerName() {
-      return this.indexName_;
+      return this.indexName;
    }
 
    //~--- inner classes -------------------------------------------------------
@@ -1040,7 +1040,7 @@ public abstract class LuceneIndexer
    private static class FutureChecker
             implements Runnable {
       /** The future. */
-      Future<Long> future_;
+      Future<Long> future;
 
       //~--- constructors -----------------------------------------------------
 
@@ -1050,7 +1050,7 @@ public abstract class LuceneIndexer
        * @param future the future
        */
       public FutureChecker(Future<Long> future) {
-         this.future_ = future;
+         this.future = future;
       }
 
       //~--- methods ----------------------------------------------------------
@@ -1061,7 +1061,7 @@ public abstract class LuceneIndexer
       @Override
       public void run() {
          try {
-            this.future_.get();
+            this.future.get();
          } catch (InterruptedException | ExecutionException ex) {
             log.fatal("Unexpected error in future checker!", ex);
          }

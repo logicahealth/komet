@@ -128,7 +128,7 @@ public class MappingItem
    private UUID qualifierConcept, targetConcept;
 
    /** The data. */
-   private DynamicSememeData[] data_;
+   private DynamicSememeData[] data;
 
    /** The source concept. */
    private transient UUID mappingSetIDConcept, sourceConcept;
@@ -215,9 +215,9 @@ public class MappingItem
                              .get());
 
          // TODO remove this
-         setEditorStatusConcept((((this.data_ != null) &&
-                                  (this.data_.length > 2) &&
-                                  (this.data_[2] != null)) ? ((DynamicSememeUUID) this.data_[2]).getDataUUID()
+         setEditorStatusConcept((((this.data != null) &&
+                                  (this.data.length > 2) &&
+                                  (this.data[2] != null)) ? ((DynamicSememeUUID) this.data[2]).getDataUUID()
                : null));
          this.targetConceptNid    = getNidForUuidSafe(this.targetConcept);
          this.qualifierConceptNid = getNidForUuidSafe(this.qualifierConcept);
@@ -238,14 +238,14 @@ public class MappingItem
       this.mappingSetSequence = sememe.getAssemblageSequence();
       this.sourceConceptNid   = sememe.getReferencedComponentNid();
       this.uuids              = sememe.getUuidList();
-      this.data_              = sememe.getData();
-      setTargetConcept((((this.data_ != null) &&
-                         (this.data_.length > 0) &&
-                         (this.data_[0] != null)) ? ((DynamicSememeUUID) this.data_[0]).getDataUUID()
+      this.data              = sememe.getData();
+      setTargetConcept((((this.data != null) &&
+                         (this.data.length > 0) &&
+                         (this.data[0] != null)) ? ((DynamicSememeUUID) this.data[0]).getDataUUID()
             : null));
-      setQualifierConcept((((this.data_ != null) &&
-                            (this.data_.length > 1) &&
-                            (this.data_[1] != null)) ? ((DynamicSememeUUID) this.data_[1]).getDataUUID()
+      setQualifierConcept((((this.data != null) &&
+                            (this.data.length > 1) &&
+                            (this.data[1] != null)) ? ((DynamicSememeUUID) this.data[1]).getDataUUID()
             : null));
    }
 

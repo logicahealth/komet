@@ -58,7 +58,7 @@ public class DynamicSememeByteArrayImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeByteArray {
    /** The property. */
-   private ObjectProperty<byte[]> property_;
+   private ObjectProperty<byte[]> property;
 
    //~--- constructors --------------------------------------------------------
 
@@ -92,7 +92,7 @@ public class DynamicSememeByteArrayImpl
     */
    @Override
    public byte[] getDataByteArray() {
-      return this.data_;
+      return this.data;
    }
 
    /**
@@ -103,11 +103,11 @@ public class DynamicSememeByteArrayImpl
     */
    @Override
    public ReadOnlyObjectProperty<byte[]> getDataByteArrayProperty() {
-      if (this.property_ == null) {
-         this.property_ = new SimpleObjectProperty<byte[]>(null, getName(), this.data_);
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<byte[]>(null, getName(), this.data);
       }
 
-      return this.property_;
+      return this.property;
    }
 
    /**

@@ -86,10 +86,10 @@ public class JsonDataWriterService
    private final Semaphore pauseBlock = new Semaphore(1);
 
    /** The json. */
-   private JsonWriter json_;
+   private JsonWriter json;
 
    /** The fos. */
-   private FileOutputStream fos_;
+   private FileOutputStream fos;
 
    /** The data path. */
    private Path dataPath;
@@ -141,11 +141,11 @@ public class JsonDataWriterService
    public void close()
             throws IOException {
       try {
-         this.json_.close();
-         this.fos_.close();
+         this.json.close();
+         this.fos.close();
       } finally {
-         this.json_ = null;
-         this.fos_  = null;
+         this.json = null;
+         this.fos  = null;
       }
    }
 
@@ -158,7 +158,7 @@ public class JsonDataWriterService
    @Override
    public void configure(Path path)
             throws IOException {
-      if (this.json_ != null) {
+      if (this.json != null) {
          throw new IOException("Reconfiguration not supported");
       }
 
@@ -166,10 +166,10 @@ public class JsonDataWriterService
 
       args.put(JsonWriter.PRETTY_PRINT, true);
       this.dataPath = path;
-      this.fos_     = new FileOutputStream(path.toFile(), true);
-      this.json_    = new JsonWriter(new TimeFlushBufferedOutputStream(this.fos_), args);
-      this.json_.addWriter(ConceptChronology.class, new Writers.ConceptChronologyJsonWriter());
-      this.json_.addWriter(SememeChronology.class, new Writers.SememeChronologyJsonWriter());
+      this.fos     = new FileOutputStream(path.toFile(), true);
+      this.json    = new JsonWriter(new TimeFlushBufferedOutputStream(this.fos), args);
+      this.json.addWriter(ConceptChronology.class, new Writers.ConceptChronologyJsonWriter());
+      this.json.addWriter(SememeChronology.class, new Writers.SememeChronologyJsonWriter());
       this.logger.info("json changeset writer has been configured to write to " +
                        this.dataPath.toAbsolutePath().toString());
    }
@@ -183,8 +183,8 @@ public class JsonDataWriterService
    @Override
    public void flush()
             throws IOException {
-      if (this.json_ != null) {
-         this.json_.flush();
+      if (this.json != null) {
+         this.json.flush();
       }
    }
 
@@ -196,7 +196,7 @@ public class JsonDataWriterService
    @Override
    public void pause()
             throws IOException {
-      if (this.json_ == null) {
+      if (this.json == null) {
          this.logger.warn("already paused!");
          return;
       }
@@ -215,7 +215,7 @@ public class JsonDataWriterService
    public void put(OchreExternalizable ochreObject) {
       try {
          this.pauseBlock.acquireUninterruptibly();
-         this.json_.write(ochreObject);
+         this.json.write(ochreObject);
       } finally {
          this.pauseBlock.release();
       }
@@ -230,7 +230,7 @@ public class JsonDataWriterService
    public void put(String string) {
       try {
          this.pauseBlock.acquireUninterruptibly();
-         this.json_.write(string);
+         this.json.write(string);
       } finally {
          this.pauseBlock.release();
       }
@@ -249,7 +249,7 @@ public class JsonDataWriterService
          return;
       }
 
-      if (this.json_ == null) {
+      if (this.json == null) {
          configure(this.dataPath);
       }
 

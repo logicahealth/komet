@@ -86,16 +86,16 @@ public class AssociationType {
    //~--- fields --------------------------------------------------------------
 
    /** The association sequence. */
-   private final int associationSequence_;
+   private final int associationSequence;
 
    /** The association name. */
-   private String associationName_;
+   private String associationName;
 
    /** The association inverse name. */
-   private Optional<String> associationInverseName_;
+   private Optional<String> associationInverseName;
 
    /** The description. */
-   private String description_;
+   private String description;
 
    //~--- constructors --------------------------------------------------------
 
@@ -105,7 +105,7 @@ public class AssociationType {
     * @param conceptNidOrSequence the concept nid or sequence
     */
    private AssociationType(int conceptNidOrSequence) {
-      this.associationSequence_ = Get.identifierService()
+      this.associationSequence = Get.identifierService()
                                      .getConceptSequence(conceptNidOrSequence);
    }
 
@@ -233,7 +233,7 @@ public class AssociationType {
                                                                         .getDefaultLanguageCoordinate()
             : language);
 
-      at.associationName_ = Get.conceptService()
+      at.associationName = Get.conceptService()
                                .getSnapshot(localStamp, localLanguage)
                                .conceptDescriptionText(conceptNid);
 
@@ -254,7 +254,7 @@ public class AssociationType {
 
                              return false;
                           })) {
-            at.associationInverseName_ = Optional.of(desc.getText());
+            at.associationInverseName = Optional.of(desc.getText());
          }
       }
 
@@ -273,16 +273,16 @@ public class AssociationType {
 
                       return false;
                    })) {
-            at.description_ = desc.getText();
+            at.description = desc.getText();
          }
       }
 
-      if (at.associationInverseName_ == null) {
-         at.associationInverseName_ = Optional.empty();
+      if (at.associationInverseName == null) {
+         at.associationInverseName = Optional.empty();
       }
 
-      if (at.description_ == null) {
-         at.description_ = "-No description on path!-";
+      if (at.description == null) {
+         at.description = "-No description on path!-";
       }
 
       return at;
@@ -296,7 +296,7 @@ public class AssociationType {
     * @return the inverse name of the association (if present) (Read from the association type concept)
     */
    public Optional<String> getAssociationInverseName() {
-      return this.associationInverseName_;
+      return this.associationInverseName;
    }
 
    /**
@@ -305,7 +305,7 @@ public class AssociationType {
     * @return the association name
     */
    public String getAssociationName() {
-      return this.associationName_;
+      return this.associationName;
    }
 
    /**
@@ -315,7 +315,7 @@ public class AssociationType {
     */
    public ConceptChronology<? extends ConceptVersion<?>> getAssociationTypeConcept() {
       return Get.conceptService()
-                .getConcept(this.associationSequence_);
+                .getConcept(this.associationSequence);
    }
 
    /**
@@ -324,7 +324,7 @@ public class AssociationType {
     * @return the concept sequence of the association type concept
     */
    public int getAssociationTypeSequenece() {
-      return this.associationSequence_;
+      return this.associationSequence;
    }
 
    /**
@@ -333,7 +333,7 @@ public class AssociationType {
     * @return the description
     */
    public String getDescription() {
-      return this.description_;
+      return this.description;
    }
 }
 
