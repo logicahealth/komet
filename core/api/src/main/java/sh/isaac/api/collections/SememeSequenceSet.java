@@ -55,36 +55,70 @@ import sh.isaac.api.IdentifierService;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class SememeSequenceSet.
  *
  * @author kec
  */
 public class SememeSequenceSet
         extends SequenceSet<SememeSequenceSet> {
+   /**
+    * Instantiates a new sememe sequence set.
+    */
    public SememeSequenceSet() {}
 
+   /**
+    * Instantiates a new sememe sequence set.
+    *
+    * @param concurrency the concurrency
+    */
    protected SememeSequenceSet(Concurrency concurrency) {
       super(concurrency);
    }
 
+   /**
+    * Instantiates a new sememe sequence set.
+    *
+    * @param members the members
+    */
    protected SememeSequenceSet(int[] members) {
       super(members);
    }
 
+   /**
+    * Instantiates a new sememe sequence set.
+    *
+    * @param memberStream the member stream
+    */
    protected SememeSequenceSet(IntStream memberStream) {
       super(memberStream);
    }
 
+   /**
+    * Instantiates a new sememe sequence set.
+    *
+    * @param members the members
+    */
    protected SememeSequenceSet(OpenIntHashSet members) {
       super(members);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the.
+    *
+    * @param sememeUuid the sememe uuid
+    */
    public void add(UUID sememeUuid) {
       super.add(Get.identifierService()
                    .getSememeSequenceForUuids(sememeUuid));
    }
 
+   /**
+    * Adds the all.
+    *
+    * @param intStream the int stream
+    */
    @Override
    public void addAll(IntStream intStream) {
       super.addAll(intStream.map((item) -> {
@@ -93,52 +127,114 @@ public class SememeSequenceSet
                                  }));
    }
 
+   /**
+    * Concurrent.
+    *
+    * @return the sememe sequence set
+    */
    public static SememeSequenceSet concurrent() {
       return new SememeSequenceSet(Concurrency.THREAD_SAFE);
    }
 
+   /**
+    * Contains.
+    *
+    * @param item the item
+    * @return true, if successful
+    */
    @Override
    public boolean contains(int item) {
       return super.contains(Get.identifierService()
                                .getSememeSequence(item));
    }
 
+   /**
+    * Of.
+    *
+    * @param members the members
+    * @return the sememe sequence set
+    */
    public static SememeSequenceSet of(Collection<Integer> members) {
       return new SememeSequenceSet(members.stream().mapToInt((i) -> i));
    }
 
+   /**
+    * Of.
+    *
+    * @param members the members
+    * @return the sememe sequence set
+    */
    public static SememeSequenceSet of(int... members) {
       return new SememeSequenceSet(members);
    }
 
+   /**
+    * Of.
+    *
+    * @param sememeSquenceStream the sememe squence stream
+    * @return the sememe sequence set
+    */
    public static SememeSequenceSet of(IntStream sememeSquenceStream) {
       return new SememeSequenceSet(sememeSquenceStream);
    }
 
+   /**
+    * Of.
+    *
+    * @param sememeNidSet the sememe nid set
+    * @return the sememe sequence set
+    */
    public static SememeSequenceSet of(NidSet sememeNidSet) {
-      IdentifierService sp = Get.identifierService();
+      final IdentifierService sp = Get.identifierService();
 
       return new SememeSequenceSet(sememeNidSet.stream().map((nid) -> sp.getSememeSequence(nid)));
    }
 
+   /**
+    * Of.
+    *
+    * @param members the members
+    * @return the sememe sequence set
+    */
    public static SememeSequenceSet of(OpenIntHashSet members) {
       return new SememeSequenceSet(members);
    }
 
+   /**
+    * Of.
+    *
+    * @param sememeSquenceSet the sememe squence set
+    * @return the sememe sequence set
+    */
    public static SememeSequenceSet of(SememeSequenceSet sememeSquenceSet) {
       return new SememeSequenceSet(sememeSquenceSet.stream());
    }
 
+   /**
+    * Of all sememe sequences.
+    *
+    * @return the sememe sequence set
+    */
    public static SememeSequenceSet ofAllSememeSequences() {
       return new SememeSequenceSet(Get.identifierService().getSememeSequenceStream());
    }
 
+   /**
+    * Removes the.
+    *
+    * @param item the item
+    */
    @Override
    public void remove(int item) {
       super.remove(Get.identifierService()
                       .getSememeSequence(item));
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString((sememeSequence) -> Integer.toString(sememeSequence));

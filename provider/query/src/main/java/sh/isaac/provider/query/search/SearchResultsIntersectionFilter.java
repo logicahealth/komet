@@ -70,40 +70,56 @@ import org.slf4j.LoggerFactory;
  */
 public class SearchResultsIntersectionFilter
          implements Function<List<CompositeSearchResult>, List<CompositeSearchResult>> {
+   /** The Constant LOG. */
    private static final Logger LOG = LoggerFactory.getLogger(SearchResultsIntersectionFilter.class);
 
    //~--- fields --------------------------------------------------------------
 
+   /** The filters. */
    List<Function<List<CompositeSearchResult>, List<CompositeSearchResult>>> filters = new ArrayList<>();
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new search results intersection filter.
+    *
+    * @param passedFilters the passed filters
+    */
    @SafeVarargs
    public SearchResultsIntersectionFilter(Function<List<CompositeSearchResult>,
          List<CompositeSearchResult>>... passedFilters) {
       if (passedFilters != null) {
-         for (Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter: passedFilters) {
-            filters.add(filter);
+         for (final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter: passedFilters) {
+            this.filters.add(filter);
          }
       }
    }
 
+   /**
+    * Instantiates a new search results intersection filter.
+    *
+    * @param passedFilters the passed filters
+    */
    public SearchResultsIntersectionFilter(List<Function<List<CompositeSearchResult>,
          List<CompositeSearchResult>>> passedFilters) {
-      filters.addAll(passedFilters);
+      this.filters.addAll(passedFilters);
    }
 
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Apply.
+    *
+    * @param results the results
+    * @return the list
     * @see java.util.function.Function#apply(java.lang.Object)
     */
    @Override
    public List<CompositeSearchResult> apply(List<CompositeSearchResult> results) {
       List<CompositeSearchResult> filteredResults = results;
 
-      for (Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter: filters) {
-         int numResultsToFilter = filteredResults.size();
+      for (final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter: this.filters) {
+         final int numResultsToFilter = filteredResults.size();
 
          LOG.debug("Applying SearchResultsFilter " + filter + " to " + numResultsToFilter + " search results");
          filteredResults = filter.apply(filteredResults);
@@ -114,15 +130,25 @@ public class SearchResultsIntersectionFilter
       return filteredResults;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "SearchResultsIntersectionFilter [filters=" + Arrays.toString(filters.toArray()) + "]";
+      return "SearchResultsIntersectionFilter [filters=" + Arrays.toString(this.filters.toArray()) + "]";
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the filters.
+    *
+    * @return the filters
+    */
    public Collection<Function<List<CompositeSearchResult>, List<CompositeSearchResult>>> getFilters() {
-      return filters;
+      return this.filters;
    }
 }
 

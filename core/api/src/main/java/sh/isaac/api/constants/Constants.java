@@ -71,19 +71,13 @@ public class Constants {
     */
    public static final String EXTRA_PACKAGES_TO_SEARCH = "sh.isaac.api.constants.EXTRA_PACKAGES_TO_SEARCH";
 
-   /**
-    * Used to specify the location of the data store folder, which contains subfolders for 'object-chronicles' and 'search'
-    */
+   /** Used to specify the location of the data store folder, which contains subfolders for 'object-chronicles' and 'search'. */
    public static final String DATA_STORE_ROOT_LOCATION_PROPERTY = "sh.isaac.api.constants.data-store-root-location";
 
-   /**
-    * Appended to the path specified by the {@link #DATA_STORE_ROOT_LOCATION_PROPERTY}
-    */
+   /** Appended to the path specified by the {@link #DATA_STORE_ROOT_LOCATION_PROPERTY}. */
    public static final String DEFAULT_CHRONICLE_FOLDER = "object-chronicles";
 
-   /**
-    * Appended to the path specified by the {@link #DATA_STORE_ROOT_LOCATION_PROPERTY}
-    */
+   /** Appended to the path specified by the {@link #DATA_STORE_ROOT_LOCATION_PROPERTY}. */
    public static final String DEFAULT_SEARCH_FOLDER = "search";
 
    /**

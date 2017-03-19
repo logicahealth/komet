@@ -56,21 +56,46 @@ import sh.isaac.api.util.TaskCompleteCallback;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class SearchBuilder.
+ */
 public class SearchBuilder {
-   Integer                                                            sizeLimit             = Integer.MAX_VALUE;
-   boolean                                                            mergeResultsOnConcept = false;
-   Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter                = null;
-   String                                                             query;
-   Integer                                                            taskId;
-   boolean                                                            prefixSearch;
-   Comparator<CompositeSearchResult>                                  comparator;
-   TaskCompleteCallback                                               callback;
+   /** The size limit. */
+   Integer sizeLimit = Integer.MAX_VALUE;
+
+   /** The merge results on concept. */
+   boolean mergeResultsOnConcept = false;
+
+   /** The filter. */
+   Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter = null;
+
+   /** The query. */
+   String query;
+
+   /** The task id. */
+   Integer taskId;
+
+   /** The prefix search. */
+   boolean prefixSearch;
+
+   /** The comparator. */
+   Comparator<CompositeSearchResult> comparator;
+
+   /** The callback. */
+   TaskCompleteCallback callback;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Concept description search builder.
+    *
+    * @param query the query
+    * @return the search builder
+    */
+
    // Concept search builder factory methods
    public static SearchBuilder conceptDescriptionSearchBuilder(String query) {
-      SearchBuilder search = new SearchBuilder();
+      final SearchBuilder search = new SearchBuilder();
 
       search.setQuery(query);
       search.setPrefixSearch(false);
@@ -78,8 +103,14 @@ public class SearchBuilder {
       return search;
    }
 
+   /**
+    * Concept prefix search builder.
+    *
+    * @param query the query
+    * @return the search builder
+    */
    public static SearchBuilder conceptPrefixSearchBuilder(String query) {
-      SearchBuilder search = new SearchBuilder();
+      final SearchBuilder search = new SearchBuilder();
 
       search.setQuery(query);
       search.setPrefixSearch(true);
@@ -87,18 +118,31 @@ public class SearchBuilder {
       return search;
    }
 
+   /**
+    * Description prefix search builder.
+    *
+    * @param query the query
+    * @return the search builder
+    */
    public static SearchBuilder descriptionPrefixSearchBuilder(String query) {
-      SearchBuilder search = new SearchBuilder();
+      final SearchBuilder search = new SearchBuilder();
 
       search.setQuery(query);
       search.setPrefixSearch(true);
       search.setComparator(new CompositeSearchResultComparator());
       return search;
    }
+
+   /**
+    * Description search builder.
+    *
+    * @param query the query
+    * @return the search builder
+    */
 
    // Description search builder factory methods
    public static SearchBuilder descriptionSearchBuilder(String query) {
-      SearchBuilder search = new SearchBuilder();
+      final SearchBuilder search = new SearchBuilder();
 
       search.setQuery(query);
       search.setPrefixSearch(false);
@@ -109,15 +153,19 @@ public class SearchBuilder {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the callback.
+    *
     * @return the callback
     */
    public TaskCompleteCallback getCallback() {
-      return callback;
+      return this.callback;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the callback.
+    *
     * @param callback the callback to set
     */
    public void setCallback(TaskCompleteCallback callback) {
@@ -127,15 +175,19 @@ public class SearchBuilder {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the comparator.
+    *
     * @return the comparator
     */
    public Comparator<CompositeSearchResult> getComparator() {
-      return comparator;
+      return this.comparator;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the comparator.
+    *
     * @param comparator the comparator to set
     */
    public void setComparator(Comparator<CompositeSearchResult> comparator) {
@@ -145,15 +197,19 @@ public class SearchBuilder {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the filter.
+    *
     * @return the filter
     */
    public Function<List<CompositeSearchResult>, List<CompositeSearchResult>> getFilter() {
-      return filter;
+      return this.filter;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Set filter.
+    *
     * @param filter the SearchResultsFilter to set
     */
    public void setFilter(Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter) {
@@ -163,15 +219,19 @@ public class SearchBuilder {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the merge results on concept.
+    *
     * @return the mergeResultsOnConcept
     */
    public boolean getMergeResultsOnConcept() {
-      return mergeResultsOnConcept;
+      return this.mergeResultsOnConcept;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the merge results on concept.
+    *
     * @param mergeResultsOnConcept the mergeResultsOnConcept to set
     */
    public void setMergeResultsOnConcept(boolean mergeResultsOnConcept) {
@@ -181,15 +241,19 @@ public class SearchBuilder {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Checks if prefix search.
+    *
     * @return the prefixSearch
     */
    public boolean isPrefixSearch() {
-      return prefixSearch;
+      return this.prefixSearch;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the prefix search.
+    *
     * @param prefixSearch the prefixSearch to set
     */
    public void setPrefixSearch(boolean prefixSearch) {
@@ -199,15 +263,19 @@ public class SearchBuilder {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the query.
+    *
     * @return the query
     */
    public String getQuery() {
-      return query;
+      return this.query;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the query.
+    *
     * @param query the query to set
     */
    public void setQuery(String query) {
@@ -217,15 +285,19 @@ public class SearchBuilder {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the size limit.
+    *
     * @return the sizeLimit
     */
    public Integer getSizeLimit() {
-      return sizeLimit;
+      return this.sizeLimit;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the size limit.
+    *
     * @param sizeLimit the sizeLimit to set
     */
    public void setSizeLimit(Integer sizeLimit) {
@@ -235,15 +307,19 @@ public class SearchBuilder {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the task id.
+    *
     * @return the taskId
     */
    public Integer getTaskId() {
-      return taskId;
+      return this.taskId;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the task id.
+    *
     * @param taskId the taskId to set
     */
    public void setTaskId(Integer taskId) {

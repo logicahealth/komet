@@ -53,17 +53,38 @@ import sh.isaac.api.coordinate.StampPrecedence;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ObservableStampCoordinate.
  *
  * @author kec
  */
 public interface ObservableStampCoordinate
         extends StampCoordinate {
+   /**
+    * Allowed states property.
+    *
+    * @return the set property
+    */
    SetProperty<State> allowedStatesProperty();
 
+   /**
+    * Module sequences property.
+    *
+    * @return the object property
+    */
    ObjectProperty<ObservableIntegerArray> moduleSequencesProperty();
 
+   /**
+    * Stamp position property.
+    *
+    * @return the object property
+    */
    ObjectProperty<ObservableStampPosition> stampPositionProperty();
 
+   /**
+    * Stamp precedence property.
+    *
+    * @return the object property
+    */
    ObjectProperty<StampPrecedence> stampPrecedenceProperty();
 }
 

@@ -76,62 +76,74 @@ import sh.isaac.api.util.FortifyFun;
 )
 public class ExternalCodeExecutor
         extends AbstractMojo {
+   /** The skip execution. */
    @Parameter(
-      required                                 = false,
-      defaultValue                             = "false"
+      required                     = false,
+      defaultValue                 = "false"
    )
-   protected boolean             skipExecution = false;;
+   protected boolean skipExecution = false;;
+
+   /** The project version. */
    @Parameter(
-      required                                 = true,
-      defaultValue                             = "${project.version}"
+      required     = true,
+      defaultValue = "${project.version}"
    )
-   protected String              projectVersion;
+   protected String projectVersion;
+
+   /** The output directory. */
    @Parameter(
       required     = true,
       defaultValue = "${project.build.directory}"
    )
-   protected File                outputDirectory;
+   protected File outputDirectory;
+
+   /** The quasi mojo name. */
    @Parameter(required = true)
-   protected String              quasiMojoName;
+   protected String quasiMojoName;
+
+   /** The parameters. */
    @Parameter(required = false)
    protected Map<String, String> parameters;
 
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
     * @see org.apache.maven.plugin.Mojo#execute()
     */
    @Override
    public void execute()
             throws MojoExecutionException {
       try {
-         if (skipExecution) {
-            getLog().info("Skipping execution of " + quasiMojoName);
+         if (this.skipExecution) {
+            getLog().info("Skipping execution of " + this.quasiMojoName);
             return;
          } else {
-            getLog().info("Executing " + quasiMojoName);
+            getLog().info("Executing " + this.quasiMojoName);
          }
 
-         long      start     = System.currentTimeMillis();
-         QuasiMojo quasiMojo = LookupService.getService(QuasiMojo.class, quasiMojoName);
+         final long      start     = System.currentTimeMillis();
+         final QuasiMojo quasiMojo = LookupService.getService(QuasiMojo.class, this.quasiMojoName);
 
          if (quasiMojo == null) {
             throw new MojoExecutionException("Could not locate a QuasiMojo implementation with the name '" +
-                                             quasiMojoName + "'.");
+                                             this.quasiMojoName + "'.");
          }
 
-         quasiMojo.outputDirectory = outputDirectory;
-         quasiMojo.projectVersion  = projectVersion;
-         quasiMojo.log_            = getLog();
+         quasiMojo.outputDirectory = this.outputDirectory;
+         quasiMojo.projectVersion  = this.projectVersion;
+         quasiMojo.log            = getLog();
 
-         if ((parameters != null) && (parameters.size() > 0)) {
-            Class<?>         myClass = quasiMojo.getClass();
-            Iterator<String> params  = parameters.keySet()
-                                                 .iterator();
+         if ((this.parameters != null) && (this.parameters.size() > 0)) {
+            final Class<?>         myClass = quasiMojo.getClass();
+            final Iterator<String> params  = this.parameters.keySet()
+                                                            .iterator();
 
             while (params.hasNext()) {
-               String name  = params.next();
-               String value = parameters.get(name);
+               final String name  = params.next();
+               final String value = this.parameters.get(name);
 
                params.remove();
 
@@ -139,7 +151,7 @@ public class ExternalCodeExecutor
 
                try {
                   myField = myClass.getDeclaredField(name);
-               } catch (NoSuchFieldException e) {
+               } catch (final NoSuchFieldException e) {
                   // recurse up the parent classes, looking for the field
                   Class<?> parent = myClass;
 
@@ -148,7 +160,7 @@ public class ExternalCodeExecutor
 
                      try {
                         myField = parent.getDeclaredField(name);
-                     } catch (NoSuchFieldException e1) {
+                     } catch (final NoSuchFieldException e1) {
                         // ignore
                      }
                   }
@@ -181,8 +193,8 @@ public class ExternalCodeExecutor
                }
             }
 
-            if (parameters.size() > 0) {
-               for (String s: parameters.keySet()) {
+            if (this.parameters.size() > 0) {
+               for (final String s: this.parameters.keySet()) {
                   getLog().warn("Mojo specified a parameter '" + s +
                                 "' that couldn't be placed into the execution class!");
                }
@@ -190,8 +202,8 @@ public class ExternalCodeExecutor
          }
 
          quasiMojo.execute();
-         getLog().info(quasiMojoName + " execution completed in " + (System.currentTimeMillis() - start) + "ms");
-      } catch (Exception e) {
+         getLog().info(this.quasiMojoName + " execution completed in " + (System.currentTimeMillis() - start) + "ms");
+      } catch (final Exception e) {
          throw new MojoExecutionException("QuasiMojo Execution Failure", e);
       }
    }

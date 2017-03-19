@@ -75,23 +75,49 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class RelRestriction
         extends LeafClause {
+   /** The rel type key. */
    @XmlElement
-   String             relTypeKey;
+   String relTypeKey;
+
+   /** The destination spec key. */
    @XmlElement
-   String             destinationSpecKey;
+   String destinationSpecKey;
+
+   /** The view coordinate key. */
    @XmlElement
-   String             viewCoordinateKey;
+   String viewCoordinateKey;
+
+   /** The destination subsumption key. */
    @XmlElement
-   String             destinationSubsumptionKey;
+   String destinationSubsumptionKey;
+
+   /** The rel type subsumption key. */
    @XmlElement
-   String             relTypeSubsumptionKey;
+   String relTypeSubsumptionKey;
+
+   /** The destination set. */
    ConceptSequenceSet destinationSet;
+
+   /** The rel type set. */
    ConceptSequenceSet relTypeSet;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new rel restriction.
+    */
    protected RelRestriction() {}
 
+   /**
+    * Instantiates a new rel restriction.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param relTypeKey the rel type key
+    * @param destinationSpecKey the destination spec key
+    * @param viewCoordinateKey the view coordinate key
+    * @param destinationSubsumptionKey the destination subsumption key
+    * @param relTypeSubsumptionKey the rel type subsumption key
+    */
    public RelRestriction(Query enclosingQuery,
                          String relTypeKey,
                          String destinationSpecKey,
@@ -108,19 +134,25 @@ public class RelRestriction
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
 //    System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
-      TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) enclosingQuery.getLetDeclarations()
-                                                                                 .get(viewCoordinateKey);
-      ConceptSpecification destinationSpec = (ConceptSpecification) enclosingQuery.getLetDeclarations()
-                                                                                  .get(destinationSpecKey);
-      ConceptSpecification relType = (ConceptSpecification) enclosingQuery.getLetDeclarations()
-                                                                          .get(relTypeKey);
-      Boolean              relTypeSubsumption = (Boolean) enclosingQuery.getLetDeclarations()
-                                                                        .get(relTypeSubsumptionKey);
-      Boolean destinationSubsumption = (Boolean) enclosingQuery.getLetDeclarations()
-                                                               .get(destinationSubsumptionKey);
+      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+                                                                                            .get(this.viewCoordinateKey);
+      final ConceptSpecification destinationSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+                                                                                             .get(this.destinationSpecKey);
+      final ConceptSpecification relType = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+                                                                                     .get(this.relTypeKey);
+      Boolean relTypeSubsumption = (Boolean) this.enclosingQuery.getLetDeclarations()
+                                                                .get(this.relTypeSubsumptionKey);
+      Boolean destinationSubsumption = (Boolean) this.enclosingQuery.getLetDeclarations()
+                                                                    .get(this.destinationSubsumptionKey);
 
       // The default is to set relTypeSubsumption and destinationSubsumption to true.
       if (relTypeSubsumption == null) {
@@ -131,20 +163,20 @@ public class RelRestriction
          destinationSubsumption = true;
       }
 
-      relTypeSet = new ConceptSequenceSet();
-      relTypeSet.add(relType.getConceptSequence());
+      this.relTypeSet = new ConceptSequenceSet();
+      this.relTypeSet.add(relType.getConceptSequence());
 
       if (relTypeSubsumption) {
-         relTypeSet.or(Get.taxonomyService()
-                          .getKindOfSequenceSet(relType.getConceptSequence(), taxonomyCoordinate));
+         this.relTypeSet.or(Get.taxonomyService()
+                               .getKindOfSequenceSet(relType.getConceptSequence(), taxonomyCoordinate));
       }
 
-      destinationSet = new ConceptSequenceSet();
-      destinationSet.add(destinationSpec.getConceptSequence());
+      this.destinationSet = new ConceptSequenceSet();
+      this.destinationSet.add(destinationSpec.getConceptSequence());
 
       if (destinationSubsumption) {
-         destinationSet.or(Get.taxonomyService()
-                              .getKindOfSequenceSet(destinationSpec.getConceptSequence(), taxonomyCoordinate));
+         this.destinationSet.or(Get.taxonomyService()
+                                   .getKindOfSequenceSet(destinationSpec.getConceptSequence(), taxonomyCoordinate));
       }
 
       return incomingPossibleComponents;
@@ -152,44 +184,60 @@ public class RelRestriction
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_ITERATION_AND_ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
-      TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) enclosingQuery.getLetDeclarations()
-                                                                                 .get(viewCoordinateKey);
+      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+                                                                                            .get(this.viewCoordinateKey);
 
       Get.taxonomyService()
          .getAllRelationshipDestinationSequencesOfType(conceptVersion.getChronology()
                .getConceptSequence(),
-               relTypeSet,
+               this.relTypeSet,
                taxonomyCoordinate)
          .forEach((destinationSequence) -> {
-                     if (destinationSet.contains(destinationSequence)) {
+                     if (this.destinationSet.contains(destinationSequence)) {
                         getResultsCache().add(conceptVersion.getChronology()
                               .getNid());
                      }
                   });
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.REL_RESTRICTION);
       whereClause.getLetKeys()
-                 .add(relTypeKey);
+                 .add(this.relTypeKey);
       whereClause.getLetKeys()
-                 .add(destinationSpecKey);
+                 .add(this.destinationSpecKey);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       whereClause.getLetKeys()
-                 .add(destinationSubsumptionKey);
+                 .add(this.destinationSubsumptionKey);
       whereClause.getLetKeys()
-                 .add(relTypeSubsumptionKey);
+                 .add(this.relTypeSubsumptionKey);
 
 //    System.out.println("Where clause size: " + whereClause.getLetKeys().size());
       return whereClause;

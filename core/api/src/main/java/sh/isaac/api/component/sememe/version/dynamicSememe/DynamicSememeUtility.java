@@ -96,32 +96,64 @@ public interface DynamicSememeUtility {
    /**
     * This will return the column index configuration that will mark each supplied column that is indexable, for indexing.
     * Returns null, if no columns need indexing.
+    *
+    * @param columns the columns
+    * @return the dynamic sememe array
     */
    public DynamicSememeArray<DynamicSememeData> configureColumnIndexInfo(DynamicSememeColumnInfo[] columns);
 
+   /**
+    * Configure dynamic sememe definition data for column.
+    *
+    * @param ci the ci
+    * @return the dynamic sememe data[]
+    */
    public DynamicSememeData[] configureDynamicSememeDefinitionDataForColumn(DynamicSememeColumnInfo ci);
 
+   /**
+    * Configure dynamic sememe restriction data.
+    *
+    * @param referencedComponentRestriction the referenced component restriction
+    * @param referencedComponentSubRestriction the referenced component sub restriction
+    * @return the dynamic sememe data[]
+    */
    public DynamicSememeData[] configureDynamicSememeRestrictionData(ObjectChronologyType referencedComponentRestriction,
          SememeType referencedComponentSubRestriction);
 
+   /**
+    * Creates the dynamic string data.
+    *
+    * @param value the value
+    * @return the dynamic sememe string
+    */
    public DynamicSememeString createDynamicStringData(String value);
 
+   /**
+    * Creates the dynamic UUID data.
+    *
+    * @param value the value
+    * @return the dynamic sememe UUID
+    */
    public DynamicSememeUUID createDynamicUUIDData(UUID value);
 
    /**
-    * Convenience method to read all of the extended details of a DynamicSememeAssemblage
-    * @param assemblageNidOrSequence
+    * Convenience method to read all of the extended details of a DynamicSememeAssemblage.
+    *
+    * @param assemblageNidOrSequence the assemblage nid or sequence
+    * @return the dynamic sememe usage description
     */
    public DynamicSememeUsageDescription readDynamicSememeUsageDescription(int assemblageNidOrSequence);
 
    /**
     * validate that the proposed dynamicSememeData aligns with the definition.  This also fills in default values,
     * as necessary, if the data[] contains 'nulls' and the column is specified with a default value.
-    * @param dsud
-    * @param data
-    * @param referencedComponentNid
+    *
+    * @param dsud the dsud
+    * @param data the data
+    * @param referencedComponentNid the referenced component nid
     * @param stampCoordinate - optional - column specific validators may be skipped if this is not provided
     * @param taxonomyCoordinate - optional - column specific validators may be skipped if this is not provided
+    * @throws IllegalArgumentException the illegal argument exception
     * @throws InvalidParameterException - if anything fails validation
     */
    public default void validate(DynamicSememeUsageDescription dsud,
@@ -133,9 +165,9 @@ public interface DynamicSememeUtility {
       // Make sure the referenced component meets the ref component restrictions, if any are present.
       if ((dsud.getReferencedComponentTypeRestriction() != null) &&
             (dsud.getReferencedComponentTypeRestriction() != ObjectChronologyType.UNKNOWN_NID)) {
-         ObjectChronologyType requiredType = dsud.getReferencedComponentTypeRestriction();
-         ObjectChronologyType foundType    = Get.identifierService()
-                                                .getChronologyTypeForNid(referencedComponentNid);
+         final ObjectChronologyType requiredType = dsud.getReferencedComponentTypeRestriction();
+         final ObjectChronologyType foundType = Get.identifierService()
+                                                   .getChronologyTypeForNid(referencedComponentNid);
 
          if (requiredType != foundType) {
             throw new IllegalArgumentException("The referenced component must be of type " + requiredType +
@@ -145,10 +177,10 @@ public interface DynamicSememeUtility {
          if ((requiredType == ObjectChronologyType.SEMEME) &&
                (dsud.getReferencedComponentTypeSubRestriction() != null) &&
                (dsud.getReferencedComponentTypeSubRestriction() != SememeType.UNKNOWN)) {
-            SememeType requiredSememeType = dsud.getReferencedComponentTypeSubRestriction();
-            SememeType foundSememeType    = Get.sememeService()
-                                               .getSememe(referencedComponentNid)
-                                               .getSememeType();
+            final SememeType requiredSememeType = dsud.getReferencedComponentTypeSubRestriction();
+            final SememeType foundSememeType    = Get.sememeService()
+                                                     .getSememe(referencedComponentNid)
+                                                     .getSememeType();
 
             if (requiredSememeType != foundSememeType) {
                throw new IllegalArgumentException("The referenced component must be a sememe of type " +
@@ -185,8 +217,8 @@ public interface DynamicSememeUtility {
       }
 
       for (int i = 0; i < dsud.getColumnInfo().length; i++) {
-         DynamicSememeData defaultValue = dsud.getColumnInfo()[i]
-                                              .getDefaultColumnValue();
+         final DynamicSememeData defaultValue = dsud.getColumnInfo()[i]
+                                                    .getDefaultColumnValue();
 
          if ((defaultValue != null) && (data[i] == null)) {
             data[i] = defaultValue;
@@ -204,7 +236,7 @@ public interface DynamicSememeUtility {
       }
 
       for (int dataColumn = 0; dataColumn < data.length; dataColumn++) {
-         DynamicSememeColumnInfo dsci = dsud.getColumnInfo()[dataColumn];
+         final DynamicSememeColumnInfo dsci = dsud.getColumnInfo()[dataColumn];
 
          if (data[dataColumn] == null) {
             if (dsci.isColumnRequired()) {
@@ -212,7 +244,7 @@ public interface DynamicSememeUtility {
                                                   " but the column is specified as a required column");
             }
          } else {
-            DynamicSememeDataType allowedDT = dsci.getColumnDataType();
+            final DynamicSememeDataType allowedDT = dsci.getColumnDataType();
 
             if ((data[dataColumn] != null) &&
                   (allowedDT != DynamicSememeDataType.POLYMORPHIC) &&
@@ -240,7 +272,7 @@ public interface DynamicSememeUtility {
                                data[dataColumn].dataToString() + " Validator: " + dsci.getValidator()[i].name() +
                                " Validator Data: " + dsci.getValidatorData()[i].dataToString());
                         }
-                     } catch (IllegalArgumentException e) {
+                     } catch (final IllegalArgumentException e) {
                         if (rethrow) {
                            throw e;
                         } else {
@@ -249,9 +281,9 @@ public interface DynamicSememeUtility {
                         }
                      }
                   }
-               } catch (IllegalArgumentException e) {
+               } catch (final IllegalArgumentException e) {
                   throw e;
-               } catch (RuntimeException e) {
+               } catch (final RuntimeException e) {
                   throw new IllegalArgumentException(e.getMessage());
                }
             }

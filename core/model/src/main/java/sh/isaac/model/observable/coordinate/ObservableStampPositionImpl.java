@@ -59,18 +59,29 @@ import sh.isaac.model.observable.ObservableFields;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableStampPositionImpl.
  *
  * @author kec
  */
 public class ObservableStampPositionImpl
         extends ObservableCoordinateImpl
          implements ObservableStampPosition {
+   /** The stamp position. */
    StampPositionImpl stampPosition;
-   LongProperty      timeProperty;
-   IntegerProperty   stampPathSequenceProperty;
+
+   /** The time property. */
+   LongProperty timeProperty;
+
+   /** The stamp path sequence property. */
+   IntegerProperty stampPathSequenceProperty;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new observable stamp position impl.
+    *
+    * @param stampPosition the stamp position
+    */
    public ObservableStampPositionImpl(StampPosition stampPosition) {
       if (stampPosition instanceof ObservableStampPositionImpl) {
          this.stampPosition = ((ObservableStampPositionImpl) stampPosition).stampPosition;
@@ -81,67 +92,102 @@ public class ObservableStampPositionImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Stamp path sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty stampPathSequenceProperty() {
-      if (stampPathSequenceProperty == null) {
-         stampPathSequenceProperty = new SimpleIntegerProperty(this,
+      if (this.stampPathSequenceProperty == null) {
+         this.stampPathSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.PATH_SEQUENCE_FOR_STAMP_POSITION.toExternalString(),
                getStampPathSequence());
-         addListenerReference(stampPosition.setStampPathSequenceProperty(stampPathSequenceProperty));
+         addListenerReference(this.stampPosition.setStampPathSequenceProperty(this.stampPathSequenceProperty));
       }
 
-      return stampPathSequenceProperty;
+      return this.stampPathSequenceProperty;
    }
 
+   /**
+    * Time property.
+    *
+    * @return the long property
+    */
    @Override
    public LongProperty timeProperty() {
-      if (timeProperty == null) {
-         timeProperty = new SimpleLongProperty(this,
+      if (this.timeProperty == null) {
+         this.timeProperty = new SimpleLongProperty(this,
                ObservableFields.TIME_FOR_STAMP_POSITION.toExternalString(),
                getTime());
-         addListenerReference(stampPosition.setTimeProperty(timeProperty));
+         addListenerReference(this.stampPosition.setTimeProperty(this.timeProperty));
       }
 
-      return timeProperty;
+      return this.timeProperty;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "ObservableStampPositionImpl{" + stampPosition + '}';
+      return "ObservableStampPositionImpl{" + this.stampPosition + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the stamp path.
+    *
+    * @return the stamp path
+    */
    @Override
    public StampPath getStampPath() {
-      return stampPosition.getStampPath();
+      return this.stampPosition.getStampPath();
    }
 
+   /**
+    * Gets the stamp path sequence.
+    *
+    * @return the stamp path sequence
+    */
    @Override
    public int getStampPathSequence() {
-      if (stampPathSequenceProperty != null) {
-         return stampPathSequenceProperty.get();
+      if (this.stampPathSequenceProperty != null) {
+         return this.stampPathSequenceProperty.get();
       }
 
-      return stampPosition.getStampPathSequence();
+      return this.stampPosition.getStampPathSequence();
    }
 
+   /**
+    * Gets the time.
+    *
+    * @return the time
+    */
    @Override
    public long getTime() {
-      if (timeProperty != null) {
-         return timeProperty.get();
+      if (this.timeProperty != null) {
+         return this.timeProperty.get();
       }
 
-      return stampPosition.getTime();
+      return this.stampPosition.getTime();
    }
 
+   /**
+    * Gets the time as instant.
+    *
+    * @return the time as instant
+    */
    @Override
    public Instant getTimeAsInstant() {
-      if (timeProperty != null) {
-         return Instant.ofEpochMilli(timeProperty.get());
+      if (this.timeProperty != null) {
+         return Instant.ofEpochMilli(this.timeProperty.get());
       }
 
-      return stampPosition.getTimeAsInstant();
+      return this.stampPosition.getTimeAsInstant();
    }
 }
 

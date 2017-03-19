@@ -61,23 +61,32 @@ import sh.isaac.api.progress.ActiveTasks;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class WriteSememeChronicle.
  *
  * @author kec
  */
 public class WriteSememeChronicle
         extends Task<Void> {
-   private final SememeChronology                                               sc;
-   private final Semaphore                                                      writeSemaphore;
+   /** The sc. */
+   private final SememeChronology sc;
+
+   /** The write semaphore. */
+   private final Semaphore writeSemaphore;
+
+   /** The change listeners. */
    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
-   private final BiConsumer<ObjectChronology, Boolean>                          uncommittedTracking;
+
+   /** The uncommitted tracking. */
+   private final BiConsumer<ObjectChronology, Boolean> uncommittedTracking;
 
    //~--- constructors --------------------------------------------------------
 
    /**
+    * Instantiates a new write sememe chronicle.
     *
-    * @param sc
-    * @param writeSemaphore
-    * @param changeListeners
+    * @param sc the sc
+    * @param writeSemaphore the write semaphore
+    * @param changeListeners the change listeners
     * @param uncommittedTracking A handle to call back to the caller to notify it that the sememe has been
     * written to the SememeService.  Parameter 1 is the Sememe, Parameter two is true to indicate that the
     * change checker is active for this implementation.
@@ -100,29 +109,35 @@ public class WriteSememeChronicle
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Call.
+    *
+    * @return the void
+    * @throws Exception the exception
+    */
    @Override
    public Void call()
             throws Exception {
       try {
          Get.sememeService()
-            .writeSememe(sc);
-         uncommittedTracking.accept(sc, false);
+            .writeSememe(this.sc);
+         this.uncommittedTracking.accept(this.sc, false);
          updateProgress(1, 2);
-         updateMessage("notifying: " + sc.getAssemblageSequence());
-         changeListeners.forEach((listenerRef) -> {
-                                    ChronologyChangeListener listener = listenerRef.get();
+         updateMessage("notifying: " + this.sc.getAssemblageSequence());
+         this.changeListeners.forEach((listenerRef) -> {
+                                         final ChronologyChangeListener listener = listenerRef.get();
 
-                                    if (listener == null) {
-                                       changeListeners.remove(listenerRef);
-                                    } else {
-                                       listener.handleChange(sc);
-                                    }
-                                 });
+                                         if (listener == null) {
+                                            this.changeListeners.remove(listenerRef);
+                                         } else {
+                                            listener.handleChange(this.sc);
+                                         }
+                                      });
          updateProgress(2, 2);
-         updateMessage("complete: " + sc.getSememeType() + " " + sc.getSememeSequence());
+         updateMessage("complete: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
          return null;
       } finally {
-         writeSemaphore.release();
+         this.writeSemaphore.release();
          LookupService.getService(ActiveTasks.class)
                       .get()
                       .remove(this);

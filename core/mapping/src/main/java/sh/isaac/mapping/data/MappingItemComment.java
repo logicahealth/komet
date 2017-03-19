@@ -51,19 +51,32 @@ import sh.isaac.api.component.sememe.version.DynamicSememe;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link MappingItemComment}
+ * {@link MappingItemComment}.
  *
  * @author David Triglianos
  */
 public class MappingItemComment
         extends StampedItem {
+   /** The comment text. */
    private String commentText;
+
+   /** The comment context. */
    private String commentContext;
-   private UUID   mappingItemUUID;
-   private UUID   primoridalUUID;
+
+   /** The mapping item UUID. */
+   private UUID mappingItemUUID;
+
+   /** The primoridal UUID. */
+   private UUID primoridalUUID;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new mapping item comment.
+    *
+    * @param comment the comment
+    * @throws RuntimeException the runtime exception
+    */
    protected MappingItemComment(DynamicSememe<?> comment)
             throws RuntimeException {
       read(comment);
@@ -71,35 +84,45 @@ public class MappingItemComment
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read.
+    *
+    * @param commentRefex the comment refex
+    * @throws RuntimeException the runtime exception
+    */
    private void read(DynamicSememe<?> commentRefex)
             throws RuntimeException {
-      commentText = commentRefex.getData()[0]
-                                .getDataObject()
-                                .toString();
-      commentContext = (((commentRefex.getData().length > 1) &&
-                         (commentRefex.getData()[1] != null)) ? commentRefex.getData()[1]
-                               .getDataObject()
-                               .toString()
+      this.commentText = commentRefex.getData()[0]
+                                     .getDataObject()
+                                     .toString();
+      this.commentContext = (((commentRefex.getData().length > 1) &&
+                              (commentRefex.getData()[1] != null)) ? commentRefex.getData()[1]
+                                    .getDataObject()
+                                    .toString()
             : null);
-      mappingItemUUID = Get.identifierService()
-                           .getUuidPrimordialForNid(commentRefex.getReferencedComponentNid())
-                           .get();
-      primoridalUUID  = commentRefex.getPrimordialUuid();
+      this.mappingItemUUID = Get.identifierService()
+                                .getUuidPrimordialForNid(commentRefex.getReferencedComponentNid())
+                                .get();
+      this.primoridalUUID = commentRefex.getPrimordialUuid();
       readStampDetails(commentRefex);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the comment context.
+    *
     * @return the commentContext
     */
    public String getCommentContext() {
-      return commentContext;
+      return this.commentContext;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the comment context.
+    *
     * @param commentContext the commentContext to set - optional field on a comment used for arbitrary purposed by an editor.
     */
    public void setCommentContext(String commentContext) {
@@ -109,15 +132,19 @@ public class MappingItemComment
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the comment text.
+    *
     * @return the commentText
     */
    public String getCommentText() {
-      return commentText;
+      return this.commentText;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the comment text.
+    *
     * @param commentText the commentText to set
     */
    public void setCommentText(String commentText) {
@@ -127,19 +154,23 @@ public class MappingItemComment
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the mapping item UUID.
+    *
     * @return the mappingItemUUID - which is the identifier of the thing that the comment is attached to
     */
    public UUID getMappingItemUUID() {
-      return mappingItemUUID;
+      return this.mappingItemUUID;
    }
 
    /**
+    * Gets the primordial UUID.
+    *
     * @return the primoridalUUID - the identifier of this comment - which I'll note isn't globally unique - If you edit this comment,
     * it will retain the same UUID - but the DB will now contain two versions of the comment - the old and the new - you would need
     * this variable and the creationDate to be globally unique.
     */
    public UUID getPrimordialUUID() {
-      return primoridalUUID;
+      return this.primoridalUUID;
    }
 }
 

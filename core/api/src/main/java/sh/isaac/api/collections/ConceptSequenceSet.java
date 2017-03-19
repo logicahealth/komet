@@ -60,61 +60,111 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ConceptSequenceSet.
  *
  * @author kec
  */
 public class ConceptSequenceSet
         extends SequenceSet<ConceptSequenceSet> {
+   /** The Constant EMPTY. */
    public final static ConceptSequenceSet EMPTY = new ConceptSequenceSet(true);
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concept sequence set.
+    */
    public ConceptSequenceSet() {}
 
+   /**
+    * Instantiates a new concept sequence set.
+    *
+    * @param readOnly the read only
+    */
    private ConceptSequenceSet(boolean readOnly) {
       super(readOnly);
    }
 
+   /**
+    * Instantiates a new concept sequence set.
+    *
+    * @param concurrency the concurrency
+    */
    protected ConceptSequenceSet(Concurrency concurrency) {
       super(concurrency);
    }
 
+   /**
+    * Instantiates a new concept sequence set.
+    *
+    * @param members the members
+    */
    public ConceptSequenceSet(int[] members) {
       super(members);
    }
 
+   /**
+    * Instantiates a new concept sequence set.
+    *
+    * @param memberStream the member stream
+    */
    protected ConceptSequenceSet(IntStream memberStream) {
       super(memberStream);
    }
 
+   /**
+    * Instantiates a new concept sequence set.
+    *
+    * @param members the members
+    */
    protected ConceptSequenceSet(OpenIntHashSet members) {
       super(members);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the.
+    *
+    * @param item the item
+    */
    @Override
    public void add(int item) {
       super.add(Get.identifierService()
                    .getConceptSequence(item));
    }
 
+   /**
+    * Adds the.
+    *
+    * @param conceptUuid the concept uuid
+    */
    public void add(UUID conceptUuid) {
       super.add(Get.identifierService()
                    .getConceptSequenceForUuids(conceptUuid));
    }
 
+   /**
+    * Adds the all.
+    *
+    * @param intStream the int stream
+    */
    @Override
    public void addAll(IntStream intStream) {
-      IdentifierService sp = Get.identifierService();
+      final IdentifierService sp = Get.identifierService();
 
       super.addAll(intStream.map((item) -> {
                                     return sp.getConceptSequence(item);
                                  }));
    }
 
+   /**
+    * Adds the all.
+    *
+    * @param conceptsReferencedAtNodeOrAbove the concepts referenced at node or above
+    */
    public void addAll(OpenIntHashSet conceptsReferencedAtNodeOrAbove) {
-      IdentifierService ids = Get.identifierService();
+      final IdentifierService ids = Get.identifierService();
 
       conceptsReferencedAtNodeOrAbove.forEachKey((id) -> {
                super.add(ids.getConceptSequence(id));
@@ -122,62 +172,129 @@ public class ConceptSequenceSet
             });
    }
 
+   /**
+    * Concurrent.
+    *
+    * @return the concept sequence set
+    */
    public static ConceptSequenceSet concurrent() {
       return new ConceptSequenceSet(Concurrency.THREAD_SAFE);
    }
 
+   /**
+    * Contains.
+    *
+    * @param item the item
+    * @return true, if successful
+    */
    @Override
    public boolean contains(int item) {
       return super.contains(Get.identifierService()
                                .getConceptSequence(item));
    }
 
+   /**
+    * Of.
+    *
+    * @param members the members
+    * @return the concept sequence set
+    */
    public static ConceptSequenceSet of(Collection<Integer> members) {
-      IdentifierService sp = Get.identifierService();
+      final IdentifierService sp = Get.identifierService();
 
       return new ConceptSequenceSet(members.stream().mapToInt((id) -> sp.getConceptSequence(id)));
    }
 
+   /**
+    * Of.
+    *
+    * @param another the another
+    * @return the concept sequence set
+    */
    public static ConceptSequenceSet of(ConceptSequenceSet another) {
       return new ConceptSequenceSet(another.stream());
    }
 
+   /**
+    * Of.
+    *
+    * @param members the members
+    * @return the concept sequence set
+    */
    public static ConceptSequenceSet of(int... members) {
-      IdentifierService sp = Get.identifierService();
+      final IdentifierService sp = Get.identifierService();
 
       return new ConceptSequenceSet(Arrays.stream(members).map((id) -> sp.getConceptSequence(id)));
    }
 
+   /**
+    * Of.
+    *
+    * @param memberStream the member stream
+    * @return the concept sequence set
+    */
    public static ConceptSequenceSet of(IntStream memberStream) {
       return new ConceptSequenceSet(memberStream);
    }
 
+   /**
+    * Of.
+    *
+    * @param nidSet the nid set
+    * @return the concept sequence set
+    */
    public static ConceptSequenceSet of(NidSet nidSet) {
-      IdentifierService ids = Get.identifierService();
+      final IdentifierService ids = Get.identifierService();
 
       return new ConceptSequenceSet(nidSet.stream().map((nid) -> ids.getConceptSequence(nid)));
    }
 
+   /**
+    * Of.
+    *
+    * @param members the members
+    * @return the concept sequence set
+    */
    public static ConceptSequenceSet of(OpenIntHashSet members) {
       return new ConceptSequenceSet(members.keys().elements());
    }
 
+   /**
+    * Of all concept sequences.
+    *
+    * @return the concept sequence set
+    */
    public static ConceptSequenceSet ofAllConceptSequences() {
       return new ConceptSequenceSet(Get.identifierService().getConceptSequenceStream());
    }
 
+   /**
+    * Removes the.
+    *
+    * @param item the item
+    */
    @Override
    public void remove(int item) {
       super.remove(Get.identifierService()
                       .getConceptSequence(item));
    }
 
+   /**
+    * To concept specification list.
+    *
+    * @return the list
+    */
    public List<ConceptSpecification> toConceptSpecificationList() {
       return stream().mapToObj((int conceptSequence) -> new ConceptProxy(Get.conceptDescriptionText(conceptSequence),
             Get.identifierService().getUuidPrimordialFromConceptId(conceptSequence).get()))
                      .collect(Collectors.toList());
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString((conceptSequence) -> Get.conceptDescriptionText(conceptSequence));

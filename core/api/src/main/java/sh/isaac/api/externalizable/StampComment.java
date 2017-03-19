@@ -39,38 +39,44 @@
 
 package sh.isaac.api.externalizable;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.OchreExternalizable;
-import sh.isaac.api.externalizable.OchreExternalizableObjectType;
-
-//~--- classes ----------------------------------------------------------------
-
 /**
+ * The Class StampComment.
  *
  * @author kec
  */
 public class StampComment
          implements OchreExternalizable {
+   /** The comment. */
    private String comment;
-   private int    stampSequence;
+
+   /** The stamp sequence. */
+   private int stampSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new stamp comment.
+    *
+    * @param in the in
+    */
    public StampComment(ByteArrayDataBuffer in) {
-      byte version = in.getByte();
+      final byte version = in.getByte();
 
       if (version == getDataFormatVersion()) {
-         stampSequence = StampUniversal.get(in)
-                                       .getStampSequence();
-         comment       = in.readUTF();
+         this.stampSequence = StampUniversal.get(in)
+                                            .getStampSequence();
+         this.comment       = in.readUTF();
       } else {
          throw new UnsupportedOperationException("Can't handle version: " + version);
       }
    }
 
+   /**
+    * Instantiates a new stamp comment.
+    *
+    * @param comment the comment
+    * @param stampSequence the stamp sequence
+    */
    public StampComment(String comment, int stampSequence) {
       this.comment       = comment;
       this.stampSequence = stampSequence;
@@ -78,37 +84,67 @@ public class StampComment
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Put external.
+    *
+    * @param out the out
+    */
    @Override
    public void putExternal(ByteArrayDataBuffer out) {
       out.putByte(getDataFormatVersion());
-      StampUniversal.get(stampSequence)
+      StampUniversal.get(this.stampSequence)
                     .writeExternal(out);
-      out.putUTF(comment);
+      out.putUTF(this.comment);
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "StampComment{" + "comment='" + comment + '\'' + ", stampSequence=" + stampSequence + '}';
+      return "StampComment{" + "comment='" + this.comment + '\'' + ", stampSequence=" + this.stampSequence + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the comment.
+    *
+    * @return the comment
+    */
    public String getComment() {
-      return comment;
+      return this.comment;
    }
 
+   /**
+    * Gets the data format version.
+    *
+    * @return the data format version
+    */
    @Override
    public byte getDataFormatVersion() {
       return 0;
    }
 
+   /**
+    * Gets the ochre object type.
+    *
+    * @return the ochre object type
+    */
    @Override
    public OchreExternalizableObjectType getOchreObjectType() {
       return OchreExternalizableObjectType.STAMP_COMMENT;
    }
 
+   /**
+    * Gets the stamp sequence.
+    *
+    * @return the stamp sequence
+    */
    public int getStampSequence() {
-      return stampSequence;
+      return this.stampSequence;
    }
 }
 

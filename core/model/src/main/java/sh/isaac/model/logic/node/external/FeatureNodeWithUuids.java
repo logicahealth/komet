@@ -66,37 +66,61 @@ import sh.isaac.model.logic.node.internal.FeatureNodeWithSequences;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class FeatureNodeWithUuids.
  *
  * @author kec
  */
 public class FeatureNodeWithUuids
         extends TypedNodeWithUuids {
+   /** The concrete domain operators. */
    static ConcreteDomainOperators[] concreteDomainOperators = ConcreteDomainOperators.values();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The operator. */
    ConcreteDomainOperators operator;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new feature node with uuids.
+    *
+    * @param internalNode the internal node
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public FeatureNodeWithUuids(FeatureNodeWithSequences internalNode)
             throws IOException {
       super(internalNode);
-      operator = internalNode.getOperator();
+      this.operator = internalNode.getOperator();
 
 //    unitsConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalNode.getUnitsConceptSequence()).get();
    }
+
+   /**
+    * Instantiates a new feature node with uuids.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
 
 // UUID unitsConceptUuid;
    public FeatureNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion,
                                DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
-      operator = concreteDomainOperators[dataInputStream.readByte()];
+      this.operator = concreteDomainOperators[dataInputStream.readByte()];
 
 //    unitsConceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
    }
 
+   /**
+    * Instantiates a new feature node with uuids.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param typeConceptUuid the type concept uuid
+    * @param child the child
+    */
    public FeatureNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion,
                                UUID typeConceptUuid,
                                AbstractLogicNode child) {
@@ -105,6 +129,12 @@ public class FeatureNodeWithUuids
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -119,48 +149,71 @@ public class FeatureNodeWithUuids
          return false;
       }
 
-      FeatureNodeWithUuids that = (FeatureNodeWithUuids) o;
+      final FeatureNodeWithUuids that = (FeatureNodeWithUuids) o;
 
-      return operator == that.operator;
+      return this.operator == that.operator;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + operator.hashCode();
+      result = 31 * result + this.operator.hashCode();
 
 //    result = 31 * result + unitsConceptUuid.hashCode();
       return result;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
-      return "FeatureNode[" + getNodeIndex() + nodeIdSuffix + "] " + operator + ", units:"
+      return "FeatureNode[" + getNodeIndex() + nodeIdSuffix + "] " + this.operator + ", units:"
 
       // + Get.conceptService().getConcept(unitsConceptUuid).toUserString()
       + super.toString(nodeIdSuffix);
    }
 
+   /**
+    * Write node data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
       switch (dataTarget) {
       case EXTERNAL:
          super.writeNodeData(dataOutput, dataTarget);
-         dataOutput.writeByte(operator.ordinal());
+         dataOutput.writeByte(this.operator.ordinal());
 
 //       dataOutput.writeLong(unitsConceptUuid.getMostSignificantBits());
 //       dataOutput.writeLong(unitsConceptUuid.getLeastSignificantBits());
          break;
 
       case INTERNAL:
-         FeatureNodeWithSequences internalForm = new FeatureNodeWithSequences(this);
+         final FeatureNodeWithSequences internalForm = new FeatureNodeWithSequences(this);
 
          internalForm.writeNodeData(dataOutput, dataTarget);
          break;
@@ -172,22 +225,34 @@ public class FeatureNodeWithUuids
 
 // public UUID getUnitsConceptUuid() {
 //     return unitsConceptUuid;
+
+   /**
+    * Compare typed node fields.
+    *
+    * @param o the o
+    * @return the int
+    */
 // }
    @Override
    protected int compareTypedNodeFields(LogicNode o) {
       // node semantic already determined equals.
-      FeatureNodeWithUuids other = (FeatureNodeWithUuids) o;
+      final FeatureNodeWithUuids other = (FeatureNodeWithUuids) o;
 
-      if (!typeConceptUuid.equals(other.typeConceptUuid)) {
-         return typeConceptUuid.compareTo(other.typeConceptUuid);
+      if (!this.typeConceptUuid.equals(other.typeConceptUuid)) {
+         return this.typeConceptUuid.compareTo(other.typeConceptUuid);
       }
 
-      return operator.compareTo(other.operator);
+      return this.operator.compareTo(other.operator);
    }
 
+   /**
+    * Inits the node uuid.
+    *
+    * @return the uuid
+    */
    @Override
    protected UUID initNodeUuid() {
-      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), typeConceptUuid.toString() + operator
+      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), this.typeConceptUuid.toString() + this.operator
 
       // + unitsConceptUuid.toString()
       );
@@ -195,13 +260,23 @@ public class FeatureNodeWithUuids
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the node semantic.
+    *
+    * @return the node semantic
+    */
    @Override
    public NodeSemantic getNodeSemantic() {
       return NodeSemantic.FEATURE;
    }
 
+   /**
+    * Gets the operator.
+    *
+    * @return the operator
+    */
    public ConcreteDomainOperators getOperator() {
-      return operator;
+      return this.operator;
    }
 }
 

@@ -51,8 +51,18 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.*;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeBoolean;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeByteArray;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeDouble;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeFloat;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeLong;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeNid;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememePolymorphic;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeSequence;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUID;
 import sh.isaac.api.constants.DynamicSememeConstants;
 
 //~--- enums ------------------------------------------------------------------
@@ -74,36 +84,79 @@ import sh.isaac.api.constants.DynamicSememeConstants;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public enum DynamicSememeDataType {
+   /** The nid. */
    NID(101, DynamicSememeNid.class, "Component Nid"),
+
+   /** The string. */
    STRING(102, DynamicSememeString.class, "String"),
+
+   /** The integer. */
    INTEGER(103, DynamicSememeInteger.class, "Integer"),
+
+   /** The boolean. */
    BOOLEAN(104, DynamicSememeBoolean.class, "Boolean"),
+
+   /** The long. */
    LONG(105, DynamicSememeLong.class, "Long"),
+
+   /** The bytearray. */
    BYTEARRAY(106, DynamicSememeByteArray.class, "Arbitrary Data"),
+
+   /** The float. */
    FLOAT(107, DynamicSememeFloat.class, "Float"),
+
+   /** The double. */
    DOUBLE(108, DynamicSememeDouble.class, "Double"),
+
+   /** The uuid. */
    UUID(109, DynamicSememeUUID.class, "UUID"),
+
+   /** The polymorphic. */
    POLYMORPHIC(110, DynamicSememePolymorphic.class, "Unspecified"),
+
+   /** The array. */
    ARRAY(111, DynamicSememeArray.class, "Array"),
+
+   /** The sequence. */
    SEQUENCE(112, DynamicSememeSequence.class, "Component Sequence"),
+
+   /** The unknown. */
    UNKNOWN(Byte.MAX_VALUE, null, "Unknown");
 
-   private int                                externalizedToken_;
-   private Class<? extends DynamicSememeData> dataClass_;
-   private String                             displayName_;
+   /** The externalized token. */
+   private int externalizedToken;
+
+   /** The data class. */
+   private Class<? extends DynamicSememeData> dataClass;
+
+   /** The display name. */
+   private String displayName;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe data type.
+    *
+    * @param externalizedToken the externalized token
+    * @param dataClass the data class
+    * @param displayName the display name
+    */
    private DynamicSememeDataType(int externalizedToken,
                                  Class<? extends DynamicSememeData> dataClass,
                                  String displayName) {
-      externalizedToken_ = externalizedToken;
-      dataClass_         = dataClass;
-      displayName_       = displayName;
+      this.externalizedToken = externalizedToken;
+      this.dataClass         = dataClass;
+      this.displayName       = displayName;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Class to type.
+    *
+    * @param c the c
+    * @return the dynamic sememe data type
+    */
    public static DynamicSememeDataType classToType(Class<?> c) {
       if (DynamicSememeNid.class.isAssignableFrom(c)) {
          return NID;
@@ -158,20 +211,27 @@ public enum DynamicSememeDataType {
       return UNKNOWN;
    }
 
+   /**
+    * Parses the.
+    *
+    * @param nameOrTokenOrEnumId the name or token or enum id
+    * @param exceptionOnParseFail the exception on parse fail
+    * @return the dynamic sememe data type
+    */
    public static DynamicSememeDataType parse(String nameOrTokenOrEnumId, boolean exceptionOnParseFail) {
       if (nameOrTokenOrEnumId == null) {
          return null;
       }
 
-      String clean = nameOrTokenOrEnumId.toLowerCase(Locale.ENGLISH)
-                                        .trim();
+      final String clean = nameOrTokenOrEnumId.toLowerCase(Locale.ENGLISH)
+                                              .trim();
 
       if (StringUtils.isBlank(clean)) {
          return null;
       }
 
       try {
-         int i = Integer.parseInt(clean);
+         final int i = Integer.parseInt(clean);
 
          if (i > 100) {
             return getFromToken(i);
@@ -179,9 +239,9 @@ public enum DynamicSememeDataType {
             // enumId
             return DynamicSememeDataType.values()[i];
          }
-      } catch (NumberFormatException e) {
-         for (DynamicSememeDataType x: DynamicSememeDataType.values()) {
-            if (x.displayName_.equalsIgnoreCase(clean) || x.name().toLowerCase().equals(clean)) {
+      } catch (final NumberFormatException e) {
+         for (final DynamicSememeDataType x: DynamicSememeDataType.values()) {
+            if (x.displayName.equalsIgnoreCase(clean) || x.name().toLowerCase().equals(clean)) {
                return x;
             }
          }
@@ -196,6 +256,11 @@ public enum DynamicSememeDataType {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the data type concept.
+    *
+    * @return the data type concept
+    */
    public UUID getDataTypeConcept() {
       /*
        * Implementation note - these used to be defined in the constructor, and stored in a local variable - but
@@ -260,14 +325,31 @@ public enum DynamicSememeDataType {
       }
    }
 
+   /**
+    * Gets the display name.
+    *
+    * @return the display name
+    */
    public String getDisplayName() {
-      return displayName_;
+      return this.displayName;
    }
 
+   /**
+    * Gets the dynamic sememe member class.
+    *
+    * @return the dynamic sememe member class
+    */
    public Class<? extends DynamicSememeData> getDynamicSememeMemberClass() {
-      return dataClass_;
+      return this.dataClass;
    }
 
+   /**
+    * Gets the from token.
+    *
+    * @param type the type
+    * @return the from token
+    * @throws UnsupportedOperationException the unsupported operation exception
+    */
    public static DynamicSememeDataType getFromToken(int type)
             throws UnsupportedOperationException {
       switch (type) {
@@ -312,8 +394,13 @@ public enum DynamicSememeDataType {
       }
    }
 
+   /**
+    * Gets the type token.
+    *
+    * @return the type token
+    */
    public int getTypeToken() {
-      return this.externalizedToken_;
+      return this.externalizedToken;
    }
 }
 

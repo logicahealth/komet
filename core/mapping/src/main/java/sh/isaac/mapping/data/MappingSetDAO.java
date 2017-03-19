@@ -54,8 +54,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import sh.isaac.MetaData;
+
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.State;
@@ -100,19 +100,23 @@ import sh.isaac.utility.Frills;
  */
 public class MappingSetDAO
         extends MappingDAO {
+   /** The Constant LOG. */
    private static final Logger LOG = LoggerFactory.getLogger(MappingSetDAO.class);
 
    //~--- methods -------------------------------------------------------------
 
    /**
     * Create and store a new mapping set in the DB.
+    *
     * @param mappingName - The name of the mapping set (used for the FSN and preferred term of the underlying concept)
     * @param inverseName - (optional) inverse name of the mapping set (if it makes sense for the mapping)
     * @param purpose - (optional) - user specified purpose of the mapping set
     * @param description - the intended use of the mapping set
     * @param editorStatus - (optional) user specified status concept of the mapping set
-    * @return
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @return the mapping set
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static MappingSet createMappingSet(String mappingName,
          String inverseName,
@@ -123,33 +127,34 @@ public class MappingSetDAO
          EditCoordinate editCoord)
             throws IOException {
       // We need to create a new concept - which itself is defining a dynamic sememe - so set that up here.
-      DynamicSememeUsageDescription rdud = Frills.createNewDynamicSememeUsageDescriptionConcept(mappingName,
-                                                                                                mappingName,
-                                                                                                description,
-                                                                                                new DynamicSememeColumnInfo[] {
-                                                                                                   new DynamicSememeColumnInfo(
-                                                                                                      0,
-                                                                                                            DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(),
-                                                                                                            DynamicSememeDataType.UUID,
-                                                                                                            null,
-                                                                                                            false,
-                                                                                                            false), new DynamicSememeColumnInfo(
-                                                                                                               1,
-                                                                                                                     IsaacMappingConstants.get().DYNAMIC_SEMEME_COLUMN_MAPPING_EQUIVALENCE_TYPE.getUUID(),
-                                                                                                                     DynamicSememeDataType.UUID,
-                                                                                                                     null,
-                                                                                                                     false,
-                                                                                                                     DynamicSememeValidatorType.IS_KIND_OF,
-                                                                                                                     new DynamicSememeUUIDImpl(
-                                                                                                                        IsaacMappingConstants.get().MAPPING_EQUIVALENCE_TYPES.getUUID()),
-                                                                                                                     false) },
+      final DynamicSememeUsageDescription rdud = Frills.createNewDynamicSememeUsageDescriptionConcept(mappingName,
+                                                                                                      mappingName,
+                                                                                                      description,
+                                                                                                      new DynamicSememeColumnInfo[] {
+                                                                                                         new DynamicSememeColumnInfo(
+                                                                                                            0,
+                                                                                                                  DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(),
+                                                                                                                  DynamicSememeDataType.UUID,
+                                                                                                                  null,
+                                                                                                                  false,
+                                                                                                                  false),
+                                                                                                               new DynamicSememeColumnInfo(
+                                                                                                                  1,
+                                                                                                                        IsaacMappingConstants.get().DYNAMIC_SEMEME_COLUMN_MAPPING_EQUIVALENCE_TYPE.getUUID(),
+                                                                                                                        DynamicSememeDataType.UUID,
+                                                                                                                        null,
+                                                                                                                        false,
+                                                                                                                        DynamicSememeValidatorType.IS_KIND_OF,
+                                                                                                                        new DynamicSememeUUIDImpl(
+                                                                                                                           IsaacMappingConstants.get().MAPPING_EQUIVALENCE_TYPES.getUUID()),
+                                                                                                                        false) },
 
 //    new DynamicSememeColumnInfo(2, IsaacMappingConstants.get().MAPPING_STATUS.getUUID(), DynamicSememeDataType.UUID, null, false, 
 //                    DynamicSememeValidatorType.IS_KIND_OF, new DynamicSememeUUIDImpl(IsaacMappingConstants.get().MAPPING_STATUS.getUUID()), false)}, 
       null,
-                                                                                                ObjectChronologyType.CONCEPT,
-                                                                                                null,
-                                                                                                editCoord);
+                                                                                                      ObjectChronologyType.CONCEPT,
+                                                                                                      null,
+                                                                                                      editCoord);
 
       // TODO figure out if I need to be doing this for the indexer
 //    Get.workExecutors().getExecutor().execute(() ->
@@ -165,14 +170,14 @@ public class MappingSetDAO
 //    });
       // Then, annotate the concept created above as a member of the MappingSet dynamic sememe, and add the inverse name, if present.
       if (!StringUtils.isBlank(inverseName)) {
-         ObjectChronology<?> builtDesc = LookupService.get()
-                                                      .getService(DescriptionBuilderService.class)
-                                                      .getDescriptionBuilder(inverseName,
-                                                            rdud.getDynamicSememeUsageDescriptorSequence(),
-                                                            MetaData.SYNONYM,
-                                                            MetaData.ENGLISH_LANGUAGE)
-                                                      .build(editCoord, ChangeCheckerMode.ACTIVE)
-                                                      .getNoThrow();
+         final ObjectChronology<?> builtDesc = LookupService.get()
+                                                            .getService(DescriptionBuilderService.class)
+                                                            .getDescriptionBuilder(inverseName,
+                                                                  rdud.getDynamicSememeUsageDescriptorSequence(),
+                                                                  MetaData.SYNONYM,
+                                                                  MetaData.ENGLISH_LANGUAGE)
+                                                            .build(editCoord, ChangeCheckerMode.ACTIVE)
+                                                            .getNoThrow();
 
          Get.sememeBuilderService()
             .getDynamicSememeBuilder(builtDesc.getNid(),
@@ -182,35 +187,44 @@ public class MappingSetDAO
       }
 
       @SuppressWarnings("rawtypes")
-      SememeChronology mappingAnnotation = Get.sememeBuilderService()
-                                              .getDynamicSememeBuilder(Get.identifierService()
-                                                    .getConceptNid(rdud.getDynamicSememeUsageDescriptorSequence()),
-                                                    IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_SEMEME_TYPE
-                                                          .getSequence(),
-                                                    new DynamicSememeData[] {
+      final SememeChronology mappingAnnotation = Get.sememeBuilderService()
+                                                    .getDynamicSememeBuilder(Get.identifierService()
+                                                          .getConceptNid(
+                                                             rdud.getDynamicSememeUsageDescriptorSequence()),
+                                                          IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_SEMEME_TYPE
+                                                                .getSequence(),
+                                                          new DynamicSememeData[] {
 //       (editorStatus == null ? null : new DynamicSememeUUIDImpl(editorStatus)),
          (StringUtils.isBlank(purpose) ? null
                                        : new DynamicSememeStringImpl(purpose))
       })
-                                              .build(editCoord, ChangeCheckerMode.ACTIVE)
-                                              .getNoThrow();
+                                                    .build(editCoord, ChangeCheckerMode.ACTIVE)
+                                                    .getNoThrow();
 
       try {
          Get.commitService()
             .commit("update mapping item")
             .get();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new RuntimeException();
       }
 
       @SuppressWarnings("unchecked")
-      Optional<LatestVersion<DynamicSememe<?>>> sememe = mappingAnnotation.getLatestVersion(DynamicSememe.class,
-                                                                                            stampCoord);
+      final Optional<LatestVersion<DynamicSememe<?>>> sememe = mappingAnnotation.getLatestVersion(DynamicSememe.class,
+                                                                                                  stampCoord);
 
       // Find the constructed dynamic refset
       return new MappingSet(sememe.get().value(), stampCoord);
    }
 
+   /**
+    * Retire mapping set.
+    *
+    * @param mappingSetPrimordialUUID the mapping set primordial UUID
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static void retireMappingSet(UUID mappingSetPrimordialUUID,
          StampCoordinate stampCoord,
          EditCoordinate editCoord)
@@ -218,6 +232,14 @@ public class MappingSetDAO
       setConceptStatus(mappingSetPrimordialUUID, State.INACTIVE, stampCoord, editCoord);
    }
 
+   /**
+    * Un retire mapping set.
+    *
+    * @param mappingSetPrimordialUUID the mapping set primordial UUID
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static void unRetireMappingSet(UUID mappingSetPrimordialUUID,
          StampCoordinate stampCoord,
          EditCoordinate editCoord)
@@ -227,30 +249,33 @@ public class MappingSetDAO
 
    /**
     * Store the changes (done via set methods) on the passed in mapping set.
+    *
     * @param mappingSet - The mappingSet that carries the changes
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws RuntimeException the runtime exception
     */
    @SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
    public static void updateMappingSet(MappingSet mappingSet,
          StampCoordinate stampCoord,
          EditCoordinate editCoord)
             throws RuntimeException {
-      ConceptChronology mappingConcept = Get.conceptService()
-                                            .getConcept(mappingSet.getPrimordialUUID());
+      final ConceptChronology mappingConcept = Get.conceptService()
+                                                  .getConcept(mappingSet.getPrimordialUUID());
 
       Get.sememeService().getSememesForComponent(mappingConcept.getNid()).filter(s -> s.getSememeType() == SememeType.DESCRIPTION).forEach(descriptionC -> {
-                     Optional<LatestVersion<DescriptionSememe<?>>> latest =
+                     final Optional<LatestVersion<DescriptionSememe<?>>> latest =
                         ((SememeChronology) descriptionC).getLatestVersion(DescriptionSememe.class, stampCoord);
 
                      if (latest.isPresent()) {
-                        DescriptionSememe<?> ds = latest.get()
-                                                        .value();
+                        final DescriptionSememe<?> ds = latest.get()
+                                                              .value();
 
                         if (ds.getDescriptionTypeConceptSequence() == MetaData.SYNONYM.getConceptSequence()) {
                            if (Frills.isDescriptionPreferred(ds.getNid(), null)) {
                               if (!ds.getText()
                                      .equals(mappingSet.getName())) {
-                                 MutableDescriptionSememe mutable =
+                                 final MutableDescriptionSememe mutable =
                                     ((SememeChronology<DescriptionSememe>) ds.getChronology()).createMutableVersion(
                                         MutableDescriptionSememe.class,
                                         ds.getStampSequence());
@@ -275,7 +300,7 @@ public class MappingSetDAO
                                                })) {
                                  if (!ds.getText()
                                         .equals(mappingSet.getInverseName())) {
-                                    MutableDescriptionSememe mutable =
+                                    final MutableDescriptionSememe mutable =
                                        ((SememeChronology<DescriptionSememe>) ds.getChronology()).createMutableVersion(
                                            MutableDescriptionSememe.class,
                                            ds.getStampSequence());
@@ -294,7 +319,7 @@ public class MappingSetDAO
                            if (Frills.isDescriptionPreferred(ds.getNid(), null)) {
                               if (!mappingSet.getDescription()
                                              .equals(ds.getText())) {
-                                 MutableDescriptionSememe mutable =
+                                 final MutableDescriptionSememe mutable =
                                     ((SememeChronology<DescriptionSememe>) ds.getChronology()).createMutableVersion(
                                         MutableDescriptionSememe.class,
                                         ds.getStampSequence());
@@ -311,24 +336,24 @@ public class MappingSetDAO
                      }
                   });
 
-      Optional<SememeChronology<? extends SememeVersion<?>>> mappingSememe = Get.sememeService()
-                                                                                .getSememesForComponentFromAssemblage(
-                                                                                   mappingConcept.getNid(),
-                                                                                         IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_SEMEME_TYPE
-                                                                                               .getSequence())
-                                                                                .findAny();
+      final Optional<SememeChronology<? extends SememeVersion<?>>> mappingSememe = Get.sememeService()
+                                                                                      .getSememesForComponentFromAssemblage(
+                                                                                         mappingConcept.getNid(),
+                                                                                               IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_SEMEME_TYPE
+                                                                                                     .getSequence())
+                                                                                      .findAny();
 
       if (!mappingSememe.isPresent()) {
          LOG.error("Couldn't find mapping refex?");
          throw new RuntimeException("internal error");
       }
 
-      Optional<LatestVersion<DynamicSememe<?>>> latestVersion =
+      final Optional<LatestVersion<DynamicSememe<?>>> latestVersion =
          ((SememeChronology) mappingSememe.get()).getLatestVersion(DynamicSememe.class,
                                                                    stampCoord.makeAnalog(State.ACTIVE,
                                                                          State.INACTIVE));
-      DynamicSememe<?> latest = latestVersion.get()
-                                             .value();
+      final DynamicSememe<?> latest = latestVersion.get()
+                                                   .value();
 
       if (((latest.getData()[0] == null) && (mappingSet.getPurpose() != null)) ||
             ((mappingSet.getPurpose() == null) && (latest.getData()[0] != null)) ||
@@ -338,9 +363,10 @@ public class MappingSetDAO
             ((mappingSet.getPurpose() == null) && (latest.getData()[1] != null)) ||
             ((latest.getData()[1] != null) && (latest.getData()[1] instanceof DynamicSememeString) &&
              ((DynamicSememeString) latest.getData()[1]).getDataString().equals(mappingSet.getPurpose()))) {
-         DynamicSememeImpl mutable = (DynamicSememeImpl) ((SememeChronology) mappingSememe.get()).createMutableVersion(
-                                         MutableDynamicSememe.class,
-                                         latest.getStampSequence());
+         final DynamicSememeImpl mutable =
+            (DynamicSememeImpl) ((SememeChronology) mappingSememe.get()).createMutableVersion(
+                MutableDynamicSememe.class,
+                latest.getStampSequence());
 
          mutable.setData(new DynamicSememeData[] { ((mappingSet.getEditorStatusConcept() == null) ? null
                : new DynamicSememeUUIDImpl(mappingSet.getEditorStatusConcept())), (StringUtils.isBlank(
@@ -356,16 +382,24 @@ public class MappingSetDAO
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the mapping concept.
+    *
+    * @param sememe the sememe
+    * @param stampCoord the stamp coord
+    * @return the mapping concept
+    * @throws RuntimeException the runtime exception
+    */
    public static Optional<ConceptVersion<?>> getMappingConcept(DynamicSememe<?> sememe,
          StampCoordinate stampCoord)
             throws RuntimeException {
-      ConceptChronology<? extends ConceptVersion<?>> cc = Get.conceptService()
-                                                             .getConcept(sememe.getReferencedComponentNid());
+      final ConceptChronology<? extends ConceptVersion<?>> cc = Get.conceptService()
+                                                                   .getConcept(sememe.getReferencedComponentNid());
       @SuppressWarnings({ "rawtypes", "unchecked" })
-      Optional<LatestVersion<ConceptVersion<?>>> cv = ((ConceptChronology) cc).getLatestVersion(ConceptVersion.class,
-                                                                                                stampCoord.makeAnalog(
-                                                                                                   State.ACTIVE,
-                                                                                                         State.INACTIVE));
+      final Optional<LatestVersion<ConceptVersion<?>>> cv =
+         ((ConceptChronology) cc).getLatestVersion(ConceptVersion.class,
+                                                   stampCoord.makeAnalog(State.ACTIVE,
+                                                         State.INACTIVE));
 
       if (cv.isPresent()) {
          if (cv.get()
@@ -382,16 +416,23 @@ public class MappingSetDAO
       return Optional.empty();
    }
 
+   /**
+    * Gets the mapping sets.
+    *
+    * @param stampCoord the stamp coord
+    * @return the mapping sets
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static List<MappingSet> getMappingSets(StampCoordinate stampCoord)
             throws IOException {
-      ArrayList<MappingSet> result = new ArrayList<>();
+      final ArrayList<MappingSet> result = new ArrayList<>();
 
       Get.sememeService()
          .getSememesFromAssemblage(IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_SEMEME_TYPE
                .getSequence())
          .forEach(sememeC -> {
                      @SuppressWarnings({ "unchecked", "rawtypes" })
-                     Optional<LatestVersion<DynamicSememe<?>>> latest =
+                     final Optional<LatestVersion<DynamicSememe<?>>> latest =
                         ((SememeChronology) sememeC).getLatestVersion(DynamicSememe.class, stampCoord);
 
                      if (latest.isPresent()) {

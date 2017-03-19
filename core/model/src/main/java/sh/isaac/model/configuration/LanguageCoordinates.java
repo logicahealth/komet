@@ -53,18 +53,37 @@ import sh.isaac.model.coordinate.LanguageCoordinateImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LanguageCoordinates.
  *
  * @author kec
  */
 public class LanguageCoordinates {
+   /**
+    * Case significance to concept sequence.
+    *
+    * @param initialCaseSignificant the initial case significant
+    * @return the int
+    */
    public static int caseSignificanceToConceptSequence(boolean initialCaseSignificant) {
       return TermAux.caseSignificanceToConceptSequence(initialCaseSignificant);
    }
 
+   /**
+    * Concept id to case significance.
+    *
+    * @param id the id
+    * @return true, if successful
+    */
    public static boolean conceptIdToCaseSignificance(int id) {
       return TermAux.conceptIdToCaseSignificance(id);
    }
 
+   /**
+    * Concept nid to iso 639.
+    *
+    * @param nid the nid
+    * @return the string
+    */
    public static String conceptNidToIso639(int nid) {
       if (nid >= 0) {
          nid = Get.identifierService()
@@ -114,6 +133,12 @@ public class LanguageCoordinates {
       throw new UnsupportedOperationException("Can't handle: " + nid);
    }
 
+   /**
+    * Iso 639 to concept nid.
+    *
+    * @param iso639text the iso 639 text
+    * @return the int
+    */
    public static int iso639toConceptNid(String iso639text) {
       switch (iso639text.toLowerCase(Locale.ENGLISH)) {
       case "en":
@@ -161,6 +186,12 @@ public class LanguageCoordinates {
       }
    }
 
+   /**
+    * Iso 639 to concept sequence.
+    *
+    * @param iso639text the iso 639 text
+    * @return the int
+    */
    public static int iso639toConceptSequence(String iso639text) {
       switch (iso639text.toLowerCase(Locale.ENGLISH)) {
       case "en":
@@ -210,48 +241,70 @@ public class LanguageCoordinates {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the gb english language fully specified name coordinate.
+    *
+    * @return the gb english language fully specified name coordinate
+    */
    public static LanguageCoordinate getGbEnglishLanguageFullySpecifiedNameCoordinate() {
-      int languageSequence = TermAux.ENGLISH_LANGUAGE.getConceptSequence();
-      int[] dialectAssemblagePreferenceList = new int[] { TermAux.GB_DIALECT_ASSEMBLAGE.getConceptSequence(),
-                                                          TermAux.US_DIALECT_ASSEMBLAGE.getConceptSequence() };
-      int[] descriptionTypePreferenceList = new int[] { TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence(),
-                                                        TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence() };
+      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getConceptSequence();
+      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.GB_DIALECT_ASSEMBLAGE.getConceptSequence(),
+                                                                TermAux.US_DIALECT_ASSEMBLAGE.getConceptSequence() };
+      final int[] descriptionTypePreferenceList = new int[] {
+                                                     TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence(),
+                                                           TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence() };
 
       return new LanguageCoordinateImpl(languageSequence,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList);
    }
 
+   /**
+    * Gets the gb english language preferred term coordinate.
+    *
+    * @return the gb english language preferred term coordinate
+    */
    public static LanguageCoordinate getGbEnglishLanguagePreferredTermCoordinate() {
-      int languageSequence = TermAux.ENGLISH_LANGUAGE.getConceptSequence();
-      int[] dialectAssemblagePreferenceList = new int[] { TermAux.GB_DIALECT_ASSEMBLAGE.getConceptSequence(),
-                                                          TermAux.US_DIALECT_ASSEMBLAGE.getConceptSequence() };
-      int[] descriptionTypePreferenceList = new int[] { TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence(),
-                                                        TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence() };
+      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getConceptSequence();
+      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.GB_DIALECT_ASSEMBLAGE.getConceptSequence(),
+                                                                TermAux.US_DIALECT_ASSEMBLAGE.getConceptSequence() };
+      final int[] descriptionTypePreferenceList = new int[] { TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence(),
+                                                              TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence() };
 
       return new LanguageCoordinateImpl(languageSequence,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList);
    }
 
+   /**
+    * Gets the us english language fully specified name coordinate.
+    *
+    * @return the us english language fully specified name coordinate
+    */
    public static LanguageCoordinate getUsEnglishLanguageFullySpecifiedNameCoordinate() {
-      int languageSequence = TermAux.ENGLISH_LANGUAGE.getConceptSequence();
-      int[] dialectAssemblagePreferenceList = new int[] { TermAux.US_DIALECT_ASSEMBLAGE.getConceptSequence(),
-                                                          TermAux.GB_DIALECT_ASSEMBLAGE.getConceptSequence() };
-      int[] descriptionTypePreferenceList = new int[] { TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence(),
-                                                        TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence() };
+      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getConceptSequence();
+      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.US_DIALECT_ASSEMBLAGE.getConceptSequence(),
+                                                                TermAux.GB_DIALECT_ASSEMBLAGE.getConceptSequence() };
+      final int[] descriptionTypePreferenceList = new int[] {
+                                                     TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence(),
+                                                           TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence() };
 
       return new LanguageCoordinateImpl(languageSequence,
                                         dialectAssemblagePreferenceList,
                                         descriptionTypePreferenceList);
    }
 
+   /**
+    * Gets the us english language preferred term coordinate.
+    *
+    * @return the us english language preferred term coordinate
+    */
    public static LanguageCoordinate getUsEnglishLanguagePreferredTermCoordinate() {
-      int languageSequence = TermAux.ENGLISH_LANGUAGE.getConceptSequence();
-      int[] dialectAssemblagePreferenceList = new int[] { TermAux.US_DIALECT_ASSEMBLAGE.getConceptSequence(),
-                                                          TermAux.GB_DIALECT_ASSEMBLAGE.getConceptSequence() };
-      int[] descriptionTypePreferenceList = new int[] { TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence(),
-                                                        TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence() };
+      final int languageSequence = TermAux.ENGLISH_LANGUAGE.getConceptSequence();
+      final int[] dialectAssemblagePreferenceList = new int[] { TermAux.US_DIALECT_ASSEMBLAGE.getConceptSequence(),
+                                                                TermAux.GB_DIALECT_ASSEMBLAGE.getConceptSequence() };
+      final int[] descriptionTypePreferenceList = new int[] { TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence(),
+                                                              TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence() };
 
       return new LanguageCoordinateImpl(languageSequence,
                                         dialectAssemblagePreferenceList,

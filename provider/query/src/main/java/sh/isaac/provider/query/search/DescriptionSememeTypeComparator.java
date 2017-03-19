@@ -54,27 +54,35 @@ import sh.isaac.api.component.sememe.version.DescriptionSememe;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * A {@link Comparator} for {@link DescriptionSememe} objects that compares the descriptions by their type
+ * A {@link Comparator} for {@link DescriptionSememe} objects that compares the descriptions by their type.
  *
  * @author ocarlsen
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DescriptionSememeTypeComparator
          implements Comparator<DescriptionSememe<?>> {
+   /** The Constant LOG. */
    protected static final Logger LOG = LoggerFactory.getLogger(DescriptionSememeTypeComparator.class);
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare.
+    *
+    * @param o1 the o 1
+    * @param o2 the o 2
+    * @return the int
+    */
    @Override
    public int compare(DescriptionSememe<?> o1, DescriptionSememe<?> o2) {
-      String o1matchingComponentType = Get.conceptService()
-                                          .getOptionalConcept(o1.getDescriptionTypeConceptSequence())
-                                          .get()
-                                          .getConceptDescriptionText();
-      String o2matchingComponentType = Get.conceptService()
-                                          .getOptionalConcept(o2.getDescriptionTypeConceptSequence())
-                                          .get()
-                                          .getConceptDescriptionText();
+      final String o1matchingComponentType = Get.conceptService()
+                                                .getOptionalConcept(o1.getDescriptionTypeConceptSequence())
+                                                .get()
+                                                .getConceptDescriptionText();
+      final String o2matchingComponentType = Get.conceptService()
+                                                .getOptionalConcept(o2.getDescriptionTypeConceptSequence())
+                                                .get()
+                                                .getConceptDescriptionText();
 
       return o1matchingComponentType.compareTo(o2matchingComponentType);
    }

@@ -49,10 +49,15 @@ import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class PT_SAB_Metadata.
+ *
  * @author Daniel Armbrust
  */
 public class PT_SAB_Metadata
         extends PropertyType {
+   /**
+    * Instantiates a new p T SA B metadata.
+    */
    public PT_SAB_Metadata() {
       // from http://www.nlm.nih.gov/research/umls/rxnorm/docs/2013/rxnorm_doco_full_2013-2.html#s12_8
       super("Source Vocabulary Metadata", true, DynamicSememeDataType.STRING);

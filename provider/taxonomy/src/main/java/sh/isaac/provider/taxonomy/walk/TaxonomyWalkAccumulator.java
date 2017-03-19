@@ -51,26 +51,48 @@ import sh.isaac.api.component.concept.ConceptChronology;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class TaxonomyWalkAccumulator.
  *
  * @author kec
  */
 public class TaxonomyWalkAccumulator {
-   public int           conceptsProcessed = 0;
-   public int           connections       = 0;
-   public int           maxConnections    = 0;
-   public int           minConnections    = 0;
-   public int           parentConnections = 0;
-   ConceptChronology<?> watchConcept      = null;
+   /** The concepts processed. */
+   public int conceptsProcessed = 0;
+
+   /** The connections. */
+   public int connections = 0;
+
+   /** The max connections. */
+   public int maxConnections = 0;
+
+   /** The min connections. */
+   public int minConnections = 0;
+
+   /** The parent connections. */
+   public int parentConnections = 0;
+
+   /** The watch concept. */
+   ConceptChronology<?> watchConcept = null;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "TaxonomyWalkAccumulator{" + "conceptsProcessed=" + conceptsProcessed + ", connections=" + connections +
-             ", maxConnections=" + maxConnections + ", minConnections=" + minConnections + ", parentConnections=" +
-             parentConnections + '}';
+      return "TaxonomyWalkAccumulator{" + "conceptsProcessed=" + this.conceptsProcessed + ", connections=" +
+             this.connections + ", maxConnections=" + this.maxConnections + ", minConnections=" + this.minConnections +
+             ", parentConnections=" + this.parentConnections + '}';
    }
 
+   /**
+    * Combine.
+    *
+    * @param u the u
+    */
    void combine(TaxonomyWalkAccumulator u) {
       this.conceptsProcessed += u.conceptsProcessed;
       this.connections       += u.connections;

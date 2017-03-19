@@ -71,17 +71,33 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class RefsetContainsKindOfConcept
         extends LeafClause {
+   /** The refset spec key. */
    @XmlElement
    String refsetSpecKey;
+
+   /** The concept spec key. */
    @XmlElement
    String conceptSpecKey;
+
+   /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new refset contains kind of concept.
+    */
    protected RefsetContainsKindOfConcept() {}
 
+   /**
+    * Instantiates a new refset contains kind of concept.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param refsetSpecKey the refset spec key
+    * @param conceptSpecKey the concept spec key
+    * @param viewCoordinateKey the view coordinate key
+    */
    public RefsetContainsKindOfConcept(Query enclosingQuery,
                                       String refsetSpecKey,
                                       String conceptSpecKey,
@@ -94,6 +110,12 @@ public class RefsetContainsKindOfConcept
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       throw new UnsupportedOperationException();
@@ -119,27 +141,43 @@ public class RefsetContainsKindOfConcept
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
       // Nothing to do here
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.REFSET_CONTAINS_KIND_OF_CONCEPT);
       whereClause.getLetKeys()
-                 .add(refsetSpecKey);
+                 .add(this.refsetSpecKey);
       whereClause.getLetKeys()
-                 .add(conceptSpecKey);
+                 .add(this.conceptSpecKey);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       return whereClause;
    }
 }

@@ -50,14 +50,17 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ConceptBuilder.
  *
  * @author kec
  */
 public interface ConceptBuilder
         extends IdentifiedComponentBuilder<ConceptChronology<?>>, ConceptSpecification {
    /**
-    * Used to add another arbitrary description type to the concept
-    * @param descriptionBuilder
+    * Used to add another arbitrary description type to the concept.
+    *
+    * @param descriptionBuilder the description builder
+    * @return the concept builder
     */
    ConceptBuilder addDescription(DescriptionBuilder<?, ?> descriptionBuilder);
 
@@ -65,9 +68,11 @@ public interface ConceptBuilder
     * Used to add another acceptable arbitrary description type to the concept, using the default language
     * and dialect information passed into the concept builder upon construction.
     * This does not add a preferred description
+    *
     * @param value - the value of the description
     * @param descriptionType - One of {@link TermAux#SYNONYM_DESCRIPTION_TYPE}, {@link TermAux#DEFINITION_DESCRIPTION_TYPE}
     * or {@link TermAux#FULLY_SPECIFIED_DESCRIPTION_TYPE}
+    * @return the concept builder
     */
    ConceptBuilder addDescription(String value, ConceptSpecification descriptionType);
 
@@ -75,7 +80,7 @@ public interface ConceptBuilder
     * Use when adding a secondary definition in a different description logic
     * profile.
     *
-    * @param logicalExpression
+    * @param logicalExpression the logical expression
     * @return a ConceptBuilder for use in method chaining/fluent API.
     */
    ConceptBuilder addLogicalExpression(LogicalExpression logicalExpression);
@@ -84,29 +89,34 @@ public interface ConceptBuilder
     * Use when adding a secondary definition in a different description logic
     * profile.
     *
-    * @param logicalExpressionBuilder
+    * @param logicalExpressionBuilder the logical expression builder
     * @return a ConceptBuilder for use in method chaining/fluent API.
     */
    ConceptBuilder addLogicalExpressionBuilder(LogicalExpressionBuilder logicalExpressionBuilder);
 
    /**
     * Sets the primordial UUID from the given spect, adds any additional UUIDs from the given spec, and
-    * adds the description from the spec as an alternate synonym (if it differs from the current preferred term)
-    * @param conceptSpec
-    * @return
+    * adds the description from the spec as an alternate synonym (if it differs from the current preferred term).
+    *
+    * @param conceptSpec the concept spec
+    * @return the concept builder
     */
    ConceptBuilder mergeFromSpec(ConceptSpecification conceptSpec);
 
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * This may return null, if no description creation information was passed into the Concept Builder
+    * This may return null, if no description creation information was passed into the Concept Builder.
+    *
+    * @return the fully specified description builder
     */
    DescriptionBuilder<?, ?> getFullySpecifiedDescriptionBuilder();
 
    /**
     * This may return null, if no description creation information was passed into the Concept Builder,
     * or if no semantic tag was passed in.
+    *
+    * @return the synonym preferred description builder
     */
    DescriptionBuilder<?, ?> getSynonymPreferredDescriptionBuilder();
 }

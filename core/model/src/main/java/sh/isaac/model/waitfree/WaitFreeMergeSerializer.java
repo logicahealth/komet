@@ -60,14 +60,16 @@ import sh.isaac.model.WaitFreeComparable;
  * updates to maps so that they may be updated using wait-free algorithms
  * (an algorithm where there is guaranteed per-thread progress). Wait-freedom is
  * the strongest non-blocking guarantee of progress).
+ *
  * @author kec
- * @param <T>
+ * @param <T> the generic type
  */
 public interface WaitFreeMergeSerializer<T extends WaitFreeComparable> {
    /**
+    * Deserialize.
     *
     * @param di the data from which to deserialize the object.
-    * @return
+    * @return the t
     */
    T deserialize(ByteArrayDataBuffer di);
 
@@ -83,6 +85,7 @@ public interface WaitFreeMergeSerializer<T extends WaitFreeComparable> {
    T merge(T a, T b, int writeSequence);
 
    /**
+    * Serialize.
     *
     * @param d the data output stream to write to.
     * @param a the object to serialize to the data output stream.

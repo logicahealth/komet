@@ -72,16 +72,31 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionRegexMatch
         extends LeafClause {
+   /** The cache. */
    NidSet cache = new NidSet();
+
+   /** The regex key. */
    @XmlElement
    String regexKey;
+
+   /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new description regex match.
+    */
    protected DescriptionRegexMatch() {}
 
+   /**
+    * Instantiates a new description regex match.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param regexKey the regex key
+    * @param viewCoordinateKey the view coordinate key
+    */
    public DescriptionRegexMatch(Query enclosingQuery, String regexKey, String viewCoordinateKey) {
       super(enclosingQuery);
       this.viewCoordinateKey = viewCoordinateKey;
@@ -90,6 +105,12 @@ public class DescriptionRegexMatch
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       this.cache = incomingPossibleComponents;
@@ -98,19 +119,30 @@ public class DescriptionRegexMatch
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
-      String                                      regex = (String) enclosingQuery.getLetDeclarations()
-                                                                                 .get(regexKey);
-      ConceptChronology<? extends ConceptVersion> conceptChronology = conceptVersion.getChronology();
+      final String regex = (String) this.enclosingQuery.getLetDeclarations()
+                                                       .get(this.regexKey);
+      final ConceptChronology<? extends ConceptVersion> conceptChronology = conceptVersion.getChronology();
 
       conceptChronology.getConceptDescriptionList().forEach((description) -> {
-                                   if (cache.contains(description.getNid())) {
+                                   if (this.cache.contains(description.getNid())) {
                                       description.getVersionList().forEach((dv) -> {
                      if (dv.getText()
                            .matches(regex)) {
@@ -121,15 +153,20 @@ public class DescriptionRegexMatch
                                 });
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.DESCRIPTION_REGEX_MATCH);
       whereClause.getLetKeys()
-                 .add(regexKey);
+                 .add(this.regexKey);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       return whereClause;
    }
 }

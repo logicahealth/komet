@@ -56,6 +56,7 @@ import sh.isaac.api.tree.Tree;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface TaxonomyService.
  *
  * @author kec
  */
@@ -86,6 +87,7 @@ public interface TaxonomyService
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the all circular relationship origin sequences.
     *
     * @param tc the taxonomy coordinate used to compute the taxonomic
     * relationships
@@ -96,6 +98,7 @@ public interface TaxonomyService
    IntStream getAllCircularRelationshipOriginSequences(TaxonomyCoordinate tc);
 
    /**
+    * Gets the all circular relationship type sequences.
     *
     * @param originId a concept nid or concept sequence to examine for circular
     * relationships.
@@ -108,6 +111,7 @@ public interface TaxonomyService
    IntStream getAllCircularRelationshipTypeSequences(int originId, TaxonomyCoordinate tc);
 
    /**
+    * Gets the all relationship destination sequences.
     *
     * @param originId a concept nid or concept sequence to retrieve
     * relationship destination information from
@@ -116,9 +120,17 @@ public interface TaxonomyService
     */
    IntStream getAllRelationshipDestinationSequences(int originId);
 
+   /**
+    * Gets the all relationship destination sequences.
+    *
+    * @param originId the origin id
+    * @param tc the tc
+    * @return the all relationship destination sequences
+    */
    IntStream getAllRelationshipDestinationSequences(int originId, TaxonomyCoordinate tc);
 
    /**
+    * Gets the all relationship destination sequences not of type.
     *
     * @param originId a concept nid or concept sequence to retrieve
     * relationship destination information from
@@ -126,22 +138,30 @@ public interface TaxonomyService
     * results.
     * @param tc the taxonomy coordinate used to compute the taxonomic
     * relationships
-    * @return
+    * @return the all relationship destination sequences not of type
     */
    IntStream getAllRelationshipDestinationSequencesNotOfType(int originId,
          ConceptSequenceSet typeSequenceSet,
          TaxonomyCoordinate tc);
 
+   /**
+    * Gets the all relationship destination sequences of type.
+    *
+    * @param originId the origin id
+    * @param typeSequenceSet the type sequence set
+    * @return the all relationship destination sequences of type
+    */
    IntStream getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet);
 
    /**
+    * Gets the all relationship destination sequences of type.
     *
     * @param originId a concept nid or concept sequence to retrieve
     * relationship destination information from
-    * @param tc the taxonomy coordinate used to compute the taxonomic
-    * relationships
     * @param typeSequenceSet set of relationship types to include in the
     * results.
+    * @param tc the taxonomy coordinate used to compute the taxonomic
+    * relationships
     * @return conceptSequences of all relationship destination concepts
     * (including is-a relationships)
     */
@@ -149,17 +169,46 @@ public interface TaxonomyService
          ConceptSequenceSet typeSequenceSet,
          TaxonomyCoordinate tc);
 
+   /**
+    * Gets the all relationship origin sequences.
+    *
+    * @param destinationId the destination id
+    * @return the all relationship origin sequences
+    */
    IntStream getAllRelationshipOriginSequences(int destinationId);
 
+   /**
+    * Gets the all relationship origin sequences.
+    *
+    * @param destinationId the destination id
+    * @param tc the tc
+    * @return the all relationship origin sequences
+    */
    IntStream getAllRelationshipOriginSequences(int destinationId, TaxonomyCoordinate tc);
 
+   /**
+    * Gets the all relationship origin sequences of type.
+    *
+    * @param destinationId the destination id
+    * @param typeSequenceSet the type sequence set
+    * @return the all relationship origin sequences of type
+    */
    IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet);
 
+   /**
+    * Gets the all relationship origin sequences of type.
+    *
+    * @param destinationId the destination id
+    * @param typeSequenceSet the type sequence set
+    * @param tc the tc
+    * @return the all relationship origin sequences of type
+    */
    IntStream getAllRelationshipOriginSequencesOfType(int destinationId,
          ConceptSequenceSet typeSequenceSet,
          TaxonomyCoordinate tc);
 
    /**
+    * Gets the all types for relationship.
     *
     * @param originId nid or sequence of the origin concept
     * @param destinationId nid or sequence of the destination concept
@@ -171,6 +220,7 @@ public interface TaxonomyService
    IntStream getAllTypesForRelationship(int originId, int destinationId, TaxonomyCoordinate tc);
 
    /**
+    * Gets the ancestor of sequence set.
     *
     * @param childId a concept sequence or nid for the child concept
     * @param tc coordinate used to compute the taxonomy
@@ -179,6 +229,7 @@ public interface TaxonomyService
    ConceptSequenceSet getAncestorOfSequenceSet(int childId, TaxonomyCoordinate tc);
 
    /**
+    * Checks if child of.
     *
     * @param childId a concept sequence or nid for the child concept
     * @param parentId a concept sequence or nid for the parent concept
@@ -189,9 +240,17 @@ public interface TaxonomyService
     */
    boolean isChildOf(int childId, int parentId, TaxonomyCoordinate tc);
 
+   /**
+    * Gets the child of sequence set.
+    *
+    * @param parentId the parent id
+    * @param tc the tc
+    * @return the child of sequence set
+    */
    ConceptSequenceSet getChildOfSequenceSet(int parentId, TaxonomyCoordinate tc);
 
    /**
+    * Checks if kind of.
     *
     * @param childId a concept sequence or nid for the child concept
     * @param ancestorId a concept sequence or nid for the ancestor concept
@@ -201,20 +260,71 @@ public interface TaxonomyService
     */
    boolean isKindOf(int childId, int ancestorId, TaxonomyCoordinate tc);
 
+   /**
+    * Gets the kind of sequence set.
+    *
+    * @param rootId the root id
+    * @param tc the tc
+    * @return the kind of sequence set
+    */
    ConceptSequenceSet getKindOfSequenceSet(int rootId, TaxonomyCoordinate tc);
 
+   /**
+    * Gets the roots.
+    *
+    * @param sc the sc
+    * @return the roots
+    */
    IntStream getRoots(TaxonomyCoordinate sc);
 
+   /**
+    * Gets the snapshot.
+    *
+    * @param tc the tc
+    * @return the snapshot
+    */
    TaxonomySnapshotService getSnapshot(TaxonomyCoordinate tc);
 
+   /**
+    * Gets the taxonomy child sequences.
+    *
+    * @param parentId the parent id
+    * @return the taxonomy child sequences
+    */
    IntStream getTaxonomyChildSequences(int parentId);
 
+   /**
+    * Gets the taxonomy child sequences.
+    *
+    * @param parentId the parent id
+    * @param tc the tc
+    * @return the taxonomy child sequences
+    */
    IntStream getTaxonomyChildSequences(int parentId, TaxonomyCoordinate tc);
 
+   /**
+    * Gets the taxonomy parent sequences.
+    *
+    * @param childId the child id
+    * @return the taxonomy parent sequences
+    */
    IntStream getTaxonomyParentSequences(int childId);
 
+   /**
+    * Gets the taxonomy parent sequences.
+    *
+    * @param childId the child id
+    * @param tc the tc
+    * @return the taxonomy parent sequences
+    */
    IntStream getTaxonomyParentSequences(int childId, TaxonomyCoordinate tc);
 
+   /**
+    * Gets the taxonomy tree.
+    *
+    * @param tc the tc
+    * @return the taxonomy tree
+    */
    Tree getTaxonomyTree(TaxonomyCoordinate tc);
 }
 

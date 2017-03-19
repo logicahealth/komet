@@ -65,30 +65,68 @@ import sh.isaac.api.coordinate.TaxonomyCoordinate;
  * @author kec
  */
 public enum TaxonomyFlags {
-   STATED(0x10000000),                 // 0001 0000
-   INFERRED(0x20000000),               // 0010 0000
-   SEMEME(0x40000000),                 // 0100 0000
-   NON_DL_REL(0x08000000),             // 0000 1000
-   CONCEPT_STATUS(0x04000000),         // 0000 0100
-   RESERVED_FUTURE_USE_1(0x02000000),  // 0000 0010
+   /** The stated. */
+   STATED(0x10000000),
+
+   /** The inferred. */
+
+   // 0001 0000
+   INFERRED(0x20000000),
+
+   /** The sememe. */
+
+   // 0010 0000
+   SEMEME(0x40000000),
+
+   /** The non dl rel. */
+
+   // 0100 0000
+   NON_DL_REL(0x08000000),
+
+   /** The concept status. */
+
+   // 0000 1000
+   CONCEPT_STATUS(0x04000000),
+
+   /** The reserved future use 1. */
+
+   // 0000 0100
+   RESERVED_FUTURE_USE_1(0x02000000),
+
+   /** The reserved future use 2. */
+
+   // 0000 0010
    RESERVED_FUTURE_USE_2(0x01000000);  // 0000 0001
 
+   /** The Constant ALL_RELS. */
    public static final int ALL_RELS = 0;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The bits. */
    public final int bits;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new taxonomy flags.
+    *
+    * @param bits the bits
+    */
    TaxonomyFlags(int bits) {
       this.bits = bits;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the flags.
+    *
+    * @param justFlags the just flags
+    * @return the flags
+    */
    private static EnumSet<TaxonomyFlags> getFlags(int justFlags) {
-      EnumSet<TaxonomyFlags> flagSet = EnumSet.noneOf(TaxonomyFlags.class);
+      final EnumSet<TaxonomyFlags> flagSet = EnumSet.noneOf(TaxonomyFlags.class);
 
       Arrays.stream(TaxonomyFlags.values()).forEach((flag) -> {
                         if ((justFlags & flag.bits) == flag.bits) {
@@ -98,6 +136,12 @@ public enum TaxonomyFlags {
       return flagSet;
    }
 
+   /**
+    * Gets the flags from taxonomy coordinate.
+    *
+    * @param viewCoordinate the view coordinate
+    * @return the flags from taxonomy coordinate
+    */
    public static int getFlagsFromTaxonomyCoordinate(TaxonomyCoordinate viewCoordinate) {
       switch (viewCoordinate.getTaxonomyType()) {
       case INFERRED:
@@ -111,6 +155,12 @@ public enum TaxonomyFlags {
       }
    }
 
+   /**
+    * Gets the taxonomy flags.
+    *
+    * @param stampWithFlags the stamp with flags
+    * @return the taxonomy flags
+    */
    public static EnumSet<TaxonomyFlags> getTaxonomyFlags(int stampWithFlags) {
       if (stampWithFlags < 512) {
          stampWithFlags = stampWithFlags << 24;
@@ -119,10 +169,16 @@ public enum TaxonomyFlags {
       return getFlags(stampWithFlags);
    }
 
+   /**
+    * Gets the taxonomy flags as int.
+    *
+    * @param flagSet the flag set
+    * @return the taxonomy flags as int
+    */
    public static int getTaxonomyFlagsAsInt(EnumSet<TaxonomyFlags> flagSet) {
       int flags = 0;
 
-      for (TaxonomyFlags flag: flagSet) {
+      for (final TaxonomyFlags flag: flagSet) {
          flags += flag.bits;
       }
 

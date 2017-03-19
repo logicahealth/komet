@@ -41,16 +41,31 @@ package sh.isaac.pombuilder.artifacts;
 
 /**
  * {@link IBDFFile}
- * An artifact that points to an file of type ibdf to pass into the conversion tool
+ * An artifact that points to an file of type ibdf to pass into the conversion tool.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class IBDFFile
         extends Artifact {
+   /**
+    * Instantiates a new IBDF file.
+    *
+    * @param groupId the group id
+    * @param artifactId the artifact id
+    * @param version the version
+    */
    public IBDFFile(String groupId, String artifactId, String version) {
       this(groupId, artifactId, version, null);
    }
 
+   /**
+    * Instantiates a new IBDF file.
+    *
+    * @param groupId the group id
+    * @param artifactId the artifact id
+    * @param version the version
+    * @param classifier the classifier
+    */
    public IBDFFile(String groupId, String artifactId, String version, String classifier) {
       super(groupId, artifactId, version, classifier);
    }

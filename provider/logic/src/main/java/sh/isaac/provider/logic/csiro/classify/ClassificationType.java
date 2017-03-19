@@ -40,9 +40,15 @@
 package sh.isaac.provider.logic.csiro.classify;
 
 /**
+ * The Enum ClassificationType.
  *
  * @author kec
  */
-public enum ClassificationType { COMPLETE,
-                                 INCREMENTAL; }
+public enum ClassificationType {
+   /** The complete. */
+   COMPLETE,
+
+   /** The incremental. */
+   INCREMENTAL;
+}
 

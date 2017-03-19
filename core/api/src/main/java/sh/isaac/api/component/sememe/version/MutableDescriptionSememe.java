@@ -40,18 +40,39 @@
 package sh.isaac.api.component.sememe.version;
 
 /**
+ * The Interface MutableDescriptionSememe.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public interface MutableDescriptionSememe<V extends MutableDescriptionSememe<V>>
         extends DescriptionSememe<V> {
+   /**
+    * Sets the case significance concept sequence.
+    *
+    * @param caseSignificanceConceptSequence the new case significance concept sequence
+    */
    void setCaseSignificanceConceptSequence(int caseSignificanceConceptSequence);
 
+   /**
+    * Sets the description type concept sequence.
+    *
+    * @param descriptionTypeConceptSequence the new description type concept sequence
+    */
    void setDescriptionTypeConceptSequence(int descriptionTypeConceptSequence);
 
+   /**
+    * Sets the language concept sequence.
+    *
+    * @param languageConceptSequence the new language concept sequence
+    */
    void setLanguageConceptSequence(int languageConceptSequence);
 
+   /**
+    * Sets the text.
+    *
+    * @param text the new text
+    */
    void setText(String text);
 }
 

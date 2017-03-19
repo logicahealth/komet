@@ -49,6 +49,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ConceptActiveService.
  *
  * @author kec
  */
@@ -60,12 +61,20 @@ public interface ConceptActiveService {
     * when concepts are written, so developers do not have to update the
     * ConceptActiveService themselves, unless developing an alternative
     * implementation.
-    * @param conceptChronology
+    *
+    * @param conceptChronology the concept chronology
     */
    void updateStatus(ConceptChronology<?> conceptChronology);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if concept active.
+    *
+    * @param conceptSequence the concept sequence
+    * @param stampCoordinate the stamp coordinate
+    * @return true, if concept active
+    */
    boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate);
 }
 

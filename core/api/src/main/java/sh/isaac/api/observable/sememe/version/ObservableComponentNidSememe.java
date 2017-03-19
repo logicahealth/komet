@@ -46,15 +46,27 @@ import javafx.beans.property.IntegerProperty;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ObservableComponentNidSememe.
  *
  * @author kec
+ * @param <T> the generic type
  */
 public interface ObservableComponentNidSememe<T extends ObservableComponentNidSememe<T>>
         extends ObservableSememeVersion<T> {
+   /**
+    * Component nid property.
+    *
+    * @return the integer property
+    */
    IntegerProperty componentNidProperty();
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the component nid.
+    *
+    * @return the component nid
+    */
    int getComponentNid();
 }
 

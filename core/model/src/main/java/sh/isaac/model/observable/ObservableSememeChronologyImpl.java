@@ -60,69 +60,118 @@ import sh.isaac.model.sememe.version.DescriptionSememeImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableSememeChronologyImpl.
  *
  * @author kec
- * @param <OV>
- * @param <C>
+ * @param <OV> the generic type
+ * @param <C> the generic type
  */
 public class ObservableSememeChronologyImpl<OV extends ObservableSememeVersionImpl<OV>, C extends SememeChronology<?>>
         extends ObservableChronologyImpl<OV, C>
          implements ObservableSememeChronology<OV> {
+   /** The sememe sequence property. */
    private IntegerProperty sememeSequenceProperty;
+
+   /** The assemblage sequence property. */
    private IntegerProperty assemblageSequenceProperty;
+
+   /** The referenced component nid property. */
    private IntegerProperty referencedComponentNidProperty;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new observable sememe chronology impl.
+    *
+    * @param chronicledObjectLocal the chronicled object local
+    */
    public ObservableSememeChronologyImpl(C chronicledObjectLocal) {
       super(chronicledObjectLocal);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Assemblage sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty assemblageSequenceProperty() {
-      if (assemblageSequenceProperty == null) {
-         assemblageSequenceProperty = new CommitAwareIntegerProperty(this,
+      if (this.assemblageSequenceProperty == null) {
+         this.assemblageSequenceProperty = new CommitAwareIntegerProperty(this,
                ObservableFields.ASSEMBLAGE_SEQUENCE_FOR_SEMEME_CHRONICLE.toExternalString(),
                getAssemblageSequence());
       }
 
-      return assemblageSequenceProperty;
+      return this.assemblageSequenceProperty;
    }
 
+   /**
+    * Creates the mutable version.
+    *
+    * @param <M> the generic type
+    * @param type the type
+    * @param stampSequence the stamp sequence
+    * @return the m
+    */
    @Override
    public <M extends OV> M createMutableVersion(Class<M> type, int stampSequence) {
-      return (M) wrapInObservable(chronicledObjectLocal.createMutableVersion(getSvForOv(type), stampSequence));
+      return (M) wrapInObservable(this.chronicledObjectLocal.createMutableVersion(getSvForOv(type), stampSequence));
    }
 
+   /**
+    * Creates the mutable version.
+    *
+    * @param <M> the generic type
+    * @param type the type
+    * @param status the status
+    * @param ec the ec
+    * @return the m
+    */
    @Override
    public <M extends OV> M createMutableVersion(Class<M> type, State status, EditCoordinate ec) {
-      return (M) wrapInObservable(chronicledObjectLocal.createMutableVersion(getSvForOv(type), status, ec));
+      return (M) wrapInObservable(this.chronicledObjectLocal.createMutableVersion(getSvForOv(type), status, ec));
    }
 
+   /**
+    * Referenced component nid property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty referencedComponentNidProperty() {
-      if (referencedComponentNidProperty == null) {
-         referencedComponentNidProperty = new CommitAwareIntegerProperty(this,
+      if (this.referencedComponentNidProperty == null) {
+         this.referencedComponentNidProperty = new CommitAwareIntegerProperty(this,
                ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMEME_CHRONICLE.toExternalString(),
                getReferencedComponentNid());
       }
 
-      return referencedComponentNidProperty;
+      return this.referencedComponentNidProperty;
    }
 
+   /**
+    * Sememe sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public IntegerProperty sememeSequenceProperty() {
-      if (sememeSequenceProperty == null) {
-         sememeSequenceProperty = new CommitAwareIntegerProperty(this,
+      if (this.sememeSequenceProperty == null) {
+         this.sememeSequenceProperty = new CommitAwareIntegerProperty(this,
                ObservableFields.SEMEME_SEQUENCE_FOR_CHRONICLE.toExternalString(),
                getSememeSequence());
       }
 
-      return sememeSequenceProperty;
+      return this.sememeSequenceProperty;
    }
 
+   /**
+    * Wrap in observable.
+    *
+    * @param sememeVersion the sememe version
+    * @return the ov
+    */
    private OV wrapInObservable(SememeVersion<?> sememeVersion) {
       if (DescriptionSememe.class.isAssignableFrom(sememeVersion.getClass())) {
          return (OV) new ObservableDescriptionImpl((DescriptionSememeImpl) sememeVersion,
@@ -134,48 +183,81 @@ public class ObservableSememeChronologyImpl<OV extends ObservableSememeVersionIm
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the assemblage sequence.
+    *
+    * @return the assemblage sequence
+    */
    @Override
    public int getAssemblageSequence() {
-      if (assemblageSequenceProperty != null) {
-         return assemblageSequenceProperty.get();
+      if (this.assemblageSequenceProperty != null) {
+         return this.assemblageSequenceProperty.get();
       }
 
-      return chronicledObjectLocal.getAssemblageSequence();
+      return this.chronicledObjectLocal.getAssemblageSequence();
    }
 
+   /**
+    * Gets the observable version list.
+    *
+    * @return the observable version list
+    */
    @Override
    protected ObservableList<? extends OV> getObservableVersionList() {
-      ObservableList<OV> observableList = FXCollections.observableArrayList();
+      final ObservableList<OV> observableList = FXCollections.observableArrayList();
 
-      chronicledObjectLocal.getVersionList().stream().forEach((sememeVersion) -> {
-                                       observableList.add(wrapInObservable(sememeVersion));
-                                    });
+      this.chronicledObjectLocal.getVersionList().stream().forEach((sememeVersion) -> {
+                                            observableList.add(wrapInObservable(sememeVersion));
+                                         });
       return observableList;
    }
 
+   /**
+    * Gets the referenced component nid.
+    *
+    * @return the referenced component nid
+    */
    @Override
    public int getReferencedComponentNid() {
-      if (referencedComponentNidProperty != null) {
-         return referencedComponentNidProperty.get();
+      if (this.referencedComponentNidProperty != null) {
+         return this.referencedComponentNidProperty.get();
       }
 
-      return chronicledObjectLocal.getReferencedComponentNid();
+      return this.chronicledObjectLocal.getReferencedComponentNid();
    }
 
+   /**
+    * Gets the sememe sequence.
+    *
+    * @return the sememe sequence
+    */
    @Override
    public int getSememeSequence() {
-      if (sememeSequenceProperty != null) {
-         return sememeSequenceProperty.get();
+      if (this.sememeSequenceProperty != null) {
+         return this.sememeSequenceProperty.get();
       }
 
-      return chronicledObjectLocal.getSememeSequence();
+      return this.chronicledObjectLocal.getSememeSequence();
    }
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    @Override
    public SememeType getSememeType() {
-      return chronicledObjectLocal.getSememeType();
+      return this.chronicledObjectLocal.getSememeType();
    }
 
+   /**
+    * Gets the sv for ov.
+    *
+    * @param <M> the generic type
+    * @param <T> the generic type
+    * @param type the type
+    * @return the sv for ov
+    */
    private <M extends OV, T> Class<T> getSvForOv(Class<M> type) {
       if (type.isAssignableFrom(ObservableDescriptionImpl.class)) {
          return (Class<T>) DescriptionSememe.class;

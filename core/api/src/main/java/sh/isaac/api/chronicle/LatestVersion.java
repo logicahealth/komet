@@ -52,87 +52,137 @@ import java.util.stream.Stream;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LatestVersion.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public final class LatestVersion<V> {
-   V                value;
+   /** The value. */
+   V value;
+
+   /** The contradictions. */
    Optional<Set<V>> contradictions;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new latest version.
+    *
+    * @param versionType the version type
+    */
    public LatestVersion(Class<V> versionType) {
-      contradictions = Optional.empty();
+      this.contradictions = Optional.empty();
    }
 
+   /**
+    * Instantiates a new latest version.
+    *
+    * @param versions the versions
+    */
    public LatestVersion(List<V> versions) {
       this.value = Objects.requireNonNull(versions.get(0), "latest version cannot be null");
 
       if (versions.size() < 2) {
-         contradictions = Optional.empty();
+         this.contradictions = Optional.empty();
       } else {
-         contradictions = Optional.of(new HashSet<>(versions.subList(1, versions.size())));
+         this.contradictions = Optional.of(new HashSet<>(versions.subList(1, versions.size())));
       }
    }
 
+   /**
+    * Instantiates a new latest version.
+    *
+    * @param latest the latest
+    */
    public LatestVersion(V latest) {
-      this.value     = Objects.requireNonNull(latest, "latest version cannot be null");
-      contradictions = Optional.empty();
+      this.value          = Objects.requireNonNull(latest, "latest version cannot be null");
+      this.contradictions = Optional.empty();
    }
 
+   /**
+    * Instantiates a new latest version.
+    *
+    * @param latest the latest
+    * @param contradictions the contradictions
+    */
    public LatestVersion(V latest, Collection<V> contradictions) {
       this.value = latest;
 
       if (contradictions == null) {
          this.contradictions = Optional.empty();
       } else {
-         this.contradictions = Optional.of(new HashSet<V>(contradictions));
+         this.contradictions = Optional.of(new HashSet<>(contradictions));
       }
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the latest.
+    *
+    * @param value the value
+    */
    public void addLatest(V value) {
       if (this.value == null) {
          this.value = value;
       } else {
-         if (!contradictions.isPresent()) {
-            contradictions = Optional.of(new HashSet<V>());
+         if (!this.contradictions.isPresent()) {
+            this.contradictions = Optional.of(new HashSet<>());
          }
 
-         contradictions.get()
-                       .add(value);
+         this.contradictions.get()
+                            .add(value);
       }
    }
 
+   /**
+    * Contradictions.
+    *
+    * @return the optional
+    */
    public Optional<Set<V>> contradictions() {
-      return contradictions;
+      return this.contradictions;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "LatestVersion{" + "value=" + value + ", contradictions=" + contradictions + '}';
+      return "LatestVersion{" + "value=" + this.value + ", contradictions=" + this.contradictions + '}';
    }
 
+   /**
+    * Value.
+    *
+    * @return the v
+    */
    public V value() {
-      return value;
+      return this.value;
    }
 
+   /**
+    * Version stream.
+    *
+    * @return the stream
+    */
    public Stream<V> versionStream() {
-      Stream.Builder<V> builder = Stream.builder();
+      final Stream.Builder<V> builder = Stream.builder();
 
-      if (value == null) {
+      if (this.value == null) {
          return Stream.<V>builder()
                       .build();
       }
 
-      builder.accept(value);
+      builder.accept(this.value);
 
-      if (contradictions.isPresent()) {
-         contradictions.get().forEach((contradiction) -> {
-                                   builder.add(contradiction);
-                                });
+      if (this.contradictions.isPresent()) {
+         this.contradictions.get().forEach((contradiction) -> {
+                                        builder.add(contradiction);
+                                     });
       }
 
       return builder.build();

@@ -40,13 +40,17 @@
 package sh.isaac.converters.sharedUtils.propertyTypes;
 
 /**
- * Fields to treat as refsets
+ * Fields to treat as refsets.
  *
  * @author Daniel Armbrust
- *
  */
 public class BPT_Refsets
         extends BPT_DualParentPropertyType {
+   /**
+    * Instantiates a new BP T refsets.
+    *
+    * @param terminologyName the terminology name
+    */
    public BPT_Refsets(String terminologyName) {
       super("Refsets", terminologyName + " Refsets", true, null);
    }

@@ -50,7 +50,7 @@ import sh.isaac.api.util.TaskCompleteCallback;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link SearchHandleBuilder}
+ * {@link SearchHandleBuilder}.
  *
  * @author <a href="mailto:joel.kniaz@gmail.com">Joel Kniaz</a>
  */
@@ -58,6 +58,9 @@ public class SearchHandleBuilder {
    /**
     * An alternative way of passing in parameters... not really sure why needed.
     * See {@link #descriptionSearch(String, int, boolean, TaskCompleteCallback, Integer, SearchResultsFilter, Comparator, boolean)}
+    *
+    * @param builder the builder
+    * @return the search handle
     */
    public static SearchHandle descriptionSearch(SearchBuilder builder) {
       return SearchHandler.descriptionSearch(builder.getQuery(),

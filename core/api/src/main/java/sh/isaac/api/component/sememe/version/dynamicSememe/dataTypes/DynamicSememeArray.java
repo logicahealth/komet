@@ -48,18 +48,28 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- *
  * {@link DynamicSememeArray}
  *
  * A storage class that allows the creation of a refex column which holds an array of a specific type of {@link DynamicSememeData}
  * items, such as an array of {@link DynamicSememeString}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ * @param <T> the generic type
  */
 public interface DynamicSememeArray<T extends DynamicSememeData>
         extends DynamicSememeData {
+   /**
+    * Gets the data array.
+    *
+    * @return the data array
+    */
    public T[] getDataArray();
 
+   /**
+    * Gets the data array property.
+    *
+    * @return the data array property
+    */
    public ReadOnlyObjectProperty<T[]> getDataArrayProperty();
 }
 

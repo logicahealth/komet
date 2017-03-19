@@ -49,7 +49,6 @@ import java.util.stream.Stream;
 
 import org.apache.mahout.math.set.OpenIntHashSet;
 
-import au.csiro.ontology.Ontology;
 import au.csiro.ontology.classification.IReasoner;
 import au.csiro.ontology.model.Axiom;
 import au.csiro.snorocket.core.SnorocketReasoner;
@@ -65,27 +64,33 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
 //TODO move to CSIRO specific module
 //Create a classifier service...
 public class Classify {
+   /**
+    * Execute.
+    *
+    * @param conceptSequences the concept sequences
+    * @param roleSequences the role sequences
+    * @param neverGroupRoleSequences the never group role sequences
+    * @param roleGroupConceptSequence the role group concept sequence
+    */
    public static void execute(BitSet conceptSequences,
                               OpenIntHashSet roleSequences,
                               OpenIntHashSet neverGroupRoleSequences,
                               int roleGroupConceptSequence) {
-      Stream<LogicalExpressionOchreImpl> logicGraphStream = null;
-      AxiomCollector axiomCollector = new AxiomCollector(conceptSequences,
-                                                         roleSequences,
-                                                         neverGroupRoleSequences,
-                                                         roleGroupConceptSequence);
+      final Stream<LogicalExpressionOchreImpl> logicGraphStream = null;
+      final AxiomCollector axiomCollector = new AxiomCollector(conceptSequences,
+                                                               roleSequences,
+                                                               neverGroupRoleSequences,
+                                                               roleGroupConceptSequence);
 
       if (logicGraphStream != null) {
-         Set<Axiom> axioms = logicGraphStream.collect(axiomCollector);
+         final Set<Axiom> axioms = logicGraphStream.collect(axiomCollector);
 
          // Create a classifier and classify the axioms
          IReasoner r = new SnorocketReasoner();
 
          r.loadAxioms(axioms);
          r = r.classify();
-
-         // Get only the taxonomy
-         Ontology res = r.getClassifiedOntology();
+         r.getClassifiedOntology();
       }
    }
 }

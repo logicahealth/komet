@@ -67,18 +67,28 @@ import sh.isaac.api.component.concept.ConceptVersion;
 @XmlRootElement(name = "CLAUSE")
 @XmlAccessorType(value = XmlAccessType.NONE)
 public abstract class Clause {
+   /** The Constant PRE_AND_POST_ITERATION. */
    protected static final EnumSet<ClauseComputeType> PRE_AND_POST_ITERATION =
       EnumSet.of(ClauseComputeType.PRE_ITERATION,
                  ClauseComputeType.POST_ITERATION);
+
+   /** The Constant PRE_ITERATION. */
    protected static final EnumSet<ClauseComputeType> PRE_ITERATION = EnumSet.of(ClauseComputeType.PRE_ITERATION);
+
+   /** The Constant PRE_ITERATION_AND_ITERATION. */
    protected static final EnumSet<ClauseComputeType> PRE_ITERATION_AND_ITERATION =
       EnumSet.of(ClauseComputeType.PRE_ITERATION,
                  ClauseComputeType.ITERATION);
-   protected static final EnumSet<ClauseComputeType> ITERATION      = EnumSet.of(ClauseComputeType.ITERATION);
+
+   /** The Constant ITERATION. */
+   protected static final EnumSet<ClauseComputeType> ITERATION = EnumSet.of(ClauseComputeType.ITERATION);
+
+   /** The Constant POST_ITERATION. */
    protected static final EnumSet<ClauseComputeType> POST_ITERATION = EnumSet.of(ClauseComputeType.POST_ITERATION);
 
    //~--- fields --------------------------------------------------------------
 
+   /** The parent. */
    Clause parent = null;
 
    /**
@@ -96,6 +106,11 @@ public abstract class Clause {
       super();
    }
 
+   /**
+    * Instantiates a new clause.
+    *
+    * @param enclosingQuery the enclosing query
+    */
    public Clause(Query enclosingQuery) {
       this.enclosingQuery = enclosingQuery;
       enclosingQuery.getComputePhases()
@@ -108,8 +123,8 @@ public abstract class Clause {
     * Compute final results based on possible components, and any cached query
     * matches. This third pass was necessary to support the NOT operator.
     *
-    * @param incomingComponents
-    * @return
+    * @param incomingComponents the incoming components
+    * @return the nid set
     */
    public abstract NidSet computeComponents(NidSet incomingComponents);
 
@@ -118,13 +133,18 @@ public abstract class Clause {
     * iteration. If the set of possibilities cannot be computed without
     * iteration, the set of incomingPossibleComponents will be returned.
     *
-    * @param incomingPossibleComponents
-    * @return
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
     */
    public abstract NidSet computePossibleComponents(NidSet incomingPossibleComponents);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the children.
+    *
+    * @return the children
+    */
    public abstract List<Clause> getChildren();
 
    /**
@@ -143,11 +163,16 @@ public abstract class Clause {
     * @return the enclosing <code>Query</code>
     */
    public Query getEnclosingQuery() {
-      return enclosingQuery;
+      return this.enclosingQuery;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the parent.
+    *
+    * @param parent the new parent
+    */
    public void setParent(Clause parent) {
       this.parent = parent;
    }
@@ -161,7 +186,8 @@ public abstract class Clause {
     * <code>ClauseComputeType.ITERATION</code>. The clause will cache results,
     * and return the final results during the computeComponents method.
     *
-    * @param conceptVersion
+    * @param conceptVersion the concept version
+    * @return the query matches
     */
    public abstract void getQueryMatches(ConceptVersion conceptVersion);
 

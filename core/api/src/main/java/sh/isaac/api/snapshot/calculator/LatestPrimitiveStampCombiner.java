@@ -51,33 +51,46 @@ import sh.isaac.api.collections.StampSequenceSet;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LatestPrimitiveStampCombiner.
  *
  * @author kec
  */
 public class LatestPrimitiveStampCombiner
          implements BiConsumer<StampSequenceSet, StampSequenceSet> {
+   /** The computer. */
    private final RelativePositionCalculator computer;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new latest primitive stamp combiner.
+    *
+    * @param computer the computer
+    */
    public LatestPrimitiveStampCombiner(RelativePositionCalculator computer) {
       this.computer = computer;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Accept.
+    *
+    * @param t the t
+    * @param uStampSet the u stamp set
+    */
    @Override
    public void accept(StampSequenceSet t, StampSequenceSet uStampSet) {
-      StampSequenceSet tStampSet = StampSequenceSet.of(t.stream());
+      final StampSequenceSet tStampSet = StampSequenceSet.of(t.stream());
 
       t.clear();
 
       if ((tStampSet.size() == 1) && (uStampSet.size() == 1)) {
-         int              stamp1           = tStampSet.getIntIterator()
-                                                      .next();
-         int              stamp2           = uStampSet.getIntIterator()
-                                                      .next();
-         RelativePosition relativePosition = computer.relativePosition(stamp1, stamp2);
+         final int              stamp1           = tStampSet.getIntIterator()
+                                                            .next();
+         final int              stamp2           = uStampSet.getIntIterator()
+                                                            .next();
+         final RelativePosition relativePosition = this.computer.relativePosition(stamp1, stamp2);
 
          switch (relativePosition) {
          case AFTER:
@@ -97,7 +110,7 @@ public class LatestPrimitiveStampCombiner
             break;
 
          case UNREACHABLE:
-            if (computer.onRoute(stamp2)) {
+            if (this.computer.onRoute(stamp2)) {
                t.add(stamp1);
                t.add(stamp2);
             }
@@ -110,7 +123,7 @@ public class LatestPrimitiveStampCombiner
       } else {
          tStampSet.or(uStampSet);
          t.clear();
-         Arrays.stream(computer.getLatestStampSequencesAsArray(tStampSet.stream()))
+         Arrays.stream(this.computer.getLatestStampSequencesAsArray(tStampSet.stream()))
                .forEach((stamp) -> t.add(stamp));
       }
    }

@@ -62,7 +62,7 @@ import sh.isaac.api.metacontent.userPrefs.StorableUserPreferences;
 @Contract
 public interface MetaContentService {
    /**
-    * Call prior to JVM exit for safe shutdown
+    * Call prior to JVM exit for safe shutdown.
     */
    public void close();
 
@@ -82,11 +82,16 @@ public interface MetaContentService {
     *  which is quite inefficient.  For storing large objects, it is recommended you make your Value a byte[], and handle the serialization
     *  yourself.
     *
+    * @param <K> the key type
+    * @param <V> the value type
     * @param storeName the name of the store.
+    * @return the concurrent map
     */
    public <K, V> ConcurrentMap<K, V> openStore(String storeName);
 
    /**
+    * Put user prefs.
+    *
     * @param userId - the nid or sequence of the concept that identifies the user
     * @param userPrefs - user preference data to store
     * @return the old value, or null, if no old value
@@ -94,18 +99,24 @@ public interface MetaContentService {
    public byte[] putUserPrefs(int userId, StorableUserPreferences userPrefs);
 
    /**
-    * Erase the named store
+    * Erase the named store.
+    *
+    * @param storeName the store name
     */
    public void removeStore(String storeName);
 
    /**
-    * Erase any stored user prefs
+    * Erase any stored user prefs.
+    *
+    * @param userId the user id
     */
    public void removeUserPrefs(int userId);
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the user prefs.
+    *
     * @param userId - the nid or sequence of the concept that identifies the user
     * @return the byte[] that stores the user preferences, which was obtained by calling {@link StorableUserPreferences#serialize()}
     * This value should be able to be passed into the concrete implementation constructor of a class that implements {@link StorableUserPreferences}

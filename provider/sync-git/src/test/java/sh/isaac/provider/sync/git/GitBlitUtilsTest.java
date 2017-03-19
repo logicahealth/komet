@@ -41,23 +41,30 @@ package sh.isaac.provider.sync.git;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.junit.Assert;
 import org.junit.Test;
-
-import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link GitBlitUtilsTest}
+ * {@link GitBlitUtilsTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class GitBlitUtilsTest {
+   /**
+    * Test base URL parse.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void TestBaseURLParse()
             throws Exception {}
 
+   /**
+    * Test URL adjust.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void TestURLAdjust()
             throws Exception {}

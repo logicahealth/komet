@@ -48,10 +48,16 @@ import sh.isaac.api.identity.StampedVersion;
 
 /**
  * Created by kec on 6/6/15.
- * @param <V>
+ *
+ * @param <V> the value type
  */
 public interface ConceptVersion<V extends ConceptVersion<V>>
         extends StampedVersion, CommittableComponent {
+   /**
+    * Gets the chronology.
+    *
+    * @return the chronology
+    */
    ConceptChronology<V> getChronology();
 }
 

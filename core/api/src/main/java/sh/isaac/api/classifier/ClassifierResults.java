@@ -52,16 +52,29 @@ import sh.isaac.api.commit.CommitRecord;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ClassifierResults.
  *
  * @author kec
  */
 public class ClassifierResults {
-   final ConceptSequenceSet      affectedConcepts;
+   /** The affected concepts. */
+   final ConceptSequenceSet affectedConcepts;
+
+   /** The equivalent sets. */
    final Set<ConceptSequenceSet> equivalentSets;
-   final Optional<CommitRecord>  commitRecord;
+
+   /** The commit record. */
+   final Optional<CommitRecord> commitRecord;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new classifier results.
+    *
+    * @param affectedConcepts the affected concepts
+    * @param equivalentSets the equivalent sets
+    * @param commitRecord the commit record
+    */
    public ClassifierResults(ConceptSequenceSet affectedConcepts,
                             Set<ConceptSequenceSet> equivalentSets,
                             Optional<CommitRecord> commitRecord) {
@@ -72,24 +85,44 @@ public class ClassifierResults {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "ClassifierResults{" + "affectedConcepts=" + affectedConcepts.size() + ", equivalentSets=" +
-             equivalentSets.size() + '}';
+      return "ClassifierResults{" + "affectedConcepts=" + this.affectedConcepts.size() + ", equivalentSets=" +
+             this.equivalentSets.size() + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the affected concepts.
+    *
+    * @return the affected concepts
+    */
    public ConceptSequenceSet getAffectedConcepts() {
-      return affectedConcepts;
+      return this.affectedConcepts;
    }
 
+   /**
+    * Gets the commit record.
+    *
+    * @return the commit record
+    */
    public Optional<CommitRecord> getCommitRecord() {
-      return commitRecord;
+      return this.commitRecord;
    }
 
+   /**
+    * Gets the equivalent sets.
+    *
+    * @return the equivalent sets
+    */
    public Set<ConceptSequenceSet> getEquivalentSets() {
-      return equivalentSets;
+      return this.equivalentSets;
    }
 }
 

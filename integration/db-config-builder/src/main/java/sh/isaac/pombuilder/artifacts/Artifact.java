@@ -46,56 +46,108 @@ package sh.isaac.pombuilder.artifacts;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public abstract class Artifact {
-   private String groupId_;
-   private String artifactId_;
-   private String version_;
-   private String classifier_;
+   /** The group id. */
+   private final String groupId;
+
+   /** The artifact id. */
+   private final String artifactId;
+
+   /** The version. */
+   private final String version;
+
+   /** The classifier. */
+   private final String classifier;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new artifact.
+    *
+    * @param groupId the group id
+    * @param artifactId the artifact id
+    * @param version the version
+    */
    public Artifact(String groupId, String artifactId, String version) {
       this(groupId, artifactId, version, null);
    }
 
+   /**
+    * Instantiates a new artifact.
+    *
+    * @param groupId the group id
+    * @param artifactId the artifact id
+    * @param version the version
+    * @param classifier the classifier
+    */
    public Artifact(String groupId, String artifactId, String version, String classifier) {
-      groupId_    = groupId;
-      artifactId_ = artifactId;
-      version_    = version;
-      classifier_ = classifier;
+      this.groupId    = groupId;
+      this.artifactId = artifactId;
+      this.version    = version;
+      this.classifier = classifier;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "Artifact [groupId_=" + groupId_ + ", artifactId_=" + artifactId_ + ", version_=" + version_ +
-             ", classifier_=" + classifier_ + "]";
+      return "Artifact [groupId_=" + this.groupId + ", artifactId_=" + this.artifactId + ", version_=" +
+             this.version + ", classifier_=" + this.classifier + "]";
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the artifact id.
+    *
+    * @return the artifact id
+    */
    public String getArtifactId() {
-      return artifactId_;
+      return this.artifactId;
    }
 
+   /**
+    * Gets the classifier.
+    *
+    * @return the classifier
+    */
    public String getClassifier() {
-      return classifier_;
+      return this.classifier;
    }
 
+   /**
+    * Checks for classifier.
+    *
+    * @return true, if successful
+    */
    public boolean hasClassifier() {
-      if ((classifier_ == null) || (classifier_.trim().length() == 0)) {
+      if ((this.classifier == null) || (this.classifier.trim().length() == 0)) {
          return false;
       }
 
       return true;
    }
 
+   /**
+    * Gets the group id.
+    *
+    * @return the group id
+    */
    public String getGroupId() {
-      return groupId_;
+      return this.groupId;
    }
 
+   /**
+    * Gets the version.
+    *
+    * @return the version
+    */
    public String getVersion() {
-      return version_;
+      return this.version;
    }
 }
 

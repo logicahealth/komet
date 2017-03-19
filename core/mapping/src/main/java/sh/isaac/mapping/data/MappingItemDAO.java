@@ -57,7 +57,6 @@ import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeChronology;
@@ -71,16 +70,23 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class MappingItemDAO.
+ */
 public class MappingItemDAO
         extends MappingDAO {
    /**
     * Construct (and save to the DB) a new MappingItem.
+    *
     * @param sourceConcept - the primary ID of the source concept
     * @param mappingSetID - the primary ID of the mapping type
     * @param targetConcept - the primary ID of the target concept
     * @param qualifierID - (optional) the primary ID of the qualifier concept
     * @param editorStatusID - (optional) the primary ID of the status concept
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @return the mapping item
+    * @throws RuntimeException the runtime exception
     */
    public static MappingItem createMappingItem(ConceptSnapshot sourceConcept,
          UUID mappingSetID,
@@ -90,20 +96,20 @@ public class MappingItemDAO
          StampCoordinate stampCoord,
          EditCoordinate editCoord)
             throws RuntimeException {
-      SememeBuilder<? extends SememeChronology<?>> sb = Get.sememeBuilderService()
-                                                           .getDynamicSememeBuilder(sourceConcept.getNid(),
-                                                                 Get.identifierService()
-                                                                       .getConceptSequenceForUuids(mappingSetID),
-                                                                 new DynamicSememeData[] {
-                                                                    ((targetConcept == null) ? null
+      final SememeBuilder<? extends SememeChronology<?>> sb = Get.sememeBuilderService()
+                                                                 .getDynamicSememeBuilder(sourceConcept.getNid(),
+                                                                       Get.identifierService()
+                                                                             .getConceptSequenceForUuids(mappingSetID),
+                                                                       new DynamicSememeData[] {
+                                                                          ((targetConcept == null) ? null
             : new DynamicSememeUUIDImpl(targetConcept.getPrimordialUuid())), ((qualifierID == null) ? null
             : new DynamicSememeUUIDImpl(qualifierID)), ((editorStatusID == null) ? null
             : new DynamicSememeUUIDImpl(editorStatusID)) });
-      UUID mappingItemUUID = UuidT5Generator.get(IsaacMappingConstants.get().MAPPING_NAMESPACE
-                                                                      .getUUID(),
-                                                 sourceConcept.getPrimordialUuid()
-                                                       .toString() + "|" + mappingSetID.toString() + "|" +
-                                                          ((targetConcept == null) ? ""
+      final UUID mappingItemUUID = UuidT5Generator.get(IsaacMappingConstants.get().MAPPING_NAMESPACE
+                                                                            .getUUID(),
+                                                       sourceConcept.getPrimordialUuid()
+                                                             .toString() + "|" + mappingSetID.toString() + "|" +
+                                                                ((targetConcept == null) ? ""
             : targetConcept.getPrimordialUuid()
                            .toString()) + "|" + ((qualifierID == null) ? ""
             : qualifierID.toString()));
@@ -117,29 +123,34 @@ public class MappingItemDAO
       sb.setPrimordialUuid(mappingItemUUID);
 
       @SuppressWarnings("rawtypes")
-      SememeChronology             built = sb.build(editCoord, ChangeCheckerMode.ACTIVE)
-                                             .getNoThrow();
+      final SememeChronology             built = sb.build(editCoord, ChangeCheckerMode.ACTIVE)
+                                                   .getNoThrow();
       @SuppressWarnings("deprecation")
-      Task<Optional<CommitRecord>> task  = Get.commitService()
-                                              .commit("Added comment");
+      final Task<Optional<CommitRecord>> task  = Get.commitService()
+                                                    .commit("Added comment");
 
       try {
          task.get();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new RuntimeException();
       }
 
       @SuppressWarnings({ "unchecked" })
-      Optional<LatestVersion<DynamicSememe<?>>> latest = built.getLatestVersion(DynamicSememe.class,
-                                                                                stampCoord.makeAnalog(State.ACTIVE,
-                                                                                      State.INACTIVE));
+      final Optional<LatestVersion<DynamicSememe<?>>> latest = built.getLatestVersion(DynamicSememe.class,
+                                                                                      stampCoord.makeAnalog(
+                                                                                         State.ACTIVE,
+                                                                                               State.INACTIVE));
 
       return new MappingItem(latest.get().value());
    }
 
    /**
+    * Retire mapping item.
+    *
     * @param mappingItemPrimordial - The identifier of the mapping item to be retired
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void retireMappingItem(UUID mappingItemPrimordial,
          StampCoordinate stampCoord,
@@ -149,8 +160,12 @@ public class MappingItemDAO
    }
 
    /**
+    * Un retire mapping item.
+    *
     * @param mappingItemPrimordial - The identifier of the mapping item to be re-activated
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void unRetireMappingItem(UUID mappingItemPrimordial,
          StampCoordinate stampCoord,
@@ -160,9 +175,12 @@ public class MappingItemDAO
    }
 
    /**
-    * Just test / demo code
-    * @param mappingSetUUID
-    * @throws IOException
+    * Just test / demo code.
+    *
+    * @param mappingItem the mapping item
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
     */
 
    /*
@@ -207,8 +225,8 @@ public class MappingItemDAO
          StampCoordinate stampCoord,
          EditCoordinate editCoord)
             throws IOException {
-      DynamicSememe<?>    rdv  = readCurrentRefex(mappingItem.getPrimordialUUID(), stampCoord);
-      DynamicSememeData[] data = rdv.getData();
+      final DynamicSememe<?>    rdv  = readCurrentRefex(mappingItem.getPrimordialUUID(), stampCoord);
+      final DynamicSememeData[] data = rdv.getData();
 
       data[2] = ((mappingItem.getEditorStatusConcept() != null)
                  ? new DynamicSememeUUIDImpl(mappingItem.getEditorStatusConcept())
@@ -218,12 +236,12 @@ public class MappingItemDAO
          .build(editCoord, ChangeCheckerMode.ACTIVE);
 
       @SuppressWarnings("deprecation")
-      Task<Optional<CommitRecord>> task = Get.commitService()
-                                             .commit("update mapping item");
+      final Task<Optional<CommitRecord>> task = Get.commitService()
+                                                   .commit("update mapping item");
 
       try {
          task.get();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new RuntimeException();
       }
    }
@@ -234,17 +252,18 @@ public class MappingItemDAO
     * Read all of the mappings items which are defined as part of the specified mapping set.
     *
     * @param mappingSetID - the mapping set that contains the mapping items
-    * @return
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @return the mapping items
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static List<MappingItem> getMappingItems(UUID mappingSetID, StampCoordinate stampCoord)
             throws IOException {
-      ArrayList<MappingItem> result = new ArrayList<>();
+      final ArrayList<MappingItem> result = new ArrayList<>();
 
       Get.sememeService().getSememesFromAssemblage(Get.identifierService()
                                       .getNidForUuids(mappingSetID)).forEach(sememeC -> {
                      @SuppressWarnings({ "unchecked", "rawtypes" })
-                     Optional<LatestVersion<DynamicSememe<?>>> latest =
+                     final Optional<LatestVersion<DynamicSememe<?>>> latest =
                         ((SememeChronology) sememeC).getLatestVersion(DynamicSememe.class, stampCoord);
 
                      if (latest.isPresent()) {

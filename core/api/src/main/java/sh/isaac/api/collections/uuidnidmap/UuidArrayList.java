@@ -52,14 +52,13 @@ import org.apache.mahout.math.Arrays;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class UuidArrayList.
  *
  * @author kec
  */
 public class UuidArrayList
         extends AbstractUuidList {
-   /**
-    *
-    */
+   /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 1L;
 
    //~--- fields --------------------------------------------------------------
@@ -120,30 +119,35 @@ public class UuidArrayList
    @Override
    public void add(long[] element) {
       // overridden for performance only.
-      int msbIndex = size * 2;
-      int lsbIndex = msbIndex + 1;
+      final int msbIndex = this.size * 2;
+      final int lsbIndex = msbIndex + 1;
 
-      if (lsbIndex >= elements.length) {
+      if (lsbIndex >= this.elements.length) {
          ensureCapacity(lsbIndex + 1);
       }
 
-      elements[msbIndex] = element[0];
-      elements[lsbIndex] = element[1];
-      size++;
+      this.elements[msbIndex] = element[0];
+      this.elements[lsbIndex] = element[1];
+      this.size++;
    }
 
+   /**
+    * Adds the.
+    *
+    * @param element the element
+    */
    public void add(UUID element) {
       // overridden for performance only.
-      int msbIndex = size * 2;
-      int lsbIndex = msbIndex + 1;
+      final int msbIndex = this.size * 2;
+      final int lsbIndex = msbIndex + 1;
 
-      if (lsbIndex >= elements.length) {
+      if (lsbIndex >= this.elements.length) {
          ensureCapacity(lsbIndex + 1);
       }
 
-      elements[msbIndex] = element.getMostSignificantBits();
-      elements[lsbIndex] = element.getLeastSignificantBits();
-      size++;
+      this.elements[msbIndex] = element.getMostSignificantBits();
+      this.elements[lsbIndex] = element.getLeastSignificantBits();
+      this.size++;
    }
 
    /**
@@ -163,21 +167,21 @@ public class UuidArrayList
    @Override
    public void beforeInsert(int index, long[] element) {
       // overridden for performance only.
-      if ((index > size) || (index < 0)) {
-         throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+      if ((index > this.size) || (index < 0)) {
+         throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + this.size);
       }
 
-      int elementLength = size * 2 + 1;
+      final int elementLength = this.size * 2 + 1;
 
       ensureCapacity(elementLength);
 
-      int indexMsb = index * 2;
-      int indexLsb = indexMsb + 1;
+      final int indexMsb = index * 2;
+      final int indexLsb = indexMsb + 1;
 
-      System.arraycopy(elements, indexLsb, elements, indexLsb + 1, size - index);
-      elements[indexMsb] = element[0];
-      elements[indexLsb] = element[1];
-      size++;
+      System.arraycopy(this.elements, indexLsb, this.elements, indexLsb + 1, this.size - index);
+      this.elements[indexMsb] = element[0];
+      this.elements[indexLsb] = element[1];
+      this.size++;
    }
 
    /**
@@ -218,9 +222,9 @@ public class UuidArrayList
    @Override
    public Object clone() {
       // overridden for performance only.
-      UuidArrayList clone = new UuidArrayList((long[]) elements.clone());
+      final UuidArrayList clone = new UuidArrayList(this.elements.clone());
 
-      clone.setSizeRaw(size);
+      clone.setSizeRaw(this.size);
       return clone;
    }
 
@@ -247,7 +251,7 @@ public class UuidArrayList
     */
    @Override
    public long[] elements() {
-      return elements;
+      return this.elements;
    }
 
    /**
@@ -281,7 +285,7 @@ public class UuidArrayList
     */
    @Override
    public void ensureCapacity(int minCapacity) {
-      elements = Arrays.ensureCapacity(elements, minCapacity);
+      this.elements = Arrays.ensureCapacity(this.elements, minCapacity);
    }
 
    /**
@@ -310,14 +314,14 @@ public class UuidArrayList
          return super.equals(otherObj);
       }
 
-      UuidArrayList other = (UuidArrayList) otherObj;
+      final UuidArrayList other = (UuidArrayList) otherObj;
 
       if (size() != other.size()) {
          return false;
       }
 
-      long[] theElements   = elements();
-      long[] otherElements = other.elements();
+      final long[] theElements   = elements();
+      final long[] otherElements = other.elements();
 
       for (int i = size(); --i >= 0; ) {
          if (theElements[i] != otherElements[i]) {
@@ -341,13 +345,13 @@ public class UuidArrayList
    @Override
    public boolean forEach(UuidProcedure procedure) {
       // overridden for performance only.
-      long[] theElements = elements;
-      int    theSize     = size;
+      final long[] theElements = this.elements;
+      final int    theSize     = this.size;
 
       for (int i = 0; i < theSize; i++) {
-         int    msb  = i * 2;
-         int    lsb  = msb + 1;
-         long[] uuid = new long[2];
+         final int    msb  = i * 2;
+         final int    lsb  = msb + 1;
+         final long[] uuid = new long[2];
 
          uuid[0] = theElements[msb];
          uuid[0] = theElements[lsb];
@@ -360,6 +364,11 @@ public class UuidArrayList
       return true;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       return super.hashCode();
@@ -386,13 +395,13 @@ public class UuidArrayList
     */
    public int indexOfFromTo(long element, int from, int to) {
       // overridden for performance only.
-      if (size == 0) {
+      if (this.size == 0) {
          return -1;
       }
 
-      checkRangeFromTo(from, to, size);
+      checkRangeFromTo(from, to, this.size);
 
-      long[] theElements = elements;
+      final long[] theElements = this.elements;
 
       for (int i = from; i <= to; i++) {
          if (element == theElements[i]) {
@@ -424,13 +433,13 @@ public class UuidArrayList
     */
    public int lastIndexOfFromTo(long element, int from, int to) {
       // overridden for performance only.
-      if (size == 0) {
+      if (this.size == 0) {
          return -1;
       }
 
-      checkRangeFromTo(from, to, size);
+      checkRangeFromTo(from, to, this.size);
 
-      long[] theElements = elements;
+      final long[] theElements = this.elements;
 
       for (int i = to; i >= from; i--) {
          if (element == theElements[i]) {
@@ -457,15 +466,15 @@ public class UuidArrayList
     */
    @Override
    public AbstractUuidList partFromTo(int from, int to) {
-      if (size == 0) {
+      if (this.size == 0) {
          return new UuidArrayList(0);
       }
 
-      checkRangeFromTo(from, to, size);
+      checkRangeFromTo(from, to, this.size);
 
-      long[] part = new long[to - from + 1];
+      final long[] part = new long[to - from + 1];
 
-      System.arraycopy(elements, from, part, 0, to - from + 1);
+      System.arraycopy(this.elements, from, part, 0, to - from + 1);
       return new UuidArrayList(part);
    }
 
@@ -499,23 +508,23 @@ public class UuidArrayList
          return false;
       }  // nothing to do
 
-      int    limit       = other.size() - 1;
-      int    j           = 0;
-      long[] theElements = elements;
-      int    mySize      = size();
-      double N           = (double) other.size();
-      double M           = (double) mySize;
+      final int    limit       = other.size() - 1;
+      int          j           = 0;
+      final long[] theElements = this.elements;
+      final int    mySize      = size();
+      final double N           = other.size();
+      final double M           = mySize;
 
       if ((N + M) * Arithmetic.log2(N) < M * N) {
          // it is faster to sort other before searching in it
-         UuidArrayList sortedList = (UuidArrayList) other.clone();
+         final UuidArrayList sortedList = (UuidArrayList) other.clone();
 
          sortedList.quickSort();
 
          for (int i = 0; i < mySize; i++) {
-            int    msb = i * 2;
-            int    lsb = msb + 1;
-            long[] key = new long[2];
+            final int    msb = i * 2;
+            final int    lsb = msb + 1;
+            final long[] key = new long[2];
 
             key[0] = theElements[msb];
             key[1] = theElements[lsb];
@@ -529,9 +538,9 @@ public class UuidArrayList
       } else {
          // it is faster to search in other without sorting
          for (int i = 0; i < mySize; i++) {
-            int    msb = i * 2;
-            int    lsb = msb + 1;
-            long[] key = new long[2];
+            final int    msb = i * 2;
+            final int    lsb = msb + 1;
+            final long[] key = new long[2];
 
             key[0] = theElements[msb];
             key[1] = theElements[lsb];
@@ -544,7 +553,7 @@ public class UuidArrayList
          }
       }
 
-      boolean modified = (j != mySize);
+      final boolean modified = (j != mySize);
 
       setSize(j);
       return modified;
@@ -577,12 +586,12 @@ public class UuidArrayList
          return;
       }
 
-      int length = to - from + 1;
+      final int length = to - from + 1;
 
       if (length > 0) {
          checkRangeFromTo(from, to, size());
          checkRangeFromTo(otherFrom, otherFrom + length - 1, other.size());
-         System.arraycopy(((UuidArrayList) other).elements, otherFrom, elements, from, length);
+         System.arraycopy(((UuidArrayList) other).elements, otherFrom, this.elements, from, length);
       }
    }
 
@@ -613,23 +622,23 @@ public class UuidArrayList
        *
        * Hence, if N*logN + M*logN < M*N, we use b) otherwise we use a).
        */
-      int    limit       = other.size() - 1;
-      int    j           = 0;
-      long[] theElements = elements;
-      int    mySize      = size();
-      double N           = (double) other.size();
-      double M           = (double) mySize;
+      final int    limit       = other.size() - 1;
+      int          j           = 0;
+      final long[] theElements = this.elements;
+      final int    mySize      = size();
+      final double N           = other.size();
+      final double M           = mySize;
 
       if ((N + M) * Arithmetic.log2(N) < M * N) {
          // it is faster to sort other before searching in it
-         UuidArrayList sortedList = (UuidArrayList) other.clone();
+         final UuidArrayList sortedList = (UuidArrayList) other.clone();
 
          sortedList.quickSort();
 
          for (int i = 0; i < mySize; i++) {
-            int    msb = i * 2;
-            int    lsb = msb + 1;
-            long[] key = new long[2];
+            final int    msb = i * 2;
+            final int    lsb = msb + 1;
+            final long[] key = new long[2];
 
             key[0] = theElements[msb];
             key[1] = theElements[lsb];
@@ -643,9 +652,9 @@ public class UuidArrayList
       } else {
          // it is faster to search in other without sorting
          for (int i = 0; i < mySize; i++) {
-            int    msb = i * 2;
-            int    lsb = msb + 1;
-            long[] key = new long[2];
+            final int    msb = i * 2;
+            final int    lsb = msb + 1;
+            final long[] key = new long[2];
 
             key[0] = theElements[msb];
             key[1] = theElements[lsb];
@@ -658,7 +667,7 @@ public class UuidArrayList
          }
       }
 
-      boolean modified = (j != mySize);
+      final boolean modified = (j != mySize);
 
       setSize(j);
       return modified;
@@ -671,10 +680,10 @@ public class UuidArrayList
    @Override
    public void reverse() {
       // overridden for performance only.
-      long[] tmp         = new long[2];
-      int    limit       = size / 2;
-      int    j           = size - 1;
-      long[] theElements = elements;
+      final long[] tmp         = new long[2];
+      final int    limit       = this.size / 2;
+      int          j           = this.size - 1;
+      final long[] theElements = this.elements;
 
       for (int i = 0; i < limit; ) {  // swap
          tmp[0]                 = theElements[i * 2];
@@ -712,19 +721,24 @@ public class UuidArrayList
     */
    @Override
    public void sortFromTo(int from, int to) {
-      if (size == 0) {
+      if (this.size == 0) {
          return;
       }
 
-      checkRangeFromTo(from, to, size);
+      checkRangeFromTo(from, to, this.size);
       quickSortFromTo(from, to);
    }
 
+   /**
+    * To list.
+    *
+    * @return the array list
+    */
    public ArrayList<UUID> toList() {
-      ArrayList<UUID> resultList = new ArrayList<>(size);
+      final ArrayList<UUID> resultList = new ArrayList<>(this.size);
 
-      for (int i = 0; i < size; i++) {
-         resultList.add(new UUID(elements[i * 2], elements[i * 2 + 1]));
+      for (int i = 0; i < this.size; i++) {
+         resultList.add(new UUID(this.elements[i * 2], this.elements[i * 2 + 1]));
       }
 
       return resultList;
@@ -737,30 +751,36 @@ public class UuidArrayList
     */
    @Override
    public void trimToSize() {
-      elements = Arrays.trimToCapacity(elements, size() * 2 + 1);
+      this.elements = Arrays.trimToCapacity(this.elements, size() * 2 + 1);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the capacity.
+    *
+    * @return the capacity
+    */
    public int getCapacity() {
-      return elements.length / 2;
+      return this.elements.length / 2;
    }
 
    /**
     * Returns the element at the specified position in the receiver.
     *
-    * @param index
-    *            index of element to return.
-    * @param nid
-    * @exception IndexOutOfBoundsException
-    *                index is out of range (index &lt; 0 || index &gt;=
+    * @param index            index of element to return.
+    * @param nid the nid
+    * @return the long[]
+    * @exception IndexOutOfBoundsException                index is out of range (index &lt; 0 || index &gt;=
     *                size()).
     */
    public long[] get(int index, int nid) {
       // overridden for performance only.
-      assert index < size: " index out of bounds. index: " + index + " current size: " + size + " nid: " + nid;
+      assert index < this.size:
+             " index out of bounds. index: " + index + " current size: " + this.size + " nid: " + nid;
       assert index >= 0:
-             " index out of bounds (cannot be netagive). index: " + index + " current size: " + size + " nid: " + nid;
+             " index out of bounds (cannot be netagive). index: " + index + " current size: " + this.size + " nid: " +
+             nid;
       return getUuid(index);
    }
 
@@ -772,8 +792,8 @@ public class UuidArrayList
     * sure that the index is within bounds.</b> Precondition (unchecked):
     * {@code index &gt;= 0 && index &lt; size()}.
     *
-    * @param index
-    *            index of element to return.
+    * @param index            index of element to return.
+    * @return the quick
     */
    @Override
    public long[] getQuick(int index) {
@@ -796,13 +816,19 @@ public class UuidArrayList
     *            element to be stored at the specified position.
     */
    public void setQuick(int index, long element) {
-      elements[index] = element;
+      this.elements[index] = element;
    }
 
+   /**
+    * Set quick.
+    *
+    * @param index the index
+    * @param element the element
+    */
    @Override
    protected void setQuick(int index, long[] element) {
-      elements[index * 2]     = element[0];
-      elements[index * 2 + 1] = element[1];
+      this.elements[index * 2]     = element[0];
+      this.elements[index * 2 + 1] = element[1];
    }
 
    /**
@@ -819,22 +845,28 @@ public class UuidArrayList
     */
    public void set(int index, long element) {
       // overridden for performance only.
-      if ((index >= size) || (index < 0)) {
-         throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+      if ((index >= this.size) || (index < 0)) {
+         throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + this.size);
       }
 
-      elements[index] = element;
+      this.elements[index] = element;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the uuid.
+    *
+    * @param index the index
+    * @return the uuid
+    */
    private long[] getUuid(int index) {
-      int    msb         = index * 2;
-      int    lsb         = msb + 1;
-      long[] returnValue = new long[2];
+      final int    msb         = index * 2;
+      final int    lsb         = msb + 1;
+      final long[] returnValue = new long[2];
 
-      returnValue[0] = elements[msb];
-      returnValue[1] = elements[lsb];
+      returnValue[0] = this.elements[msb];
+      returnValue[1] = this.elements[lsb];
       return returnValue;
    }
 }

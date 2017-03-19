@@ -64,6 +64,8 @@ public interface TimeBasedAnalogMaker<T> {
    }
 
    /**
+    * Make analog.
+    *
     * @param stampPositionTime the time of the stamp position for the analog
     * @return a new {@code <T>}  with the specified stamp position time.
     */

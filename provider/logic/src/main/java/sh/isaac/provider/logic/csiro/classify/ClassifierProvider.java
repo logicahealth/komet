@@ -68,21 +68,35 @@ import sh.isaac.provider.taxonomy.graph.GraphCollector;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ClassifierProvider.
  *
  * @author kec
  */
 public class ClassifierProvider
          implements ClassifierService {
+   /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The stamp coordinate. */
    StampCoordinate stampCoordinate;
+
+   /** The logic coordinate. */
    LogicCoordinate logicCoordinate;
-   EditCoordinate  editCoordinate;
+
+   /** The edit coordinate. */
+   EditCoordinate editCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new classifier provider.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param logicCoordinate the logic coordinate
+    * @param editCoordinate the edit coordinate
+    */
    public ClassifierProvider(StampCoordinate stampCoordinate,
                              LogicCoordinate logicCoordinate,
                              EditCoordinate editCoordinate) {
@@ -93,6 +107,11 @@ public class ClassifierProvider
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Classify.
+    *
+    * @return the task
+    */
    @Override
    public Task<ClassifierResults> classify() {
       return AggregateClassifyTask.get(this.stampCoordinate, this.logicCoordinate);
@@ -100,35 +119,56 @@ public class ClassifierProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the concept sequence for expression.
+    *
+    * @param expression the expression
+    * @param editCoordinate the edit coordinate
+    * @return the concept sequence for expression
+    */
    @Override
    public Task<Integer> getConceptSequenceForExpression(LogicalExpression expression, EditCoordinate editCoordinate) {
       return GetConceptSequenceForExpressionTask.create(expression, this, editCoordinate);
    }
 
+   /**
+    * Gets the inferred taxonomy graph.
+    *
+    * @return the inferred taxonomy graph
+    */
    protected HashTreeWithBitSets getInferredTaxonomyGraph() {
-      IntStream conceptSequenceStream = Get.identifierService()
-                                           .getParallelConceptSequenceStream();
-      GraphCollector collector =
+      final IntStream conceptSequenceStream = Get.identifierService()
+                                                 .getParallelConceptSequenceStream();
+      final GraphCollector collector =
          new GraphCollector(((TaxonomyProvider) Get.taxonomyService()).getOriginDestinationTaxonomyRecords(),
                             TaxonomyCoordinates.getInferredTaxonomyCoordinate(
                                 StampCoordinates.getDevelopmentLatestActiveOnly(),
                                 Get.configurationService().getDefaultLanguageCoordinate()));
-      HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(HashTreeBuilder::new, collector, collector);
-      HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraphGraph();
+      final HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(HashTreeBuilder::new,
+                                                                             collector,
+                                                                             collector);
+      final HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraphGraph();
 
       return resultGraph;
    }
 
+   /**
+    * Gets the stated taxonomy graph.
+    *
+    * @return the stated taxonomy graph
+    */
    protected HashTreeWithBitSets getStatedTaxonomyGraph() {
-      IntStream conceptSequenceStream = Get.identifierService()
-                                           .getParallelConceptSequenceStream();
-      GraphCollector collector =
+      final IntStream conceptSequenceStream = Get.identifierService()
+                                                 .getParallelConceptSequenceStream();
+      final GraphCollector collector =
          new GraphCollector(((TaxonomyProvider) Get.taxonomyService()).getOriginDestinationTaxonomyRecords(),
                             TaxonomyCoordinates.getStatedTaxonomyCoordinate(
                                 StampCoordinates.getDevelopmentLatestActiveOnly(),
                                 Get.configurationService().getDefaultLanguageCoordinate()));
-      HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(HashTreeBuilder::new, collector, collector);
-      HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraphGraph();
+      final HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(HashTreeBuilder::new,
+                                                                             collector,
+                                                                             collector);
+      final HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraphGraph();
 
       return resultGraph;
    }

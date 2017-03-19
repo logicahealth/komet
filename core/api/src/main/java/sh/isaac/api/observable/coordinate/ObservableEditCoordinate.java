@@ -48,15 +48,31 @@ import sh.isaac.api.coordinate.EditCoordinate;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ObservableEditCoordinate.
  *
  * @author kec
  */
 public interface ObservableEditCoordinate
         extends EditCoordinate {
+   /**
+    * Author sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty authorSequenceProperty();
 
+   /**
+    * Module sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty moduleSequenceProperty();
 
+   /**
+    * Path sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty pathSequenceProperty();
 }
 

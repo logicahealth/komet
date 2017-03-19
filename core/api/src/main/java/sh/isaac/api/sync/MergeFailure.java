@@ -53,44 +53,61 @@ import java.util.Set;
  */
 public class MergeFailure
         extends Exception {
+   /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 1L;
 
    //~--- fields --------------------------------------------------------------
 
-   private Set<String> filesWithMergeFailures_;
-   private Set<String> filesChangedDuringMergeAttempt_;
+   /** The files with merge failures. */
+   private final Set<String> filesWithMergeFailures;
+
+   /** The files changed during merge attempt. */
+   private final Set<String> filesChangedDuringMergeAttempt;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new merge failure.
+    *
+    * @param filesWithMergeFailures the files with merge failures
+    * @param filesChangedDuringMergeAttempt the files changed during merge attempt
+    */
    public MergeFailure(Set<String> filesWithMergeFailures, Set<String> filesChangedDuringMergeAttempt) {
       super("Merge Failure");
-      filesWithMergeFailures_         = filesWithMergeFailures;
-      filesChangedDuringMergeAttempt_ = filesChangedDuringMergeAttempt;
+      this.filesWithMergeFailures         = filesWithMergeFailures;
+      this.filesChangedDuringMergeAttempt = filesChangedDuringMergeAttempt;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the files changed during merge attempt.
+    *
     * @return All files that were changed (successfully or not) during the merge.
     */
    public Set<String> getFilesChangedDuringMergeAttempt() {
-      return filesChangedDuringMergeAttempt_;
+      return this.filesChangedDuringMergeAttempt;
    }
 
    /**
+    * Gets the localized message.
+    *
+    * @return the localized message
     * @see java.lang.Throwable#getLocalizedMessage()
     */
    @Override
    public String getLocalizedMessage() {
-      return super.getLocalizedMessage() + " on " + filesWithMergeFailures_ + " while updating the files " +
-             filesChangedDuringMergeAttempt_;
+      return super.getLocalizedMessage() + " on " + this.filesWithMergeFailures + " while updating the files " +
+             this.filesChangedDuringMergeAttempt;
    }
 
    /**
+    * Gets the merge failures.
+    *
     * @return The files that were left in a conflicted, unusable state - much be corrected with a call to resolveMergeFailures.
     */
    public Set<String> getMergeFailures() {
-      return filesWithMergeFailures_;
+      return this.filesWithMergeFailures;
    }
 }
 

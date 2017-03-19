@@ -50,27 +50,44 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeIntegerImpl}
+ * {@link DynamicSememeIntegerImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeIntegerImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeInteger {
-   private ObjectProperty<Integer> property_;
+   /** The property. */
+   private ObjectProperty<Integer> property;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe integer impl.
+    *
+    * @param data the data
+    */
    protected DynamicSememeIntegerImpl(byte[] data) {
       super(data);
    }
 
+   /**
+    * Instantiates a new dynamic sememe integer impl.
+    *
+    * @param integer the integer
+    */
    public DynamicSememeIntegerImpl(int integer) {
       super();
-      data_ = intToByteArray(integer);
+      this.data = intToByteArray(integer);
    }
 
+   /**
+    * Instantiates a new dynamic sememe integer impl.
+    *
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    protected DynamicSememeIntegerImpl(byte[] data, int assemblageSequence, int columnNumber) {
       super(data, assemblageSequence, columnNumber);
    }
@@ -78,10 +95,13 @@ public class DynamicSememeIntegerImpl
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Returns a 4 byte array
+    * Returns a 4 byte array.
+    *
+    * @param integer the integer
+    * @return the byte[]
     */
    protected static byte[] intToByteArray(int integer) {
-      byte[] bytes = new byte[4];
+      final byte[] bytes = new byte[4];
 
       bytes[0] = (byte) (integer >> 24);
       bytes[1] = (byte) (integer >> 16);
@@ -93,26 +113,35 @@ public class DynamicSememeIntegerImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data integer.
+    *
+    * @return the data integer
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicIntegerBI#getDataInteger()
     */
    @Override
    public int getDataInteger() {
-      return getIntFromByteArray(data_);
+      return getIntFromByteArray(this.data);
    }
 
    /**
+    * Gets the data integer property.
+    *
+    * @return the data integer property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicIntegerBI#getDataIntegerProperty()
     */
    @Override
    public ReadOnlyObjectProperty<Integer> getDataIntegerProperty() {
-      if (property_ == null) {
-         property_ = new SimpleObjectProperty<>(null, getName(), getDataInteger());
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<>(null, getName(), getDataInteger());
       }
 
-      return property_;
+      return this.property;
    }
 
    /**
+    * Gets the data object.
+    *
+    * @return the data object
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
     */
    @Override
@@ -121,6 +150,9 @@ public class DynamicSememeIntegerImpl
    }
 
    /**
+    * Gets the data object property.
+    *
+    * @return the data object property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
     */
    @Override
@@ -128,6 +160,12 @@ public class DynamicSememeIntegerImpl
       return getDataIntegerProperty();
    }
 
+   /**
+    * Gets the int from byte array.
+    *
+    * @param bytes the bytes
+    * @return the int from byte array
+    */
    protected static int getIntFromByteArray(byte[] bytes) {
       return ((bytes[0] << 24) | ((bytes[1] & 0xFF) << 16) | ((bytes[2] & 0xFF) << 8) | ((bytes[3] & 0xFF) << 0));
    }

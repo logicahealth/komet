@@ -55,26 +55,57 @@ import sh.isaac.api.collections.SequenceSet;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class TreeNodeVisitData.
  *
  * @author kec
  */
 public class TreeNodeVisitData {
-   private SequenceSet<?>       visitStarted = new SequenceSet<>();
-   private SequenceSet<?>       visitEnded   = new SequenceSet<>();
-   private SequenceSet<?>       leafNodes    = new SequenceSet<>();
-   private int                  maxDepth     = 0;
-   private int                  time         = 0;
-   private int                  nodesVisited = 0;
+   /** The visit started. */
+   private SequenceSet<?> visitStarted = new SequenceSet<>();
+
+   /** The visit ended. */
+   private SequenceSet<?> visitEnded = new SequenceSet<>();
+
+   /** The leaf nodes. */
+   private SequenceSet<?> leafNodes = new SequenceSet<>();
+
+   /** The max depth. */
+   private int maxDepth = 0;
+
+   /** The time. */
+   private int time = 0;
+
+   /** The nodes visited. */
+   private int nodesVisited = 0;
+
+   /** The distance list. */
    protected final IntArrayList distanceList;
+
+   /** The discovery time list. */
    protected final IntArrayList discoveryTimeList;
+
+   /** The finish time list. */
    protected final IntArrayList finishTimeList;
+
+   /** The predecessor sequence list. */
    protected final IntArrayList predecessorSequenceList;
+
+   /** The sibling group sequence list. */
    protected final IntArrayList siblingGroupSequenceList;
-   private OpenIntHashSet[]     conceptsReferencedAtNodeOrAbove;
-   private final int            graphSize;
+
+   /** The concepts referenced at node or above. */
+   private OpenIntHashSet[] conceptsReferencedAtNodeOrAbove;
+
+   /** The graph size. */
+   private final int graphSize;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new tree node visit data.
+    *
+    * @param graphSize the graph size
+    */
    public TreeNodeVisitData(int graphSize) {
       this.graphSize                = graphSize;
       this.visitStarted             = new SequenceSet<>();
@@ -90,148 +121,244 @@ public class TreeNodeVisitData {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * End node visit.
+    *
+    * @param nodeSequence the node sequence
+    */
    public void endNodeVisit(int nodeSequence) {
       setNodeStatus(nodeSequence, NodeStatus.FINISHED);
-      setFinishTime(nodeSequence, time++);
+      setFinishTime(nodeSequence, this.time++);
    }
 
+   /**
+    * Start node visit.
+    *
+    * @param nodeSequence the node sequence
+    * @param depth the depth
+    */
    public void startNodeVisit(int nodeSequence, int depth) {
       setNodeStatus(nodeSequence, NodeStatus.PROCESSING);
-      setDiscoveryTime(nodeSequence, time++);
+      setDiscoveryTime(nodeSequence, this.time++);
       setDistance(nodeSequence, depth);
-      nodesVisited++;
+      this.nodesVisited++;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the concepts referenced at node or above.
+    *
+    * @param nodeSequence the node sequence
+    * @return the concepts referenced at node or above
+    */
    public OpenIntHashSet getConceptsReferencedAtNodeOrAbove(int nodeSequence) {
       if (nodeSequence >= 0) {
          // lazy creation to save memory since not all tree traversals want to
          // use this capability.
-         if (conceptsReferencedAtNodeOrAbove == null) {
-            conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[graphSize];
+         if (this.conceptsReferencedAtNodeOrAbove == null) {
+            this.conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[this.graphSize];
          }
 
-         if (conceptsReferencedAtNodeOrAbove[nodeSequence] == null) {
-            conceptsReferencedAtNodeOrAbove[nodeSequence] = new OpenIntHashSet(graphSize);
+         if (this.conceptsReferencedAtNodeOrAbove[nodeSequence] == null) {
+            this.conceptsReferencedAtNodeOrAbove[nodeSequence] = new OpenIntHashSet(this.graphSize);
          }
 
-         return conceptsReferencedAtNodeOrAbove[nodeSequence];
+         return this.conceptsReferencedAtNodeOrAbove[nodeSequence];
       }
 
-      return new OpenIntHashSet(graphSize);
+      return new OpenIntHashSet(this.graphSize);
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set concepts referenced at node or above.
+    *
+    * @param nodeSequence the node sequence
+    * @param conceptSet the concept set
+    */
    public void setConceptsReferencedAtNodeOrAbove(int nodeSequence, ConceptSequenceSet conceptSet) {
       if (nodeSequence >= 0) {
          // lazy creation to save memory since not all tree traversals want to
          // use this capability.
-         if (conceptsReferencedAtNodeOrAbove == null) {
-            conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[graphSize];
+         if (this.conceptsReferencedAtNodeOrAbove == null) {
+            this.conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[this.graphSize];
          }
 
-         conceptsReferencedAtNodeOrAbove[nodeSequence] = conceptSet.asOpenIntHashSet();
+         this.conceptsReferencedAtNodeOrAbove[nodeSequence] = conceptSet.asOpenIntHashSet();
       }
    }
 
+   /**
+    * Set concepts referenced at node or above.
+    *
+    * @param nodeSequence the node sequence
+    * @param conceptSet the concept set
+    */
    public void setConceptsReferencedAtNodeOrAbove(int nodeSequence, OpenIntHashSet conceptSet) {
       if (nodeSequence >= 0) {
          // lazy creation to save memory since not all tree traversals want to
          // use this capability.
-         if (conceptsReferencedAtNodeOrAbove == null) {
-            conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[graphSize];
+         if (this.conceptsReferencedAtNodeOrAbove == null) {
+            this.conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[this.graphSize];
          }
 
-         conceptsReferencedAtNodeOrAbove[nodeSequence] = conceptSet;
+         this.conceptsReferencedAtNodeOrAbove[nodeSequence] = conceptSet;
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the discovery time.
+    *
+    * @param sequence the sequence
+    * @return the discovery time
+    */
    public int getDiscoveryTime(int sequence) {
-      return discoveryTimeList.getQuick(sequence);
+      return this.discoveryTimeList.getQuick(sequence);
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set discovery time.
+    *
+    * @param sequence the sequence
+    * @param discoveryTime the discovery time
+    */
    private void setDiscoveryTime(int sequence, int discoveryTime) {
-      if (sequence >= discoveryTimeList.size()) {
-         discoveryTimeList.setSize(sequence + 1);
+      if (sequence >= this.discoveryTimeList.size()) {
+         this.discoveryTimeList.setSize(sequence + 1);
       }
 
-      discoveryTimeList.set(sequence, discoveryTime);
+      this.discoveryTimeList.set(sequence, discoveryTime);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the distance.
+    *
+    * @param sequence the sequence
+    * @return the distance
+    */
    public int getDistance(int sequence) {
-      return distanceList.getQuick(sequence);
+      return this.distanceList.getQuick(sequence);
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set distance.
+    *
+    * @param sequence the sequence
+    * @param distance the distance
+    */
    public void setDistance(int sequence, int distance) {
-      if (sequence >= distanceList.size()) {
-         distanceList.setSize(sequence + 1);
+      if (sequence >= this.distanceList.size()) {
+         this.distanceList.setSize(sequence + 1);
       }
 
-      distanceList.set(sequence, distance);
-      maxDepth = Math.max(maxDepth, distance);
+      this.distanceList.set(sequence, distance);
+      this.maxDepth = Math.max(this.maxDepth, distance);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the finish time.
+    *
+    * @param sequence the sequence
+    * @return the finish time
+    */
    public int getFinishTime(int sequence) {
-      return finishTimeList.getQuick(sequence);
+      return this.finishTimeList.getQuick(sequence);
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set finish time.
+    *
+    * @param sequence the sequence
+    * @param finishTime the finish time
+    */
    private void setFinishTime(int sequence, int finishTime) {
-      if (sequence >= finishTimeList.size()) {
-         finishTimeList.setSize(sequence + 1);
+      if (sequence >= this.finishTimeList.size()) {
+         this.finishTimeList.setSize(sequence + 1);
       }
 
-      finishTimeList.set(sequence, finishTime);
+      this.finishTimeList.set(sequence, finishTime);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the graph size.
+    *
+    * @return the graph size
+    */
    public int getGraphSize() {
-      return graphSize;
+      return this.graphSize;
    }
 
+   /**
+    * Gets the intermediate nodes.
+    *
+    * @return the intermediate nodes
+    */
    public SequenceSet<?> getIntermediateNodes() {
-      SequenceSet intermediateNodes = new SequenceSet<>();
+      final SequenceSet intermediateNodes = new SequenceSet<>();
 
-      intermediateNodes.or(visitEnded);
-      intermediateNodes.andNot(leafNodes);
+      intermediateNodes.or(this.visitEnded);
+      intermediateNodes.andNot(this.leafNodes);
       return intermediateNodes;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the leaf node.
+    *
+    * @param sequence the new leaf node
+    */
    public void setLeafNode(int sequence) {
-      leafNodes.add(sequence);
+      this.leafNodes.add(sequence);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the leaf nodes.
+    *
+    * @return the leaf nodes
+    */
    public SequenceSet<?> getLeafNodes() {
-      return leafNodes;
+      return this.leafNodes;
    }
 
+   /**
+    * Gets the max depth.
+    *
+    * @return the max depth
+    */
    public int getMaxDepth() {
-      return maxDepth;
+      return this.maxDepth;
    }
 
+   /**
+    * Gets the node ids for depth.
+    *
+    * @param depth the depth
+    * @return the node ids for depth
+    */
    public SequenceSet<?> getNodeIdsForDepth(int depth) {
-      SequenceSet<?> nodeIdsForDepth = new SequenceSet<>();
+      final SequenceSet<?> nodeIdsForDepth = new SequenceSet<>();
 
-      for (int i = 0; i < distanceList.size(); i++) {
-         if (distanceList.get(i) == depth) {
+      for (int i = 0; i < this.distanceList.size(); i++) {
+         if (this.distanceList.get(i) == depth) {
             nodeIdsForDepth.add(i);
          }
       }
@@ -239,12 +366,18 @@ public class TreeNodeVisitData {
       return nodeIdsForDepth;
    }
 
+   /**
+    * Gets the node status.
+    *
+    * @param nodeSequence the node sequence
+    * @return the node status
+    */
    public NodeStatus getNodeStatus(int nodeSequence) {
-      if (!visitStarted.contains(nodeSequence)) {
+      if (!this.visitStarted.contains(nodeSequence)) {
          return NodeStatus.UNDISCOVERED;
       }
 
-      if (visitEnded.contains(nodeSequence)) {
+      if (this.visitEnded.contains(nodeSequence)) {
          return NodeStatus.FINISHED;
       }
 
@@ -253,14 +386,20 @@ public class TreeNodeVisitData {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set node status.
+    *
+    * @param nodeSequence the node sequence
+    * @param nodeStatus the node status
+    */
    public void setNodeStatus(int nodeSequence, NodeStatus nodeStatus) {
       switch (nodeStatus) {
       case FINISHED:
-         visitEnded.add(nodeSequence);
+         this.visitEnded.add(nodeSequence);
          break;
 
       case PROCESSING:
-         visitStarted.add(nodeSequence);
+         this.visitStarted.add(nodeSequence);
          break;
 
       case UNDISCOVERED:
@@ -273,40 +412,74 @@ public class TreeNodeVisitData {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the nodes visited.
+    *
+    * @return the nodes visited
+    */
    public int getNodesVisited() {
-      return nodesVisited;
+      return this.nodesVisited;
    }
 
+   /**
+    * Gets the predecessor sequence.
+    *
+    * @param sequence the sequence
+    * @return the predecessor sequence
+    */
    public int getPredecessorSequence(int sequence) {
-      return predecessorSequenceList.getQuick(sequence);
+      return this.predecessorSequenceList.getQuick(sequence);
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set predecessor sequence.
+    *
+    * @param sequence the sequence
+    * @param predecessorSequence the predecessor sequence
+    */
    public void setPredecessorSequence(int sequence, int predecessorSequence) {
-      if (sequence >= predecessorSequenceList.size()) {
-         predecessorSequenceList.setSize(sequence + 1);
+      if (sequence >= this.predecessorSequenceList.size()) {
+         this.predecessorSequenceList.setSize(sequence + 1);
       }
 
-      predecessorSequenceList.set(sequence, predecessorSequence);
+      this.predecessorSequenceList.set(sequence, predecessorSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the sibling group for sequence.
+    *
+    * @param sequence the sequence
+    * @return the sibling group for sequence
+    */
    public int getSiblingGroupForSequence(int sequence) {
-      return siblingGroupSequenceList.get(sequence);
+      return this.siblingGroupSequenceList.get(sequence);
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set sibling group for sequence.
+    *
+    * @param sequence the sequence
+    * @param value the value
+    */
    public void setSiblingGroupForSequence(int sequence, int value) {
-      siblingGroupSequenceList.set(sequence, value);
+      this.siblingGroupSequenceList.set(sequence, value);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the time.
+    *
+    * @return the time
+    */
    public int getTime() {
-      return time;
+      return this.time;
    }
 }
 

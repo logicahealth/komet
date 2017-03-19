@@ -56,27 +56,40 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeDoubleTest}
+ * {@link DynamicSememeDoubleTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeDoubleTest {
+   /**
+    * Test serialization.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      double[] testValues = new double[] {
+      final double[] testValues = new double[] {
          Double.MIN_VALUE, Double.MAX_VALUE, 0, 4, 6, 4.56, 4.292732, 984, -234, -29837, 4532, 3289402830942309d,
          -9128934721874891d
       };
 
-      for (double l: testValues) {
+      for (final double l: testValues) {
          test(l);
       }
    }
 
+   /**
+    * Test.
+    *
+    * @param value the value
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private void test(double value)
             throws PropertyVetoException, IOException {
-      DynamicSememeDoubleImpl l = new DynamicSememeDoubleImpl(value);
+      final DynamicSememeDoubleImpl l = new DynamicSememeDoubleImpl(value);
 
       assertEquals(value, l.getDataDouble(), 0);
       assertEquals(value, (Double) l.getDataObject(), 0);

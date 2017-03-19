@@ -48,10 +48,25 @@ package sh.isaac.pombuilder.artifacts;
  */
 public class SDOSourceContent
         extends Artifact {
+   /**
+    * Instantiates a new SDO source content.
+    *
+    * @param groupId the group id
+    * @param artifactId the artifact id
+    * @param version the version
+    */
    public SDOSourceContent(String groupId, String artifactId, String version) {
       this(groupId, artifactId, version, null);
    }
 
+   /**
+    * Instantiates a new SDO source content.
+    *
+    * @param groupId the group id
+    * @param artifactId the artifact id
+    * @param version the version
+    * @param classifier the classifier
+    */
    public SDOSourceContent(String groupId, String artifactId, String version, String classifier) {
       super(groupId, artifactId, version, classifier);
    }

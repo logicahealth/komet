@@ -53,14 +53,13 @@ import sh.isaac.api.util.UUIDUtil;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class AbstractUuidToIntHashMap.
  *
  * @author kec
  */
 public abstract class AbstractUuidToIntHashMap
         extends AbstractSet {
-   /**
-    *
-    */
+   /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 1L;
 
    //~--- constructors --------------------------------------------------------
@@ -77,15 +76,11 @@ public abstract class AbstractUuidToIntHashMap
    /**
     * Returns {@code true} if the receiver contains the specified key.
     *
+    * @param key the key
     * @return {@code true} if the receiver contains the specified key.
     */
    public boolean containsKey(final long[] key) {
-      return !forEachKey(new UuidProcedure() {
-                            @Override
-                            public boolean apply(long[] iterKey) {
-                               return ((key[0] != iterKey[0]) || (key[1] != iterKey[1]));
-                            }
-                         });
+      return !forEachKey(iterKey -> ((key[0] != iterKey[0]) || (key[1] != iterKey[1])));
    }
 
    /**
@@ -93,6 +88,7 @@ public abstract class AbstractUuidToIntHashMap
     * {@code clone()} and casts the result.
     *
     * @return a deep copy of the receiver.
+    * @throws CloneNotSupportedException the clone not supported exception
     */
    public AbstractUuidToIntHashMap copy()
             throws CloneNotSupportedException {
@@ -124,11 +120,7 @@ public abstract class AbstractUuidToIntHashMap
     * otherwise.
     */
    public boolean forEachPair(final UuidIntProcedure procedure) {
-      return forEachKey(new UuidProcedure() {
-                           public boolean apply(long[] key) {
-                              return procedure.apply(key, get(key));
-                           }
-                        });
+      return forEachKey(key -> procedure.apply(key, get(key)));
    }
 
    /**
@@ -141,10 +133,10 @@ public abstract class AbstractUuidToIntHashMap
     * such key exists.
     */
    public long[] keyOf(final int value) {
-      final long[] foundKey = new long[2];
-      boolean      notFound = forEachPair((long[] iterKey,
-                                           int iterValue) -> {
-               boolean found = value == iterValue;
+      final long[]  foundKey = new long[2];
+      final boolean notFound = forEachPair((long[] iterKey,
+                                            int iterValue) -> {
+               final boolean found = value == iterValue;
 
                if (found) {
                   foundKey[0] = iterKey[0];
@@ -170,7 +162,7 @@ public abstract class AbstractUuidToIntHashMap
     * @return the keys.
     */
    public UuidArrayList keys() {
-      UuidArrayList list = new UuidArrayList(size());
+      final UuidArrayList list = new UuidArrayList(size());
 
       keys(list);
       return list;
@@ -187,12 +179,9 @@ public abstract class AbstractUuidToIntHashMap
     */
    public void keys(final UuidArrayList list) {
       list.clear();
-      forEachKey(new UuidProcedure() {
-                    @Override
-                    public boolean apply(long[] key) {
-                       list.add(key);
-                       return true;
-                    }
+      forEachKey(key -> {
+                    list.add(key);
+                    return true;
                  });
    }
 
@@ -280,6 +269,13 @@ public abstract class AbstractUuidToIntHashMap
     */
    public abstract boolean put(long[] key, int value);
 
+   /**
+    * Put.
+    *
+    * @param key the key
+    * @param value the value
+    * @return true, if successful
+    */
    public boolean put(UUID key, int value) {
       return put(UUIDUtil.convert(key), value);
    }
@@ -295,22 +291,24 @@ public abstract class AbstractUuidToIntHashMap
    /**
     * Returns a string representation of the receiver, containing the String representation of each key-value
     * pair, sorted ascending by key.
+    *
+    * @return the string
     */
    @Override
    public String toString() {
-      UuidArrayList theKeys = keys();
+      final UuidArrayList theKeys = keys();
 
       theKeys.sort();
 
-      StringBuilder buf = new StringBuilder();
+      final StringBuilder buf = new StringBuilder();
 
       buf.append("[");
 
-      int maxIndex = theKeys.size() - 1;
+      final int maxIndex = theKeys.size() - 1;
 
       for (int i = 0; i <= maxIndex; i++) {
-         long[] key     = theKeys.get(i);
-         UUID   uuidKey = new UUID(key[0], key[1]);
+         final long[] key     = theKeys.get(i);
+         final UUID   uuidKey = new UUID(key[0], key[1]);
 
          buf.append(uuidKey.toString());
          buf.append("->");
@@ -334,7 +332,7 @@ public abstract class AbstractUuidToIntHashMap
     * @return the values.
     */
    public IntArrayList values() {
-      IntArrayList list = new IntArrayList(size());
+      final IntArrayList list = new IntArrayList(size());
 
       values(list);
       return list;
@@ -351,12 +349,9 @@ public abstract class AbstractUuidToIntHashMap
     */
    public void values(final IntArrayList list) {
       list.clear();
-      forEachKey(new UuidProcedure() {
-                    @Override
-                    public boolean apply(long[] key) {
-                       list.add(get(key));
-                       return true;
-                    }
+      forEachKey(key -> {
+                    list.add(get(key));
+                    return true;
                  });
    }
 

@@ -61,76 +61,111 @@ import sh.isaac.provider.query.lucene.LuceneIndexer;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link TopDocsFilteredCollector}
+ * {@link TopDocsFilteredCollector}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class TopDocsFilteredCollector
         extends Collector {
-   TopScoreDocCollector collector_;
-   IndexSearcher        searcher_;
-   Predicate<Integer>   filter_;
+   /** The collector. */
+   TopScoreDocCollector collector;
+
+   /** The searcher. */
+   IndexSearcher searcher;
+
+   /** The filter. */
+   Predicate<Integer> filter;
 
    //~--- constructors --------------------------------------------------------
 
    /**
+    * Instantiates a new top docs filtered collector.
+    *
     * @param numHits - how many results to return
     * @param query - needed to setup the TopScoreDocCollector properly
     * @param searcher - needed to read the nids out of the matching documents
     * @param filter - a predicate that should return true, if the given nid should be allowed in the results, false, if not.
-    * @throws IOException
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public TopDocsFilteredCollector(int numHits,
                                    Query query,
                                    IndexSearcher searcher,
                                    Predicate<Integer> filter)
             throws IOException {
-      collector_ = TopScoreDocCollector.create(numHits,
+      this.collector = TopScoreDocCollector.create(numHits,
             null,
             !searcher.createNormalizedWeight(query)
                      .scoresDocsOutOfOrder());
-      searcher_ = searcher;
-      filter_   = filter;
+      this.searcher = searcher;
+      this.filter   = filter;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Accepts docs out of order.
+    *
+    * @return true, if successful
+    */
    @Override
    public boolean acceptsDocsOutOfOrder() {
-      return collector_.acceptsDocsOutOfOrder();
+      return this.collector.acceptsDocsOutOfOrder();
    }
 
+   /**
+    * Collect.
+    *
+    * @param docId the doc id
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void collect(int docId)
             throws IOException {
-      Document document     = searcher_.doc(docId);
-      int      componentNid = document.getField(LuceneIndexer.FIELD_COMPONENT_NID)
-                                      .numericValue()
-                                      .intValue();
+      final Document document     = this.searcher.doc(docId);
+      final int      componentNid = document.getField(LuceneIndexer.FIELD_COMPONENT_NID)
+                                            .numericValue()
+                                            .intValue();
 
-      if (filter_.test(componentNid)) {
-         collector_.collect(docId);
+      if (this.filter.test(componentNid)) {
+         this.collector.collect(docId);
       }
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the next reader.
+    *
+    * @param context the new next reader
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void setNextReader(AtomicReaderContext context)
             throws IOException {
-      collector_.setNextReader(context);
+      this.collector.setNextReader(context);
    }
 
+   /**
+    * Sets the scorer.
+    *
+    * @param scorer the new scorer
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void setScorer(Scorer scorer)
             throws IOException {
-      collector_.setScorer(scorer);
+      this.collector.setScorer(scorer);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the top docs.
+    *
+    * @return the top docs
+    */
    public TopDocs getTopDocs() {
-      return collector_.topDocs();
+      return this.collector.topDocs();
    }
 }
 

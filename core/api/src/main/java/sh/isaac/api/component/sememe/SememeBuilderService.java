@@ -54,20 +54,47 @@ import sh.isaac.api.logic.LogicalExpression;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface SememeBuilderService.
  *
  * @author kec
- * @param <C>
+ * @param <C> the generic type
  */
 @Contract
 public interface SememeBuilderService<C extends SememeChronology<? extends SememeVersion<?>>> {
+   /**
+    * Gets the component sememe builder.
+    *
+    * @param memeComponentNid the meme component nid
+    * @param referencedComponent the referenced component
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the component sememe builder
+    */
    SememeBuilder<C> getComponentSememeBuilder(int memeComponentNid,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
          int assemblageConceptSequence);
 
+   /**
+    * Gets the component sememe builder.
+    *
+    * @param memeComponentNid the meme component nid
+    * @param referencedComponentNid the referenced component nid
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the component sememe builder
+    */
    SememeBuilder<C> getComponentSememeBuilder(int memeComponentNid,
          int referencedComponentNid,
          int assemblageConceptSequence);
 
+   /**
+    * Gets the description sememe builder.
+    *
+    * @param caseSignificanceConceptSequence the case significance concept sequence
+    * @param descriptionTypeConceptSequence the description type concept sequence
+    * @param languageConceptSequence the language concept sequence
+    * @param text the text
+    * @param referencedComponent the referenced component
+    * @return the description sememe builder
+    */
    SememeBuilder<? extends SememeChronology<? extends DescriptionSememe<?>>> getDescriptionSememeBuilder(
            int caseSignificanceConceptSequence,
            int descriptionTypeConceptSequence,
@@ -75,6 +102,16 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
            String text,
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent);
 
+   /**
+    * Gets the description sememe builder.
+    *
+    * @param caseSignificanceConceptSequence the case significance concept sequence
+    * @param languageConceptSequence the language concept sequence
+    * @param descriptionTypeConceptSequence the description type concept sequence
+    * @param text the text
+    * @param referencedComponentNid the referenced component nid
+    * @return the description sememe builder
+    */
    SememeBuilder<? extends SememeChronology<? extends DescriptionSememe<?>>> getDescriptionSememeBuilder(
            int caseSignificanceConceptSequence,
            int languageConceptSequence,
@@ -82,48 +119,140 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
            String text,
            int referencedComponentNid);
 
+   /**
+    * Gets the dynamic sememe builder.
+    *
+    * @param referencedComponent the referenced component
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the dynamic sememe builder
+    */
    SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
            int assemblageConceptSequence);
 
+   /**
+    * Gets the dynamic sememe builder.
+    *
+    * @param referencedComponentNid the referenced component nid
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the dynamic sememe builder
+    */
    SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(
            int referencedComponentNid,
            int assemblageConceptSequence);
 
+   /**
+    * Gets the dynamic sememe builder.
+    *
+    * @param referencedComponent the referenced component
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param data the data
+    * @return the dynamic sememe builder
+    */
    SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
            int assemblageConceptSequence,
            DynamicSememeData[] data);
 
+   /**
+    * Gets the dynamic sememe builder.
+    *
+    * @param referencedComponentNid the referenced component nid
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param data the data
+    * @return the dynamic sememe builder
+    */
    SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(
            int referencedComponentNid,
            int assemblageConceptSequence,
            DynamicSememeData[] data);
 
+   /**
+    * Gets the logical expression sememe builder.
+    *
+    * @param expression the expression
+    * @param referencedComponent the referenced component
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the logical expression sememe builder
+    */
    SememeBuilder<C> getLogicalExpressionSememeBuilder(LogicalExpression expression,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
          int assemblageConceptSequence);
 
+   /**
+    * Gets the logical expression sememe builder.
+    *
+    * @param expression the expression
+    * @param referencedComponentNid the referenced component nid
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the logical expression sememe builder
+    */
    SememeBuilder<C> getLogicalExpressionSememeBuilder(LogicalExpression expression,
          int referencedComponentNid,
          int assemblageConceptSequence);
 
+   /**
+    * Gets the long sememe builder.
+    *
+    * @param longValue the long value
+    * @param referencedComponent the referenced component
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the long sememe builder
+    */
    SememeBuilder<C> getLongSememeBuilder(long longValue,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
          int assemblageConceptSequence);
 
+   /**
+    * Gets the long sememe builder.
+    *
+    * @param longValue the long value
+    * @param referencedComponentNid the referenced component nid
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the long sememe builder
+    */
    SememeBuilder<C> getLongSememeBuilder(long longValue, int referencedComponentNid, int assemblageConceptSequence);
 
+   /**
+    * Gets the membership sememe builder.
+    *
+    * @param referencedComponent the referenced component
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the membership sememe builder
+    */
    SememeBuilder<C> getMembershipSememeBuilder(
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
            int assemblageConceptSequence);
 
+   /**
+    * Gets the membership sememe builder.
+    *
+    * @param referencedComponentNid the referenced component nid
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the membership sememe builder
+    */
    SememeBuilder<C> getMembershipSememeBuilder(int referencedComponentNid, int assemblageConceptSequence);
 
+   /**
+    * Gets the string sememe builder.
+    *
+    * @param memeString the meme string
+    * @param referencedComponent the referenced component
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the string sememe builder
+    */
    SememeBuilder<C> getStringSememeBuilder(String memeString,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
          int assemblageConceptSequence);
 
+   /**
+    * Gets the string sememe builder.
+    *
+    * @param memeString the meme string
+    * @param referencedComponentNid the referenced component nid
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the string sememe builder
+    */
    SememeBuilder<C> getStringSememeBuilder(String memeString,
          int referencedComponentNid,
          int assemblageConceptSequence);

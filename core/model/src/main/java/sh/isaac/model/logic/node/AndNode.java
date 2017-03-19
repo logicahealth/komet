@@ -41,7 +41,9 @@ package sh.isaac.model.logic.node;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.IOException;
 
 import java.util.UUID;
 
@@ -59,10 +61,23 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public class AndNode
         extends ConnectorNode {
+   /**
+    * Instantiates a new and node.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param children the children
+    */
    public AndNode(LogicalExpressionOchreImpl logicGraphVersion, AbstractLogicNode... children) {
       super(logicGraphVersion, children);
    }
 
+   /**
+    * Instantiates a new and node.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public AndNode(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
@@ -70,27 +85,56 @@ public class AndNode
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
       return "And[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
 
+   /**
+    * Compare node fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    protected int compareNodeFields(LogicNode o) {
       // no fields to compare, node semantic already determined equals.
       return 0;
    }
 
+   /**
+    * Inits the node uuid.
+    *
+    * @return the uuid
+    */
    @Override
    protected UUID initNodeUuid() {
       return getNodeSemantic().getSemanticUuid();
    }
 
+   /**
+    * Write node data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    protected void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
@@ -99,6 +143,11 @@ public class AndNode
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the node semantic.
+    *
+    * @return the node semantic
+    */
    @Override
    public NodeSemantic getNodeSemantic() {
       return NodeSemantic.AND;

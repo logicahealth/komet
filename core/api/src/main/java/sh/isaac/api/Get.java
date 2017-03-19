@@ -114,37 +114,92 @@ import sh.isaac.api.util.WorkExecutors;
 @Singleton
 public class Get
          implements OchreCache {
-   private static final Logger                    LOG = LogManager.getLogger();
-   private static ActiveTasks                     activeTaskSet;
-   private static ConfigurationService            configurationService;
-   private static CommitService                   commitService;
-   private static ConceptActiveService            conceptActiveService;
-   private static ConceptService                  conceptService;
-   private static MetaContentService              metaContentService;
-   private static ConceptSnapshotService          conceptSnapshot;
-   private static IdentifiedObjectService         identifiedObjectService;
-   private static IdentifierService               identifierService;
-   private static LanguageCoordinateService       languageCoordinateService;
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
+
+   /** The active task set. */
+   private static ActiveTasks activeTaskSet;
+
+   /** The configuration service. */
+   private static ConfigurationService configurationService;
+
+   /** The commit service. */
+   private static CommitService commitService;
+
+   /** The concept active service. */
+   private static ConceptActiveService conceptActiveService;
+
+   /** The concept service. */
+   private static ConceptService conceptService;
+
+   /** The meta content service. */
+   private static MetaContentService metaContentService;
+
+   /** The concept snapshot. */
+   private static ConceptSnapshotService conceptSnapshot;
+
+   /** The identified object service. */
+   private static IdentifiedObjectService identifiedObjectService;
+
+   /** The identifier service. */
+   private static IdentifierService identifierService;
+
+   /** The language coordinate service. */
+   private static LanguageCoordinateService languageCoordinateService;
+
+   /** The logical expression builder service. */
    private static LogicalExpressionBuilderService logicalExpressionBuilderService;
-   private static LogicService                    logicService;
-   private static BinaryDataDifferService         binaryDataDifferService;
-   private static PathService                     pathService;
-   private static SememeBuilderService<?>         sememeBuilderService;
-   private static SememeService                   sememeService;
-   private static CoordinateFactory               coordinateFactory;
-   private static TaxonomyService                 taxonomyService;
-   private static WorkExecutors                   workExecutors;
-   private static ConceptBuilderService           conceptBuilderService;
-   private static StampService                    stampService;
-   private static PostCommitService               postCommitService;
-   private static ChangeSetWriterService          changeSetWriterService;
+
+   /** The logic service. */
+   private static LogicService logicService;
+
+   /** The binary data differ service. */
+   private static BinaryDataDifferService binaryDataDifferService;
+
+   /** The path service. */
+   private static PathService pathService;
+
+   /** The sememe builder service. */
+   private static SememeBuilderService<?> sememeBuilderService;
+
+   /** The sememe service. */
+   private static SememeService sememeService;
+
+   /** The coordinate factory. */
+   private static CoordinateFactory coordinateFactory;
+
+   /** The taxonomy service. */
+   private static TaxonomyService taxonomyService;
+
+   /** The work executors. */
+   private static WorkExecutors workExecutors;
+
+   /** The concept builder service. */
+   private static ConceptBuilderService conceptBuilderService;
+
+   /** The stamp service. */
+   private static StampService stampService;
+
+   /** The post commit service. */
+   private static PostCommitService postCommitService;
+
+   /** The change set writer service. */
+   private static ChangeSetWriterService changeSetWriterService;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new gets the.
+    */
    public Get() {}
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Active tasks.
+    *
+    * @return the active tasks
+    */
    public static ActiveTasks activeTasks() {
       if (activeTaskSet == null) {
          activeTaskSet = getService(ActiveTasks.class);
@@ -153,6 +208,11 @@ public class Get
       return activeTaskSet;
    }
 
+   /**
+    * Binary data differ service.
+    *
+    * @return the binary data differ service
+    */
    public static BinaryDataDifferService binaryDataDifferService() {
       if (binaryDataDifferService == null) {
          binaryDataDifferService = getService(BinaryDataDifferService.class);
@@ -161,21 +221,47 @@ public class Get
       return binaryDataDifferService;
    }
 
+   /**
+    * Binary data queue reader.
+    *
+    * @param dataPath the data path
+    * @return the binary data reader queue service
+    * @throws FileNotFoundException the file not found exception
+    */
    public static BinaryDataReaderQueueService binaryDataQueueReader(Path dataPath)
             throws FileNotFoundException {
       return getService(BinaryDataServiceFactory.class).getQueueReader(dataPath);
    }
 
+   /**
+    * Binary data reader.
+    *
+    * @param dataPath the data path
+    * @return the binary data reader service
+    * @throws FileNotFoundException the file not found exception
+    */
    public static BinaryDataReaderService binaryDataReader(Path dataPath)
             throws FileNotFoundException {
       return getService(BinaryDataServiceFactory.class).getReader(dataPath);
    }
 
+   /**
+    * Binary data writer.
+    *
+    * @param dataPath the data path
+    * @return the data writer service
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static DataWriterService binaryDataWriter(Path dataPath)
             throws IOException {
       return getService(BinaryDataServiceFactory.class).getWriter(dataPath);
    }
 
+   /**
+    * Change set writer service.
+    *
+    * @return the change set writer service
+    */
    public static ChangeSetWriterService changeSetWriterService() {
       if (changeSetWriterService == null) {
          changeSetWriterService = getService(ChangeSetWriterService.class);
@@ -184,6 +270,11 @@ public class Get
       return changeSetWriterService;
    }
 
+   /**
+    * Commit service.
+    *
+    * @return the commit service
+    */
    public static CommitService commitService() {
       if (commitService == null) {
          commitService = getService(CommitService.class);
@@ -192,6 +283,11 @@ public class Get
       return commitService;
    }
 
+   /**
+    * Concept active service.
+    *
+    * @return the concept active service
+    */
    public static ConceptActiveService conceptActiveService() {
       if (conceptActiveService == null) {
          conceptActiveService = getService(ConceptActiveService.class);
@@ -200,6 +296,11 @@ public class Get
       return conceptActiveService;
    }
 
+   /**
+    * Concept builder service.
+    *
+    * @return the concept builder service
+    */
    public static ConceptBuilderService conceptBuilderService() {
       if (conceptBuilderService == null) {
          conceptBuilderService = getService(ConceptBuilderService.class);
@@ -220,7 +321,7 @@ public class Get
     * {@code "No desc for: " + conceptId;} will be returned.
     */
    public static String conceptDescriptionText(int conceptId) {
-      Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional =
+      final Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional =
          conceptSnapshot().getDescriptionOptional(conceptId);
 
       if (descriptionOptional.isPresent()) {
@@ -232,13 +333,25 @@ public class Get
       return "No desc for: " + conceptId;
    }
 
+   /**
+    * Concept description text list.
+    *
+    * @param conceptIds the concept ids
+    * @return the string
+    */
    public static String conceptDescriptionTextList(ConceptSequenceSet conceptIds) {
       return conceptDescriptionTextList(conceptIds.asArray());
    }
 
+   /**
+    * Concept description text list.
+    *
+    * @param conceptIds the concept ids
+    * @return the string
+    */
    public static String conceptDescriptionTextList(int[] conceptIds) {
       if ((conceptIds != null) && (conceptIds.length > 0)) {
-         StringBuilder builder = new StringBuilder();
+         final StringBuilder builder = new StringBuilder();
 
          builder.append("[");
          Arrays.stream(conceptIds).forEach((conceptId) -> {
@@ -253,12 +366,23 @@ public class Get
       return "[]";
    }
 
+   /**
+    * Concept description text list.
+    *
+    * @param conceptIds the concept ids
+    * @return the string
+    */
    public static String conceptDescriptionTextList(List<Integer> conceptIds) {
       return conceptDescriptionTextList(conceptIds.stream()
             .mapToInt((boxedInt) -> (int) boxedInt)
             .toArray());
    }
 
+   /**
+    * Concept service.
+    *
+    * @return the concept service
+    */
    public static ConceptService conceptService() {
       if (conceptService == null) {
          conceptService = getService(ConceptService.class);
@@ -268,6 +392,7 @@ public class Get
    }
 
    /**
+    * Concept snapshot.
     *
     * @return a {@code ConceptSnapshotService} configured using the default
     * {@code StampCoordinate} and {@code LanguageCoordinate} provided by the
@@ -295,6 +420,11 @@ public class Get
       return new ConceptProxy(conceptDescriptionText(id), identifierService().getUuidArrayForNid(id));
    }
 
+   /**
+    * Configuration service.
+    *
+    * @return the configuration service
+    */
    public static ConfigurationService configurationService() {
       if (configurationService == null) {
          configurationService = getService(ConfigurationService.class);
@@ -303,6 +433,11 @@ public class Get
       return configurationService;
    }
 
+   /**
+    * Coordinate factory.
+    *
+    * @return the coordinate factory
+    */
    public static CoordinateFactory coordinateFactory() {
       if (coordinateFactory == null) {
          coordinateFactory = getService(CoordinateFactory.class);
@@ -311,6 +446,11 @@ public class Get
       return coordinateFactory;
    }
 
+   /**
+    * Identified object service.
+    *
+    * @return the identified object service
+    */
    public static IdentifiedObjectService identifiedObjectService() {
       if (identifiedObjectService == null) {
          identifiedObjectService = getService(IdentifiedObjectService.class);
@@ -319,6 +459,11 @@ public class Get
       return identifiedObjectService;
    }
 
+   /**
+    * Identifier service.
+    *
+    * @return the identifier service
+    */
    public static IdentifierService identifierService() {
       if (identifierService == null) {
          identifierService = getService(IdentifierService.class);
@@ -328,6 +473,7 @@ public class Get
    }
 
    /**
+    * Inferred definition chronology.
     *
     * @param conceptId either a concept nid or sequence.
     * @return the inferred definition chronology for the specified concept
@@ -341,6 +487,11 @@ public class Get
                             .findAny();
    }
 
+   /**
+    * Language coordinate service.
+    *
+    * @return the language coordinate service
+    */
    public static LanguageCoordinateService languageCoordinateService() {
       if (languageCoordinateService == null) {
          languageCoordinateService = getService(LanguageCoordinateService.class);
@@ -349,6 +500,11 @@ public class Get
       return languageCoordinateService;
    }
 
+   /**
+    * Logic service.
+    *
+    * @return the logic service
+    */
    public static LogicService logicService() {
       if (logicService == null) {
          logicService = getService(LogicService.class);
@@ -357,6 +513,11 @@ public class Get
       return logicService;
    }
 
+   /**
+    * Logical expression builder service.
+    *
+    * @return the logical expression builder service
+    */
    public static LogicalExpressionBuilderService logicalExpressionBuilderService() {
       if (logicalExpressionBuilderService == null) {
          logicalExpressionBuilderService = getService(LogicalExpressionBuilderService.class);
@@ -365,6 +526,11 @@ public class Get
       return logicalExpressionBuilderService;
    }
 
+   /**
+    * Meta content service.
+    *
+    * @return the meta content service
+    */
    public static MetaContentService metaContentService() {
       if (metaContentService == null) {
          metaContentService = getService(MetaContentService.class);
@@ -373,10 +539,20 @@ public class Get
       return metaContentService;
    }
 
+   /**
+    * Ochre externalizable stream.
+    *
+    * @return the stream
+    */
    public static Stream<OchreExternalizable> ochreExternalizableStream() {
       return StreamSupport.stream(new OchreExternalizableSpliterator(), false);
    }
 
+   /**
+    * Path service.
+    *
+    * @return the path service
+    */
    public static PathService pathService() {
       if (pathService == null) {
          pathService = getService(PathService.class);
@@ -385,6 +561,11 @@ public class Get
       return pathService;
    }
 
+   /**
+    * Post commit service.
+    *
+    * @return the post commit service
+    */
    public static PostCommitService postCommitService() {
       if (postCommitService == null) {
          postCommitService = getService(PostCommitService.class);
@@ -393,6 +574,9 @@ public class Get
       return postCommitService;
    }
 
+   /**
+    * Reset.
+    */
    @Override
    public void reset() {
       LOG.info("Resetting service cache.");
@@ -421,6 +605,11 @@ public class Get
       changeSetWriterService          = null;
    }
 
+   /**
+    * Sememe builder service.
+    *
+    * @return the sememe builder service<? extends sememe chronology<? extends sememe version<?>>>
+    */
    public static SememeBuilderService<? extends SememeChronology<? extends SememeVersion<?>>> sememeBuilderService() {
       if (sememeBuilderService == null) {
          sememeBuilderService = getService(SememeBuilderService.class);
@@ -429,6 +618,11 @@ public class Get
       return sememeBuilderService;
    }
 
+   /**
+    * Sememe service.
+    *
+    * @return the sememe service
+    */
    public static SememeService sememeService() {
       if (sememeService == null) {
          sememeService = getService(SememeService.class);
@@ -437,6 +631,11 @@ public class Get
       return sememeService;
    }
 
+   /**
+    * Sememe service available.
+    *
+    * @return true, if successful
+    */
    public static boolean sememeServiceAvailable() {
       if (sememeService == null) {
          sememeService = LookupService.getService(SememeService.class);
@@ -445,6 +644,11 @@ public class Get
       return sememeService != null;
    }
 
+   /**
+    * Stamp service.
+    *
+    * @return the stamp service
+    */
    public static StampService stampService() {
       if (stampService == null) {
          stampService = getService(StampService.class);
@@ -469,7 +673,7 @@ public class Get
     */
    public static Task<Void> startIndexTask(
            @SuppressWarnings("unchecked") Class<? extends IndexServiceBI>... indexersToReindex) {
-      GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);
+      final GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);
 
       LookupService.getService(WorkExecutors.class)
                    .getExecutor()
@@ -478,6 +682,7 @@ public class Get
    }
 
    /**
+    * Stated definition chronology.
     *
     * @param conceptId either a concept nid or sequence.
     * @return the stated definition chronology for the specified concept
@@ -491,6 +696,11 @@ public class Get
                             .findAny();
    }
 
+   /**
+    * Taxonomy service.
+    *
+    * @return the taxonomy service
+    */
    public static TaxonomyService taxonomyService() {
       if (taxonomyService == null) {
          taxonomyService = getService(TaxonomyService.class);
@@ -499,6 +709,11 @@ public class Get
       return taxonomyService;
    }
 
+   /**
+    * Work executors.
+    *
+    * @return the work executors
+    */
    public static WorkExecutors workExecutors() {
       if (workExecutors == null) {
          workExecutors = getService(WorkExecutors.class);
@@ -509,8 +724,15 @@ public class Get
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the service.
+    *
+    * @param <T> the generic type
+    * @param clazz the clazz
+    * @return the service
+    */
    private static <T> T getService(Class<T> clazz) {
-      T service = LookupService.getService(clazz);
+      final T service = LookupService.getService(clazz);
 
       if (service == null) {
          throw new RuntimeException("No service for contract '" + clazz.getName() +

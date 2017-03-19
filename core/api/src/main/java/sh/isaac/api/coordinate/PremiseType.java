@@ -40,6 +40,7 @@
 package sh.isaac.api.coordinate;
 
 /**
+ * The Enum PremiseType.
  *
  * @author kec
  */

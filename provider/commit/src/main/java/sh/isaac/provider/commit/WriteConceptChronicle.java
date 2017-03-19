@@ -61,23 +61,32 @@ import sh.isaac.api.progress.ActiveTasks;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class WriteConceptChronicle.
  *
  * @author kec
  */
 public class WriteConceptChronicle
         extends Task<Void> {
-   private final ConceptChronology                                              cc;
-   private final Semaphore                                                      writeSemaphore;
+   /** The cc. */
+   private final ConceptChronology cc;
+
+   /** The write semaphore. */
+   private final Semaphore writeSemaphore;
+
+   /** The change listeners. */
    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
-   private final BiConsumer<ObjectChronology, Boolean>                          uncommittedTracking;
+
+   /** The uncommitted tracking. */
+   private final BiConsumer<ObjectChronology, Boolean> uncommittedTracking;
 
    //~--- constructors --------------------------------------------------------
 
    /**
+    * Instantiates a new write concept chronicle.
     *
-    * @param cc
-    * @param writeSemaphore
-    * @param changeListeners
+    * @param cc the cc
+    * @param writeSemaphore the write semaphore
+    * @param changeListeners the change listeners
     * @param uncommittedTracking A handle to call back to the caller to notify it that the concept has been
     * written to the ConceptService.  Parameter 1 is the Concept, Parameter two is false to indicate that the
     * change checker is not active for this implementation.
@@ -100,29 +109,35 @@ public class WriteConceptChronicle
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Call.
+    *
+    * @return the void
+    * @throws Exception the exception
+    */
    @Override
    public Void call()
             throws Exception {
       try {
          Get.conceptService()
-            .writeConcept(cc);
-         uncommittedTracking.accept(cc, false);
+            .writeConcept(this.cc);
+         this.uncommittedTracking.accept(this.cc, false);
          updateProgress(1, 2);
-         updateMessage("notifying: " + Get.conceptDescriptionText(cc.getConceptSequence()));
-         changeListeners.forEach((listenerRef) -> {
-                                    ChronologyChangeListener listener = listenerRef.get();
+         updateMessage("notifying: " + Get.conceptDescriptionText(this.cc.getConceptSequence()));
+         this.changeListeners.forEach((listenerRef) -> {
+                                         final ChronologyChangeListener listener = listenerRef.get();
 
-                                    if (listener == null) {
-                                       changeListeners.remove(listenerRef);
-                                    } else {
-                                       listener.handleChange(cc);
-                                    }
-                                 });
+                                         if (listener == null) {
+                                            this.changeListeners.remove(listenerRef);
+                                         } else {
+                                            listener.handleChange(this.cc);
+                                         }
+                                      });
          updateProgress(2, 2);
-         updateMessage("complete: " + Get.conceptDescriptionText(cc.getConceptSequence()));
+         updateMessage("complete: " + Get.conceptDescriptionText(this.cc.getConceptSequence()));
          return null;
       } finally {
-         writeSemaphore.release();
+         this.writeSemaphore.release();
          LookupService.getService(ActiveTasks.class)
                       .get()
                       .remove(this);

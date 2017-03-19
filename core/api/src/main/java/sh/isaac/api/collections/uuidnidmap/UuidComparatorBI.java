@@ -40,10 +40,20 @@
 package sh.isaac.api.collections.uuidnidmap;
 
 /**
+ * The Interface UuidComparatorBI.
  *
  * @author kec
  */
 public interface UuidComparatorBI {
+   /**
+    * Compare.
+    *
+    * @param msb1 the msb 1
+    * @param lsb1 the lsb 1
+    * @param msb2 the msb 2
+    * @param lsb2 the lsb 2
+    * @return the int
+    */
    int compare(long msb1, long lsb1, long msb2, long lsb2);
 }
 

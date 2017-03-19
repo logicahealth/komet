@@ -49,14 +49,12 @@ import java.util.List;
 /**
  * {@link MavenArtifactInfo}
  *
- * This class carries Maven dependency information
+ * This class carries Maven dependency information.
  *
  * @author <a href="mailto:joel.kniaz.list@gmail.com">Joel Kniaz</a>
  */
 public class MavenArtifactInfo {
-   /**
-    * Database Licenses
-    */
+   /** Database Licenses. */
    public List<MavenLicenseInfo> dbLicenses = new ArrayList<>();
 
    /**
@@ -64,36 +62,31 @@ public class MavenArtifactInfo {
     */
    public List<MavenArtifactInfo> dbDependencies = new ArrayList<>();
 
-   /**
-    * Maven Dependency Group ID
-    */
+   /** Maven Dependency Group ID. */
    public String groupId;
 
-   /**
-    * Maven Dependency Artifact ID
-    */
+   /** Maven Dependency Artifact ID. */
    public String artifactId;
 
-   /**
-    * Maven Dependency Version
-    */
+   /** Maven Dependency Version. */
    public String version;
 
-   /**
-    * Maven Dependency Classifier
-    */
+   /** Maven Dependency Classifier. */
    public String classifier;
 
-   /**
-    * Maven Dependency Type
-    */
+   /** Maven Dependency Type. */
    public String type;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new maven artifact info.
+    */
    public MavenArtifactInfo() {}
 
    /**
+    * Instantiates a new maven artifact info.
+    *
     * @param groupId Maven Dependency Group ID
     * @param artifactId Maven Dependency Artifact ID
     * @param version Maven Dependency Version
@@ -107,28 +100,35 @@ public class MavenArtifactInfo {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("MavenArtifactInfo\r\n");
-      sb.append("  groupId=" + groupId + "\r\n");
-      sb.append("  artifactId=" + artifactId + "\r\n");
-      sb.append("  version=" + version + "\r\n");
-      sb.append("  classifier=" + classifier + "\r\n");
-      sb.append("  type=" + type + "\r\n");
+      sb.append("  groupId=" + this.groupId + "\r\n");
+      sb.append("  artifactId=" + this.artifactId + "\r\n");
+      sb.append("  version=" + this.version + "\r\n");
+      sb.append("  classifier=" + this.classifier + "\r\n");
+      sb.append("  type=" + this.type + "\r\n");
       sb.append("\r\n");
       sb.append("Licenses\r\n");
-      dbLicenses.forEach(license -> sb.append("  " + license.toString() + "\r\n"));
+      this.dbLicenses.forEach(license -> sb.append("  " + license.toString() + "\r\n"));
       sb.append("\r\n");
       sb.append("Database Dependencies\r\n");
-      dbDependencies.forEach(dbDependendy -> sb.append("  " + dbDependendy.toString() + "\r\n"));
+      this.dbDependencies.forEach(dbDependendy -> sb.append("  " + dbDependendy.toString() + "\r\n"));
       return sb.toString();
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Set values.
+    *
     * @param groupId Maven Dependency Group ID
     * @param artifactId Maven Dependency Artifact ID
     * @param version Maven Dependency Version

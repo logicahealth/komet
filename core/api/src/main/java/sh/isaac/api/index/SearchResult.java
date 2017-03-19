@@ -41,13 +41,23 @@ package sh.isaac.api.index;
 
 /**
  * {@link SearchResult}
- * Interface to serve as a common parent to ComponentSearchResult and ConceptSearchResult
+ * Interface to serve as a common parent to ComponentSearchResult and ConceptSearchResult.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface SearchResult {
+   /**
+    * Gets the nid.
+    *
+    * @return the nid
+    */
    public int getNid();
 
+   /**
+    * Gets the score.
+    *
+    * @return the score
+    */
    public float getScore();
 }
 

@@ -73,79 +73,122 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link BinaryDataReaderQueueProvider}
+ * {@link BinaryDataReaderQueueProvider}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class BinaryDataReaderQueueProvider
         extends TimedTaskWithProgressTracker<Integer>
          implements BinaryDataReaderQueueService, Spliterator<OchreExternalizableUnparsed> {
-   int                  objects       = 0;
-   int                  NOTSTARTED    = 3;
-   int                  RUNNING       = 2;
-   int                  DONEREADING   = 1;
-   int                  COMLETE       = 0;
-   final CountDownLatch complete      = new CountDownLatch(NOTSTARTED);
-   Semaphore            completeBlock = new Semaphore(1);
+   /** The objects. */
+   int objects = 0;
+
+   /** The notstarted. */
+   int NOTSTARTED = 3;
+
+   /** The running. */
+   int RUNNING = 2;
+
+   /** The donereading. */
+   int DONEREADING = 1;
+
+   /** The comlete. */
+   int COMLETE = 0;
+
+   /** The complete. */
+   final CountDownLatch complete = new CountDownLatch(this.NOTSTARTED);
+
+   /** The complete block. */
+   Semaphore completeBlock = new Semaphore(1);
+
+   /** The read data. */
 
    // Only one thread doing the reading from disk, give it lots of buffer space
-   private BlockingQueue<OchreExternalizableUnparsed> readData = new ArrayBlockingQueue<>(5000);
+   private final BlockingQueue<OchreExternalizableUnparsed> readData = new ArrayBlockingQueue<>(5000);
+
+   /** The parsed data. */
 
    // This buffers from between the time when we deserialize the object, and when we write it back to the DB.
-   private BlockingQueue<OchreExternalizable> parsedData = new ArrayBlockingQueue<>(50);
-   Path                                       dataPath;
-   DataInputStream                            input;
-   int                                        streamBytes;
-   ExecutorService                            es_;
+   private final BlockingQueue<OchreExternalizable> parsedData = new ArrayBlockingQueue<>(50);
+
+   /** The data path. */
+   Path dataPath;
+
+   /** The input. */
+   DataInputStream input;
+
+   /** The stream bytes. */
+   int streamBytes;
+
+   /** The es. */
+   ExecutorService es;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new binary data reader queue provider.
+    *
+    * @param dataPath the data path
+    * @throws FileNotFoundException the file not found exception
+    */
    public BinaryDataReaderQueueProvider(Path dataPath)
             throws FileNotFoundException {
       this.dataPath = dataPath;
       this.input    = new DataInputStream(new FileInputStream(dataPath.toFile()));
 
       try {
-         streamBytes = input.available();
-         addToTotalWork(streamBytes);
-      } catch (IOException ex) {
+         this.streamBytes = this.input.available();
+         addToTotalWork(this.streamBytes);
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Characteristics.
+    *
+    * @return the int
+    */
    @Override
    public int characteristics() {
       return IMMUTABLE | NONNULL;
    }
 
+   /**
+    * Estimate size.
+    *
+    * @return the long
+    */
    @Override
    public long estimateSize() {
       return Long.MAX_VALUE;
    }
 
+   /**
+    * Shutdown.
+    */
    @Override
    public void shutdown() {
       try {
-         input.close();
+         this.input.close();
 
-         if (complete.getCount() == RUNNING) {
-            complete.countDown();
+         if (this.complete.getCount() == this.RUNNING) {
+            this.complete.countDown();
          }
 
-         es_.shutdown();
+         this.es.shutdown();
 
-         while (!readData.isEmpty()) {
+         while (!this.readData.isEmpty()) {
             Thread.sleep(10);
          }
 
-         es_.shutdownNow();
-         es_.awaitTermination(50, TimeUnit.MINUTES);
+         this.es.shutdownNow();
+         this.es.awaitTermination(50, TimeUnit.MINUTES);
 
-         if (complete.getCount() == DONEREADING) {
-            complete.countDown();
+         if (this.complete.getCount() == this.DONEREADING) {
+            this.complete.countDown();
          }
 
          done();
@@ -154,111 +197,132 @@ public class BinaryDataReaderQueueProvider
       }
    }
 
+   /**
+    * Try advance.
+    *
+    * @param action the action
+    * @return true, if successful
+    */
    @Override
    public boolean tryAdvance(Consumer<? super OchreExternalizableUnparsed> action) {
       try {
-         int                           startBytes        = input.available();
-         OchreExternalizableObjectType type              = OchreExternalizableObjectType.fromDataStream(input);
-         byte                          dataFormatVersion = input.readByte();
-         int                           recordSize        = input.readInt();
-         byte[]                        objectData        = new byte[recordSize];
+         final int                           startBytes        = this.input.available();
+         final OchreExternalizableObjectType type = OchreExternalizableObjectType.fromDataStream(this.input);
+         final byte                          dataFormatVersion = this.input.readByte();
+         final int                           recordSize        = this.input.readInt();
+         final byte[]                        objectData        = new byte[recordSize];
 
-         input.readFully(objectData);
+         this.input.readFully(objectData);
 
-         ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(objectData);
+         final ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(objectData);
 
          buffer.setExternalData(true);
          buffer.setObjectDataFormatVersion(dataFormatVersion);
          action.accept(new OchreExternalizableUnparsed(type, buffer));
-         objects++;
-         completedUnitsOfWork(startBytes - input.available());
+         this.objects++;
+         completedUnitsOfWork(startBytes - this.input.available());
          return true;
-      } catch (EOFException ex) {
+      } catch (final EOFException ex) {
          shutdown();
          return false;
-      } catch (IOException ex) {
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
 
+   /**
+    * Try split.
+    *
+    * @return the spliterator
+    */
    @Override
    public Spliterator<OchreExternalizableUnparsed> trySplit() {
       return null;
    }
 
    /**
+    * Call.
     *
     * @return the number of objects read.
     */
    @Override
    protected Integer call() {
       try {
-         complete.await();
-      } catch (InterruptedException ex) {
+         this.complete.await();
+      } catch (final InterruptedException ex) {
          throw new RuntimeException(ex);
       }
 
-      return objects;
+      return this.objects;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if finished.
+    *
+    * @return true, if finished
+    */
    @Override
    public boolean isFinished() {
-      return complete.getCount() == COMLETE;
+      return this.complete.getCount() == this.COMLETE;
    }
 
    /**
+    * Gets the queue.
     *
+    * @return the queue
     * @see sh.isaac.api.externalizable.BinaryDataReaderQueueService#getQueue()
     */
    @Override
    public BlockingQueue<OchreExternalizable> getQueue() {
-      if (complete.getCount() == NOTSTARTED) {
+      if (this.complete.getCount() == this.NOTSTARTED) {
          try {
-            completeBlock.acquireUninterruptibly();
+            this.completeBlock.acquireUninterruptibly();
 
-            if (complete.getCount() == NOTSTARTED) {
-               complete.countDown();
+            if (this.complete.getCount() == this.NOTSTARTED) {
+               this.complete.countDown();
 
                // These threads handle the parsing of the bytes back into ochre objects, which is kind of slow, as all of the UUIDs have
                // to be resolved back to nids and sequences.  Seems to work best to use about 2/3 of the processors here.
-               int threadCount = Math.round((float) Runtime.getRuntime()
-                                                           .availableProcessors() * (float) 0.667);
+               int threadCount = Math.round(Runtime.getRuntime()
+                                                   .availableProcessors() * (float) 0.667);
 
                threadCount = ((threadCount < 2) ? 2
                                                 : threadCount);
-               es_         = Executors.newFixedThreadPool(threadCount);
+               this.es    = Executors.newFixedThreadPool(threadCount);
 
                for (int i = 0; i < threadCount; i++) {
-                  es_.execute(() -> {
-                                 while ((complete.getCount() > COMLETE) ||!readData.isEmpty()) {
-                                    boolean accepted;
+                  this.es.execute(() -> {
+                                      while ((this.complete.getCount() > this.COMLETE) ||!this.readData.isEmpty()) {
+                                         boolean accepted;
 
-                                    try {
-                                       accepted = parsedData.offer(readData.take()
-                                             .parse(), 5, TimeUnit.MINUTES);
-                                    } catch (InterruptedException e) {
-                                       break;
-                                    }
+                                         try {
+                                            accepted = this.parsedData.offer(this.readData.take()
+                                                  .parse(),
+                                                  5,
+                                                  TimeUnit.MINUTES);
+                                         } catch (final InterruptedException e) {
+                                            break;
+                                         }
 
-                                    if (!accepted) {
-                                       throw new RuntimeException("unexpeced queue issues");
-                                    }
-                                 }
-                              });
+                                         if (!accepted) {
+                                            throw new RuntimeException("unexpeced queue issues");
+                                         }
+                                      }
+                                   });
                }
 
                Get.workExecutors().getExecutor().execute(() -> {
                               try {
                                  getStreamInternal().forEach((unparsed) -> {
                               try {
-                                 readData.offer(unparsed, 5, TimeUnit.MINUTES);
-                              } catch (Exception e) {
+                                 this.readData.offer(unparsed, 5, TimeUnit.MINUTES);
+                              } catch (final Exception e) {
                                  throw new RuntimeException(e);
                               }
                            });
-                              } catch (Exception e) {
+                              } catch (final Exception e) {
                                  Get.workExecutors().getExecutor().execute(() -> {
                                                 shutdown();
                                              });
@@ -267,13 +331,18 @@ public class BinaryDataReaderQueueProvider
                            });
             }
          } finally {
-            completeBlock.release();
+            this.completeBlock.release();
          }
       }
 
-      return parsedData;
+      return this.parsedData;
    }
 
+   /**
+    * Gets the stream internal.
+    *
+    * @return the stream internal
+    */
    private Stream<OchreExternalizableUnparsed> getStreamInternal() {
       running();
       return StreamSupport.stream(this, false);

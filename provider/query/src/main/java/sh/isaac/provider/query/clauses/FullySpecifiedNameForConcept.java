@@ -73,28 +73,44 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class FullySpecifiedNameForConcept
         extends ParentClause {
+   /**
+    * Instantiates a new fully specified name for concept.
+    */
    protected FullySpecifiedNameForConcept() {}
 
+   /**
+    * Instantiates a new fully specified name for concept.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param child the child
+    */
    public FullySpecifiedNameForConcept(Query enclosingQuery, Clause child) {
       super(enclosingQuery, child);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute components.
+    *
+    * @param incomingComponents the incoming components
+    * @return the nid set
+    */
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
-      LanguageCoordinate languageCoordinate         = getEnclosingQuery().getLanguageCoordinate();
-      StampCoordinate    stampCoordinate            = getEnclosingQuery().getStampCoordinate();
-      NidSet             outgoingFullySpecifiedNids = new NidSet();
+      final LanguageCoordinate languageCoordinate         = getEnclosingQuery().getLanguageCoordinate();
+      final StampCoordinate    stampCoordinate            = getEnclosingQuery().getStampCoordinate();
+      final NidSet             outgoingFullySpecifiedNids = new NidSet();
 
-      for (Clause childClause: getChildren()) {
-         NidSet             childPossibleComponentNids = childClause.computePossibleComponents(incomingComponents);
-         ConceptSequenceSet conceptSequenceSet         = ConceptSequenceSet.of(childPossibleComponentNids);
+      for (final Clause childClause: getChildren()) {
+         final NidSet             childPossibleComponentNids =
+            childClause.computePossibleComponents(incomingComponents);
+         final ConceptSequenceSet conceptSequenceSet         = ConceptSequenceSet.of(childPossibleComponentNids);
 
          Get.conceptService()
             .getConceptChronologyStream(conceptSequenceSet)
             .forEach((conceptChronology) -> {
-                        Optional<LatestVersion<DescriptionSememe<?>>> desc =
+                        final Optional<LatestVersion<DescriptionSememe<?>>> desc =
                            conceptChronology.getFullySpecifiedDescription(languageCoordinate, stampCoordinate);
 
                         if (desc.isPresent()) {
@@ -108,6 +124,12 @@ public class FullySpecifiedNameForConcept
       return outgoingFullySpecifiedNids;
    }
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       return incomingPossibleComponents;
@@ -115,13 +137,18 @@ public class FullySpecifiedNameForConcept
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.FULLY_SPECIFIED_NAME_FOR_CONCEPT);
 
-      for (Clause clause: getChildren()) {
+      for (final Clause clause: getChildren()) {
          whereClause.getChildren()
                     .add(clause.getWhereClause());
       }

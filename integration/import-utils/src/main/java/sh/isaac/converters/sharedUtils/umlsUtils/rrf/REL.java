@@ -57,59 +57,137 @@ import sh.isaac.converters.sharedUtils.umlsUtils.Relationship;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class REL.
+ */
 public class REL {
-   private String cui1, aui1, stype1, rel, cui2, aui2, stype2, rela, rui, srui, sab, sl, rg, dir, suppress, cvf,
-                  targetSAB, targetCODE, sourceSAB;
-   private UUID    sourceUUID_, targetUUID_, relHash_;
-   private boolean lookedUp2_;
+   /** The stype 1. */
+   private final String cui1, aui1, stype1;
+
+   /** The rel. */
+   private String rel;
+
+   /** The cui 2. */
+   private final String cui2;
+
+   /** The aui 2. */
+   private final String aui2;
+
+   /** The stype 2. */
+   private final String stype2;
+
+   /** The rela. */
+   private String rela;
+
+   /** The rui. */
+   private final String rui;
+
+   /** The srui. */
+   private final String srui;
+
+   /** The sab. */
+   private final String sab;
+
+   /** The sl. */
+   private final String sl;
+
+   /** The rg. */
+   private final String rg;
+
+   /** The dir. */
+   private final String dir;
+
+   /** The suppress. */
+   private final String suppress;
+
+   /** The cvf. */
+   private final String cvf;
+
+   /** The target SAB. */
+   private String targetSAB;
+
+   /** The target CODE. */
+   private String targetCODE;
+
+   /** The source SAB. */
+   private final String sourceSAB;
+
+   /** The rel hash. */
+   private UUID sourceUUID, targetUUID, relHash;
+
+   /** The looked up 2. */
+   private final boolean lookedUp2;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new rel.
+    *
+    * @param sourceSab the source sab
+    * @param rs the rs
+    * @param lookedUp2 the looked up 2
+    * @param isRxNorm the is rx norm
+    * @param relReverser the rel reverser
+    * @throws SQLException the SQL exception
+    */
    private REL(String sourceSab,
                ResultSet rs,
                boolean lookedUp2,
                boolean isRxNorm,
                Function<String, String> relReverser)
             throws SQLException {
-      sourceSAB  = sourceSab;
-      lookedUp2_ = lookedUp2;
-      cui1       = rs.getString(isRxNorm ? "RXCUI1"
-                                         : "CUI1");
-      aui1       = rs.getString(isRxNorm ? "RXAUI1"
-                                         : "AUI1");
-      stype1     = rs.getString("STYPE1");
-      rel        = rs.getString("REL");
-      cui2       = rs.getString(isRxNorm ? "RXCUI2"
-                                         : "CUI2");
-      aui2       = rs.getString(isRxNorm ? "RXAUI2"
-                                         : "AUI2");
-      stype2     = rs.getString("STYPE2");
-      rela       = rs.getString("RELA");
-      rui        = rs.getString("RUI");
-      srui       = rs.getString("SRUI");
-      sab        = rs.getString("SAB");
-      sl         = rs.getString("SL");
-      rg         = rs.getString("RG");
-      dir        = rs.getString("DIR");
-      suppress   = rs.getString("SUPPRESS");
-      cvf        = (rs.getObject("CVF") == null) ? null
+      this.sourceSAB  = sourceSab;
+      this.lookedUp2 = lookedUp2;
+      this.cui1       = rs.getString(isRxNorm ? "RXCUI1"
+            : "CUI1");
+      this.aui1       = rs.getString(isRxNorm ? "RXAUI1"
+            : "AUI1");
+      this.stype1     = rs.getString("STYPE1");
+      this.rel        = rs.getString("REL");
+      this.cui2       = rs.getString(isRxNorm ? "RXCUI2"
+            : "CUI2");
+      this.aui2       = rs.getString(isRxNorm ? "RXAUI2"
+            : "AUI2");
+      this.stype2     = rs.getString("STYPE2");
+      this.rela       = rs.getString("RELA");
+      this.rui        = rs.getString("RUI");
+      this.srui       = rs.getString("SRUI");
+      this.sab        = rs.getString("SAB");
+      this.sl         = rs.getString("SL");
+      this.rg         = rs.getString("RG");
+      this.dir        = rs.getString("DIR");
+      this.suppress   = rs.getString("SUPPRESS");
+      this.cvf        = (rs.getObject("CVF") == null) ? null
             : rs.getString("CVF");  // integer or string
 
-      if ((lookedUp2 ? aui2
-                     : aui1) != null) {
+      if ((lookedUp2 ? this.aui2
+                     : this.aui1) != null) {
          // when the AUI is not null, we have a couple extra vars to read
-         targetSAB  = rs.getString("targetSAB");
-         targetCODE = rs.getString("targetCODE");
+         this.targetSAB  = rs.getString("targetSAB");
+         this.targetCODE = rs.getString("targetCODE");
       }
 
-      if (!lookedUp2_) {
-         rel  = relReverser.apply(rel);
-         rela = relReverser.apply(rela);
+      if (!this.lookedUp2) {
+         this.rel  = relReverser.apply(this.rel);
+         this.rela = relReverser.apply(this.rela);
       }
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read.
+    *
+    * @param sourceSab the source sab
+    * @param rs the rs
+    * @param lookedUp2 the looked up 2
+    * @param allowedCUIs the allowed CU is
+    * @param cuiSkipCounter the cui skip counter
+    * @param isRxNorm the is rx norm
+    * @param relReverser the rel reverser
+    * @return the list
+    * @throws SQLException the SQL exception
+    */
    public static List<REL> read(String sourceSab,
                                 ResultSet rs,
                                 boolean lookedUp2,
@@ -118,10 +196,10 @@ public class REL {
                                 boolean isRxNorm,
                                 Function<String, String> relReverser)
             throws SQLException {
-      ArrayList<REL> result = new ArrayList<>();
+      final ArrayList<REL> result = new ArrayList<>();
 
       while (rs.next()) {
-         REL rel = new REL(sourceSab, rs, lookedUp2, isRxNorm, relReverser);
+         final REL rel = new REL(sourceSab, rs, lookedUp2, isRxNorm, relReverser);
 
          if ((allowedCUIs != null) && (!allowedCUIs.contains(rel.cui1) ||!allowedCUIs.contains(rel.cui2))) {
             cuiSkipCounter.getAndIncrement();
@@ -137,130 +215,258 @@ public class REL {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the cvf.
+    *
+    * @return the cvf
+    */
    public String getCvf() {
-      return cvf;
+      return this.cvf;
    }
 
+   /**
+    * Gets the dir.
+    *
+    * @return the dir
+    */
    public String getDir() {
-      return dir;
+      return this.dir;
    }
 
+   /**
+    * Gets the inverse rel hash.
+    *
+    * @param nameToRelMapper the name to rel mapper
+    * @return the inverse rel hash
+    */
    public UUID getInverseRelHash(Function<String, Relationship> nameToRelMapper) {
       // reverse the direction of the rels, and the source/target
-      String relInverse  = nameToRelMapper.apply(rel)
-                                          .getFSNName();
-      String relaInverse = null;
+      final String relInverse  = nameToRelMapper.apply(this.rel)
+                                                .getFSNName();
+      String       relaInverse = null;
 
-      if (rela != null) {
-         relaInverse = nameToRelMapper.apply(rela)
+      if (this.rela != null) {
+         relaInverse = nameToRelMapper.apply(this.rela)
                                       .getFSNName();
       }
 
-      return UUID.nameUUIDFromBytes(new String(relInverse + relaInverse + targetUUID_ + sourceUUID_).getBytes());
+      return UUID.nameUUIDFromBytes(new String(relInverse + relaInverse + this.targetUUID +
+            this.sourceUUID).getBytes());
    }
 
+   /**
+    * Gets the rel.
+    *
+    * @return the rel
+    */
    public String getRel() {
-      return rel;
+      return this.rel;
    }
 
+   /**
+    * Gets the rel hash.
+    *
+    * @return the rel hash
+    */
    public UUID getRelHash() {
-      if (relHash_ == null) {
-         relHash_ = UUID.nameUUIDFromBytes(new String(rel + rela + sourceUUID_ + targetUUID_).getBytes());
+      if (this.relHash == null) {
+         this.relHash = UUID.nameUUIDFromBytes(new String(this.rel + this.rela + this.sourceUUID +
+               this.targetUUID).getBytes());
       }
 
-      return relHash_;
+      return this.relHash;
    }
 
+   /**
+    * Gets the rela.
+    *
+    * @return the rela
+    */
    public String getRela() {
-      return rela;
+      return this.rela;
    }
 
+   /**
+    * Gets the rg.
+    *
+    * @return the rg
+    */
    public String getRg() {
-      return rg;
+      return this.rg;
    }
 
+   /**
+    * Gets the rui.
+    *
+    * @return the rui
+    */
    public String getRui() {
-      return rui;
+      return this.rui;
    }
 
+   /**
+    * Gets the sab.
+    *
+    * @return the sab
+    */
    public String getSab() {
-      return sab;
+      return this.sab;
    }
 
+   /**
+    * Gets the sl.
+    *
+    * @return the sl
+    */
    public String getSl() {
-      return sl;
+      return this.sl;
    }
 
+   /**
+    * Gets the source AUI.
+    *
+    * @return the source AUI
+    */
    public String getSourceAUI() {
-      return lookedUp2_ ? aui2
-                        : aui1;
+      return this.lookedUp2 ? this.aui2
+                             : this.aui1;
    }
 
+   /**
+    * Gets the source CUI.
+    *
+    * @return the source CUI
+    */
    public String getSourceCUI() {
-      return lookedUp2_ ? cui2
-                        : cui1;
+      return this.lookedUp2 ? this.cui2
+                             : this.cui1;
    }
 
+   /**
+    * Gets the source SAB.
+    *
+    * @return the source SAB
+    */
    public String getSourceSAB() {
-      return sourceSAB;
+      return this.sourceSAB;
    }
 
+   /**
+    * Gets the source UUID.
+    *
+    * @return the source UUID
+    */
    public UUID getSourceUUID() {
-      return sourceUUID_;
+      return this.sourceUUID;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the source UUID.
+    *
+    * @param sourceUUID the new source UUID
+    */
    public void setSourceUUID(UUID sourceUUID) {
-      sourceUUID_ = sourceUUID;
-      relHash_    = null;
+      this.sourceUUID = sourceUUID;
+      this.relHash    = null;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the srui.
+    *
+    * @return the srui
+    */
    public String getSrui() {
-      return srui;
+      return this.srui;
    }
 
+   /**
+    * Gets the stype 1.
+    *
+    * @return the stype 1
+    */
    public String getStype1() {
-      return stype1;
+      return this.stype1;
    }
 
+   /**
+    * Gets the stype 2.
+    *
+    * @return the stype 2
+    */
    public String getStype2() {
-      return stype2;
+      return this.stype2;
    }
 
+   /**
+    * Gets the suppress.
+    *
+    * @return the suppress
+    */
    public String getSuppress() {
-      return suppress;
+      return this.suppress;
    }
 
+   /**
+    * Gets the target AUI.
+    *
+    * @return the target AUI
+    */
    public String getTargetAUI() {
-      return lookedUp2_ ? aui1
-                        : aui2;
+      return this.lookedUp2 ? this.aui1
+                             : this.aui2;
    }
 
+   /**
+    * Gets the target CUI.
+    *
+    * @return the target CUI
+    */
    public String getTargetCUI() {
-      return lookedUp2_ ? cui1
-                        : cui2;
+      return this.lookedUp2 ? this.cui1
+                             : this.cui2;
    }
 
+   /**
+    * Gets the target code.
+    *
+    * @return the target code
+    */
    public String getTargetCode() {
-      return targetCODE;
+      return this.targetCODE;
    }
 
+   /**
+    * Gets the target SAB.
+    *
+    * @return the target SAB
+    */
    public String getTargetSAB() {
-      return targetSAB;
+      return this.targetSAB;
    }
 
+   /**
+    * Gets the target UUID.
+    *
+    * @return the target UUID
+    */
    public UUID getTargetUUID() {
-      return targetUUID_;
+      return this.targetUUID;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the target UUID.
+    *
+    * @param targetUUID the new target UUID
+    */
    public void setTargetUUID(UUID targetUUID) {
-      targetUUID_ = targetUUID;
-      relHash_    = null;
+      this.targetUUID = targetUUID;
+      this.relHash    = null;
    }
 }
 

@@ -48,15 +48,24 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeLong}
+ * {@link DynamicSememeLong}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface DynamicSememeLong
         extends DynamicSememeData {
+   /**
+    * Gets the data long.
+    *
+    * @return the data long
+    */
    public long getDataLong();
 
+   /**
+    * Gets the data long property.
+    *
+    * @return the data long property
+    */
    public ReadOnlyObjectProperty<Long> getDataLongProperty();
 }
 

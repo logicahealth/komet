@@ -53,44 +53,63 @@ import sh.isaac.converters.sharedUtils.sql.TerminologyFileReader;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class UMLSFileReader.
+ */
 public class UMLSFileReader
          implements TerminologyFileReader {
-   private BufferedReader reader_;
-   private List<String>   nextLine_;
+   /** The reader. */
+   private final BufferedReader reader;
+
+   /** The next line. */
+   private List<String> nextLine;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new UMLS file reader.
+    *
+    * @param reader the reader
+    */
    public UMLSFileReader(BufferedReader reader) {
-      reader_ = reader;
+      this.reader = reader;
    }
 
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Close.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
     * @see sh.isaac.converters.sharedUtils.sql.TerminologyFileReader#close()
     */
    @Override
    public void close()
             throws IOException {
-      reader_.close();
+      this.reader.close();
    }
 
+   /**
+    * Read next line.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private void readNextLine()
             throws IOException {
-      String line = reader_.readLine();
+      final String line = this.reader.readLine();
 
       if (line != null) {
-         String[] cols = line.split("\\|", -1);
+         final String[] cols = line.split("\\|", -1);
 
          // remove the last because the files have a trailing separator, with no data after it
-         nextLine_ = new ArrayList<>(cols.length - 1);
+         this.nextLine = new ArrayList<>(cols.length - 1);
 
-         for (String s: cols) {
-            if ((nextLine_.size() == cols.length - 1) && ((s.length() == 0) || (s == null))) {
+         for (final String s: cols) {
+            if ((this.nextLine.size() == cols.length - 1) && ((s.length() == 0) || (s == null))) {
                break;
             }
 
-            nextLine_.add(s);
+            this.nextLine.add(s);
          }
       }
    }
@@ -98,32 +117,40 @@ public class UMLSFileReader
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the next row.
+    *
+    * @return the next row
+    * @throws IOException Signals that an I/O exception has occurred.
     * @see sh.isaac.converters.sharedUtils.sql.TerminologyFileReader#getNextRow()
     */
    @Override
    public List<String> getNextRow()
             throws IOException {
-      if (nextLine_ == null) {
+      if (this.nextLine == null) {
          readNextLine();
       }
 
-      List<String> temp = nextLine_;
+      final List<String> temp = this.nextLine;
 
-      nextLine_ = null;
+      this.nextLine = null;
       return temp;
    }
 
    /**
+    * Checks for next row.
+    *
+    * @return true, if successful
+    * @throws IOException Signals that an I/O exception has occurred.
     * @see sh.isaac.converters.sharedUtils.sql.TerminologyFileReader#hasNextRow()
     */
    @Override
    public boolean hasNextRow()
             throws IOException {
-      if (nextLine_ == null) {
+      if (this.nextLine == null) {
          readNextLine();
       }
 
-      return nextLine_ != null;
+      return this.nextLine != null;
    }
 }
 

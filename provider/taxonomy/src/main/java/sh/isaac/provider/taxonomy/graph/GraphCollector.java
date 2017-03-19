@@ -74,19 +74,36 @@ import sh.isaac.provider.taxonomy.TaxonomyRecordUnpacked;
  */
 public class GraphCollector
          implements ObjIntConsumer<HashTreeBuilder>, BiConsumer<HashTreeBuilder, HashTreeBuilder> {
-   private final int                                   ISA_CONCEPT_SEQUENCE         = TermAux.IS_A.getConceptSequence();
-   int                                                 originSequenceBeingProcessed = -1;
-   ConceptSequenceSet                                  watchList                    = new ConceptSequenceSet();
+   /** The isa concept sequence. */
+   private final int ISA_CONCEPT_SEQUENCE = TermAux.IS_A.getConceptSequence();
+
+   /** The origin sequence being processed. */
+   int originSequenceBeingProcessed = -1;
+
+   /** The watch list. */
+   ConceptSequenceSet watchList = new ConceptSequenceSet();
+
+   /** The taxonomy map. */
    final CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap;
-   final TaxonomyCoordinate                            taxonomyCoordinate;
-   final int                                           taxonomyFlags;
+
+   /** The taxonomy coordinate. */
+   final TaxonomyCoordinate taxonomyCoordinate;
+
+   /** The taxonomy flags. */
+   final int taxonomyFlags;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new graph collector.
+    *
+    * @param taxonomyMap the taxonomy map
+    * @param viewCoordinate the view coordinate
+    */
    public GraphCollector(CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap, TaxonomyCoordinate viewCoordinate) {
       this.taxonomyMap        = taxonomyMap;
       this.taxonomyCoordinate = viewCoordinate;
-      taxonomyFlags           = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(viewCoordinate);
+      this.taxonomyFlags      = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(viewCoordinate);
 
 //    addToWatchList("779ece66-7e95-323e-a261-214caf48c408");
 //    addToWatchList("778a75c9-8264-36aa-9ad6-b9c6e5ee9187");
@@ -95,52 +112,76 @@ public class GraphCollector
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Accept.
+    *
+    * @param t the t
+    * @param u the u
+    */
    @Override
    public void accept(HashTreeBuilder t, HashTreeBuilder u) {
       t.combine(u);
    }
 
+   /**
+    * Accept.
+    *
+    * @param graphBuilder the graph builder
+    * @param originSequence the origin sequence
+    */
    @Override
    public void accept(HashTreeBuilder graphBuilder, int originSequence) {
-      originSequenceBeingProcessed = originSequence;
+      this.originSequenceBeingProcessed = originSequence;
 
-      Optional<TaxonomyRecordPrimitive> isaacPrimitiveTaxonomyRecord = taxonomyMap.get(originSequence);
+      final Optional<TaxonomyRecordPrimitive> isaacPrimitiveTaxonomyRecord = this.taxonomyMap.get(originSequence);
 
       if (isaacPrimitiveTaxonomyRecord.isPresent()) {
          // For debugging.
-         if (watchList.contains(originSequence)) {
+         if (this.watchList.contains(originSequence)) {
             System.out.println("Found watch: " + isaacPrimitiveTaxonomyRecord);
          }
 
-         TaxonomyRecordUnpacked taxonomyRecordUnpacked = isaacPrimitiveTaxonomyRecord.get()
-                                                                                     .getTaxonomyRecordUnpacked();
-         IntStream destinationStream = taxonomyRecordUnpacked.getConceptSequencesForType(ISA_CONCEPT_SEQUENCE,
-                                                                                         taxonomyCoordinate);
+         final TaxonomyRecordUnpacked taxonomyRecordUnpacked = isaacPrimitiveTaxonomyRecord.get()
+                                                                                           .getTaxonomyRecordUnpacked();
+         final IntStream destinationStream =
+            taxonomyRecordUnpacked.getConceptSequencesForType(this.ISA_CONCEPT_SEQUENCE,
+                                                              this.taxonomyCoordinate);
 
          destinationStream.forEach((int destinationSequence) -> graphBuilder.add(destinationSequence, originSequence));
       }
 
-      originSequenceBeingProcessed = -1;
+      this.originSequenceBeingProcessed = -1;
    }
 
+   /**
+    * Adds the to watch list.
+    *
+    * @param uuid the uuid
+    * @throws RuntimeException the runtime exception
+    */
    public final void addToWatchList(String uuid)
             throws RuntimeException {
-      watchList.add(Get.identifierService()
-                       .getConceptSequenceForUuids(UUID.fromString(uuid)));
+      this.watchList.add(Get.identifierService()
+                            .getConceptSequenceForUuids(UUID.fromString(uuid)));
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      StringBuilder buff = new StringBuilder();
+      final StringBuilder buff = new StringBuilder();
 
       buff.append("GraphCollector{");
-      buff.append(TaxonomyFlags.getTaxonomyFlags(taxonomyFlags));
+      buff.append(TaxonomyFlags.getTaxonomyFlags(this.taxonomyFlags));
 
-      if (originSequenceBeingProcessed != -1) {
+      if (this.originSequenceBeingProcessed != -1) {
          buff.append("} processing: ");
-         buff.append(Get.conceptDescriptionText(originSequenceBeingProcessed));
+         buff.append(Get.conceptDescriptionText(this.originSequenceBeingProcessed));
          buff.append(" <");
-         buff.append(originSequenceBeingProcessed);
+         buff.append(this.originSequenceBeingProcessed);
          buff.append(">");
       } else {
          buff.append("}");

@@ -45,9 +45,15 @@
 package sh.isaac.api;
 
 /**
+ * The Enum DataTarget.
  *
  * @author kec
  */
-public enum DataTarget { INTERNAL,
-                         EXTERNAL; }
+public enum DataTarget {
+   /** The internal. */
+   INTERNAL,
+
+   /** The external. */
+   EXTERNAL;
+}
 

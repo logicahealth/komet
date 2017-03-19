@@ -46,18 +46,21 @@ import java.util.Collection;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface StampPath.
  *
  * @author kec
  */
 public interface StampPath
         extends Comparable<StampPath> {
    /**
+    * Gets the path concept sequence.
     *
     * @return the sequence of the concept that defines this STAMP path.
     */
    int getPathConceptSequence();
 
    /**
+    * Gets the path origins.
     *
     * @return The origins of this path.
     */

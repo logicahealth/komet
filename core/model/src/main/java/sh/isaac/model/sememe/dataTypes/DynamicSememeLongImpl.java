@@ -54,29 +54,46 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeLongImpl}
+ * {@link DynamicSememeLongImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeLongImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeLong {
-   private ObjectProperty<Long> property_;
+   /** The property. */
+   private ObjectProperty<Long> property;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe long impl.
+    *
+    * @param data the data
+    */
    protected DynamicSememeLongImpl(byte[] data) {
       super(data);
    }
 
+   /**
+    * Instantiates a new dynamic sememe long impl.
+    *
+    * @param l the l
+    */
    public DynamicSememeLongImpl(long l) {
       super();
-      data_ = ByteBuffer.allocate(8)
-                        .putLong(l)
-                        .array();
+      this.data = ByteBuffer.allocate(8)
+                             .putLong(l)
+                             .array();
    }
 
+   /**
+    * Instantiates a new dynamic sememe long impl.
+    *
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    protected DynamicSememeLongImpl(byte[] data, int assemblageSequence, int columnNumber) {
       super(data, assemblageSequence, columnNumber);
    }
@@ -84,27 +101,36 @@ public class DynamicSememeLongImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data long.
+    *
+    * @return the data long
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI#getDataLong()
     */
    @Override
    public long getDataLong() {
-      return ByteBuffer.wrap(data_)
+      return ByteBuffer.wrap(this.data)
                        .getLong();
    }
 
    /**
+    * Gets the data long property.
+    *
+    * @return the data long property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicLongBI#getDataLongProperty()
     */
    @Override
    public ReadOnlyObjectProperty<Long> getDataLongProperty() {
-      if (property_ == null) {
-         property_ = new SimpleObjectProperty<>(null, getName(), getDataLong());
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<>(null, getName(), getDataLong());
       }
 
-      return property_;
+      return this.property;
    }
 
    /**
+    * Gets the data object.
+    *
+    * @return the data object
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
     */
    @Override
@@ -113,6 +139,9 @@ public class DynamicSememeLongImpl
    }
 
    /**
+    * Gets the data object property.
+    *
+    * @return the data object property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
     */
    @Override

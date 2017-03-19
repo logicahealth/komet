@@ -64,36 +64,70 @@ import sh.isaac.provider.sync.git.gitblit.utils.StringUtils;
  */
 public class RepositoryModel
          implements Serializable, Comparable<RepositoryModel> {
+   /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 1L;
 
    //~--- fields --------------------------------------------------------------
 
-   public String       name;
-   public String       description;
+   /** The name. */
+   public String name;
+
+   /** The description. */
+   public String description;
+
+   /** The owners. */
    public List<String> owners;
-   public Date         lastChange;
-   public String       accessRestriction;
-   public String       authorizationControl;
-   public String       federationStrategy;
+
+   /** The last change. */
+   public Date lastChange;
+
+   /** The access restriction. */
+   public String accessRestriction;
+
+   /** The authorization control. */
+   public String authorizationControl;
+
+   /** The federation strategy. */
+   public String federationStrategy;
+
+   /** The federation sets. */
    public List<String> federationSets;
-   public boolean      isBare;
-   public String       projectPath;
-   private String      displayName;
-   public boolean      acceptNewPatchsets;
-   public boolean      acceptNewTickets;
+
+   /** The is bare. */
+   public boolean isBare;
+
+   /** The project path. */
+   public String projectPath;
+
+   /** The display name. */
+   private String displayName;
+
+   /** The accept new patchsets. */
+   public boolean acceptNewPatchsets;
+
+   /** The accept new tickets. */
+   public boolean acceptNewTickets;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new repository model.
+    *
+    * @param name the name
+    * @param description the description
+    * @param owner the owner
+    * @param lastchange the lastchange
+    */
    public RepositoryModel(String name, String description, String owner, Date lastchange) {
       this.name                 = name;
       this.description          = description;
       this.lastChange           = lastchange;
       this.accessRestriction    = AccessRestrictionType.VIEW.toString();
       this.authorizationControl = AuthorizationControl.NAMED.toString();
-      this.federationSets       = new ArrayList<String>();
+      this.federationSets       = new ArrayList<>();
       this.federationStrategy   = FederationStrategy.FEDERATE_THIS.toString();
       this.projectPath          = StringUtils.getFirstPathElement(name);
-      this.owners               = new ArrayList<String>();
+      this.owners               = new ArrayList<>();
       this.isBare               = true;
       this.acceptNewTickets     = true;
       this.acceptNewPatchsets   = true;
@@ -102,44 +136,71 @@ public class RepositoryModel
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the owner.
+    *
+    * @param username the username
+    */
    public void addOwner(String username) {
       if (!StringUtils.isEmpty(username)) {
-         String name = username.toLowerCase();
+         final String name = username.toLowerCase();
 
          // a set would be more efficient, but this complicates JSON
          // deserialization so we enforce uniqueness with an arraylist
-         if (!owners.contains(name)) {
-            owners.add(name);
+         if (!this.owners.contains(name)) {
+            this.owners.add(name);
          }
       }
    }
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(RepositoryModel o) {
-      return StringUtils.compareRepositoryNames(name, o.name);
+      return StringUtils.compareRepositoryNames(this.name, o.name);
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (o instanceof RepositoryModel) {
-         return name.equals(((RepositoryModel) o).name);
+         return this.name.equals(((RepositoryModel) o).name);
       }
 
       return false;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
-      return name.hashCode();
+      return this.name.hashCode();
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      if (displayName == null) {
-         displayName = StringUtils.stripDotGit(name);
+      if (this.displayName == null) {
+         this.displayName = StringUtils.stripDotGit(this.name);
       }
 
-      return displayName;
+      return this.displayName;
    }
 }
 

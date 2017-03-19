@@ -47,15 +47,35 @@ import java.util.List;
 
 //~--- interfaces -------------------------------------------------------------
 
+/**
+ * The Interface TerminologyFileReader.
+ */
 public interface TerminologyFileReader {
+   /**
+    * Close.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    void close()
             throws IOException;
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the next row.
+    *
+    * @return the next row
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    List<String> getNextRow()
             throws IOException;
 
+   /**
+    * Checks for next row.
+    *
+    * @return true, if successful
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    boolean hasNextRow()
             throws IOException;
 }

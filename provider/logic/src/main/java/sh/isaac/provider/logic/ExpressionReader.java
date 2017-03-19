@@ -58,21 +58,30 @@ import se.liu.imt.mi.snomedct.expression.tools.SNOMEDCTParserUtil;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link ExpressionReader}
+ * {@link ExpressionReader}.
  *
  * @author Tony Weida
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ExpressionReader {
-   private static final String necessarySctid  = "900000000000074008";
+   /** The Constant necessarySctid. */
+   private static final String necessarySctid = "900000000000074008";
+
+   /** The Constant sufficientSctid. */
    private static final String sufficientSctid = "900000000000073002";
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read.
+    *
+    * @param file the file
+    * @return the stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static Stream<ParseTree> read(File file)
             throws IOException {
-      AtomicInteger lineCount = new AtomicInteger(0);
+      final AtomicInteger lineCount = new AtomicInteger(0);
 
       return Files.lines(file.toPath())
                   .filter(line -> {
@@ -83,7 +92,7 @@ public class ExpressionReader {
                              }
 
                              if (line.startsWith("id")) {
-                                String[] strTokens = line.split("\t");
+                                final String[] strTokens = line.split("\t");
 
                                 if (!(strTokens[6].equals("mapTarget") &&
                                       (strTokens[7].equals("Expression") &&
@@ -98,29 +107,30 @@ public class ExpressionReader {
                           })
                   .map(line -> {
                           try {
-                             String[] strTokens = line.split("\t");
+                             final String[] strTokens = line.split("\t");
 
-                 //          34353-3  works
-                 //          43734-3  works
-                 //          25491-2  works
-                 //          39579-8  works
-                 //          if(! strTokens[6].equals("25491-2")) {
-                 //                  continue;
-                 //          }
+                             // 34353-3  works
+                             // 43734-3  works
+                             // 25491-2  works
+                             // 39579-8  works
+                             // if(! strTokens[6].equals("25491-2")) {
+                             // continue;
+                             // }
                              System.out.println("\n\nLOINC EXPRESSION SERVICE> " + lineCount + ". LOINC CODE " +
                              strTokens[6] + " = " + strTokens[7] + "; STATUS = " + strTokens[8] + "\n");
 
-                             String definitionSctid = strTokens[8];
+                             final String definitionSctid = strTokens[8];
 
-                             if (definitionSctid.equals(sufficientSctid)) {
-                                return SNOMEDCTParserUtil.parseExpression(strTokens[7]);
-                             } else if (definitionSctid.equals(necessarySctid)) {
-                                return SNOMEDCTParserUtil.parseExpression("<<< " + strTokens[7]);
-                             } else {
-                                throw new RuntimeException("Unexpected definition status: " + definitionSctid +
-                                " on line " + lineCount);
+                             switch (definitionSctid) {
+                                case sufficientSctid:
+                                   return SNOMEDCTParserUtil.parseExpression(strTokens[7]);
+                                case necessarySctid:
+                                   return SNOMEDCTParserUtil.parseExpression("<<< " + strTokens[7]);
+                                default:
+                                   throw new RuntimeException("Unexpected definition status: " + definitionSctid +
+                                           " on line " + lineCount);
                              }
-                          } catch (Exception e) {
+                          } catch (final Exception e) {
                              throw new RuntimeException(e);
                           }
                        });

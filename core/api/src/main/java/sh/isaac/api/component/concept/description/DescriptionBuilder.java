@@ -49,15 +49,28 @@ import sh.isaac.api.identity.StampedVersion;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface DescriptionBuilder.
  *
  * @author kec
- * @param <T>
- * @param <V>
+ * @param <T> the generic type
+ * @param <V> the value type
  */
 public interface DescriptionBuilder<T extends ObjectChronology<?>, V extends StampedVersion>
         extends IdentifiedComponentBuilder<T> {
+   /**
+    * Adds the acceptable in dialect assemblage.
+    *
+    * @param dialectAssemblage the dialect assemblage
+    * @return the description builder
+    */
    DescriptionBuilder<?, ?> addAcceptableInDialectAssemblage(ConceptSpecification dialectAssemblage);
 
+   /**
+    * Adds the preferred in dialect assemblage.
+    *
+    * @param dialectAssemblage the dialect assemblage
+    * @return the description builder
+    */
    DescriptionBuilder<?, ?> addPreferredInDialectAssemblage(ConceptSpecification dialectAssemblage);
 }
 

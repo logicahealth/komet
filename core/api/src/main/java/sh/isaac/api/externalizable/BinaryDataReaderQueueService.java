@@ -42,33 +42,34 @@ package sh.isaac.api.externalizable;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.concurrent.BlockingQueue;
-import java.util.stream.Stream;
 
 //~--- interfaces -------------------------------------------------------------
 
 /**
- *
- * {@link BinaryDataReaderQueueService}
+ * {@link BinaryDataReaderQueueService}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface BinaryDataReaderQueueService {
    /**
-    * Cancel any inprogress processing
+    * Cancel any inprogress processing.
     */
    public void shutdown();
 
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Call to determine if no futher elements will populate the queue
+    * Call to determine if no futher elements will populate the queue.
+    *
+    * @return true, if finished
     */
    public boolean isFinished();
 
    /**
     * Return a queue view of the data reader service - the queue being populated by a multi-threaded operation.
     * Order is not maintained.
-    * @return
+    *
+    * @return the queue
     */
    BlockingQueue<OchreExternalizable> getQueue();
 }

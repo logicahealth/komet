@@ -45,21 +45,22 @@ import sh.isaac.api.State;
 import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.externalizable.OchreExternalizable;
 
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface SememeChronology.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public interface SememeChronology<V extends SememeVersion>
         extends ObjectChronology<V>, SememeObject {
    /**
     * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
     * add persist the chronicle when changes to the mutable version are complete .
-    * @param <M>
+    *
+    * @param <M> the generic type
     * @param type SememeVersion type
     * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version.
     * @return the mutable version
@@ -71,7 +72,8 @@ public interface SememeChronology<V extends SememeVersion>
     * the version is uncommitted. It is the responsibility of the caller to
     * add the mutable version to the commit manager when changes are complete
     * prior to committing the component.
-    * @param <M>
+    *
+    * @param <M> the generic type
     * @param type SememeVersion type
     * @param state state of the created mutable version
     * @param ec edit coordinate to provide the author, module, and path for the mutable version
@@ -81,6 +83,11 @@ public interface SememeChronology<V extends SememeVersion>
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    SememeType getSememeType();
 }
 

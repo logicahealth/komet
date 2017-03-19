@@ -72,26 +72,37 @@ import java.util.Comparator;
  */
 public class AlphanumComparator
          implements Comparator<String> {
-   private static AlphanumComparator caseSensitiveInstance_;
-   private static AlphanumComparator caseInsensitiveInstance_;
+   /** The case sensitive instance. */
+   private static AlphanumComparator caseSensitiveInstance;
+
+   /** The case insensitive instance. */
+   private static AlphanumComparator caseInsensitiveInstance;
 
    //~--- fields --------------------------------------------------------------
 
-   private boolean ignoreCase_;
+   /** The ignore case. */
+   private final boolean ignoreCase;
 
    //~--- constructors --------------------------------------------------------
 
    /**
     * Create a new instance of an AlphanumComparator.
     *
-    * @param caseSensitive
+    * @param ignoreCase the ignore case
     */
    public AlphanumComparator(boolean ignoreCase) {
-      this.ignoreCase_ = ignoreCase;
+      this.ignoreCase = ignoreCase;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare.
+    *
+    * @param s1 the s 1
+    * @param s2 the s 2
+    * @return the int
+    */
    @Override
    public int compare(String s1, String s2) {
       if (s1 == null) {
@@ -102,17 +113,17 @@ public class AlphanumComparator
          return 1;
       }
 
-      int thisMarker = 0;
-      int thatMarker = 0;
-      int s1Length   = s1.length();
-      int s2Length   = s2.length();
+      int       thisMarker = 0;
+      int       thatMarker = 0;
+      final int s1Length   = s1.length();
+      final int s2Length   = s2.length();
 
       while ((thisMarker < s1Length) && (thatMarker < s2Length)) {
-         String thisChunk = getChunk(s1, s1Length, thisMarker);
+         final String thisChunk = getChunk(s1, s1Length, thisMarker);
 
          thisMarker += thisChunk.length();
 
-         String thatChunk = getChunk(s2, s2Length, thatMarker);
+         final String thatChunk = getChunk(s2, s2Length, thatMarker);
 
          thatMarker += thatChunk.length();
 
@@ -125,8 +136,8 @@ public class AlphanumComparator
 
             // 0 pad the shorter array, so that they have the same length.
             if (thisChunkInt.length > thatChunkInt.length) {
-               int[] temp         = new int[thisChunkInt.length];
-               int   insertOffset = thisChunkInt.length - thatChunkInt.length;
+               final int[] temp         = new int[thisChunkInt.length];
+               int         insertOffset = thisChunkInt.length - thatChunkInt.length;
 
                for (int i = 0; i < thatChunkInt.length; i++) {
                   temp[insertOffset++] = thatChunkInt[i];
@@ -135,8 +146,8 @@ public class AlphanumComparator
                thatChunkInt = temp;
             } else {
                if (thisChunkInt.length < thatChunkInt.length) {
-                  int[] temp         = new int[thatChunkInt.length];
-                  int   insertOffset = thatChunkInt.length - thisChunkInt.length;
+                  final int[] temp         = new int[thatChunkInt.length];
+                  int         insertOffset = thatChunkInt.length - thisChunkInt.length;
 
                   for (int i = 0; i < thisChunkInt.length; i++) {
                      temp[insertOffset++] = thisChunkInt[i];
@@ -158,7 +169,7 @@ public class AlphanumComparator
                }
             }
          } else {
-            if (ignoreCase_) {
+            if (this.ignoreCase) {
                result = thisChunk.compareToIgnoreCase(thatChunk);
             } else {
                result = thisChunk.compareTo(thatChunk);
@@ -173,9 +184,24 @@ public class AlphanumComparator
       return s1Length - s2Length;
    }
 
+   /**
+    * Compare.
+    *
+    * @param left the left
+    * @param right the right
+    * @param ignoreCase the ignore case
+    * @return the int
+    */
    public static int compare(String left, String right, boolean ignoreCase) {
       return getCachedInstance(ignoreCase).compare(left, right);
    }
+
+   /**
+    * Sub chunk numeric.
+    *
+    * @param numericChunk the numeric chunk
+    * @return the int[]
+    */
 
    /*
     * Take in string (which we assume will pass Integer.ParseInt) and return an array of integers.
@@ -184,9 +210,9 @@ public class AlphanumComparator
     * For example, 45600000000524566874861567 would be returned as : [456000000,005245668,74861567]
     */
    private int[] subChunkNumeric(String numericChunk) {
-      int[] result = new int[(int) Math.ceil(numericChunk.length() / 9.0)];
-      int   s      = 0;
-      int   e      = ((9 > numericChunk.length()) ? numericChunk.length()
+      final int[] result = new int[(int) Math.ceil(numericChunk.length() / 9.0)];
+      int         s      = 0;
+      int         e      = ((9 > numericChunk.length()) ? numericChunk.length()
             : 9);
 
       for (int i = 0; i < result.length; i++) {
@@ -205,30 +231,36 @@ public class AlphanumComparator
     * Get a reference to a cached, shared instance. Good for reuse, but would have multithreading issues if many threads are trying to sort at the
     * same time.
     *
-    * @param caseSensitive
+    * @param ignoreCase the ignore case
+    * @return the cached instance
     */
    public static synchronized AlphanumComparator getCachedInstance(boolean ignoreCase) {
       if (ignoreCase) {
-         if (caseSensitiveInstance_ == null) {
-            caseSensitiveInstance_ = new AlphanumComparator(true);
+         if (caseSensitiveInstance == null) {
+            caseSensitiveInstance = new AlphanumComparator(true);
          }
 
-         return caseSensitiveInstance_;
+         return caseSensitiveInstance;
       } else {
-         if (caseInsensitiveInstance_ == null) {
-            caseInsensitiveInstance_ = new AlphanumComparator(false);
+         if (caseInsensitiveInstance == null) {
+            caseInsensitiveInstance = new AlphanumComparator(false);
          }
 
-         return caseInsensitiveInstance_;
+         return caseInsensitiveInstance;
       }
    }
 
    /**
-    * Length of string is passed in for improved efficiency (only need to calculate it once) 
+    * Length of string is passed in for improved efficiency (only need to calculate it once).
+    *
+    * @param s the s
+    * @param slength the slength
+    * @param marker the marker
+    * @return the chunk
     */
    private String getChunk(String s, int slength, int marker) {
-      StringBuilder chunk = new StringBuilder();
-      char          c     = s.charAt(marker);
+      final StringBuilder chunk = new StringBuilder();
+      char                c     = s.charAt(marker);
 
       chunk.append(c);
       marker++;
@@ -260,6 +292,12 @@ public class AlphanumComparator
       return chunk.toString();
    }
 
+   /**
+    * Checks if digit.
+    *
+    * @param ch the ch
+    * @return true, if digit
+    */
    private boolean isDigit(char ch) {
       return (ch >= 48) && (ch <= 57);
    }

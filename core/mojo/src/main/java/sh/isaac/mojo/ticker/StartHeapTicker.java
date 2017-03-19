@@ -60,15 +60,21 @@ import sh.isaac.api.memory.HeapUseTicker;
 )
 public class StartHeapTicker
         extends AbstractMojo {
+   /** The interval in seconds. */
    @Parameter
    String intervalInSeconds = "10";
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException {
-      HeapUseTicker.start(Integer.parseInt(intervalInSeconds));
+      HeapUseTicker.start(Integer.parseInt(this.intervalInSeconds));
    }
 }
 

@@ -64,26 +64,40 @@ import sh.isaac.api.progress.ActiveTasks;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class WriteAndCheckConceptChronicle.
  *
  * @author kec
  */
 public class WriteAndCheckConceptChronicle
         extends Task<Void> {
-   private final ConceptChronology                                              cc;
-   private final ConcurrentSkipListSet<ChangeChecker>                           checkers;
-   private final ConcurrentSkipListSet<Alert>                                   alertCollection;
-   private final Semaphore                                                      writeSemaphore;
+   /** The cc. */
+   private final ConceptChronology cc;
+
+   /** The checkers. */
+   private final ConcurrentSkipListSet<ChangeChecker> checkers;
+
+   /** The alert collection. */
+   private final ConcurrentSkipListSet<Alert> alertCollection;
+
+   /** The write semaphore. */
+   private final Semaphore writeSemaphore;
+
+   /** The change listeners. */
    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
-   private final BiConsumer<ObjectChronology, Boolean>                          uncommittedTracking;
+
+   /** The uncommitted tracking. */
+   private final BiConsumer<ObjectChronology, Boolean> uncommittedTracking;
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    * @param cc
-    * @param checkers
-    * @param alertCollection
-    * @param writeSemaphore
-    * @param changeListeners
+    * Instantiates a new write and check concept chronicle.
+    *
+    * @param cc the cc
+    * @param checkers the checkers
+    * @param alertCollection the alert collection
+    * @param writeSemaphore the write semaphore
+    * @param changeListeners the change listeners
     * @param uncommittedTracking A handle to call back to the caller to notify it that the concept has been
     * written to the ConceptService.  Parameter 1 is the Concept, Parameter two is true to indicate that the
     * change checker is active for this implementation.
@@ -113,44 +127,50 @@ public class WriteAndCheckConceptChronicle
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Call.
+    *
+    * @return the void
+    * @throws Exception the exception
+    */
    @Override
    public Void call()
             throws Exception {
       try {
          Get.conceptService()
-            .writeConcept(cc);
-         uncommittedTracking.accept(cc, true);
+            .writeConcept(this.cc);
+         this.uncommittedTracking.accept(this.cc, true);
          updateProgress(1, 3);
 
          // TODO dan disabled for the same reason as above.
-         updateMessage("checking nid: " + cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
+         updateMessage("checking nid: " + this.cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
 
-         if (cc.isUncommitted()) {
-            checkers.stream().forEach((check) -> {
-                                check.check(cc, alertCollection, CheckPhase.ADD_UNCOMMITTED);
-                             });
+         if (this.cc.isUncommitted()) {
+            this.checkers.stream().forEach((check) -> {
+                                     check.check(this.cc, this.alertCollection, CheckPhase.ADD_UNCOMMITTED);
+                                  });
          }
 
          updateProgress(2, 3);
 
          // TODO dan disabled for the same reason as above.
-         updateMessage("notifying nid: " + cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
-         changeListeners.forEach((listenerRef) -> {
-                                    ChronologyChangeListener listener = listenerRef.get();
+         updateMessage("notifying nid: " + this.cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
+         this.changeListeners.forEach((listenerRef) -> {
+                                         final ChronologyChangeListener listener = listenerRef.get();
 
-                                    if (listener == null) {
-                                       changeListeners.remove(listenerRef);
-                                    } else {
-                                       listener.handleChange(cc);
-                                    }
-                                 });
+                                         if (listener == null) {
+                                            this.changeListeners.remove(listenerRef);
+                                         } else {
+                                            listener.handleChange(this.cc);
+                                         }
+                                      });
          updateProgress(3, 3);
 
          // TODO dan disabled for the same reason as above.
-         updateMessage("complete nid: " + cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
+         updateMessage("complete nid: " + this.cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
          return null;
       } finally {
-         writeSemaphore.release();
+         this.writeSemaphore.release();
          LookupService.getService(ActiveTasks.class)
                       .get()
                       .remove(this);

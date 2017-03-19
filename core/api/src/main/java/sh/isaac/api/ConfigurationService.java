@@ -73,11 +73,13 @@ import sh.isaac.api.observable.coordinate.ObservableTaxonomyCoordinate;
 @Contract
 public interface ConfigurationService {
    /**
+    * Enable verbose debug.
+    *
     * @return true if verbose debug has been enabled.  This default implementation allows the
     * feature to be enabled by setting the system property {@link Constants#ISAAC_DEBUG} to 'true'
     */
    public default boolean enableVerboseDebug() {
-      String value = System.getProperty(Constants.ISAAC_DEBUG);
+      final String value = System.getProperty(Constants.ISAAC_DEBUG);
 
       if (StringUtils.isNotBlank(value)) {
          return value.trim()
@@ -90,6 +92,8 @@ public interface ConfigurationService {
    /**
     * There are some cases where validators and such cannot be properly executed if we are in bootstrap mode - building
     * the system for the first time.  The default implementation of this returns false.
+    *
+    * @return true, if successful
     */
    public default boolean inBootstrapMode() {
       return false;
@@ -99,6 +103,8 @@ public interface ConfigurationService {
     * When building a DB, we don't want to index per commit, or write changeset files, among other things.
     *
     * Note that this mode can be enabled-only only.  If you enable dbBuildMode, the mode cannot be turned off later.
+    *
+    * @return true, if successful
     */
    public default boolean inDBBuildMode() {
       return false;
@@ -107,7 +113,7 @@ public interface ConfigurationService {
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * See {@link #inBootstrapMode()}
+    * See {@link #inBootstrapMode()}.
     */
    public default void setBootstrapMode() {
       throw new UnsupportedOperationException();
@@ -116,6 +122,8 @@ public interface ConfigurationService {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the chronicle folder path.
+    *
     * @return The root folder of the database - one would expect to find a
     * data-store specific folder such as "cradle" inside this folder. The
     * default implementation returns the result of
@@ -124,8 +132,8 @@ public interface ConfigurationService {
     * The returned path exists on disk at the time that this method returns.
     */
    public default Path getChronicleFolderPath() {
-      Path           result;
-      Optional<Path> rootPath = getDataStoreFolderPath();
+      Path                 result;
+      final Optional<Path> rootPath = getDataStoreFolderPath();
 
       if (!rootPath.isPresent()) {
          throw new IllegalStateException(
@@ -139,7 +147,7 @@ public interface ConfigurationService {
 
       try {
          Files.createDirectories(result);
-      } catch (IOException e) {
+      } catch (final IOException e) {
          throw new RuntimeException(e);
       }
 
@@ -149,7 +157,7 @@ public interface ConfigurationService {
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * See {@link #inDBBuildMode()}
+    * See {@link #inDBBuildMode()}.
     */
    public default void setDBBuildMode() {
       throw new UnsupportedOperationException();
@@ -158,6 +166,8 @@ public interface ConfigurationService {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data store folder path.
+    *
     * @return The root folder of the database - the returned path should contain
     * subfolders of
     * {@link Constants#DEFAULT_CHRONICLE_FOLDER} and
@@ -188,7 +198,7 @@ public interface ConfigurationService {
     * This method can only be utilized prior to the first call to
     * {@link LookupService#startupIsaac()}
     *
-    * @param dataStoreFolderPath
+    * @param dataStoreFolderPath the new data store folder path
     * @throws IllegalStateException if this is called after the system has
     * already started.
     * @throws IllegalArgumentException if the provided dbFolderPath is an
@@ -202,7 +212,7 @@ public interface ConfigurationService {
     * reference this object will be updated accordingly. Default: The value to
     * use if another value is not provided.
     *
-    * @param conceptId
+    * @param conceptId the new default classifier
     */
    void setDefaultClassifier(int conceptId);
 
@@ -239,6 +249,7 @@ public interface ConfigurationService {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the default edit coordinate.
     *
     * @return an {@code ObservableEditCoordinate} based on the configuration
     * defaults.
@@ -268,6 +279,7 @@ public interface ConfigurationService {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the default language coordinate.
     *
     * @return an {@code ObservableLanguageCoordinate} based on the
     * configuration defaults.
@@ -275,6 +287,7 @@ public interface ConfigurationService {
    ObservableLanguageCoordinate getDefaultLanguageCoordinate();
 
    /**
+    * Gets the default logic coordinate.
     *
     * @return an {@code ObservableLogicCoordinate} based on the configuration
     * defaults.
@@ -304,6 +317,7 @@ public interface ConfigurationService {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the default stamp coordinate.
     *
     * @return an {@code ObservableStampCoordinate} based on the configuration
     * defaults.
@@ -324,6 +338,7 @@ public interface ConfigurationService {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the default taxonomy coordinate.
     *
     * @return an {@code ObservableTaxonomyCoordinate} based on the
     * configuration defaults.
@@ -356,7 +371,8 @@ public interface ConfigurationService {
    /**
     * Return the known (if any) details to utilize to make a GIT server connection.
     * The returned URL should point to the root of the git server - not to a particular repository.
-    * @return
+    *
+    * @return the git configuration
     */
    public default Optional<RemoteServiceInfo> getGitConfiguration() {
       return Optional.empty();
@@ -367,6 +383,8 @@ public interface ConfigurationService {
    /**
     * Specify the details to be returned by {@link #getGitConfiguration()}.  This method is optional, and may not be supported
     * (in which case, it throws an {@link UnsupportedOperationException})
+    *
+    * @param rsi the new git configuration
     */
    public default void setGitConfiguration(RemoteServiceInfo rsi) {
       throw new UnsupportedOperationException();
@@ -375,6 +393,8 @@ public interface ConfigurationService {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the search folder path.
+    *
     * @return The root folder of the search data store - one would expect to
     * find a data-store specific folder such as "lucene" inside this folder.
     * The default implementation returns either:
@@ -387,8 +407,8 @@ public interface ConfigurationService {
     * The returned path exists on disk at the time that this method returns.
     */
    public default Path getSearchFolderPath() {
-      Path           result;
-      Optional<Path> rootPath = getDataStoreFolderPath();
+      Path                 result;
+      final Optional<Path> rootPath = getDataStoreFolderPath();
 
       if (!rootPath.isPresent()) {
          throw new IllegalStateException(
@@ -402,7 +422,7 @@ public interface ConfigurationService {
 
       try {
          Files.createDirectories(result);
-      } catch (IOException e) {
+      } catch (final IOException e) {
          throw new RuntimeException(e);
       }
 

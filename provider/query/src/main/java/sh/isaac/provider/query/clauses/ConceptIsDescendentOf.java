@@ -41,8 +41,6 @@ package sh.isaac.provider.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
-
 import java.util.EnumSet;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -79,15 +77,28 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIsDescendentOf
         extends LeafClause {
+   /** The descendent of spec key. */
    @XmlElement
    String descendentOfSpecKey;
+
+   /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concept is descendent of.
+    */
    protected ConceptIsDescendentOf() {}
 
+   /**
+    * Instantiates a new concept is descendent of.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param kindOfSpecKey the kind of spec key
+    * @param viewCoordinateKey the view coordinate key
+    */
    public ConceptIsDescendentOf(Query enclosingQuery, String kindOfSpecKey, String viewCoordinateKey) {
       super(enclosingQuery);
       this.descendentOfSpecKey = kindOfSpecKey;
@@ -96,15 +107,21 @@ public class ConceptIsDescendentOf
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                      .get(viewCoordinateKey);
-      ConceptSpecification descendentOfSpec = (ConceptSpecification) enclosingQuery.getLetDeclarations()
-                                                                                   .get(descendentOfSpecKey);
-      int parentNid = descendentOfSpec.getNid();
-      ConceptSequenceSet descendentOfSequenceSet = Get.taxonomyService()
-                                                      .getChildOfSequenceSet(parentNid, taxonomyCoordinate);
+      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+                                                                                            .get(this.viewCoordinateKey);
+      final ConceptSpecification descendentOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+                                                                                              .get(this.descendentOfSpecKey);
+      final int parentNid = descendentOfSpec.getNid();
+      final ConceptSequenceSet descendentOfSequenceSet = Get.taxonomyService()
+                                                            .getChildOfSequenceSet(parentNid, taxonomyCoordinate);
 
       descendentOfSequenceSet.remove(parentNid);
       getResultsCache().or(NidSet.of(descendentOfSequenceSet));
@@ -113,25 +130,41 @@ public class ConceptIsDescendentOf
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
       // Nothing to do...
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.CONCEPT_IS_DESCENDENT_OF);
       whereClause.getLetKeys()
-                 .add(descendentOfSpecKey);
+                 .add(this.descendentOfSpecKey);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       return whereClause;
    }
 }

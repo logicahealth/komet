@@ -56,11 +56,16 @@ import sh.isaac.pombuilder.converter.ConverterOptionParamSuggestedValue;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link ConverterOptionParamTest}
+ * {@link ConverterOptionParamTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ConverterOptionParamTest {
+   /**
+    * Test changeset URL rewrite.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testChangesetURLRewrite()
             throws IOException {
@@ -77,16 +82,21 @@ public class ConverterOptionParamTest {
                           GitPublish.constructChangesetRepositoryURL("https://git.isaac.sh/git/r/foo.git"));
    }
 
+   /**
+    * Test json.
+    *
+    * @throws Exception the exception
+    */
    @Test
    public void testJson()
             throws Exception {
-      ConverterOptionParam foo = new ConverterOptionParam("cc",
-                                                          "a",
-                                                          "b",
-                                                          true,
-                                                          true,
-                                                          new ConverterOptionParamSuggestedValue("e", "e1"),
-                                                          new ConverterOptionParamSuggestedValue("f"));
+      final ConverterOptionParam foo = new ConverterOptionParam("cc",
+                                                                "a",
+                                                                "b",
+                                                                true,
+                                                                true,
+                                                                new ConverterOptionParamSuggestedValue("e", "e1"),
+                                                                new ConverterOptionParamSuggestedValue("f"));
 
       Assert.assertEquals("e", foo.getSuggestedPickListValues()[0]
                                   .getValue());
@@ -97,17 +107,17 @@ public class ConverterOptionParamTest {
       Assert.assertEquals("f", foo.getSuggestedPickListValues()[1]
                                   .getDescription());
 
-      ConverterOptionParam foo2 = new ConverterOptionParam("33",
-                                                           "1",
-                                                           "2",
-                                                           true,
-                                                           false,
-                                                           new ConverterOptionParamSuggestedValue("3", "31"),
-                                                           new ConverterOptionParamSuggestedValue("4", "41"));
+      final ConverterOptionParam foo2 = new ConverterOptionParam("33",
+                                                                 "1",
+                                                                 "2",
+                                                                 true,
+                                                                 false,
+                                                                 new ConverterOptionParamSuggestedValue("3", "31"),
+                                                                 new ConverterOptionParamSuggestedValue("4", "41"));
 
       ConverterOptionParam.serialize(new ConverterOptionParam[] { foo, foo2 }, new File("foo.json"));
 
-      ConverterOptionParam[] foo3 = ConverterOptionParam.fromFile(new File("foo.json"));
+      final ConverterOptionParam[] foo3 = ConverterOptionParam.fromFile(new File("foo.json"));
 
       Assert.assertEquals(foo3[0], foo);
       Assert.assertEquals(foo3[1], foo2);

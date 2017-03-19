@@ -56,22 +56,32 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeUUIDImpl}
+ * {@link DynamicSememeUUIDImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeUUIDImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeUUID {
-   private ObjectProperty<UUID> property_;
+   /** The property. */
+   private ObjectProperty<UUID> property;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe UUID impl.
+    *
+    * @param data the data
+    */
    protected DynamicSememeUUIDImpl(byte[] data) {
       super(data);
    }
 
+   /**
+    * Instantiates a new dynamic sememe UUID impl.
+    *
+    * @param uuid the uuid
+    */
    public DynamicSememeUUIDImpl(UUID uuid) {
       super();
 
@@ -79,13 +89,20 @@ public class DynamicSememeUUIDImpl
          throw new RuntimeException("The uuid value cannot be null", null);
       }
 
-      ByteBuffer b = ByteBuffer.allocate(16);
+      final ByteBuffer b = ByteBuffer.allocate(16);
 
       b.putLong(uuid.getMostSignificantBits());
       b.putLong(uuid.getLeastSignificantBits());
-      data_ = b.array();
+      this.data = b.array();
    }
 
+   /**
+    * Instantiates a new dynamic sememe UUID impl.
+    *
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    protected DynamicSememeUUIDImpl(byte[] data, int assemblageSequence, int columnNumber) {
       super(data, assemblageSequence, columnNumber);
    }
@@ -93,6 +110,9 @@ public class DynamicSememeUUIDImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data object.
+    *
+    * @return the data object
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
     */
    @Override
@@ -101,6 +121,9 @@ public class DynamicSememeUUIDImpl
    }
 
    /**
+    * Gets the data object property.
+    *
+    * @return the data object property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
     */
    @Override
@@ -109,28 +132,33 @@ public class DynamicSememeUUIDImpl
    }
 
    /**
+    * Gets the data UUID.
+    *
+    * @return the data UUID
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicUUIDBI#getDataUUID()
     */
    @Override
    public UUID getDataUUID() {
-      ByteBuffer b     = ByteBuffer.wrap(data_);
-      long       most  = b.getLong();
-      long       least = b.getLong();
+      final ByteBuffer b     = ByteBuffer.wrap(this.data);
+      final long       most  = b.getLong();
+      final long       least = b.getLong();
 
       return new UUID(most, least);
    }
 
    /**
-    * @return
+    * Gets the data UUID property.
+    *
+    * @return the data UUID property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicUUIDBI#getDataUUIDProperty()
     */
    @Override
    public ReadOnlyObjectProperty<UUID> getDataUUIDProperty() {
-      if (property_ == null) {
-         property_ = new SimpleObjectProperty<>(null, getName(), getDataUUID());
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<>(null, getName(), getDataUUID());
       }
 
-      return property_;
+      return this.property;
    }
 }
 

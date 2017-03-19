@@ -68,6 +68,7 @@ import sh.isaac.api.logic.assertions.substitution.StringSubstitution;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class GenericAxiom.
  *
  * @author kec
  */
@@ -76,12 +77,23 @@ public class GenericAxiom
                     Template, Or, BooleanLiteral, FloatLiteral, InstantLiteral, IntegerLiteral, StringLiteral,
                     BooleanSubstitution, ConceptSubstitution, FloatSubstitution, InstantSubstitution,
                     IntegerSubstitution, StringSubstitution {
+   /** The builder. */
    private final LogicalExpressionBuilder builder;
-   private final short                    index;
-   private final NodeSemantic             semantic;
+
+   /** The index. */
+   private final short index;
+
+   /** The semantic. */
+   private final NodeSemantic semantic;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new generic axiom.
+    *
+    * @param semantic the semantic
+    * @param builder the builder
+    */
    public GenericAxiom(NodeSemantic semantic, LogicalExpressionBuilderOchreImpl builder) {
       this.builder  = builder;
       this.index    = builder.getNextAxiomIndex();
@@ -90,6 +102,12 @@ public class GenericAxiom
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
@@ -109,6 +127,11 @@ public class GenericAxiom
       return this.semantic == other.semantic;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int hash = 3;
@@ -117,24 +140,44 @@ public class GenericAxiom
       return hash;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "GenericAxiom{" + "index=" + index + ", semantic=" + semantic + '}';
+      return "GenericAxiom{" + "index=" + this.index + ", semantic=" + this.semantic + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the builder.
+    *
+    * @return the builder
+    */
    @Override
    public LogicalExpressionBuilder getBuilder() {
-      return builder;
+      return this.builder;
    }
 
+   /**
+    * Gets the index.
+    *
+    * @return the index
+    */
    public short getIndex() {
-      return index;
+      return this.index;
    }
 
+   /**
+    * Gets the semantic.
+    *
+    * @return the semantic
+    */
    public NodeSemantic getSemantic() {
-      return semantic;
+      return this.semantic;
    }
 }
 

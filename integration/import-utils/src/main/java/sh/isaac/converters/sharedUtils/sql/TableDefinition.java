@@ -45,39 +45,71 @@ import java.util.LinkedHashMap;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class TableDefinition.
+ */
 public class TableDefinition {
-   private LinkedHashMap<String, ColumnDefinition> columns_ = new LinkedHashMap<>();
-   private String                                  tableName_;
+   /** The columns. */
+   private final LinkedHashMap<String, ColumnDefinition> columns = new LinkedHashMap<>();
+
+   /** The table name. */
+   private final String tableName;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new table definition.
+    *
+    * @param tableName the table name
+    */
    public TableDefinition(String tableName) {
-      tableName_ = tableName;
+      this.tableName = tableName;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the column.
+    *
+    * @param cd the cd
+    */
    public void addColumn(ColumnDefinition cd) {
-      columns_.put(cd.getColumnName()
-                     .toLowerCase(), cd);
+      this.columns.put(cd.getColumnName()
+                          .toLowerCase(), cd);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the col data type.
+    *
+    * @param columnName the column name
+    * @return the col data type
+    */
    public DataType getColDataType(String columnName) {
-      ColumnDefinition x = columns_.get(columnName.toLowerCase());
+      final ColumnDefinition x = this.columns.get(columnName.toLowerCase());
 
       return (x == null) ? null
                          : x.getDataType();
    }
 
+   /**
+    * Gets the columns.
+    *
+    * @return the columns
+    */
    public ColumnDefinition[] getColumns() {
-      return columns_.values()
-                     .toArray(new ColumnDefinition[columns_.size()]);
+      return this.columns.values()
+                          .toArray(new ColumnDefinition[this.columns.size()]);
    }
 
+   /**
+    * Gets the table name.
+    *
+    * @return the table name
+    */
    public String getTableName() {
-      return tableName_;
+      return this.tableName;
    }
 }
 

@@ -49,14 +49,39 @@ import java.util.UUID;
  * Created by kec on 7/27/14.
  */
 public interface UuidToIntMap {
+   /**
+    * Contains key.
+    *
+    * @param key the key
+    * @return true, if successful
+    */
    boolean containsKey(UUID key);
 
+   /**
+    * Contains value.
+    *
+    * @param value the value
+    * @return true, if successful
+    */
    boolean containsValue(int value);
 
+   /**
+    * Put.
+    *
+    * @param key the key
+    * @param value the value
+    * @return true, if successful
+    */
    boolean put(UUID key, int value);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the.
+    *
+    * @param key the key
+    * @return the int
+    */
    int get(UUID key);
 }
 

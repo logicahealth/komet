@@ -45,16 +45,37 @@
 package sh.isaac.api.commit;
 
 /**
+ * The Interface Alert.
  *
  * @author kec
  */
 public interface Alert {
+   /**
+    * Gets the alert text.
+    *
+    * @return the alert text
+    */
    String getAlertText();
 
+   /**
+    * Gets the alert type.
+    *
+    * @return the alert type
+    */
    AlertType getAlertType();
 
+   /**
+    * Gets the component nid for alert.
+    *
+    * @return the component nid for alert
+    */
    int getComponentNidForAlert();
 
+   /**
+    * Gets the fixups.
+    *
+    * @return the fixups
+    */
    Object[] getFixups();
 }
 

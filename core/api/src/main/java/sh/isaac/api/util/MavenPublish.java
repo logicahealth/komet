@@ -61,7 +61,6 @@ import java.util.concurrent.ExecutionException;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 
 import javafx.concurrent.Task;
 
@@ -71,27 +70,56 @@ import org.slf4j.LoggerFactory;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link MavenPublish}
+ * {@link MavenPublish}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class MavenPublish
         extends Task<Integer> {
+   /** The log. */
    private static Logger log = LoggerFactory.getLogger(MavenPublish.class);
 
    //~--- fields --------------------------------------------------------------
 
-   String groupId_;
-   String artifactId_;
-   String version_;
-   File   pomFile_;
-   File[] dataFiles_;
-   String url_;
-   String username_;
-   String psswrd_;
+   /** The group id. */
+   String groupId;
+
+   /** The artifact id. */
+   String artifactId;
+
+   /** The version. */
+   String version;
+
+   /** The pom file. */
+   File pomFile;
+
+   /** The data files. */
+   File[] dataFiles;
+
+   /** The url. */
+   String url;
+
+   /** The username. */
+   String username;
+
+   /** The psswrd. */
+   String psswrd;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new maven publish.
+    *
+    * @param groupId the group id
+    * @param artifactId the artifact id
+    * @param version the version
+    * @param pomFile the pom file
+    * @param dataFiles the data files
+    * @param url the url
+    * @param username the username
+    * @param psswrd the psswrd
+    * @throws Exception the exception
+    */
    public MavenPublish(String groupId,
                        String artifactId,
                        String version,
@@ -101,20 +129,24 @@ public class MavenPublish
                        String username,
                        String psswrd)
             throws Exception {
-      groupId_    = groupId;
-      artifactId_ = artifactId;
-      version_    = version;
-      pomFile_    = pomFile;
-      dataFiles_  = dataFiles;
-      url_        = url;
-      username_   = username;
-      psswrd_     = psswrd;
+      this.groupId    = groupId;
+      this.artifactId = artifactId;
+      this.version    = version;
+      this.pomFile    = pomFile;
+      this.dataFiles  = dataFiles;
+      this.url        = url;
+      this.username   = username;
+      this.psswrd     = psswrd;
       log.debug("Maven Publish task constructed for GAV: {}:{}:{}", groupId, artifactId, version);
    }
 
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Call.
+    *
+    * @return the integer
+    * @throws Exception the exception
     * @see javafx.concurrent.Task#call()
     */
    @Override
@@ -123,17 +155,17 @@ public class MavenPublish
       log.debug("Maven publish task begins");
       updateProgress(-1, 0);
       updateMessage("Creating Checksum Files");
-      writeChecksumFile(pomFile_, "MD5");
-      writeChecksumFile(pomFile_, "SHA1");
+      writeChecksumFile(this.pomFile, "MD5");
+      writeChecksumFile(this.pomFile, "SHA1");
 
-      for (File f: dataFiles_) {
+      for (final File f: this.dataFiles) {
          writeChecksumFile(f, "MD5");
          writeChecksumFile(f, "SHA1");
       }
 
       updateMessage("Uploading data files");
 
-      for (File f: dataFiles_) {
+      for (final File f: this.dataFiles) {
          // TODO check maven upload order
          putFile(f, null);
          putFile(new File(f.getParentFile(), f.getName() + ".md5"), null);
@@ -141,31 +173,39 @@ public class MavenPublish
       }
 
       updateMessage("Uploading pom files");
-      putFile(pomFile_, "pom");
-      putFile(new File(pomFile_.getParentFile(), pomFile_.getName() + ".md5"), "pom.md5");
-      putFile(new File(pomFile_.getParentFile(), pomFile_.getName() + ".sha1"), "pom.sha1");
+      putFile(this.pomFile, "pom");
+      putFile(new File(this.pomFile.getParentFile(), this.pomFile.getName() + ".md5"), "pom.md5");
+      putFile(new File(this.pomFile.getParentFile(), this.pomFile.getName() + ".sha1"), "pom.sha1");
       updateMessage("Publish Complete");
       updateProgress(10, 10);
       log.debug("Maven Publish Task Complete");
       return 0;
    }
 
+   /**
+    * Put file.
+    *
+    * @param file the file
+    * @param targetFileName the target file name
+    * @throws Exception the exception
+    */
    private void putFile(File file, String targetFileName)
             throws Exception {
-      String groupIdTemp = groupId_.replaceAll("\\.", "//");
-      URL    url         = new URL(url_ + (url_.endsWith("/") ? ""
-            : "/") + groupIdTemp + "/" + artifactId_ + "/" + version_ + "/" + ((targetFileName == null) ? file.getName()
+      final String groupIdTemp = this.groupId.replaceAll("\\.", "//");
+      final URL    url         = new URL(this.url + (this.url.endsWith("/") ? ""
+            : "/") + groupIdTemp + "/" + this.artifactId + "/" + this.version + "/" +
+                     ((targetFileName == null) ? file.getName()
             : targetFileName));
 
       log.info("Uploading " + file.getAbsolutePath() + " to " + url.toString());
       updateMessage("Uploading " + file.getName());
       updateProgress(0, file.length());
 
-      HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+      final HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
 
-      if ((username_.length() > 0) || (psswrd_.length() > 0)) {
-         String encoded = Base64.getEncoder()
-                                .encodeToString((username_ + ":" + psswrd_).getBytes());
+      if ((this.username.length() > 0) || (this.psswrd.length() > 0)) {
+         final String encoded = Base64.getEncoder()
+                                      .encodeToString((this.username + ":" + this.psswrd).getBytes());
 
          httpCon.setRequestProperty("Authorization", "Basic " + encoded);
       }
@@ -175,13 +215,13 @@ public class MavenPublish
       httpCon.setConnectTimeout(30 * 1000);
       httpCon.setReadTimeout(60 * 60 * 1000);
 
-      long fileLength = file.length();
+      final long fileLength = file.length();
 
       httpCon.setFixedLengthStreamingMode(fileLength);
 
-      byte[] buf       = new byte[8192];
-      long   loopCount = 0;
-      int    read      = 0;
+      final byte[] buf       = new byte[8192];
+      long         loopCount = 0;
+      int          read      = 0;
 
       try (OutputStream out = httpCon.getOutputStream();
          FileInputStream fis = new FileInputStream(file);) {
@@ -198,14 +238,14 @@ public class MavenPublish
          out.flush();
       }
 
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       try (InputStream is = httpCon.getInputStream();) {
          read = 0;
 
-         byte[]     buffer  = new byte[1024];
-         CharBuffer cBuffer = ByteBuffer.wrap(buffer)
-                                        .asCharBuffer();
+         final byte[]     buffer  = new byte[1024];
+         final CharBuffer cBuffer = ByteBuffer.wrap(buffer)
+                                              .asCharBuffer();
 
          while (read != -1) {
             read = is.read(buffer);
@@ -229,31 +269,31 @@ public class MavenPublish
       updateProgress(-1, 0);
    }
 
+   /**
+    * Write checksum file.
+    *
+    * @param file the file
+    * @param type the type
+    * @throws IOException Signals that an I/O exception has occurred.
+    * @throws InterruptedException the interrupted exception
+    * @throws ExecutionException the execution exception
+    */
    private void writeChecksumFile(File file, String type)
             throws IOException, InterruptedException, ExecutionException {
       updateMessage("Calculating Checksum for " + file.getName());
 
-      Task<String> gen = ChecksumGenerator.calculateChecksum(type, file);
+      final Task<String> gen = ChecksumGenerator.calculateChecksum(type, file);
 
-      gen.messageProperty().addListener(new ChangeListener<String>() {
-                         @Override
-                         public void changed(
-                                 ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                            updateMessage(newValue);
-                         }
-                      });
-      gen.progressProperty().addListener(new ChangeListener<Number>() {
-                         @Override
-                         public void changed(
-                                 ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                            updateProgress(gen.getWorkDone(), gen.getTotalWork());
-                         }
-                      });
+      gen.messageProperty()
+         .addListener((ChangeListener<String>) (observable, oldValue, newValue) -> updateMessage(newValue));
+      gen.progressProperty()
+         .addListener((ChangeListener<Number>) (observable, oldValue, newValue) -> updateProgress(gen.getWorkDone(),
+               gen.getTotalWork()));
       WorkExecutors.get()
                    .getExecutor()
                    .execute(gen);
 
-      String checksum = gen.get();
+      final String checksum = gen.get();
 
       updateMessage("Writing checksum file");
       log.debug("Writing {} checksum file with {}", type, checksum);

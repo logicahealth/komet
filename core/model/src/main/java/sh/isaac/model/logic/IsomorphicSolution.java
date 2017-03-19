@@ -57,13 +57,27 @@ import sh.isaac.api.tree.TreeNodeVisitData;
  */
 public class IsomorphicSolution
          implements Comparable<IsomorphicSolution> {
-   int         score = -1;
-   boolean     legal = true;
-   final int   hashcode;
+   /** The score. */
+   int score = -1;
+
+   /** The legal. */
+   boolean legal = true;
+
+   /** The hashcode. */
+   final int hashcode;
+
+   /** The solution. */
    final int[] solution;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new isomorphic solution.
+    *
+    * @param solution the solution
+    * @param referenceTreeVisitData the reference tree visit data
+    * @param comparisonTreeVisitData the comparison tree visit data
+    */
    public IsomorphicSolution(int[] solution,
                              TreeNodeVisitData referenceTreeVisitData,
                              TreeNodeVisitData comparisonTreeVisitData) {
@@ -74,23 +88,35 @@ public class IsomorphicSolution
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(IsomorphicSolution o) {
-      int comparison = Integer.compare(score, o.score);
+      int comparison = Integer.compare(this.score, o.score);
 
       if (comparison != 0) {
          return comparison;
       }
 
-      comparison = Integer.compare(hashcode, o.hashcode);
+      comparison = Integer.compare(this.hashcode, o.hashcode);
 
       if (comparison != 0) {
          return comparison;
       }
 
-      return compare(solution, o.solution);
+      return compare(this.solution, o.solution);
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -101,29 +127,46 @@ public class IsomorphicSolution
          return false;
       }
 
-      IsomorphicSolution that = (IsomorphicSolution) o;
+      final IsomorphicSolution that = (IsomorphicSolution) o;
 
-      if (hashcode != that.hashcode) {
+      if (this.hashcode != that.hashcode) {
          return false;
       }
 
-      if (score != that.score) {
+      if (this.score != that.score) {
          return false;
       }
 
-      return Arrays.equals(solution, that.solution);
+      return Arrays.equals(this.solution, that.solution);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
-      return hashcode;
+      return this.hashcode;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "solution{" + legal + "  s:" + score + ", " + Arrays.toString(solution) + '}';
+      return "solution{" + this.legal + "  s:" + this.score + ", " + Arrays.toString(this.solution) + '}';
    }
 
+   /**
+    * Compare.
+    *
+    * @param o1 the o 1
+    * @param o2 the o 2
+    * @return the int
+    */
    int compare(int[] o1, int[] o2) {
       for (int i = 0; i < o1.length; i++) {
          if (o1[i] != o2[i]) {
@@ -136,29 +179,35 @@ public class IsomorphicSolution
       return 0;
    }
 
+   /**
+    * Score.
+    *
+    * @param referenceTreeVisitData the reference tree visit data
+    * @param comparisonTreeVisitData the comparison tree visit data
+    */
    final void score(TreeNodeVisitData referenceTreeVisitData, TreeNodeVisitData comparisonTreeVisitData) {
-      OpenIntHashSet                       parentNodeIds                 = new OpenIntHashSet(solution.length);
-      OpenIntHashSet                       usedNodeIds                   = new OpenIntHashSet(solution.length);
-      OpenIntObjectHashMap<OpenIntHashSet> siblingGroupToNodeSequenceMap = new OpenIntObjectHashMap<>();
-      int                                  sum                           = 0;
+      final OpenIntHashSet                       parentNodeIds = new OpenIntHashSet(this.solution.length);
+      final OpenIntHashSet                       usedNodeIds = new OpenIntHashSet(this.solution.length);
+      final OpenIntObjectHashMap<OpenIntHashSet> siblingGroupToNodeSequenceMap = new OpenIntObjectHashMap<>();
+      int                                        sum                           = 0;
 
       // give a bonus point ever time a common parent is used in the solution.
       int bonus = 0;
 
-      for (int i = 0; i < solution.length; i++) {
-         if (solution[i] >= 0) {
+      for (int i = 0; i < this.solution.length; i++) {
+         if (this.solution[i] >= 0) {
             sum++;
 
-            if (usedNodeIds.contains(solution[i])) {
-               legal = false;
-               score = -1;
+            if (usedNodeIds.contains(this.solution[i])) {
+               this.legal = false;
+               this.score = -1;
                return;
             } else {
-               usedNodeIds.add(solution[i]);
+               usedNodeIds.add(this.solution[i]);
             }
 
-            int            referenceParentNodeId = referenceTreeVisitData.getPredecessorSequence(i);
-            int            siblingGroup          = referenceTreeVisitData.getSiblingGroupForSequence(i);
+            final int      referenceParentNodeId = referenceTreeVisitData.getPredecessorSequence(i);
+            final int      siblingGroup          = referenceTreeVisitData.getSiblingGroupForSequence(i);
             OpenIntHashSet nodesInSiblingGroup   = siblingGroupToNodeSequenceMap.get(siblingGroup);
 
             if (nodesInSiblingGroup == null) {
@@ -180,41 +229,56 @@ public class IsomorphicSolution
 
       // For all logicNodes corresponding to a sibling group in the reference expression, the logicNodes in the
       // comparison expression must all be in the same sibling group in the comparison expression
-      for (int siblingGroup: siblingGroupToNodeSequenceMap.keys()
+      for (final int siblingGroup: siblingGroupToNodeSequenceMap.keys()
             .elements()) {
-         OpenIntHashSet groupMembers           = siblingGroupToNodeSequenceMap.get(siblingGroup);
-         int            comparisonSiblingGroup = -1;
+         final OpenIntHashSet groupMembers           = siblingGroupToNodeSequenceMap.get(siblingGroup);
+         int                  comparisonSiblingGroup = -1;
 
-         for (int groupMember: groupMembers.keys()
-                                           .elements()) {
+         for (final int groupMember: groupMembers.keys()
+               .elements()) {
             if (comparisonSiblingGroup == -1) {
-               comparisonSiblingGroup = comparisonTreeVisitData.getSiblingGroupForSequence(solution[groupMember]);
+               comparisonSiblingGroup = comparisonTreeVisitData.getSiblingGroupForSequence(this.solution[groupMember]);
             } else {
                if (comparisonSiblingGroup !=
-                     comparisonTreeVisitData.getSiblingGroupForSequence(solution[groupMember])) {
-                  legal = false;
-                  score = -2;
+                     comparisonTreeVisitData.getSiblingGroupForSequence(this.solution[groupMember])) {
+                  this.legal = false;
+                  this.score = -2;
                   return;
                }
             }
          }
       }
 
-      score = sum + bonus;
+      this.score = sum + bonus;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if legal.
+    *
+    * @return true, if legal
+    */
    public boolean isLegal() {
-      return legal;
+      return this.legal;
    }
 
+   /**
+    * Gets the score.
+    *
+    * @return the score
+    */
    public int getScore() {
-      return score;
+      return this.score;
    }
 
+   /**
+    * Gets the solution.
+    *
+    * @return the solution
+    */
    public int[] getSolution() {
-      return solution;
+      return this.solution;
    }
 }
 

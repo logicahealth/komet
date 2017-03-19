@@ -49,7 +49,6 @@ import java.util.concurrent.ExecutionException;
 
 import javafx.concurrent.Task;
 
-import sh.isaac.MetaData;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -65,25 +64,43 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.util.WorkExecutors;
+import sh.isaac.MetaData;
 import sh.isaac.model.logic.LogicalExpressionOchreImpl;
 import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class GetConceptSequenceForExpressionTask.
  *
  * @author kec
  */
 public class GetConceptSequenceForExpressionTask
         extends Task<Integer> {
-   LogicalExpression  expression;
+   /** The expression. */
+   LogicalExpression expression;
+
+   /** The classifier provider. */
    ClassifierProvider classifierProvider;
-   StampCoordinate    stampCoordinate;
-   LogicCoordinate    logicCoordinate;
-   EditCoordinate     statedEditCoordinate;
+
+   /** The stamp coordinate. */
+   StampCoordinate stampCoordinate;
+
+   /** The logic coordinate. */
+   LogicCoordinate logicCoordinate;
+
+   /** The stated edit coordinate. */
+   EditCoordinate statedEditCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new gets the concept sequence for expression task.
+    *
+    * @param expression the expression
+    * @param classifierProvider the classifier provider
+    * @param statedEditCoordinate the stated edit coordinate
+    */
    private GetConceptSequenceForExpressionTask(LogicalExpression expression,
          ClassifierProvider classifierProvider,
          EditCoordinate statedEditCoordinate) {
@@ -98,12 +115,20 @@ public class GetConceptSequenceForExpressionTask
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Creates the.
+    *
+    * @param expression the expression
+    * @param classifierProvider the classifier provider
+    * @param statedEditCoordinate the stated edit coordinate
+    * @return the gets the concept sequence for expression task
+    */
    public static GetConceptSequenceForExpressionTask create(LogicalExpression expression,
          ClassifierProvider classifierProvider,
          EditCoordinate statedEditCoordinate) {
-      GetConceptSequenceForExpressionTask task = new GetConceptSequenceForExpressionTask(expression,
-                                                                                         classifierProvider,
-                                                                                         statedEditCoordinate);
+      final GetConceptSequenceForExpressionTask task = new GetConceptSequenceForExpressionTask(expression,
+                                                                                               classifierProvider,
+                                                                                               statedEditCoordinate);
 
       LookupService.getService(ActiveTasks.class)
                    .get()
@@ -114,30 +139,36 @@ public class GetConceptSequenceForExpressionTask
       return task;
    }
 
+   /**
+    * Call.
+    *
+    * @return the integer
+    * @throws Exception the exception
+    */
    @Override
    protected Integer call()
             throws Exception {
       try {
-         SememeSnapshotService<LogicGraphSememeImpl> sememeSnapshot = Get.sememeService()
-                                                                         .getSnapshot(LogicGraphSememeImpl.class,
-                                                                               stampCoordinate);
+         final SememeSnapshotService<LogicGraphSememeImpl> sememeSnapshot = Get.sememeService()
+                                                                               .getSnapshot(LogicGraphSememeImpl.class,
+                                                                                     this.stampCoordinate);
 
          updateMessage("Searching existing definitions...");
 
-         Optional<LatestVersion<LogicGraphSememeImpl>> match =
-            sememeSnapshot.getLatestSememeVersionsFromAssemblage(logicCoordinate.getStatedAssemblageSequence()).filter((LatestVersion<LogicGraphSememeImpl> t) -> {
-                                     LogicGraphSememeImpl lgs = t.value();
-                                     LogicalExpressionOchreImpl existingGraph =
+         final Optional<LatestVersion<LogicGraphSememeImpl>> match =
+            sememeSnapshot.getLatestSememeVersionsFromAssemblage(this.logicCoordinate.getStatedAssemblageSequence()).filter((LatestVersion<LogicGraphSememeImpl> t) -> {
+                                     final LogicGraphSememeImpl lgs = t.value();
+                                     final LogicalExpressionOchreImpl existingGraph =
                                         new LogicalExpressionOchreImpl(lgs.getGraphData(),
                                                                        DataSource.INTERNAL);
 
                                      updateMessage("found existing definition");
-                                     return existingGraph.equals(expression);
+                                     return existingGraph.equals(this.expression);
                                   }).findFirst();
 
          if (match.isPresent()) {
-            LogicGraphSememeImpl lgs = match.get()
-                                            .value();
+            final LogicGraphSememeImpl lgs = match.get()
+                                                  .value();
 
             return Get.identifierService()
                       .getConceptSequence(lgs.getReferencedComponentNid());
@@ -145,18 +176,18 @@ public class GetConceptSequenceForExpressionTask
 
          updateMessage("Building new concept...");
 
-         UUID                  uuidForNewConcept     = UUID.randomUUID();
-         ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
+         final UUID                  uuidForNewConcept     = UUID.randomUUID();
+         final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
          conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE);
          conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT);
-         conceptBuilderService.setDefaultLogicCoordinate(logicCoordinate);
+         conceptBuilderService.setDefaultLogicCoordinate(this.logicCoordinate);
 
-         ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(uuidForNewConcept.toString(),
-                                                                                 "expression",
-                                                                                 expression);
-         ConceptChronology concept = builder.build(statedEditCoordinate, ChangeCheckerMode.INACTIVE)
-                                            .get();
+         final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(uuidForNewConcept.toString(),
+                                                                                       "expression",
+                                                                                       this.expression);
+         final ConceptChronology concept = builder.build(this.statedEditCoordinate, ChangeCheckerMode.INACTIVE)
+                                                  .get();
 
          updateMessage("Commiting new expression...");
 
@@ -165,8 +196,8 @@ public class GetConceptSequenceForExpressionTask
                .commit("Expression commit.")
                .get();
             updateMessage("Classifying new concept...");
-            classifierProvider.classify()
-                              .get();
+            this.classifierProvider.classify()
+                                   .get();
          } catch (InterruptedException | ExecutionException ex) {
             throw new RuntimeException(ex);
          }

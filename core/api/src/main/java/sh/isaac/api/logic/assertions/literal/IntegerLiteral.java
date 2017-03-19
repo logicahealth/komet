@@ -40,6 +40,7 @@
 package sh.isaac.api.logic.assertions.literal;
 
 /**
+ * The Interface IntegerLiteral.
  *
  * @author kec
  */

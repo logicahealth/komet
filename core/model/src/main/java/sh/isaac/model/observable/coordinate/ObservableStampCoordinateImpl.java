@@ -65,20 +65,35 @@ import sh.isaac.model.observable.ObservableFields;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableStampCoordinateImpl.
  *
  * @author kec
  */
 public class ObservableStampCoordinateImpl
         extends ObservableCoordinateImpl
          implements ObservableStampCoordinate {
-   StampCoordinateImpl                     stampCoordinate;
-   ObjectProperty<StampPrecedence>         stampPrecedenceProperty;
+   /** The stamp coordinate. */
+   StampCoordinateImpl stampCoordinate;
+
+   /** The stamp precedence property. */
+   ObjectProperty<StampPrecedence> stampPrecedenceProperty;
+
+   /** The stamp position property. */
    ObjectProperty<ObservableStampPosition> stampPositionProperty;
-   ObjectProperty<ObservableIntegerArray>  moduleSequencesProperty;
-   SetProperty<State>                      allowedStates;
+
+   /** The module sequences property. */
+   ObjectProperty<ObservableIntegerArray> moduleSequencesProperty;
+
+   /** The allowed states. */
+   SetProperty<State> allowedStates;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new observable stamp coordinate impl.
+    *
+    * @param stampCoordinate the stamp coordinate
+    */
    public ObservableStampCoordinateImpl(StampCoordinate stampCoordinate) {
       if (stampCoordinate instanceof ObservableStampCoordinateImpl) {
          this.stampCoordinate = ((ObservableStampCoordinateImpl) stampCoordinate).stampCoordinate;
@@ -89,102 +104,159 @@ public class ObservableStampCoordinateImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Allowed states property.
+    *
+    * @return the set property
+    */
    @Override
    public SetProperty<State> allowedStatesProperty() {
-      if (allowedStates == null) {
-         allowedStates = new SimpleSetProperty<>(this,
+      if (this.allowedStates == null) {
+         this.allowedStates = new SimpleSetProperty<>(this,
                ObservableFields.ALLOWED_STATES_FOR_STAMP_COORDINATE.toExternalString(),
-               FXCollections.observableSet(stampCoordinate.getAllowedStates()));
-         stampCoordinate.setAllowedStatesProperty(allowedStates);
+               FXCollections.observableSet(this.stampCoordinate.getAllowedStates()));
+         this.stampCoordinate.setAllowedStatesProperty(this.allowedStates);
       }
 
-      return allowedStates;
+      return this.allowedStates;
    }
 
+   /**
+    * Make analog.
+    *
+    * @param stampPositionTime the stamp position time
+    * @return the observable stamp coordinate impl
+    */
    @Override
    public ObservableStampCoordinateImpl makeAnalog(long stampPositionTime) {
-      StampCoordinate analog = stampCoordinate.makeAnalog(stampPositionTime);
+      final StampCoordinate analog = this.stampCoordinate.makeAnalog(stampPositionTime);
 
       return new ObservableStampCoordinateImpl(analog);
    }
 
+   /**
+    * Make analog.
+    *
+    * @param state the state
+    * @return the observable stamp coordinate
+    */
    @Override
    public ObservableStampCoordinate makeAnalog(State... state) {
-      StampCoordinate analog = stampCoordinate.makeAnalog(state);
+      final StampCoordinate analog = this.stampCoordinate.makeAnalog(state);
 
       return new ObservableStampCoordinateImpl(analog);
    }
 
+   /**
+    * Module sequences property.
+    *
+    * @return the object property
+    */
    @Override
    public ObjectProperty<ObservableIntegerArray> moduleSequencesProperty() {
-      if (moduleSequencesProperty == null) {
-         moduleSequencesProperty = new SimpleObjectProperty<>(this,
+      if (this.moduleSequencesProperty == null) {
+         this.moduleSequencesProperty = new SimpleObjectProperty<>(this,
                ObservableFields.MODULE_SEQUENCE_ARRAY_FOR_STAMP_COORDINATE.toExternalString(),
                FXCollections.observableIntegerArray(getModuleSequences().asArray()));
-         addListenerReference(stampCoordinate.setModuleSequencesProperty(moduleSequencesProperty));
+         addListenerReference(this.stampCoordinate.setModuleSequencesProperty(this.moduleSequencesProperty));
       }
 
-      return moduleSequencesProperty;
+      return this.moduleSequencesProperty;
    }
 
+   /**
+    * Stamp position property.
+    *
+    * @return the object property
+    */
    @Override
    public ObjectProperty<ObservableStampPosition> stampPositionProperty() {
-      if (stampPositionProperty == null) {
-         stampPositionProperty = new SimpleObjectProperty<>(this,
+      if (this.stampPositionProperty == null) {
+         this.stampPositionProperty = new SimpleObjectProperty<>(this,
                ObservableFields.STAMP_POSITION_FOR_STAMP_COORDINATE.toExternalString(),
-               new ObservableStampPositionImpl(stampCoordinate.getStampPosition()));
-         addListenerReference(stampCoordinate.setStampPositionProperty(stampPositionProperty));
+               new ObservableStampPositionImpl(this.stampCoordinate.getStampPosition()));
+         addListenerReference(this.stampCoordinate.setStampPositionProperty(this.stampPositionProperty));
       }
 
-      return stampPositionProperty;
+      return this.stampPositionProperty;
    }
 
+   /**
+    * Stamp precedence property.
+    *
+    * @return the object property
+    */
    @Override
    public ObjectProperty<StampPrecedence> stampPrecedenceProperty() {
-      if (stampPrecedenceProperty == null) {
-         stampPrecedenceProperty = new SimpleObjectProperty<>(this,
+      if (this.stampPrecedenceProperty == null) {
+         this.stampPrecedenceProperty = new SimpleObjectProperty<>(this,
                ObservableFields.STAMP_PRECEDENCE_FOR_STAMP_COORDINATE.toExternalString(),
                getStampPrecedence());
-         addListenerReference(stampCoordinate.setStampPrecedenceProperty(stampPrecedenceProperty));
+         addListenerReference(this.stampCoordinate.setStampPrecedenceProperty(this.stampPrecedenceProperty));
       }
 
-      return stampPrecedenceProperty;
+      return this.stampPrecedenceProperty;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "ObservableStampCoordinateImpl{" + stampCoordinate + '}';
+      return "ObservableStampCoordinateImpl{" + this.stampCoordinate + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the allowed states.
+    *
+    * @return the allowed states
+    */
    @Override
    public EnumSet<State> getAllowedStates() {
-      return stampCoordinate.getAllowedStates();
+      return this.stampCoordinate.getAllowedStates();
    }
 
+   /**
+    * Gets the module sequences.
+    *
+    * @return the module sequences
+    */
    @Override
    public ConceptSequenceSet getModuleSequences() {
-      if (moduleSequencesProperty != null) {
-         return ConceptSequenceSet.of(moduleSequencesProperty.get()
+      if (this.moduleSequencesProperty != null) {
+         return ConceptSequenceSet.of(this.moduleSequencesProperty.get()
                .toArray(new int[0]));
       }
 
-      return stampCoordinate.getModuleSequences();
+      return this.stampCoordinate.getModuleSequences();
    }
 
+   /**
+    * Gets the stamp position.
+    *
+    * @return the stamp position
+    */
    @Override
    public ObservableStampPosition getStampPosition() {
       return stampPositionProperty().get();
    }
 
+   /**
+    * Gets the stamp precedence.
+    *
+    * @return the stamp precedence
+    */
    @Override
    public StampPrecedence getStampPrecedence() {
-      if (stampPrecedenceProperty != null) {
-         return stampPrecedenceProperty.get();
+      if (this.stampPrecedenceProperty != null) {
+         return this.stampPrecedenceProperty.get();
       }
 
-      return stampCoordinate.getStampPrecedence();
+      return this.stampCoordinate.getStampPrecedence();
    }
 }
 

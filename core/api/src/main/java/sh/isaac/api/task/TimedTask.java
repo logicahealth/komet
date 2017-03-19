@@ -61,14 +61,18 @@ import sh.isaac.api.ticker.Ticker;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class TimedTask.
  *
  * @author kec
- * @param <T>
+ * @param <T> the generic type
  */
 public abstract class TimedTask<T>
         extends Task<T> {
-   protected static final Logger log                          = LogManager.getLogger();
-   public static int             progressUpdateIntervalInSecs = 2;
+   /** The Constant log. */
+   protected static final Logger log = LogManager.getLogger();
+
+   /** The progress update interval in secs. */
+   public static int progressUpdateIntervalInSecs = 2;
 
    /**
     * Seconds per minute.
@@ -87,61 +91,85 @@ public abstract class TimedTask<T>
 
    //~--- fields --------------------------------------------------------------
 
-   private final Ticker   updateTicker = new Ticker();
-   private Instant        startTime;
-   private Instant        endTime;
+   /** The update ticker. */
+   private final Ticker updateTicker = new Ticker();
+
+   /** The start time. */
+   private Instant startTime;
+
+   /** The end time. */
+   private Instant endTime;
+
+   /** The complete message generator. */
    Consumer<TimedTask<T>> completeMessageGenerator;
+
+   /** The progress message generator. */
    Consumer<TimedTask<T>> progressMessageGenerator;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Done.
+    */
    @Override
    protected void done() {
       super.done();
-      endTime = Instant.now();
-      updateTicker.stop();
+      this.endTime = Instant.now();
+      this.updateTicker.stop();
 
-      if (completeMessageGenerator == null) {
+      if (this.completeMessageGenerator == null) {
          setCompleteMessageGenerator((task) -> {
                                         updateMessage(getState() + " in " + formatDuration(getDuration()));
                                      });
       }
 
       Platform.runLater(() -> {
-                           completeMessageGenerator.accept(this);
+                           this.completeMessageGenerator.accept(this);
                            log.info(getTitle() + " " + getMessage());
                         });
    }
 
+   /**
+    * Failed.
+    */
    @Override
    protected void failed() {
       log.warn("Timed task failed!", this.getException());
    }
 
+   /**
+    * Running.
+    */
    @Override
    protected void running() {
       super.running();
 
-      if (startTime == null) {
-         startTime = Instant.now();
+      if (this.startTime == null) {
+         this.startTime = Instant.now();
       }
 
-      updateTicker.start(progressUpdateIntervalInSecs,
-                         (value) -> {
-                            if (progressMessageGenerator != null) {
-                               progressMessageGenerator.accept(this);
-                            }
-                         });
+      this.updateTicker.start(progressUpdateIntervalInSecs,
+                              (value) -> {
+                                 if (this.progressMessageGenerator != null) {
+                                    this.progressMessageGenerator.accept(this);
+                                 }
+                              });
    }
 
+   /**
+    * Format duration.
+    *
+    * @param d the d
+    * @return the string
+    */
    private String formatDuration(Duration d) {
-      StringBuilder builder = new StringBuilder();
-      long          seconds = d.getSeconds();
+      final StringBuilder builder = new StringBuilder();
+      final long          seconds = d.getSeconds();
 
       if (seconds > 0) {
-         long hours   = seconds / SECONDS_PER_HOUR;
-         int  minutes = (int) ((seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
-         int  secs    = (int) (seconds % SECONDS_PER_MINUTE);
+         final long hours   = seconds / SECONDS_PER_HOUR;
+         final int  minutes = (int) ((seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
+         final int  secs    = (int) (seconds % SECONDS_PER_MINUTE);
 
          if (hours != 0) {
             builder.append(hours)
@@ -158,8 +186,8 @@ public abstract class TimedTask<T>
          return builder.toString();
       }
 
-      int  nanos = d.getNano();
-      long milis = TimeUnit.MILLISECONDS.convert(nanos, TimeUnit.NANOSECONDS);
+      final int  nanos = d.getNano();
+      final long milis = TimeUnit.MILLISECONDS.convert(nanos, TimeUnit.NANOSECONDS);
 
       if (milis > 0) {
          return builder.append(milis)
@@ -167,7 +195,7 @@ public abstract class TimedTask<T>
                        .toString();
       }
 
-      long micro = TimeUnit.MICROSECONDS.convert(nanos, TimeUnit.NANOSECONDS);
+      final long micro = TimeUnit.MICROSECONDS.convert(nanos, TimeUnit.NANOSECONDS);
 
       if (micro > 0) {
          return builder.append(micro)
@@ -182,36 +210,59 @@ public abstract class TimedTask<T>
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the complete message generator.
+    *
+    * @param consumer the new complete message generator
+    */
    public void setCompleteMessageGenerator(Consumer<TimedTask<T>> consumer) {
-      completeMessageGenerator = consumer;
+      this.completeMessageGenerator = consumer;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the duration.
+    *
+    * @return the duration
+    */
    public Duration getDuration() {
-      if (startTime == null) {
+      if (this.startTime == null) {
          return Duration.ZERO;
       }
 
-      if (endTime == null) {
-         return Duration.between(startTime, Instant.now());
+      if (this.endTime == null) {
+         return Duration.between(this.startTime, Instant.now());
       }
 
-      return Duration.between(startTime, endTime);
+      return Duration.between(this.startTime, this.endTime);
    }
 
+   /**
+    * Gets the formatted duration.
+    *
+    * @return the formatted duration
+    */
    public String getFormattedDuration() {
       return formatDuration(getDuration());
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the progress message generator.
+    *
+    * @param consumer the new progress message generator
+    */
    public void setProgressMessageGenerator(Consumer<TimedTask<T>> consumer) {
-      progressMessageGenerator = consumer;
+      this.progressMessageGenerator = consumer;
    }
 
+   /**
+    * Set start time.
+    */
    protected void setStartTime() {
-      startTime = Instant.now();
+      this.startTime = Instant.now();
    }
 }
 

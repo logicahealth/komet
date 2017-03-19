@@ -52,39 +52,53 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link OchreExternalizableUnparsed}
+ * {@link OchreExternalizableUnparsed}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class OchreExternalizableUnparsed {
-   private ByteArrayDataBuffer   data_;
-   OchreExternalizableObjectType type_;
+   /** The data. */
+   private final ByteArrayDataBuffer data;
+
+   /** The type. */
+   OchreExternalizableObjectType type;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new ochre externalizable unparsed.
+    *
+    * @param type the type
+    * @param data the data
+    */
    public OchreExternalizableUnparsed(OchreExternalizableObjectType type, ByteArrayDataBuffer data) {
-      data_ = data;
-      type_ = type;
+      this.data = data;
+      this.type = type;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Parses the.
+    *
+    * @return the ochre externalizable
+    */
    public OchreExternalizable parse() {
-      switch (type_) {
+      switch (this.type) {
       case CONCEPT:
-         return ConceptChronologyImpl.make(data_);
+         return ConceptChronologyImpl.make(this.data);
 
       case SEMEME:
-         return SememeChronologyImpl.make(data_);
+         return SememeChronologyImpl.make(this.data);
 
       case STAMP_ALIAS:
-         return new StampAlias(data_);
+         return new StampAlias(this.data);
 
       case STAMP_COMMENT:
-         return new StampComment(data_);
+         return new StampComment(this.data);
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + type_);
+         throw new UnsupportedOperationException("Can't handle: " + this.type);
       }
    }
 }

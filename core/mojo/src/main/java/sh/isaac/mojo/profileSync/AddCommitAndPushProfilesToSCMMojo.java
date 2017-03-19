@@ -69,7 +69,9 @@ import sh.isaac.api.sync.SyncFiles;
 public class AddCommitAndPushProfilesToSCMMojo
         extends ProfilesMojoBase {
    /**
-    * @throws MojoExecutionException
+    * Instantiates a new adds the commit and push profiles to SCM mojo.
+    *
+    * @throws MojoExecutionException the mojo execution exception
     */
    public AddCommitAndPushProfilesToSCMMojo()
             throws MojoExecutionException {
@@ -78,6 +80,11 @@ public class AddCommitAndPushProfilesToSCMMojo
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException {
@@ -88,7 +95,7 @@ public class AddCommitAndPushProfilesToSCMMojo
       }
 
       try {
-         getLog().info("Committing " + userProfileFolderLocation.getAbsolutePath() + " for SCM management");
+         getLog().info("Committing " + this.userProfileFolderLocation.getAbsolutePath() + " for SCM management");
          getProfileSyncImpl().addUntrackedFiles();
          getProfileSyncImpl().updateCommitAndPush("Adding profiles after executing GenerateUsersMojo",
                getUsername(),
@@ -96,7 +103,7 @@ public class AddCommitAndPushProfilesToSCMMojo
                MergeFailOption.KEEP_REMOTE,
                (String[]) null);
          getLog().info("Done Committing SCM for profiles");
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new MojoExecutionException("Unexpected error committing SCM for the profiles", e);
       }
    }

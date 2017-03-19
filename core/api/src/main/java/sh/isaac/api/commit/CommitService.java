@@ -64,29 +64,69 @@ import sh.isaac.api.externalizable.StampComment;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface CommitService.
+ *
  * @author kec
  */
 @Contract
 public interface CommitService
         extends DatabaseServices {
+   /**
+    * Adds the alias.
+    *
+    * @param stampSequence the stamp sequence
+    * @param stampAlias the stamp alias
+    * @param aliasCommitComment the alias commit comment
+    */
+
    // should the change set get generated here?
    void addAlias(int stampSequence, int stampAlias, String aliasCommitComment);
 
+   /**
+    * Adds the change checker.
+    *
+    * @param checker the checker
+    */
    void addChangeChecker(ChangeChecker checker);
 
    /**
     * Due to the use of Weak References in the implementation, you MUST maintain a reference to the change listener that is passed in here,
-    * otherwise, it will be rapidly garbage collected, and you will randomly stop getting change notifications!
-    * @param changeListener
+    * otherwise, it will be rapidly garbage collected, and you will randomly stop getting change notifications!.
+    *
+    * @param changeListener the change listener
     */
    void addChangeListener(ChronologyChangeListener changeListener);
 
+   /**
+    * Adds the uncommitted.
+    *
+    * @param cc the cc
+    * @return the task
+    */
    Task<Void> addUncommitted(ConceptChronology<?> cc);
 
+   /**
+    * Adds the uncommitted.
+    *
+    * @param sc the sc
+    * @return the task
+    */
    Task<Void> addUncommitted(SememeChronology<?> sc);
 
+   /**
+    * Adds the uncommitted no checks.
+    *
+    * @param cc the cc
+    * @return the task
+    */
    Task<Void> addUncommittedNoChecks(ConceptChronology<?> cc);
 
+   /**
+    * Adds the uncommitted no checks.
+    *
+    * @param sc the sc
+    * @return the task
+    */
    Task<Void> addUncommittedNoChecks(SememeChronology<?> sc);
 
    /**
@@ -148,17 +188,21 @@ public interface CommitService
    Task<Void> cancel(ObjectChronology<?> chronicle, EditCoordinate editCoordinate);
 
    /**
-    * @param commitComment
-    * @return
+    * Commit.
+    *
+    * @param commitComment the commit comment
+    * @return the task
     * @deprecated use corresponding method that specifies the edit coordinate.
     */
    @Deprecated
    Task<Optional<CommitRecord>> commit(String commitComment);
 
    /**
-    * @param chronicledConcept
-    * @param commitComment
-    * @return
+    * Commit.
+    *
+    * @param chronicledConcept the chronicled concept
+    * @param commitComment the commit comment
+    * @return the task
     * @deprecated use corresponding method that specifies the edit coordinate.
     */
    @Deprecated
@@ -168,17 +212,19 @@ public interface CommitService
     * Commit all pending changes for the provided EditCoordinate. The caller may
     * chose to block on the returned task if synchronous operation is desired.
     *
-    * @param commitComment  comment to associate with the commit.
     * @param editCoordinate the edit coordinate to determine which changes to
     *                       commit.
+    * @param commitComment  comment to associate with the commit.
     * @return task representing the cancel.
     */
    Task<Optional<CommitRecord>> commit(EditCoordinate editCoordinate, String commitComment);
 
    /**
-    * @param sememeChronicle
-    * @param commitComment
-    * @return
+    * Commit.
+    *
+    * @param sememeChronicle the sememe chronicle
+    * @param commitComment the commit comment
+    * @return the task
     * @deprecated use corresponding method that specifies the edit coordinate.
     */
    @Deprecated
@@ -188,10 +234,10 @@ public interface CommitService
     * Commit all pending changes for the provided EditCoordinate. The caller may
     * chose to block on the returned task if synchronous operation is desired.
     *
-    * @param chronicle
-    * @param commitComment  comment to associate with the commit.
+    * @param chronicle the chronicle
     * @param editCoordinate the edit coordinate to determine which changes to
     *                       commit.
+    * @param commitComment  comment to associate with the commit.
     * @return task representing the cancel.
     */
    Task<Optional<CommitRecord>> commit(ObjectChronology<?> chronicle,
@@ -209,6 +255,11 @@ public interface CommitService
     */
    void importNoChecks(OchreExternalizable ochreExternalizable);
 
+   /**
+    * Increment and get sequence.
+    *
+    * @return the long
+    */
    long incrementAndGetSequence();
 
    /**
@@ -219,35 +270,90 @@ public interface CommitService
     */
    void postProcessImportNoChecks();
 
+   /**
+    * Removes the change checker.
+    *
+    * @param checker the checker
+    */
    void removeChangeChecker(ChangeChecker checker);
 
+   /**
+    * Removes the change listener.
+    *
+    * @param changeListener the change listener
+    */
    void removeChangeListener(ChronologyChangeListener changeListener);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the alert list.
+    *
+    * @return the alert list
+    */
    ObservableList<Alert> getAlertList();
 
+   /**
+    * Gets the aliases.
+    *
+    * @param stampSequence the stamp sequence
+    * @return the aliases
+    */
    int[] getAliases(int stampSequence);
 
+   /**
+    * Gets the comment.
+    *
+    * @param stampSequence the stamp sequence
+    * @return the comment
+    */
    Optional<String> getComment(int stampSequence);
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set comment.
+    *
+    * @param stampSequence the stamp sequence
+    * @param comment the comment
+    */
    void setComment(int stampSequence, String comment);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the commit manager sequence.
+    *
+    * @return the commit manager sequence
+    */
    long getCommitManagerSequence();
 
+   /**
+    * Gets the stamp alias stream.
+    *
+    * @return the stamp alias stream
+    */
    Stream<StampAlias> getStampAliasStream();
 
+   /**
+    * Gets the stamp comment stream.
+    *
+    * @return the stamp comment stream
+    */
    Stream<StampComment> getStampCommentStream();
 
    /**
+    * Gets the uncommitted component text summary.
+    *
     * @return a summary of the uncommitted components being managed by the commit manager.
     */
    String getUncommittedComponentTextSummary();
 
+   /**
+    * Gets the uncommitted concept nids.
+    *
+    * @return the uncommitted concept nids
+    */
    ObservableList<Integer> getUncommittedConceptNids();
 }
 

@@ -56,27 +56,62 @@ import org.jvnet.hk2.annotations.Contract;
 /**
  * HK2 Service Contract for BinaryDataDifferProvider
  *
- * {@link BinaryDataDifferProvider}
+ * {@link BinaryDataDifferProvider}.
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 @Contract
 public interface BinaryDataDifferService {
+   /**
+    * The Enum ChangeType.
+    */
    public enum ChangeType {
+      /** The new components. */
       NEW_COMPONENTS,
+
+      /** The retired components. */
       RETIRED_COMPONENTS,
+
+      /** The modified components. */
       MODIFIED_COMPONENTS;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Generate diffed ibdf file.
+    *
+    * @param changedComponents the changed components
+    * @throws Exception the exception
+    */
    public void generateDiffedIbdfFile(Map<ChangeType, List<OchreExternalizable>> changedComponents)
             throws Exception;
 
+   /**
+    * Identify version changes.
+    *
+    * @param oldContentMap the old content map
+    * @param newContentMap the new content map
+    * @return the map
+    */
    public Map<ChangeType, List<OchreExternalizable>> identifyVersionChanges(Map<OchreExternalizableObjectType,
               Set<OchreExternalizable>> oldContentMap,
          Map<OchreExternalizableObjectType, Set<OchreExternalizable>> newContentMap);
 
+   /**
+    * Initialize.
+    *
+    * @param analysisFilesOutputDir the analysis files output dir
+    * @param ibdfFileOutputDir the ibdf file output dir
+    * @param changesetFileName the changeset file name
+    * @param createAnalysisFiles the create analysis files
+    * @param diffOnStatus the diff on status
+    * @param diffOnTimestamp the diff on timestamp
+    * @param diffOnAuthor the diff on author
+    * @param diffOnModule the diff on module
+    * @param diffOnPath the diff on path
+    * @param importDate the import date
+    */
    public void initialize(String analysisFilesOutputDir,
                           String ibdfFileOutputDir,
                           String changesetFileName,
@@ -88,9 +123,25 @@ public interface BinaryDataDifferService {
                           boolean diffOnPath,
                           String importDate);
 
+   /**
+    * Process version.
+    *
+    * @param versionFile the version file
+    * @return the map
+    * @throws Exception the exception
+    */
    public Map<OchreExternalizableObjectType, Set<OchreExternalizable>> processVersion(File versionFile)
             throws Exception;
 
+   /**
+    * Write files for analysis.
+    *
+    * @param newContentMap the new content map
+    * @param oldContentMap the old content map
+    * @param changedComponents the changed components
+    * @param ibdfFileOutputDir the ibdf file output dir
+    * @param analysisFilesOutputDir the analysis files output dir
+    */
    public void writeFilesForAnalysis(Map<OchreExternalizableObjectType, Set<OchreExternalizable>> newContentMap,
                                      Map<OchreExternalizableObjectType, Set<OchreExternalizable>> oldContentMap,
                                      Map<ChangeType, List<OchreExternalizable>> changedComponents,

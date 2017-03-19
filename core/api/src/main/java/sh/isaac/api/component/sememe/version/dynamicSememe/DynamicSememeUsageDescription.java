@@ -47,6 +47,7 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememePolymorphic;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUID;
+import sh.isaac.api.constants.DynamicSememeConstants;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -113,17 +114,22 @@ public interface DynamicSememeUsageDescription {
    public DynamicSememeColumnInfo[] getColumnInfo();
 
    /**
-    * (Convenience method)
+    * (Convenience method).
+    *
     * @return returns the FSN of the assemblage concept this was read from
     */
    public String getDynamicSememeName();
 
    /**
+    * Gets the dynamic sememe usage description.
+    *
     * @return A user-friendly description of the overall purpose of this Dynamic Sememe.
     */
    public String getDynamicSememeUsageDescription();
 
    /**
+    * Gets the dynamic sememe usage descriptor sequence.
+    *
     * @return The sequence of the concept that the rest of the attributes of this type were read from.
     */
    public int getDynamicSememeUsageDescriptorSequence();
@@ -132,6 +138,8 @@ public interface DynamicSememeUsageDescription {
     * Return the {@link ObjectChronologyType} of the restriction on referenced components for this sememe (if any - may return null)
     *
     * If there is a restriction, the nid set for the component type of this sememe must resolve to the matching type.
+    *
+    * @return the referenced component type restriction
     */
    public ObjectChronologyType getReferencedComponentTypeRestriction();
 
@@ -141,6 +149,8 @@ public interface DynamicSememeUsageDescription {
     * If there is a restriction, the nid set for the component type of this DynamicSememe must resolve to the matching type.
     *
     * This is only applicable when {@link #getReferencedComponentTypeRestriction()} returns {@link ObjectChronologyType#SEMEME}
+    *
+    * @return the referenced component type sub restriction
     */
    public SememeType getReferencedComponentTypeSubRestriction();
 }

@@ -40,6 +40,7 @@
 package sh.isaac.api.logic.assertions.connectors;
 
 /**
+ * The Interface Or.
  *
  * @author kec
  */

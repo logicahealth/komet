@@ -57,6 +57,11 @@ import sh.isaac.api.sync.MergeFailOption;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public enum MergeFailType { REMOTE_TO_LOCAL,
-                            STASH_TO_LOCAL; }
+public enum MergeFailType {
+   /** The remote to local. */
+   REMOTE_TO_LOCAL,
+
+   /** The stash to local. */
+   STASH_TO_LOCAL;
+}
 

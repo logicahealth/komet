@@ -61,12 +61,20 @@ import sh.isaac.api.coordinate.StampPosition;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface SememeService.
  *
  * @author kec
  */
 @Contract
 public interface SememeService
         extends DatabaseServices {
+   /**
+    * Of type.
+    *
+    * @param <V> the value type
+    * @param versionType the version type
+    * @return the sememe service typed
+    */
    <V extends SememeVersion> SememeServiceTyped<V> ofType(Class<V> versionType);
 
    /**
@@ -76,29 +84,46 @@ public interface SememeService
     *
     * The persistence of the concept is dependent on the persistence
     * of the underlying service.
-    * @param sememe to be written.
+    *
+    * @param sememeChronicle the sememe chronicle
+    * @param constraints the constraints
     */
    void writeSememe(SememeChronology<?> sememeChronicle, SememeConstraints... constraints);
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the assemblage types.
+    *
     * @return the sequence identifiers of all assemblage concepts that are actually in use by a sememe
     */
    Stream<Integer> getAssemblageTypes();
 
+   /**
+    * Gets the descriptions for component.
+    *
+    * @param componentNid the component nid
+    * @return the descriptions for component
+    */
    Stream<SememeChronology<? extends DescriptionSememe<?>>> getDescriptionsForComponent(int componentNid);
 
    /**
+    * Gets the optional sememe.
     *
     * @param sememeId sequence or nid for a sememe
     * @return the identified {@code SememeChronology}
     */
    Optional<? extends SememeChronology<? extends SememeVersion<?>>> getOptionalSememe(int sememeId);
 
+   /**
+    * Gets the parallel sememe stream.
+    *
+    * @return the parallel sememe stream
+    */
    Stream<SememeChronology<? extends SememeVersion<?>>> getParallelSememeStream();
 
    /**
+    * Gets the sememe.
     *
     * @param sememeId sequence or nid for a sememe
     * @return the identified {@code SememeChronology}
@@ -113,48 +138,135 @@ public interface SememeService
     */
    boolean hasSememe(int sememeId);
 
+   /**
+    * Gets the sememe chronology stream.
+    *
+    * @return the sememe chronology stream
+    */
    Stream<SememeChronology<? extends SememeVersion<?>>> getSememeChronologyStream();
 
+   /**
+    * Gets the sememe count.
+    *
+    * @return the sememe count
+    */
    int getSememeCount();
 
+   /**
+    * Gets the sememe key parallel stream.
+    *
+    * @return the sememe key parallel stream
+    */
    IntStream getSememeKeyParallelStream();
 
+   /**
+    * Gets the sememe key stream.
+    *
+    * @return the sememe key stream
+    */
    IntStream getSememeKeyStream();
 
+   /**
+    * Gets the sememe sequences for component.
+    *
+    * @param componentNid the component nid
+    * @return the sememe sequences for component
+    */
    SememeSequenceSet getSememeSequencesForComponent(int componentNid);
 
+   /**
+    * Gets the sememe sequences for component from assemblage.
+    *
+    * @param componentNid the component nid
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the sememe sequences for component from assemblage
+    */
    SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence);
 
    /**
+    * Gets the sememe sequences for component from assemblages.
+    *
     * @param componentNid The component nid that the sememes must reference
     * @param allowedAssemblageSequences The (optional) set of assemblage types to limit the return to.  If empty or null, no assemblage filter is applied.
+    * @return the sememe sequences for component from assemblages
     */
    SememeSequenceSet getSememeSequencesForComponentFromAssemblages(int componentNid,
          Set<Integer> allowedAssemblageSequences);
 
+   /**
+    * Gets the sememe sequences for components from assemblage.
+    *
+    * @param componentNidSet the component nid set
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the sememe sequences for components from assemblage
+    */
    SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet,
          int assemblageConceptSequence);
 
+   /**
+    * Gets the sememe sequences for components from assemblage modified after position.
+    *
+    * @param componentNidSet the component nid set
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @param position the position
+    * @return the sememe sequences for components from assemblage modified after position
+    */
    SememeSequenceSet getSememeSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet,
          int assemblageConceptSequence,
          StampPosition position);
 
+   /**
+    * Gets the sememe sequences from assemblage.
+    *
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the sememe sequences from assemblage
+    */
    SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageConceptSequence);
 
+   /**
+    * Gets the sememes for component.
+    *
+    * @param componentNid the component nid
+    * @return the sememes for component
+    */
    Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponent(int componentNid);
 
+   /**
+    * Gets the sememes for component from assemblage.
+    *
+    * @param componentNid the component nid
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the sememes for component from assemblage
+    */
    Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence);
 
    /**
+    * Gets the sememes for component from assemblages.
+    *
     * @param componentNid The component nid that the sememes must reference
     * @param allowedAssemblageSequences The (optional) set of assemblage types to limit the return to.  If empty or null, no assemblage filter is applied.
+    * @return the sememes for component from assemblages
     */
    Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblages(int componentNid,
          Set<Integer> allowedAssemblageSequences);
 
+   /**
+    * Gets the sememes from assemblage.
+    *
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the sememes from assemblage
+    */
    Stream<SememeChronology<? extends SememeVersion<?>>> getSememesFromAssemblage(int assemblageConceptSequence);
 
+   /**
+    * Gets the snapshot.
+    *
+    * @param <V> the value type
+    * @param versionType the version type
+    * @param stampCoordinate the stamp coordinate
+    * @return the snapshot
+    */
    <V extends SememeVersion> SememeSnapshotService<V> getSnapshot(Class<V> versionType,
          StampCoordinate stampCoordinate);
 }

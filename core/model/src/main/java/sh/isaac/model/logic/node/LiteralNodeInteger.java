@@ -62,17 +62,31 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public class LiteralNodeInteger
         extends LiteralNode {
+   /** The literal value. */
    int literalValue;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new literal node integer.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public LiteralNodeInteger(LogicalExpressionOchreImpl logicGraphVersion,
                              DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
-      literalValue = dataInputStream.readInt();
+      this.literalValue = dataInputStream.readInt();
    }
 
+   /**
+    * Instantiates a new literal node integer.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param literalValue the literal value
+    */
    public LiteralNodeInteger(LogicalExpressionOchreImpl logicGraphVersion, int literalValue) {
       super(logicGraphVersion);
       this.literalValue = literalValue;
@@ -80,6 +94,12 @@ public class LiteralNodeInteger
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -94,54 +114,99 @@ public class LiteralNodeInteger
          return false;
       }
 
-      LiteralNodeInteger that = (LiteralNodeInteger) o;
+      final LiteralNodeInteger that = (LiteralNodeInteger) o;
 
-      return literalValue == that.literalValue;
+      return this.literalValue == that.literalValue;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + literalValue;
+      result = 31 * result + this.literalValue;
       return result;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
-      return "Integer literal[" + getNodeIndex() + nodeIdSuffix + "]" + literalValue + super.toString(nodeIdSuffix);
+      return "Integer literal[" + getNodeIndex() + nodeIdSuffix + "]" + this.literalValue +
+             super.toString(nodeIdSuffix);
    }
 
+   /**
+    * Compare fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    protected int compareFields(LogicNode o) {
-      LiteralNodeInteger that = (LiteralNodeInteger) o;
+      final LiteralNodeInteger that = (LiteralNodeInteger) o;
 
       return that.literalValue - this.literalValue;
    }
 
+   /**
+    * Inits the node uuid.
+    *
+    * @return the uuid
+    */
    @Override
    protected UUID initNodeUuid() {
-      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), Integer.toString(literalValue));
+      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), Integer.toString(this.literalValue));
    }
 
+   /**
+    * Write node data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    protected void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
       super.writeData(dataOutput, dataTarget);
-      dataOutput.writeInt(literalValue);
+      dataOutput.writeInt(this.literalValue);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the literal value.
+    *
+    * @return the literal value
+    */
    public int getLiteralValue() {
-      return literalValue;
+      return this.literalValue;
    }
 
+   /**
+    * Gets the node semantic.
+    *
+    * @return the node semantic
+    */
    @Override
    public NodeSemantic getNodeSemantic() {
       return NodeSemantic.LITERAL_INTEGER;

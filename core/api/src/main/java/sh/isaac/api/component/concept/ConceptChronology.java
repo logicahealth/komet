@@ -62,15 +62,15 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.relationship.RelationshipVersionAdaptor;
 
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ConceptChronology.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public interface ConceptChronology<V extends ConceptVersion<V>>
         extends ObjectChronology<V>, ConceptSpecification {
@@ -112,11 +112,31 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the concept description list.
+    *
+    * @return the concept description list
+    */
    List<SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList();
 
+   /**
+    * Gets the fully specified description.
+    *
+    * @param languageCoordinate the language coordinate
+    * @param stampCoordinate the stamp coordinate
+    * @return the fully specified description
+    */
    Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate,
          StampCoordinate stampCoordinate);
 
+   /**
+    * Gets the logical definition.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param premiseType the premise type
+    * @param logicCoordinate the logic coordinate
+    * @return the logical definition
+    */
    Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate stampCoordinate,
          PremiseType premiseType,
          LogicCoordinate logicCoordinate);
@@ -124,33 +144,55 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
    /**
     * Return a formatted text report showing chronology of logical definitions
     * for this concept, according to the provided parameters.
+    *
     * @param stampCoordinate specifies the ordering and currency of versions.
     * @param premiseType Stated or inferred premise type
     * @param logicCoordinate specifies the assemblages where the definitions are stored.
-    * @return
+    * @return the logical definition chronology report
     */
    String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate,
          PremiseType premiseType,
          LogicCoordinate logicCoordinate);
 
+   /**
+    * Gets the preferred description.
+    *
+    * @param languageCoordinate the language coordinate
+    * @param stampCoordinate the stamp coordinate
+    * @return the preferred description
+    */
    Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate,
          StampCoordinate stampCoordinate);
 
    /**
     * Uses the default logic coordinate.
-    * @return
+    *
+    * @return the relationship list originating from concept
     */
    List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListOriginatingFromConcept();
 
+   /**
+    * Gets the relationship list originating from concept.
+    *
+    * @param logicCoordinate the logic coordinate
+    * @return the relationship list originating from concept
+    */
    List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListOriginatingFromConcept(
            LogicCoordinate logicCoordinate);
 
    /**
     * Uses the default logic coordinate.
-    * @return
+    *
+    * @return the relationship list with concept as destination
     */
    List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListWithConceptAsDestination();
 
+   /**
+    * Gets the relationship list with concept as destination.
+    *
+    * @param logicCoordinate the logic coordinate
+    * @return the relationship list with concept as destination
+    */
    List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListWithConceptAsDestination(
            LogicCoordinate logicCoordinate);
 }

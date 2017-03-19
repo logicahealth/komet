@@ -72,6 +72,7 @@ import sh.isaac.provider.sync.git.gitblit.utils.RpcUtils.AccessRestrictionType;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class GitBlitUtils {
+   /** The log. */
    private static Logger log = LoggerFactory.getLogger(GitBlitUtils.class);
 
    //~--- methods -------------------------------------------------------------
@@ -82,8 +83,9 @@ public class GitBlitUtils {
     *
     * Essentially, if we see a bare URL like https://vaauscttdbs80.aac.va.gov:8080 we add /git to the end of it.
     * If we see a URL that includes a location - like https://vaauscttdbs80.aac.va.gov:8080/gitServer - we do nothing more than add a trailing forward slash
-    * @param url
-    * @return
+    *
+    * @param url the url
+    * @return the string
     */
    public static String adjustBareUrlForGitBlit(String url) {
       String temp = url;
@@ -100,14 +102,15 @@ public class GitBlitUtils {
    }
 
    /**
-    * Create a repository on a remote gitblit server
+    * Create a repository on a remote gitblit server.
+    *
     * @param baseRemoteAddress - should be a url like https://git.isaac.sh/git/ (though {@link #adjustBareUrlForGitBlit(String)} is utilized
     * @param repoName a name such a foo or foo.git
     * @param repoDesc the description
-    * @param username
-    * @param password
+    * @param username the username
+    * @param password the password
     * @param allowRead true to allow unauthenticated users to read / clone the repository.  False to lock down the repository
-    * @throws IOException
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void createRepository(String baseRemoteAddress,
          String repoName,
@@ -117,20 +120,23 @@ public class GitBlitUtils {
          boolean allowRead)
             throws IOException {
       try {
-         RepositoryModel rm = new RepositoryModel(repoName, repoDesc, username, new Date());
+         final RepositoryModel rm = new RepositoryModel(repoName, repoDesc, username, new Date());
 
          if (allowRead) {
             rm.accessRestriction = AccessRestrictionType.PUSH.toString();
          }
 
-         boolean status = RpcUtils.createRepository(rm, adjustBareUrlForGitBlit(baseRemoteAddress), username, password);
+         final boolean status = RpcUtils.createRepository(rm,
+                                                          adjustBareUrlForGitBlit(baseRemoteAddress),
+                                                          username,
+                                                          password);
 
          log.info("Repository: " + repoName + ", create successfully: " + status);
 
          if (!status) {
             throw new IOException("Create of repo '" + repoName + "' failed");
          }
-      } catch (Exception e) {
+      } catch (final Exception e) {
          log.error("Failed to create repository: " + repoName + ", Unexpected Error: ", e);
          throw new IOException("Failed to create repository: " + repoName + ", Internal error", e);
       }
@@ -139,15 +145,16 @@ public class GitBlitUtils {
    /**
     * Take in a URL like https://git.isaac.sh/git/r/db_test.git
     * and turn it into https://git.isaac.sh/git
-    * @param url
-    * @return
-    * @throws IOException
+    *
+    * @param url the url
+    * @return the string
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static String parseBaseRemoteAddress(String url)
             throws IOException {
-      Pattern p =
+      final Pattern p =
          Pattern.compile("(?i)(https?:\\/\\/[a-zA-Z0-9\\.\\-_]+:?\\d*\\/[a-zA-Z0-9\\-_]+\\/)r\\/[a-zA-Z0-9\\-_]+.git$");
-      Matcher m = p.matcher(url);
+      final Matcher m = p.matcher(url);
 
       if (m.find()) {
          return m.group(1);
@@ -156,11 +163,20 @@ public class GitBlitUtils {
       throw new IOException("Not a known giblit url pattern!");
    }
 
+   /**
+    * Read repositories.
+    *
+    * @param baseRemoteAddress the base remote address
+    * @param username the username
+    * @param password the password
+    * @return the set
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static Set<String> readRepositories(String baseRemoteAddress,
          String username,
          char[] password)
             throws IOException {
-      HashSet<String> results = new HashSet<>();
+      final HashSet<String> results = new HashSet<>();
 
       RpcUtils.getRepositories(adjustBareUrlForGitBlit(baseRemoteAddress), username, password)
               .forEach((name, value) -> results.add((String) value.get("name")));

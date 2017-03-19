@@ -40,6 +40,8 @@
 package sh.isaac.converters.sharedUtils.propertyTypes;
 
 /**
+ * The Class BPT_Relations.
+ *
  * @author Daniel Armbrust
  *
  * These get represented as native relationships within the OCHRE APIS (meaning the classifier
@@ -47,6 +49,11 @@ package sh.isaac.converters.sharedUtils.propertyTypes;
  */
 public class BPT_Relations
         extends BPT_DualParentPropertyType {
+   /**
+    * Instantiates a new BP T relations.
+    *
+    * @param terminologyName the terminology name
+    */
    public BPT_Relations(String terminologyName) {
       super("Relation Types", terminologyName + " Relation Types", false, null);
    }

@@ -51,7 +51,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.ticker.Ticker;
 
 //~--- classes ----------------------------------------------------------------
@@ -60,16 +59,24 @@ import sh.isaac.api.ticker.Ticker;
  * Created by kec on 4/9/15.
  */
 public class ActiveTasksTicker {
-   private static final Logger log    = LogManager.getLogger();
+   /** The Constant log. */
+   private static final Logger log = LogManager.getLogger();
+
+   /** The Constant ticker. */
    private static final Ticker ticker = new Ticker();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Start.
+    *
+    * @param intervalInSeconds the interval in seconds
+    */
    public static void start(int intervalInSeconds) {
       ticker.start(intervalInSeconds,
                    (tick) -> {
-                      Set<Task<?>> taskSet = Get.activeTasks()
-                                                .get();
+                      final Set<Task<?>> taskSet = Get.activeTasks()
+                                                      .get();
 
                       taskSet.stream().forEach((task) -> {
                                          double percentProgress = task.getProgress() * 100;
@@ -87,6 +94,9 @@ public class ActiveTasksTicker {
                    });
    }
 
+   /**
+    * Stop.
+    */
    public static void stop() {
       ticker.stop();
    }

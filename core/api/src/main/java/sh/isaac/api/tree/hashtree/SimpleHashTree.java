@@ -59,22 +59,28 @@ import sh.isaac.api.collections.ConceptSequenceSet;
  */
 public class SimpleHashTree
         extends AbstractHashTree {
+   /**
+    * Adds the child.
+    *
+    * @param parentSequence the parent sequence
+    * @param childSequence the child sequence
+    */
    public void addChild(int parentSequence, int childSequence) {
-      maxSequence = Math.max(parentSequence, maxSequence);
-      maxSequence = Math.max(childSequence, maxSequence);
+      this.maxSequence = Math.max(parentSequence, this.maxSequence);
+      this.maxSequence = Math.max(childSequence, this.maxSequence);
 
-      if (parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
-         parentSequence_ChildSequenceArray_Map.put(parentSequence,
-               addToArray(parentSequence_ChildSequenceArray_Map.get(parentSequence), childSequence));
+      if (this.parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
+         this.parentSequence_ChildSequenceArray_Map.put(parentSequence,
+               addToArray(this.parentSequence_ChildSequenceArray_Map.get(parentSequence), childSequence));
       } else {
-         parentSequence_ChildSequenceArray_Map.put(parentSequence, new int[] { childSequence });
+         this.parentSequence_ChildSequenceArray_Map.put(parentSequence, new int[] { childSequence });
       }
 
-      if (childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
-         childSequence_ParentSequenceArray_Map.put(childSequence,
-               addToArray(childSequence_ParentSequenceArray_Map.get(childSequence), parentSequence));
+      if (this.childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
+         this.childSequence_ParentSequenceArray_Map.put(childSequence,
+               addToArray(this.childSequence_ParentSequenceArray_Map.get(childSequence), parentSequence));
       } else {
-         childSequence_ParentSequenceArray_Map.put(childSequence, new int[] { parentSequence });
+         this.childSequence_ParentSequenceArray_Map.put(childSequence, new int[] { parentSequence });
       }
    }
 
@@ -85,9 +91,9 @@ public class SimpleHashTree
     */
    @Override
    public int size() {
-      IntStream.Builder builder = IntStream.builder();
+      final IntStream.Builder builder = IntStream.builder();
 
-      parentSequence_ChildSequenceArray_Map.forEachPair((int first,
+      this.parentSequence_ChildSequenceArray_Map.forEachPair((int first,
             int[] second) -> {
                builder.accept(first);
                IntStream.of(second)
@@ -99,13 +105,20 @@ public class SimpleHashTree
                           .count();
    }
 
+   /**
+    * Adds the to array.
+    *
+    * @param array the array
+    * @param toAdd the to add
+    * @return the int[]
+    */
    private static int[] addToArray(int[] array, int toAdd) {
       if (Arrays.binarySearch(array, toAdd) >= 0) {
          return array;
       }
 
-      int   length = array.length + 1;
-      int[] result = new int[length];
+      final int   length = array.length + 1;
+      final int[] result = new int[length];
 
       System.arraycopy(array, 0, result, 0, array.length);
       result[array.length] = toAdd;
@@ -115,15 +128,20 @@ public class SimpleHashTree
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the root sequence stream.
+    *
+    * @return the root sequence stream
+    */
    @Override
    public IntStream getRootSequenceStream() {
-      ConceptSequenceSet parents = new ConceptSequenceSet();
+      final ConceptSequenceSet parents = new ConceptSequenceSet();
 
-      parentSequence_ChildSequenceArray_Map.forEachKey((int parent) -> {
+      this.parentSequence_ChildSequenceArray_Map.forEachKey((int parent) -> {
                parents.add(parent);
                return true;
             });
-      parentSequence_ChildSequenceArray_Map.forEachPair((int parent,
+      this.parentSequence_ChildSequenceArray_Map.forEachPair((int parent,
             int[] children) -> {
                IntStream.of(children)
                         .forEach((child) -> parents.remove(child));

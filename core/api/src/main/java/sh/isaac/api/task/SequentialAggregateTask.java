@@ -52,35 +52,48 @@ import sh.isaac.api.Get;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class SequentialAggregateTask.
  *
  * @author kec
+ * @param <T> the generic type
  */
 public class SequentialAggregateTask<T>
         extends TimedTask<T> {
-   int       currentTask = 0;
+   /** The current task. */
+   int currentTask = 0;
+
+   /** The sub tasks. */
    Task<?>[] subTasks;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new sequential aggregate task.
+    *
+    * @param title the title
+    * @param subTasks the sub tasks
+    */
    public SequentialAggregateTask(String title, Collection<Task<?>> subTasks) {
       this(title, subTasks.toArray(new Task<?>[subTasks.size()]));
    }
 
    /**
+    * Instantiates a new sequential aggregate task.
     *
     * @param title Title for the aggregate task
-    * @param subTasks
+    * @param subTasks the sub tasks
     */
    public SequentialAggregateTask(String title, Task<?>[] subTasks) {
       this.subTasks = subTasks;
       this.updateTitle(title);
       this.setProgressMessageGenerator((task) -> {
-                                          int taskId = currentTask;
+                                          final int taskId = this.currentTask;
 
                                           if (taskId < subTasks.length) {
                                              updateMessage("Executing subtask: " + subTasks[taskId].getTitle() + " [" +
-                                             Integer.toString(currentTask + 1) + " of " + subTasks.length + " tasks]");
-                                             updateProgress((currentTask * 100) + Math.max(0,
+                                             Integer.toString(this.currentTask + 1) + " of " + subTasks.length +
+                                             " tasks]");
+                                             updateProgress((this.currentTask * 100) + Math.max(0,
                                                    subTasks[taskId].getProgress() * 100),
                                                    subTasks.length * 100);
                                           }
@@ -108,11 +121,11 @@ public class SequentialAggregateTask<T>
       try {
          Object returnValue = null;
 
-         for (; currentTask < subTasks.length; currentTask++) {
+         for (; this.currentTask < this.subTasks.length; this.currentTask++) {
             Get.workExecutors()
                .getExecutor()
-               .execute(subTasks[currentTask]);
-            returnValue = subTasks[currentTask].get();
+               .execute(this.subTasks[this.currentTask]);
+            returnValue = this.subTasks[this.currentTask].get();
          }
 
          return (T) returnValue;
@@ -125,11 +138,12 @@ public class SequentialAggregateTask<T>
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the sub tasks.
     *
     * @return the sub tasks of this aggregate task.
     */
    public Task<?>[] getSubTasks() {
-      return subTasks;
+      return this.subTasks;
    }
 }
 

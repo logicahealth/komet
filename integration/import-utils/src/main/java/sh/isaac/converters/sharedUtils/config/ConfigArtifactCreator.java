@@ -69,21 +69,26 @@ import sh.isaac.pombuilder.converter.ConverterOptionParam;
 @Service(name = "create-config-artifact")
 public class ConfigArtifactCreator
         extends QuasiMojo {
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException {
       try {
-         List<ConfigOptionsDescriptor> configs = LookupService.get()
-                                                              .getAllServices(ConfigOptionsDescriptor.class);
+         final List<ConfigOptionsDescriptor> configs = LookupService.get()
+                                                                    .getAllServices(ConfigOptionsDescriptor.class);
 
-         for (ConfigOptionsDescriptor c: configs) {
+         for (final ConfigOptionsDescriptor c: configs) {
             ConverterOptionParam.serialize(c.getConfigOptions(),
-                                           new File(outputDirectory,
+                                           new File(this.outputDirectory,
                                                  c.getName() + "." + ConverterOptionParam.MAVEN_FILE_TYPE));
          }
 
          getLog().info("Output Config artifact files for " + configs.size() + " entries found on the classpath.");
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new MojoExecutionException("Unexpected error validating the resources folder", e);
       }
    }

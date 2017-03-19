@@ -50,9 +50,14 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * Created by kec on 4/10/15.
  */
 public class WriteToDiskCache {
-   private static final int                             WRITE_INTERVAL_IN_MS = 15000;
-   static ConcurrentSkipListSet<MemoryManagedReference> cacheSet             = new ConcurrentSkipListSet<>();
-   static final Thread                                  writerThread;
+   /** The Constant WRITE_INTERVAL_IN_MS. */
+   private static final int WRITE_INTERVAL_IN_MS = 15000;
+
+   /** The cache set. */
+   static ConcurrentSkipListSet<MemoryManagedReference> cacheSet = new ConcurrentSkipListSet<>();
+
+   /** The Constant writerThread. */
+   static final Thread writerThread;
 
    //~--- static initializers -------------------------------------------------
 
@@ -63,10 +68,18 @@ public class WriteToDiskCache {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the to cache.
+    *
+    * @param newRef the new ref
+    */
    public static void addToCache(MemoryManagedReference newRef) {
       cacheSet.add(newRef);
    }
 
+   /**
+    * Flush and clear cache.
+    */
    public static void flushAndClearCache() {
       cacheSet.stream().forEach((memoryManagedReference) -> {
                           cacheSet.remove(memoryManagedReference);
@@ -80,13 +93,19 @@ public class WriteToDiskCache {
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class WriteToDiskRunnable.
+    */
    public static class WriteToDiskRunnable
             implements Runnable {
+      /**
+       * Run.
+       */
       @Override
       public void run() {
          while (true) {
-            Optional<MemoryManagedReference> optionalReference = cacheSet.stream()
-                                                                         .filter((memoryManagedReference) -> {
+            final Optional<MemoryManagedReference> optionalReference = cacheSet.stream()
+                                                                               .filter((memoryManagedReference) -> {
                      if (memoryManagedReference.get() == null) {
                         cacheSet.remove(memoryManagedReference);
                         return false;
@@ -94,7 +113,7 @@ public class WriteToDiskCache {
 
                      return memoryManagedReference.hasUnwrittenUpdate();
                   })
-                                                                         .max((o1, o2) -> {
+                                                                               .max((o1, o2) -> {
                      if (o1.msSinceLastUnwrittenUpdate() > o2.msSinceLastUnwrittenUpdate()) {
                         return 1;
                      }
@@ -110,7 +129,7 @@ public class WriteToDiskCache {
             if (optionalReference.isPresent()) {
                written = true;
 
-               MemoryManagedReference ref = (MemoryManagedReference) optionalReference.get();
+               final MemoryManagedReference ref = optionalReference.get();
 
                if (ref.msSinceLastUnwrittenUpdate() > WRITE_INTERVAL_IN_MS) {
                   ref.write();
@@ -120,7 +139,7 @@ public class WriteToDiskCache {
             if (!written) {
                try {
                   writerThread.wait(WRITE_INTERVAL_IN_MS);
-               } catch (InterruptedException e) {
+               } catch (final InterruptedException e) {
                   // continue work
                }
             }

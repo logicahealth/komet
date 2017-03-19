@@ -52,6 +52,9 @@ import org.jvnet.hk2.annotations.Contract;
 
 //~--- interfaces -------------------------------------------------------------
 
+/**
+ * The Interface SystemStatusService.
+ */
 @Contract
 public interface SystemStatusService {
    /**
@@ -65,6 +68,8 @@ public interface SystemStatusService {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the service configuration failures.
+    *
     * @return The services (if any) that failed to start correctly.
     */
    public Optional<List<Pair<String, Exception>>> getServiceConfigurationFailures();

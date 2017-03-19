@@ -40,6 +40,7 @@
 package sh.isaac.api.logic.assertions.substitution;
 
 /**
+ * The Interface ConceptSubstitution.
  *
  * @author kec
  */

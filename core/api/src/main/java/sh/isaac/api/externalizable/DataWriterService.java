@@ -52,12 +52,18 @@ import org.jvnet.hk2.annotations.Contract;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface DataWriterService.
  *
  * @author kec
  */
 @Contract
 public interface DataWriterService
         extends AutoCloseable {
+   /**
+    * Close.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void close()
             throws IOException;;
@@ -66,15 +72,18 @@ public interface DataWriterService
     * Used when constructed via a no arg constructor (HK2 patterns) to configure the writer after the initial
     * construct.  Implements are free to not support reconfiguration after the initial call to configure
     * (or to not support this method at all, if the only configuration route is via the constructor)
-    * @param path
-    * @throws IOException
+    *
+    * @param path the path
+    * @throws IOException Signals that an I/O exception has occurred.
     * @throws UnsupportedOperationException - when method not supported at all, or for reconfiguration
     */
    public void configure(Path path)
             throws IOException, UnsupportedOperationException;
 
    /**
-    * flush any buffered data out to disk
+    * flush any buffered data out to disk.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public void flush()
             throws IOException;
@@ -85,7 +94,8 @@ public interface DataWriterService
     * up the file and pushes it to git, for example.
     *
     * Ensure that if pause() is called, that resume is called from the same thread.
-    * @throws IOException
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public void pause()
             throws IOException;
@@ -93,8 +103,9 @@ public interface DataWriterService
    /**
     * This does not throw an IOException, rather, they are possible, but mapped to runtime exceptions for stream convenience.
     * they still may occur, however, and should be handled.
-    * @param ochreObject
-    * @throws RuntimeException
+    *
+    * @param ochreObject the ochre object
+    * @throws RuntimeException the runtime exception
     */
    public void put(OchreExternalizable ochreObject)
             throws RuntimeException;
@@ -102,7 +113,8 @@ public interface DataWriterService
    /**
     * open the file writer (closed by a {@link #pause()}) and unblock any blocked  {@link DataWriterService#put(OchreExternalizable)} calls.
     * Ensure that if pause() is called, that resume is called from the same thread.
-    * @throws IOException
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public void resume()
             throws IOException;
@@ -110,8 +122,9 @@ public interface DataWriterService
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Return the path the writer is currently configured to
-    * @return
+    * Return the path the writer is currently configured to.
+    *
+    * @return the current path
     */
    public Path getCurrentPath();
 }

@@ -70,68 +70,103 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class BinaryDataReaderProvider.
  *
  * @author kec
  */
 public class BinaryDataReaderProvider
         extends TimedTaskWithProgressTracker<Integer>
          implements BinaryDataReaderService, Spliterator<OchreExternalizable> {
-   int             objects  = 0;
-   CountDownLatch  complete = new CountDownLatch(1);
-   Path            dataPath;
+   /** The objects. */
+   int objects = 0;
+
+   /** The complete. */
+   CountDownLatch complete = new CountDownLatch(1);
+
+   /** The data path. */
+   Path dataPath;
+
+   /** The input. */
    DataInputStream input;
-   int             streamBytes;
+
+   /** The stream bytes. */
+   int streamBytes;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new binary data reader provider.
+    *
+    * @param dataPath the data path
+    * @throws FileNotFoundException the file not found exception
+    */
    public BinaryDataReaderProvider(Path dataPath)
             throws FileNotFoundException {
       this.dataPath = dataPath;
       this.input    = new DataInputStream(new FileInputStream(dataPath.toFile()));
 
       try {
-         streamBytes = input.available();
-         addToTotalWork(streamBytes);
-      } catch (IOException ex) {
+         this.streamBytes = this.input.available();
+         addToTotalWork(this.streamBytes);
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Characteristics.
+    *
+    * @return the int
+    */
    @Override
    public int characteristics() {
       return IMMUTABLE | NONNULL;
    }
 
+   /**
+    * Close.
+    */
    @Override
    public void close() {
       try {
-         input.close();
+         this.input.close();
          done();
-         complete.countDown();
-      } catch (IOException ex) {
+         this.complete.countDown();
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
 
+   /**
+    * Estimate size.
+    *
+    * @return the long
+    */
    @Override
    public long estimateSize() {
       return Long.MAX_VALUE;
    }
 
+   /**
+    * Try advance.
+    *
+    * @param action the action
+    * @return true, if successful
+    */
    @Override
    public boolean tryAdvance(Consumer<? super OchreExternalizable> action) {
       try {
-         int                           startBytes        = input.available();
-         OchreExternalizableObjectType type              = OchreExternalizableObjectType.fromDataStream(input);
-         byte                          dataFormatVersion = input.readByte();
-         int                           recordSize        = input.readInt();
-         byte[]                        objectData        = new byte[recordSize];
+         final int                           startBytes        = this.input.available();
+         final OchreExternalizableObjectType type = OchreExternalizableObjectType.fromDataStream(this.input);
+         final byte                          dataFormatVersion = this.input.readByte();
+         final int                           recordSize        = this.input.readInt();
+         final byte[]                        objectData        = new byte[recordSize];
 
-         input.readFully(objectData);
+         this.input.readFully(objectData);
 
-         ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(objectData);
+         final ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(objectData);
 
          buffer.setExternalData(true);
          buffer.setObjectDataFormatVersion(dataFormatVersion);
@@ -157,39 +192,50 @@ public class BinaryDataReaderProvider
             throw new UnsupportedOperationException("Can't handle: " + type);
          }
 
-         objects++;
-         completedUnitsOfWork(startBytes - input.available());
+         this.objects++;
+         completedUnitsOfWork(startBytes - this.input.available());
          return true;
-      } catch (EOFException ex) {
+      } catch (final EOFException ex) {
          close();
          return false;
-      } catch (IOException ex) {
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
 
+   /**
+    * Try split.
+    *
+    * @return the spliterator
+    */
    @Override
    public Spliterator<OchreExternalizable> trySplit() {
       return null;
    }
 
    /**
+    * Call.
     *
     * @return the number of objects read.
     */
    @Override
    protected Integer call() {
       try {
-         complete.await();
-      } catch (InterruptedException ex) {
+         this.complete.await();
+      } catch (final InterruptedException ex) {
          throw new RuntimeException(ex);
       }
 
-      return objects;
+      return this.objects;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the stream.
+    *
+    * @return the stream
+    */
    @Override
    public Stream<OchreExternalizable> getStream() {
       running();

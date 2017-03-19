@@ -57,15 +57,24 @@ import sh.isaac.pombuilder.converter.ConverterOptionParam;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class TestConversionConfiguration.
+ */
 public class TestConversionConfiguration {
+   /**
+    * The main method.
+    *
+    * @param args the arguments
+    * @throws Exception the exception
+    */
    public static void main(String[] args)
             throws Exception {
-      String gitTestURL    = "https://git.isaac.sh/git/";
-      String gitUsername   = "";
-      char[] gitPassword   = "".toCharArray();
-      String nexusUrl      = "https://artifactory.isaac.sh/artifactory/all";
-      String nexusUsername = "";
-      String nexusPassword = "";
+      final String gitTestURL    = "https://git.isaac.sh/git/";
+      final String gitUsername   = "";
+      final char[] gitPassword   = "".toCharArray();
+      final String nexusUrl      = "https://artifactory.isaac.sh/artifactory/all";
+      final String nexusUsername = "";
+      final String nexusPassword = "";
 
       System.setProperty("java.awt.headless", "true");
       System.out.println(GitPublish.readTags(gitTestURL, gitUsername, gitPassword));
@@ -73,7 +82,6 @@ public class TestConversionConfiguration {
       // vhat
 //    System.out.println(ContentConverterCreator.createContentConverter(new SDOSourceContent("sh.isaac.terminology.source.vhat", "vhat-src-data", "2016.01.07"), 
 //            "4.1-SNAPSHOT", new SDOSourceContent[0], new IBDFFile[0], null, gitTestURL, gitUsername, gitPassword));
-
       // loinc
 //    System.out.println(ContentConverterCreator.createContentConverter(new SDOSourceContent("sh.isaac.terminology.source.loinc", "loinc-src-data", "2.54"), 
 //            "5.1-SNAPSHOT", new SDOSourceContent[0], new IBDFFile[0], null, gitTestURL, gitUsername, gitPassword));
@@ -87,19 +95,19 @@ public class TestConversionConfiguration {
 //    System.out.println(ContentConverterCreator.createContentConverter(new SDOSourceContent("sh.isaac.terminology.source.rf2", "rf2-src-data-sct", "20150731"), 
 //            "3.1-SNAPSHOT", new SDOSourceContent[0], new IBDFFile[0], null, gitTestURL, gitUsername, gitPassword));
       // sct-us-ext
-      ConverterOptionParam[] optionTypes =
+      final ConverterOptionParam[] optionTypes =
          ContentConverterCreator.getConverterOptions(new Converter("sh.isaac.terminology.converters",
                                                                    "rf2-mojo",
                                                                    "3.3-SNAPSHOT"),
                                                      nexusUrl,
                                                      nexusUsername,
                                                      nexusPassword);
-      HashMap<ConverterOptionParam, Set<String>> options = new HashMap<>();
+      final HashMap<ConverterOptionParam, Set<String>> options = new HashMap<>();
 
-      for (ConverterOptionParam x: optionTypes) {
+      for (final ConverterOptionParam x: optionTypes) {
          if (x.getInternalName()
               .equals("moduleUUID")) {
-            options.put(x, new HashSet<String>(Arrays.asList(new String[] { "c82efad7-f4bf-5e81-b223-b5b0305f6652" })));
+            options.put(x, new HashSet<>(Arrays.asList(new String[] { "c82efad7-f4bf-5e81-b223-b5b0305f6652" })));
          }
       }
 

@@ -41,7 +41,12 @@ package sh.isaac.provider.logic.csiro.classify;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -69,14 +74,31 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
 //TODO move to CSIRO specific module
 public class AxiomCollector
          implements Collector<LogicalExpressionOchreImpl, Set<Axiom>, Set<Axiom>> {
-   BitSet                     conceptSequences;
-   Concept[]                  concepts;
+   /** The concept sequences. */
+   BitSet conceptSequences;
+
+   /** The concepts. */
+   Concept[] concepts;
+
+   /** The roles. */
    OpenIntObjectHashMap<Role> roles;
-   OpenIntHashSet             neverGroupRoleSequences;
-   int                        roleGroupConceptSequence;
+
+   /** The never group role sequences. */
+   OpenIntHashSet neverGroupRoleSequences;
+
+   /** The role group concept sequence. */
+   int roleGroupConceptSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new axiom collector.
+    *
+    * @param conceptSequences the concept sequences
+    * @param roleSequences the role sequences
+    * @param neverGroupRoleSequences the never group role sequences
+    * @param roleGroupConceptSequence the role group concept sequence
+    */
    public AxiomCollector(BitSet conceptSequences,
                          OpenIntHashSet roleSequences,
                          OpenIntHashSet neverGroupRoleSequences,
@@ -85,9 +107,9 @@ public class AxiomCollector
       this.concepts         = new Concept[conceptSequences.length()];
       Arrays.parallelSetAll(this.concepts,
                             conceptSequence -> Factory.createNamedConcept(Integer.toString(conceptSequence)));
-      roles = new OpenIntObjectHashMap<>(roleSequences.size());
+      this.roles = new OpenIntObjectHashMap<>(roleSequences.size());
       roleSequences.forEachKey(roleSequence -> {
-                                  roles.put(roleSequence, Factory.createNamedRole(Integer.toString(roleSequence)));
+                                  this.roles.put(roleSequence, Factory.createNamedRole(Integer.toString(roleSequence)));
                                   return true;
                                });
       this.neverGroupRoleSequences  = neverGroupRoleSequences;
@@ -96,17 +118,36 @@ public class AxiomCollector
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Accumulator.
+    *
+    * @return the bi consumer
+    */
    @Override
    public BiConsumer<Set<Axiom>, LogicalExpressionOchreImpl> accumulator() {
-      return new AxiomAccumulator(concepts, conceptSequences, roles, neverGroupRoleSequences, roleGroupConceptSequence);
+      return new AxiomAccumulator(this.concepts,
+                                  this.conceptSequences,
+                                  this.roles,
+                                  this.neverGroupRoleSequences,
+                                  this.roleGroupConceptSequence);
    }
 
+   /**
+    * Characteristics.
+    *
+    * @return the set
+    */
    @Override
    public Set<Characteristics> characteristics() {
       return Collections.unmodifiableSet(EnumSet.of(Collector.Characteristics.UNORDERED,
             Characteristics.IDENTITY_FINISH));
    }
 
+   /**
+    * Combiner.
+    *
+    * @return the binary operator
+    */
    @Override
    public BinaryOperator<Set<Axiom>> combiner() {
       return (list1, list2) -> {
@@ -115,11 +156,21 @@ public class AxiomCollector
              };
    }
 
+   /**
+    * Finisher.
+    *
+    * @return the function
+    */
    @Override
    public Function<Set<Axiom>, Set<Axiom>> finisher() {
       return Function.identity();
    }
 
+   /**
+    * Supplier.
+    *
+    * @return the supplier
+    */
    @Override
    public Supplier<Set<Axiom>> supplier() {
       return HashSet::new;

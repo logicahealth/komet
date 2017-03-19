@@ -40,16 +40,17 @@
 package sh.isaac.api.collections.uuidnidmap;
 
 /**
+ * The Interface UuidIntProcedure.
  *
  * @author kec
  */
 public interface UuidIntProcedure {
    /**
+    * Apply.
     *
-    * @param uuid
-    * @param second
+    * @param uuid the uuid
+    * @param second the second
     * @return iteration will stop if {@code false}, otherwise continues.
-    *
     */
    boolean apply(long[] uuid, int second);
 }

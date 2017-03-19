@@ -73,19 +73,30 @@ import sh.isaac.provider.workflow.user.RoleConfigurator;
  */
 public class WorkflowUpdaterTest
         extends AbstractWorkflowProviderTestPackage {
-   private static int firstConceptNid  = 0;
+   /** The first concept nid. */
+   private static int firstConceptNid = 0;
+
+   /** The second concept nid. */
    private static int secondConceptNid = 0;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Before test.
+    */
    @Before
    public void beforeTest() {
-      wp_.getProcessDetailStore()
+      wp.getProcessDetailStore()
          .clear();
-      wp_.getProcessHistoryStore()
+      wp.getProcessHistoryStore()
          .clear();
    }
 
+   /**
+    * Tear down class.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @AfterClass
    public static void tearDownClass()
             throws IOException {
@@ -108,15 +119,15 @@ public class WorkflowUpdaterTest
     */
    public void testAddComponentsToProcess()
             throws Exception {
-      UUID          processId = createFirstWorkflowProcess(mainDefinitionId);
-      ProcessDetail details   = wp_.getProcessDetailStore()
+      final UUID    processId = createFirstWorkflowProcess(mainDefinitionId);
+      ProcessDetail details   = wp.getProcessDetailStore()
                                    .get(processId);
 
       Assert.assertFalse(details.getComponentToInitialEditMap()
                                 .keySet()
                                 .contains(firstConceptNid));
       addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
-      details = wp_.getProcessDetailStore()
+      details = wp.getProcessDetailStore()
                    .get(processId);
       Assert.assertEquals(2, details.getComponentToInitialEditMap()
                                     .keySet()
@@ -136,7 +147,7 @@ public class WorkflowUpdaterTest
                                  .get(secondConceptNid)
                                  .getAuthorSequence());
       addComponentsToProcess(processId, RoleConfigurator.getSecondTestUserSeq(), State.ACTIVE);
-      details = wp_.getProcessDetailStore()
+      details = wp.getProcessDetailStore()
                    .get(processId);
       Assert.assertEquals(2, details.getComponentToInitialEditMap()
                                     .keySet()
@@ -168,7 +179,7 @@ public class WorkflowUpdaterTest
    @Test
    public void testAdvanceWorkflow()
             throws Exception {
-      UUID processId = createFirstWorkflowProcess(mainDefinitionId);
+      final UUID processId = createFirstWorkflowProcess(mainDefinitionId);
 
       addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
       executeLaunchWorkflow(processId);
@@ -224,8 +235,8 @@ public class WorkflowUpdaterTest
     */
    public void testRemoveComponentsFromProcess()
             throws Exception {
-      UUID          processId = createFirstWorkflowProcess(mainDefinitionId);
-      ProcessDetail details   = wp_.getProcessDetailStore()
+      final UUID    processId = createFirstWorkflowProcess(mainDefinitionId);
+      ProcessDetail details   = wp.getProcessDetailStore()
                                    .get(processId);
 
       Assert.assertEquals(0, details.getComponentToInitialEditMap()
@@ -233,14 +244,14 @@ public class WorkflowUpdaterTest
                                     .size());
       addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
       addComponentsToProcess(processId, RoleConfigurator.getSecondTestUserSeq(), State.ACTIVE);
-      details = wp_.getProcessDetailStore()
+      details = wp.getProcessDetailStore()
                    .get(processId);
       Assert.assertEquals(2, details.getComponentToInitialEditMap()
                                     .keySet()
                                     .size());
-      wp_.getWorkflowUpdater()
+      wp.getWorkflowUpdater()
          .removeComponentFromWorkflow(processId, firstConceptNid, null);
-      details = wp_.getProcessDetailStore()
+      details = wp.getProcessDetailStore()
                    .get(processId);
       Assert.assertEquals(1, details.getComponentToInitialEditMap()
                                     .keySet()
@@ -251,9 +262,9 @@ public class WorkflowUpdaterTest
       Assert.assertTrue(details.getComponentToInitialEditMap()
                                .keySet()
                                .contains(secondConceptNid));
-      wp_.getWorkflowUpdater()
+      wp.getWorkflowUpdater()
          .removeComponentFromWorkflow(processId, secondConceptNid, null);
-      details = wp_.getProcessDetailStore()
+      details = wp.getProcessDetailStore()
                    .get(processId);
       Assert.assertEquals(0, details.getComponentToInitialEditMap()
                                     .keySet()
@@ -273,7 +284,7 @@ public class WorkflowUpdaterTest
       LookupService.startupMetadataStore();
       globalSetup();
 
-      for (Integer nid: conceptsForTesting) {
+      for (final Integer nid: conceptsForTesting) {
          if (firstConceptNid == 0) {
             firstConceptNid = nid;
          } else {

@@ -54,62 +54,130 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Daniel Armbrust
  */
 public class LoadStats {
-   private AtomicInteger                             concepts_                    = new AtomicInteger();
-   private AtomicInteger                             graphs_                      = new AtomicInteger();
-   private AtomicInteger                             clonedConcepts_              = new AtomicInteger();
-   private AtomicInteger                             skippedPropertiesCounter_    = new AtomicInteger();
-   private AtomicInteger                             generatedPreferredTermCount_ = new AtomicInteger();
-   private TreeMap<String, Integer>                  descriptions_                = new TreeMap<String, Integer>();
-   private TreeMap<String, Integer>                  refsetMembers_               = new TreeMap<String, Integer>();
-   private TreeMap<String, Integer>                  relationships_               = new TreeMap<String, Integer>();
-   private TreeMap<String, Integer>                  associations_                = new TreeMap<String, Integer>();
-   private TreeMap<String, TreeMap<String, Integer>> annotations_ = new TreeMap<String, TreeMap<String, Integer>>();
-   private Object                                    syncLock                     = new Object();
+   /** The concepts. */
+   private final AtomicInteger concepts = new AtomicInteger();
+
+   /** The graphs. */
+   private final AtomicInteger graphs = new AtomicInteger();
+
+   /** The cloned concepts. */
+   private final AtomicInteger clonedConcepts = new AtomicInteger();
+
+   /** The skipped properties counter. */
+   private final AtomicInteger skippedPropertiesCounter = new AtomicInteger();
+
+   /** The generated preferred term count. */
+   private final AtomicInteger generatedPreferredTermCount = new AtomicInteger();
+
+   /** The descriptions. */
+   private final TreeMap<String, Integer> descriptions = new TreeMap<>();
+
+   /** The refset members. */
+   private final TreeMap<String, Integer> refsetMembers = new TreeMap<>();
+
+   /** The relationships. */
+   private final TreeMap<String, Integer> relationships = new TreeMap<>();
+
+   /** The associations. */
+   private final TreeMap<String, Integer> associations = new TreeMap<>();
+
+   /** The annotations. */
+   private final TreeMap<String, TreeMap<String, Integer>> annotations = new TreeMap<>();
+
+   /** The sync lock. */
+   private final Object syncLock = new Object();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the annotation.
+    *
+    * @param annotatedItem the annotated item
+    * @param annotationName the annotation name
+    */
    public void addAnnotation(String annotatedItem, String annotationName) {
-      increment(annotations_, annotatedItem, annotationName);
+      increment(this.annotations, annotatedItem, annotationName);
    }
 
+   /**
+    * Adds the association.
+    *
+    * @param assnName the assn name
+    */
    public void addAssociation(String assnName) {
-      increment(associations_, assnName);
+      increment(this.associations, assnName);
    }
 
+   /**
+    * Adds the concept.
+    */
    public void addConcept() {
-      concepts_.incrementAndGet();
+      this.concepts.incrementAndGet();
    }
 
+   /**
+    * Adds the concept clone.
+    */
    public void addConceptClone() {
-      clonedConcepts_.incrementAndGet();
+      this.clonedConcepts.incrementAndGet();
    }
 
+   /**
+    * Adds the description.
+    *
+    * @param descName the desc name
+    */
    public void addDescription(String descName) {
-      increment(descriptions_, descName);
+      increment(this.descriptions, descName);
    }
 
+   /**
+    * Adds the graph.
+    */
    public void addGraph() {
-      graphs_.incrementAndGet();
+      this.graphs.incrementAndGet();
    }
 
+   /**
+    * Adds the refset member.
+    *
+    * @param refsetName the refset name
+    */
    public void addRefsetMember(String refsetName) {
-      increment(refsetMembers_, refsetName);
+      increment(this.refsetMembers, refsetName);
    }
 
+   /**
+    * Adds the relationship.
+    *
+    * @param relName the rel name
+    */
    public void addRelationship(String relName) {
-      increment(relationships_, relName);
+      increment(this.relationships, relName);
    }
 
+   /**
+    * Adds the skipped property.
+    */
    public void addSkippedProperty() {
-      skippedPropertiesCounter_.incrementAndGet();
+      this.skippedPropertiesCounter.incrementAndGet();
    }
 
+   /**
+    * Inc description copied from FSN count.
+    */
    public void incDescriptionCopiedFromFSNCount() {
-      generatedPreferredTermCount_.incrementAndGet();
+      this.generatedPreferredTermCount.incrementAndGet();
    }
 
+   /**
+    * Increment.
+    *
+    * @param dataHolder the data holder
+    * @param type the type
+    */
    private void increment(TreeMap<String, Integer> dataHolder, String type) {
-      synchronized (syncLock) {
+      synchronized (this.syncLock) {
          Integer i = dataHolder.get(type);
 
          if (i == null) {
@@ -122,12 +190,19 @@ public class LoadStats {
       }
    }
 
+   /**
+    * Increment.
+    *
+    * @param dataHolder the data holder
+    * @param annotatedType the annotated type
+    * @param type the type
+    */
    private void increment(TreeMap<String, TreeMap<String, Integer>> dataHolder, String annotatedType, String type) {
-      synchronized (syncLock) {
+      synchronized (this.syncLock) {
          TreeMap<String, Integer> map = dataHolder.get(annotatedType);
 
          if (map == null) {
-            map = new TreeMap<String, Integer>();
+            map = new TreeMap<>();
          }
 
          Integer i = map.get(type);
@@ -145,31 +220,51 @@ public class LoadStats {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the cloned concept count.
+    *
+    * @return the cloned concept count
+    */
    public int getClonedConceptCount() {
-      return clonedConcepts_.get();
+      return this.clonedConcepts.get();
    }
 
+   /**
+    * Gets the concept count.
+    *
+    * @return the concept count
+    */
    public int getConceptCount() {
-      return concepts_.get();
+      return this.concepts.get();
    }
 
+   /**
+    * Gets the skipped property count.
+    *
+    * @return the skipped property count
+    */
    public int getSkippedPropertyCount() {
-      return skippedPropertiesCounter_.get();
+      return this.skippedPropertiesCounter.get();
    }
 
+   /**
+    * Gets the summary.
+    *
+    * @return the summary
+    */
    public ArrayList<String> getSummary() {
-      ArrayList<String> result = new ArrayList<String>();
+      final ArrayList<String> result = new ArrayList<>();
 
-      result.add("Concepts: " + concepts_.get());
-      result.add("Graphs: " + graphs_.get());
+      result.add("Concepts: " + this.concepts.get());
+      result.add("Graphs: " + this.graphs.get());
 
-      if (clonedConcepts_.get() > 0) {
-         result.add("Cloned Concepts: " + clonedConcepts_.get());
+      if (this.clonedConcepts.get() > 0) {
+         result.add("Cloned Concepts: " + this.clonedConcepts.get());
       }
 
       int sum = 0;
 
-      for (Map.Entry<String, Integer> value: relationships_.entrySet()) {
+      for (final Map.Entry<String, Integer> value: this.relationships.entrySet()) {
          sum += value.getValue();
          result.add("Relationship '" + value.getKey() + "': " + value.getValue());
       }
@@ -177,7 +272,7 @@ public class LoadStats {
       result.add("Relationships Total: " + sum);
       sum = 0;
 
-      for (Map.Entry<String, Integer> value: associations_.entrySet()) {
+      for (final Map.Entry<String, Integer> value: this.associations.entrySet()) {
          sum += value.getValue();
          result.add("Association '" + value.getKey() + "': " + value.getValue());
       }
@@ -185,25 +280,25 @@ public class LoadStats {
       result.add("Associations Total: " + sum);
       sum = 0;
 
-      for (Map.Entry<String, Integer> value: descriptions_.entrySet()) {
+      for (final Map.Entry<String, Integer> value: this.descriptions.entrySet()) {
          sum += value.getValue();
          result.add("Description '" + value.getKey() + "': " + value.getValue());
       }
 
       result.add("Descriptions Total: " + sum);
 
-      if (generatedPreferredTermCount_.get() > 0) {
-         result.add("Descriptions duplicated from FSN: " + generatedPreferredTermCount_.get());
+      if (this.generatedPreferredTermCount.get() > 0) {
+         result.add("Descriptions duplicated from FSN: " + this.generatedPreferredTermCount.get());
       }
 
       sum = 0;
 
       int nestedSum = 0;
 
-      for (Map.Entry<String, TreeMap<String, Integer>> value: annotations_.entrySet()) {
+      for (final Map.Entry<String, TreeMap<String, Integer>> value: this.annotations.entrySet()) {
          nestedSum = 0;
 
-         for (Map.Entry<String, Integer> nestedValue: value.getValue()
+         for (final Map.Entry<String, Integer> nestedValue: value.getValue()
                .entrySet()) {
             result.add("Annotation '" + value.getKey() + ":" + nestedValue.getKey() + "': " + nestedValue.getValue());
             nestedSum += nestedValue.getValue();
@@ -219,13 +314,13 @@ public class LoadStats {
 
       result.add("Annotations Total: " + sum);
 
-      if (skippedPropertiesCounter_.get() > 0) {
-         result.add("Skipped Properties: " + skippedPropertiesCounter_.get());
+      if (this.skippedPropertiesCounter.get() > 0) {
+         result.add("Skipped Properties: " + this.skippedPropertiesCounter.get());
       }
 
       sum = 0;
 
-      for (Map.Entry<String, Integer> value: refsetMembers_.entrySet()) {
+      for (final Map.Entry<String, Integer> value: this.refsetMembers.entrySet()) {
          sum += value.getValue();
          result.add("Refset Members '" + value.getKey() + "': " + value.getValue());
       }

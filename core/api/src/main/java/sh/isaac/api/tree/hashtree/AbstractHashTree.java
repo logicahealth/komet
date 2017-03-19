@@ -58,11 +58,13 @@ import sh.isaac.api.tree.TreeNodeVisitData;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class AbstractHashTree.
  *
  * @author kec
  */
 public abstract class AbstractHashTree
          implements Tree {
+   /** The Constant EMPTY_INT_ARRAY. */
    static final int[] EMPTY_INT_ARRAY = new int[0];
 
    //~--- fields --------------------------------------------------------------
@@ -84,30 +86,45 @@ public abstract class AbstractHashTree
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new abstract hash tree.
+    */
    public AbstractHashTree() {
-      childSequence_ParentSequenceArray_Map = new OpenIntObjectHashMap<>();
-      parentSequence_ChildSequenceArray_Map = new OpenIntObjectHashMap<>();
+      this.childSequence_ParentSequenceArray_Map = new OpenIntObjectHashMap<>();
+      this.parentSequence_ChildSequenceArray_Map = new OpenIntObjectHashMap<>();
    }
 
+   /**
+    * Instantiates a new abstract hash tree.
+    *
+    * @param initialSize the initial size
+    */
    public AbstractHashTree(int initialSize) {
-      childSequence_ParentSequenceArray_Map = new OpenIntObjectHashMap<>(initialSize);
-      parentSequence_ChildSequenceArray_Map = new OpenIntObjectHashMap<>(initialSize);
+      this.childSequence_ParentSequenceArray_Map = new OpenIntObjectHashMap<>(initialSize);
+      this.parentSequence_ChildSequenceArray_Map = new OpenIntObjectHashMap<>(initialSize);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Breadth first process.
+    *
+    * @param startSequence the start sequence
+    * @param consumer the consumer
+    * @return the tree node visit data
+    */
    @Override
    public final TreeNodeVisitData breadthFirstProcess(int startSequence, ObjIntConsumer<TreeNodeVisitData> consumer) {
-      TreeNodeVisitData nodeVisitData = new TreeNodeVisitData(maxSequence);
-      Queue<Integer>    bfsQueue      = new LinkedList<>();
+      final TreeNodeVisitData nodeVisitData = new TreeNodeVisitData(this.maxSequence);
+      final Queue<Integer>    bfsQueue      = new LinkedList<>();
 
       nodeVisitData.startNodeVisit(startSequence, 0);
       bfsQueue.add(startSequence);
 
       while (!bfsQueue.isEmpty()) {
-         int   currentSequence = bfsQueue.remove();
-         int   currentDistance = nodeVisitData.getDistance(currentSequence);
-         int[] childSequences  = getChildrenSequences(currentSequence);
+         final int   currentSequence = bfsQueue.remove();
+         final int   currentDistance = nodeVisitData.getDistance(currentSequence);
+         final int[] childSequences  = getChildrenSequences(currentSequence);
 
          if (childSequences.length == 0) {
             nodeVisitData.setLeafNode(currentSequence);
@@ -115,7 +132,7 @@ public abstract class AbstractHashTree
 
          consumer.accept(nodeVisitData, currentSequence);
 
-         for (int childSequence: childSequences) {
+         for (final int childSequence: childSequences) {
             nodeVisitData.setLeafNode(currentSequence);
             consumer.accept(nodeVisitData, currentSequence);
 
@@ -132,29 +149,50 @@ public abstract class AbstractHashTree
       return nodeVisitData;
    }
 
+   /**
+    * Creates the ancestor tree.
+    *
+    * @param childSequence the child sequence
+    * @return the tree
+    */
    @Override
    public final Tree createAncestorTree(int childSequence) {
-      SimpleHashTree tree = new SimpleHashTree();
+      final SimpleHashTree tree = new SimpleHashTree();
 
       addParentsAsChildren(tree, childSequence, getParentSequences(childSequence));
       return tree;
    }
 
+   /**
+    * Depth first process.
+    *
+    * @param startSequence the start sequence
+    * @param consumer the consumer
+    * @return the tree node visit data
+    */
    @Override
    public final TreeNodeVisitData depthFirstProcess(int startSequence, ObjIntConsumer<TreeNodeVisitData> consumer) {
-      TreeNodeVisitData graphVisitData = new TreeNodeVisitData(maxSequence);
+      final TreeNodeVisitData graphVisitData = new TreeNodeVisitData(this.maxSequence);
 
       dfsVisit(startSequence, consumer, graphVisitData, 0);
       return graphVisitData;
    }
 
+   /**
+    * Dfs visit.
+    *
+    * @param sequence the sequence
+    * @param consumer the consumer
+    * @param nodeVisitData the node visit data
+    * @param depth the depth
+    */
    protected void dfsVisit(int sequence,
                            ObjIntConsumer<TreeNodeVisitData> consumer,
                            TreeNodeVisitData nodeVisitData,
                            int depth) {
       nodeVisitData.startNodeVisit(sequence, depth);
 
-      int[] childSequences = getChildrenSequences(sequence);
+      final int[] childSequences = getChildrenSequences(sequence);
 
       if (childSequences.length == 0) {
          nodeVisitData.setLeafNode(sequence);
@@ -162,7 +200,7 @@ public abstract class AbstractHashTree
 
       consumer.accept(nodeVisitData, sequence);
 
-      for (int childSequence: childSequences) {
+      for (final int childSequence: childSequences) {
          if (nodeVisitData.getNodeStatus(childSequence) == NodeStatus.UNDISCOVERED) {
             dfsVisit(childSequence, consumer, nodeVisitData, depth + 1);
          }
@@ -171,6 +209,13 @@ public abstract class AbstractHashTree
       nodeVisitData.endNodeVisit(sequence);
    }
 
+   /**
+    * Adds the parents as children.
+    *
+    * @param tree the tree
+    * @param childSequence the child sequence
+    * @param parentSequences the parent sequences
+    */
    private void addParentsAsChildren(SimpleHashTree tree, int childSequence, int[] parentSequences) {
       IntStream.of(parentSequences).forEach((parentSequence) -> {
                            tree.addChild(childSequence, parentSequence);
@@ -180,29 +225,47 @@ public abstract class AbstractHashTree
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the children sequence stream.
+    *
+    * @param parentSequence the parent sequence
+    * @return the children sequence stream
+    */
    @Override
    public IntStream getChildrenSequenceStream(int parentSequence) {
-      if (parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
-         return IntStream.of(parentSequence_ChildSequenceArray_Map.get(parentSequence));
+      if (this.parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
+         return IntStream.of(this.parentSequence_ChildSequenceArray_Map.get(parentSequence));
       }
 
       return IntStream.empty();
    }
 
+   /**
+    * Gets the children sequences.
+    *
+    * @param parentSequence the parent sequence
+    * @return the children sequences
+    */
    @Override
    public final int[] getChildrenSequences(int parentSequence) {
-      if (parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
-         return parentSequence_ChildSequenceArray_Map.get(parentSequence);
+      if (this.parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
+         return this.parentSequence_ChildSequenceArray_Map.get(parentSequence);
       }
 
       return new int[0];
    }
 
+   /**
+    * Gets the descendent sequence set.
+    *
+    * @param parentSequence the parent sequence
+    * @return the descendent sequence set
+    */
    @Override
    public final ConceptSequenceSet getDescendentSequenceSet(int parentSequence) {
-      ConceptSequenceSet descendentSequences = new ConceptSequenceSet();
+      final ConceptSequenceSet descendentSequences = new ConceptSequenceSet();
 
-      if (parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
+      if (this.parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
          getDescendentsRecursive(parentSequence, descendentSequences);
          return descendentSequences;
       }
@@ -210,28 +273,47 @@ public abstract class AbstractHashTree
       return descendentSequences;
    }
 
+   /**
+    * Gets the descendents recursive.
+    *
+    * @param parentSequence the parent sequence
+    * @param descendentSequences the descendent sequences
+    * @return the descendents recursive
+    */
    private void getDescendentsRecursive(int parentSequence, ConceptSequenceSet descendentSequences) {
-      if (parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
-         for (int childSequence: parentSequence_ChildSequenceArray_Map.get(parentSequence)) {
+      if (this.parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
+         for (final int childSequence: this.parentSequence_ChildSequenceArray_Map.get(parentSequence)) {
             descendentSequences.add(childSequence);
             getDescendentsRecursive(childSequence, descendentSequences);
          }
       }
    }
 
+   /**
+    * Gets the parent sequence stream.
+    *
+    * @param childSequence the child sequence
+    * @return the parent sequence stream
+    */
    @Override
    public IntStream getParentSequenceStream(int childSequence) {
-      if (childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
-         return IntStream.of(childSequence_ParentSequenceArray_Map.get(childSequence));
+      if (this.childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
+         return IntStream.of(this.childSequence_ParentSequenceArray_Map.get(childSequence));
       }
 
       return IntStream.empty();
    }
 
+   /**
+    * Gets the parent sequences.
+    *
+    * @param childSequence the child sequence
+    * @return the parent sequences
+    */
    @Override
    public final int[] getParentSequences(int childSequence) {
-      if (childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
-         return childSequence_ParentSequenceArray_Map.get(childSequence);
+      if (this.childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
+         return this.childSequence_ParentSequenceArray_Map.get(childSequence);
       }
 
       return new int[0];

@@ -41,12 +41,12 @@ package sh.isaac.api.commit;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.identity.StampedVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface IdentifiedStampedVersion.
  *
  * @author kec
  */

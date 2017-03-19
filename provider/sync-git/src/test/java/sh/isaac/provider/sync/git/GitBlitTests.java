@@ -50,18 +50,20 @@ import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link GitBlitTests}
+ * {@link GitBlitTests}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class GitBlitTests {
    /**
-    * @param args
-    * @throws IOException
+    * The main method.
+    *
+    * @param args the arguments
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void main(String[] args)
             throws IOException {
-      for (String s: GitBlitUtils.readRepositories("https://git.isaac.sh/git/", "", "".toCharArray())) {
+      for (final String s: GitBlitUtils.readRepositories("https://git.isaac.sh/git/", "", "".toCharArray())) {
          System.out.println(s);
       }
 
@@ -72,7 +74,7 @@ public class GitBlitTests {
                                     "".toCharArray(),
                                     true);
 
-      for (String s: GitBlitUtils.readRepositories("https://git.isaac.sh/git/", "", "".toCharArray())) {
+      for (final String s: GitBlitUtils.readRepositories("https://git.isaac.sh/git/", "", "".toCharArray())) {
          System.out.println(s);
       }
    }

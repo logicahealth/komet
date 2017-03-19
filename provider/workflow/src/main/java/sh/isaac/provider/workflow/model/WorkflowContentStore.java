@@ -68,10 +68,11 @@ import sh.isaac.provider.workflow.model.contents.AbstractStorableWorkflowContent
  * {@link AbstractStorableWorkflowContents}
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
+ * @param <T> the generic type
  */
 public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
          implements Map<UUID, T> {
-   /** The Logger made available to each Workflow Content Store class */
+   /** The Logger made available to each Workflow Content Store class. */
    protected final Logger logger = LogManager.getLogger();
 
    /**
@@ -79,7 +80,9 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
     * Entry type.  This map is backed by the metacontent store.
     */
    private ConcurrentMap<UUID, byte[]> map = null;
-   private Function<byte[], T>         deserializer_;
+
+   /** The deserializer. */
+   private final Function<byte[], T> deserializer;
 
    //~--- constructors --------------------------------------------------------
 
@@ -87,14 +90,12 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
     * Constructor for each new workflow content store based on the type
     * requested.
     *
-    * @param type
-    *            The type of workflow content store being instantiated
-    * @param deserializer
-    *            How to create a new object of type T from the submitted bytes
+    * @param dataStore the data store
+    * @param deserializer            How to create a new object of type T from the submitted bytes
     */
    public WorkflowContentStore(ConcurrentMap<UUID, byte[]> dataStore, Function<byte[], T> deserializer) {
-      deserializer_ = deserializer;
-      map           = dataStore;
+      this.deserializer = deserializer;
+      this.map           = dataStore;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -114,28 +115,37 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
          entry.setId(UUID.randomUUID());
       }
 
-      map.put(entry.getId(), entry.getDataToWrite());
+      this.map.put(entry.getId(), entry.getDataToWrite());
       return entry.getId();
    }
 
    /**
+    * Clear.
+    *
     * @see java.util.Map#clear()
     */
    @Override
    public void clear() {
-      map.clear();
+      this.map.clear();
    }
 
    /**
+    * Contains key.
+    *
+    * @param key the key
+    * @return true, if successful
     * @see java.util.Map#containsKey(java.lang.Object)
     */
    @Override
    public boolean containsKey(Object key) {
-      return map.containsKey(key);
+      return this.map.containsKey(key);
    }
 
    /**
     * Unsupported in this impl.
+    *
+    * @param value the value
+    * @return true, if successful
     */
    @Override
    public boolean containsValue(Object value) {
@@ -143,24 +153,33 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    }
 
    /**
+    * Entry set.
+    *
+    * @return the set
     * @see java.util.Map#entrySet()
     */
    @Override
    public Set<java.util.Map.Entry<UUID, T>> entrySet() {
-      HashMap<UUID, T> retSet = new HashMap<>();
+      final HashMap<UUID, T> retSet = new HashMap<>();
 
-      for (java.util.Map.Entry<UUID, byte[]> x: map.entrySet()) {
-         retSet.put(x.getKey(), deserializer_.apply(x.getValue()));
+      for (final java.util.Map.Entry<UUID, byte[]> x: this.map.entrySet()) {
+         retSet.put(x.getKey(), this.deserializer.apply(x.getValue()));
       }
 
       return retSet.entrySet();
    }
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj instanceof WorkflowContentStore) {
          @SuppressWarnings("unchecked")
-         WorkflowContentStore<T> other = (WorkflowContentStore<T>) obj;
+         final WorkflowContentStore<T> other = (WorkflowContentStore<T>) obj;
 
          return this.map.equals(other.map);
       } else {
@@ -169,14 +188,22 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    }
 
    /**
+    * Key set.
+    *
+    * @return the set
     * @see java.util.Map#keySet()
     */
    @Override
    public Set<UUID> keySet() {
-      return map.keySet();
+      return this.map.keySet();
    }
 
    /**
+    * Put.
+    *
+    * @param key the key
+    * @param value the value
+    * @return the t
     * @see java.util.Map#put(java.lang.Object, java.lang.Object)
     */
    @Override
@@ -187,11 +214,13 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
          throw new RuntimeException("Attempt to store an object with a mis-matched key");
       }
 
-      return deserializer_.apply(map.put(key, value.getDataToWrite()));
+      return this.deserializer.apply(this.map.put(key, value.getDataToWrite()));
    }
 
    /**
-    * Not implemented in this implementation
+    * Not implemented in this implementation.
+    *
+    * @param m the m
     */
    @Override
    public void putAll(Map<? extends UUID, ? extends T> m) {
@@ -199,27 +228,39 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    }
 
    /**
+    * Removes the.
+    *
+    * @param key the key
+    * @return the t
     * @see java.util.Map#remove(java.lang.Object)
     */
    @Override
    public T remove(Object key) {
-      return deserializer_.apply(map.remove(key));
+      return this.deserializer.apply(this.map.remove(key));
    }
 
    /**
+    * Size.
+    *
+    * @return the int
     * @see java.util.Map#size()
     */
    @Override
    public int size() {
-      return map.size();
+      return this.map.size();
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      StringBuffer buf = new StringBuffer();
-      int          i   = 1;
+      final StringBuffer buf = new StringBuffer();
+      int                i   = 1;
 
-      for (UUID key: keySet()) {
+      for (final UUID key: keySet()) {
          buf.append("\n\tStored Item #" + i++ + ": " + get(key).toString());
          buf.append("\n\n");
       }
@@ -228,32 +269,42 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    }
 
    /**
+    * Values.
+    *
+    * @return the collection
     * @see java.util.Map#values()
     */
    @Override
    public Collection<T> values() {
-      return map.values()
-                .stream()
-                .map((bytes) -> deserializer_.apply(bytes))
-                .collect(Collectors.toList());
+      return this.map.values()
+                     .stream()
+                     .map((bytes) -> this.deserializer.apply(bytes))
+                     .collect(Collectors.toList());
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Checks if empty.
+    *
+    * @return true, if empty
     * @see java.util.Map#isEmpty()
     */
    @Override
    public boolean isEmpty() {
-      return map.isEmpty();
+      return this.map.isEmpty();
    }
 
    /**
+    * Gets the.
+    *
+    * @param key the key
+    * @return the t
     * @see java.util.Map#get(java.lang.Object)
     */
    @Override
    public T get(Object key) {
-      return deserializer_.apply(map.get(key));
+      return this.deserializer.apply(this.map.get(key));
    }
 }
 

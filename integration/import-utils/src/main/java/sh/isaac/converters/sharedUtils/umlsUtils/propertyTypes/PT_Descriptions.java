@@ -46,16 +46,21 @@ import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Descriptions;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link PT_Descriptions}
+ * {@link PT_Descriptions}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class PT_Descriptions
         extends BPT_Descriptions {
+   /**
+    * Instantiates a new p T descriptions.
+    *
+    * @param termName the term name
+    */
    public PT_Descriptions(String termName) {
       super(termName);
 
-      // from relationship metadata, but needs to be here because they are loaded as description_ types
+      // from relationship metadata, but needs to be here because they are loaded as description types
       addProperty("Inverse FSN");
       addProperty("Inverse Synonym");
       addProperty("Inverse Description");

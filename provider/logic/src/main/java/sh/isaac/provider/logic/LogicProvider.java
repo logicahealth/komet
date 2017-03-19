@@ -41,8 +41,6 @@ package sh.isaac.provider.logic;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +63,6 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.MetaData;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -81,9 +78,14 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.dag.Node;
-import sh.isaac.api.logic.*;
+import sh.isaac.api.logic.IsomorphicResults;
+import sh.isaac.api.logic.LogicNode;
+import sh.isaac.api.logic.LogicService;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.relationship.RelationshipAdaptorChronicleKey;
 import sh.isaac.api.relationship.RelationshipVersionAdaptor;
+import sh.isaac.MetaData;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.logic.LogicalExpressionOchreImpl;
 import sh.isaac.model.logic.node.AndNode;
@@ -98,6 +100,7 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierProvider;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LogicProvider.
  *
  * @author kec
  */
@@ -105,11 +108,17 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierProvider;
 @RunLevel(value = 2)
 public class LogicProvider
          implements LogicService {
-   private static final Logger                                       log                  = LogManager.getLogger();
+   /** The Constant log. */
+   private static final Logger log = LogManager.getLogger();
+
+   /** The Constant classifierServiceMap. */
    private static final Map<ClassifierServiceKey, ClassifierService> classifierServiceMap = new ConcurrentHashMap<>();
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new logic provider.
+    */
    private LogicProvider() {
       // For HK2
       log.info("logic provider constructed");
@@ -117,33 +126,52 @@ public class LogicProvider
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Creates the isa rel.
+    *
+    * @param originSequence the origin sequence
+    * @param destinationNode the destination node
+    * @param stampSequence the stamp sequence
+    * @param premiseType the premise type
+    * @return the relationship version adaptor impl
+    */
    private RelationshipVersionAdaptorImpl createIsaRel(int originSequence,
          ConceptNodeWithSequences destinationNode,
          int stampSequence,
          PremiseType premiseType) {
-      int destinationSequence = Get.identifierService()
-                                   .getConceptSequence(destinationNode.getConceptSequence());
-      int typeSequence = MetaData.IS_A.getConceptSequence();
-      int group        = 0;
-      RelationshipAdaptorChronicleKeyImpl key = new RelationshipAdaptorChronicleKeyImpl(originSequence,
-                                                                                        destinationSequence,
-                                                                                        typeSequence,
-                                                                                        group,
-                                                                                        premiseType,
-                                                                                        destinationNode.getNodeIndex());
+      final int destinationSequence = Get.identifierService()
+                                         .getConceptSequence(destinationNode.getConceptSequence());
+      final int typeSequence = MetaData.IS_A.getConceptSequence();
+      final int group        = 0;
+      final RelationshipAdaptorChronicleKeyImpl key = new RelationshipAdaptorChronicleKeyImpl(originSequence,
+                                                                                              destinationSequence,
+                                                                                              typeSequence,
+                                                                                              group,
+                                                                                              premiseType,
+                                                                                              destinationNode.getNodeIndex());
 
       return new RelationshipVersionAdaptorImpl(key, stampSequence);
    }
 
+   /**
+    * Creates the some role.
+    *
+    * @param originSequence the origin sequence
+    * @param someNode the some node
+    * @param stampSequence the stamp sequence
+    * @param premiseType the premise type
+    * @param roleGroup the role group
+    * @return the stream
+    */
    private Stream<RelationshipVersionAdaptorImpl> createSomeRole(int originSequence,
          RoleNodeSomeWithSequences someNode,
          int stampSequence,
          PremiseType premiseType,
          int roleGroup) {
-      Stream.Builder<RelationshipVersionAdaptorImpl> roleStream = Stream.builder();
+      final Stream.Builder<RelationshipVersionAdaptorImpl> roleStream = Stream.builder();
 
       if (someNode.getTypeConceptSequence() == MetaData.ROLE_GROUP.getConceptSequence()) {
-         AndNode andNode = (AndNode) someNode.getOnlyChild();
+         final AndNode andNode = (AndNode) someNode.getOnlyChild();
 
          andNode.getChildStream().forEach((roleGroupSomeNode) -> {
                             if (roleGroupSomeNode instanceof RoleNodeSomeWithSequences) {
@@ -159,11 +187,11 @@ public class LogicProvider
                             }
                          });
       } else {
-         LogicNode restriction = someNode.getOnlyChild();
-         int       destinationSequence;
+         final LogicNode restriction = someNode.getOnlyChild();
+         int             destinationSequence;
 
          if (restriction.getNodeSemantic() == NodeSemantic.CONCEPT) {
-            ConceptNodeWithSequences restrictionNode = (ConceptNodeWithSequences) someNode.getOnlyChild();
+            final ConceptNodeWithSequences restrictionNode = (ConceptNodeWithSequences) someNode.getOnlyChild();
 
             destinationSequence = Get.identifierService()
                                      .getConceptSequence(restrictionNode.getConceptSequence());
@@ -171,14 +199,14 @@ public class LogicProvider
             destinationSequence = MetaData.ANONYMOUS_CONCEPT.getConceptSequence();
          }
 
-         int typeSequence = Get.identifierService()
-                               .getConceptSequence(someNode.getTypeConceptSequence());
-         RelationshipAdaptorChronicleKeyImpl key = new RelationshipAdaptorChronicleKeyImpl(originSequence,
-                                                                                           destinationSequence,
-                                                                                           typeSequence,
-                                                                                           roleGroup,
-                                                                                           premiseType,
-                                                                                           someNode.getNodeIndex());
+         final int typeSequence = Get.identifierService()
+                                     .getConceptSequence(someNode.getTypeConceptSequence());
+         final RelationshipAdaptorChronicleKeyImpl key = new RelationshipAdaptorChronicleKeyImpl(originSequence,
+                                                                                                 destinationSequence,
+                                                                                                 typeSequence,
+                                                                                                 roleGroup,
+                                                                                                 premiseType,
+                                                                                                 someNode.getNodeIndex());
 
          roleStream.accept(new RelationshipVersionAdaptorImpl(key, stampSequence));
       }
@@ -186,23 +214,30 @@ public class LogicProvider
       return roleStream.build();
    }
 
+   /**
+    * Extract relationship adaptors.
+    *
+    * @param logicGraphChronology the logic graph chronology
+    * @param premiseType the premise type
+    * @return the stream
+    */
    private Stream<RelationshipVersionAdaptorImpl> extractRelationshipAdaptors(
            SememeChronology<LogicGraphSememe<?>> logicGraphChronology,
            PremiseType premiseType) {
-      Stream.Builder<RelationshipVersionAdaptorImpl> streamBuilder = Stream.builder();
+      final Stream.Builder<RelationshipVersionAdaptorImpl> streamBuilder = Stream.builder();
 
       // one graph for each origin... Usually only one.
-      for (Graph<? extends LogicGraphSememe<?>> versionGraph: logicGraphChronology.getVersionGraphList()) {
-         Node<? extends LogicGraphSememe<?>> node = versionGraph.getRoot();
+      for (final Graph<? extends LogicGraphSememe<?>> versionGraph: logicGraphChronology.getVersionGraphList()) {
+         final Node<? extends LogicGraphSememe<?>> node = versionGraph.getRoot();
 
          processNode(node, null, streamBuilder, premiseType);
       }
 
-      int originConceptSequence = Get.identifierService()
-                                     .getConceptSequence(logicGraphChronology.getReferencedComponentNid());
+      final int originConceptSequence = Get.identifierService()
+                                           .getConceptSequence(logicGraphChronology.getReferencedComponentNid());
 
       logicGraphChronology.getVersionList().forEach((logicVersion) -> {
-                                      LogicalExpressionOchreImpl expression =
+                                      final LogicalExpressionOchreImpl expression =
                                          new LogicalExpressionOchreImpl(logicVersion.getGraphData(),
                                                                         DataSource.INTERNAL,
                                                                         originConceptSequence);
@@ -210,12 +245,27 @@ public class LogicProvider
       return streamBuilder.build();
    }
 
+   /**
+    * Generate rel adaptor chronicles.
+    *
+    * @param logicalDef the logical def
+    * @param conceptOriginRelationshipMap the concept origin relationship map
+    * @param premiseType the premise type
+    */
    private void generateRelAdaptorChronicles(SememeChronology<? extends SememeVersion> logicalDef,
          HashMap<RelationshipAdaptorChronicleKey, RelationshipAdaptorChronologyImpl> conceptOriginRelationshipMap,
          PremiseType premiseType) {
       generateRelAdaptorChronicles(Integer.MAX_VALUE, logicalDef, conceptOriginRelationshipMap, premiseType);
    }
 
+   /**
+    * Generate rel adaptor chronicles.
+    *
+    * @param conceptDestinationSequence the concept destination sequence
+    * @param logicalDef the logical def
+    * @param conceptOriginRelationshipMap the concept origin relationship map
+    * @param premiseType the premise type
+    */
    private void generateRelAdaptorChronicles(int conceptDestinationSequence,
          SememeChronology<? extends SememeVersion> logicalDef,
          HashMap<RelationshipAdaptorChronicleKey, RelationshipAdaptorChronologyImpl> conceptOriginRelationshipMap,
@@ -229,8 +279,8 @@ public class LogicProvider
 
                   if (chronicle == null) {
                      // compute nid, combine the sememe sequence + the node sequence from which
-                     int topBits    = relAdaptor.getNodeSequence() << 24;
-                     int adaptorNid = logicalDef.getSememeSequence() + topBits;
+                     final int topBits    = relAdaptor.getNodeSequence() << 24;
+                     final int adaptorNid = logicalDef.getSememeSequence() + topBits;
 
                      chronicle = new RelationshipAdaptorChronologyImpl(adaptorNid, logicalDef.getNid());
                      conceptOriginRelationshipMap.put(relAdaptor.getChronicleKey(), chronicle);
@@ -243,21 +293,29 @@ public class LogicProvider
             });
    }
 
+   /**
+    * Process node.
+    *
+    * @param node the node
+    * @param previousExpression the previous expression
+    * @param streamBuilder the stream builder
+    * @param premiseType the premise type
+    */
    private void processNode(Node<? extends LogicGraphSememe<?>> node,
                             LogicalExpression previousExpression,
                             Stream.Builder<RelationshipVersionAdaptorImpl> streamBuilder,
                             PremiseType premiseType) {
-      LogicalExpression newExpression         = node.getData()
-                                                    .getLogicalExpression();
-      int               stampSequence         = node.getData()
-                                                    .getStampSequence();
-      int               inactiveStampSequence = Get.stampService()
-                                                   .getRetiredStampSequence(stampSequence);
+      final LogicalExpression newExpression         = node.getData()
+                                                          .getLogicalExpression();
+      final int               stampSequence         = node.getData()
+                                                          .getStampSequence();
+      final int               inactiveStampSequence = Get.stampService()
+                                                         .getRetiredStampSequence(stampSequence);
 
       if (previousExpression == null) {
          processRootExpression(newExpression, streamBuilder, stampSequence, premiseType);
       } else {
-         IsomorphicResults comparison = newExpression.findIsomorphisms(previousExpression);
+         final IsomorphicResults comparison = newExpression.findIsomorphisms(previousExpression);
 
          comparison.getAddedRelationshipRoots()
                    .forEach((addedRelRoot) -> processRelNode(addedRelRoot,
@@ -273,11 +331,21 @@ public class LogicProvider
                          premiseType));
       }
 
-      for (Node<? extends LogicGraphSememe<?>> child: node.getChildren()) {
+      for (final Node<? extends LogicGraphSememe<?>> child: node.getChildren()) {
          processNode(child, newExpression, streamBuilder, premiseType);
       }
    }
 
+   /**
+    * Process rel node.
+    *
+    * @param aLogicNode the a logic node
+    * @param streamBuilder the stream builder
+    * @param expression the expression
+    * @param stampSequence the stamp sequence
+    * @param premiseType the premise type
+    * @throws UnsupportedOperationException the unsupported operation exception
+    */
    private void processRelNode(LogicNode aLogicNode,
                                Stream.Builder<RelationshipVersionAdaptorImpl> streamBuilder,
                                LogicalExpression expression,
@@ -310,6 +378,14 @@ public class LogicProvider
       }
    }
 
+   /**
+    * Process root expression.
+    *
+    * @param expression the expression
+    * @param streamBuilder the stream builder
+    * @param stampSequence the stamp sequence
+    * @param premiseType the premise type
+    */
    private void processRootExpression(LogicalExpression expression,
                                       Stream.Builder<RelationshipVersionAdaptorImpl> streamBuilder,
                                       int stampSequence,
@@ -323,11 +399,17 @@ public class LogicProvider
                          });
    }
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       log.info("Starting LogicProvider.");
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       log.info("Stopping LogicProvider.");
@@ -335,11 +417,19 @@ public class LogicProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the classifier service.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param logicCoordinate the logic coordinate
+    * @param editCoordinate the edit coordinate
+    * @return the classifier service
+    */
    @Override
    public ClassifierService getClassifierService(StampCoordinate stampCoordinate,
          LogicCoordinate logicCoordinate,
          EditCoordinate editCoordinate) {
-      ClassifierServiceKey key = new ClassifierServiceKey(stampCoordinate, logicCoordinate, editCoordinate);
+      final ClassifierServiceKey key = new ClassifierServiceKey(stampCoordinate, logicCoordinate, editCoordinate);
 
       if (!classifierServiceMap.containsKey(key)) {
          classifierServiceMap.putIfAbsent(key,
@@ -349,25 +439,36 @@ public class LogicProvider
       return classifierServiceMap.get(key);
    }
 
+   /**
+    * Gets the logical expression.
+    *
+    * @param conceptId the concept id
+    * @param logicAssemblageId the logic assemblage id
+    * @param stampCoordinate the stamp coordinate
+    * @return the logical expression
+    */
    @Override
    public Optional<LatestVersion<? extends LogicalExpression>> getLogicalExpression(int conceptId,
          int logicAssemblageId,
          StampCoordinate stampCoordinate) {
-      SememeSnapshotService<LogicGraphSememeImpl> ssp = Get.sememeService()
-                                                           .getSnapshot(LogicGraphSememeImpl.class, stampCoordinate);
-      List<LatestVersion<LogicalExpressionOchreImpl>> latestVersions =
+      final SememeSnapshotService<LogicGraphSememeImpl> ssp = Get.sememeService()
+                                                                 .getSnapshot(LogicGraphSememeImpl.class,
+                                                                       stampCoordinate);
+      final List<LatestVersion<LogicalExpressionOchreImpl>> latestVersions =
          ssp.getLatestSememeVersionsForComponentFromAssemblage(conceptId,
                                                                logicAssemblageId)
             .map((LatestVersion<LogicGraphSememeImpl> lgs) -> {
-                    LogicalExpressionOchreImpl expressionValue = new LogicalExpressionOchreImpl(lgs.value().getGraphData(),
-                                                                                                DataSource.INTERNAL,
-                                                                                                lgs.value().getReferencedComponentNid());
-                    LatestVersion<LogicalExpressionOchreImpl> latestExpressionValue = new LatestVersion<>(expressionValue);
+                    final LogicalExpressionOchreImpl expressionValue =
+                       new LogicalExpressionOchreImpl(lgs.value().getGraphData(),
+                                                      DataSource.INTERNAL,
+                                                      lgs.value().getReferencedComponentNid());
+                    final LatestVersion<LogicalExpressionOchreImpl> latestExpressionValue =
+                       new LatestVersion<>(expressionValue);
 
                     if (lgs.contradictions()
                            .isPresent()) {
                        lgs.contradictions().get().forEach((LogicGraphSememeImpl contradiction) -> {
-                                      LogicalExpressionOchreImpl contradictionValue =
+                                      final LogicalExpressionOchreImpl contradictionValue =
                                          new LogicalExpressionOchreImpl(contradiction.getGraphData(),
                                                                         DataSource.INTERNAL,
                                                                         contradiction.getReferencedComponentNid());
@@ -392,29 +493,42 @@ public class LogicProvider
       return Optional.of(latestVersions.get(0));
    }
 
+   /**
+    * Gets the relationship adaptors originating with concept.
+    *
+    * @param conceptChronology the concept chronology
+    * @return the relationship adaptors originating with concept
+    */
    @Override
    public Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsOriginatingWithConcept(
            ConceptChronology<?> conceptChronology) {
       return getRelationshipAdaptorsOriginatingWithConcept(conceptChronology, LogicCoordinates.getStandardElProfile());
    }
 
+   /**
+    * Gets the relationship adaptors originating with concept.
+    *
+    * @param conceptChronology the concept chronology
+    * @param logicCoordinate the logic coordinate
+    * @return the relationship adaptors originating with concept
+    */
    @Override
    public Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsOriginatingWithConcept(
            ConceptChronology<?> conceptChronology,
            LogicCoordinate logicCoordinate) {
-      Stream.Builder<RelationshipAdaptorChronologyImpl> streamBuilder = Stream.builder();
-      HashMap<RelationshipAdaptorChronicleKey, RelationshipAdaptorChronologyImpl> conceptOriginRelationshipMap =
+      final Stream.Builder<RelationshipAdaptorChronologyImpl> streamBuilder = Stream.builder();
+      final HashMap<RelationshipAdaptorChronicleKey, RelationshipAdaptorChronologyImpl> conceptOriginRelationshipMap =
          new HashMap<>();
-      List<SememeChronology<? extends SememeVersion>> statedDefinitions = Get.sememeService()
-                                                                             .getSememesForComponentFromAssemblage(
-                                                                                conceptChronology.getNid(),
-                                                                                      logicCoordinate.getStatedAssemblageSequence())
-                                                                             .collect(Collectors.toList());
-      List<SememeChronology<? extends SememeVersion>> inferredDefinitions = Get.sememeService()
-                                                                               .getSememesForComponentFromAssemblage(
-                                                                                  conceptChronology.getNid(),
-                                                                                        logicCoordinate.getInferredAssemblageSequence())
-                                                                               .collect(Collectors.toList());
+      final List<SememeChronology<? extends SememeVersion>> statedDefinitions = Get.sememeService()
+                                                                                   .getSememesForComponentFromAssemblage(
+                                                                                      conceptChronology.getNid(),
+                                                                                            logicCoordinate.getStatedAssemblageSequence())
+                                                                                   .collect(Collectors.toList());
+      final List<SememeChronology<? extends SememeVersion>> inferredDefinitions = Get.sememeService()
+                                                                                     .getSememesForComponentFromAssemblage(
+                                                                                        conceptChronology.getNid(),
+                                                                                              logicCoordinate.getInferredAssemblageSequence())
+                                                                                     .collect(Collectors.toList());
 
       statedDefinitions.forEach((statedDef) -> {
                                    generateRelAdaptorChronicles(statedDef,
@@ -432,6 +546,12 @@ public class LogicProvider
       return streamBuilder.build();
    }
 
+   /**
+    * Gets the relationship adaptors with concept as destination.
+    *
+    * @param conceptChronology the concept chronology
+    * @return the relationship adaptors with concept as destination
+    */
    @Override
    public Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsWithConceptAsDestination(
            ConceptChronology<?> conceptChronology) {
@@ -439,14 +559,21 @@ public class LogicProvider
             LogicCoordinates.getStandardElProfile());
    }
 
+   /**
+    * Gets the relationship adaptors with concept as destination.
+    *
+    * @param conceptChronology the concept chronology
+    * @param logicCoordinate the logic coordinate
+    * @return the relationship adaptors with concept as destination
+    */
    @Override
    public Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsWithConceptAsDestination(
            ConceptChronology<?> conceptChronology,
            LogicCoordinate logicCoordinate) {
-      List<SememeChronology<? extends SememeVersion>>   statedDefinitions = new ArrayList<>();
-      List<SememeChronology<? extends SememeVersion>> inferredDefinitions = new ArrayList<>();
-      Stream.Builder<RelationshipAdaptorChronologyImpl> streamBuilder = Stream.builder();
-      HashMap<RelationshipAdaptorChronicleKey, RelationshipAdaptorChronologyImpl> conceptDestinationRelationshipMap =
+      final List<SememeChronology<? extends SememeVersion>> statedDefinitions = new ArrayList<>();
+      final List<SememeChronology<? extends SememeVersion>> inferredDefinitions = new ArrayList<>();
+      final Stream.Builder<RelationshipAdaptorChronologyImpl> streamBuilder = Stream.builder();
+      final HashMap<RelationshipAdaptorChronicleKey, RelationshipAdaptorChronologyImpl> conceptDestinationRelationshipMap =
          new HashMap<>();
 
       Get.taxonomyService()
@@ -481,13 +608,28 @@ public class LogicProvider
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class ClassifierServiceKey.
+    */
    private static class ClassifierServiceKey {
+      /** The stamp coordinate. */
       StampCoordinate stampCoordinate;
+
+      /** The logic coordinate. */
       LogicCoordinate logicCoordinate;
-      EditCoordinate  editCoordinate;
+
+      /** The edit coordinate. */
+      EditCoordinate editCoordinate;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new classifier service key.
+       *
+       * @param stampCoordinate the stamp coordinate
+       * @param logicCoordinate the logic coordinate
+       * @param editCoordinate the edit coordinate
+       */
       public ClassifierServiceKey(StampCoordinate stampCoordinate,
                                   LogicCoordinate logicCoordinate,
                                   EditCoordinate editCoordinate) {
@@ -498,6 +640,12 @@ public class LogicProvider
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Equals.
+       *
+       * @param obj the obj
+       * @return true, if successful
+       */
       @Override
       public boolean equals(Object obj) {
          if (obj == null) {
@@ -521,6 +669,11 @@ public class LogicProvider
          return Objects.equals(this.editCoordinate, other.editCoordinate);
       }
 
+      /**
+       * Hash code.
+       *
+       * @return the int
+       */
       @Override
       public int hashCode() {
          int hash = 3;

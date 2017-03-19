@@ -80,31 +80,38 @@ import sh.isaac.api.LookupService;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link MetaInfReader}
+ * {@link MetaInfReader}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class MetaInfReader {
+   /** The Constant LOG. */
    private static final Logger LOG = LoggerFactory.getLogger(MetaInfReader.class);
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read db metadata.
+    *
+    * @return the maven artifact info
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static MavenArtifactInfo readDbMetadata()
             throws IOException {
       try {
-         MavenArtifactInfo isaacDbDependency = new MavenArtifactInfo();;
+         final MavenArtifactInfo isaacDbDependency = new MavenArtifactInfo();;
 
          // Read the db metadata
-         AtomicBoolean readDbMetadataFromProperties = new AtomicBoolean(false);
-         AtomicBoolean readDbMetadataFromPom        = new AtomicBoolean(false);
-         java.nio.file.Path dbLocation = LookupService.get()
-                                                      .getService(ConfigurationService.class)
-                                                      .getChronicleFolderPath()
-                                                      .getParent();
+         final AtomicBoolean readDbMetadataFromProperties = new AtomicBoolean(false);
+         final AtomicBoolean readDbMetadataFromPom        = new AtomicBoolean(false);
+         final java.nio.file.Path dbLocation = LookupService.get()
+                                                            .getService(ConfigurationService.class)
+                                                            .getChronicleFolderPath()
+                                                            .getParent();
 
          // find the pom.properties file in the hierarchy
-         File                    dbMetadata      = new File(dbLocation.toFile(), "META-INF");
-         AtomicReference<String> metadataVersion = new AtomicReference<String>("");
+         final File                    dbMetadata      = new File(dbLocation.toFile(), "META-INF");
+         final AtomicReference<String> metadataVersion = new AtomicReference<>("");
 
          if (dbMetadata.isDirectory()) {
             Files.walkFileTree(dbMetadata.toPath(),
@@ -116,12 +123,12 @@ public class MetaInfReader {
                                   public FileVisitResult visitFile(java.nio.file.Path path,
                                         BasicFileAttributes attrs)
                                            throws IOException {
-                                     File f = path.toFile();
+                                     final File f = path.toFile();
 
                                      if (f.isFile() &&
                                          f.getName().toLowerCase(Locale.ENGLISH).equals("pom.properties")) {
-                                        Properties p          = new Properties();
-                                        FileReader fileReader = null;
+                                        final Properties p          = new Properties();
+                                        FileReader       fileReader = null;
 
                                         try {
                                            p.load(fileReader = new FileReader(f));
@@ -142,11 +149,11 @@ public class MetaInfReader {
                            : FileVisitResult.CONTINUE;
                                      } else if (f.isFile() &&
                                                 f.getName().toLowerCase(Locale.ENGLISH).equals("pom.xml")) {
-                                        DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-                                        DocumentBuilder        builder;
-                                        Document               dDoc  = null;
-                                        XPath                  xPath = XPathFactory.newInstance()
-                                                                                   .newXPath();
+                                        final DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+                                        DocumentBuilder              builder;
+                                        Document                     dDoc  = null;
+                                        final XPath                  xPath = XPathFactory.newInstance()
+                                                                                         .newXPath();
 
                                         try {
                                            domFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl",
@@ -155,7 +162,7 @@ public class MetaInfReader {
                                            dDoc    = builder.parse(f);
 
                                            {
-                                              NodeList dbLicensesNodes =
+                                              final NodeList dbLicensesNodes =
                                                  ((NodeList) xPath.evaluate("/project/licenses/license/name",
                                                                             dDoc,
                                                                             XPathConstants.NODESET));
@@ -164,21 +171,22 @@ public class MetaInfReader {
                                                         dbLicensesNodes.getLength());
 
                                               for (int i = 0; i < dbLicensesNodes.getLength(); i++) {
-                                                 Node   currentLicenseNameNode = dbLicensesNodes.item(i);
-                                                 String name                   =
+                                                 final Node   currentLicenseNameNode = dbLicensesNodes.item(i);
+                                                 final String name                   =
                                                     currentLicenseNameNode.getTextContent();
-                                                 MavenLicenseInfo license = new MavenLicenseInfo(name,
-                                                                                                 ((Node) xPath.evaluate(
-                                                                                                    "/project/licenses/license[name='" +
-                                                                                                    name + "']/url",
-                                                                                                          dDoc,
-                                                                                                          XPathConstants.NODE)).getTextContent(),
-                                                                                                 ((Node) xPath.evaluate(
-                                                                                                    "/project/licenses/license[name='" +
-                                                                                                    name +
-                                                                                                    "']/comments",
-                                                                                                          dDoc,
-                                                                                                          XPathConstants.NODE)).getTextContent());
+                                                 final MavenLicenseInfo license = new MavenLicenseInfo(name,
+                                                                                                       ((Node) xPath.evaluate(
+                                                                                                          "/project/licenses/license[name='" +
+                                                                                                          name +
+                                                                                                          "']/url",
+                                                                                                                dDoc,
+                                                                                                                XPathConstants.NODE)).getTextContent(),
+                                                                                                       ((Node) xPath.evaluate(
+                                                                                                          "/project/licenses/license[name='" +
+                                                                                                          name +
+                                                                                                          "']/comments",
+                                                                                                                dDoc,
+                                                                                                                XPathConstants.NODE)).getTextContent());
 
                                                  isaacDbDependency.dbLicenses.add(license);
                                                  LOG.debug("Extracted license \"{}\" from DB pom.xml: {}",
@@ -188,7 +196,7 @@ public class MetaInfReader {
                                            }
 
                                            {
-                                              NodeList dbDependenciesNodes =
+                                              final NodeList dbDependenciesNodes =
                                                  ((NodeList) xPath.evaluate(
                                                      "/project/dependencies/dependency/artifactId",
                                                      dDoc,
@@ -198,18 +206,22 @@ public class MetaInfReader {
                                                         dbDependenciesNodes.getLength());
 
                                               for (int i = 0; i < dbDependenciesNodes.getLength(); i++) {
-                                                 Node   currentDbDependencyArtifactIdNode = dbDependenciesNodes.item(i);
-                                                 String artifactId = currentDbDependencyArtifactIdNode.getTextContent();
-                                                 String groupId = ((Node) xPath.evaluate(
-                                                                     "/project/dependencies/dependency[artifactId='" +
-                                                                     artifactId + "']/groupId",
-                                                                           dDoc,
-                                                                           XPathConstants.NODE)).getTextContent();
-                                                 String version = ((Node) xPath.evaluate(
-                                                                     "/project/dependencies/dependency[artifactId='" +
-                                                                     artifactId + "']/version",
-                                                                           dDoc,
-                                                                           XPathConstants.NODE)).getTextContent();
+                                                 final Node   currentDbDependencyArtifactIdNode =
+                                                    dbDependenciesNodes.item(i);
+                                                 final String artifactId =
+                                                    currentDbDependencyArtifactIdNode.getTextContent();
+                                                 final String groupId =
+                                                    ((Node) xPath.evaluate(
+                                                        "/project/dependencies/dependency[artifactId='" + artifactId +
+                                                        "']/groupId",
+                                                        dDoc,
+                                                        XPathConstants.NODE)).getTextContent();
+                                                 final String version =
+                                                    ((Node) xPath.evaluate(
+                                                        "/project/dependencies/dependency[artifactId='" + artifactId +
+                                                        "']/version",
+                                                        dDoc,
+                                                        XPathConstants.NODE)).getTextContent();
                                                  String classifier = null;
 
                                                  try {
@@ -218,7 +230,7 @@ public class MetaInfReader {
                                                         "']/classifier",
                                                         dDoc,
                                                         XPathConstants.NODE)).getTextContent();
-                                                 } catch (Throwable t) {
+                                                 } catch (final Throwable t) {
                                                     LOG.debug("Problem reading \"classifier\" element for {}",
                                                               artifactId);
                                                  }
@@ -231,15 +243,15 @@ public class MetaInfReader {
                                                         "']/type",
                                                         dDoc,
                                                         XPathConstants.NODE)).getTextContent();
-                                                 } catch (Throwable t) {
+                                                 } catch (final Throwable t) {
                                                     LOG.debug("Problem reading \"type\" element for {}", artifactId);
                                                  }
 
-                                                 MavenArtifactInfo dependencyInfo = new MavenArtifactInfo(groupId,
-                                                                                                          artifactId,
-                                                                                                          version,
-                                                                                                          classifier,
-                                                                                                          type);
+                                                 final MavenArtifactInfo dependencyInfo = new MavenArtifactInfo(groupId,
+                                                                                                                artifactId,
+                                                                                                                version,
+                                                                                                                classifier,
+                                                                                                                type);
 
                                                  isaacDbDependency.dbDependencies.add(dependencyInfo);
                                                  LOG.debug("Extracted dependency \"{}\" from DB pom.xml: {}",
@@ -266,7 +278,7 @@ public class MetaInfReader {
             LOG.error("Failed to read the metadata about the database from the database package.");
          } else {
             // Due to a quirk in how the DB poms are set up, we need to fill in this property
-            for (MavenArtifactInfo dependency: isaacDbDependency.dbDependencies) {
+            for (final MavenArtifactInfo dependency: isaacDbDependency.dbDependencies) {
                if ((dependency.version != null) && "${isaac-metadata.version}".equals(dependency.version)) {
                   dependency.version = metadataVersion.get();
                   break;
@@ -283,9 +295,9 @@ public class MetaInfReader {
          }
 
          return isaacDbDependency;
-      } catch (IOException e) {
+      } catch (final IOException e) {
          throw e;
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new IOException(e);
       }
    }

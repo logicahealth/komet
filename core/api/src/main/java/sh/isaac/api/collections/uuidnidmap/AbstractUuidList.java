@@ -52,16 +52,17 @@ import org.apache.mahout.math.list.AbstractList;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class AbstractUuidList.
  *
  * @author kec
  */
 public abstract class AbstractUuidList
         extends AbstractList {
-   /**
-    *
-    */
-   private static final long       serialVersionUID = 1L;
-   private static UuidComparatorBI c                = new UuidUnsigned64BitComparator();
+   /** The Constant serialVersionUID. */
+   private static final long serialVersionUID = 1L;
+
+   /** The c. */
+   private static UuidComparatorBI c = new UuidUnsigned64BitComparator();
 
    //~--- fields --------------------------------------------------------------
 
@@ -88,7 +89,7 @@ public abstract class AbstractUuidList
     * @param element element to be appended to this list.
     */
    public void add(long[] element) {
-      beforeInsert(size, element);
+      beforeInsert(this.size, element);
    }
 
    /**
@@ -103,7 +104,7 @@ public abstract class AbstractUuidList
     * from&gt;to || to&gt;=other.size())} ).
     */
    public void addAllOfFromTo(AbstractUuidList other, int from, int to) {
-      beforeInsertAllOfFromTo(size, other, from, to);
+      beforeInsertAllOfFromTo(this.size, other, from, to);
    }
 
    /**
@@ -129,12 +130,10 @@ public abstract class AbstractUuidList
     * @param other list of which a part is to be inserted into the receiver.
     * @param from the index of the first element to be inserted (inclusive).
     * @param to the index of the last element to be inserted (inclusive).
-    * @exception IndexOutOfBoundsException index is out of range ( {@code other.size()&gt;0 && (from&lt;0 ||
-    * from&gt;to || to&gt;=other.size())} ).
     * @throws IndexOutOfBoundsException if {@code index &lt; 0 || index &gt; size()}.
     */
    public void beforeInsertAllOfFromTo(int index, AbstractUuidList other, int from, int to) {
-      int length = to - from + 1;
+      final int length = to - from + 1;
 
       this.beforeInsertDummies(index, length);
       this.replaceFromToWithFrom(index, index + length - 1, other, from);
@@ -155,7 +154,7 @@ public abstract class AbstractUuidList
     * @see java.util.Arrays
     */
    public int binarySearch(long[] key) {
-      return this.binarySearchFromTo(key, 0, size - 1);
+      return this.binarySearchFromTo(key, 0, this.size - 1);
    }
 
    /**
@@ -179,8 +178,8 @@ public abstract class AbstractUuidList
       int high = to;
 
       while (low <= high) {
-         int    mid    = (low + high) / 2;
-         long[] midVal = get(mid);
+         final int    mid    = (low + high) / 2;
+         final long[] midVal = get(mid);
 
          if (midVal[0] < key[0]) {
             low = mid + 1;
@@ -205,16 +204,17 @@ public abstract class AbstractUuidList
     */
    @Override
    public Object clone() {
-      return partFromTo(0, size - 1);
+      return partFromTo(0, this.size - 1);
    }
 
    /**
+    * Contains.
     *
     * @param elem element whose presence in the receiver is to be tested.
     * @return true if the receiver contains the specified element.
     */
    public boolean contains(long[] elem) {
-      return indexOfFromTo(elem, 0, size - 1) >= 0;
+      return indexOfFromTo(elem, 0, this.size - 1) >= 0;
    }
 
    /**
@@ -224,7 +224,7 @@ public abstract class AbstractUuidList
     * @param element the element to be deleted.
     */
    public void delete(long[] element) {
-      int index = indexOfFromTo(element, 0, size - 1);
+      final int index = indexOfFromTo(element, 0, this.size - 1);
 
       if (index >= 0) {
          remove(index);
@@ -290,8 +290,8 @@ public abstract class AbstractUuidList
     * otherwise.
     */
    public boolean forEach(UuidProcedure procedure) {
-      for (int i = 0; i < size; ) {
-         long[] uuid = get(i);
+      for (final int i = 0; i < this.size; ) {
+         final long[] uuid = get(i);
 
          if (!procedure.apply(uuid)) {
             return false;
@@ -310,7 +310,7 @@ public abstract class AbstractUuidList
     * the element is not found.
     */
    public int indexOf(long[] element) {  // delta
-      return indexOfFromTo(element, 0, size - 1);
+      return indexOfFromTo(element, 0, this.size - 1);
    }
 
    /**
@@ -328,10 +328,10 @@ public abstract class AbstractUuidList
     * from&gt;to || to&gt;=size())} ).
     */
    public int indexOfFromTo(long[] element, int from, int to) {
-      AbstractList.checkRangeFromTo(from, to, size);
+      AbstractList.checkRangeFromTo(from, to, this.size);
 
       for (int i = from; i <= to; i++) {
-         long[] another = getQuick(i);
+         final long[] another = getQuick(i);
 
          if ((element[0] == another[0]) && (element[1] == another[1])) {
             return i;  // found
@@ -350,7 +350,7 @@ public abstract class AbstractUuidList
     * element is not found.
     */
    public int lastIndexOf(long[] element) {
-      return lastIndexOfFromTo(element, 0, size - 1);
+      return lastIndexOfFromTo(element, 0, this.size - 1);
    }
 
    /**
@@ -371,7 +371,7 @@ public abstract class AbstractUuidList
       AbstractList.checkRangeFromTo(from, to, size());
 
       for (int i = to; i >= from; i--) {
-         if (element.equals(getQuick(i))) {
+         if (java.util.Arrays.equals(element, getQuick(i))) {
             return i;  // found
          }
       }
@@ -398,11 +398,11 @@ public abstract class AbstractUuidList
     */
    @Override
    public void mergeSortFromTo(int from, int to) {
-      int mySize = size();
+      final int mySize = size();
 
       AbstractList.checkRangeFromTo(from, to, mySize);
 
-      long[] myElements = elements();
+      final long[] myElements = elements();
 
       Sorting.mergeSort(myElements, from, to + 1);
       elements(myElements);
@@ -434,11 +434,11 @@ public abstract class AbstractUuidList
     * from&gt;to || to&gt;=size())} ).
     */
    public void mergeSortFromTo(int from, int to, UuidComparatorBI c) {
-      int mySize = size();
+      final int mySize = size();
 
       AbstractList.checkRangeFromTo(from, to, mySize);
 
-      long[] myElements = elements();
+      final long[] myElements = elements();
 
       UuidSorting.mergeSort(myElements, from, to + 1, c);
       elements(myElements);
@@ -457,10 +457,10 @@ public abstract class AbstractUuidList
     * from&gt;to || to&gt;=size())} ).
     */
    public AbstractUuidList partFromTo(int from, int to) {
-      AbstractList.checkRangeFromTo(from, to, size);
+      AbstractList.checkRangeFromTo(from, to, this.size);
 
-      int           length = to - from + 1;
-      UuidArrayList part   = new UuidArrayList(length);
+      final int           length = to - from + 1;
+      final UuidArrayList part   = new UuidArrayList(length);
 
       part.addAllOfFromTo(this, from, to);
       return part;
@@ -484,11 +484,11 @@ public abstract class AbstractUuidList
     */
    @Override
    public void quickSortFromTo(int from, int to) {
-      int mySize = size();
+      final int mySize = size();
 
       AbstractList.checkRangeFromTo(from, to, mySize);
 
-      long[] myElements = elements();
+      final long[] myElements = elements();
 
       UuidSorting.quickSort(myElements, from, to + 1, c);
       elements(myElements);
@@ -518,11 +518,11 @@ public abstract class AbstractUuidList
     * from&gt;to || to&gt;=size())} ).
     */
    public void quickSortFromTo(int from, int to, UuidComparatorBI c) {
-      int mySize = size();
+      final int mySize = size();
 
       AbstractList.checkRangeFromTo(from, to, mySize);
 
-      long[] myElements = elements();
+      final long[] myElements = elements();
 
       UuidSorting.quickSort(myElements, from, to + 1, c);
       elements(myElements);
@@ -540,16 +540,16 @@ public abstract class AbstractUuidList
          return false;  // nothing to do
       }
 
-      int limit = other.size() - 1;
-      int j     = 0;
+      final int limit = other.size() - 1;
+      int       j     = 0;
 
-      for (int i = 0; i < size; i++) {
+      for (int i = 0; i < this.size; i++) {
          if (other.indexOfFromTo(getQuick(i), 0, limit) < 0) {
             setQuick(j++, getQuick(i));
          }
       }
 
-      boolean modified = (j != size);
+      final boolean modified = (j != this.size);
 
       setSize(j);
       return modified;
@@ -568,9 +568,9 @@ public abstract class AbstractUuidList
     */
    @Override
    public void removeFromTo(int from, int to) {
-      AbstractList.checkRangeFromTo(from, to, size);
+      AbstractList.checkRangeFromTo(from, to, this.size);
 
-      int numMoved = size - to - 1;
+      final int numMoved = this.size - to - 1;
 
       if (numMoved > 0) {
          replaceFromToWithFrom(from, from - 1 + numMoved, this, to + 1);
@@ -578,10 +578,10 @@ public abstract class AbstractUuidList
          // fillFromToWith(from+numMoved, size-1, 0.0f); //delta
       }
 
-      int width = to - from + 1;
+      final int width = to - from + 1;
 
       if (width > 0) {
-         setSizeRaw(size - width);
+         setSizeRaw(this.size - width);
       }
    }
 
@@ -630,7 +630,7 @@ public abstract class AbstractUuidList
     */
    public boolean retainAll(AbstractUuidList other) {
       if (other.size() == 0) {
-         if (size == 0) {
+         if (this.size == 0) {
             return false;
          }
 
@@ -638,16 +638,16 @@ public abstract class AbstractUuidList
          return true;
       }
 
-      int limit = other.size() - 1;
-      int j     = 0;
+      final int limit = other.size() - 1;
+      int       j     = 0;
 
-      for (int i = 0; i < size; i++) {
+      for (int i = 0; i < this.size; i++) {
          if (other.indexOfFromTo(getQuick(i), 0, limit) >= 0) {
             setQuick(j++, getQuick(i));
          }
       }
 
-      boolean modified = (j != size);
+      final boolean modified = (j != this.size);
 
       setSize(j);
       return modified;
@@ -658,9 +658,9 @@ public abstract class AbstractUuidList
     */
    @Override
    public void reverse() {
-      long[] tmp;
-      int    limit = size() / 2;
-      int    j     = size() - 1;
+      long[]    tmp;
+      final int limit = size() / 2;
+      int       j     = size() - 1;
 
       for (int i = 0; i < limit; ) {  // swap
          tmp = getQuick(i);
@@ -670,16 +670,19 @@ public abstract class AbstractUuidList
    }
 
    /**
+    * Size.
     *
     * @return the number of elements contained in the receiver.
     */
    @Override
    public int size() {
-      return size;
+      return this.size;
    }
 
    /**
     * Returns a string representation of the receiver, containing the String representation of each element.
+    *
+    * @return the string
     */
    @Override
    public String toString() {
@@ -697,28 +700,29 @@ public abstract class AbstractUuidList
     */
    @Override
    protected void beforeInsertDummies(int index, int length) {
-      if ((index > size) || (index < 0)) {
-         throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+      if ((index > this.size) || (index < 0)) {
+         throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + this.size);
       }
 
       if (length > 0) {
-         ensureCapacity(size + length);
-         setSizeRaw(size + length);
-         replaceFromToWithFrom(index + length, size - 1, this, index);
+         ensureCapacity(this.size + length);
+         setSizeRaw(this.size + length);
+         replaceFromToWithFrom(index + length, this.size - 1, this, index);
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the.
     *
     * @param index index of element to return.
     * @return the element at the specified position in the receiver.
     * @exception IndexOutOfBoundsException index is out of range (index &lt; 0 || index &gt;= size()).
     */
    public long[] get(int index) {
-      if ((index >= size) || (index < 0)) {
-         throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+      if ((index >= this.size) || (index < 0)) {
+         throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + this.size);
       }
 
       return getQuick(index);
@@ -765,8 +769,8 @@ public abstract class AbstractUuidList
     * @throws IndexOutOfBoundsException if {@code index &lt; 0 || index &gt;= size()}.
     */
    public void set(int index, long[] element) {
-      if ((index >= size) || (index < 0)) {
-         throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+      if ((index >= this.size) || (index < 0)) {
+         throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + this.size);
       }
 
       setQuick(index, element);
@@ -783,7 +787,7 @@ public abstract class AbstractUuidList
     * @param newSize the size of the receiver
     */
    protected void setSizeRaw(int newSize) {
-      size = newSize;
+      this.size = newSize;
    }
 }
 

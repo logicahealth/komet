@@ -40,14 +40,16 @@
 package sh.isaac.api.util;
 
 /**
- *
- * {@link TaskCompleteCallback}
+ * {@link TaskCompleteCallback}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ * @param <T> the generic type
  */
 public interface TaskCompleteCallback<T> {
    /**
     * Called when the task completes.
+    *
+    * @param taskResult the task result
     * @param taskStartTime - the time that this request was submitted
     * @param taskId - the optional arbitrary identifier passed in by the caller when the lookup began.
     */

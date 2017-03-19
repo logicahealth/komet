@@ -51,36 +51,54 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnIn
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class BPT_Associations.
+ *
  * @author Daniel Armbrust
  *
  * Associations get loaded using the new add-on association API (internally represented as sememes)
  *
  * These get ignored by the classifier, for example.
- *
  */
 public class BPT_Associations
         extends PropertyType {
-   private static HashSet<UUID> allAssociations_ = new HashSet<>();
+   /** The all associations. */
+   private static HashSet<UUID> allAssociations = new HashSet<>();
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new BP T associations.
+    */
    public BPT_Associations() {
       super("Association Types", false, null);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the property.
+    *
+    * @param property the property
+    * @return the property
+    */
    @Override
    public Property addProperty(Property property) {
       if (!(property instanceof PropertyAssociation)) {
          throw new RuntimeException("Must add PropertyAssociation objects to BPT_Associations type");
       }
 
-      Property p = super.addProperty(property);
+      final Property p = super.addProperty(property);
 
-      allAssociations_.add(p.getUUID());  // For stats, later
+      allAssociations.add(p.getUUID());  // For stats, later
       return p;
    }
+
+   /**
+    * Adds the property.
+    *
+    * @param propertyNameFSN the property name FSN
+    * @return the property
+    */
 
    // Override all of these as unsupported, as, we require only PropertyAssociation object here.
    @Override
@@ -88,16 +106,39 @@ public class BPT_Associations
       throw new UnsupportedOperationException();
    }
 
+   /**
+    * Adds the property.
+    *
+    * @param propertyNameFSN the property name FSN
+    * @param propertySubType the property sub type
+    * @return the property
+    */
    @Override
    public Property addProperty(String propertyNameFSN, int propertySubType) {
       throw new UnsupportedOperationException();
    }
 
+   /**
+    * Adds the property.
+    *
+    * @param propertyNameFSN the property name FSN
+    * @param minVersion the min version
+    * @param maxVersion the max version
+    * @return the property
+    */
    @Override
    public Property addProperty(String propertyNameFSN, int minVersion, int maxVersion) {
       throw new UnsupportedOperationException();
    }
 
+   /**
+    * Adds the property.
+    *
+    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyPreferredName the source property preferred name
+    * @param sourcePropertyDefinition the source property definition
+    * @return the property
+    */
    @Override
    public Property addProperty(String sourcePropertyNameFSN,
                                String sourcePropertyPreferredName,
@@ -105,11 +146,31 @@ public class BPT_Associations
       throw new UnsupportedOperationException();
    }
 
+   /**
+    * Adds the property.
+    *
+    * @param propertyNameFSN the property name FSN
+    * @param minVersion the min version
+    * @param maxVersion the max version
+    * @param disabled the disabled
+    * @return the property
+    */
    @Override
    public Property addProperty(String propertyNameFSN, int minVersion, int maxVersion, boolean disabled) {
       throw new UnsupportedOperationException();
    }
 
+   /**
+    * Adds the property.
+    *
+    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyAltName the source property alt name
+    * @param sourcePropertyDefinition the source property definition
+    * @param disabled the disabled
+    * @param propertySubType the property sub type
+    * @param dataColumnForDynamicRefex the data column for dynamic refex
+    * @return the property
+    */
    @Override
    public Property addProperty(String sourcePropertyNameFSN,
                                String sourcePropertyAltName,
@@ -120,6 +181,18 @@ public class BPT_Associations
       throw new UnsupportedOperationException();
    }
 
+   /**
+    * Adds the property.
+    *
+    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyPreferredName the source property preferred name
+    * @param sourcePropertyDefinition the source property definition
+    * @param minVersion the min version
+    * @param maxVersion the max version
+    * @param disabled the disabled
+    * @param propertySubType the property sub type
+    * @return the property
+    */
    @Override
    public Property addProperty(String sourcePropertyNameFSN,
                                String sourcePropertyPreferredName,
@@ -131,14 +204,25 @@ public class BPT_Associations
       throw new UnsupportedOperationException();
    }
 
+   /**
+    * Register as association.
+    *
+    * @param uuid the uuid
+    */
    public static void registerAsAssociation(UUID uuid) {
-      allAssociations_.add(uuid);
+      allAssociations.add(uuid);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if association.
+    *
+    * @param uuid the uuid
+    * @return true, if association
+    */
    public static boolean isAssociation(UUID uuid) {
-      return allAssociations_.contains(uuid);
+      return allAssociations.contains(uuid);
    }
 }
 

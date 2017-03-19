@@ -40,13 +40,20 @@
 package sh.isaac.api.util;
 
 /**
+ * The Class Hashcode.
  *
  * @author kec
  */
 public class Hashcode {
+   /**
+    * Compute.
+    *
+    * @param parts the parts
+    * @return the int
+    */
    public static int compute(int... parts) {
-      int hash = 0;
-      int len  = parts.length;
+      int       hash = 0;
+      final int len  = parts.length;
 
       for (int i = 0; i < len; i++) {
          hash <<= 1;
@@ -61,6 +68,12 @@ public class Hashcode {
       return hash;
    }
 
+   /**
+    * Compute.
+    *
+    * @param parts the parts
+    * @return the short
+    */
    public static short compute(short... parts) {
       short hash = 0;
 
@@ -77,8 +90,14 @@ public class Hashcode {
       return hash;
    }
 
+   /**
+    * Compute long.
+    *
+    * @param parts the parts
+    * @return the int
+    */
    public static int computeLong(long... parts) {
-      int[] intParts = new int[parts.length * 2];
+      final int[] intParts = new int[parts.length * 2];
 
       for (int i = 0; i < parts.length; i++) {
          intParts[i * 2]     = (int) parts[i];
@@ -88,8 +107,14 @@ public class Hashcode {
       return compute(intParts);
    }
 
+   /**
+    * Int hash to short hash.
+    *
+    * @param hash the hash
+    * @return the short
+    */
    public static short intHashToShortHash(int hash) {
-      short[] parts = new short[2];
+      final short[] parts = new short[2];
 
       parts[0] = (short) hash;          // low order short
       parts[1] = (short) (hash >> 16);  // high order short

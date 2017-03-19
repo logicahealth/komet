@@ -48,10 +48,16 @@ import sh.isaac.model.coordinate.LogicCoordinateLazyBinding;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LogicCoordinates.
  *
  * @author kec
  */
 public class LogicCoordinates {
+   /**
+    * Gets the standard el profile.
+    *
+    * @return the standard el profile
+    */
    public static LogicCoordinate getStandardElProfile() {
       return new LogicCoordinateLazyBinding(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE,
             TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE,

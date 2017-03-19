@@ -49,7 +49,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.State;
@@ -70,26 +69,43 @@ import sh.isaac.api.constants.DynamicSememeConstants;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.MetaData;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.provider.query.lucene.indexers.SememeIndexerConfiguration;
 import sh.isaac.utility.Frills;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class AssociationType.
+ */
 public class AssociationType {
+   /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
-   private int              associationSequence_;
-   private String           associationName_;
-   private Optional<String> associationInverseName_;
-   private String           description_;
+   /** The association sequence. */
+   private final int associationSequence;
+
+   /** The association name. */
+   private String associationName;
+
+   /** The association inverse name. */
+   private Optional<String> associationInverseName;
+
+   /** The description. */
+   private String description;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new association type.
+    *
+    * @param conceptNidOrSequence the concept nid or sequence
+    */
    private AssociationType(int conceptNidOrSequence) {
-      this.associationSequence_ = Get.identifierService()
+      this.associationSequence = Get.identifierService()
                                      .getConceptSequence(conceptNidOrSequence);
    }
 
@@ -117,30 +133,30 @@ public class AssociationType {
          StampCoordinate stampCoord,
          EditCoordinate editCoord) {
       try {
-         EditCoordinate localEditCoord = ((editCoord == null) ? Get.configurationService()
-                                                                   .getDefaultEditCoordinate()
+         final EditCoordinate localEditCoord = ((editCoord == null) ? Get.configurationService()
+                                                                         .getDefaultEditCoordinate()
                : editCoord);
 
          // We need to create a new concept - which itself is defining a dynamic sememe - so set that up here.
-         DynamicSememeUsageDescription rdud = Frills.createNewDynamicSememeUsageDescriptionConcept(associationName,
-                                                                                                   associationName,
-                                                                                                   StringUtils.isBlank(description)
-                                                                                                   ? "Defines the association type " +
-                                                                                                     associationInverseName
+         final DynamicSememeUsageDescription rdud =
+            Frills.createNewDynamicSememeUsageDescriptionConcept(associationName,
+                                                                 associationName,
+                                                                 StringUtils.isBlank(description)
+                                                                 ? "Defines the association type " +
+                                                                   associationInverseName
                : description,
-                                                                                                   new DynamicSememeColumnInfo[] {
-                                                                                                      new DynamicSememeColumnInfo(
-                                                                                                         0,
-                                                                                                               DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(),
-                                                                                                               DynamicSememeDataType.UUID,
-                                                                                                               null,
-                                                                                                               false,
-                                                                                                               true) },
-                                                                                                   DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME
-                                                                                                         .getNid(),
-                                                                                                   referencedComponentRestriction,
-                                                                                                   referencedComponentSubRestriction,
-                                                                                                   editCoord);
+                                                                 new DynamicSememeColumnInfo[] {
+                                                                    new DynamicSememeColumnInfo(0,
+                                                                          DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(),
+                                                                          DynamicSememeDataType.UUID,
+                                                                          null,
+                                                                          false,
+                                                                          true) },
+                                                                 DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME
+                                                                       .getNid(),
+                                                                 referencedComponentRestriction,
+                                                                 referencedComponentSubRestriction,
+                                                                 editCoord);
 
          Get.workExecutors().getExecutor().execute(() -> {
                         try {
@@ -148,21 +164,21 @@ public class AssociationType {
                                rdud.getDynamicSememeUsageDescriptorSequence(),
                                new Integer[] { 0 },
                                true);
-                        } catch (Exception e) {
+                        } catch (final Exception e) {
                            log.error("Unexpected error enabling the index on newly created association!", e);
                         }
                      });
 
          // Then add the inverse name, if present.
          if (!StringUtils.isBlank(associationInverseName)) {
-            ObjectChronology<?> builtDesc = LookupService.get()
-                                                         .getService(DescriptionBuilderService.class)
-                                                         .getDescriptionBuilder(associationInverseName,
-                                                               rdud.getDynamicSememeUsageDescriptorSequence(),
-                                                               MetaData.SYNONYM,
-                                                               MetaData.ENGLISH_LANGUAGE)
-                                                         .build(localEditCoord, ChangeCheckerMode.ACTIVE)
-                                                         .getNoThrow();
+            final ObjectChronology<?> builtDesc = LookupService.get()
+                                                               .getService(DescriptionBuilderService.class)
+                                                               .getDescriptionBuilder(associationInverseName,
+                                                                     rdud.getDynamicSememeUsageDescriptorSequence(),
+                                                                     MetaData.SYNONYM,
+                                                                     MetaData.ENGLISH_LANGUAGE)
+                                                               .build(localEditCoord, ChangeCheckerMode.ACTIVE)
+                                                               .getNoThrow();
 
             Get.sememeBuilderService()
                .getDynamicSememeBuilder(builtDesc.getNid(),
@@ -191,7 +207,7 @@ public class AssociationType {
          return read(rdud.getDynamicSememeUsageDescriptorSequence(),
                      stampCoord,
                      LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate());
-      } catch (Exception e) {
+      } catch (final Exception e) {
          log.error("Unexpected error creating association", e);
          throw new RuntimeException(e);
       }
@@ -199,29 +215,30 @@ public class AssociationType {
 
    /**
     * Read all details that define an Association.
+    *
     * @param conceptNidOrSequence The concept that represents the association
     * @param stamp optional - uses system default if not provided.
     * @param language optional - uses system default if not provided
-    * @return
+    * @return the association type
     */
    @SuppressWarnings({ "unchecked", "rawtypes" })
    public static AssociationType read(int conceptNidOrSequence, StampCoordinate stamp, LanguageCoordinate language) {
-      AssociationType    at            = new AssociationType(conceptNidOrSequence);
-      int                conceptNid    = Get.identifierService()
+      final AssociationType at         = new AssociationType(conceptNidOrSequence);
+      final int             conceptNid = Get.identifierService()
                                             .getConceptNid(at.getAssociationTypeSequenece());
-      StampCoordinate    localStamp    = ((stamp == null) ? Get.configurationService()
+      final StampCoordinate localStamp = ((stamp == null) ? Get.configurationService()
                                                                .getDefaultStampCoordinate()
             : stamp);
-      LanguageCoordinate localLanguage = ((language == null) ? Get.configurationService()
-                                                                  .getDefaultLanguageCoordinate()
+      final LanguageCoordinate localLanguage = ((language == null) ? Get.configurationService()
+                                                                        .getDefaultLanguageCoordinate()
             : language);
 
-      at.associationName_ = Get.conceptService()
+      at.associationName = Get.conceptService()
                                .getSnapshot(localStamp, localLanguage)
                                .conceptDescriptionText(conceptNid);
 
       // Find the inverse name
-      for (DescriptionSememe<?> desc: Frills.getDescriptionsOfType(conceptNid,
+      for (final DescriptionSememe<?> desc: Frills.getDescriptionsOfType(conceptNid,
             MetaData.SYNONYM,
             localStamp.makeAnalog(State.ACTIVE))) {
          if (Get.sememeService()
@@ -237,12 +254,12 @@ public class AssociationType {
 
                              return false;
                           })) {
-            at.associationInverseName_ = Optional.of(desc.getText());
+            at.associationInverseName = Optional.of(desc.getText());
          }
       }
 
       // find the description
-      for (DescriptionSememe<?> desc: Frills.getDescriptionsOfType(Get.identifierService()
+      for (final DescriptionSememe<?> desc: Frills.getDescriptionsOfType(Get.identifierService()
             .getConceptNid(at.getAssociationTypeSequenece()),
             MetaData.DEFINITION_DESCRIPTION_TYPE,
             localStamp.makeAnalog(State.ACTIVE))) {
@@ -256,16 +273,16 @@ public class AssociationType {
 
                       return false;
                    })) {
-            at.description_ = desc.getText();
+            at.description = desc.getText();
          }
       }
 
-      if (at.associationInverseName_ == null) {
-         at.associationInverseName_ = Optional.empty();
+      if (at.associationInverseName == null) {
+         at.associationInverseName = Optional.empty();
       }
 
-      if (at.description_ == null) {
-         at.description_ = "-No description on path!-";
+      if (at.description == null) {
+         at.description = "-No description on path!-";
       }
 
       return at;
@@ -274,33 +291,49 @@ public class AssociationType {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the association inverse name.
+    *
     * @return the inverse name of the association (if present) (Read from the association type concept)
     */
    public Optional<String> getAssociationInverseName() {
-      return associationInverseName_;
-   }
-
-   public String getAssociationName() {
-      return associationName_;
+      return this.associationInverseName;
    }
 
    /**
+    * Gets the association name.
+    *
+    * @return the association name
+    */
+   public String getAssociationName() {
+      return this.associationName;
+   }
+
+   /**
+    * Gets the association type concept.
+    *
     * @return the association type concept
     */
    public ConceptChronology<? extends ConceptVersion<?>> getAssociationTypeConcept() {
       return Get.conceptService()
-                .getConcept(associationSequence_);
+                .getConcept(this.associationSequence);
    }
 
    /**
+    * Gets the association type sequenece.
+    *
     * @return the concept sequence of the association type concept
     */
    public int getAssociationTypeSequenece() {
-      return associationSequence_;
+      return this.associationSequence;
    }
 
+   /**
+    * Gets the description.
+    *
+    * @return the description
+    */
    public String getDescription() {
-      return description_;
+      return this.description;
    }
 }
 

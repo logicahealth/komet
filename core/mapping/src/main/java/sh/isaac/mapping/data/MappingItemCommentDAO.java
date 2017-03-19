@@ -69,15 +69,22 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeStringImpl;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class MappingItemCommentDAO.
+ */
 public class MappingItemCommentDAO
         extends MappingDAO {
    /**
-    * Create (and store to the DB) a new comment
+    * Create (and store to the DB) a new comment.
+    *
     * @param pMappingItemUUID - The item the comment is being added to
     * @param pCommentText - The text of the comment
     * @param commentContext - (optional) field for storing other arbitrary info about the comment.  An editor may wish to put certain keywords on
     * some comments - this field is indexed, so a search for comments could query this field.
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @return the mapping item comment
+    * @throws RuntimeException the runtime exception
     */
    public static MappingItemComment createMappingItemComment(UUID pMappingItemUUID,
          String pCommentText,
@@ -93,29 +100,29 @@ public class MappingItemCommentDAO
          throw new RuntimeException("The comment is required");
       }
 
-      SememeChronology<? extends DynamicSememe<?>> built = Get.sememeBuilderService()
-                                                              .getDynamicSememeBuilder(Get.identifierService()
-                                                                    .getNidForUuids(pMappingItemUUID),
-                                                                    DynamicSememeConstants.get().DYNAMIC_SEMEME_COMMENT_ATTRIBUTE
-                                                                          .getSequence(),
-                                                                    new DynamicSememeData[] {
-                                                                       new DynamicSememeStringImpl(pCommentText),
-                                                                       (StringUtils.isBlank(commentContext) ? null
+      final SememeChronology<? extends DynamicSememe<?>> built = Get.sememeBuilderService()
+                                                                    .getDynamicSememeBuilder(Get.identifierService()
+                                                                          .getNidForUuids(pMappingItemUUID),
+                                                                          DynamicSememeConstants.get().DYNAMIC_SEMEME_COMMENT_ATTRIBUTE
+                                                                                .getSequence(),
+                                                                          new DynamicSememeData[] {
+                                                                             new DynamicSememeStringImpl(pCommentText),
+                                                                             (StringUtils.isBlank(commentContext) ? null
             : new DynamicSememeStringImpl(commentContext)) })
-                                                              .build(editCoord, ChangeCheckerMode.ACTIVE)
-                                                              .getNoThrow();
+                                                                    .build(editCoord, ChangeCheckerMode.ACTIVE)
+                                                                    .getNoThrow();
       @SuppressWarnings("deprecation")
-      Task<Optional<CommitRecord>> task = Get.commitService()
-                                             .commit("Added comment");
+      final Task<Optional<CommitRecord>> task = Get.commitService()
+                                                   .commit("Added comment");
 
       try {
          task.get();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new RuntimeException();
       }
 
       @SuppressWarnings({ "unchecked", "rawtypes" })
-      Optional<LatestVersion<DynamicSememe<?>>> latest =
+      final Optional<LatestVersion<DynamicSememe<?>>> latest =
          ((SememeChronology) built).getLatestVersion(DynamicSememe.class,
                                                      stampCoord.makeAnalog(State.ACTIVE,
                                                            State.INACTIVE));
@@ -124,8 +131,12 @@ public class MappingItemCommentDAO
    }
 
    /**
+    * Retire comment.
+    *
     * @param commentPrimordialUUID - The ID of the comment to be retired
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void retireComment(UUID commentPrimordialUUID,
                                     StampCoordinate stampCoord,
@@ -135,8 +146,12 @@ public class MappingItemCommentDAO
    }
 
    /**
+    * Un retire comment.
+    *
     * @param commentPrimordialUUID - The ID of the comment to be re-activated
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void unRetireComment(UUID commentPrimordialUUID,
                                       StampCoordinate stampCoord,
@@ -146,15 +161,18 @@ public class MappingItemCommentDAO
    }
 
    /**
-    * Store the values passed in as a new revision of a comment (the old revision remains in the DB)
+    * Store the values passed in as a new revision of a comment (the old revision remains in the DB).
+    *
     * @param comment - The MappingItemComment with revisions (contains fields where the setters have been called)
-    * @throws IOException
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void updateComment(MappingItemComment comment,
                                     StampCoordinate stampCoord,
                                     EditCoordinate editCoord)
             throws IOException {
-      DynamicSememe<?> rdv = readCurrentRefex(comment.getPrimordialUUID(), stampCoord);
+      final DynamicSememe<?> rdv = readCurrentRefex(comment.getPrimordialUUID(), stampCoord);
 
       Get.sememeBuilderService()
          .getDynamicSememeBuilder(rdv.getReferencedComponentNid(),
@@ -166,12 +184,12 @@ public class MappingItemCommentDAO
          .build(editCoord, ChangeCheckerMode.ACTIVE);
 
       @SuppressWarnings("deprecation")
-      Task<Optional<CommitRecord>> task = Get.commitService()
-                                             .commit("Added comment");
+      final Task<Optional<CommitRecord>> task = Get.commitService()
+                                                   .commit("Added comment");
 
       try {
          task.get();
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new RuntimeException();
       }
    }
@@ -179,24 +197,26 @@ public class MappingItemCommentDAO
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Read all comments for a particular mapping item (which could be a mapping set, or a mapping item)
+    * Read all comments for a particular mapping item (which could be a mapping set, or a mapping item).
+    *
     * @param mappingUUID - The UUID of a MappingSet or a MappingItem
-    * @return
-    * @throws RuntimeException
+    * @param stampCoord the stamp coord
+    * @return the comments
+    * @throws RuntimeException the runtime exception
     */
    public static List<MappingItemComment> getComments(UUID mappingUUID,
          StampCoordinate stampCoord)
             throws RuntimeException {
-      List<MappingItemComment> comments = new ArrayList<MappingItemComment>();
+      final List<MappingItemComment> comments = new ArrayList<>();
 
       Get.sememeService().getSememesForComponentFromAssemblage(Get.identifierService()
             .getNidForUuids(mappingUUID),
             DynamicSememeConstants.get().DYNAMIC_SEMEME_COMMENT_ATTRIBUTE
                                   .getSequence()).forEach(sememeC -> {
                      @SuppressWarnings({ "unchecked", "rawtypes" })
-                     Optional<LatestVersion<DynamicSememe<?>>> latest = ((SememeChronology) sememeC).getLatestVersion(
-                                                                           DynamicSememe.class, stampCoord.makeAnalog(
-                                                                              State.ACTIVE, State.INACTIVE));
+                     final Optional<LatestVersion<DynamicSememe<?>>> latest =
+                        ((SememeChronology) sememeC).getLatestVersion(
+                            DynamicSememe.class, stampCoord.makeAnalog(State.ACTIVE, State.INACTIVE));
 
                      if (latest.isPresent()) {
                         comments.add(new MappingItemComment(latest.get().value()));

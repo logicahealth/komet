@@ -63,20 +63,40 @@ import sh.isaac.api.progress.ActiveTasks;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class UpdateInferredFormsTask.
  *
  * @author kec
  */
 public class UpdateInferredFormsTask
         extends Task<Integer> {
-   AtomicInteger     processedCount = new AtomicInteger();
+   /** The processed count. */
+   AtomicInteger processedCount = new AtomicInteger();
+
+   /** The classifier results. */
    ClassifierResults classifierResults;
-   Ontology          classifiedModel;
-   LogicCoordinate   logicCoordinate;
-   StampCoordinate   stampCoordinate;
-   int               conceptsToProcess;
+
+   /** The classified model. */
+   Ontology classifiedModel;
+
+   /** The logic coordinate. */
+   LogicCoordinate logicCoordinate;
+
+   /** The stamp coordinate. */
+   StampCoordinate stampCoordinate;
+
+   /** The concepts to process. */
+   int conceptsToProcess;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new update inferred forms task.
+    *
+    * @param classifierResults the classifier results
+    * @param classifiedModel the classified model
+    * @param logicCoordinate the logic coordinate
+    * @param stampCoordinate the stamp coordinate
+    */
    private UpdateInferredFormsTask(ClassifierResults classifierResults,
                                    Ontology classifiedModel,
                                    LogicCoordinate logicCoordinate,
@@ -85,23 +105,32 @@ public class UpdateInferredFormsTask
       this.classifiedModel   = classifiedModel;
       this.logicCoordinate   = logicCoordinate;
       this.stampCoordinate   = stampCoordinate;
-      conceptsToProcess      = classifierResults.getAffectedConcepts()
+      this.conceptsToProcess = classifierResults.getAffectedConcepts()
             .size();
-      updateProgress(-1, conceptsToProcess);  // Indeterminate progress
-      updateValue(0);                         // no concepts processed
+      updateProgress(-1, this.conceptsToProcess);  // Indeterminate progress
+      updateValue(0);                              // no concepts processed
       updateTitle("Updating inferred taxonomy and forms ");
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Creates the.
+    *
+    * @param classifierResults the classifier results
+    * @param classifiedModel the classified model
+    * @param logicCoordinate the logic coordinate
+    * @param stampCoordinate the stamp coordinate
+    * @return the update inferred forms task
+    */
    public static UpdateInferredFormsTask create(ClassifierResults classifierResults,
          Ontology classifiedModel,
          LogicCoordinate logicCoordinate,
          StampCoordinate stampCoordinate) {
-      UpdateInferredFormsTask task = new UpdateInferredFormsTask(classifierResults,
-                                                                 classifiedModel,
-                                                                 logicCoordinate,
-                                                                 stampCoordinate);
+      final UpdateInferredFormsTask task = new UpdateInferredFormsTask(classifierResults,
+                                                                       classifiedModel,
+                                                                       logicCoordinate,
+                                                                       stampCoordinate);
 
       LookupService.getService(ActiveTasks.class)
                    .get()
@@ -109,30 +138,36 @@ public class UpdateInferredFormsTask
       return task;
    }
 
+   /**
+    * Call.
+    *
+    * @return the integer
+    * @throws Exception the exception
+    */
    @Override
    protected Integer call()
             throws Exception {
       try {
-         SememeSnapshotService<LogicGraphSememe> sememeSnapshot = Get.sememeService()
-                                                                     .getSnapshot(LogicGraphSememe.class,
-                                                                           stampCoordinate);
+         final SememeSnapshotService<LogicGraphSememe> sememeSnapshot = Get.sememeService()
+                                                                           .getSnapshot(LogicGraphSememe.class,
+                                                                                 this.stampCoordinate);
 
-         classifierResults.getAffectedConcepts().stream().parallel().forEach((conceptSequence) -> {
-                                      if (processedCount.incrementAndGet() % 10 == 0) {
-                                         updateProgress(processedCount.get(), conceptsToProcess);
+         this.classifierResults.getAffectedConcepts().stream().parallel().forEach((conceptSequence) -> {
+                                           if (this.processedCount.incrementAndGet() % 10 == 0) {
+                                              updateProgress(this.processedCount.get(), this.conceptsToProcess);
 
-                                         ConceptChronology concept = Get.conceptService()
-                                                                        .getConcept(conceptSequence);
+                                              final ConceptChronology concept = Get.conceptService()
+                                                                                   .getConcept(conceptSequence);
 
-                                         updateMessage("Updating concept: " + concept.toUserString());
-                                         updateValue(processedCount.get());
-                                         sememeSnapshot.getLatestSememeVersionsForComponentFromAssemblage(
-                                             conceptSequence,
-                                             logicCoordinate.getInferredAssemblageSequence()).forEach((LatestVersion<LogicGraphSememe> latestLogicGraph) -> {
+                                              updateMessage("Updating concept: " + concept.toUserString());
+                                              updateValue(this.processedCount.get());
+                                              sememeSnapshot.getLatestSememeVersionsForComponentFromAssemblage(
+                                                  conceptSequence,
+                                                  this.logicCoordinate.getInferredAssemblageSequence()).forEach((LatestVersion<LogicGraphSememe> latestLogicGraph) -> {
                         processLogicGraphSememe(latestLogicGraph);
                      });
-                                      }
-                                   });
+                                           }
+                                        });
       } finally {
          LookupService.getService(ActiveTasks.class)
                       .get()
@@ -142,6 +177,11 @@ public class UpdateInferredFormsTask
       throw new UnsupportedOperationException("Not supported yet.");
    }
 
+   /**
+    * Process logic graph sememe.
+    *
+    * @param latest the latest
+    */
    private void processLogicGraphSememe(LatestVersion<LogicGraphSememe> latest) {}
 }
 

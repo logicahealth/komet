@@ -56,31 +56,44 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeByteArrayTest}
+ * {@link DynamicSememeByteArrayTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeByteArrayTest {
+   /**
+    * Test serialization.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      byte[][] testValues = new byte[][] {
+      final byte[][] testValues = new byte[][] {
          "".getBytes(), "sdfds".getBytes(), "ksldjflksdjfklsdjlfjsdlkfjdsljflksdjfklsd".getBytes()
       };
 
-      for (byte[] i: testValues) {
+      for (final byte[] i: testValues) {
          test(i);
       }
    }
 
+   /**
+    * Test.
+    *
+    * @param value the value
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private void test(byte[] value)
             throws PropertyVetoException, IOException {
-      DynamicSememeByteArrayImpl i = new DynamicSememeByteArrayImpl(value);
+      final DynamicSememeByteArrayImpl i = new DynamicSememeByteArrayImpl(value);
 
       assertEquals(value, i.getDataByteArray());
-      assertEquals(value, (byte[]) i.getDataObject());
-      assertEquals(value, (byte[]) i.getDataObjectProperty()
-                                    .get());
+      assertEquals(value, i.getDataObject());
+      assertEquals(value, i.getDataObjectProperty()
+                           .get());
       assertEquals(i.getDynamicSememeDataType(), DynamicSememeDataType.BYTEARRAY);
    }
 }

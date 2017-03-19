@@ -43,18 +43,21 @@ package sh.isaac.api.memory;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.memory.MemoryConfigurations;
-import sh.isaac.api.memory.MemoryManagementService;
-
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class MemoryManagementProvider.
  *
  * @author kec
  */
 @Service
 public class MemoryManagementProvider
          implements MemoryManagementService {
+   /**
+    * Sets the memory configuration.
+    *
+    * @param memoryConfiguration the new memory configuration
+    */
    @Override
    public void setMemoryConfiguration(MemoryConfigurations memoryConfiguration) {
       System.out.println("Setting memory configuration to: " + memoryConfiguration);

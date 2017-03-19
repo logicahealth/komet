@@ -61,6 +61,7 @@ package sh.isaac.model;
  */
 public interface WaitFreeComparable {
    /**
+    * Gets the write sequence.
     *
     * @return the write sequence from which this object was created.
     */
@@ -69,6 +70,7 @@ public interface WaitFreeComparable {
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the write sequence.
     *
     * @param sequence the write sequence for which this object is to be written.
     */

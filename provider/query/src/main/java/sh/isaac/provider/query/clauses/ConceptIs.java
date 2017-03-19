@@ -41,8 +41,6 @@ package sh.isaac.provider.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
-
 import java.util.EnumSet;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -73,15 +71,28 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIs
         extends LeafClause {
+   /** The concept spec string. */
    @XmlElement
    String conceptSpecString;
+
+   /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concept is.
+    */
    protected ConceptIs() {}
 
+   /**
+    * Instantiates a new concept is.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param conceptSpec the concept spec
+    * @param viewCoordinateKey the view coordinate key
+    */
    public ConceptIs(Query enclosingQuery, String conceptSpec, String viewCoordinateKey) {
       super(enclosingQuery);
       this.conceptSpecString = conceptSpec;
@@ -90,34 +101,56 @@ public class ConceptIs
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      getResultsCache().add(((ConceptSpecification) enclosingQuery.getLetDeclarations()
-            .get(conceptSpecString)).getNid());
+      getResultsCache().add(((ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+            .get(this.conceptSpecString)).getNid());
       return getResultsCache();
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
       // Nothing to do here...
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.CONCEPT_IS);
       whereClause.getLetKeys()
-                 .add(conceptSpecString);
+                 .add(this.conceptSpecString);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       return whereClause;
    }
 }

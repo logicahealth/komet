@@ -59,22 +59,36 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public abstract class SubstitutionNode
         extends AbstractLogicNode {
+   /** The substitution field specification. */
    SubstitutionFieldSpecification substitutionFieldSpecification;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new substitution node.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public SubstitutionNode(LogicalExpressionOchreImpl logicGraphVersion,
                            DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
 
-      int    length = dataInputStream.readInt();
-      byte[] bytes  = new byte[length];
+      final int    length = dataInputStream.readInt();
+      final byte[] bytes  = new byte[length];
 
       dataInputStream.read(bytes, 0, length);
       throw new UnsupportedOperationException("deserializer for substitution field specification not implemented");
    }
 
+   /**
+    * Instantiates a new substitution node.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param substitutionFieldSpecification the substitution field specification
+    */
    public SubstitutionNode(LogicalExpressionOchreImpl logicGraphVersion,
                            SubstitutionFieldSpecification substitutionFieldSpecification) {
       super(logicGraphVersion);
@@ -83,11 +97,22 @@ public abstract class SubstitutionNode
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the children.
+    *
+    * @param children the children
+    */
    @Override
    public final void addChildren(LogicNode... children) {
       throw new UnsupportedOperationException();
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -102,42 +127,71 @@ public abstract class SubstitutionNode
          return false;
       }
 
-      SubstitutionNode that = (SubstitutionNode) o;
+      final SubstitutionNode that = (SubstitutionNode) o;
 
-      return substitutionFieldSpecification.equals(that.substitutionFieldSpecification);
+      return this.substitutionFieldSpecification.equals(that.substitutionFieldSpecification);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + substitutionFieldSpecification.hashCode();
+      result = 31 * result + this.substitutionFieldSpecification.hashCode();
       return result;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
-      return " Substitution: '" + substitutionFieldSpecification + '\'' + super.toString(nodeIdSuffix);
+      return " Substitution: '" + this.substitutionFieldSpecification + '\'' + super.toString(nodeIdSuffix);
    }
 
+   /**
+    * Compare fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    protected int compareFields(LogicNode o) {
-      SubstitutionNode that = (SubstitutionNode) o;
+      final SubstitutionNode that = (SubstitutionNode) o;
 
       return this.substitutionFieldSpecification.compareTo(that.substitutionFieldSpecification);
    }
 
+   /**
+    * Write node data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    protected final void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
       super.writeData(dataOutput, dataTarget);
 
-      byte[] bytes = substitutionFieldSpecification.getBytes();
+      final byte[] bytes = this.substitutionFieldSpecification.getBytes();
 
       dataOutput.writeInt(bytes.length);
       dataOutput.write(bytes);
@@ -145,13 +199,23 @@ public abstract class SubstitutionNode
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the children.
+    *
+    * @return the children
+    */
    @Override
    public final AbstractLogicNode[] getChildren() {
       return new AbstractLogicNode[0];
    }
 
+   /**
+    * Gets the substitution field specification.
+    *
+    * @return the substitution field specification
+    */
    public SubstitutionFieldSpecification getSubstitutionFieldSpecification() {
-      return substitutionFieldSpecification;
+      return this.substitutionFieldSpecification;
    }
 }
 

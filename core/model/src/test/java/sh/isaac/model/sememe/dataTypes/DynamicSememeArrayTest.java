@@ -56,20 +56,26 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeArrayTest}
+ * {@link DynamicSememeArrayTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeArrayTest {
+   /**
+    * Test serialization one.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testSerializationOne()
             throws PropertyVetoException, IOException {
-      DynamicSememeIntegerImpl[] testDataOne = new DynamicSememeIntegerImpl[] { new DynamicSememeIntegerImpl(5),
-                                                                                new DynamicSememeIntegerImpl(8),
-                                                                                new DynamicSememeIntegerImpl(
-                                                                                   Integer.MAX_VALUE) };
-      DynamicSememeArrayImpl<DynamicSememeIntegerImpl> testOne =
-         new DynamicSememeArrayImpl<DynamicSememeIntegerImpl>(testDataOne);
+      final DynamicSememeIntegerImpl[] testDataOne = new DynamicSememeIntegerImpl[] { new DynamicSememeIntegerImpl(5),
+                                                                                      new DynamicSememeIntegerImpl(8),
+                                                                                      new DynamicSememeIntegerImpl(
+                                                                                         Integer.MAX_VALUE) };
+      final DynamicSememeArrayImpl<DynamicSememeIntegerImpl> testOne =
+         new DynamicSememeArrayImpl<>(testDataOne);
 
       assertEquals(3, testOne.getDataArray().length);
       assertEquals(5, testOne.getDataArray()[0]
@@ -93,13 +99,20 @@ public class DynamicSememeArrayTest {
                           .getDynamicSememeDataType(), DynamicSememeDataType.INTEGER);
    }
 
+   /**
+    * Test serialization two.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testSerializationTwo()
             throws PropertyVetoException, IOException {
-      DynamicSememeStringImpl[] testDataTwo = new DynamicSememeStringImpl[] { new DynamicSememeStringImpl("hi"),
-                                                                              new DynamicSememeStringImpl("bye") };
-      DynamicSememeArrayImpl<DynamicSememeStringImpl> testTwo =
-         new DynamicSememeArrayImpl<DynamicSememeStringImpl>(testDataTwo);
+      final DynamicSememeStringImpl[] testDataTwo = new DynamicSememeStringImpl[] { new DynamicSememeStringImpl("hi"),
+                                                                                    new DynamicSememeStringImpl(
+                                                                                       "bye") };
+      final DynamicSememeArrayImpl<DynamicSememeStringImpl> testTwo =
+         new DynamicSememeArrayImpl<>(testDataTwo);
 
       assertEquals(2, testTwo.getDataArray().length);
       assertEquals("hi", testTwo.getDataArray()[0]

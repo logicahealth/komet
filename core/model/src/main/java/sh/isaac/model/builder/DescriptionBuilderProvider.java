@@ -53,12 +53,22 @@ import sh.isaac.model.sememe.version.DescriptionSememeImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class DescriptionBuilderProvider.
  *
  * @author kec
  */
 @Service
 public class DescriptionBuilderProvider
          implements DescriptionBuilderService {
+   /**
+    * Gets the description builder.
+    *
+    * @param descriptionText the description text
+    * @param conceptBuilder the concept builder
+    * @param descriptionType the description type
+    * @param languageForDescription the language for description
+    * @return the description builder
+    */
    @Override
    public DescriptionBuilder<? extends SememeChronology<?>,
                              DescriptionSememeImpl> getDescriptionBuilder(String descriptionText,
@@ -68,6 +78,15 @@ public class DescriptionBuilderProvider
       return new DescriptionBuilderOchreImpl(descriptionText, conceptBuilder, descriptionType, languageForDescription);
    }
 
+   /**
+    * Gets the description builder.
+    *
+    * @param descriptionText the description text
+    * @param conceptSequence the concept sequence
+    * @param descriptionType the description type
+    * @param languageForDescription the language for description
+    * @return the description builder
+    */
    @Override
    public DescriptionBuilder<? extends SememeChronology<?>,
                              DescriptionSememeImpl> getDescriptionBuilder(String descriptionText,

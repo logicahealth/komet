@@ -52,12 +52,12 @@ import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.constants.DynamicSememeConstants;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
+import sh.isaac.MetaData;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -71,10 +71,17 @@ import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
  * @author darmbrust
  */
 public class ConverterUUID {
-   public static boolean disableUUIDMap_ = false;  // Some loaders need to disable this due to memory constraints
-   private static Hashtable<UUID, String> masterUUIDMap_ = new Hashtable<UUID, String>();
-   private static UUID                    namespace_     = null;
-   private static ConceptSpecification[]  constants      = new ConceptSpecification[] {
+   /** The disable UUID map. */
+   public static boolean disableUUIDMap = false;  // Some loaders need to disable this due to memory constraints
+
+   /** The master UUID map. */
+   private static Hashtable<UUID, String> masterUUIDMap = new Hashtable<UUID, String>();
+
+   /** The namespace. */
+   private static UUID namespace = null;
+
+   /** The constants. */
+   private static ConceptSpecification[] constants = new ConceptSpecification[] {
       MetaData.IS_A, MetaData.SYNONYM, MetaData.FULLY_SPECIFIED_NAME, MetaData.DEFINITION_DESCRIPTION_TYPE,
       MetaData.US_ENGLISH_DIALECT, MetaData.GB_ENGLISH_DIALECT, MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER,
       MetaData.CONVERTED_IBDF_ARTIFACT_VERSION, MetaData.CONVERTER_VERSION, MetaData.SOURCE_ARTIFACT_VERSION,
@@ -88,11 +95,14 @@ public class ConverterUUID {
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Allow this map to be updated with UUIDs that were not generated via this utility class
+    * Allow this map to be updated with UUIDs that were not generated via this utility class.
+    *
+    * @param value the value
+    * @param uuid the uuid
     */
    public static void addMapping(String value, UUID uuid) {
-      if (!disableUUIDMap_) {
-         String putResult = masterUUIDMap_.put(uuid, value);
+      if (!disableUUIDMap) {
+         final String putResult = masterUUIDMap.put(uuid, value);
 
          if (putResult != null) {
             throw new RuntimeException("Just made a duplicate UUID! '" + value + "' -> " + uuid);
@@ -100,22 +110,33 @@ public class ConverterUUID {
       }
    }
 
+   /**
+    * Clear cache.
+    */
    public static void clearCache() {
-      masterUUIDMap_.clear();
+      masterUUIDMap.clear();
    }
 
+   /**
+    * Configure namespace.
+    *
+    * @param namespace the namespace
+    */
    public static void configureNamespace(UUID namespace) {
-      if (namespace_ != null) {
+      if (namespace != null) {
          ConsoleUtil.println("Reconfiguring Namespace!");
       }
 
-      namespace_ = namespace;
+      namespace = namespace;
    }
 
    /**
     * Create a new Type5 UUID using the provided name as the seed in the configured namespace.
     *
     * Throws a runtime exception if the namespace has not been configured.
+    *
+    * @param name the name
+    * @return the uuid
     */
    public static UUID createNamespaceUUIDFromString(String name) {
       return createNamespaceUUIDFromString(name, false);
@@ -125,17 +146,24 @@ public class ConverterUUID {
     * Create a new Type5 UUID using the provided name as the seed in the configured namespace.
     *
     * Throws a runtime exception if the namespace has not been configured.
+    *
+    * @param name the name
     * @param skipDupeCheck can be used to bypass the duplicate checking function - useful in cases where you know
     * you are creating the same UUID more than once.  Normally, this method throws a runtime exception
     * if the same UUID is generated more than once.
+    * @return the uuid
     */
    public static UUID createNamespaceUUIDFromString(String name, boolean skipDupeCheck) {
       initCheck();
-      return createNamespaceUUIDFromString(namespace_, name, skipDupeCheck);
+      return createNamespaceUUIDFromString(namespace, name, skipDupeCheck);
    }
 
    /**
     * Create a new Type5 UUID using the provided namespace, and provided name as the seed.
+    *
+    * @param namespace the namespace
+    * @param name the name
+    * @return the uuid
     */
    public static UUID createNamespaceUUIDFromString(UUID namespace, String name) {
       return createNamespaceUUIDFromString(namespace, name, false);
@@ -143,21 +171,25 @@ public class ConverterUUID {
 
    /**
     * Create a new Type5 UUID using the provided namespace, and provided name as the seed.
+    *
+    * @param namespace the namespace
+    * @param name the name
     * @param skipDupeCheck can be used to bypass the duplicate checking function - useful in cases where you know
     * you are creating the same UUID more than once.  Normally, this method throws a runtime exception
     * if the same UUID is generated more than once.
+    * @return the uuid
     */
    public static UUID createNamespaceUUIDFromString(UUID namespace, String name, boolean skipDupeCheck) {
       UUID uuid;
 
       try {
          uuid = UuidT5Generator.get(namespace, name);
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new RuntimeException("Unexpected error configuring UUID generator");
       }
 
-      if (!disableUUIDMap_) {
-         String putResult = masterUUIDMap_.put(uuid, name);
+      if (!disableUUIDMap) {
+         final String putResult = masterUUIDMap.put(uuid, name);
 
          if (!skipDupeCheck && (putResult != null)) {
             throw new RuntimeException("Just made a duplicate UUID! '" + name + "' -> " + uuid);
@@ -171,11 +203,14 @@ public class ConverterUUID {
     * Create a new Type5 UUID using the provided name as the seed in the configured namespace.
     *
     * Throws a runtime exception if the namespace has not been configured.
+    *
+    * @param values the values
+    * @return the uuid
     */
    public static UUID createNamespaceUUIDFromStrings(String... values) {
-      StringBuilder uuidKey = new StringBuilder();
+      final StringBuilder uuidKey = new StringBuilder();
 
-      for (String s: values) {
+      for (final String s: values) {
          if (s != null) {
             uuidKey.append(s);
             uuidKey.append("|");
@@ -192,19 +227,23 @@ public class ConverterUUID {
    }
 
    /**
-    * Write out a debug file with all of the UUID - String mappings
+    * Write out a debug file with all of the UUID - String mappings.
+    *
+    * @param outputDirectory the output directory
+    * @param prefix the prefix
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void dump(File outputDirectory, String prefix)
             throws IOException {
       try (BufferedWriter br = new BufferedWriter(new FileWriter(new File(outputDirectory,
                                                                           prefix + "DebugMap.txt")));) {
-         if (disableUUIDMap_) {
+         if (disableUUIDMap) {
             ConsoleUtil.println("UUID Debug map was disabled");
             br.write("Note - the UUID debug feature was disabled, this file is incomplete" +
                      System.getProperty("line.separator"));
          }
 
-         for (Map.Entry<UUID, String> entry: masterUUIDMap_.entrySet()) {
+         for (final Map.Entry<UUID, String> entry: masterUUIDMap.entrySet()) {
             br.write(entry.getKey() + " - " + entry.getValue() + System.getProperty("line.separator"));
          }
       }
@@ -212,35 +251,48 @@ public class ConverterUUID {
 
    /**
     * In some scenarios, it isn't desireable to cache every creation string - allow the removal in these cases.
+    *
+    * @param uuid the uuid
     */
    public static void removeMapping(UUID uuid) {
-      masterUUIDMap_.remove(uuid);
+      masterUUIDMap.remove(uuid);
    }
 
+   /**
+    * Inits the check.
+    */
    private static void initCheck() {
-      if (namespace_ == null) {
+      if (namespace == null) {
          throw new RuntimeException("Namespace UUID has not yet been initialized");
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the namespace.
+    *
+    * @return the namespace
+    */
    public static UUID getNamespace() {
-      return namespace_;
+      return namespace;
    }
 
    /**
-    * Return the string that was used to generate this UUID (if available - null if not)
+    * Return the string that was used to generate this UUID (if available - null if not).
+    *
+    * @param uuid the uuid
+    * @return the UUID creation string
     */
    public static String getUUIDCreationString(UUID uuid) {
       if (uuid == null) {
          return null;
       }
 
-      String found = masterUUIDMap_.get(uuid);
+      final String found = masterUUIDMap.get(uuid);
 
       if (found == null) {
-         for (ConceptSpecification cs: constants) {
+         for (final ConceptSpecification cs: constants) {
             if (uuid.equals(cs.getPrimordialUuid())) {
                return cs.getConceptDescriptionText();
             }

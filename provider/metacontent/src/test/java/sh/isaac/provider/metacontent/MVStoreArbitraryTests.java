@@ -50,16 +50,24 @@ import org.h2.mvstore.MVStore;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class MVStoreArbitraryTests.
+ */
 public class MVStoreArbitraryTests {
+   /**
+    * The main method.
+    *
+    * @param args the arguments
+    */
    public static void main(String[] args) {
-      long    temp = System.currentTimeMillis();
-      MVStore s    = MVStore.open("foo.test");
+      long          temp = System.currentTimeMillis();
+      final MVStore s    = MVStore.open("foo.test");
 
       System.out.println("Startup: " + (System.currentTimeMillis() - temp));
       temp = System.currentTimeMillis();
 
-      MVMap<UUID, String>  map  = s.<UUID, String>openMap("test");
-      MVMap<Integer, UUID> map2 = s.<Integer, UUID>openMap("test2");
+      final MVMap<UUID, String>  map  = s.<UUID, String>openMap("test");
+      final MVMap<Integer, UUID> map2 = s.<Integer, UUID>openMap("test2");
 
       System.out.println("OpenMaps: " + (System.currentTimeMillis() - temp));
       temp = System.currentTimeMillis();

@@ -91,11 +91,11 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
-import sh.isaac.provider.concept.ConceptSerializer;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ConceptProvider.
  *
  * @author kec
  */
@@ -103,44 +103,71 @@ import sh.isaac.provider.concept.ConceptSerializer;
 @RunLevel(value = 1)
 public class ConceptProvider
          implements ConceptService {
-   private static final Logger LOG                          = LogManager.getLogger();
-   public static final String  CRADLE_PROPERTIES_FILE_NAME  = "cradle.properties";
-   public static final String  CRADLE_ID_FILE_NAME          = "dbid.txt";
-   public static final String  CRADLE_DATA_VERSION          = "1.5";
-   public static final String  CRADLE_DATA_VERSION_PROPERTY = "cradle.data.version";
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
+
+   /** The Constant CRADLE_PROPERTIES_FILE_NAME. */
+   public static final String CRADLE_PROPERTIES_FILE_NAME = "cradle.properties";
+
+   /** The Constant CRADLE_ID_FILE_NAME. */
+   public static final String CRADLE_ID_FILE_NAME = "dbid.txt";
+
+   /** The Constant CRADLE_DATA_VERSION. */
+   public static final String CRADLE_DATA_VERSION = "1.5";
+
+   /** The Constant CRADLE_DATA_VERSION_PROPERTY. */
+   public static final String CRADLE_DATA_VERSION_PROPERTY = "cradle.data.version";
 
    //~--- fields --------------------------------------------------------------
 
-   private AtomicBoolean                             loadRequired     = new AtomicBoolean(true);
-   private DatabaseValidity                          databaseValidity = DatabaseValidity.NOT_SET;
-   private UUID                                      dbId             = null;
-   ConceptActiveService                              conceptActiveService;
+   /** The load required. */
+   private final AtomicBoolean loadRequired = new AtomicBoolean(true);
+
+   /** The database validity. */
+   private DatabaseValidity databaseValidity = DatabaseValidity.NOT_SET;
+
+   /** The db id. */
+   private UUID dbId = null;
+
+   /** The concept active service. */
+   ConceptActiveService conceptActiveService;
+
+   /** The concept map. */
    final CasSequenceObjectMap<ConceptChronologyImpl> conceptMap;
-   private Path                                      ochreConceptPath;
+
+   /** The ochre concept path. */
+   private Path ochreConceptPath;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concept provider.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    * @throws NumberFormatException the number format exception
+    * @throws ParseException the parse exception
+    */
    public ConceptProvider()
             throws IOException, NumberFormatException, ParseException {
       try {
-         Path propertiesPath = LookupService.getService(ConfigurationService.class)
+         final Path propertiesPath = LookupService.getService(ConfigurationService.class)
+                                                  .getChronicleFolderPath()
+                                                  .resolve(CRADLE_PROPERTIES_FILE_NAME);
+         final Path dbIdPath = LookupService.getService(ConfigurationService.class)
                                             .getChronicleFolderPath()
-                                            .resolve(CRADLE_PROPERTIES_FILE_NAME);
-         Path dbIdPath = LookupService.getService(ConfigurationService.class)
-                                      .getChronicleFolderPath()
-                                      .resolve(CRADLE_ID_FILE_NAME);
-         Path folderPath = LookupService.getService(ConfigurationService.class)
-                                        .getChronicleFolderPath()
-                                        .resolve("ochre-concepts");
+                                            .resolve(CRADLE_ID_FILE_NAME);
+         final Path folderPath = LookupService.getService(ConfigurationService.class)
+                                              .getChronicleFolderPath()
+                                              .resolve("ochre-concepts");
 
          Files.createDirectories(folderPath);
          LOG.info("Setting up OCHRE ConceptProvider at " + folderPath.toAbsolutePath());
 
-         Properties cradleProps = new Properties();
+         final Properties cradleProps = new Properties();
 
          if (propertiesPath.toFile()
                            .exists()) {
-            loadRequired.set(true);
+            this.loadRequired.set(true);
 
             try (FileInputStream in = new FileInputStream(propertiesPath.toFile())) {
                cradleProps.load(in);
@@ -154,43 +181,43 @@ public class ConceptProvider
             if (dbIdPath.toFile()
                         .exists()) {
                try {
-                  dbId = UUID.fromString(new String(Files.readAllBytes(dbIdPath)));
-               } catch (Exception e) {
+                  this.dbId = UUID.fromString(new String(Files.readAllBytes(dbIdPath)));
+               } catch (final Exception e) {
                   throw new IllegalStateException("The " + CRADLE_ID_FILE_NAME + " file does not contain a valid UUID!",
                                                   e);
                }
             } else {
                LOG.warn("The " + CRADLE_ID_FILE_NAME + " file is missing from the database folder - creating a new ID");
-               dbId = UUID.randomUUID();
-               Files.write(dbIdPath, dbId.toString()
-                                         .getBytes());
+               this.dbId = UUID.randomUUID();
+               Files.write(dbIdPath, this.dbId.toString()
+                                              .getBytes());
             }
 
             LOG.info("Reading an existing concept store at " + folderPath.toAbsolutePath() + " with the id of '" +
-                     dbId.toString() + "'");
+                     this.dbId.toString() + "'");
          } else {
-            loadRequired.set(false);
+            this.loadRequired.set(false);
             cradleProps.put(CRADLE_DATA_VERSION_PROPERTY, CRADLE_DATA_VERSION);
 
             try (FileOutputStream out = new FileOutputStream(propertiesPath.toFile())) {
                cradleProps.store(out, CRADLE_DATA_VERSION);
             }
 
-            dbId = UUID.randomUUID();
-            Files.write(dbIdPath, dbId.toString()
-                                      .getBytes());
+            this.dbId = UUID.randomUUID();
+            Files.write(dbIdPath, this.dbId.toString()
+                                           .getBytes());
             LOG.info("Creating a new (empty) concept store at " + folderPath.toAbsolutePath() + " with the id of ]" +
-                     dbId.toString() + "'");
+                     this.dbId.toString() + "'");
          }
 
-         ochreConceptPath = folderPath.resolve("ochre");
+         this.ochreConceptPath = folderPath.resolve("ochre");
 
-         if (!Files.exists(ochreConceptPath)) {
-            databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
+         if (!Files.exists(this.ochreConceptPath)) {
+            this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
          }
 
-         conceptMap = new CasSequenceObjectMap<>(new ConceptSerializer(),
-               ochreConceptPath,
+         this.conceptMap = new CasSequenceObjectMap<>(new ConceptSerializer(),
+               this.ochreConceptPath,
                "seg.",
                ".ochre-concepts.map");
       } catch (IOException | IllegalStateException e) {
@@ -203,42 +230,62 @@ public class ConceptProvider
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Clear database validity value.
+    */
    @Override
    public void clearDatabaseValidityValue() {
       // Reset to enforce analysis
-      databaseValidity = DatabaseValidity.NOT_SET;
+      this.databaseValidity = DatabaseValidity.NOT_SET;
    }
 
+   /**
+    * Write concept.
+    *
+    * @param concept the concept
+    */
    @Override
    public void writeConcept(ConceptChronology<? extends ConceptVersion<?>> concept) {
-      conceptMap.put(concept.getConceptSequence(), (ConceptChronologyImpl) concept);
+      this.conceptMap.put(concept.getConceptSequence(), (ConceptChronologyImpl) concept);
    }
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       LOG.info("Starting OCHRE ConceptProvider post-construct");
-      conceptActiveService = LookupService.getService(ConceptActiveService.class);
+      this.conceptActiveService = LookupService.getService(ConceptActiveService.class);
 
-      if (loadRequired.compareAndSet(true, false)) {
+      if (this.loadRequired.compareAndSet(true, false)) {
          LOG.info("Reading existing OCHRE concept-map.");
 
-         if (conceptMap.initialize()) {
-            databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
+         if (this.conceptMap.initialize()) {
+            this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
          }
 
          LOG.info("Finished OCHRE read.");
       }
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping OCHRE ConceptProvider.");
       LOG.info("Writing OCHRE concept-map.");
-      conceptMap.write();
+      this.conceptMap.write();
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the concept.
+    *
+    * @param conceptId the concept id
+    * @return the concept
+    */
    @Override
    public ConceptChronologyImpl getConcept(int conceptId) {
       if (conceptId < 0) {
@@ -246,31 +293,43 @@ public class ConceptProvider
                         .getConceptSequence(conceptId);
       }
 
-      return conceptMap.getQuick(conceptId);
+      return this.conceptMap.getQuick(conceptId);
    }
 
+   /**
+    * Gets the concept.
+    *
+    * @param conceptUuids the concept uuids
+    * @return the concept
+    */
    @Override
    public ConceptChronologyImpl getConcept(UUID... conceptUuids) {
-      int                             conceptNid      = Get.identifierService()
-                                                           .getNidForUuids(conceptUuids);
-      int                             conceptSequence = Get.identifierService()
-                                                           .getConceptSequence(conceptNid);
-      Optional<ConceptChronologyImpl> optionalConcept = conceptMap.get(conceptSequence);
+      final int                             conceptNid      = Get.identifierService()
+                                                                 .getNidForUuids(conceptUuids);
+      final int                             conceptSequence = Get.identifierService()
+                                                                 .getConceptSequence(conceptNid);
+      final Optional<ConceptChronologyImpl> optionalConcept = this.conceptMap.get(conceptSequence);
 
       if (optionalConcept.isPresent()) {
          return optionalConcept.get();
       }
 
-      ConceptChronologyImpl concept = new ConceptChronologyImpl(conceptUuids[0], conceptNid, conceptSequence);
+      final ConceptChronologyImpl concept = new ConceptChronologyImpl(conceptUuids[0], conceptNid, conceptSequence);
 
       if (conceptUuids.length > 1) {
          concept.setAdditionalUuids(Arrays.asList(Arrays.copyOfRange(conceptUuids, 1, conceptUuids.length)));
       }
 
-      conceptMap.put(conceptSequence, concept);
-      return conceptMap.getQuick(conceptSequence);
+      this.conceptMap.put(conceptSequence, concept);
+      return this.conceptMap.getQuick(conceptSequence);
    }
 
+   /**
+    * Checks for concept.
+    *
+    * @param conceptId the concept id
+    * @return true, if successful
+    */
    @Override
    public boolean hasConcept(int conceptId) {
       if (conceptId < 0) {
@@ -278,29 +337,47 @@ public class ConceptProvider
                         .getConceptSequence(conceptId);
       }
 
-      return conceptMap.containsKey(conceptId);
+      return this.conceptMap.containsKey(conceptId);
    }
 
+   /**
+    * Checks if concept active.
+    *
+    * @param conceptSequence the concept sequence
+    * @param stampCoordinate the stamp coordinate
+    * @return true, if concept active
+    */
    @Override
    public boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate) {
-      return conceptActiveService.isConceptActive(conceptSequence, stampCoordinate);
+      return this.conceptActiveService.isConceptActive(conceptSequence, stampCoordinate);
    }
 
+   /**
+    * Gets the concept chronology stream.
+    *
+    * @return the concept chronology stream
+    */
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream() {
-      return conceptMap.getStream().map((cc) -> {
-                               return (ConceptChronology<? extends ConceptVersion<?>>) cc;
-                            });
+      return this.conceptMap.getStream().map((cc) -> {
+                                    return (ConceptChronology<? extends ConceptVersion<?>>) cc;
+                                 });
    }
 
+   /**
+    * Gets the concept chronology stream.
+    *
+    * @param conceptSequences the concept sequences
+    * @return the concept chronology stream
+    */
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream(
            ConceptSequenceSet conceptSequences) {
       return Get.identifierService().getConceptSequenceStream().filter((int sequence) -> conceptSequences.contains(sequence)).mapToObj((int sequence) -> {
-                             Optional<ConceptChronologyImpl> result = conceptMap.get(sequence);
+                             final Optional<ConceptChronologyImpl> result = this.conceptMap.get(sequence);
 
                              if (result.isPresent()) {
-                                return conceptMap.get(sequence)
+                                return this.conceptMap.get(sequence)
                                       .get();
                              }
 
@@ -308,11 +385,23 @@ public class ConceptProvider
                           });
    }
 
+   /**
+    * Gets the concept count.
+    *
+    * @return the concept count
+    */
    @Override
    public int getConceptCount() {
-      return conceptMap.getSize();
+      return this.conceptMap.getSize();
    }
 
+   /**
+    * Gets the concept data.
+    *
+    * @param i the i
+    * @return the concept data
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public Optional<ConceptChronologyImpl> getConceptData(int i)
             throws IOException {
       if (i < 0) {
@@ -320,34 +409,65 @@ public class ConceptProvider
                 .getConceptSequence(i);
       }
 
-      return conceptMap.get(i);
+      return this.conceptMap.get(i);
    }
 
+   /**
+    * Gets the concept key parallel stream.
+    *
+    * @return the concept key parallel stream
+    */
    @Override
    public IntStream getConceptKeyParallelStream() {
-      return conceptMap.getKeyParallelStream();
+      return this.conceptMap.getKeyParallelStream();
    }
 
+   /**
+    * Gets the concept key stream.
+    *
+    * @return the concept key stream
+    */
    @Override
    public IntStream getConceptKeyStream() {
-      return conceptMap.getKeyStream();
+      return this.conceptMap.getKeyStream();
    }
 
+   /**
+    * Gets the data store id.
+    *
+    * @return the data store id
+    */
    @Override
    public UUID getDataStoreId() {
-      return dbId;
+      return this.dbId;
    }
 
+   /**
+    * Gets the database folder.
+    *
+    * @return the database folder
+    */
    @Override
    public Path getDatabaseFolder() {
-      return ochreConceptPath;
+      return this.ochreConceptPath;
    }
 
+   /**
+    * Gets the database validity status.
+    *
+    * @return the database validity status
+    */
    @Override
    public DatabaseValidity getDatabaseValidityStatus() {
-      return databaseValidity;
+      return this.databaseValidity;
    }
 
+   /**
+    * Gets the optional concept.
+    *
+    * @param conceptId the concept id
+    * @return the optional concept
+    */
    @Override
    public Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(int conceptId) {
       if (conceptId < 0) {
@@ -355,9 +475,15 @@ public class ConceptProvider
                         .getConceptSequence(conceptId);
       }
 
-      return conceptMap.get(conceptId);
+      return this.conceptMap.get(conceptId);
    }
 
+   /**
+    * Gets the optional concept.
+    *
+    * @param conceptUuids the concept uuids
+    * @return the optional concept
+    */
    @Override
    public Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(UUID... conceptUuids) {
       // check hasUuid first, because getOptionalConcept adds the UUID to the index if it doesn't exist...
@@ -370,21 +496,32 @@ public class ConceptProvider
       }
    }
 
+   /**
+    * Gets the parallel concept chronology stream.
+    *
+    * @return the parallel concept chronology stream
+    */
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream() {
-      return conceptMap.getParallelStream().map((cc) -> {
-                               return cc;
-                            });
+      return this.conceptMap.getParallelStream().map((cc) -> {
+                                    return cc;
+                                 });
    }
 
+   /**
+    * Gets the parallel concept chronology stream.
+    *
+    * @param conceptSequences the concept sequences
+    * @return the parallel concept chronology stream
+    */
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream(
            ConceptSequenceSet conceptSequences) {
       return Get.identifierService().getParallelConceptSequenceStream().filter((int sequence) -> conceptSequences.contains(sequence)).mapToObj((int sequence) -> {
-                             Optional<ConceptChronologyImpl> result = conceptMap.get(sequence);
+                             final Optional<ConceptChronologyImpl> result = this.conceptMap.get(sequence);
 
                              if (result.isPresent()) {
-                                return conceptMap.get(sequence)
+                                return this.conceptMap.get(sequence)
                                       .get();
                              }
 
@@ -392,6 +529,13 @@ public class ConceptProvider
                           });
    }
 
+   /**
+    * Gets the snapshot.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param languageCoordinate the language coordinate
+    * @return the snapshot
+    */
    @Override
    public ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
       return new ConceptSnapshotProvider(stampCoordinate, languageCoordinate);
@@ -399,13 +543,25 @@ public class ConceptProvider
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class ConceptSnapshotProvider.
+    */
    public class ConceptSnapshotProvider
             implements ConceptSnapshotService {
-      StampCoordinate    stampCoordinate;
+      /** The stamp coordinate. */
+      StampCoordinate stampCoordinate;
+
+      /** The language coordinate. */
       LanguageCoordinate languageCoordinate;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new concept snapshot provider.
+       *
+       * @param stampCoordinate the stamp coordinate
+       * @param languageCoordinate the language coordinate
+       */
       public ConceptSnapshotProvider(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
          this.stampCoordinate    = stampCoordinate;
          this.languageCoordinate = languageCoordinate;
@@ -413,9 +569,15 @@ public class ConceptProvider
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Concept description text.
+       *
+       * @param conceptId the concept id
+       * @return the string
+       */
       @Override
       public String conceptDescriptionText(int conceptId) {
-         Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional = getDescriptionOptional(conceptId);
+         final Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional = getDescriptionOptional(conceptId);
 
          if (descriptionOptional.isPresent()) {
             return descriptionOptional.get()
@@ -426,56 +588,108 @@ public class ConceptProvider
          return "No desc for: " + conceptId;
       }
 
+      /**
+       * To string.
+       *
+       * @return the string
+       */
       @Override
       public String toString() {
-         return "ConceptSnapshotProvider{" + "stampCoordinate=" + stampCoordinate + ", languageCoordinate=" +
-                languageCoordinate + '}';
+         return "ConceptSnapshotProvider{" + "stampCoordinate=" + this.stampCoordinate + ", languageCoordinate=" +
+                this.languageCoordinate + '}';
       }
 
       //~--- get methods ------------------------------------------------------
 
+      /**
+       * Checks if concept active.
+       *
+       * @param conceptSequence the concept sequence
+       * @return true, if concept active
+       */
       @Override
       public boolean isConceptActive(int conceptSequence) {
-         return ConceptProvider.this.isConceptActive(conceptSequence, stampCoordinate);
+         return ConceptProvider.this.isConceptActive(conceptSequence, this.stampCoordinate);
       }
 
+      /**
+       * Gets the concept snapshot.
+       *
+       * @param conceptSequence the concept sequence
+       * @return the concept snapshot
+       */
       @Override
       public ConceptSnapshot getConceptSnapshot(int conceptSequence) {
-         return new ConceptSnapshotImpl(getConcept(conceptSequence), stampCoordinate, languageCoordinate);
+         return new ConceptSnapshotImpl(getConcept(conceptSequence), this.stampCoordinate, this.languageCoordinate);
       }
 
+      /**
+       * Gets the description list.
+       *
+       * @param conceptId the concept id
+       * @return the description list
+       */
       private List<SememeChronology<? extends DescriptionSememe<?>>> getDescriptionList(int conceptId) {
-         int conceptNid = Get.identifierService()
-                             .getConceptNid(conceptId);
+         final int conceptNid = Get.identifierService()
+                                   .getConceptNid(conceptId);
 
          return Get.sememeService()
                    .getDescriptionsForComponent(conceptNid)
                    .collect(Collectors.toList());
       }
 
+      /**
+       * Gets the description optional.
+       *
+       * @param conceptId the concept id
+       * @return the description optional
+       */
       @Override
       public Optional<LatestVersion<DescriptionSememe<?>>> getDescriptionOptional(int conceptId) {
-         return languageCoordinate.getDescription(getDescriptionList(conceptId), stampCoordinate);
+         return this.languageCoordinate.getDescription(getDescriptionList(conceptId), this.stampCoordinate);
       }
 
+      /**
+       * Gets the fully specified description.
+       *
+       * @param conceptId the concept id
+       * @return the fully specified description
+       */
       @Override
       public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(int conceptId) {
-         return languageCoordinate.getFullySpecifiedDescription(getDescriptionList(conceptId), stampCoordinate);
+         return this.languageCoordinate.getFullySpecifiedDescription(getDescriptionList(conceptId),
+               this.stampCoordinate);
       }
 
+      /**
+       * Gets the language coordinate.
+       *
+       * @return the language coordinate
+       */
       @Override
       public LanguageCoordinate getLanguageCoordinate() {
-         return languageCoordinate;
+         return this.languageCoordinate;
       }
 
+      /**
+       * Gets the preferred description.
+       *
+       * @param conceptId the concept id
+       * @return the preferred description
+       */
       @Override
       public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(int conceptId) {
-         return languageCoordinate.getPreferredDescription(getDescriptionList(conceptId), stampCoordinate);
+         return this.languageCoordinate.getPreferredDescription(getDescriptionList(conceptId), this.stampCoordinate);
       }
 
+      /**
+       * Gets the stamp coordinate.
+       *
+       * @return the stamp coordinate
+       */
       @Override
       public StampCoordinate getStampCoordinate() {
-         return stampCoordinate;
+         return this.stampCoordinate;
       }
    }
 }

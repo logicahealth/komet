@@ -61,10 +61,23 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public class SufficientSetNode
         extends ConnectorNode {
+   /**
+    * Instantiates a new sufficient set node.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param children the children
+    */
    public SufficientSetNode(LogicalExpressionOchreImpl logicGraphVersion, AbstractLogicNode... children) {
       super(logicGraphVersion, children);
    }
 
+   /**
+    * Instantiates a new sufficient set node.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public SufficientSetNode(LogicalExpressionOchreImpl logicGraphVersion,
                             DataInputStream dataInputStream)
             throws IOException {
@@ -73,27 +86,56 @@ public class SufficientSetNode
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
       return "Sufficient[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
 
+   /**
+    * Compare node fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    protected int compareNodeFields(LogicNode o) {
       // no fields to compare, node semantic already determined equals.
       return 0;
    }
 
+   /**
+    * Inits the node uuid.
+    *
+    * @return the uuid
+    */
    @Override
    protected UUID initNodeUuid() {
       return getNodeSemantic().getSemanticUuid();
    }
 
+   /**
+    * Write node data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    protected void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
@@ -102,6 +144,11 @@ public class SufficientSetNode
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the node semantic.
+    *
+    * @return the node semantic
+    */
    @Override
    public NodeSemantic getNodeSemantic() {
       return NodeSemantic.SUFFICIENT_SET;

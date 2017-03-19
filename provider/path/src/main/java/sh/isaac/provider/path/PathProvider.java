@@ -80,19 +80,32 @@ import sh.isaac.model.coordinate.StampPositionImpl;
 @RunLevel(value = 2)
 public class PathProvider
          implements PathService {
-   private static final Logger LOG  = LogManager.getLogger();
-   private static final Lock   LOCK = new ReentrantLock();
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
+
+   /** The Constant LOCK. */
+   private static final Lock LOCK = new ReentrantLock();
 
    //~--- fields --------------------------------------------------------------
 
+   /** The path map. */
    ConcurrentHashMap<Integer, StampPath> pathMap;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new path provider.
+    */
    protected PathProvider() {}
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Exists.
+    *
+    * @param pathConceptId the path concept id
+    * @return true, if successful
+    */
    @Override
    public boolean exists(int pathConceptId) {
       setupPathMap();
@@ -102,28 +115,31 @@ public class PathProvider
                             .getConceptSequence(pathConceptId);
       }
 
-      if (pathMap.containsKey(pathConceptId)) {
+      if (this.pathMap.containsKey(pathConceptId)) {
          return true;
       }
 
-      Optional<StampPath> stampPath = getFromDisk(pathConceptId);
+      final Optional<StampPath> stampPath = getFromDisk(pathConceptId);
 
       return stampPath.isPresent();
    }
 
+   /**
+    * Setup path map.
+    */
    private void setupPathMap() {
-      if (pathMap == null) {
+      if (this.pathMap == null) {
          LOCK.lock();
 
          try {
-            pathMap = new ConcurrentHashMap<>();
+            this.pathMap = new ConcurrentHashMap<>();
             Get.sememeService()
                .getSememesFromAssemblage(TermAux.PATH_ASSEMBLAGE.getConceptSequence())
                .forEach((pathSememe) -> {
-                           int pathSequence = Get.identifierService()
-                                                 .getConceptSequence(pathSememe.getReferencedComponentNid());
+                           final int pathSequence = Get.identifierService()
+                                                       .getConceptSequence(pathSememe.getReferencedComponentNid());
 
-                           pathMap.put(pathSequence, new StampPathImpl(pathSequence));
+                           this.pathMap.put(pathSequence, new StampPathImpl(pathSequence));
                         });
          } finally {
             LOCK.unlock();
@@ -131,8 +147,15 @@ public class PathProvider
       }
    }
 
+   /**
+    * Traverse origins.
+    *
+    * @param v1 the v 1
+    * @param path the path
+    * @return the relative position
+    */
    private RelativePosition traverseOrigins(StampedVersion v1, StampPath path) {
-      for (StampPosition origin: path.getPathOrigins()) {
+      for (final StampPosition origin: path.getPathOrigins()) {
          if (origin.getStampPathSequence() == v1.getPathSequence()) {
             if (v1.getTime() <= origin.getTime()) {
                return RelativePosition.BEFORE;
@@ -145,6 +168,12 @@ public class PathProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the from disk.
+    *
+    * @param stampPathSequence the stamp path sequence
+    * @return the from disk
+    */
    private Optional<StampPath> getFromDisk(int stampPathSequence) {
       return Get.sememeService().getSememesForComponentFromAssemblage(stampPathSequence, TermAux.PATH_ASSEMBLAGE.getConceptSequence()).map((sememeChronicle) -> {
                         int pathId = sememeChronicle.getReferencedComponentNid();
@@ -154,13 +183,19 @@ public class PathProvider
                         assert pathId == stampPathSequence:
                                "pathId: " + pathId + " stampPathSequence: " + stampPathSequence;
 
-                        StampPath stampPath = new StampPathImpl(stampPathSequence);
+                        final StampPath stampPath = new StampPathImpl(stampPathSequence);
 
-                        pathMap.put(stampPathSequence, stampPath);
+                        this.pathMap.put(stampPathSequence, stampPath);
                         return stampPath;
                      }).findFirst();
    }
 
+   /**
+    * Gets the origins.
+    *
+    * @param stampPathSequence the stamp path sequence
+    * @return the origins
+    */
    @Override
    public Collection<? extends StampPosition> getOrigins(int stampPathSequence) {
       setupPathMap();
@@ -173,18 +208,29 @@ public class PathProvider
       return getPathOriginsFromDb(stampPathSequence);
    }
 
+   /**
+    * Gets the path origins from db.
+    *
+    * @param nid the nid
+    * @return the path origins from db
+    */
    private List<StampPosition> getPathOriginsFromDb(int nid) {
       return Get.sememeService()
                 .getSememesForComponentFromAssemblage(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getConceptSequence())
                 .map((pathOrigin) -> {
-                        long time = ((LongSememe) pathOrigin.getVersionList()
-                                                            .get(0)).getLongValue();
+                        final long time = ((LongSememe) pathOrigin.getVersionList()
+                                                                  .get(0)).getLongValue();
 
                         return new StampPositionImpl(time, Get.identifierService().getConceptSequence(nid));
                      })
                 .collect(Collectors.toList());
    }
 
+   /**
+    * Gets the paths.
+    *
+    * @return the paths
+    */
    @Override
    public Collection<? extends StampPath> getPaths() {
       return Get.sememeService().getSememesFromAssemblage(TermAux.PATH_ASSEMBLAGE.getConceptSequence()).map((sememeChronicle) -> {
@@ -193,18 +239,32 @@ public class PathProvider
                         pathId = Get.identifierService()
                                     .getConceptSequence(pathId);
 
-                        StampPath stampPath = new StampPathImpl(pathId);
+                        final StampPath stampPath = new StampPathImpl(pathId);
 
                         return stampPath;
                      }).collect(Collectors.toList());
    }
 
+   /**
+    * Gets the relative position.
+    *
+    * @param stampSequence1 the stamp sequence 1
+    * @param stampSequence2 the stamp sequence 2
+    * @return the relative position
+    */
    @Override
    public RelativePosition getRelativePosition(int stampSequence1, int stampSequence2) {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Gets the relative position.
+    *
+    * @param v1 the v 1
+    * @param v2 the v 2
+    * @return the relative position
+    */
    @Override
    public RelativePosition getRelativePosition(StampedVersion v1, StampedVersion v2) {
       if (v1.getPathSequence() == v2.getPathSequence()) {
@@ -226,6 +286,12 @@ public class PathProvider
       return traverseOrigins(v2, getStampPath(v1.getPathSequence()));
    }
 
+   /**
+    * Gets the stamp path.
+    *
+    * @param stampPathSequence the stamp path sequence
+    * @return the stamp path
+    */
    @Override
    public StampPath getStampPath(int stampPathSequence) {
       setupPathMap();
@@ -236,10 +302,10 @@ public class PathProvider
       }
 
       if (exists(stampPathSequence)) {
-         return pathMap.get(stampPathSequence);
+         return this.pathMap.get(stampPathSequence);
       }
 
-      Optional<StampPath> stampPath = getFromDisk(stampPathSequence);
+      final Optional<StampPath> stampPath = getFromDisk(stampPathSequence);
 
       if (stampPath.isPresent()) {
          return stampPath.get();

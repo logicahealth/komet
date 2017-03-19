@@ -86,7 +86,6 @@ import sh.isaac.api.externalizable.MultipleDataWriterService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
-import sh.isaac.api.util.StringUtils;
 import sh.isaac.api.util.UuidT5Generator;
 
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
@@ -102,19 +101,44 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
  */
 @Contract
 public class IsaacTaxonomy {
-   private final TreeMap<String, ConceptBuilder> conceptBuilders                 = new TreeMap<>();
-   private final List<SememeBuilder<?>>          sememeBuilders                  = new ArrayList<>();
-   private final List<ConceptBuilder>            conceptBuildersInInsertionOrder = new ArrayList<>();
-   private final Stack<ConceptBuilder>           parentStack                     = new Stack<>();
-   private ConceptBuilder                        current;
-   private final ConceptSpecification            isaTypeSpec;
-   private final ConceptSpecification            moduleSpec;
-   private final ConceptSpecification            pathSpec;
-   private final ConceptSpecification            authorSpec;
-   private final String                          semanticTag;
+   /** The concept builders. */
+   private final TreeMap<String, ConceptBuilder> conceptBuilders = new TreeMap<>();
+
+   /** The sememe builders. */
+   private final List<SememeBuilder<?>> sememeBuilders = new ArrayList<>();
+
+   /** The concept builders in insertion order. */
+   private final List<ConceptBuilder> conceptBuildersInInsertionOrder = new ArrayList<>();
+
+   /** The parent stack. */
+   private final Stack<ConceptBuilder> parentStack = new Stack<>();
+
+   /** The current. */
+   private ConceptBuilder current;
+
+   /** The module spec. */
+   private final ConceptSpecification moduleSpec;
+
+   /** The path spec. */
+   private final ConceptSpecification pathSpec;
+
+   /** The author spec. */
+   private final ConceptSpecification authorSpec;
+
+   /** The semantic tag. */
+   private final String semanticTag;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new isaac taxonomy.
+    *
+    * @param path the path
+    * @param author the author
+    * @param module the module
+    * @param isaType the isa type
+    * @param semanticTag the semantic tag
+    */
    public IsaacTaxonomy(ConceptSpecification path,
                         ConceptSpecification author,
                         ConceptSpecification module,
@@ -123,35 +147,41 @@ public class IsaacTaxonomy {
       this.pathSpec    = path;
       this.authorSpec  = author;
       this.moduleSpec  = module;
-      this.isaTypeSpec = isaType;
       this.semanticTag = semanticTag;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Creates the concept.
+    *
+    * @param cc the cc
+    * @return the concept builder
+    * @throws Exception the exception
+    */
    public ConceptBuilder createConcept(MetadataConceptConstant cc)
             throws Exception {
       try {
-         ConceptBuilder cb = createConcept(cc.getPrimaryName(),
-                                           (cc.getParent() != null) ? cc.getParent()
-                                                 .getConceptSequence()
+         final ConceptBuilder cb = createConcept(cc.getPrimaryName(),
+                                                 (cc.getParent() != null) ? cc.getParent()
+                                                       .getConceptSequence()
                : null,
-                                           null);
+                                                 null);
 
          cb.setPrimordialUuid(cc.getUUID());
 
-         for (String definition: cc.getDefinitions()) {
+         for (final String definition: cc.getDefinitions()) {
             addDescription(definition, cb, TermAux.DEFINITION_DESCRIPTION_TYPE, false);
          }
 
-         for (String definition: cc.getSynonyms()) {
+         for (final String definition: cc.getSynonyms()) {
             addDescription(definition, cb, TermAux.SYNONYM_DESCRIPTION_TYPE, false);
          }
 
          if (cc instanceof MetadataConceptConstantGroup) {
             pushParent(current());
 
-            for (MetadataConceptConstant nested: ((MetadataConceptConstantGroup) cc).getChildren()) {
+            for (final MetadataConceptConstant nested: ((MetadataConceptConstantGroup) cc).getChildren()) {
                createConcept(nested);
             }
 
@@ -160,8 +190,8 @@ public class IsaacTaxonomy {
 
          if (cc instanceof MetadataDynamicSememeConstant) {
             // See {@link DynamicSememeUsageDescription} class for more details on this format.
-            MetadataDynamicSememeConstant dsc = (MetadataDynamicSememeConstant) cc;
-            DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>> db =
+            final MetadataDynamicSememeConstant dsc = (MetadataDynamicSememeConstant) cc;
+            final DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>> db =
                addDescription(dsc.getSememeAssemblageDescription(),
                               cb,
                               TermAux.DEFINITION_DESCRIPTION_TYPE,
@@ -176,9 +206,9 @@ public class IsaacTaxonomy {
             db.addSememe(sb);
 
             if (dsc.getDynamicSememeColumns() != null) {
-               for (DynamicSememeColumnInfo col: dsc.getDynamicSememeColumns()) {
-                  DynamicSememeData[] colData = LookupService.getService(DynamicSememeUtility.class)
-                                                             .configureDynamicSememeDefinitionDataForColumn(col);
+               for (final DynamicSememeColumnInfo col: dsc.getDynamicSememeColumns()) {
+                  final DynamicSememeData[] colData = LookupService.getService(DynamicSememeUtility.class)
+                                                                   .configureDynamicSememeDefinitionDataForColumn(col);
 
                   sb = Get.sememeBuilderService()
                           .getDynamicSememeBuilder(cb,
@@ -189,10 +219,10 @@ public class IsaacTaxonomy {
                }
             }
 
-            DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class)
-                                                    .configureDynamicSememeRestrictionData(
-                                                       dsc.getReferencedComponentTypeRestriction(),
-                                                             dsc.getReferencedComponentSubTypeRestriction());
+            final DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class)
+                                                          .configureDynamicSememeRestrictionData(
+                                                             dsc.getReferencedComponentTypeRestriction(),
+                                                                   dsc.getReferencedComponentSubTypeRestriction());
 
             if (data != null) {
                sb = Get.sememeBuilderService()
@@ -203,9 +233,9 @@ public class IsaacTaxonomy {
                cb.addSememe(sb);
             }
 
-            DynamicSememeArray<DynamicSememeData> indexConfig = LookupService.getService(DynamicSememeUtility.class)
-                                                                             .configureColumnIndexInfo(
-                                                                                dsc.getDynamicSememeColumns());
+            final DynamicSememeArray<DynamicSememeData> indexConfig =
+               LookupService.getService(DynamicSememeUtility.class)
+                            .configureColumnIndexInfo(dsc.getDynamicSememeColumns());
 
             if (indexConfig != null) {
                sb = Get.sememeBuilderService()
@@ -218,40 +248,47 @@ public class IsaacTaxonomy {
          }
 
          return cb;
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new Exception("Problem with '" + cc.getPrimaryName() + "'", e);
       }
    }
 
+   /**
+    * Export.
+    *
+    * @param jsonPath the json path
+    * @param ibdfPath the ibdf path
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void export(Optional<Path> jsonPath, Optional<Path> ibdfPath)
             throws IOException {
-      long exportTime = System.currentTimeMillis();
-      int stampSequence = Get.stampService()
-                             .getStampSequence(State.ACTIVE,
-                                   exportTime,
-                                   authorSpec.getConceptSequence(),
-                                   moduleSpec.getConceptSequence(),
-                                   pathSpec.getConceptSequence());
-      CommitService  commitService  = Get.commitService();
-      SememeService  sememeService  = Get.sememeService();
-      ConceptService conceptService = Get.conceptService();
+      final long exportTime = System.currentTimeMillis();
+      final int stampSequence = Get.stampService()
+                                   .getStampSequence(State.ACTIVE,
+                                         exportTime,
+                                         this.authorSpec.getConceptSequence(),
+                                         this.moduleSpec.getConceptSequence(),
+                                         this.pathSpec.getConceptSequence());
+      final CommitService  commitService  = Get.commitService();
+      final SememeService  sememeService  = Get.sememeService();
+      final ConceptService conceptService = Get.conceptService();
 
       commitService.setComment(stampSequence, "Generated by maven from java sources");
 
-      for (ConceptBuilder builder: conceptBuildersInInsertionOrder) {
+      for (final ConceptBuilder builder: this.conceptBuildersInInsertionOrder) {
          buildAndWrite(builder, stampSequence, conceptService, sememeService);
       }
 
-      for (SememeBuilder<?> builder: sememeBuilders) {
+      for (final SememeBuilder<?> builder: this.sememeBuilders) {
          buildAndWrite(builder, stampSequence, conceptService, sememeService);
       }
 
-      int stampAliasForPromotion = Get.stampService()
-                                      .getStampSequence(State.ACTIVE,
-                                            exportTime + (1000 * 60),
-                                            authorSpec.getConceptSequence(),
-                                            moduleSpec.getConceptSequence(),
-                                            pathSpec.getConceptSequence());
+      final int stampAliasForPromotion = Get.stampService()
+                                            .getStampSequence(State.ACTIVE,
+                                                  exportTime + (1000 * 60),
+                                                  this.authorSpec.getConceptSequence(),
+                                                  this.moduleSpec.getConceptSequence(),
+                                                  this.pathSpec.getConceptSequence());
 
       commitService.addAlias(stampSequence, stampAliasForPromotion, "promoted by maven");
 
@@ -261,6 +298,14 @@ public class IsaacTaxonomy {
       }
    }
 
+   /**
+    * Export java binding.
+    *
+    * @param out the out
+    * @param packageName the package name
+    * @param className the class name
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void exportJavaBinding(Writer out, String packageName, String className)
             throws IOException {
       out.append("package " + packageName + ";\n");
@@ -268,9 +313,9 @@ public class IsaacTaxonomy {
       out.append("import sh.isaac.api.ConceptProxy;\n");
       out.append("\n\npublic class " + className + " {\n");
 
-      for (ConceptBuilder concept: conceptBuildersInInsertionOrder) {
-         String preferredName = concept.getConceptDescriptionText();
-         String constantName  = preferredName.toUpperCase();
+      for (final ConceptBuilder concept: this.conceptBuildersInInsertionOrder) {
+         final String preferredName = concept.getConceptDescriptionText();
+         String       constantName  = preferredName.toUpperCase();
 
          if ((preferredName.indexOf("(") > 0) || (preferredName.indexOf(")") > 0)) {
             throw new RuntimeException("The metadata concept '" + preferredName +
@@ -288,7 +333,7 @@ public class IsaacTaxonomy {
          out.append("\n   public static ConceptSpecification " + constantName + " =");
          out.append("\n             new ConceptProxy(\"" + preferredName + "\"");
 
-         for (UUID uuid: concept.getUuidList()) {
+         for (final UUID uuid: concept.getUuidList()) {
             out.append(",\"" + uuid.toString() + "\"");
          }
 
@@ -299,6 +344,12 @@ public class IsaacTaxonomy {
       out.close();
    }
 
+   /**
+    * Export jaxb.
+    *
+    * @param out the out
+    * @throws Exception the exception
+    */
    public void exportJaxb(DataOutputStream out)
             throws Exception {
 //    UuidDtoBuilder dtoBuilder = new UuidDtoBuilder(time,
@@ -324,6 +375,14 @@ public class IsaacTaxonomy {
 //    marshaller.marshal(jaxbElement, out);
    }
 
+   /**
+    * Export yaml binding.
+    *
+    * @param out the out
+    * @param packageName the package name
+    * @param className the class name
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void exportYamlBinding(Writer out, String packageName, String className)
             throws IOException {
       out.append("#YAML Bindings for " + packageName + "." + className + "\n");
@@ -331,9 +390,9 @@ public class IsaacTaxonomy {
       // TODO use common code (when moved somewhere common) to extract the version number from the pom.xml
       out.append("#Generated " + new Date().toString() + "\n");
 
-      for (ConceptBuilder concept: conceptBuildersInInsertionOrder) {
-         String preferredName = concept.getConceptDescriptionText();
-         String constantName  = preferredName.toUpperCase();
+      for (final ConceptBuilder concept: this.conceptBuildersInInsertionOrder) {
+         final String preferredName = concept.getConceptDescriptionText();
+         String       constantName  = preferredName.toUpperCase();
 
          if ((preferredName.indexOf("(") > 0) || (preferredName.indexOf(")") > 0)) {
             throw new RuntimeException("The metadata concept '" + preferredName +
@@ -348,7 +407,7 @@ public class IsaacTaxonomy {
          out.append("    fsn: " + preferredName + "\n");
          out.append("    uuids:\n");
 
-         for (UUID uuid: concept.getUuidList()) {
+         for (final UUID uuid: concept.getUuidList()) {
             out.append("        - " + uuid.toString() + "\n");
          }
       }
@@ -356,14 +415,26 @@ public class IsaacTaxonomy {
       out.close();
    }
 
+   /**
+    * Adds the path.
+    *
+    * @param pathAssemblageConcept the path assemblage concept
+    * @param pathConcept the path concept
+    */
    protected void addPath(ConceptBuilder pathAssemblageConcept, ConceptBuilder pathConcept) {
-      sememeBuilders.add(Get.sememeBuilderService()
-                            .getMembershipSememeBuilder(pathConcept.getNid(),
-                                  pathAssemblageConcept.getConceptSequence()));
+      this.sememeBuilders.add(Get.sememeBuilderService()
+                                 .getMembershipSememeBuilder(pathConcept.getNid(),
+                                       pathAssemblageConcept.getConceptSequence()));
    }
 
+   /**
+    * Creates the concept.
+    *
+    * @param specification the specification
+    * @return the concept builder
+    */
    protected final ConceptBuilder createConcept(ConceptSpecification specification) {
-      ConceptBuilder builder = createConcept(specification.getConceptDescriptionText());
+      final ConceptBuilder builder = createConcept(specification.getConceptDescriptionText());
 
       builder.setPrimordialUuid(specification.getUuidList()
             .get(0));
@@ -379,10 +450,23 @@ public class IsaacTaxonomy {
       return builder;
    }
 
+   /**
+    * Creates the concept.
+    *
+    * @param name the name
+    * @return the concept builder
+    */
    protected final ConceptBuilder createConcept(String name) {
       return createConcept(name, null, null);
    }
 
+   /**
+    * Creates the concept.
+    *
+    * @param name the name
+    * @param nonPreferredSynonym the non preferred synonym
+    * @return the concept builder
+    */
    protected final ConceptBuilder createConcept(String name, String nonPreferredSynonym) {
       return createConcept(name, null, nonPreferredSynonym);
    }
@@ -391,41 +475,56 @@ public class IsaacTaxonomy {
     * If parent is provided, it ignores the parent stack, and uses the provided parent instead.
     * If parent is not provided, it uses the parentStack (if populated), otherwise, it creates
     * the concept without setting a parent.
+    *
+    * @param name the name
+    * @param parentId the parent id
+    * @param nonPreferredSynonym the non preferred synonym
+    * @return the concept builder
     */
    protected final ConceptBuilder createConcept(String name, Integer parentId, String nonPreferredSynonym) {
       checkConceptDescriptionText(name);
 
-      if (parentStack.isEmpty() && (parentId == null)) {
-         current = Get.conceptBuilderService()
-                      .getDefaultConceptBuilder(name, semanticTag, null);
+      if (this.parentStack.isEmpty() && (parentId == null)) {
+         this.current = Get.conceptBuilderService()
+                           .getDefaultConceptBuilder(name, this.semanticTag, null);
       } else {
-         LogicalExpressionBuilderService expressionBuilderService =
+         final LogicalExpressionBuilderService expressionBuilderService =
             LookupService.getService(LogicalExpressionBuilderService.class);
-         LogicalExpressionBuilder defBuilder = expressionBuilderService.getLogicalExpressionBuilder();
+         final LogicalExpressionBuilder defBuilder = expressionBuilderService.getLogicalExpressionBuilder();
 
-         NecessarySet(And(ConceptAssertion((parentId == null) ? parentStack.lastElement()
+         NecessarySet(And(ConceptAssertion((parentId == null) ? this.parentStack.lastElement()
                .getNid()
                : parentId, defBuilder)));
 
-         LogicalExpression logicalExpression = defBuilder.build();
+         final LogicalExpression logicalExpression = defBuilder.build();
 
-         current = Get.conceptBuilderService()
-                      .getDefaultConceptBuilder(name, semanticTag, logicalExpression);
+         this.current = Get.conceptBuilderService()
+                           .getDefaultConceptBuilder(name, this.semanticTag, logicalExpression);
       }
 
-      if (StringUtils.isNotBlank(nonPreferredSynonym)) {
-         current.addDescription(nonPreferredSynonym, TermAux.SYNONYM_DESCRIPTION_TYPE);
+      if (org.apache.commons.lang3.StringUtils.isNotBlank(nonPreferredSynonym)) {
+         this.current.addDescription(nonPreferredSynonym, TermAux.SYNONYM_DESCRIPTION_TYPE);
       }
 
-      conceptBuilders.put(name, current);
-      conceptBuildersInInsertionOrder.add(current);
-      return current;
+      this.conceptBuilders.put(name, this.current);
+      this.conceptBuildersInInsertionOrder.add(this.current);
+      return this.current;
    }
 
+   /**
+    * Current.
+    *
+    * @return the concept builder
+    */
    protected final ConceptBuilder current() {
-      return current;
+      return this.current;
    }
 
+   /**
+    * Export.
+    *
+    * @param dataOutputStream the data output stream
+    */
    protected void export(DataOutputStream dataOutputStream) {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -438,30 +537,44 @@ public class IsaacTaxonomy {
     * execution that builds the MetaData constants.
     */
    protected void generateStableUUIDs() {
-      for (ConceptBuilder cb: conceptBuilders.values()) {
+      for (final ConceptBuilder cb: this.conceptBuilders.values()) {
          ensureStableUUID(cb);
       }
    }
 
+   /**
+    * Pop parent.
+    */
    protected final void popParent() {
-      parentStack.pop();
+      this.parentStack.pop();
    }
 
+   /**
+    * Push parent.
+    *
+    * @param parent the parent
+    */
    protected final void pushParent(ConceptBuilder parent) {
       ensureStableUUID(parent);  // no generated UUIDs from this point on....
-      parentStack.push(parent);
+      this.parentStack.push(parent);
    }
 
    /**
     * type should be either {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or {@link TermAux#SYNONYM_DESCRIPTION_TYPE}
-    * This currently only creates english language descriptions
+    * This currently only creates english language descriptions.
+    *
+    * @param description the description
+    * @param cb the cb
+    * @param descriptionType the description type
+    * @param preferred the preferred
+    * @return the description builder<? extends sememe chronology<?>,? extends mutable description sememe<?>>
     */
    private DescriptionBuilder<? extends SememeChronology<?>,
                               ? extends MutableDescriptionSememe<?>> addDescription(String description,
                                     ConceptBuilder cb,
                                     ConceptSpecification descriptionType,
                                     boolean preferred) {
-      DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>> db =
+      final DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>> db =
          LookupService.getService(DescriptionBuilderService.class)
                       .getDescriptionBuilder(description,
                             cb,
@@ -478,12 +591,21 @@ public class IsaacTaxonomy {
       return db;
    }
 
+   /**
+    * Builds the and write.
+    *
+    * @param builder the builder
+    * @param stampCoordinate the stamp coordinate
+    * @param conceptService the concept service
+    * @param sememeService the sememe service
+    * @throws IllegalStateException the illegal state exception
+    */
    private void buildAndWrite(IdentifiedComponentBuilder builder,
                               int stampCoordinate,
                               ConceptService conceptService,
                               SememeService sememeService)
             throws IllegalStateException {
-      List<?> builtObjects = new ArrayList<>();
+      final List<?> builtObjects = new ArrayList<>();
 
       builder.build(stampCoordinate, builtObjects);
       builtObjects.forEach((builtObject) -> {
@@ -498,12 +620,22 @@ public class IsaacTaxonomy {
                            });
    }
 
+   /**
+    * Check concept description text.
+    *
+    * @param name the name
+    */
    private void checkConceptDescriptionText(String name) {
-      if (conceptBuilders.containsKey(name)) {
+      if (this.conceptBuilders.containsKey(name)) {
          throw new RuntimeException("Concept is already added");
       }
    }
 
+   /**
+    * Ensure stable UUID.
+    *
+    * @param builder the builder
+    */
    private void ensureStableUUID(ConceptBuilder builder) {
       if (builder.getPrimordialUuid()
                  .version() == 4) {

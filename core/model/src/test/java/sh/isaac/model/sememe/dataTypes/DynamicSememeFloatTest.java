@@ -56,27 +56,40 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeFloatTest}
+ * {@link DynamicSememeFloatTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeFloatTest {
+   /**
+    * Test serialization.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      float[] testValues = new float[] {
+      final float[] testValues = new float[] {
          Float.MIN_VALUE, Float.MAX_VALUE, 0, 4, 6, 4.56f, 4.292732f, 984, -234, -29837, 4532, 3289402830942309f,
          -9128934721874891f
       };
 
-      for (float l: testValues) {
+      for (final float l: testValues) {
          test(l);
       }
    }
 
+   /**
+    * Test.
+    *
+    * @param value the value
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private void test(float value)
             throws PropertyVetoException, IOException {
-      DynamicSememeFloatImpl l = new DynamicSememeFloatImpl(value);
+      final DynamicSememeFloatImpl l = new DynamicSememeFloatImpl(value);
 
       assertEquals(value, l.getDataFloat(), 0);
       assertEquals(value, (Float) l.getDataObject(), 0);

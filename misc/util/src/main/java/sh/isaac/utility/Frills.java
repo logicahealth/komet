@@ -71,8 +71,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.MetaData;
+
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.State;
@@ -152,14 +152,23 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class Frills.
+ */
+
 //This is a service, simply to implement the DynamicSememeColumnUtility interface.  Everythign else is static, and may be used directly
 @Service
 @Singleton
 public class Frills
          implements DynamicSememeColumnUtility {
-   private static Logger                     log                = LogManager.getLogger(Frills.class);
+   /** The log. */
+   private static Logger log = LogManager.getLogger(Frills.class);
+
+   /** The is association cache. */
    private static LruCache<Integer, Boolean> isAssociationCache = new LruCache<>(50);
-   private static LruCache<Integer, Boolean> isMappingCache     = new LruCache<>(50);
+
+   /** The is mapping cache. */
+   private static LruCache<Integer, Boolean> isMappingCache = new LruCache<>(50);
 
    //~--- methods -------------------------------------------------------------
 
@@ -187,7 +196,11 @@ public class Frills
     *       )
     *
     * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
-    * @throws RuntimeException
+    *
+    * @param columnName the column name
+    * @param columnDescription the column description
+    * @return the concept chronology<? extends concept version<?>>
+    * @throws RuntimeException the runtime exception
     */
    @SuppressWarnings("deprecation")
    public static ConceptChronology<? extends ConceptVersion<?>> buildNewDynamicSememeColumnInfoConcept(
@@ -201,23 +214,24 @@ public class Frills
          throw new RuntimeException("Both the column name and column description are required");
       }
 
-      ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
+      final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
       conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE);
       conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT);
       conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
 
-      DescriptionBuilderService descriptionBuilderService = LookupService.getService(DescriptionBuilderService.class);
-      LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class)
-                                                         .getLogicalExpressionBuilder();
+      final DescriptionBuilderService descriptionBuilderService =
+         LookupService.getService(DescriptionBuilderService.class);
+      final LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class)
+                                                               .getLogicalExpressionBuilder();
 
       NecessarySet(And(ConceptAssertion(Get.conceptService()
             .getConcept(DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMNS
                   .getNid()),
                                         defBuilder)));
 
-      LogicalExpression parentDef = defBuilder.build();
-      ConceptBuilder    builder = conceptBuilderService.getDefaultConceptBuilder(columnName, null, parentDef);
+      final LogicalExpression parentDef = defBuilder.build();
+      final ConceptBuilder    builder = conceptBuilderService.getDefaultConceptBuilder(columnName, null, parentDef);
       DescriptionBuilder<?, ?> definitionBuilder = descriptionBuilderService.getDescriptionBuilder(columnName,
                                                                                                    builder,
                                                                                                    MetaData.SYNONYM,
@@ -238,8 +252,8 @@ public class Frills
          newCon = builder.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE, new ArrayList<>())
                          .get();
       } catch (InterruptedException | ExecutionException e) {
-         String msg = "Failed building new DynamicSememeColumnInfo concept columnName=\"" + columnName +
-                      "\", columnDescription=\"" + columnDescription + "\"";
+         final String msg = "Failed building new DynamicSememeColumnInfo concept columnName=\"" + columnName +
+                            "\", columnDescription=\"" + columnDescription + "\"";
 
          log.error(msg, e);
          throw new RuntimeException(msg, e);
@@ -252,15 +266,15 @@ public class Frills
     * This method returns an uncommitted refexUsageDescriptor concept chronology.
     * A DynamicSememeUsageDescription may be constructed by passing it to the DynamicSememeUsageDescriptionImpl ctor.
     *
-    * @param sememeFSN
-    * @param sememePreferredTerm
-    * @param sememeDescription
-    * @param columns
-    * @param parentConceptNidOrSequence
-    * @param referencedComponentRestriction
-    * @param referencedComponentSubRestriction
-    * @param editCoord
-    * @return
+    * @param sememeFSN the sememe FSN
+    * @param sememePreferredTerm the sememe preferred term
+    * @param sememeDescription the sememe description
+    * @param columns the columns
+    * @param parentConceptNidOrSequence the parent concept nid or sequence
+    * @param referencedComponentRestriction the referenced component restriction
+    * @param referencedComponentSubRestriction the referenced component sub restriction
+    * @param editCoord the edit coord
+    * @return the concept chronology<? extends concept version<?>>
     */
    @SuppressWarnings("deprecation")
    public static ConceptChronology<? extends ConceptVersion<?>> buildUncommittedNewDynamicSememeUsageDescription(
@@ -273,29 +287,29 @@ public class Frills
            SememeType referencedComponentSubRestriction,
            EditCoordinate editCoord) {
       try {
-         EditCoordinate localEditCoord = ((editCoord == null) ? Get.configurationService()
-                                                                   .getDefaultEditCoordinate()
+         final EditCoordinate localEditCoord = ((editCoord == null) ? Get.configurationService()
+                                                                         .getDefaultEditCoordinate()
                : editCoord);
-         ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
+         final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
          conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE);
          conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT);
          conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
 
-         DescriptionBuilderService descriptionBuilderService =
+         final DescriptionBuilderService descriptionBuilderService =
             LookupService.getService(DescriptionBuilderService.class);
-         LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class)
-                                                            .getLogicalExpressionBuilder();
-         ConceptChronology<?> parentConcept = Get.conceptService()
-                                                 .getConcept((parentConceptNidOrSequence == null)
-                                                    ? DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSEMBLAGES
-                                                          .getNid()
+         final LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class)
+                                                                  .getLogicalExpressionBuilder();
+         final ConceptChronology<?> parentConcept = Get.conceptService()
+                                                       .getConcept((parentConceptNidOrSequence == null)
+                                                          ? DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSEMBLAGES
+                                                                .getNid()
                : parentConceptNidOrSequence);
 
          NecessarySet(And(ConceptAssertion(parentConcept, defBuilder)));
 
-         LogicalExpression parentDef = defBuilder.build();
-         ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(sememeFSN, null, parentDef);
+         final LogicalExpression parentDef = defBuilder.build();
+         final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(sememeFSN, null, parentDef);
          DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>> definitionBuilder =
             descriptionBuilderService.getDescriptionBuilder(sememePreferredTerm,
                                                             builder,
@@ -305,10 +319,10 @@ public class Frills
          definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT);
          builder.addDescription(definitionBuilder);
 
-         ConceptChronology<? extends ConceptVersion<?>> newCon = builder.build(localEditCoord,
-                                                                               ChangeCheckerMode.ACTIVE,
-                                                                               new ArrayList<>())
-                                                                        .getNoThrow();
+         final ConceptChronology<? extends ConceptVersion<?>> newCon = builder.build(localEditCoord,
+                                                                                     ChangeCheckerMode.ACTIVE,
+                                                                                     new ArrayList<>())
+                                                                              .getNoThrow();
 
          {
 
@@ -319,8 +333,9 @@ public class Frills
                   MetaData.ENGLISH_LANGUAGE);
             definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT);
 
-            SememeChronology<?> definitionSememe = definitionBuilder.build(localEditCoord, ChangeCheckerMode.ACTIVE)
-                                                                    .getNoThrow();
+            final SememeChronology<?> definitionSememe = definitionBuilder.build(localEditCoord,
+                                                                                 ChangeCheckerMode.ACTIVE)
+                                                                          .getNoThrow();
 
             Get.sememeBuilderService()
                .getDynamicSememeBuilder(definitionSememe.getNid(),
@@ -333,11 +348,11 @@ public class Frills
 
          if (columns != null) {
             // Ensure that we process in column order - we don't always keep track of that later - we depend on the data being stored in the right order.
-            TreeSet<DynamicSememeColumnInfo> sortedColumns = new TreeSet<>(Arrays.asList(columns));
+            final TreeSet<DynamicSememeColumnInfo> sortedColumns = new TreeSet<>(Arrays.asList(columns));
 
-            for (DynamicSememeColumnInfo ci: sortedColumns) {
-               DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class)
-                                                       .configureDynamicSememeDefinitionDataForColumn(ci);
+            for (final DynamicSememeColumnInfo ci: sortedColumns) {
+               final DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class)
+                                                             .configureDynamicSememeDefinitionDataForColumn(ci);
 
                Get.sememeBuilderService()
                   .getDynamicSememeBuilder(newCon.getNid(),
@@ -349,9 +364,10 @@ public class Frills
             }
          }
 
-         DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class)
-                                                 .configureDynamicSememeRestrictionData(referencedComponentRestriction,
-                                                       referencedComponentSubRestriction);
+         final DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class)
+                                                       .configureDynamicSememeRestrictionData(
+                                                          referencedComponentRestriction,
+                                                                referencedComponentSubRestriction);
 
          if (data != null) {
             Get.sememeBuilderService()
@@ -364,7 +380,7 @@ public class Frills
          }
 
          return newCon;
-      } catch (IllegalStateException e) {
+      } catch (final IllegalStateException e) {
          throw new RuntimeException("Creation of Dynamic Sememe Failed!", e);
       }
    }
@@ -393,15 +409,19 @@ public class Frills
     *       )
     *
     * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
-    * @throws RuntimeException
+    *
+    * @param columnName the column name
+    * @param columnDescription the column description
+    * @return the concept chronology<? extends concept version<?>>
+    * @throws RuntimeException the runtime exception
     */
    @SuppressWarnings("deprecation")
    public static ConceptChronology<? extends ConceptVersion<?>> createNewDynamicSememeColumnInfoConcept(
            String columnName,
            String columnDescription)
             throws RuntimeException {
-      ConceptChronology<? extends ConceptVersion<?>> newCon = buildNewDynamicSememeColumnInfoConcept(columnName,
-                                                                                                     columnDescription);
+      final ConceptChronology<? extends ConceptVersion<?>> newCon = buildNewDynamicSememeColumnInfoConcept(columnName,
+                                                                                                           columnDescription);
 
       try {
          Get.commitService()
@@ -409,8 +429,8 @@ public class Frills
             .get();
          return newCon;
       } catch (InterruptedException | ExecutionException e) {
-         String msg = "Failed committing new DynamicSememeColumnInfo concept columnName=\"" + columnName +
-                      "\", columnDescription=\"" + columnDescription + "\"";
+         final String msg = "Failed committing new DynamicSememeColumnInfo concept columnName=\"" + columnName +
+                            "\", columnDescription=\"" + columnDescription + "\"";
 
          log.error(msg, e);
          throw new RuntimeException(msg, e);
@@ -425,6 +445,8 @@ public class Frills
     * The concept will be created under the concept {@link DynamicSememeConstants#DYNAMIC_SEMEME_ASSEMBLAGES} if a parent is not specified
     *
     * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
+    *
+    * @param sememeFSN the sememe FSN
     * @param sememePreferredTerm - The preferred term for this refex concept that will be created.
     * @param sememeDescription - A user friendly string the explains the overall intended purpose of this sememe (what it means, what it stores)
     * @param columns - The column information for this new refex.  May be an empty list or null.
@@ -445,7 +467,7 @@ public class Frills
          ObjectChronologyType referencedComponentRestriction,
          SememeType referencedComponentSubRestriction,
          EditCoordinate editCoord) {
-      ConceptChronology<? extends ConceptVersion<?>> newDynamicSememeUsageDescriptionConcept =
+      final ConceptChronology<? extends ConceptVersion<?>> newDynamicSememeUsageDescriptionConcept =
          buildUncommittedNewDynamicSememeUsageDescription(sememeFSN,
                                                           sememePreferredTerm,
                                                           sememeDescription,
@@ -468,37 +490,55 @@ public class Frills
       return new DynamicSememeUsageDescriptionImpl(newDynamicSememeUsageDescriptionConcept.getNid());
    }
 
+   /**
+    * Defines association.
+    *
+    * @param conceptSequence the concept sequence
+    * @return true, if successful
+    */
    public static boolean definesAssociation(int conceptSequence) {
       if (isAssociationCache.containsKey(conceptSequence)) {
          return isAssociationCache.get(conceptSequence);
       }
 
-      boolean temp = Get.sememeService()
-                        .getSememesForComponentFromAssemblage(Get.identifierService()
-                              .getConceptNid(conceptSequence),
-                              DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME
-                                    .getConceptSequence())
-                        .anyMatch(sememe -> true);
+      final boolean temp = Get.sememeService()
+                              .getSememesForComponentFromAssemblage(Get.identifierService()
+                                    .getConceptNid(conceptSequence),
+                                    DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME
+                                          .getConceptSequence())
+                              .anyMatch(sememe -> true);
 
       isAssociationCache.put(conceptSequence, temp);
       return temp;
    }
 
+   /**
+    * Defines dynamic sememe.
+    *
+    * @param conceptSequence the concept sequence
+    * @return true, if successful
+    */
    public static boolean definesDynamicSememe(int conceptSequence) {
       return DynamicSememeUsageDescriptionImpl.isDynamicSememe(conceptSequence);
    }
 
+   /**
+    * Defines mapping.
+    *
+    * @param conceptSequence the concept sequence
+    * @return true, if successful
+    */
    public static boolean definesMapping(int conceptSequence) {
       if (isMappingCache.containsKey(conceptSequence)) {
          return isMappingCache.get(conceptSequence);
       }
 
-      boolean temp = Get.sememeService()
-                        .getSememesForComponentFromAssemblage(Get.identifierService()
-                              .getConceptNid(conceptSequence),
-                              IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_SEMEME_TYPE
-                                    .getConceptSequence())
-                        .anyMatch(sememe -> true);
+      final boolean temp = Get.sememeService()
+                              .getSememesForComponentFromAssemblage(Get.identifierService()
+                                    .getConceptNid(conceptSequence),
+                                    IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_SEMEME_TYPE
+                                          .getConceptSequence())
+                              .anyMatch(sememe -> true);
 
       isMappingCache.put(conceptSequence, temp);
       return temp;
@@ -506,12 +546,13 @@ public class Frills
 
    /**
     * Convenience method to find the nearest concept related to a sememe.  Recursively walks referenced components until it finds a concept.
-    * @param nid
+    *
+    * @param nid the nid
     * @return the nearest concept sequence, or -1, if no concept can be found.
     */
    public static int findConcept(int nid) {
-      Optional<? extends ObjectChronology<? extends StampedVersion>> c = Get.identifiedObjectService()
-                                                                            .getIdentifiedObjectChronology(nid);
+      final Optional<? extends ObjectChronology<? extends StampedVersion>> c = Get.identifiedObjectService()
+                                                                                  .getIdentifiedObjectChronology(nid);
 
       if (c.isPresent()) {
          if (c.get()
@@ -545,26 +586,25 @@ public class Frills
          final LanguageCoordinate langCoord) {
       log.debug("Threaded Lookup: '{}'", identifier);
 
-      final long submitTime = System.currentTimeMillis();
-      Runnable   r          = new Runnable() {
-         @Override
-         public void run() {
-            ConceptSnapshot result = null;
-            Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> c =
-               getConceptForUnknownIdentifier(identifier);
+      final long     submitTime = System.currentTimeMillis();
+      final Runnable r          = () -> {
+                                     ConceptSnapshot result = null;
+                                     final Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> c =
+                                        getConceptForUnknownIdentifier(identifier);
 
-            if (c.isPresent()) {
-               Optional<ConceptSnapshot> temp = getConceptSnapshot(c.get()
-                                                                    .getConceptSequence(), stampCoord, langCoord);
+                                     if (c.isPresent()) {
+                                        final Optional<ConceptSnapshot> temp = getConceptSnapshot(c.get()
+                                                                                                   .getConceptSequence(),
+                                                                                                  stampCoord,
+                                                                                                  langCoord);
 
-               if (temp.isPresent()) {
-                  result = temp.get();
-               }
-            }
+                                        if (temp.isPresent()) {
+                                           result = temp.get();
+                                        }
+                                     }
 
-            callback.taskComplete(result, submitTime, callId);
-         }
-      };
+                                     callback.taskComplete(result, submitTime, callId);
+                                  };
 
       Get.workExecutors()
          .getExecutor()
@@ -572,10 +612,9 @@ public class Frills
    }
 
    /**
+    * All done in a background thread, method returns immediately.
     *
-    * All done in a background thread, method returns immediately
-    *
-    * @param identifier - The NID to search for
+    * @param nid the nid
     * @param callback - who to inform when lookup completes
     * @param callId - An arbitrary identifier that will be returned to the caller when this completes
     * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
@@ -588,47 +627,58 @@ public class Frills
          final LanguageCoordinate langCoord) {
       log.debug("Threaded Lookup: '{}'", nid);
 
-      final long submitTime = System.currentTimeMillis();
-      Runnable   r          = new Runnable() {
-         @Override
-         public void run() {
-            Optional<ConceptSnapshot> c = getConceptSnapshot(nid, stampCoord, langCoord);
+      final long     submitTime = System.currentTimeMillis();
+      final Runnable r          = () -> {
+                                     final Optional<ConceptSnapshot> c = getConceptSnapshot(nid, stampCoord, langCoord);
 
-            callback.taskComplete(c.isPresent() ? c.get()
-                  : null, submitTime, callId);
-         }
-      };
+                                     callback.taskComplete(c.isPresent() ? c.get()
+               : null, submitTime, callId);
+                                  };
 
       Get.workExecutors()
          .getExecutor()
          .execute(r);
    }
 
+   /**
+    * Make stamp coordinate analog varying by modules only.
+    *
+    * @param existingStampCoordinate the existing stamp coordinate
+    * @param requiredModuleSequence the required module sequence
+    * @param optionalModuleSequences the optional module sequences
+    * @return the stamp coordinate
+    */
    public static StampCoordinate makeStampCoordinateAnalogVaryingByModulesOnly(StampCoordinate existingStampCoordinate,
          int requiredModuleSequence,
          int... optionalModuleSequences) {
-      ConceptSequenceSet moduleSequenceSet = new ConceptSequenceSet();
+      final ConceptSequenceSet moduleSequenceSet = new ConceptSequenceSet();
 
       moduleSequenceSet.add(requiredModuleSequence);
 
       if (optionalModuleSequences != null) {
-         for (int seq: optionalModuleSequences) {
+         for (final int seq: optionalModuleSequences) {
             moduleSequenceSet.add(seq);
          }
       }
 
-      EnumSet<State> allowedStates = EnumSet.allOf(State.class);
+      final EnumSet<State> allowedStates = EnumSet.allOf(State.class);
 
       allowedStates.addAll(existingStampCoordinate.getAllowedStates());
 
-      StampCoordinate newStampCoordinate = new StampCoordinateImpl(existingStampCoordinate.getStampPrecedence(),
-                                                                   existingStampCoordinate.getStampPosition(),
-                                                                   moduleSequenceSet,
-                                                                   allowedStates);
+      final StampCoordinate newStampCoordinate = new StampCoordinateImpl(existingStampCoordinate.getStampPrecedence(),
+                                                                         existingStampCoordinate.getStampPosition(),
+                                                                         moduleSequenceSet,
+                                                                         allowedStates);
 
       return newStampCoordinate;
    }
 
+   /**
+    * Read dynamic sememe column name description.
+    *
+    * @param columnDescriptionConcept the column description concept
+    * @return the string[]
+    */
    @SuppressWarnings("unchecked")
    @Override
    public String[] readDynamicSememeColumnNameDescription(UUID columnDescriptionConcept) {
@@ -639,16 +689,16 @@ public class Frills
       String acceptableDefinition = null;
 
       try {
-         ConceptChronology<? extends ConceptVersion<?>> cc = Get.conceptService()
-                                                                .getConcept(columnDescriptionConcept);
+         final ConceptChronology<? extends ConceptVersion<?>> cc = Get.conceptService()
+                                                                      .getConcept(columnDescriptionConcept);
 
-         for (SememeChronology<? extends DescriptionSememe<?>> dc: cc.getConceptDescriptionList()) {
+         for (final SememeChronology<? extends DescriptionSememe<?>> dc: cc.getConceptDescriptionList()) {
             if ((columnName != null) && (columnDescription != null)) {
                break;
             }
 
             @SuppressWarnings("rawtypes")
-            Optional<LatestVersion<DescriptionSememe<?>>> descriptionVersion =
+            final Optional<LatestVersion<DescriptionSememe<?>>> descriptionVersion =
                ((SememeChronology) dc).getLatestVersion(DescriptionSememe.class,
                                                         Get.configurationService()
                                                               .getDefaultStampCoordinate()
@@ -658,8 +708,8 @@ public class Frills
                                                                     State.PRIMORDIAL));
 
             if (descriptionVersion.isPresent()) {
-               DescriptionSememe<?> d = descriptionVersion.get()
-                                                          .value();
+               final DescriptionSememe<?> d = descriptionVersion.get()
+                                                                .value();
 
                if (d.getDescriptionTypeConceptSequence() ==
                      TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence()) {
@@ -681,7 +731,7 @@ public class Frills
                }
             }
          }
-      } catch (Exception e) {
+      } catch (final Exception e) {
          log.warn("Failure reading DynamicSememeColumnInfo '" + columnDescriptionConcept + "'", e);
       }
 
@@ -709,6 +759,9 @@ public class Frills
       return new String[] { columnName, columnDescription };
    }
 
+   /**
+    * Refresh indexes.
+    */
    public static void refreshIndexes() {
       LookupService.get()
                    .getAllServiceHandles(IndexServiceBI.class)
@@ -720,8 +773,10 @@ public class Frills
    }
 
    /**
+    * To string.
+    *
     * @param version toString for StampedVersion
-    * @return
+    * @return the string
     */
    public static String toString(StampedVersion version) {
       return version.getClass()
@@ -736,26 +791,27 @@ public class Frills
    /**
     * Returns a Map correlating each dialect sequence for a passed
     * descriptionSememeId with its respective acceptability nid (preferred vs
-    * acceptable)
+    * acceptable).
     *
-    * @param descriptionSememeNid
+    * @param descriptionSememeNid the description sememe nid
     * @param stamp - optional - if not provided, uses default from config
     * service
+    * @return the acceptabilities
     * @throws RuntimeException If there is inconsistent data (incorrectly)
     * attached to the sememe
     */
    public static Map<Integer, Integer> getAcceptabilities(int descriptionSememeNid,
          StampCoordinate stamp)
             throws RuntimeException {
-      Map<Integer, Integer> dialectSequenceToAcceptabilityNidMap = new ConcurrentHashMap<>();
+      final Map<Integer, Integer> dialectSequenceToAcceptabilityNidMap = new ConcurrentHashMap<>();
 
       Get.sememeService()
          .getSememesForComponent(descriptionSememeNid)
          .forEach(nestedSememe -> {
                      if (nestedSememe.getSememeType() == SememeType.COMPONENT_NID) {
-                        int dialectSequence = nestedSememe.getAssemblageSequence();
+                        final int dialectSequence = nestedSememe.getAssemblageSequence();
                         @SuppressWarnings({ "rawtypes", "unchecked" })
-                        Optional<LatestVersion<ComponentNidSememe>> latest =
+                        final Optional<LatestVersion<ComponentNidSememe>> latest =
                            ((SememeChronology) nestedSememe).getLatestVersion(ComponentNidSememe.class,
                                                                               (stamp == null)
                                                                               ? Get.configurationService()
@@ -780,29 +836,29 @@ public class Frills
                               String componentDesc = null;
 
                               try {
-                                 Optional<UUID> uuidOptional = Get.identifierService()
-                                                                  .getUuidPrimordialForNid(latest.get()
-                                                                        .value()
-                                                                        .getComponentNid());
+                                 final Optional<UUID> uuidOptional = Get.identifierService()
+                                                                        .getUuidPrimordialForNid(latest.get()
+                                                                              .value()
+                                                                              .getComponentNid());
 
                                  if (uuidOptional.isPresent()) {
                                     uuid = uuidOptional.get();
                                  }
 
-                                 Optional<LatestVersion<DescriptionSememe<?>>> desc = Get.conceptService()
-                                                                                         .getSnapshot(
-                                                                                            StampCoordinates.getDevelopmentLatest(),
-                                                                                                  LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate())
-                                                                                         .getDescriptionOptional(
-                                                                                            latest.get()
-                                                                                                  .value()
-                                                                                                  .getComponentNid());
+                                 final Optional<LatestVersion<DescriptionSememe<?>>> desc = Get.conceptService()
+                                                                                               .getSnapshot(
+                                                                                                  StampCoordinates.getDevelopmentLatest(),
+                                                                                                        LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate())
+                                                                                               .getDescriptionOptional(
+                                                                                                  latest.get()
+                                                                                                        .value()
+                                                                                                        .getComponentNid());
 
                                  componentDesc = desc.isPresent() ? desc.get()
                                        .value()
                                        .getText()
                            : null;
-                              } catch (Exception e) {
+                              } catch (final Exception e) {
                                  // NOOP
                               }
 
@@ -826,7 +882,7 @@ public class Frills
     * @return the set of concept sequence ids that represent the children
     */
    public static Set<Integer> getAllChildrenOfConcept(int conceptSequence, boolean recursive, boolean leafOnly) {
-      Set<Integer> temp = getAllChildrenOfConcept(new HashSet<Integer>(), conceptSequence, recursive, leafOnly);
+      final Set<Integer> temp = getAllChildrenOfConcept(new HashSet<>(), conceptSequence, recursive, leafOnly);
 
       if (leafOnly && (temp.size() == 1)) {
          temp.remove(conceptSequence);
@@ -838,21 +894,27 @@ public class Frills
    /**
     * Recursively get Is a children of a concept.  May inadvertenly return the requested starting sequence when leafOnly is true, and
     * there are no children.
+    *
+    * @param handledConceptSequenceIds the handled concept sequence ids
+    * @param conceptSequence the concept sequence
+    * @param recursive the recursive
+    * @param leafOnly the leaf only
+    * @return the all children of concept
     */
    private static Set<Integer> getAllChildrenOfConcept(Set<Integer> handledConceptSequenceIds,
          int conceptSequence,
          boolean recursive,
          boolean leafOnly) {
-      Set<Integer> results = new HashSet<>();
+      final Set<Integer> results = new HashSet<>();
 
       // This both prevents infinite recursion and avoids processing or returning of duplicates
       if (handledConceptSequenceIds.contains(conceptSequence)) {
          return results;
       }
 
-      AtomicInteger count    = new AtomicInteger();
-      IntStream     children = Get.taxonomyService()
-                                  .getTaxonomyChildSequences(conceptSequence);
+      final AtomicInteger count    = new AtomicInteger();
+      final IntStream     children = Get.taxonomyService()
+                                        .getTaxonomyChildSequences(conceptSequence);
 
       children.forEach((conSequence) -> {
                           count.getAndIncrement();
@@ -879,16 +941,16 @@ public class Frills
 
    /**
     * Convenience method to return sequences of a distinct set of modules in
-    * which versions of an ObjectChronology have been defined
+    * which versions of an ObjectChronology have been defined.
     *
     * @param chronology The ObjectChronology
     * @return sequences of a distinct set of modules in which versions of an
     * ObjectChronology have been defined
     */
    public static Set<Integer> getAllModuleSequences(ObjectChronology<? extends StampedVersion> chronology) {
-      Set<Integer> moduleSequences = new HashSet<>();
+      final Set<Integer> moduleSequences = new HashSet<>();
 
-      for (StampedVersion version: chronology.getVersionList()) {
+      for (final StampedVersion version: chronology.getVersionList()) {
          moduleSequences.add(version.getModuleSequence());
       }
 
@@ -898,21 +960,22 @@ public class Frills
    /**
     * A convenience method to determine if a particular component has 0 or 1 annotations of a particular type.  If there is more than one
     * annotation of a particular type, this method will throw a runtime exception.
+    *
     * @param componentNid - the component to check for the assemblage
     * @param assemblageConceptId - the assemblage type you are interested in (nid or concept sequence)
-    * @return
+    * @return the annotation sememe
     */
    public static Optional<SememeChronology<? extends SememeVersion<?>>> getAnnotationSememe(int componentNid,
          int assemblageConceptId) {
-      Set<Integer> allowedAssemblages = new HashSet<>();
+      final Set<Integer> allowedAssemblages = new HashSet<>();
 
       allowedAssemblages.add(assemblageConceptId);
 
-      Set<SememeChronology<? extends SememeVersion<?>>> sememeSet = Get.sememeService()
-                                                                       .getSememesForComponentFromAssemblages(
-                                                                          componentNid,
-                                                                                allowedAssemblages)
-                                                                       .collect(Collectors.toSet());
+      final Set<SememeChronology<? extends SememeVersion<?>>> sememeSet = Get.sememeService()
+                                                                             .getSememesForComponentFromAssemblages(
+                                                                                componentNid,
+                                                                                      allowedAssemblages)
+                                                                             .collect(Collectors.toSet());
 
       switch (sememeSet.size()) {
       case 0:
@@ -929,23 +992,31 @@ public class Frills
       }
    }
 
+   /**
+    * Gets the annotation string value.
+    *
+    * @param componentId the component id
+    * @param assemblageConceptId the assemblage concept id
+    * @param stamp the stamp
+    * @return the annotation string value
+    */
    public static Optional<String> getAnnotationStringValue(int componentId,
          int assemblageConceptId,
          StampCoordinate stamp) {
       try {
-         Optional<UUID> assemblageConceptUuid = Get.identifierService()
-                                                   .getUuidPrimordialFromConceptId(assemblageConceptId);
+         final Optional<UUID> assemblageConceptUuid = Get.identifierService()
+                                                         .getUuidPrimordialFromConceptId(assemblageConceptId);
 
          if (!assemblageConceptUuid.isPresent()) {
             throw new RuntimeException("getUuidPrimordialFromConceptId() return empty UUID for assemblageConceptId " +
                                        assemblageConceptId);
          }
 
-         int               componentNid = Get.identifierService()
-                                             .getConceptNid(componentId);
-         ArrayList<String> values       = new ArrayList<>(1);
-         int assemblageConceptSequence = Get.identifierService()
-                                            .getConceptSequenceForUuids(assemblageConceptUuid.get());
+         final int               componentNid = Get.identifierService()
+                                                   .getConceptNid(componentId);
+         final ArrayList<String> values       = new ArrayList<>(1);
+         final int assemblageConceptSequence = Get.identifierService()
+                                                  .getConceptSequenceForUuids(assemblageConceptUuid.get());
 
          Get.sememeService()
             .getSnapshot(SememeVersion.class,
@@ -969,7 +1040,7 @@ public class Frills
                         } else if (latestSememe.value()
                                                .getChronology()
                                                .getSememeType() == SememeType.DYNAMIC) {
-                           DynamicSememeData[] data = ((DynamicSememeImpl) latestSememe.value()).getData();
+                           final DynamicSememeData[] data = ((DynamicSememeImpl) latestSememe.value()).getData();
 
                            if (data.length > 0) {
                               log.warn("Found multiple (" + data.length + ") dynamic sememe data fields in sememe " +
@@ -992,7 +1063,7 @@ public class Frills
          if (values.size() > 0) {
             return Optional.of(values.get(0));
          }
-      } catch (Exception e) {
+      } catch (final Exception e) {
          log.error("Unexpected error trying to find " + assemblageConceptId + " annotation sememe on component " +
                    componentId,
                    e);
@@ -1001,6 +1072,12 @@ public class Frills
       return Optional.empty();
    }
 
+   /**
+    * Checks if association.
+    *
+    * @param sc the sc
+    * @return true, if association
+    */
    public static boolean isAssociation(SememeChronology<? extends SememeVersion<?>> sc) {
       return definesAssociation(sc.getAssemblageSequence());
    }
@@ -1013,6 +1090,9 @@ public class Frills
     * sequence identifiers to look like SCTIDs - if a passed in value is valid as both a SCTID and a sequence identifier - it will be
     * treated as an SCTID.
     * Finally, if it is a positive integer, it treats is as a sequence identity, converts it to a nid, then looks up the nid.
+    *
+    * @param identifier the identifier
+    * @return the concept for unknown identifier
     */
    public static Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getConceptForUnknownIdentifier(
            String identifier) {
@@ -1022,8 +1102,8 @@ public class Frills
          return Optional.empty();
       }
 
-      String         localIdentifier = identifier.trim();
-      Optional<UUID> uuid            = UUIDUtil.getUUID(localIdentifier);
+      final String         localIdentifier = identifier.trim();
+      final Optional<UUID> uuid            = UUIDUtil.getUUID(localIdentifier);
 
       if (uuid.isPresent()) {
          return Get.conceptService()
@@ -1031,7 +1111,7 @@ public class Frills
       }
 
       // if it is a negative integer, assume nid
-      Optional<Integer> nid = NumericUtils.getNID(localIdentifier);
+      final Optional<Integer> nid = NumericUtils.getNID(localIdentifier);
 
       if (nid.isPresent()) {
          return Get.conceptService()
@@ -1039,22 +1119,22 @@ public class Frills
       }
 
       if (SctId.isValidSctId(localIdentifier)) {
-         IndexServiceBI si = LookupService.get()
-                                          .getService(IndexServiceBI.class, "sememe indexer");
+         final IndexServiceBI si = LookupService.get()
+                                                .getService(IndexServiceBI.class, "sememe indexer");
 
          if (si != null) {
             // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
-            List<SearchResult> result = si.query(localIdentifier + " ",
-                                                 true,
-                                                 new Integer[] { MetaData.SCTID.getConceptSequence() },
-                                                 5,
-                                                 Long.MIN_VALUE);
+            final List<SearchResult> result = si.query(localIdentifier + " ",
+                                                       true,
+                                                       new Integer[] { MetaData.SCTID.getConceptSequence() },
+                                                       5,
+                                                       Long.MIN_VALUE);
 
             if (result.size() > 0) {
-               int componentNid = Get.sememeService()
-                                     .getSememe(result.get(0)
-                                           .getNid())
-                                     .getReferencedComponentNid();
+               final int componentNid = Get.sememeService()
+                                           .getSememe(result.get(0)
+                                                 .getNid())
+                                           .getReferencedComponentNid();
 
                if (Get.identifierService()
                       .getChronologyTypeForNid(componentNid) == ObjectChronologyType.CONCEPT) {
@@ -1070,8 +1150,8 @@ public class Frills
          }
       } else if (NumericUtils.isInt(localIdentifier)) {
          // Must be a postive integer, which wasn't a valid SCTID - it may be a sequence ID.
-         int nidFromSequence = Get.identifierService()
-                                  .getConceptNid(Integer.parseInt(localIdentifier));
+         final int nidFromSequence = Get.identifierService()
+                                        .getConceptNid(Integer.parseInt(localIdentifier));
 
          if (nidFromSequence != 0) {
             return Get.conceptService()
@@ -1083,6 +1163,9 @@ public class Frills
    }
 
    /**
+    * Checks if concept fully defined.
+    *
+    * @param <T> the generic type
     * @param lgs The LogicGraphSememe containing the logic graph data
     * @return true if the corresponding concept is fully defined, otherwise returns false (for primitive concepts)
     *
@@ -1095,25 +1178,26 @@ public class Frills
    }
 
    /**
-    * Return true for fully defined, false for primitive, or empty for unknown, on the standard logic coordinates / standard development path
-    * @param conceptNid
-    * @param stated
-    * @return
+    * Return true for fully defined, false for primitive, or empty for unknown, on the standard logic coordinates / standard development path.
+    *
+    * @param conceptNid the concept nid
+    * @param stated the stated
+    * @return the optional
     */
    public static Optional<Boolean> isConceptFullyDefined(int conceptNid, boolean stated) {
-      Optional<SememeChronology<? extends SememeVersion<?>>> sememe = Get.sememeService()
-                                                                         .getSememesForComponentFromAssemblage(
-                                                                            conceptNid,
-                                                                                  (stated
-                                                                                   ? LogicCoordinates.getStandardElProfile()
-                                                                                         .getStatedAssemblageSequence()
+      final Optional<SememeChronology<? extends SememeVersion<?>>> sememe = Get.sememeService()
+                                                                               .getSememesForComponentFromAssemblage(
+                                                                                  conceptNid,
+                                                                                        (stated
+                                                                                         ? LogicCoordinates.getStandardElProfile()
+                                                                                               .getStatedAssemblageSequence()
             : LogicCoordinates.getStandardElProfile()
                               .getInferredAssemblageSequence()))
-                                                                         .findAny();
+                                                                               .findAny();
 
       if (sememe.isPresent()) {
          @SuppressWarnings({ "unchecked", "rawtypes" })
-         Optional<LatestVersion<LogicGraphSememe>> sv =
+         final Optional<LatestVersion<LogicGraphSememe>> sv =
             ((SememeChronology) sememe.get()).getLatestVersion(LogicGraphSememe.class,
                                                                StampCoordinates.getDevelopmentLatest());
 
@@ -1127,7 +1211,9 @@ public class Frills
    }
 
    /**
-    * @param conceptNidOrSequence
+    * Gets the concept snapshot.
+    *
+    * @param conceptNidOrSequence the concept nid or sequence
     * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
     * @param langCoord - optional - what lang coord to use when returning the ConceptSnapshot (defaults to user prefs)
     * @return the ConceptSnapshot, or an optional that indicates empty, if the identifier was invalid, or if the concept didn't
@@ -1136,9 +1222,9 @@ public class Frills
    public static Optional<ConceptSnapshot> getConceptSnapshot(int conceptNidOrSequence,
          StampCoordinate stampCoord,
          LanguageCoordinate langCoord) {
-      Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> c = Get.conceptService()
-                                                                                .getOptionalConcept(
-                                                                                   conceptNidOrSequence);
+      final Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> c = Get.conceptService()
+                                                                                      .getOptionalConcept(
+                                                                                         conceptNidOrSequence);
 
       if (c.isPresent()) {
          try {
@@ -1146,12 +1232,12 @@ public class Frills
                                   .getSnapshot((stampCoord == null) ? Get.configurationService()
                                         .getDefaultStampCoordinate()
                   : stampCoord,
-                                        (langCoord == null) ? Get.configurationService()
-                                              .getDefaultLanguageCoordinate()
+                                               (langCoord == null) ? Get.configurationService()
+                                                     .getDefaultLanguageCoordinate()
                   : langCoord)
                                   .getConceptSnapshot(c.get()
                                         .getConceptSequence()));
-         } catch (Exception e) {
+         } catch (final Exception e) {
             // TODO conceptSnapshot APIs are currently broken, provide no means of detecting if a concept doesn't exist on a given coordinate
             // See slack convo https://informatics-arch.slack.com/archives/dev-isaac/p1440568057000512
             return Optional.empty();
@@ -1162,7 +1248,9 @@ public class Frills
    }
 
    /**
-    * @param conceptUUID
+    * Gets the concept snapshot.
+    *
+    * @param conceptUUID the concept UUID
     * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
     * @param langCoord - optional - what lang coord to use when returning the ConceptSnapshot (defaults to user prefs)
     * @return the ConceptSnapshot, or an optional that indicates empty, if the identifier was invalid, or if the concept didn't
@@ -1179,8 +1267,9 @@ public class Frills
     * Utility method to get the best text value description for a concept, according to the user preferences.
     * Calls {@link #getDescription(int, LanguageCoordinate, StampCoordinate)} using the default system stamp coordinate,
     * modified to return all states (this may return an inactive description)
+    *
     * @param conceptId - either a sequence or a nid
-    * @return
+    * @return the description
     */
    public static Optional<String> getDescription(int conceptId) {
       return getDescription(conceptId,
@@ -1193,8 +1282,9 @@ public class Frills
    /**
     * Utility method to get the best text value description for a concept, according to the user preferences.
     * Calls {@link #getDescription(UUID, LanguageCoordinate, StampCoordinate)} with nulls.
+    *
     * @param conceptUUID - identifier for a concept
-    * @return
+    * @return the description
     */
    public static Optional<String> getDescription(UUID conceptUUID) {
       return getDescription(conceptUUID, null, null);
@@ -1204,9 +1294,10 @@ public class Frills
     * Utility method to get the best text value description for a concept, according to the passed in options,
     * or the user preferences.  Calls {@link #getDescription(int, LanguageCoordinate, StampCoordinate)} with values
     * extracted from the taxonomyCoordinate, or null.
+    *
     * @param conceptId - either a sequence or a nid
-    * @param tc - optional - if not provided, defaults to system preferences values
-    * @return
+    * @param taxonomyCoordinate the taxonomy coordinate
+    * @return the description
     */
    public static Optional<String> getDescription(int conceptId, TaxonomyCoordinate taxonomyCoordinate) {
       return getDescription(conceptId,
@@ -1220,9 +1311,10 @@ public class Frills
     * Utility method to get the best text value description for a concept, according to the passed in options,
     * or the user preferences.  Calls {@link #getDescription(UUID, LanguageCoordinate, StampCoordinate)} with values
     * extracted from the taxonomyCoordinate, or null.
+    *
     * @param conceptUUID - identifier for a concept
-    * @param tc - optional - if not provided, defaults to system preferences values
-    * @return
+    * @param taxonomyCoordinate the taxonomy coordinate
+    * @return the description
     */
    public static Optional<String> getDescription(UUID conceptUUID, TaxonomyCoordinate taxonomyCoordinate) {
       return getDescription(conceptUUID,
@@ -1235,24 +1327,25 @@ public class Frills
    /**
     * Utility method to get the best text value description for a concept, according to the passed in options,
     * or the user preferences.
+    *
     * @param conceptId - either a sequence or a nid
-    * @param languageCoordinate - optional - if not provided, defaults to system preferences values
     * @param stampCoordinate - optional - if not provided, defaults to system preference values
-    * @return
+    * @param languageCoordinate - optional - if not provided, defaults to system preferences values
+    * @return the description
     */
    public static Optional<String> getDescription(int conceptId,
          StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate) {
-      Optional<LatestVersion<DescriptionSememe<?>>> desc = Get.conceptService()
-                                                              .getSnapshot((stampCoordinate == null)
-                                                                 ? Get.configurationService()
-                                                                       .getDefaultStampCoordinate()
+      final Optional<LatestVersion<DescriptionSememe<?>>> desc = Get.conceptService()
+                                                                    .getSnapshot((stampCoordinate == null)
+                                                                       ? Get.configurationService()
+                                                                             .getDefaultStampCoordinate()
             : stampCoordinate,
-                                                                    (languageCoordinate == null)
-                                                                    ? Get.configurationService()
-                                                                          .getDefaultLanguageCoordinate()
+                                                                          (languageCoordinate == null)
+                                                                          ? Get.configurationService()
+                                                                                .getDefaultLanguageCoordinate()
             : languageCoordinate)
-                                                              .getDescriptionOptional(conceptId);
+                                                                    .getDescriptionOptional(conceptId);
 
       return desc.isPresent() ? Optional.of(desc.get()
             .value()
@@ -1264,10 +1357,11 @@ public class Frills
     * Utility method to get the best text value description for a concept, according to the passed in options,
     * or the user preferences.  Calls {@link #getDescription(int, LanguageCoordinate, StampCoordinate)} with values
     * extracted from the taxonomyCoordinate, or null.
-    * @param conceptId - either a sequence or a nid
-    * @param languageCoordinate - optional - if not provided, defaults to system preferences values
+    *
+    * @param conceptUUID the concept UUID
     * @param stampCoordinate - optional - if not provided, defaults to system preference values
-    * @return
+    * @param languageCoordinate - optional - if not provided, defaults to system preferences values
+    * @return the description
     */
    public static Optional<String> getDescription(UUID conceptUUID,
          StampCoordinate stampCoordinate,
@@ -1280,12 +1374,13 @@ public class Frills
 
    /**
     * If this description is flagged as an extended description type, return the type concept of the extension.
-    * @param sc - optional Stamp - pass null to use the default stamp.
+    *
+    * @param stampCoordinate the stamp coordinate
     * @param descriptionId - the nid or sequence of the description sememe to check for an extended type.
-    * @return
+    * @return the description extended type concept
     */
    public static Optional<UUID> getDescriptionExtendedTypeConcept(StampCoordinate stampCoordinate, int descriptionId) {
-      Optional<SememeChronology<? extends SememeVersion<?>>> descriptionExtendedTypeAnnotationSememe =
+      final Optional<SememeChronology<? extends SememeVersion<?>>> descriptionExtendedTypeAnnotationSememe =
          getAnnotationSememe(Get.identifierService()
                                 .getSememeNid(descriptionId),
                              DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
@@ -1293,7 +1388,7 @@ public class Frills
 
       if (descriptionExtendedTypeAnnotationSememe.isPresent()) {
          @SuppressWarnings({ "rawtypes", "unchecked" })
-         Optional<LatestVersion<DynamicSememeImpl>> optionalLatestSememeVersion =
+         final Optional<LatestVersion<DynamicSememeImpl>> optionalLatestSememeVersion =
             ((SememeChronology) (descriptionExtendedTypeAnnotationSememe.get())).getLatestVersion(
                 DynamicSememeImpl.class,
                 (stampCoordinate == null) ? Get.configurationService()
@@ -1308,9 +1403,9 @@ public class Frills
                      optionalLatestSememeVersion.get().contradictions().get().size() + " contradictions");
          }
 
-         DynamicSememeData[] dataColumns = optionalLatestSememeVersion.get()
-                                                                      .value()
-                                                                      .getData();
+         final DynamicSememeData[] dataColumns = optionalLatestSememeVersion.get()
+                                                                            .value()
+                                                                            .getData();
 
          if (dataColumns.length != 1) {
             throw new RuntimeException(
@@ -1338,16 +1433,17 @@ public class Frills
     * Determine if a particular description sememe is flagged as preferred IN
     * ANY LANGUAGE. Returns false if there is no acceptability sememe.
     *
-    * @param descriptionSememeNid
+    * @param descriptionSememeNid the description sememe nid
     * @param stamp - optional - if not provided, uses default from config
     * service
+    * @return true, if description preferred
     * @throws RuntimeException If there is unexpected data (incorrectly)
     * attached to the sememe
     */
    public static boolean isDescriptionPreferred(int descriptionSememeNid,
          StampCoordinate stamp)
             throws RuntimeException {
-      AtomicReference<Boolean> answer = new AtomicReference<>();
+      final AtomicReference<Boolean> answer = new AtomicReference<>();
 
       // Ignore the language annotation... treat preferred in any language as good enough for our purpose here...
       Get.sememeService()
@@ -1355,7 +1451,7 @@ public class Frills
          .forEach(nestedSememe -> {
                      if (nestedSememe.getSememeType() == SememeType.COMPONENT_NID) {
                         @SuppressWarnings({ "rawtypes", "unchecked" })
-                        Optional<LatestVersion<ComponentNidSememe>> latest =
+                        final Optional<LatestVersion<ComponentNidSememe>> latest =
                            ((SememeChronology) nestedSememe).getLatestVersion(ComponentNidSememe.class,
                                                                               (stamp == null)
                                                                               ? Get.configurationService()
@@ -1396,7 +1492,7 @@ public class Frills
 
    /**
     * Convenience method to extract the latest version of descriptions of the
-    * requested type
+    * requested type.
     *
     * @param conceptNid The concept to read descriptions for
     * @param descriptionType expected to be one of
@@ -1410,14 +1506,14 @@ public class Frills
    public static List<DescriptionSememe<?>> getDescriptionsOfType(int conceptNid,
          ConceptSpecification descriptionType,
          StampCoordinate stamp) {
-      ArrayList<DescriptionSememe<?>> results = new ArrayList<>();
+      final ArrayList<DescriptionSememe<?>> results = new ArrayList<>();
 
       Get.sememeService()
          .getSememesForComponent(conceptNid)
          .forEach(descriptionC -> {
                      if (descriptionC.getSememeType() == SememeType.DESCRIPTION) {
                         @SuppressWarnings({ "unchecked", "rawtypes" })
-                        Optional<LatestVersion<DescriptionSememe<?>>> latest =
+                        final Optional<LatestVersion<DescriptionSememe<?>>> latest =
                            ((SememeChronology) descriptionC).getLatestVersion(DescriptionSememe.class,
                                                                               (stamp == null)
                                                                               ? Get.configurationService()
@@ -1425,8 +1521,8 @@ public class Frills
                   : stamp);
 
                         if (latest.isPresent()) {
-                           DescriptionSememe<?> ds = latest.get()
-                                                           .value();
+                           final DescriptionSememe<?> ds = latest.get()
+                                                                 .value();
 
                            if (ds.getDescriptionTypeConceptSequence() == descriptionType.getConceptSequence()) {
                               results.add(ds);
@@ -1437,17 +1533,23 @@ public class Frills
       return results;
    }
 
+   /**
+    * Gets the extended description types.
+    *
+    * @return the extended description types
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static List<SimpleDisplayConcept> getExtendedDescriptionTypes()
             throws IOException {
-      Set<Integer>                    extendedDescriptionTypes;
-      ArrayList<SimpleDisplayConcept> temp = new ArrayList<>();
+      Set<Integer>                          extendedDescriptionTypes;
+      final ArrayList<SimpleDisplayConcept> temp = new ArrayList<>();
 
       extendedDescriptionTypes =
          Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY.getConceptSequence(),
                                         true,
                                         true);
 
-      for (Integer seq: extendedDescriptionTypes) {
+      for (final Integer seq: extendedDescriptionTypes) {
          temp.add(new SimpleDisplayConcept(seq));
       }
 
@@ -1456,9 +1558,9 @@ public class Frills
    }
 
    /**
+    * Gets the id info.
+    *
     * @param id int identifier
-    * @param sc StampCoordinate (defaults to development latest)
-    * @param lc LanguageCoordinate (defaults to US English FSN)
     * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
     *
     * This method should only be used for logging. The returned data structure is not meant to be parsed.
@@ -1468,9 +1570,9 @@ public class Frills
    }
 
    /**
+    * Gets the id info.
+    *
     * @param id String identifier may parse to int NID, int sequence or UUID
-    * @param sc StampCoordinate (defaults to development latest)
-    * @param lc LanguageCoordinate (defaults to US English FSN)
     * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
     *
     * This method should only be used for logging. The returned data structure is not meant to be parsed.
@@ -1482,9 +1584,9 @@ public class Frills
    }
 
    /**
+    * Gets the id info.
+    *
     * @param id UUID identifier
-    * @param sc StampCoordinate (defaults to development latest)
-    * @param lc LanguageCoordinate (defaults to US English FSN)
     * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
     *
     * This method should only be used for logging. The returned data structure is not meant to be parsed.
@@ -1493,20 +1595,36 @@ public class Frills
       return getIdInfo(id.toString());
    }
 
+   /**
+    * Gets the id info.
+    *
+    * @param id the id
+    * @param sc the sc
+    * @param lc the lc
+    * @return the id info
+    */
    public static IdInfo getIdInfo(int id, StampCoordinate sc, LanguageCoordinate lc) {
       return getIdInfo(Integer.toString(id), sc, lc);
    }
 
+   /**
+    * Gets the id info.
+    *
+    * @param id the id
+    * @param sc the sc
+    * @param lc the lc
+    * @return the id info
+    */
    public static IdInfo getIdInfo(String id, StampCoordinate sc, LanguageCoordinate lc) {
-      Map<String, Object>  idInfo         = new HashMap<>();
-      Long                 sctId          = null;
-      Integer              seq            = null;
-      Integer              nid            = null;
-      UUID[]               uuids          = null;
-      ObjectChronologyType typeOfPassedId = null;
+      final Map<String, Object> idInfo         = new HashMap<>();
+      Long                      sctId          = null;
+      Integer                   seq            = null;
+      Integer                   nid            = null;
+      UUID[]                    uuids          = null;
+      ObjectChronologyType      typeOfPassedId = null;
 
       try {
-         Optional<Integer> intId = NumericUtils.getInt(id);
+         final Optional<Integer> intId = NumericUtils.getInt(id);
 
          if (intId.isPresent()) {
             // id interpreted as the id of the referenced component
@@ -1527,7 +1645,7 @@ public class Frills
                                    .getUuidArrayForNid(nid);
             }
          } else {
-            Optional<UUID> uuidId = UUIDUtil.getUUID(id);
+            final Optional<UUID> uuidId = UUIDUtil.getUUID(id);
 
             if (uuidId.isPresent()) {
                // id interpreted as the id of either a sememe or a concept
@@ -1561,7 +1679,7 @@ public class Frills
                                   .conceptDescriptionText(nid));
 
             if (typeOfPassedId == ObjectChronologyType.CONCEPT) {
-               Optional<Long> optSctId = Frills.getSctId(nid, sc);
+               final Optional<Long> optSctId = Frills.getSctId(nid, sc);
 
                if (optSctId.isPresent()) {
                   sctId = optSctId.get();
@@ -1569,7 +1687,7 @@ public class Frills
                }
             }
          }
-      } catch (Exception e) {
+      } catch (final Exception e) {
          log.warn("Problem getting idInfo for \"{}\". Caught {}", e.getClass()
                .getName(), e.getLocalizedMessage());
       }
@@ -1582,11 +1700,20 @@ public class Frills
       return new IdInfo(idInfo);
    }
 
+   /**
+    * Gets the id info.
+    *
+    * @param id the id
+    * @param sc the sc
+    * @param lc the lc
+    * @return the id info
+    */
    public static IdInfo getIdInfo(UUID id, StampCoordinate sc, LanguageCoordinate lc) {
       return getIdInfo(id.toString(), sc, lc);
    }
 
    /**
+    * Gets the inferred definition chronology.
     *
     * @param conceptId either a concept nid or sequence.
     * @param logicCoordinate LogicCoordinate.
@@ -1603,6 +1730,8 @@ public class Frills
    }
 
    /**
+    * Gets the logic graph chronology.
+    *
     * @param id The int sequence or NID of the Concept for which the logic graph is requested
     * @param stated boolean indicating stated vs inferred definition chronology should be used
     * @return An Optional containing a LogicGraphSememe SememeChronology
@@ -1612,7 +1741,7 @@ public class Frills
       log.debug("Getting {} logic graph chronology for {}", (stated ? "stated"
             : "inferred"), Optional.ofNullable(Frills.getIdInfo(id)));
 
-      Optional<SememeChronology<? extends SememeVersion<?>>> defChronologyOptional =
+      final Optional<SememeChronology<? extends SememeVersion<?>>> defChronologyOptional =
          stated ? Get.statedDefinitionChronology(id)
                 : Get.inferredDefinitionChronology(id);
 
@@ -1621,7 +1750,7 @@ public class Frills
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id)));
 
          @SuppressWarnings("unchecked")
-         SememeChronology<? extends LogicGraphSememe<?>> sememeChronology =
+         final SememeChronology<? extends LogicGraphSememe<?>> sememeChronology =
             (SememeChronology<? extends LogicGraphSememe<?>>) defChronologyOptional.get();
 
          return Optional.of(sememeChronology);
@@ -1633,11 +1762,13 @@ public class Frills
    }
 
    /**
+    * Gets the logic graph chronology.
+    *
     * @param id The int sequence or NID of the Concept for which the logic graph is requested
+    * @param stated boolean indicating stated vs inferred definition chronology should be used
     * @param stampCoordinate The StampCoordinate for which the logic graph is requested
     * @param languageCoordinate The LanguageCoordinate for which the logic graph is requested
     * @param logicCoordinate the LogicCoordinate for which the logic graph is requested
-    * @param stated boolean indicating stated vs inferred definition chronology should be used
     * @return An Optional containing a LogicGraphSememe SememeChronology
     */
    public static Optional<SememeChronology<? extends LogicGraphSememe<?>>> getLogicGraphChronology(int id,
@@ -1648,17 +1779,17 @@ public class Frills
       log.debug("Getting {} logic graph chronology for {}", (stated ? "stated"
             : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
 
-      Optional<SememeChronology<? extends SememeVersion<?>>> defChronologyOptional = stated
-                                                                                     ? getStatedDefinitionChronology(id,
-                                                                                           logicCoordinate)
-            : getInferredDefinitionChronology(id, logicCoordinate);
+      final Optional<SememeChronology<? extends SememeVersion<?>>> defChronologyOptional =
+         stated ? getStatedDefinitionChronology(id,
+                                                logicCoordinate)
+                : getInferredDefinitionChronology(id, logicCoordinate);
 
       if (defChronologyOptional.isPresent()) {
          log.debug("Got {} logic graph chronology for {}", (stated ? "stated"
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
 
          @SuppressWarnings("unchecked")
-         SememeChronology<? extends LogicGraphSememe<?>> sememeChronology =
+         final SememeChronology<? extends LogicGraphSememe<?>> sememeChronology =
             (SememeChronology<? extends LogicGraphSememe<?>>) defChronologyOptional.get();
 
          return Optional.of(sememeChronology);
@@ -1670,6 +1801,8 @@ public class Frills
    }
 
    /**
+    * Gets the logic graph version.
+    *
     * @param logicGraphSememeChronology The SememeChronology<? extends LogicGraphSememe<?>> chronology for which the logic graph version is requested
     * @param stampCoordinate StampCoordinate to be used for selecting latest version
     * @return An Optional containing a LogicGraphSememe SememeChronology
@@ -1681,7 +1814,7 @@ public class Frills
                 Optional.ofNullable(Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid())));
 
       @SuppressWarnings({ "unchecked", "rawtypes" })
-      Optional<LatestVersion<LogicGraphSememe<?>>> latest =
+      final Optional<LatestVersion<LogicGraphSememe<?>>> latest =
          ((SememeChronology) logicGraphSememeChronology).getLatestVersion(LogicGraphSememe.class,
                                                                           stampCoordinate);
 
@@ -1696,15 +1829,20 @@ public class Frills
       return latest;
    }
 
+   /**
+    * Checks if mapping.
+    *
+    * @param sc the sc
+    * @return true, if mapping
+    */
    public static boolean isMapping(SememeChronology<? extends SememeVersion<?>> sc) {
       return definesMapping(sc.getAssemblageSequence());
    }
 
    /**
+    * Determine if Chronology has nested sememes.
     *
-    * Determine if Chronology has nested sememes
-    *
-    * @param chronology
+    * @param chronology the chronology
     * @return true if there is a nested sememe, false otherwise
     */
    public static boolean hasNestedSememe(ObjectChronology<?> chronology) {
@@ -1712,17 +1850,23 @@ public class Frills
                         .isEmpty();
    }
 
+   /**
+    * Gets the nid for SCTID.
+    *
+    * @param sctID the sct ID
+    * @return the nid for SCTID
+    */
    public static Optional<Integer> getNidForSCTID(long sctID) {
-      IndexServiceBI si = LookupService.get()
-                                       .getService(IndexServiceBI.class, "sememe indexer");
+      final IndexServiceBI si = LookupService.get()
+                                             .getService(IndexServiceBI.class, "sememe indexer");
 
       if (si != null) {
          // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
-         List<SearchResult> result = si.query(sctID + " ",
-                                              true,
-                                              new Integer[] { MetaData.SCTID.getConceptSequence() },
-                                              5,
-                                              Long.MIN_VALUE);
+         final List<SearchResult> result = si.query(sctID + " ",
+                                                    true,
+                                                    new Integer[] { MetaData.SCTID.getConceptSequence() },
+                                                    5,
+                                                    Long.MIN_VALUE);
 
          if (result.size() > 0) {
             return Optional.of(Get.sememeService()
@@ -1737,17 +1881,23 @@ public class Frills
       return Optional.empty();
    }
 
+   /**
+    * Gets the nid for VUID.
+    *
+    * @param vuID the vu ID
+    * @return the nid for VUID
+    */
    public static Optional<Integer> getNidForVUID(long vuID) {
-      IndexServiceBI si = LookupService.get()
-                                       .getService(IndexServiceBI.class, "sememe indexer");
+      final IndexServiceBI si = LookupService.get()
+                                             .getService(IndexServiceBI.class, "sememe indexer");
 
       if (si != null) {
          // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
-         List<SearchResult> result = si.query(vuID + " ",
-                                              true,
-                                              new Integer[] { MetaData.VUID.getConceptSequence() },
-                                              5,
-                                              Long.MIN_VALUE);
+         final List<SearchResult> result = si.query(vuID + " ",
+                                                    true,
+                                                    new Integer[] { MetaData.VUID.getConceptSequence() },
+                                                    5,
+                                                    Long.MIN_VALUE);
 
          if (result.size() > 0) {
             return Optional.of(Get.sememeService()
@@ -1763,31 +1913,31 @@ public class Frills
    }
 
    /**
-    * Find the SCTID for a component (if it has one)
+    * Find the SCTID for a component (if it has one).
     *
-    * @param componentNid
+    * @param componentNid the component nid
     * @param stamp - optional - if not provided uses default from config
     * service
     * @return the id, if found, or empty (will not return null)
     */
    public static Optional<Long> getSctId(int componentNid, StampCoordinate stamp) {
       try {
-         Optional<LatestVersion<StringSememeImpl>> sememe = Get.sememeService()
-                                                               .getSnapshot(StringSememeImpl.class,
-                                                                     (stamp == null) ? Get.configurationService()
-                                                                           .getDefaultStampCoordinate()
+         final Optional<LatestVersion<StringSememeImpl>> sememe = Get.sememeService()
+                                                                     .getSnapshot(StringSememeImpl.class,
+                                                                           (stamp == null) ? Get.configurationService()
+                                                                                 .getDefaultStampCoordinate()
                : stamp)
-                                                               .getLatestSememeVersionsForComponentFromAssemblage(
-                                                                  componentNid,
-                                                                        MetaData.SCTID.getConceptSequence())
-                                                               .findFirst();
+                                                                     .getLatestSememeVersionsForComponentFromAssemblage(
+                                                                        componentNid,
+                                                                              MetaData.SCTID.getConceptSequence())
+                                                                     .findFirst();
 
          if (sememe.isPresent()) {
             return Optional.of(Long.parseLong(sememe.get()
                   .value()
                   .getString()));
          }
-      } catch (Exception e) {
+      } catch (final Exception e) {
          log.error("Unexpected error trying to find SCTID for nid " + componentNid, e);
       }
 
@@ -1810,12 +1960,12 @@ public class Frills
                               .getDefaultStampCoordinate();
       }
 
-      StampPosition stampPosition = new StampPositionImpl(stampCoordinate.getStampPosition().getTime(),
-                                                          editCoordinate.getPathSequence());
-      StampCoordinateImpl temp = new StampCoordinateImpl(stampCoordinate.getStampPrecedence(),
-                                                         stampPosition,
-                                                         stampCoordinate.getModuleSequences(),
-                                                         stampCoordinate.getAllowedStates());
+      final StampPosition stampPosition = new StampPositionImpl(stampCoordinate.getStampPosition().getTime(),
+                                                                editCoordinate.getPathSequence());
+      final StampCoordinateImpl temp = new StampCoordinateImpl(stampCoordinate.getStampPrecedence(),
+                                                               stampPosition,
+                                                               stampCoordinate.getModuleSequences(),
+                                                               stampCoordinate.getAllowedStates());
 
       if (temp.getModuleSequences()
               .size() > 0) {
@@ -1827,6 +1977,8 @@ public class Frills
    }
 
    /**
+    * Gets the stamp coordinate from stamp.
+    *
     * @param stamp Stamp from which to generate StampCoordinate
     * @return StampCoordinate corresponding to Stamp values
     *
@@ -1839,6 +1991,8 @@ public class Frills
    }
 
    /**
+    * Gets the stamp coordinate from stamp.
+    *
     * @param stamp Stamp from which to generate StampCoordinate
     * @param precedence Precedence to assign StampCoordinate
     * @return StampCoordinate corresponding to Stamp values
@@ -1846,17 +2000,19 @@ public class Frills
     * Use StampCoordinate.makeAnalog() to customize result
     */
    public static StampCoordinate getStampCoordinateFromStamp(Stamp stamp, StampPrecedence precedence) {
-      StampPosition stampPosition = new StampPositionImpl(stamp.getTime(), stamp.getPathSequence());
-      StampCoordinate stampCoordinate = new StampCoordinateImpl(precedence,
-                                                                stampPosition,
-                                                                ConceptSequenceSet.of(stamp.getModuleSequence()),
-                                                                EnumSet.of(stamp.getStatus()));
+      final StampPosition stampPosition = new StampPositionImpl(stamp.getTime(), stamp.getPathSequence());
+      final StampCoordinate stampCoordinate = new StampCoordinateImpl(precedence,
+                                                                      stampPosition,
+                                                                      ConceptSequenceSet.of(stamp.getModuleSequence()),
+                                                                      EnumSet.of(stamp.getStatus()));
 
       log.debug("Created StampCoordinate from Stamp: " + stamp + ": " + stampCoordinate);
       return stampCoordinate;
    }
 
    /**
+    * Gets the stamp coordinate from version.
+    *
     * @param version StampedVersion from which to generate StampCoordinate
     * @return StampCoordinate corresponding to StampedVersion values
     *
@@ -1869,7 +2025,10 @@ public class Frills
    }
 
    /**
+    * Gets the stamp coordinate from version.
+    *
     * @param version StampedVersion from which to generate StampCoordinate
+    * @param precedence the precedence
     * @return StampCoordinate corresponding to StampedVersion values
     *
     * StampPrecedence set to StampPrecedence.TIME
@@ -1877,17 +2036,19 @@ public class Frills
     * Use StampCoordinate.makeAnalog() to customize result
     */
    public static StampCoordinate getStampCoordinateFromVersion(StampedVersion version, StampPrecedence precedence) {
-      StampPosition stampPosition = new StampPositionImpl(version.getTime(), version.getPathSequence());
-      StampCoordinate stampCoordinate = new StampCoordinateImpl(precedence,
-                                                                stampPosition,
-                                                                ConceptSequenceSet.of(version.getModuleSequence()),
-                                                                EnumSet.of(version.getState()));
+      final StampPosition stampPosition = new StampPositionImpl(version.getTime(), version.getPathSequence());
+      final StampCoordinate stampCoordinate = new StampCoordinateImpl(precedence,
+                                                                      stampPosition,
+                                                                      ConceptSequenceSet.of(
+                                                                         version.getModuleSequence()),
+                                                                      EnumSet.of(version.getState()));
 
       log.debug("Created StampCoordinate from StampedVersion: " + toString(version) + ": " + stampCoordinate);
       return stampCoordinate;
    }
 
    /**
+    * Gets the stated definition chronology.
     *
     * @param conceptId either a concept nid or sequence.
     * @param logicCoordinate LogicCoordinate.
@@ -1903,9 +2064,15 @@ public class Frills
                 .findAny();
    }
 
+   /**
+    * Gets the version type.
+    *
+    * @param nid the nid
+    * @return the version type
+    */
    public static Class<? extends StampedVersion> getVersionType(int nid) {
-      Optional<? extends ObjectChronology<? extends StampedVersion>> obj = Get.identifiedObjectService()
-                                                                              .getIdentifiedObjectChronology(nid);
+      final Optional<? extends ObjectChronology<? extends StampedVersion>> obj = Get.identifiedObjectService()
+                                                                                    .getIdentifiedObjectChronology(nid);
 
       if (!obj.isPresent()) {
          throw new RuntimeException("No StampedVersion object exists with NID=" + nid);
@@ -1914,11 +2081,18 @@ public class Frills
       return getVersionType(obj.get());
    }
 
+   /**
+    * Gets the version type.
+    *
+    * @param obj the obj
+    * @return the version type
+    */
    public static Class<? extends StampedVersion> getVersionType(ObjectChronology<? extends StampedVersion> obj) {
       switch (obj.getOchreObjectType()) {
       case SEMEME: {
          @SuppressWarnings({ "rawtypes", "unchecked" })
-         SememeChronology<? extends SememeVersion> sememeChronology = (SememeChronology<? extends SememeVersion>) obj;
+         final SememeChronology<? extends SememeVersion> sememeChronology =
+            (SememeChronology<? extends SememeVersion>) obj;
 
          switch (sememeChronology.getSememeType()) {
          case COMPONENT_NID:
@@ -1960,16 +2134,16 @@ public class Frills
    }
 
    /**
-    * Find the VUID for a component (if it has one)
+    * Find the VUID for a component (if it has one).
     *
-    * @param componentNid
+    * @param componentNid the component nid
     * @param stamp - optional - if not provided uses default from config
     * service
     * @return the id, if found, or empty (will not return null)
     */
    public static Optional<Long> getVuId(int componentNid, StampCoordinate stamp) {
       try {
-         ArrayList<Long> vuids = new ArrayList<>(1);
+         final ArrayList<Long> vuids = new ArrayList<>(1);
 
          Get.sememeService()
             .getSnapshot(SememeVersion.class,
@@ -2002,7 +2176,7 @@ public class Frills
          if (vuids.size() > 0) {
             return Optional.of(vuids.get(0));
          }
-      } catch (Exception e) {
+      } catch (final Exception e) {
          log.error("Unexpected error trying to find VUID for nid " + componentNid, e);
       }
 
@@ -2012,26 +2186,37 @@ public class Frills
    //~--- inner classes -------------------------------------------------------
 
    /**
-    *
-    * {@link IdInfo}
+    * {@link IdInfo}.
     *
     * @author <a href="mailto:joel.kniaz.list@gmail.com">Joel Kniaz</a>
     *
     * Class to contain and hide map generated by getIdInfo(). Only useful method is toString(). The returned String is not meant to be parsed.
     */
    public final static class IdInfo {
-      private final Map<String, Object> map_;
+      /** The map. */
+      private final Map<String, Object> map;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new id info.
+       *
+       * @param map the map
+       */
       private IdInfo(Map<String, Object> map) {
-         map_ = map;
+         this.map = map;
       }
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * To string.
+       *
+       * @return the string
+       */
+      @Override
       public String toString() {
-         return map_.toString();
+         return this.map.toString();
       }
    }
 

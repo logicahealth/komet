@@ -47,18 +47,27 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeTypeToClassUtility}
+ * {@link DynamicSememeTypeToClassUtility}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeTypeToClassUtility {
+   /**
+    * Type to class.
+    *
+    * @param type the type
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    * @return the dynamic sememe data impl
+    */
    public static DynamicSememeDataImpl typeToClass(DynamicSememeDataType type,
          byte[] data,
          int assemblageSequence,
          int columnNumber) {
       switch (type) {
       case ARRAY:
-         return new DynamicSememeArrayImpl<DynamicSememeData>(data, assemblageSequence, columnNumber);
+         return new DynamicSememeArrayImpl<>(data, assemblageSequence, columnNumber);
 
       case BOOLEAN:
          return new DynamicSememeBooleanImpl(data, assemblageSequence, columnNumber);
@@ -99,6 +108,12 @@ public class DynamicSememeTypeToClassUtility {
       }
    }
 
+   /**
+    * Impl class for type.
+    *
+    * @param type the type
+    * @return the class<? extends dynamic sememe data>
+    */
    protected static Class<? extends DynamicSememeData> implClassForType(DynamicSememeDataType type) {
       switch (type) {
       case ARRAY:
@@ -143,10 +158,17 @@ public class DynamicSememeTypeToClassUtility {
       }
    }
 
+   /**
+    * Type to class.
+    *
+    * @param type the type
+    * @param data the data
+    * @return the dynamic sememe data
+    */
    protected static DynamicSememeData typeToClass(DynamicSememeDataType type, byte[] data) {
       switch (type) {
       case ARRAY:
-         return new DynamicSememeArrayImpl<DynamicSememeData>(data);
+         return new DynamicSememeArrayImpl<>(data);
 
       case BOOLEAN:
          return new DynamicSememeBooleanImpl(data);

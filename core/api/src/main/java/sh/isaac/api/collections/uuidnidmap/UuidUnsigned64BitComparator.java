@@ -40,6 +40,7 @@
 package sh.isaac.api.collections.uuidnidmap;
 
 /**
+ * The Class UuidUnsigned64BitComparator.
  *
  * @author kec
  */
@@ -53,6 +54,12 @@ public class UuidUnsigned64BitComparator
     * return (n1 &lt; n2) ^ ((n1 &lt; 0) != (n2 &lt; 0));
     * }
     * } see: http://www.javamex.com/java_equivalents/unsigned_arithmetic.shtml
+    *
+    * @param msb1 the msb 1
+    * @param lsb1 the lsb 1
+    * @param msb2 the msb 2
+    * @param lsb2 the lsb 2
+    * @return the int
     */
    @Override
    public int compare(long msb1, long lsb1, long msb2, long lsb2) {

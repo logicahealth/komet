@@ -53,16 +53,28 @@ import java.nio.file.attribute.BasicFileAttributes;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link RecursiveDelete}
+ * {@link RecursiveDelete}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class RecursiveDelete {
+   /**
+    * Delete.
+    *
+    * @param file the file
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static void delete(File file)
             throws IOException {
       delete(file.toPath());
    }
 
+   /**
+    * Delete.
+    *
+    * @param path the path
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static void delete(Path path)
             throws IOException {
       if (path.toFile()

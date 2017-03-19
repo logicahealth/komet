@@ -57,63 +57,127 @@ import sh.isaac.api.coordinate.StampCoordinate;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface LanguageCoordinateService.
  *
  * @author kec
  */
 @Contract
 public interface LanguageCoordinateService {
+   /**
+    * Case significance to concept sequence.
+    *
+    * @param initialCaseSignificant the initial case significant
+    * @return the int
+    */
    int caseSignificanceToConceptSequence(boolean initialCaseSignificant);
 
+   /**
+    * Concept id to case significance.
+    *
+    * @param id the id
+    * @return true, if successful
+    */
    boolean conceptIdToCaseSignificance(int id);
 
    /**
+    * Concept id to iso 639.
     *
     * @param id either a concept nid or concept sequence
     * @return ISO 639 language code
     */
    String conceptIdToIso639(int id);
 
+   /**
+    * Iso 639 to concept nid.
+    *
+    * @param iso639text the iso 639 text
+    * @return the int
+    */
    int iso639toConceptNid(String iso639text);
 
+   /**
+    * Iso 639 to concept sequence.
+    *
+    * @param iso639text the iso 639 text
+    * @return the int
+    */
    int iso639toConceptSequence(String iso639text);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the acceptable concept sequence.
+    *
+    * @return the acceptable concept sequence
+    */
    int getAcceptableConceptSequence();
 
+   /**
+    * Gets the fully specified concept sequence.
+    *
+    * @return the fully specified concept sequence
+    */
    int getFullySpecifiedConceptSequence();
 
+   /**
+    * Gets the gb english language preferred term coordinate.
+    *
+    * @return the gb english language preferred term coordinate
+    */
    LanguageCoordinate getGbEnglishLanguagePreferredTermCoordinate();
 
+   /**
+    * Gets the preferred concept sequence.
+    *
+    * @return the preferred concept sequence
+    */
    int getPreferredConceptSequence();
 
    /**
+    * Gets the specified description.
     *
     * @param stampCoordinate used to determine which versions of descriptions and dialect annotations are current.
     * @param descriptionList List of descriptions to consider.
     * @param languageCoordinate Used to determine ranking of candidate matches.
-    * @return
+    * @return the specified description
     */
    Optional<LatestVersion<DescriptionSememe<?>>> getSpecifiedDescription(StampCoordinate stampCoordinate,
          List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
          LanguageCoordinate languageCoordinate);
 
    /**
+    * Gets the specified description.
+    *
     * @param stampCoordinate used to determine which versions of descriptions and dialect annotations are current.
     * @param descriptionList List of descriptions to consider.
     * @param typeSequence The specific type to match.
     * @param languageCoordinate Used to determine ranking of candidate matches.
-    * @return
+    * @return the specified description
     */
    Optional<LatestVersion<DescriptionSememe<?>>> getSpecifiedDescription(StampCoordinate stampCoordinate,
          List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
          int typeSequence,
          LanguageCoordinate languageCoordinate);
 
+   /**
+    * Gets the synonym concept sequence.
+    *
+    * @return the synonym concept sequence
+    */
    int getSynonymConceptSequence();
 
+   /**
+    * Gets the us english language fully specified name coordinate.
+    *
+    * @return the us english language fully specified name coordinate
+    */
    LanguageCoordinate getUsEnglishLanguageFullySpecifiedNameCoordinate();
 
+   /**
+    * Gets the us english language preferred term coordinate.
+    *
+    * @return the us english language preferred term coordinate
+    */
    LanguageCoordinate getUsEnglishLanguagePreferredTermCoordinate();
 }
 

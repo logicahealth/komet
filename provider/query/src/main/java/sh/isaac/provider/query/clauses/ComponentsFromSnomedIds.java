@@ -59,6 +59,7 @@ import sh.isaac.provider.query.WhereClause;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ComponentsFromSnomedIds.
  *
  * @author dylangrald
  */
@@ -66,14 +67,28 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ComponentsFromSnomedIds
         extends LeafClause {
+   /**
+    * Instantiates a new components from snomed ids.
+    */
    protected ComponentsFromSnomedIds() {}
 
+   /**
+    * Instantiates a new components from snomed ids.
+    *
+    * @param enclosingQuery the enclosing query
+    */
    public ComponentsFromSnomedIds(Query enclosingQuery) {
       super(enclosingQuery);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       throw new UnsupportedOperationException(
@@ -82,18 +97,34 @@ public class ComponentsFromSnomedIds
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
       throw new UnsupportedOperationException(

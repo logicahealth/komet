@@ -51,15 +51,31 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ObservableLanguageCoordinate.
  *
  * @author kec
  */
 public interface ObservableLanguageCoordinate
         extends LanguageCoordinate {
+   /**
+    * Description type preference list property.
+    *
+    * @return the object property
+    */
    ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty();
 
+   /**
+    * Dialect assemblage preference list property.
+    *
+    * @return the object property
+    */
    ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty();
 
+   /**
+    * Language concept sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty languageConceptSequenceProperty();
 }
 

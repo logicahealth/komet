@@ -80,6 +80,7 @@ import sh.isaac.api.observable.coordinate.ObservableStampPosition;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StampCoordinateImpl.
  *
  * @author kec
  */
@@ -87,20 +88,38 @@ import sh.isaac.api.observable.coordinate.ObservableStampPosition;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class StampCoordinateImpl
          implements StampCoordinate {
-   StampPrecedence    stampPrecedence;
+   /** The stamp precedence. */
+   StampPrecedence stampPrecedence;
+
+   /** The stamp position. */
    @XmlElement(type = StampPositionImpl.class)
-   StampPosition      stampPosition;
+   StampPosition stampPosition;
+
+   /** The module sequences. */
    @XmlJavaTypeAdapter(ConceptSequenceSetAdapter.class)
    ConceptSequenceSet moduleSequences;
+
+   /** The allowed states. */
    @XmlJavaTypeAdapter(EnumSetAdapter.class)
-   EnumSet<State>     allowedStates;
+   EnumSet<State> allowedStates;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new stamp coordinate impl.
+    */
    private StampCoordinateImpl() {
       // for jaxb
    }
 
+   /**
+    * Instantiates a new stamp coordinate impl.
+    *
+    * @param stampPrecedence the stamp precedence
+    * @param stampPosition the stamp position
+    * @param moduleSequences the module sequences
+    * @param allowedStates the allowed states
+    */
    public StampCoordinateImpl(StampPrecedence stampPrecedence,
                               StampPosition stampPosition,
                               ConceptSequenceSet moduleSequences,
@@ -115,6 +134,14 @@ public class StampCoordinateImpl
       }
    }
 
+   /**
+    * Instantiates a new stamp coordinate impl.
+    *
+    * @param stampPrecedence the stamp precedence
+    * @param stampPosition the stamp position
+    * @param moduleSpecifications the module specifications
+    * @param allowedStates the allowed states
+    */
    public StampCoordinateImpl(StampPrecedence stampPrecedence,
                               StampPosition stampPosition,
                               List<ConceptSpecification> moduleSpecifications,
@@ -128,6 +155,12 @@ public class StampCoordinateImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
@@ -155,6 +188,11 @@ public class StampCoordinateImpl
       return this.moduleSequences.equals(other.moduleSequences);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int hash = 7;
@@ -166,59 +204,90 @@ public class StampCoordinateImpl
       return hash;
    }
 
+   /**
+    * Make analog.
+    *
+    * @param stampPositionTime the stamp position time
+    * @return the stamp coordinate impl
+    */
    @Override
    public StampCoordinateImpl makeAnalog(long stampPositionTime) {
-      StampPosition anotherStampPosition = new StampPositionImpl(stampPositionTime,
-                                                                 stampPosition.getStampPathSequence());
+      final StampPosition anotherStampPosition = new StampPositionImpl(stampPositionTime,
+                                                                       this.stampPosition.getStampPathSequence());
 
-      return new StampCoordinateImpl(stampPrecedence, anotherStampPosition, moduleSequences, allowedStates);
+      return new StampCoordinateImpl(this.stampPrecedence,
+                                     anotherStampPosition,
+                                     this.moduleSequences,
+                                     this.allowedStates);
    }
 
+   /**
+    * Make analog.
+    *
+    * @param states the states
+    * @return the stamp coordinate impl
+    */
    @Override
    public StampCoordinateImpl makeAnalog(State... states) {
-      EnumSet<State> newAllowedStates = EnumSet.noneOf(State.class);
+      final EnumSet<State> newAllowedStates = EnumSet.noneOf(State.class);
 
       newAllowedStates.addAll(Arrays.asList(states));
-      return new StampCoordinateImpl(stampPrecedence, stampPosition, moduleSequences, newAllowedStates);
+      return new StampCoordinateImpl(this.stampPrecedence, this.stampPosition, this.moduleSequences, newAllowedStates);
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      StringBuilder builder = new StringBuilder();
+      final StringBuilder builder = new StringBuilder();
 
       builder.append("Stamp Coordinate{")
-             .append(stampPrecedence)
+             .append(this.stampPrecedence)
              .append(", ")
-             .append(stampPosition)
+             .append(this.stampPosition)
              .append(", modules: ");
 
-      if (moduleSequences.isEmpty()) {
+      if (this.moduleSequences.isEmpty()) {
          builder.append("all, ");
       } else {
-         builder.append(Get.conceptDescriptionTextList(moduleSequences))
+         builder.append(Get.conceptDescriptionTextList(this.moduleSequences))
                 .append(", ");
       }
 
-      builder.append(allowedStates)
+      builder.append(this.allowedStates)
              .append('}');
       return builder.toString();
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the allowed states.
+    *
+    * @return the allowed states
+    */
    @Override
    public EnumSet<State> getAllowedStates() {
-      return allowedStates;
+      return this.allowedStates;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set allowed states property.
+    *
+    * @param allowedStatesProperty the allowed states property
+    * @return the set change listener
+    */
    public SetChangeListener<State> setAllowedStatesProperty(SetProperty<State> allowedStatesProperty) {
-      SetChangeListener<State> listener = (change) -> {
+      final SetChangeListener<State> listener = (change) -> {
                if (change.wasAdded()) {
-                  allowedStates.add(change.getElementAdded());
+                  this.allowedStates.add(change.getElementAdded());
                } else {
-                  allowedStates.remove(change.getElementRemoved());
+                  this.allowedStates.remove(change.getElementRemoved());
                }
             };
 
@@ -228,20 +297,31 @@ public class StampCoordinateImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the module sequences.
+    *
+    * @return the module sequences
+    */
    @Override
    public ConceptSequenceSet getModuleSequences() {
-      return moduleSequences;
+      return this.moduleSequences;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set module sequences property.
+    *
+    * @param moduleSequencesProperty the module sequences property
+    * @return the array change listener
+    */
    public ArrayChangeListener<ObservableIntegerArray> setModuleSequencesProperty(
            ObjectProperty<ObservableIntegerArray> moduleSequencesProperty) {
-      ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray,
-                                                              boolean sizeChanged,
-                                                              int from,
-                                                              int to) -> {
-               moduleSequences = ConceptSequenceSet.of(observableArray.toArray(new int[observableArray.size()]));
+      final ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray,
+                                                                    boolean sizeChanged,
+                                                                    int from,
+                                                                    int to) -> {
+               this.moduleSequences = ConceptSequenceSet.of(observableArray.toArray(new int[observableArray.size()]));
             };
 
       moduleSequencesProperty.getValue()
@@ -251,17 +331,28 @@ public class StampCoordinateImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the stamp position.
+    *
+    * @return the stamp position
+    */
    @Override
    public StampPosition getStampPosition() {
-      return stampPosition;
+      return this.stampPosition;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set stamp position property.
+    *
+    * @param stampPositionProperty the stamp position property
+    * @return the change listener
+    */
    public ChangeListener<ObservableStampPosition> setStampPositionProperty(
            ObjectProperty<ObservableStampPosition> stampPositionProperty) {
-      ChangeListener<ObservableStampPosition> listener = (observable, oldValue, newValue) -> {
-               stampPosition = newValue;
+      final ChangeListener<ObservableStampPosition> listener = (observable, oldValue, newValue) -> {
+               this.stampPosition = newValue;
             };
 
       stampPositionProperty.addListener(new WeakChangeListener<>(listener));
@@ -270,17 +361,28 @@ public class StampCoordinateImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the stamp precedence.
+    *
+    * @return the stamp precedence
+    */
    @Override
    public StampPrecedence getStampPrecedence() {
-      return stampPrecedence;
+      return this.stampPrecedence;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set stamp precedence property.
+    *
+    * @param stampPrecedenceProperty the stamp precedence property
+    * @return the change listener
+    */
    public ChangeListener<StampPrecedence> setStampPrecedenceProperty(
            ObjectProperty<StampPrecedence> stampPrecedenceProperty) {
-      ChangeListener<StampPrecedence> listener = (observable, oldValue, newValue) -> {
-               stampPrecedence = newValue;
+      final ChangeListener<StampPrecedence> listener = (observable, oldValue, newValue) -> {
+               this.stampPrecedence = newValue;
             };
 
       stampPrecedenceProperty.addListener(new WeakChangeListener<>(listener));
@@ -289,12 +391,29 @@ public class StampCoordinateImpl
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class ConceptSequenceSetAdapter.
+    */
    private static class ConceptSequenceSetAdapter
            extends XmlAdapter<int[], ConceptSequenceSet> {
+      /**
+       * Marshal.
+       *
+       * @param c the c
+       * @return the int[]
+       */
+      @Override
       public int[] marshal(ConceptSequenceSet c) {
          return c.asArray();
       }
 
+      /**
+       * Unmarshal.
+       *
+       * @param v the v
+       * @return the concept sequence set
+       * @throws Exception the exception
+       */
       @Override
       public ConceptSequenceSet unmarshal(int[] v)
                throws Exception {
@@ -303,16 +422,33 @@ public class StampCoordinateImpl
    }
 
 
+   /**
+    * The Class EnumSetAdapter.
+    */
    private static class EnumSetAdapter
            extends XmlAdapter<State[], EnumSet<State>> {
+      /**
+       * Marshal.
+       *
+       * @param c the c
+       * @return the state[]
+       */
+      @Override
       public State[] marshal(EnumSet<State> c) {
          return c.toArray(new State[c.size()]);
       }
 
+      /**
+       * Unmarshal.
+       *
+       * @param v the v
+       * @return the enum set
+       * @throws Exception the exception
+       */
       @Override
       public EnumSet<State> unmarshal(State[] v)
                throws Exception {
-         EnumSet<State> s = EnumSet.noneOf(State.class);
+         final EnumSet<State> s = EnumSet.noneOf(State.class);
 
          s.addAll(Arrays.asList(v));
          return s;

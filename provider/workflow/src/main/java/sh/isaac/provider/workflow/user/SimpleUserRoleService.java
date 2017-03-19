@@ -73,16 +73,16 @@ import sh.isaac.api.UserRoleService;
 @Singleton
 public class SimpleUserRoleService
          implements UserRoleService {
-   /** The user role map  (for Unit Testing) */
-   private Map<UUID, Set<UserRole>> userRoleMap = new HashMap<>();
+   /** The user role map  (for Unit Testing). */
+   private final Map<UUID, Set<UserRole>> userRoleMap = new HashMap<>();
 
    /** The definition roles. */
-   private Set<UserRole> definitionRoles = new HashSet<>();
+   private final Set<UserRole> definitionRoles = new HashSet<>();
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Defines the user roles for the Mock case
+    * Defines the user roles for the Mock case.
     */
    private SimpleUserRoleService() {
       // For HK2 to construct
@@ -90,32 +90,48 @@ public class SimpleUserRoleService
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the role.
+    *
+    * @param roleName the role name
+    */
    public void addRole(UserRole roleName) {
-      definitionRoles.add(roleName);
+      this.definitionRoles.add(roleName);
    }
 
+   /**
+    * Adds the user.
+    *
+    * @param user the user
+    * @param roles the roles
+    */
    public void addUser(UUID user, Set<UserRole> roles) {
-      userRoleMap.put(user, roles);
+      this.userRoleMap.put(user, roles);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the all user roles.
     *
+    * @return the all user roles
     * @see sh.isaac.api.UserRoleService#getAllUserRoles()
     */
    @Override
    public Set<UserRole> getAllUserRoles() {
-      return definitionRoles;
+      return this.definitionRoles;
    }
 
    /**
+    * Gets the user roles.
     *
+    * @param userId the user id
+    * @return the user roles
     * @see sh.isaac.api.UserRoleService#getUserRoles(java.util.UUID)
     */
    @Override
    public Set<UserRole> getUserRoles(UUID userId) {
-      return userRoleMap.get(userId);
+      return this.userRoleMap.get(userId);
    }
 }
 

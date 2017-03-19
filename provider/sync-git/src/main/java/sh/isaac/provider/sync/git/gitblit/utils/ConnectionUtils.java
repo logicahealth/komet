@@ -65,6 +65,7 @@ import org.apache.commons.lang3.ArrayUtils;
  *
  */
 public class ConnectionUtils {
+   /** The Constant CHARSET. */
    static final String CHARSET;
 
    //~--- static initializers -------------------------------------------------
@@ -79,10 +80,19 @@ public class ConnectionUtils {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Open connection.
+    *
+    * @param url the url
+    * @param username the username
+    * @param password the password
+    * @return the URL connection
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static URLConnection openConnection(String url, String username, char[] password)
             throws IOException {
-      URL           urlObject = new URL(url);
-      URLConnection conn      = urlObject.openConnection();
+      final URL           urlObject = new URL(url);
+      final URLConnection conn      = urlObject.openConnection();
 
       setAuthorization(conn, username, password);
       conn.setUseCaches(false);
@@ -90,19 +100,34 @@ public class ConnectionUtils {
       return conn;
    }
 
+   /**
+    * Open read connection.
+    *
+    * @param url the url
+    * @param username the username
+    * @param password the password
+    * @return the URL connection
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static URLConnection openReadConnection(String url, String username, char[] password)
             throws IOException {
-      URLConnection conn = openConnection(url, username, password);
+      final URLConnection conn = openConnection(url, username, password);
 
       conn.setRequestProperty("Accept-Charset", ConnectionUtils.CHARSET);
       return conn;
    }
 
+   /**
+    * To bytes.
+    *
+    * @param chars the chars
+    * @return the byte[]
+    */
    private static byte[] toBytes(char[] chars) {
-      CharBuffer charBuffer = CharBuffer.wrap(chars);
-      ByteBuffer byteBuffer = Charset.forName("UTF-8")
-                                     .encode(charBuffer);
-      byte[]     bytes      = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
+      final CharBuffer charBuffer = CharBuffer.wrap(chars);
+      final ByteBuffer byteBuffer = Charset.forName("UTF-8")
+                                           .encode(charBuffer);
+      final byte[]     bytes      = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
 
       Arrays.fill(charBuffer.array(), '\u0000');  // clear sensitive data
       Arrays.fill(byteBuffer.array(), (byte) 0);  // clear sensitive data
@@ -111,6 +136,13 @@ public class ConnectionUtils {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set authorization.
+    *
+    * @param conn the conn
+    * @param username the username
+    * @param password the password
+    */
    public static void setAuthorization(URLConnection conn, String username, char[] password) {
       if (!StringUtils.isEmpty(username) && ((password != null) && (password.length > 0))) {
          conn.setRequestProperty("Authorization",

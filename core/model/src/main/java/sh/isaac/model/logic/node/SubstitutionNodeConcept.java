@@ -60,12 +60,25 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public class SubstitutionNodeConcept
         extends SubstitutionNode {
+   /**
+    * Instantiates a new substitution node concept.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public SubstitutionNodeConcept(LogicalExpressionOchreImpl logicGraphVersion,
                                   DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
    }
 
+   /**
+    * Instantiates a new substitution node concept.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param substitutionFieldSpecification the substitution field specification
+    */
    public SubstitutionNodeConcept(LogicalExpressionOchreImpl logicGraphVersion,
                                   SubstitutionFieldSpecification substitutionFieldSpecification) {
       super(logicGraphVersion, substitutionFieldSpecification);
@@ -73,23 +86,44 @@ public class SubstitutionNodeConcept
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
       return "Concept substitution[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
 
+   /**
+    * Inits the node uuid.
+    *
+    * @return the uuid
+    */
    @Override
    protected UUID initNodeUuid() {
-      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), substitutionFieldSpecification.toString());
+      return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(), this.substitutionFieldSpecification.toString());
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the node semantic.
+    *
+    * @return the node semantic
+    */
    @Override
    public NodeSemantic getNodeSemantic() {
       return NodeSemantic.SUBSTITUTION_CONCEPT;

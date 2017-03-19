@@ -48,9 +48,7 @@ import org.jvnet.hk2.annotations.Contract;
 /**
  * ISAAC module level code can implement this class, and annotate with HK2 as a service,
  * in order to have their constants automatically generated into the DB by the mojo by the
- * {@link ExportTaxonomy} mojo
- *
- *
+ * {@link ExportTaxonomy} mojo.
  */
 @Contract
 public interface ModuleProvidedConstants {
@@ -63,7 +61,8 @@ public interface ModuleProvidedConstants {
     *
     * DO NOT make a reference to the LookupService in a variable this is statically defined - this will break the
     * HK2 init routine!
-    * @return
+    *
+    * @return the constants to create
     */
    public MetadataConceptConstant[] getConstantsToCreate();
 }

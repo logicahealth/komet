@@ -62,6 +62,11 @@ import sh.isaac.api.LookupService;
 )
 public class Shutdown
         extends AbstractMojo {
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException {
@@ -72,7 +77,7 @@ public class Shutdown
          getLog().info("  Shutting Down");
          LookupService.shutdownSystem();
          getLog().info("Done shutting down terminology store");
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new MojoExecutionException("Database build failure", e);
       }
    }

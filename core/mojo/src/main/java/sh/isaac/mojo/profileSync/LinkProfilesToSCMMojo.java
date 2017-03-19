@@ -63,7 +63,9 @@ import sh.isaac.api.sync.SyncFiles;
 public class LinkProfilesToSCMMojo
         extends ProfilesMojoBase {
    /**
-    * @throws MojoExecutionException
+    * Instantiates a new link profiles to SCM mojo.
+    *
+    * @throws MojoExecutionException the mojo execution exception
     */
    public LinkProfilesToSCMMojo()
             throws MojoExecutionException {
@@ -72,6 +74,11 @@ public class LinkProfilesToSCMMojo
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException {
@@ -82,11 +89,11 @@ public class LinkProfilesToSCMMojo
       }
 
       try {
-         getLog().info("Configuring " + userProfileFolderLocation.getAbsolutePath() + " for SCM management");
-         userProfileFolderLocation.mkdirs();
+         getLog().info("Configuring " + this.userProfileFolderLocation.getAbsolutePath() + " for SCM management");
+         this.userProfileFolderLocation.mkdirs();
          getProfileSyncImpl().linkAndFetchFromRemote(getURL(), getUsername(), getPassword());
          getLog().info("Done Configuring SCM for profiles");
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new MojoExecutionException("Unexpected error configuring SCM for the profiles", e);
       }
    }

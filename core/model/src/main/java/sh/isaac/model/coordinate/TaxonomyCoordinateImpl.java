@@ -41,14 +41,11 @@ package sh.isaac.model.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.beans.Transient;
-
 import java.util.Objects;
 import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -66,6 +63,7 @@ import sh.isaac.api.coordinate.TaxonomyCoordinate;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class TaxonomyCoordinateImpl.
  *
  * @author kec
  */
@@ -73,22 +71,44 @@ import sh.isaac.api.coordinate.TaxonomyCoordinate;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TaxonomyCoordinateImpl
          implements TaxonomyCoordinate {
-   transient int      isaConceptSequence = TermAux.IS_A.getConceptSequence();
-   PremiseType        taxonomyType;
+   /** The isa concept sequence. */
+   transient int isaConceptSequence = TermAux.IS_A.getConceptSequence();
+
+   /** The taxonomy type. */
+   PremiseType taxonomyType;
+
+   /** The stamp coordinate. */
    @XmlJavaTypeAdapter(AnyTypeAdapter.class)
-   StampCoordinate    stampCoordinate;
+   StampCoordinate stampCoordinate;
+
+   /** The language coordinate. */
    @XmlJavaTypeAdapter(AnyTypeAdapter.class)
    LanguageCoordinate languageCoordinate;
+
+   /** The logic coordinate. */
    @XmlJavaTypeAdapter(AnyTypeAdapter.class)
-   LogicCoordinate    logicCoordinate;
-   UUID               uuid;
+   LogicCoordinate logicCoordinate;
+
+   /** The uuid. */
+   UUID uuid;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new taxonomy coordinate impl.
+    */
    private TaxonomyCoordinateImpl() {
       // for jaxb
    }
 
+   /**
+    * Instantiates a new taxonomy coordinate impl.
+    *
+    * @param taxonomyType the taxonomy type
+    * @param stampCoordinate the stamp coordinate
+    * @param languageCoordinate the language coordinate
+    * @param logicCoordinate the logic coordinate
+    */
    public TaxonomyCoordinateImpl(PremiseType taxonomyType,
                                  StampCoordinate stampCoordinate,
                                  LanguageCoordinate languageCoordinate,
@@ -102,6 +122,12 @@ public class TaxonomyCoordinateImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
@@ -129,6 +155,11 @@ public class TaxonomyCoordinateImpl
       return Objects.equals(this.languageCoordinate, other.languageCoordinate);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int hash = 3;
@@ -139,73 +170,146 @@ public class TaxonomyCoordinateImpl
       return hash;
    }
 
+   /**
+    * Make analog.
+    *
+    * @param stampPositionTime the stamp position time
+    * @return the taxonomy coordinate impl
+    */
    @Override
    public TaxonomyCoordinateImpl makeAnalog(long stampPositionTime) {
-      return new TaxonomyCoordinateImpl(taxonomyType,
-                                        stampCoordinate.makeAnalog(stampPositionTime),
-                                        languageCoordinate,
-                                        logicCoordinate);
+      return new TaxonomyCoordinateImpl(this.taxonomyType,
+                                        this.stampCoordinate.makeAnalog(stampPositionTime),
+                                        this.languageCoordinate,
+                                        this.logicCoordinate);
    }
 
+   /**
+    * Make analog.
+    *
+    * @param taxonomyType the taxonomy type
+    * @return the taxonomy coordinate impl
+    */
    @Override
    public TaxonomyCoordinateImpl makeAnalog(PremiseType taxonomyType) {
-      return new TaxonomyCoordinateImpl(taxonomyType, stampCoordinate, languageCoordinate, logicCoordinate);
+      return new TaxonomyCoordinateImpl(taxonomyType,
+                                        this.stampCoordinate,
+                                        this.languageCoordinate,
+                                        this.logicCoordinate);
    }
 
+   /**
+    * Make analog.
+    *
+    * @param state the state
+    * @return the taxonomy coordinate impl
+    */
    @Override
    public TaxonomyCoordinateImpl makeAnalog(State... state) {
-      return new TaxonomyCoordinateImpl(taxonomyType,
-                                        stampCoordinate.makeAnalog(state),
-                                        languageCoordinate,
-                                        logicCoordinate);
+      return new TaxonomyCoordinateImpl(this.taxonomyType,
+                                        this.stampCoordinate.makeAnalog(state),
+                                        this.languageCoordinate,
+                                        this.logicCoordinate);
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "TaxonomyCoordinate{" + taxonomyType + ",\n" + stampCoordinate + ", \n" + languageCoordinate + ", \n" +
-             logicCoordinate + ", uuid=" + uuid + '}';
+      return "TaxonomyCoordinate{" + this.taxonomyType + ",\n" + this.stampCoordinate + ", \n" +
+             this.languageCoordinate + ", \n" + this.logicCoordinate + ", uuid=" + this.uuid + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the isa concept sequence.
+    *
+    * @return the isa concept sequence
+    */
    @Override
    public int getIsaConceptSequence() {
-      return isaConceptSequence;
+      return this.isaConceptSequence;
    }
 
+   /**
+    * Gets the language coordinate.
+    *
+    * @return the language coordinate
+    */
    @Override
    public LanguageCoordinate getLanguageCoordinate() {
-      return languageCoordinate;
+      return this.languageCoordinate;
    }
 
+   /**
+    * Gets the logic coordinate.
+    *
+    * @return the logic coordinate
+    */
    @Override
    public LogicCoordinate getLogicCoordinate() {
-      return logicCoordinate;
+      return this.logicCoordinate;
    }
 
+   /**
+    * Gets the stamp coordinate.
+    *
+    * @return the stamp coordinate
+    */
    @Override
    public StampCoordinate getStampCoordinate() {
-      return stampCoordinate;
+      return this.stampCoordinate;
    }
 
+   /**
+    * Gets the taxonomy type.
+    *
+    * @return the taxonomy type
+    */
    @Override
    public PremiseType getTaxonomyType() {
-      return taxonomyType;
+      return this.taxonomyType;
    }
 
+   /**
+    * Gets the uuid.
+    *
+    * @return the uuid
+    */
    @Override
    public UUID getUuid() {
-      return uuid;
+      return this.uuid;
    }
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class AnyTypeAdapter.
+    */
    private static class AnyTypeAdapter
            extends XmlAdapter<Object, Object> {
+      /**
+       * Marshal.
+       *
+       * @param v the v
+       * @return the object
+       */
+      @Override
       public Object marshal(Object v) {
          return v;
       }
 
+      /**
+       * Unmarshal.
+       *
+       * @param v the v
+       * @return the object
+       */
+      @Override
       public Object unmarshal(Object v) {
          return v;
       }

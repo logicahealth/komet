@@ -58,22 +58,33 @@ import sh.isaac.api.collections.uuidnidmap.ConcurrentUuidToIntHashMap;
  */
 public class ConcurrentUuidIntMapSerializer
          implements DataSerializer<ConcurrentUuidToIntHashMap>, Serializable {
+   /** The Constant serialVersionUID. */
+   private static final long serialVersionUID = 1L;
+
+   //~--- methods -------------------------------------------------------------
+
+   /**
+    * Deserialize.
+    *
+    * @param input the input
+    * @return the concurrent uuid to int hash map
+    */
    @Override
    public ConcurrentUuidToIntHashMap deserialize(DataInput input) {
       try {
-         int                        size  = input.readInt();
-         ConcurrentUuidToIntHashMap map   = new ConcurrentUuidToIntHashMap(size);
-         long                       stamp = map.getStampedLock()
-                                               .writeLock();
+         final int                        size  = input.readInt();
+         final ConcurrentUuidToIntHashMap map   = new ConcurrentUuidToIntHashMap(size);
+         final long                       stamp = map.getStampedLock()
+                                                     .writeLock();
 
          try {
-            long[] uuidData = new long[2];
+            final long[] uuidData = new long[2];
 
             for (int i = 0; i < size; i++) {
                uuidData[0] = input.readLong();
                uuidData[1] = input.readLong();
 
-               int nid = input.readInt();
+               final int nid = input.readInt();
 
                map.put(uuidData, nid, stamp);
             }
@@ -83,11 +94,17 @@ public class ConcurrentUuidIntMapSerializer
          }
 
          return map;
-      } catch (IOException ex) {
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
 
+   /**
+    * Serialize.
+    *
+    * @param out the out
+    * @param map the map
+    */
    @Override
    public void serialize(DataOutput out, ConcurrentUuidToIntHashMap map) {
       try {
@@ -98,13 +115,13 @@ public class ConcurrentUuidIntMapSerializer
                                out.writeLong(uuid[0]);
                                out.writeLong(uuid[1]);
                                out.writeInt(nid);
-                            } catch (IOException ex) {
+                            } catch (final IOException ex) {
                                throw new RuntimeException(ex);
                             }
 
                             return true;
                          });
-      } catch (IOException ex) {
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }

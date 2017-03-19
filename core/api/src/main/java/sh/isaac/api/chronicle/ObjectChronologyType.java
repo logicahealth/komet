@@ -52,39 +52,58 @@ import org.apache.commons.lang3.StringUtils;
 //~--- enums ------------------------------------------------------------------
 
 /**
+ * The Enum ObjectChronologyType.
  *
  * @author kec
  */
 public enum ObjectChronologyType {
+   /** The concept. */
    CONCEPT("Concept"),
+
+   /** The sememe. */
    SEMEME("Sememe"),
+
+   /** The unknown nid. */
    UNKNOWN_NID("Unknown");
 
-   private String niceName_;
+   /** The nice name. */
+   private String niceName;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new object chronology type.
+    *
+    * @param niceName the nice name
+    */
    private ObjectChronologyType(String niceName) {
-      niceName_ = niceName;
+      this.niceName = niceName;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Parses the.
+    *
+    * @param nameOrEnumId the name or enum id
+    * @param exceptionOnParseFail the exception on parse fail
+    * @return the object chronology type
+    */
    public static ObjectChronologyType parse(String nameOrEnumId, boolean exceptionOnParseFail) {
       if (nameOrEnumId == null) {
          return null;
       }
 
-      String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH)
-                                 .trim();
+      final String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH)
+                                       .trim();
 
       if (StringUtils.isBlank(clean)) {
          return null;
       }
 
-      for (ObjectChronologyType ct: values()) {
+      for (final ObjectChronologyType ct: values()) {
          if (ct.name().toLowerCase(Locale.ENGLISH).equals(clean) ||
-               ct.niceName_.toLowerCase(Locale.ENGLISH).equals(clean) ||
+               ct.niceName.toLowerCase(Locale.ENGLISH).equals(clean) ||
                (ct.ordinal() + "").equals(clean)) {
             return ct;
          }
@@ -98,11 +117,14 @@ public enum ObjectChronologyType {
    }
 
    /**
+    * To string.
+    *
+    * @return the string
     * @see java.lang.Enum#toString()
     */
    @Override
    public String toString() {
-      return niceName_;
+      return this.niceName;
    }
 }
 

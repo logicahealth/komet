@@ -49,29 +49,50 @@ import sh.isaac.model.waitfree.WaitFreeMergeSerializer;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class SememeSerializer.
  *
  * @author kec
  */
 public class SememeSerializer
          implements WaitFreeMergeSerializer<SememeChronologyImpl<? extends SememeVersion<?>>> {
+   /**
+    * Deserialize.
+    *
+    * @param db the db
+    * @return the sememe chronology impl
+    */
    @Override
    public SememeChronologyImpl<?> deserialize(ByteArrayDataBuffer db) {
       return SememeChronologyImpl.make(db);
    }
 
+   /**
+    * Merge.
+    *
+    * @param a the a
+    * @param b the b
+    * @param writeSequence the write sequence
+    * @return the sememe chronology impl
+    */
    @Override
    public SememeChronologyImpl<?> merge(SememeChronologyImpl<? extends SememeVersion<?>> a,
          SememeChronologyImpl<? extends SememeVersion<?>> b,
          int writeSequence) {
-      byte[]              dataBytes = a.mergeData(writeSequence, b.getDataToWrite(writeSequence));
-      ByteArrayDataBuffer db        = new ByteArrayDataBuffer(dataBytes);
+      final byte[]              dataBytes = a.mergeData(writeSequence, b.getDataToWrite(writeSequence));
+      final ByteArrayDataBuffer db        = new ByteArrayDataBuffer(dataBytes);
 
       return SememeChronologyImpl.make(db);
    }
 
+   /**
+    * Serialize.
+    *
+    * @param d the d
+    * @param a the a
+    */
    @Override
    public void serialize(ByteArrayDataBuffer d, SememeChronologyImpl<? extends SememeVersion<?>> a) {
-      byte[] data = a.getDataToWrite();
+      final byte[] data = a.getDataToWrite();
 
       d.put(data, 0, data.length);
    }

@@ -48,17 +48,17 @@ import java.util.List;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.util.StringUtils;
 import sh.isaac.pombuilder.FileUtil;
 
 //~--- enums ------------------------------------------------------------------
 
 /**
- * {@link SupportedConverterTypes}
+ * {@link SupportedConverterTypes}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public enum SupportedConverterTypes {
+   /** The loinc. */
    LOINC("loinc-src-data", new String[] {}, new String[] {}, new UploadFileInfo[] {
       // (?i) and (?-i) constructs are not supported in JavaScript (they are in Ruby)
       new UploadFileInfo("",
@@ -83,6 +83,8 @@ public enum SupportedConverterTypes {
    }, "loinc-mojo", "loinc-ibdf", "convert-loinc-to-ibdf", "sh.isaac.terminology.source.loinc", "LOINC",
       new String[] { "shared/licenses/loinc.xml" },
       new String[] { "shared/noticeAdditions/loinc-NOTICE-addition.txt" }),
+
+   /** The loinc tech preview. */
    LOINC_TECH_PREVIEW("loinc-src-data-tech-preview", new String[] { "loinc-src-data" },
                       new String[] { "rf2-ibdf-sct" }, new UploadFileInfo[] { new UploadFileInfo("",
                             "https://www.nlm.nih.gov/healthit/snomedct/international.html",
@@ -97,6 +99,8 @@ public enum SupportedConverterTypes {
                                            "shared/noticeAdditions/loinc-tech-preview-NOTICE-addition.txt",
                                                  "shared/noticeAdditions/loinc-NOTICE-addition.txt",
                                                  "shared/noticeAdditions/rf2-sct-NOTICE-addition.txt" }),
+
+   /** The sct. */
    SCT("rf2-src-data-sct", new String[] {}, new String[] {}, new UploadFileInfo[] { new UploadFileInfo("",
          "https://www.nlm.nih.gov/healthit/snomedct/international.html",
          "SnomedCT_RF2Release_INT_20160131.zip",
@@ -106,6 +110,8 @@ public enum SupportedConverterTypes {
          true) }, "rf2-mojo", "rf2-ibdf-sct", "convert-RF2-to-ibdf", "sh.isaac.terminology.source.rf2", "SnomedCT",
                   new String[] { "shared/licenses/sct.xml" },
                   new String[] { "shared/noticeAdditions/rf2-sct-NOTICE-addition.txt" }),
+
+   /** The sct extension. */
    SCT_EXTENSION(
       "rf2-src-data-*-extension", new String[] {}, new String[] { "rf2-ibdf-sct" }, new UploadFileInfo[] { new UploadFileInfo(
          "Snomed Extensions come from a variety of sources.  Note that the NLM has choosen to stop advertising the download links to the " +
@@ -119,6 +125,8 @@ public enum SupportedConverterTypes {
          true) }, "rf2-mojo", "rf2-ibdf-", "convert-RF2-to-ibdf", "sh.isaac.terminology.source.rf2",
                   "SnomedCT Extension", new String[] { "shared/licenses/sct.xml" },
                   new String[] { "shared/noticeAdditions/rf2-sct-NOTICE-addition.txt" }),
+
+   /** The vhat. */
    VHAT("vhat-src-data", new String[] {}, new String[] {},
         new UploadFileInfo[] { new UploadFileInfo("VHAT content is typically exported from a VETs system.  ",
               "",
@@ -127,6 +135,8 @@ public enum SupportedConverterTypes {
               ".*\\.xml$",
               true) }, "vhat-mojo", "vhat-ibdf", "convert-VHAT-to-ibdf", "sh.isaac.terminology.source.vhat", "VHAT",
                        new String[] { "" }, new String[] { "" }),
+
+   /** The rxnorm. */
    RXNORM("rxnorm-src-data", new String[] {}, new String[] { "rf2-ibdf-sct" },
           new UploadFileInfo[] { new UploadFileInfo("",
                 "https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html",
@@ -143,6 +153,8 @@ public enum SupportedConverterTypes {
 //                                 "The file must be a zip file, which starts with 'rxnorm_full' and ends with .zip", "rxnorm_full.*\\.zip$", true)
 // }, "rxnorm-mojo", "rxnorm-ibdf-solor", "convert-rxnorm-solor-to-ibdf", "sh.isaac.terminology.source.rxnorm", "RxNorm Solor", 
 //                 new String[] {"shared/licenses/rxnorm.xml"}, 
+
+   /** The HL 7 v 3. */
 //                 new String[] {"shared/noticeAdditions/rxnorm-NOTICE-addition.txt"}),
    HL7v3("hl7v3-src-data", new String[] {}, new String[] {}, new UploadFileInfo[] { new UploadFileInfo("",
          "http://gforge.hl7.org/gf/project/design-repos/frs/?action=FrsReleaseBrowse&frs_package_id=30",
@@ -153,6 +165,8 @@ public enum SupportedConverterTypes {
          true) }, "hl7v3-mojo", "hl7v3-ibdf", "convert-hl7v3-to-ibdf", "sh.isaac.terminology.source.hl7v3", "HL7v3",
                   new String[] { "shared/licenses/hl7v3.xml" },
                   new String[] { "shared/noticeAdditions/hl7v3-NOTICE-addition.txt" }),
+
+   /** The nucc. */
    NUCC("nucc-src-data", new String[] {}, new String[] {}, new UploadFileInfo[] { new UploadFileInfo("",
          "http://www.nucc.org/index.php/code-sets-mainmenu-41/provider-taxonomy-mainmenu-40/csv-mainmenu-57",
          "nucc_taxonomy_170.csv",
@@ -160,7 +174,11 @@ public enum SupportedConverterTypes {
          ".*\\.csv$",
          true) }, "nucc-mojo", "nucc-ibdf", "convert-NUCC-to-ibdf", "sh.isaac.terminology.source.nucc",
                   "National Uniform Claim Committee", new String[] { "" },  // TODO
-                  new String[] { "" }),                                  // TODO
+                  new String[] { "" }),
+
+   /** The cvx. */
+
+   // TODO
    CVX("cvx-src-data", new String[] {}, new String[] {}, new UploadFileInfo[] { new UploadFileInfo("",
          "https://www2a.cdc.gov/vaccines/iis/iisstandards/vaccines.asp?rpt=cvx",
          "cvx.xml",
@@ -169,7 +187,11 @@ public enum SupportedConverterTypes {
          ".*\\.xml$",
          true) }, "cvx-mojo", "cvx-ibdf", "convert-CVX-to-ibdf", "sh.isaac.terminology.source.cvx",
                   "Current Vaccines Administered", new String[] { "" },  // TODO
-                  new String[] { "" }),                              // TODO
+                  new String[] { "" }),
+
+   /** The mvx. */
+
+   // TODO
    MVX("mvx-src-data", new String[] {}, new String[] {}, new UploadFileInfo[] { new UploadFileInfo("",
          "https://www2a.cdc.gov/vaccines/iis/iisstandards/vaccines.asp?rpt=mvx",
          "mvx.xml",
@@ -178,31 +200,77 @@ public enum SupportedConverterTypes {
          ".*\\.xml$",
          true) }, "mvx-mojo", "mvx-ibdf", "convert-MVX-to-ibdf", "sh.isaac.terminology.source.mvx",
                   "Manufacturers of Vaccines", new String[] { "" },  // TODO
-                  new String[] { "" }),  // TODO
+                  new String[] { "" }),
+
+   /** The cpt. */
+
+   // TODO
    CPT("cpt-src-data", new String[] {}, new String[] {}, new UploadFileInfo[] { new UploadFileInfo("",
-         "File a bug, assign to Dan",    // TODO dan fix... this is a stub for the moment
+         "File a bug, assign to Dan",  // TODO dan fix... this is a stub for the moment
          "TBD",
          "File a bug, assign to Dan",
          ".*$",
          true) }, "cpt-mojo", "cpt-ibdf", "convert-CPT-to-ibdf", "sh.isaac.terminology.source.cpt",
                   "Current Procedural Terminology", new String[] { "" },  // TODO
-                  new String[] { "" })  // TODO
-                  ;
+                  new String[] { "" })
 
-   private String       converterGroupId_ = "sh.isaac.terminology.converters";
-   private String       srcArtifactId_;
-   private List<String> artifactSrcDependencies_;
-   private List<String> artifactIBDFDependencies_;
-   private List<UploadFileInfo> uploadFileInfo_;  // If we were really clever, we would pull this from an options file published with the converter itself.
-   private String converterArtifactId_;
-   private String converterOutputArtifactId_;
-   private String converterMojoName_;  // Must match the value from the mojo - aka - @ Mojo( name = "convert-loinc-to-ibdf", defaultPhase... used as the goal in the pom.
-   private String   sourceUploadGroupId_;
-   private String   niceName_;
+   /** The converter group id. */
+
+   // TODO
+   ;
+
+   private final String converterGroupId = "sh.isaac.terminology.converters";
+
+   /** The src artifact id. */
+   private String srcArtifactId;
+
+   /** The artifact src dependencies. */
+   private List<String> artifactSrcDependencies;
+
+   /** The artifact IBDF dependencies. */
+   private List<String> artifactIBDFDependencies;
+
+   /** The upload file info. */
+   private List<UploadFileInfo> uploadFileInfo;  // If we were really clever, we would pull this from an options file published with the converter itself.
+
+   /** The converter artifact id. */
+   private String converterArtifactId;
+
+   /** The converter output artifact id. */
+   private String converterOutputArtifactId;
+
+   /** The converter mojo name. */
+   private String converterMojoName;  // Must match the value from the mojo - aka - @ Mojo( name = "convert-loinc-to-ibdf", defaultPhase... used as the goal in the pom.
+
+   /** The source upload group id. */
+   private String sourceUploadGroupId;
+
+   /** The nice name. */
+   private String niceName;
+
+   /** The license information. */
    private String[] licenseInformation;
+
+   /** The notice information. */
    private String[] noticeInformation;
 
    //~--- constructors --------------------------------------------------------
+
+   /**
+    * Instantiates a new supported converter types.
+    *
+    * @param artifactId the artifact id
+    * @param artifactSourceDependencies the artifact source dependencies
+    * @param artifactIBDFDependencies the artifact IBDF dependencies
+    * @param uploadFileInfo the upload file info
+    * @param converterArtifactId the converter artifact id
+    * @param converterOutputArtifactId the converter output artifact id
+    * @param converterMojoName the converter mojo name
+    * @param sourceUploadGroupId the source upload group id
+    * @param niceName the nice name
+    * @param licenseFilePaths the license file paths
+    * @param noticeFilePaths the notice file paths
+    */
 
    /*
     * unfortunately, that gets tricky, because the user needs to populate these when they are uploading, without necessarily knowing what particular
@@ -220,35 +288,35 @@ public enum SupportedConverterTypes {
                                    String niceName,
                                    String[] licenseFilePaths,
                                    String[] noticeFilePaths) {
-      srcArtifactId_             = artifactId;
-      artifactSrcDependencies_   = Arrays.asList(artifactSourceDependencies);
-      artifactIBDFDependencies_  = Arrays.asList(artifactIBDFDependencies);
-      uploadFileInfo_            = Arrays.asList(uploadFileInfo);
-      converterArtifactId_       = converterArtifactId;
-      converterOutputArtifactId_ = converterOutputArtifactId;
-      converterMojoName_         = converterMojoName;
-      sourceUploadGroupId_       = sourceUploadGroupId;
-      niceName_                  = niceName;
-      licenseInformation         = new String[licenseFilePaths.length];
-      noticeInformation          = new String[noticeFilePaths.length];
+      this.srcArtifactId             = artifactId;
+      this.artifactSrcDependencies   = Arrays.asList(artifactSourceDependencies);
+      this.artifactIBDFDependencies  = Arrays.asList(artifactIBDFDependencies);
+      this.uploadFileInfo            = Arrays.asList(uploadFileInfo);
+      this.converterArtifactId       = converterArtifactId;
+      this.converterOutputArtifactId = converterOutputArtifactId;
+      this.converterMojoName         = converterMojoName;
+      this.sourceUploadGroupId       = sourceUploadGroupId;
+      this.niceName                  = niceName;
+      this.licenseInformation         = new String[licenseFilePaths.length];
+      this.noticeInformation          = new String[noticeFilePaths.length];
 
       try {
          for (int i = 0; i < licenseFilePaths.length; i++) {
-            if (StringUtils.isBlank(licenseFilePaths[i])) {
-               licenseInformation[i] = "";
+            if (org.apache.commons.lang3.StringUtils.isBlank(licenseFilePaths[i])) {
+               this.licenseInformation[i] = "";
             } else {
-               licenseInformation[i] = FileUtil.readFile(licenseFilePaths[i]);
+               this.licenseInformation[i] = FileUtil.readFile(licenseFilePaths[i]);
             }
          }
 
          for (int i = 0; i < noticeFilePaths.length; i++) {
-            if (StringUtils.isBlank(noticeFilePaths[i])) {
-               noticeInformation[i] = "";
+            if (org.apache.commons.lang3.StringUtils.isBlank(noticeFilePaths[i])) {
+               this.noticeInformation[i] = "";
             } else {
-               noticeInformation[i] = FileUtil.readFile(noticeFilePaths[i]);
+               this.noticeInformation[i] = FileUtil.readFile(noticeFilePaths[i]);
             }
          }
-      } catch (IOException e) {
+      } catch (final IOException e) {
          throw new RuntimeException(e);
       }
    }
@@ -260,9 +328,11 @@ public enum SupportedConverterTypes {
     * Source artifact identifiers.
     *
     * This is used during SOURCE UPLOAD
+    *
+    * @return the artifact dependencies
     */
    public List<String> getArtifactDependencies() {
-      return artifactSrcDependencies_;
+      return this.artifactSrcDependencies;
    }
 
    /**
@@ -270,37 +340,47 @@ public enum SupportedConverterTypes {
     * for the source artifact upload, not the artifact id related to the converter.
     *
     * This is used during SOURCE UPLOAD
+    *
+    * @return the artifact id
     */
    public String getArtifactId() {
-      return srcArtifactId_;
+      return this.srcArtifactId;
    }
 
    /**
-    * Not for PRISME
+    * Not for PRISME.
+    *
+    * @return the converter artifact id
     */
    protected String getConverterArtifactId() {
-      return converterArtifactId_;
+      return this.converterArtifactId;
    }
 
    /**
-    * Not for PRISME
+    * Not for PRISME.
+    *
+    * @return the converter group id
     */
    protected String getConverterGroupId() {
-      return converterGroupId_;
+      return this.converterGroupId;
    }
 
    /**
-    * Not for PRISME
+    * Not for PRISME.
+    *
+    * @return the converter mojo name
     */
    protected String getConverterMojoName() {
-      return converterMojoName_;
+      return this.converterMojoName;
    }
 
    /**
-    * Not for PRISME
+    * Not for PRISME.
+    *
+    * @return the converter output artifact id
     */
    protected String getConverterOutputArtifactId() {
-      return converterOutputArtifactId_;
+      return this.converterOutputArtifactId;
    }
 
    /**
@@ -308,46 +388,58 @@ public enum SupportedConverterTypes {
     * IBDF artifact identifiers.
     *
     * This is used during IBDF CONVERSION
+    *
+    * @return the IBDF dependencies
     */
    public List<String> getIBDFDependencies() {
-      return artifactIBDFDependencies_;
+      return this.artifactIBDFDependencies;
    }
 
    /**
-    * Not for PRISME
+    * Not for PRISME.
+    *
+    * @return the license information
     */
    public String[] getLicenseInformation() {
-      return licenseInformation;
+      return this.licenseInformation;
    }
 
    /**
-    * Not for PRISME (but you can use it if you want)
+    * Not for PRISME (but you can use it if you want).
+    *
+    * @return the nice name
     */
    public String getNiceName() {
-      return niceName_;
+      return this.niceName;
    }
 
    /**
-    * Not for PRISME
+    * Not for PRISME.
+    *
+    * @return the notice information
     */
    public String[] getNoticeInformation() {
-      return noticeInformation;
+      return this.noticeInformation;
    }
 
    /**
-    * Not for PRISME
+    * Not for PRISME.
+    *
+    * @return the source upload group id
     */
    public String getSourceUploadGroupId() {
-      return sourceUploadGroupId_;
+      return this.sourceUploadGroupId;
    }
 
    /**
     * The information describing the files that an end user must upload into the system to allow the execution of a particular converter.
     *
     * This is used during SOURCE UPLOAD
+    *
+    * @return the upload file info
     */
    public List<UploadFileInfo> getUploadFileInfo() {
-      return uploadFileInfo_;
+      return this.uploadFileInfo;
    }
 }
 

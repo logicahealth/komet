@@ -51,17 +51,29 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnIn
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class MetadataDynamicSememeConstant.
+ */
 public class MetadataDynamicSememeConstant
         extends MetadataConceptConstant {
-   private String                    dynamicSememeDescription_;
-   private DynamicSememeColumnInfo[] dynamicSememeColumns_;
-   private ObjectChronologyType      referencedComponentRestriction_;
-   private SememeType                referencedComponentSubRestriction_;
+   /** The dynamic sememe description. */
+   private final String dynamicSememeDescription;
+
+   /** The dynamic sememe columns. */
+   private final DynamicSememeColumnInfo[] dynamicSememeColumns;
+
+   /** The referenced component restriction. */
+   private final ObjectChronologyType referencedComponentRestriction;
+
+   /** The referenced component sub restriction. */
+   private final SememeType referencedComponentSubRestriction;
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    * @param fsn
+    * Instantiates a new metadata dynamic sememe constant.
+    *
+    * @param fsn the fsn
     * @param uuid - optional - the UUID to assign to this sememe
     * @param sememeDescription - describe the purpose of the use of this dynamic sememe
     * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
@@ -74,7 +86,9 @@ public class MetadataDynamicSememeConstant
    }
 
    /**
-    * @param fsn
+    * Instantiates a new metadata dynamic sememe constant.
+    *
+    * @param fsn the fsn
     * @param uuid - optional - the UUID to assign to this sememe
     * @param sememeDescription - describe the purpose of the use of this dynamic sememe
     * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
@@ -89,7 +103,9 @@ public class MetadataDynamicSememeConstant
    }
 
    /**
-    * @param fsn
+    * Instantiates a new metadata dynamic sememe constant.
+    *
+    * @param fsn the fsn
     * @param uuid - optional - the UUID to assign to this sememe
     * @param alternateName - optional - the non-preferred synonym to add to this concept
     * @param sememeDescription - describe the purpose of the use of this dynamic sememe
@@ -104,7 +120,9 @@ public class MetadataDynamicSememeConstant
    }
 
    /**
-    * @param fsn
+    * Instantiates a new metadata dynamic sememe constant.
+    *
+    * @param fsn the fsn
     * @param uuid - optional - the UUID to assign to this sememe
     * @param sememeDescription - describe the purpose of the use of this dynamic sememe
     * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
@@ -125,8 +143,9 @@ public class MetadataDynamicSememeConstant
    }
 
    /**
-    * @param fsn
-    * @param preferredSynonym
+    * Instantiates a new metadata dynamic sememe constant.
+    *
+    * @param fsn the fsn
     * @param uuid - optional - the UUID to assign to this sememe
     * @param sememeDescription - describe the purpose of the use of this dynamic sememe
     * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
@@ -134,8 +153,7 @@ public class MetadataDynamicSememeConstant
     * @param definitions - optional - extra definitions
     * @param referencedComponentRestriction - optional - used to limit the type of nid that can be used as the referenced component in an instance
     * of this sememe.
-    * @param referencedComponentSubRestriction - optional - used to limit the type of sememe that can be used as the referenced component in an instance
-    * of this sememe.
+    * @param refererenceComponentSubRestriction the refererence component sub restriction
     */
    public MetadataDynamicSememeConstant(String fsn,
          UUID uuid,
@@ -148,51 +166,59 @@ public class MetadataDynamicSememeConstant
       super(fsn, uuid);
 
       if (definitions != null) {
-         for (String s: definitions) {
+         for (final String s: definitions) {
             addDefinition(s);
          }
       }
 
       if (synonyms != null) {
-         for (String s: synonyms) {
+         for (final String s: synonyms) {
             addSynonym(s);
          }
       }
 
-      dynamicSememeDescription_          = sememeDescription;
-      dynamicSememeColumns_              = columns;
-      referencedComponentRestriction_    = referencedComponentRestriction;
-      referencedComponentSubRestriction_ = refererenceComponentSubRestriction;
+      this.dynamicSememeDescription          = sememeDescription;
+      this.dynamicSememeColumns              = columns;
+      this.referencedComponentRestriction    = referencedComponentRestriction;
+      this.referencedComponentSubRestriction = refererenceComponentSubRestriction;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the dynamic sememe columns.
+    *
     * @return the sememeColumns
     */
    public DynamicSememeColumnInfo[] getDynamicSememeColumns() {
-      return dynamicSememeColumns_;
+      return this.dynamicSememeColumns;
    }
 
    /**
+    * Gets the referenced component sub type restriction.
+    *
     * @return The limit (if any) on which {@link SememeType} this dynamic sememe is restricted to.
     */
    public SememeType getReferencedComponentSubTypeRestriction() {
-      return referencedComponentSubRestriction_;
+      return this.referencedComponentSubRestriction;
    }
 
    /**
+    * Gets the referenced component type restriction.
+    *
     * @return The limit (if any) on which {@link ObjectChronologyType} this DynamicSememe is restricted to.
     */
    public ObjectChronologyType getReferencedComponentTypeRestriction() {
-      return referencedComponentRestriction_;
+      return this.referencedComponentRestriction;
    }
 
    /**
+    * Gets the sememe assemblage description.
+    *
     * @return the dynamicSememeDescription_
     */
    public String getSememeAssemblageDescription() {
-      return dynamicSememeDescription_;
+      return this.dynamicSememeDescription;
    }
 }
 

@@ -43,17 +43,38 @@ package sh.isaac.api.component.sememe.version;
  * Describes the referenced component in a way appropriate for the type and
  * language specified by the sememe.
  * The description is annotated to provide support for dialect.
+ *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public interface DescriptionSememe<V extends DescriptionSememe<V>>
         extends SememeVersion<V> {
+   /**
+    * Gets the case significance concept sequence.
+    *
+    * @return the case significance concept sequence
+    */
    int getCaseSignificanceConceptSequence();
 
+   /**
+    * Gets the description type concept sequence.
+    *
+    * @return the description type concept sequence
+    */
    int getDescriptionTypeConceptSequence();
 
+   /**
+    * Gets the language concept sequence.
+    *
+    * @return the language concept sequence
+    */
    int getLanguageConceptSequence();
 
+   /**
+    * Gets the text.
+    *
+    * @return the text
+    */
    String getText();
 }
 

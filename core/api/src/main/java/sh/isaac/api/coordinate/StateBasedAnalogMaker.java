@@ -53,6 +53,8 @@ import sh.isaac.api.State;
  */
 public interface StateBasedAnalogMaker<T> {
    /**
+    * Make analog.
+    *
     * @param state the allowed states for the resulting analog
     * @return a new {@code <T>} with the specified allowed states.
     */

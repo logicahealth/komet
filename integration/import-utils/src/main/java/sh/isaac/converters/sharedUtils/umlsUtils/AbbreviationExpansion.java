@@ -56,24 +56,42 @@ import org.apache.commons.lang3.StringUtils;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class AbbreviationExpansion.
+ */
 public class AbbreviationExpansion {
-   String abbreviation_, expansion_, description_;
+   /** The description. */
+   String abbreviation, expansion, description;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new abbreviation expansion.
+    *
+    * @param abbreviation the abbreviation
+    * @param expansion the expansion
+    * @param description the description
+    */
    protected AbbreviationExpansion(String abbreviation, String expansion, String description) {
-      this.abbreviation_ = abbreviation;
-      this.expansion_    = expansion;
-      this.description_  = description;
+      this.abbreviation = abbreviation;
+      this.expansion    = expansion;
+      this.description  = description;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Load.
+    *
+    * @param is the is
+    * @return the hash map
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static HashMap<String, AbbreviationExpansion> load(InputStream is)
             throws IOException {
-      HashMap<String, AbbreviationExpansion> results = new HashMap<>();
-      BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.ISO_8859_1));
-      String                                 line    = br.readLine();
+      final HashMap<String, AbbreviationExpansion> results = new HashMap<>();
+      final BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.ISO_8859_1));
+      String                                       line    = br.readLine();
 
       while (line != null) {
          if (StringUtils.isBlank(line) || line.startsWith("#")) {
@@ -81,8 +99,8 @@ public class AbbreviationExpansion {
             continue;
          }
 
-         String[]              cols = line.split("\t");
-         AbbreviationExpansion ae   = new AbbreviationExpansion(cols[0], cols[1], ((cols.length > 2) ? cols[2]
+         final String[]              cols = line.split("\t");
+         final AbbreviationExpansion ae   = new AbbreviationExpansion(cols[0], cols[1], ((cols.length > 2) ? cols[2]
                : null));
 
          results.put(ae.getAbbreviation(), ae);
@@ -94,16 +112,31 @@ public class AbbreviationExpansion {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the abbreviation.
+    *
+    * @return the abbreviation
+    */
    public String getAbbreviation() {
-      return abbreviation_;
+      return this.abbreviation;
    }
 
+   /**
+    * Gets the description.
+    *
+    * @return the description
+    */
    public String getDescription() {
-      return description_;
+      return this.description;
    }
 
+   /**
+    * Gets the expansion.
+    *
+    * @return the expansion
+    */
    public String getExpansion() {
-      return expansion_;
+      return this.expansion;
    }
 }
 

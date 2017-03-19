@@ -68,27 +68,42 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
  * @author Daniel Armbrust
  */
 public abstract class PropertyType {
-   protected static int srcVersion_ = 1;
+   /** The src version. */
+   protected static int srcVersion = 1;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The property type UUID. */
    private UUID propertyTypeUUID = null;
-   private boolean createAsDynamicRefex_ =
+
+   /** The create as dynamic refex. */
+   private boolean createAsDynamicRefex =
       false;  // It could make sense to set this at the individual Property level... but in general, everything of the same type
-   private Map<String, String> altNamePropertyMap_ = null;
-   protected List<String>      skipList_           = null;
-   private String              propertyTypeDescription_;
+
+   /** The alt name property map. */
+   private Map<String, String> altNamePropertyMap = null;
+
+   /** The skip list. */
+   protected List<String> skipList = null;
+
+   /** The property type description. */
+   private final String propertyTypeDescription;
+
+   /** The default data column. */
 
    // will be handled in the same way - relationships are not dynamic sememes, assoications are, for example.
-   private DynamicSememeDataType defaultDataColumn_;  // If the property is specified without further column instructions, and createAsDynamicRefex is true,
+   private final DynamicSememeDataType defaultDataColumn;  // If the property is specified without further column instructions, and createAsDynamicRefex is true,
 
    // use this information to configure the (single) data column.
 
-   private Map<String, Property> properties_;
+   /** The properties. */
+   private final Map<String, Property> properties;
 
    //~--- constructors --------------------------------------------------------
 
    /**
+    * Instantiates a new property type.
+    *
     * @param propertyTypeDescription - The name used for the property category within the terminology specific hierarchy -typically something like
     * "Attribute Types" or "Association Types".  This text is also used to construct the UUID for this property type grouping.
     * @param createAsDynamicRefex - true to mark as a dynamic refex, false otherwise.
@@ -98,17 +113,23 @@ public abstract class PropertyType {
    protected PropertyType(String propertyTypeDescription,
                           boolean createAsDynamicRefex,
                           DynamicSememeDataType defaultDynamicRefexColumnType) {
-      this.properties_              = new HashMap<String, Property>();
-      this.propertyTypeDescription_ = propertyTypeDescription;
-      this.createAsDynamicRefex_    = createAsDynamicRefex;
-      this.defaultDataColumn_       = defaultDynamicRefexColumnType;
+      this.properties              = new HashMap<>();
+      this.propertyTypeDescription = propertyTypeDescription;
+      this.createAsDynamicRefex    = createAsDynamicRefex;
+      this.defaultDataColumn       = defaultDynamicRefexColumnType;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the property.
+    *
+    * @param property the property
+    * @return the property
+    */
    public Property addProperty(Property property) {
-      if (skipList_ != null) {
-         for (String s: skipList_) {
+      if (this.skipList != null) {
+         for (final String s: this.skipList) {
             if (property.getSourcePropertyNameFSN()
                         .equals(s)) {
                ConsoleUtil.println("Skipping property '" + s + "' because of skip list configuration");
@@ -119,14 +140,15 @@ public abstract class PropertyType {
 
       property.setOwner(this);
 
-      Property old = properties_.put(property.getSourcePropertyNameFSN(), property);
+      final Property old = this.properties.put(property.getSourcePropertyNameFSN(), property);
 
       if (old != null) {
          throw new RuntimeException("Duplicate property name: " + property.getSourcePropertyNameFSN());
       }
 
-      if ((altNamePropertyMap_ != null) && StringUtils.isNotEmpty(property.getSourcePropertyAltName())) {
-         String s = altNamePropertyMap_.put(property.getSourcePropertyAltName(), property.getSourcePropertyNameFSN());
+      if ((this.altNamePropertyMap != null) && StringUtils.isNotEmpty(property.getSourcePropertyAltName())) {
+         final String s = this.altNamePropertyMap.put(property.getSourcePropertyAltName(),
+                                                       property.getSourcePropertyNameFSN());
 
          if (s != null) {
             throw new RuntimeException("Alt Indexing Error - duplicate!");
@@ -136,10 +158,23 @@ public abstract class PropertyType {
       return property;
    }
 
+   /**
+    * Adds the property.
+    *
+    * @param propertyNameFSN the property name FSN
+    * @return the property
+    */
    public Property addProperty(String propertyNameFSN) {
       return addProperty(propertyNameFSN, -1);
    }
 
+   /**
+    * Adds the property.
+    *
+    * @param propertyNameFSN the property name FSN
+    * @param propertySubType the property sub type
+    * @return the property
+    */
    public Property addProperty(String propertyNameFSN, int propertySubType) {
       return addProperty(propertyNameFSN, null, null, false, propertySubType, null);
    }
@@ -147,11 +182,24 @@ public abstract class PropertyType {
    /**
     * Only adds the property if the version of the data file falls between min and max, inclusive.
     * pass 0 in min or max to specify no min or no max, respectively
+    *
+    * @param propertyNameFSN the property name FSN
+    * @param minVersion the min version
+    * @param maxVersion the max version
+    * @return the property
     */
    public Property addProperty(String propertyNameFSN, int minVersion, int maxVersion) {
       return addProperty(propertyNameFSN, null, null, minVersion, maxVersion, false, -1);
    }
 
+   /**
+    * Adds the property.
+    *
+    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyAltName the source property alt name
+    * @param sourcePropertyDefinition the source property definition
+    * @return the property
+    */
    public Property addProperty(String sourcePropertyNameFSN,
                                String sourcePropertyAltName,
                                String sourcePropertyDefinition) {
@@ -161,11 +209,28 @@ public abstract class PropertyType {
    /**
     * Only adds the property if the version of the data file falls between min and max, inclusive.
     * pass 0 in min or max to specify no min or no max, respectively
+    *
+    * @param propertyNameFSN the property name FSN
+    * @param minVersion the min version
+    * @param maxVersion the max version
+    * @param disabled the disabled
+    * @return the property
     */
    public Property addProperty(String propertyNameFSN, int minVersion, int maxVersion, boolean disabled) {
       return addProperty(propertyNameFSN, null, null, minVersion, maxVersion, disabled, -1);
    }
 
+   /**
+    * Adds the property.
+    *
+    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyAltName the source property alt name
+    * @param sourcePropertyDefinition the source property definition
+    * @param disabled the disabled
+    * @param propertySubType the property sub type
+    * @param dataColumnForDynamicRefex the data column for dynamic refex
+    * @return the property
+    */
    public Property addProperty(String sourcePropertyNameFSN,
                                String sourcePropertyAltName,
                                String sourcePropertyDefinition,
@@ -184,6 +249,15 @@ public abstract class PropertyType {
    /**
     * Only adds the property if the version of the data file falls between min and max, inclusive.
     * pass 0 in min or max to specify no min or no max, respectively
+    *
+    * @param sourcePropertyNameFSN the source property name FSN
+    * @param altName the alt name
+    * @param sourcePropertyDefinition the source property definition
+    * @param minVersion the min version
+    * @param maxVersion the max version
+    * @param disabled the disabled
+    * @param propertySubType the property sub type
+    * @return the property
     */
    public Property addProperty(String sourcePropertyNameFSN,
                                String altName,
@@ -192,88 +266,141 @@ public abstract class PropertyType {
                                int maxVersion,
                                boolean disabled,
                                int propertySubType) {
-      if (((minVersion != 0) && (srcVersion_ < minVersion)) || ((maxVersion != 0) && (srcVersion_ > maxVersion))) {
+      if (((minVersion != 0) && (srcVersion < minVersion)) || ((maxVersion != 0) && (srcVersion > maxVersion))) {
          return null;
       }
 
       return addProperty(sourcePropertyNameFSN, altName, sourcePropertyDefinition, disabled, propertySubType, null);
    }
 
+   /**
+    * Contains property.
+    *
+    * @param propertyName the property name
+    * @return true, if successful
+    */
    public boolean containsProperty(String propertyName) {
-      boolean result = properties_.containsKey(propertyName);
+      boolean result = this.properties.containsKey(propertyName);
 
-      if (!result && (altNamePropertyMap_ != null)) {
-         String altKey = altNamePropertyMap_.get(propertyName);
+      if (!result && (this.altNamePropertyMap != null)) {
+         final String altKey = this.altNamePropertyMap.get(propertyName);
 
          if (altKey != null) {
-            result = properties_.containsKey(altKey);
+            result = this.properties.containsKey(altKey);
          }
       }
 
       return result;
    }
 
+   /**
+    * Creates the as dynamic refex.
+    *
+    * @return true, if successful
+    */
    public boolean createAsDynamicRefex() {
-      return createAsDynamicRefex_;
+      return this.createAsDynamicRefex;
    }
 
    /**
-    * Enable index and lookup of properties by their altName field
+    * Enable index and lookup of properties by their altName field.
     */
    public void indexByAltNames() {
-      if (altNamePropertyMap_ == null) {
-         altNamePropertyMap_ = new HashMap<>();
+      if (this.altNamePropertyMap == null) {
+         this.altNamePropertyMap = new HashMap<>();
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the default column info.
+    *
+    * @return the default column info
+    */
    protected DynamicSememeDataType getDefaultColumnInfo() {
-      return defaultDataColumn_;
+      return this.defaultDataColumn;
    }
 
+   /**
+    * Gets the properties.
+    *
+    * @return the properties
+    */
    public Collection<Property> getProperties() {
-      return properties_.values();
+      return this.properties.values();
    }
 
+   /**
+    * Gets the property.
+    *
+    * @param propertyName the property name
+    * @return the property
+    */
    public Property getProperty(String propertyName) {
-      Property p = properties_.get(propertyName);
+      Property p = this.properties.get(propertyName);
 
-      if ((p == null) && (altNamePropertyMap_ != null)) {
-         String altKey = altNamePropertyMap_.get(propertyName);
+      if ((p == null) && (this.altNamePropertyMap != null)) {
+         final String altKey = this.altNamePropertyMap.get(propertyName);
 
          if (altKey != null) {
-            p = properties_.get(altKey);
+            p = this.properties.get(altKey);
          }
       }
 
       return p;
    }
 
+   /**
+    * Gets the property names.
+    *
+    * @return the property names
+    */
    public Set<String> getPropertyNames() {
-      return properties_.keySet();
+      return this.properties.keySet();
    }
 
+   /**
+    * Gets the property type description.
+    *
+    * @return the property type description
+    */
    public String getPropertyTypeDescription() {
-      return propertyTypeDescription_;
+      return this.propertyTypeDescription;
    }
 
+   /**
+    * Gets the property type UUID.
+    *
+    * @return the property type UUID
+    */
    public UUID getPropertyTypeUUID() {
-      if (propertyTypeUUID == null) {
-         propertyTypeUUID = ConverterUUID.createNamespaceUUIDFromString(propertyTypeDescription_);
+      if (this.propertyTypeUUID == null) {
+         this.propertyTypeUUID = ConverterUUID.createNamespaceUUIDFromString(this.propertyTypeDescription);
       }
 
-      return propertyTypeUUID;
+      return this.propertyTypeUUID;
    }
 
+   /**
+    * Gets the property UUID.
+    *
+    * @param propertyName the property name
+    * @return the property UUID
+    */
    protected UUID getPropertyUUID(String propertyName) {
-      return ConverterUUID.createNamespaceUUIDFromString(propertyTypeDescription_ + ":" + propertyName);
+      return ConverterUUID.createNamespaceUUIDFromString(this.propertyTypeDescription + ":" + propertyName);
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the source version.
+    *
+    * @param version the new source version
+    */
    public static void setSourceVersion(int version) {
-      srcVersion_ = version;
+      srcVersion = version;
    }
 }
 

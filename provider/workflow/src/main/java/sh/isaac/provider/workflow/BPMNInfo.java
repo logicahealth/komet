@@ -63,28 +63,36 @@ import sh.isaac.provider.workflow.model.contents.ProcessDetail.EndWorkflowType;
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 public class BPMNInfo {
+   /** The Constant UNOWNED_PROCESS. */
    public static final UUID UNOWNED_PROCESS = new UUID(0, 0);
 
-   /** A universal means of expressing a workflow time stamp */
+   /** A universal means of expressing a workflow time stamp. */
    final static public DateTimeFormatter workflowDateFormatter = DateTimeFormatter.ofPattern("hh:mm:ssa MM/dd/yy");
 
    //~--- fields --------------------------------------------------------------
 
-   /** A map of available actions per type of ending workflow */
-   private Map<EndWorkflowType, Set<AvailableAction>> endNodeTypeMap;
+   /** A map of available actions per type of ending workflow. */
+   private final Map<EndWorkflowType, Set<AvailableAction>> endNodeTypeMap;
 
-   /**
-    * A map of available actions per definition from which a workflow may be
-    * started
-    */
-   private Map<UUID, Set<AvailableAction>> definitionStartActionMap;
-   private UUID                            definitionId;
+   /** A map of available actions per definition from which a workflow may be started. */
+   private final Map<UUID, Set<AvailableAction>> definitionStartActionMap;
 
-   /** A map of all states per definition from which a process may be edited */
-   private Map<UUID, Set<String>> editStatesMap;
+   /** The definition id. */
+   private final UUID definitionId;
+
+   /** A map of all states per definition from which a process may be edited. */
+   private final Map<UUID, Set<String>> editStatesMap;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new BPMN info.
+    *
+    * @param definitionId the definition id
+    * @param endNodeTypeMap the end node type map
+    * @param definitionStartActionMap the definition start action map
+    * @param editStatesMap the edit states map
+    */
    protected BPMNInfo(UUID definitionId,
                       Map<EndWorkflowType, Set<AvailableAction>> endNodeTypeMap,
                       Map<UUID, Set<AvailableAction>> definitionStartActionMap,
@@ -99,15 +107,13 @@ public class BPMNInfo {
 
    /**
     * Identifies if the state represents a concluded state by examining the
-    * endNoeTypeMap's CONCLUDED list of AvaialbleActions
+    * endNoeTypeMap's CONCLUDED list of AvaialbleActions.
     *
-    * @param state
-    *            The state to test
-    *
+    * @param state            The state to test
     * @return true if the state is a Concluded state
     */
    public boolean isConcludedState(String state) {
-      for (AvailableAction action: endNodeTypeMap.get(EndWorkflowType.CONCLUDED)) {
+      for (final AvailableAction action: this.endNodeTypeMap.get(EndWorkflowType.CONCLUDED)) {
          if (action.getInitialState()
                    .equals(state)) {
             return true;
@@ -117,8 +123,13 @@ public class BPMNInfo {
       return false;
    }
 
+   /**
+    * Gets the definition id.
+    *
+    * @return the definition id
+    */
    public UUID getDefinitionId() {
-      return definitionId;
+      return this.definitionId;
    }
 
    /**
@@ -131,7 +142,7 @@ public class BPMNInfo {
     * @return the read-only map of available actions per type of ending workflow
     */
    public Map<UUID, Set<AvailableAction>> getDefinitionStartActionMap() {
-      return definitionStartActionMap;
+      return this.definitionStartActionMap;
    }
 
    /**
@@ -145,8 +156,8 @@ public class BPMNInfo {
     * @return true if the state is an Edit state
     */
    public boolean isEditState(UUID definitionId, String state) {
-      return editStatesMap.get(definitionId)
-                          .contains(state);
+      return this.editStatesMap.get(definitionId)
+                               .contains(state);
    }
 
    /**
@@ -158,7 +169,7 @@ public class BPMNInfo {
     * @return the read-only set of edit states
     */
    public Map<UUID, Set<String>> getEditStatesMap() {
-      return editStatesMap;
+      return this.editStatesMap;
    }
 
    /**
@@ -172,7 +183,7 @@ public class BPMNInfo {
     * @return the read-only map of available actions per type of ending workflow
     */
    public Map<EndWorkflowType, Set<AvailableAction>> getEndWorkflowTypeMap() {
-      return endNodeTypeMap;
+      return this.endNodeTypeMap;
    }
 }
 

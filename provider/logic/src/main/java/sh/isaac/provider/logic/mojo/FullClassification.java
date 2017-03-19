@@ -65,25 +65,31 @@ import sh.isaac.mojo.external.QuasiMojo;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class FullClassification.
  *
  * @author kec
  */
 @Service(name = "full-classification")
 public class FullClassification
         extends QuasiMojo {
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException {
       try {
-         LogicService    logicService    = LookupService.getService(LogicService.class);
-         EditCoordinate  editCoordinate  = EditCoordinates.getDefaultUserSolorOverlay();
-         LogicCoordinate logicCoordinate = LogicCoordinates.getStandardElProfile();
+         final LogicService    logicService    = LookupService.getService(LogicService.class);
+         EditCoordinate        editCoordinate  = EditCoordinates.getDefaultUserSolorOverlay();
+         final LogicCoordinate logicCoordinate = LogicCoordinates.getStandardElProfile();
 
          editCoordinate = new EditCoordinateImpl(logicCoordinate.getClassifierSequence(),
                editCoordinate.getModuleSequence(),
                editCoordinate.getModuleSequence());
 
-         Task<ClassifierResults> classifyTask =
+         final Task<ClassifierResults> classifyTask =
             logicService.getClassifierService(StampCoordinates.getDevelopmentLatest(),
                                               LogicCoordinates.getStandardElProfile(),
                                               editCoordinate)

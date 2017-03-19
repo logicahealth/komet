@@ -75,20 +75,28 @@ import sh.isaac.provider.workflow.model.contents.ProcessDetail.EndWorkflowType;
 /**
  * Test the Bpmn2FileImporter class
  *
- * {@link Bpmn2FileImporter} {@link AbstractWorkflowProviderTestPackage}
+ * {@link Bpmn2FileImporter} {@link AbstractWorkflowProviderTestPackage}.
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 public class Bpmn2FileImporterTest
         extends AbstractWorkflowProviderTestPackage {
+   /**
+    * Before test.
+    */
    @Before
    public void beforeTest() {
-      wp_.getProcessDetailStore()
+      wp.getProcessDetailStore()
          .clear();
-      wp_.getProcessHistoryStore()
+      wp.getProcessHistoryStore()
          .clear();
    }
 
+   /**
+    * Tear down class.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @AfterClass
    public static void tearDownClass()
             throws IOException {
@@ -97,27 +105,26 @@ public class Bpmn2FileImporterTest
    }
 
    /**
-    * Test proper definition metadata following import of a bpmn2 file
+    * Test proper definition metadata following import of a bpmn2 file.
     *
-    * @throws Exception
-    *             Thrown if test fails
+    * @throws Exception             Thrown if test fails
     */
    @Test
    public void testImportBpmn2FileMetadata()
             throws Exception {
-      WorkflowContentStore<DefinitionDetail> createdDefinitionDetailContentStore = LookupService.get()
-                                                                                                .getService(
-                                                                                                   WorkflowProvider.class)
-                                                                                                .getDefinitionDetailStore();
+      final WorkflowContentStore<DefinitionDetail> createdDefinitionDetailContentStore = LookupService.get()
+                                                                                                      .getService(
+                                                                                                         WorkflowProvider.class)
+                                                                                                      .getDefinitionDetailStore();
 
       Assert.assertSame("Expected number of actionOutome records not what expected",
                         createdDefinitionDetailContentStore.size(),
                         1);
 
-      DefinitionDetail entry         = createdDefinitionDetailContentStore.values()
-                                                                          .iterator()
-                                                                          .next();
-      Set<UserRole>    expectedRoles = new HashSet<>();
+      final DefinitionDetail entry         = createdDefinitionDetailContentStore.values()
+                                                                                .iterator()
+                                                                                .next();
+      final Set<UserRole>    expectedRoles = new HashSet<>();
 
       expectedRoles.add(UserRole.EDITOR);
       expectedRoles.add(UserRole.REVIEWER);
@@ -131,29 +138,28 @@ public class Bpmn2FileImporterTest
    }
 
    /**
-    * Test proper available actions following import of a bpmn2 file
+    * Test proper available actions following import of a bpmn2 file.
     *
-    * @throws Exception
-    *             Thrown if test fails
+    * @throws Exception             Thrown if test fails
     */
    @Test
    public void testStaticBpmnAvailableActions()
             throws Exception {
-      Map<String, Set<AvailableAction>> actionMap = new HashMap<>();
+      final Map<String, Set<AvailableAction>> actionMap = new HashMap<>();
 
-      for (AvailableAction action: LookupService.get()
+      for (final AvailableAction action: LookupService.get()
             .getService(WorkflowProvider.class)
             .getAvailableActionStore()
             .values()) {
          if (!actionMap.containsKey(action.getInitialState())) {
-            actionMap.put(action.getInitialState(), new HashSet<AvailableAction>());
+            actionMap.put(action.getInitialState(), new HashSet<>());
          }
 
          actionMap.get(action.getInitialState())
                   .add(action);
       }
 
-      for (String initState: actionMap.keySet()) {
+      for (final String initState: actionMap.keySet()) {
          if (initState.equals("Assigned")) {
             assertAssignedActions(actionMap.get(initState));
          } else if (initState.equals("Ready for Edit")) {
@@ -167,52 +173,51 @@ public class Bpmn2FileImporterTest
    }
 
    /**
-    * Test proper definition nodes following import of a bpmn2 file
+    * Test proper definition nodes following import of a bpmn2 file.
     *
-    * @throws Exception
-    *             Thrown if test fails
+    * @throws Exception             Thrown if test fails
     */
    @Test
    public void testStaticBpmnSetNodes()
             throws Exception {
-      WorkflowContentStore<DefinitionDetail> createdDefinitionDetailContentStore = LookupService.get()
-                                                                                                .getService(
-                                                                                                   WorkflowProvider.class)
-                                                                                                .getDefinitionDetailStore();
-      WorkflowContentStore<AvailableAction> createdAvailableActionContentStore = LookupService.get()
-                                                                                              .getService(
-                                                                                                 WorkflowProvider.class)
-                                                                                              .getAvailableActionStore();
+      final WorkflowContentStore<DefinitionDetail> createdDefinitionDetailContentStore = LookupService.get()
+                                                                                                      .getService(
+                                                                                                         WorkflowProvider.class)
+                                                                                                      .getDefinitionDetailStore();
+      final WorkflowContentStore<AvailableAction> createdAvailableActionContentStore = LookupService.get()
+                                                                                                    .getService(
+                                                                                                       WorkflowProvider.class)
+                                                                                                    .getAvailableActionStore();
 
       Assert.assertSame("Expected number of actionOutome records not what expected",
                         createdAvailableActionContentStore.size(),
                         10);
 
-      DefinitionDetail definitionDetails = createdDefinitionDetailContentStore.values()
-                                                                              .iterator()
-                                                                              .next();
-      List<String> possibleActions = Arrays.asList("Cancel Workflow",
-                                                   "Edit",
-                                                   "QA Fails",
-                                                   "QA Passes",
-                                                   "Approve",
-                                                   "Reject Edit",
-                                                   "Reject Review",
-                                                   "Create Workflow Process");
-      List<String> possibleStates = Arrays.asList("Assigned",
-                                                  "Canceled During Edit",
-                                                  "Canceled During Review",
-                                                  "Canceled During Approval",
-                                                  "Ready for Edit",
-                                                  "Ready for Approve",
-                                                  "Modeling Review Complete",
-                                                  "Ready for Review");
-      Set<AvailableAction> identifiedCanceledActions  = new HashSet<>();
-      Set<AvailableAction> identifiedConcludedActions = new HashSet<>();
-      Set<AvailableAction> identifiedStartTypeActions = new HashSet<>();
-      Set<String>          identifiedEditingActions   = new HashSet<>();
+      final DefinitionDetail definitionDetails = createdDefinitionDetailContentStore.values()
+                                                                                    .iterator()
+                                                                                    .next();
+      final List<String> possibleActions = Arrays.asList("Cancel Workflow",
+                                                         "Edit",
+                                                         "QA Fails",
+                                                         "QA Passes",
+                                                         "Approve",
+                                                         "Reject Edit",
+                                                         "Reject Review",
+                                                         "Create Workflow Process");
+      final List<String> possibleStates = Arrays.asList("Assigned",
+                                                        "Canceled During Edit",
+                                                        "Canceled During Review",
+                                                        "Canceled During Approval",
+                                                        "Ready for Edit",
+                                                        "Ready for Approve",
+                                                        "Modeling Review Complete",
+                                                        "Ready for Review");
+      final Set<AvailableAction> identifiedCanceledActions  = new HashSet<>();
+      final Set<AvailableAction> identifiedConcludedActions = new HashSet<>();
+      final Set<AvailableAction> identifiedStartTypeActions = new HashSet<>();
+      final Set<String>          identifiedEditingActions   = new HashSet<>();
 
-      for (AvailableAction entry: createdAvailableActionContentStore.values()) {
+      for (final AvailableAction entry: createdAvailableActionContentStore.values()) {
          if (entry.getAction()
                   .equals("Cancel Workflow")) {
             identifiedCanceledActions.add(entry);
@@ -235,24 +240,24 @@ public class Bpmn2FileImporterTest
          Assert.assertTrue(possibleActions.contains(entry.getAction()));
       }
 
-      Set<AvailableAction> concludedActions = LookupService.get()
-                                                           .getService(WorkflowProvider.class)
-                                                           .getBPMNInfo()
-                                                           .getEndWorkflowTypeMap()
-                                                           .get(EndWorkflowType.CONCLUDED);
-      Set<AvailableAction> canceledActions = LookupService.get()
-                                                          .getService(WorkflowProvider.class)
-                                                          .getBPMNInfo()
-                                                          .getEndWorkflowTypeMap()
-                                                          .get(EndWorkflowType.CANCELED);
+      final Set<AvailableAction> concludedActions = LookupService.get()
+                                                                 .getService(WorkflowProvider.class)
+                                                                 .getBPMNInfo()
+                                                                 .getEndWorkflowTypeMap()
+                                                                 .get(EndWorkflowType.CONCLUDED);
+      final Set<AvailableAction> canceledActions = LookupService.get()
+                                                                .getService(WorkflowProvider.class)
+                                                                .getBPMNInfo()
+                                                                .getEndWorkflowTypeMap()
+                                                                .get(EndWorkflowType.CANCELED);
 
       Assert.assertEquals(canceledActions, identifiedCanceledActions);
       Assert.assertEquals(concludedActions, identifiedConcludedActions);
 
-      Map<UUID, Set<AvailableAction>> defStartMap = LookupService.get()
-                                                                 .getService(WorkflowProvider.class)
-                                                                 .getBPMNInfo()
-                                                                 .getDefinitionStartActionMap();
+      final Map<UUID, Set<AvailableAction>> defStartMap = LookupService.get()
+                                                                       .getService(WorkflowProvider.class)
+                                                                       .getBPMNInfo()
+                                                                       .getDefinitionStartActionMap();
 
       Assert.assertEquals(defStartMap.keySet()
                                      .size(), 1);
@@ -269,6 +274,11 @@ public class Bpmn2FileImporterTest
                           identifiedEditingActions);
    }
 
+   /**
+    * Assert assigned actions.
+    *
+    * @param actions the actions
+    */
    private void assertAssignedActions(Set<AvailableAction> actions) {
       Assert.assertEquals(1, actions.size());
       Assert.assertEquals("Create Workflow Process", actions.iterator()
@@ -282,10 +292,15 @@ public class Bpmn2FileImporterTest
             .getRole());
    }
 
+   /**
+    * Assert ready for approval actions.
+    *
+    * @param actions the actions
+    */
    private void assertReadyForApprovalActions(Set<AvailableAction> actions) {
       Assert.assertEquals(4, actions.size());
 
-      for (AvailableAction act: actions) {
+      for (final AvailableAction act: actions) {
          Assert.assertEquals(UserRole.APPROVER, act.getRole());
 
          if (act.getAction()
@@ -306,10 +321,15 @@ public class Bpmn2FileImporterTest
       }
    }
 
+   /**
+    * Assert ready for edit actions.
+    *
+    * @param actions the actions
+    */
    private void assertReadyForEditActions(Set<AvailableAction> actions) {
       Assert.assertEquals(2, actions.size());
 
-      for (AvailableAction act: actions) {
+      for (final AvailableAction act: actions) {
          Assert.assertEquals(UserRole.EDITOR, act.getRole());
 
          if (act.getAction()
@@ -324,10 +344,15 @@ public class Bpmn2FileImporterTest
       }
    }
 
+   /**
+    * Assert ready for review actions.
+    *
+    * @param actions the actions
+    */
    private void assertReadyForReviewActions(Set<AvailableAction> actions) {
       Assert.assertEquals(3, actions.size());
 
-      for (AvailableAction act: actions) {
+      for (final AvailableAction act: actions) {
          Assert.assertEquals(UserRole.REVIEWER, act.getRole());
 
          if (act.getAction()

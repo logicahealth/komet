@@ -55,14 +55,30 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 public class LongSememeImpl
         extends SememeVersionImpl<LongSememeImpl>
          implements MutableLongSememe<LongSememeImpl> {
+   /** The long value. */
    long longValue = Long.MAX_VALUE;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new long sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    */
    public LongSememeImpl(SememeChronologyImpl<LongSememeImpl> container, int stampSequence, short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
+   /**
+    * Instantiates a new long sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    * @param data the data
+    */
    public LongSememeImpl(SememeChronologyImpl<LongSememeImpl> container,
                          int stampSequence,
                          short versionSequence,
@@ -73,25 +89,40 @@ public class LongSememeImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("{Long≤");
-      sb.append(longValue);
+      sb.append(this.longValue);
       toString(sb);
       sb.append("≥L}");
       return sb.toString();
    }
 
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
-      data.putLong(longValue);
+      data.putLong(this.longValue);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the long value.
+    *
+    * @return the long value
+    */
    @Override
    public long getLongValue() {
       return this.longValue;
@@ -99,6 +130,11 @@ public class LongSememeImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the long value.
+    *
+    * @param time the new long value
+    */
    @Override
    public void setLongValue(long time) {
       if (this.longValue != Long.MAX_VALUE) {
@@ -110,6 +146,11 @@ public class LongSememeImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    @Override
    public SememeType getSememeType() {
       return SememeType.LONG;

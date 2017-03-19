@@ -59,17 +59,37 @@ import sh.isaac.api.util.Hashcode;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class Stamp.
+ */
 public class Stamp
          implements Comparable<Stamp> {
-   public int          hashCode = Integer.MAX_VALUE;
-   private final int   authorSequence;
-   private final int   pathSequence;
+   /** The hash code. */
+   public int hashCode = Integer.MAX_VALUE;
+
+   /** The author sequence. */
+   private final int authorSequence;
+
+   /** The path sequence. */
+   private final int pathSequence;
+
+   /** The status. */
    private final State status;
-   private final int   moduleSequence;
-   private final long  time;
+
+   /** The module sequence. */
+   private final int moduleSequence;
+
+   /** The time. */
+   private final long time;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new stamp.
+    *
+    * @param in the in
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public Stamp(DataInput in)
             throws IOException {
       super();
@@ -78,23 +98,32 @@ public class Stamp
       this.authorSequence = in.readInt();
       this.moduleSequence = in.readInt();
       this.pathSequence   = in.readInt();
-      assert time != 0:
-             "s: " + status + " t: " + time + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " +
-             pathSequence;
-      assert status != null:
-             "s: " + status + " t: " + time + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " +
-             pathSequence;
-      assert pathSequence > 0:
-             "s: " + status + " t: " + time + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " +
-             pathSequence;
-      assert moduleSequence > 0:
-             "s: " + status + " t: " + time + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " +
-             pathSequence;
-      assert authorSequence > 0:
-             "s: " + status + " t: " + time + " a: " + authorSequence + " " + " m: " + moduleSequence + " p: " +
-             pathSequence;
+      assert this.time != 0:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " +
+             this.moduleSequence + " p: " + this.pathSequence;
+      assert this.status != null:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " +
+             this.moduleSequence + " p: " + this.pathSequence;
+      assert this.pathSequence > 0:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " +
+             this.moduleSequence + " p: " + this.pathSequence;
+      assert this.moduleSequence > 0:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " +
+             this.moduleSequence + " p: " + this.pathSequence;
+      assert this.authorSequence > 0:
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " +
+             this.moduleSequence + " p: " + this.pathSequence;
    }
 
+   /**
+    * Instantiates a new stamp.
+    *
+    * @param status the status
+    * @param time the time
+    * @param authorSequence the author sequence
+    * @param moduleSequence the module sequence
+    * @param pathSequence the path sequence
+    */
    public Stamp(State status, long time, int authorSequence, int moduleSequence, int pathSequence) {
       super();
       this.status         = status;
@@ -121,6 +150,12 @@ public class Stamp
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(Stamp o) {
       if (this.time > o.time) {
@@ -146,6 +181,12 @@ public class Stamp
       return this.pathSequence - o.pathSequence;
    }
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (Stamp.class.isAssignableFrom(obj.getClass())) {
@@ -155,17 +196,29 @@ public class Stamp
       return false;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
-      if (hashCode == Integer.MAX_VALUE) {
-         hashCode = Hashcode.compute(new int[] { authorSequence, status.ordinal(), pathSequence, (int) time });
+      if (this.hashCode == Integer.MAX_VALUE) {
+         this.hashCode = Hashcode.compute(new int[] { this.authorSequence, this.status.ordinal(), this.pathSequence,
+               (int) this.time });
       }
 
-      return hashCode;
+      return this.hashCode;
    }
 
+   /**
+    * Stamp array to string.
+    *
+    * @param stampSet the stamp set
+    * @return the string
+    */
    public static String stampArrayToString(AbstractIntSet stampSet) {
-      StringBuilder sb = setupToString();
+      final StringBuilder sb = setupToString();
 
       stampSet.forEachKey((int stamp) -> {
                              sb.append(stampFromIntStamp(stamp));
@@ -176,8 +229,14 @@ public class Stamp
       return sb.toString();
    }
 
+   /**
+    * Stamp array to string.
+    *
+    * @param stampCollection the stamp collection
+    * @return the string
+    */
    public static String stampArrayToString(Collection<Integer> stampCollection) {
-      StringBuilder sb = setupToString();
+      final StringBuilder sb = setupToString();
 
       stampCollection.stream()
                      .map((stamp) -> {
@@ -191,10 +250,16 @@ public class Stamp
       return sb.toString();
    }
 
+   /**
+    * Stamp array to string.
+    *
+    * @param stampArray the stamp array
+    * @return the string
+    */
    public static String stampArrayToString(int[] stampArray) {
-      StringBuilder sb = setupToString();
+      final StringBuilder sb = setupToString();
 
-      for (int stamp: stampArray) {
+      for (final int stamp: stampArray) {
          sb.append(stampFromIntStamp(stamp));
          sb.append(",");
       }
@@ -203,57 +268,84 @@ public class Stamp
       return sb.toString();
    }
 
+   /**
+    * Stamp from int stamp.
+    *
+    * @param stamp the stamp
+    * @return the stamp
+    */
    public static Stamp stampFromIntStamp(int stamp) {
-      State status         = Get.stampService()
-                                .getStatusForStamp(stamp);
-      long  time           = Get.stampService()
-                                .getTimeForStamp(stamp);
-      int   authorSequence = Get.stampService()
-                                .getAuthorSequenceForStamp(stamp);
-      int   moduleSequence = Get.stampService()
-                                .getModuleSequenceForStamp(stamp);
-      int   pathSequence   = Get.stampService()
-                                .getPathSequenceForStamp(stamp);
+      final State status         = Get.stampService()
+                                      .getStatusForStamp(stamp);
+      final long  time           = Get.stampService()
+                                      .getTimeForStamp(stamp);
+      final int   authorSequence = Get.stampService()
+                                      .getAuthorSequenceForStamp(stamp);
+      final int   moduleSequence = Get.stampService()
+                                      .getModuleSequenceForStamp(stamp);
+      final int   pathSequence   = Get.stampService()
+                                      .getPathSequenceForStamp(stamp);
 
       return new Stamp(status, time, authorSequence, moduleSequence, pathSequence);
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("Stamp{s:");
-      sb.append(status);
+      sb.append(this.status);
       sb.append(", t:");
       sb.append(getTimeAsInstant());
       sb.append(", a:");
-      sb.append(Get.conceptDescriptionText(authorSequence));
+      sb.append(Get.conceptDescriptionText(this.authorSequence));
       sb.append(", m:");
-      sb.append(Get.conceptDescriptionText(moduleSequence));
+      sb.append(Get.conceptDescriptionText(this.moduleSequence));
       sb.append(", p: ");
-      sb.append(Get.conceptDescriptionText(pathSequence));
+      sb.append(Get.conceptDescriptionText(this.pathSequence));
       sb.append('}');
       return sb.toString();
    }
 
+   /**
+    * Write.
+    *
+    * @param out the out
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void write(DataOutput out)
             throws IOException {
-      out.writeInt(status.ordinal());
-      out.writeLong(time);
-      out.writeInt(authorSequence);
-      out.writeInt(moduleSequence);
-      out.writeInt(pathSequence);
+      out.writeInt(this.status.ordinal());
+      out.writeLong(this.time);
+      out.writeInt(this.authorSequence);
+      out.writeInt(this.moduleSequence);
+      out.writeInt(this.pathSequence);
    }
 
+   /**
+    * Finish to string.
+    *
+    * @param sb the sb
+    */
    private static void finishToString(StringBuilder sb) {
-      int lastIndexOf = sb.lastIndexOf(",");
+      final int lastIndexOf = sb.lastIndexOf(",");
 
       sb.delete(lastIndexOf, lastIndexOf + 1);
       sb.append("]");
    }
 
+   /**
+    * Setup to string.
+    *
+    * @return the string builder
+    */
    private static StringBuilder setupToString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("[");
       return sb;
@@ -261,28 +353,58 @@ public class Stamp
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the author sequence.
+    *
+    * @return the author sequence
+    */
    public int getAuthorSequence() {
-      return authorSequence;
+      return this.authorSequence;
    }
 
+   /**
+    * Gets the module sequence.
+    *
+    * @return the module sequence
+    */
    public int getModuleSequence() {
-      return moduleSequence;
+      return this.moduleSequence;
    }
 
+   /**
+    * Gets the path sequence.
+    *
+    * @return the path sequence
+    */
    public int getPathSequence() {
-      return pathSequence;
+      return this.pathSequence;
    }
 
+   /**
+    * Gets the status.
+    *
+    * @return the status
+    */
    public State getStatus() {
-      return status;
+      return this.status;
    }
 
+   /**
+    * Gets the time.
+    *
+    * @return the time
+    */
    public long getTime() {
-      return time;
+      return this.time;
    }
 
+   /**
+    * Gets the time as instant.
+    *
+    * @return the time as instant
+    */
    public Instant getTimeAsInstant() {
-      return Instant.ofEpochMilli(time);
+      return Instant.ofEpochMilli(this.time);
    }
 }
 

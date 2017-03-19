@@ -47,21 +47,24 @@ import sh.isaac.api.identity.IdentifiedObject;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ConceptSpecification.
  *
  * @author kec
  */
 public interface ConceptSpecification
         extends IdentifiedObject {
+   /** The Constant FIELD_SEPARATOR. */
    public static final String FIELD_SEPARATOR = " | ";
 
    //~--- methods -------------------------------------------------------------
 
    /**
+    * To external string.
     *
     * @return A string to specify a concept externally, including a description, followed by a FIELD_SEPARATOR, and the Uuids for this concept, each UUID also separated by a FIELD_SEPARATOR.
     */
    default String toExternalString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append(getConceptDescriptionText());
       getUuidList().stream().forEach((uuid) -> {
@@ -74,12 +77,14 @@ public interface ConceptSpecification
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the concept description text.
     *
     * @return a text description for the specified concept.
     */
    String getConceptDescriptionText();
 
    /**
+    * Gets the concept sequence.
     *
     * @return the sequence of the specified concept. Sequences are contiguously
     * assigned identifiers >= 0;

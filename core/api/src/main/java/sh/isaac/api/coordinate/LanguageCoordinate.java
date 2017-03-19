@@ -43,7 +43,6 @@ package sh.isaac.api.coordinate;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -64,8 +63,9 @@ public interface LanguageCoordinate {
    /**
     * Return the description according to the type and dialect preferences
     * of this {@code LanguageCoordinate}.
+    *
     * @param descriptionList descriptions to consider
-    * @param stampCoordinate
+    * @param stampCoordinate the stamp coordinate
     * @return an optional description best matching the {@code LanguageCoordinate}
     * constraints.
     */
@@ -73,16 +73,27 @@ public interface LanguageCoordinate {
            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
            StampCoordinate stampCoordinate);
 
+   /**
+    * Gets the description type preference list.
+    *
+    * @return the description type preference list
+    */
    int[] getDescriptionTypePreferenceList();
 
+   /**
+    * Gets the dialect assemblage preference list.
+    *
+    * @return the dialect assemblage preference list
+    */
    int[] getDialectAssemblagePreferenceList();
 
    /**
     * Convenience method - returns true if FSN is at the top of the description list.
-    * @return
+    *
+    * @return true, if FSN preferred
     */
    public default boolean isFSNPreferred() {
-      for (int descType: getDescriptionTypePreferenceList()) {
+      for (final int descType: getDescriptionTypePreferenceList()) {
          if (descType ==
                Get.identifierService().getConceptSequenceForUuids(
                    TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getPrimordialUuid())) {
@@ -95,12 +106,31 @@ public interface LanguageCoordinate {
       return false;
    }
 
+   /**
+    * Gets the fully specified description.
+    *
+    * @param descriptionList the description list
+    * @param stampCoordinate the stamp coordinate
+    * @return the fully specified description
+    */
    Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
            StampCoordinate stampCoordinate);
 
+   /**
+    * Gets the language concept sequence.
+    *
+    * @return the language concept sequence
+    */
    int getLanguageConceptSequence();
 
+   /**
+    * Gets the preferred description.
+    *
+    * @param descriptionList the description list
+    * @param stampCoordinate the stamp coordinate
+    * @return the preferred description
+    */
    Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(
            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
            StampCoordinate stampCoordinate);

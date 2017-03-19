@@ -63,26 +63,58 @@ import sh.isaac.api.coordinate.PremiseType;
  * Components that use relationships should transition to using logic graphs directly.
  *
  * @author kec
+ * @param <T> the generic type
  */
 public interface RelationshipVersionAdaptor<T extends RelationshipVersionAdaptor<T>>
         extends SememeVersion<T> {
+   /**
+    * Gets the chronicle key.
+    *
+    * @return the chronicle key
+    */
    RelationshipAdaptorChronicleKey getChronicleKey();
 
+   /**
+    * Gets the destination sequence.
+    *
+    * @return the destination sequence
+    */
    int getDestinationSequence();
 
+   /**
+    * Gets the group.
+    *
+    * @return the group
+    */
    int getGroup();
 
    /**
+    * Gets the node sequence.
     *
     * @return sequence of the node in the logical expression
     * from which this adaptor originated.
     */
    short getNodeSequence();
 
+   /**
+    * Gets the origin sequence.
+    *
+    * @return the origin sequence
+    */
    int getOriginSequence();
 
+   /**
+    * Gets the premise type.
+    *
+    * @return the premise type
+    */
    PremiseType getPremiseType();
 
+   /**
+    * Gets the type sequence.
+    *
+    * @return the type sequence
+    */
    int getTypeSequence();
 }
 

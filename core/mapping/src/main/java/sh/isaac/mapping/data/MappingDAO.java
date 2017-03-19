@@ -64,26 +64,35 @@ import sh.isaac.api.coordinate.StampCoordinate;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link MappingDAO}
+ * {@link MappingDAO}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public abstract class MappingDAO {
+   /** The Constant LOG. */
    protected static final Logger LOG = LoggerFactory.getLogger(MappingDAO.class);
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read current refex.
+    *
+    * @param refexUUID the refex UUID
+    * @param stampCoord the stamp coord
+    * @return the dynamic sememe
+    * @throws RuntimeException the runtime exception
+    */
    protected static DynamicSememe<?> readCurrentRefex(UUID refexUUID,
          StampCoordinate stampCoord)
             throws RuntimeException {
-      SememeChronology<? extends SememeVersion<?>> sc = Get.sememeService()
-                                                           .getSememe(Get.identifierService()
-                                                                 .getSememeSequenceForUuids(refexUUID));
+      final SememeChronology<? extends SememeVersion<?>> sc = Get.sememeService()
+                                                                 .getSememe(Get.identifierService()
+                                                                       .getSememeSequenceForUuids(refexUUID));
       @SuppressWarnings({ "unchecked", "rawtypes" })
-      Optional<LatestVersion<DynamicSememe<?>>> latest = ((SememeChronology) sc).getLatestVersion(DynamicSememe.class,
-                                                                                                  stampCoord.makeAnalog(
-                                                                                                     State.ACTIVE,
-                                                                                                           State.INACTIVE));
+      final Optional<LatestVersion<DynamicSememe<?>>> latest =
+         ((SememeChronology) sc).getLatestVersion(DynamicSememe.class,
+                                                  stampCoord.makeAnalog(State.ACTIVE,
+                                                        State.INACTIVE));
 
       return latest.get()
                    .value();
@@ -91,18 +100,27 @@ public abstract class MappingDAO {
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set concept status.
+    *
+    * @param conceptUUID the concept UUID
+    * @param state the state
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws RuntimeException the runtime exception
+    */
    @SuppressWarnings({ "deprecation", "unchecked", "rawtypes" })
    protected static void setConceptStatus(UUID conceptUUID,
          State state,
          StampCoordinate stampCoord,
          EditCoordinate editCoord)
             throws RuntimeException {
-      ConceptChronology<? extends ConceptVersion<?>> cc = Get.conceptService()
-                                                             .getConcept(conceptUUID);
-      Optional<LatestVersion<ConceptVersion>> cv = ((ConceptChronology) cc).getLatestVersion(ConceptVersion.class,
-                                                                                             stampCoord.makeAnalog(
-                                                                                                State.ACTIVE,
-                                                                                                      State.INACTIVE));
+      final ConceptChronology<? extends ConceptVersion<?>> cc = Get.conceptService()
+                                                                   .getConcept(conceptUUID);
+      final Optional<LatestVersion<ConceptVersion>> cv = ((ConceptChronology) cc).getLatestVersion(ConceptVersion.class,
+                                                                                                   stampCoord.makeAnalog(
+                                                                                                      State.ACTIVE,
+                                                                                                            State.INACTIVE));
 
       if (cv.isPresent() &&!cv.get().contradictions().isPresent() && (cv.get().value().getState() == state)) {
          LOG.warn("Tried set the status to the value it already has.  Doing nothing");
@@ -115,19 +133,28 @@ public abstract class MappingDAO {
       }
    }
 
+   /**
+    * Set sememe status.
+    *
+    * @param refexUUID the refex UUID
+    * @param state the state
+    * @param stampCoord the stamp coord
+    * @param editCoord the edit coord
+    * @throws RuntimeException the runtime exception
+    */
    @SuppressWarnings("deprecation")
    protected static void setSememeStatus(UUID refexUUID,
          State state,
          StampCoordinate stampCoord,
          EditCoordinate editCoord)
             throws RuntimeException {
-      DynamicSememe<?> ds = readCurrentRefex(refexUUID, stampCoord);
+      final DynamicSememe<?> ds = readCurrentRefex(refexUUID, stampCoord);
 
       if (ds.getState() == state) {
          LOG.warn("Tried set the status to the value it already has.  Doing nothing");
       } else {
          @SuppressWarnings("unchecked")
-         MutableDynamicSememe<?> mds =
+         final MutableDynamicSememe<?> mds =
             ((SememeChronology<DynamicSememe<?>>) ds.getChronology()).createMutableVersion(MutableDynamicSememe.class,
                                                                                            state,
                                                                                            editCoord);

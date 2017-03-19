@@ -51,30 +51,99 @@ import sh.isaac.api.tree.Tree;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface TaxonomySnapshotService.
  *
  * @author kec
  */
 public interface TaxonomySnapshotService {
+   /**
+    * Gets the all relationship destination sequences.
+    *
+    * @param originId the origin id
+    * @return the all relationship destination sequences
+    */
    IntStream getAllRelationshipDestinationSequences(int originId);
 
+   /**
+    * Gets the all relationship destination sequences of type.
+    *
+    * @param originId the origin id
+    * @param typeSequenceSet the type sequence set
+    * @return the all relationship destination sequences of type
+    */
    IntStream getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet);
 
+   /**
+    * Gets the all relationship origin sequences.
+    *
+    * @param destination the destination
+    * @return the all relationship origin sequences
+    */
    IntStream getAllRelationshipOriginSequences(int destination);
 
+   /**
+    * Gets the all relationship origin sequences of type.
+    *
+    * @param destinationId the destination id
+    * @param typeSequenceSet the type sequence set
+    * @return the all relationship origin sequences of type
+    */
    IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet);
 
+   /**
+    * Checks if child of.
+    *
+    * @param childId the child id
+    * @param parentId the parent id
+    * @return true, if child of
+    */
    boolean isChildOf(int childId, int parentId);
 
+   /**
+    * Checks if kind of.
+    *
+    * @param childId the child id
+    * @param parentId the parent id
+    * @return true, if kind of
+    */
    boolean isKindOf(int childId, int parentId);
 
+   /**
+    * Gets the kind of sequence set.
+    *
+    * @param rootId the root id
+    * @return the kind of sequence set
+    */
    ConceptSequenceSet getKindOfSequenceSet(int rootId);
 
+   /**
+    * Gets the roots.
+    *
+    * @return the roots
+    */
    IntStream getRoots();
 
+   /**
+    * Gets the taxonomy child sequences.
+    *
+    * @param parentId the parent id
+    * @return the taxonomy child sequences
+    */
    IntStream getTaxonomyChildSequences(int parentId);
 
+   /**
+    * Gets the taxonomy parent sequences.
+    *
+    * @param childId the child id
+    * @return the taxonomy parent sequences
+    */
    IntStream getTaxonomyParentSequences(int childId);
 
+   /**
+    * Gets the taxonomy tree.
+    *
+    * @return the taxonomy tree
+    */
    Tree getTaxonomyTree();
 }
 

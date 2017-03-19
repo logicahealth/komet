@@ -49,12 +49,15 @@ import sh.isaac.api.logic.LogicalExpression;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ConceptBuilderService.
  *
  * @author kec
  */
 @Contract
 public interface ConceptBuilderService {
    /**
+    * Gets the concept builder.
+    *
     * @param conceptName - Optional - if specified, a FSN will be created using this value (but see additional information on semanticTag)
     * @param semanticTag - Optional - if specified, conceptName must be specified, and two descriptions will be created using the following forms:
     * - FSN: "conceptName (semanticTag)"
@@ -67,6 +70,7 @@ public interface ConceptBuilderService {
     * @param languageForDescriptions - Optional - used as the language for the created FSN and preferred term
     * @param dialectForDescriptions - Optional - used as the language for the created FSN and preferred term
     * @param logicCoordinate - Optional - used during the creation of the logical expression, if any are passed for creation.
+    * @return the concept builder
     */
    ConceptBuilder getConceptBuilder(String conceptName,
                                     String semanticTag,
@@ -76,6 +80,8 @@ public interface ConceptBuilderService {
                                     LogicCoordinate logicCoordinate);
 
    /**
+    * Gets the default concept builder.
+    *
     * @param conceptName - Optional - if specified, a FSN will be created using this value (but see additional information on semanticTag)
     * @param semanticTag - Optional - if specified, conceptName must be specified, and two descriptions will be created using the following forms:
     * - FSN: "conceptName (semanticTag)"
@@ -85,29 +91,63 @@ public interface ConceptBuilderService {
     * supplied semantic tag.
     *   - If the specified FSN does not contain a semantic tag, no preferred term will be created.
     * @param logicalExpression - Optional
+    * @return the default concept builder
     */
    ConceptBuilder getDefaultConceptBuilder(String conceptName, String semanticTag, LogicalExpression logicalExpression);
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set default dialect assemblage for descriptions.
+    *
+    * @param dialectForDescriptions the dialect for descriptions
+    * @return the concept builder service
+    */
    ConceptBuilderService setDefaultDialectAssemblageForDescriptions(ConceptSpecification dialectForDescriptions);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the default dialect for descriptions.
+    *
+    * @return the default dialect for descriptions
+    */
    ConceptSpecification getDefaultDialectForDescriptions();
 
+   /**
+    * Gets the default language for descriptions.
+    *
+    * @return the default language for descriptions
+    */
    ConceptSpecification getDefaultLanguageForDescriptions();
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set default language for descriptions.
+    *
+    * @param languageForDescriptions the language for descriptions
+    * @return the concept builder service
+    */
    ConceptBuilderService setDefaultLanguageForDescriptions(ConceptSpecification languageForDescriptions);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the default logic coordinate.
+    *
+    * @return the default logic coordinate
+    */
    LogicCoordinate getDefaultLogicCoordinate();
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set default logic coordinate.
+    *
+    * @param logicCoordinate the logic coordinate
+    * @return the concept builder service
+    */
    ConceptBuilderService setDefaultLogicCoordinate(LogicCoordinate logicCoordinate);
 }
 

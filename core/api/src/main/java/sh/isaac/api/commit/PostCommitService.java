@@ -55,8 +55,18 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface PostCommitService {
+   /**
+    * Adds the change set listener.
+    *
+    * @param changeSetListener the change set listener
+    */
    public void addChangeSetListener(ChangeSetListener changeSetListener);
 
+   /**
+    * Removes the change set listener.
+    *
+    * @param changeSetListener the change set listener
+    */
    public void removeChangeSetListener(ChangeSetListener changeSetListener);
 }
 

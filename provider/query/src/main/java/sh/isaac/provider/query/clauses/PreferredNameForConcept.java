@@ -75,25 +75,40 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class PreferredNameForConcept
         extends ParentClause {
+   /**
+    * Instantiates a new preferred name for concept.
+    */
    protected PreferredNameForConcept() {}
 
+   /**
+    * Instantiates a new preferred name for concept.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param child the child
+    */
    public PreferredNameForConcept(Query enclosingQuery, Clause child) {
       super(enclosingQuery, child);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute components.
+    *
+    * @param incomingConcepts the incoming concepts
+    * @return the nid set
+    */
    @Override
    public NidSet computeComponents(NidSet incomingConcepts) {
-      LanguageCoordinate languageCoordinate    = getEnclosingQuery().getLanguageCoordinate();
-      StampCoordinate    stampCoordinate       = getEnclosingQuery().getStampCoordinate();
-      NidSet             outgoingPreferredNids = new NidSet();
+      final LanguageCoordinate languageCoordinate    = getEnclosingQuery().getLanguageCoordinate();
+      final StampCoordinate    stampCoordinate       = getEnclosingQuery().getStampCoordinate();
+      final NidSet             outgoingPreferredNids = new NidSet();
 
       getChildren().stream().map((childClause) -> childClause.computePossibleComponents(incomingConcepts)).map((childPossibleComponentNids) -> ConceptSequenceSet.of(childPossibleComponentNids)).forEach((conceptSequenceSet) -> {
                                Get.conceptService()
                                   .getConceptChronologyStream(conceptSequenceSet)
                                   .forEach((conceptChronology) -> {
-                                              Optional<LatestVersion<DescriptionSememe<?>>> desc =
+                                              final Optional<LatestVersion<DescriptionSememe<?>>> desc =
                                                  conceptChronology.getPreferredDescription(
                                                     languageCoordinate, stampCoordinate);
 
@@ -107,6 +122,12 @@ public class PreferredNameForConcept
       return outgoingPreferredNids;
    }
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleConcepts the incoming possible concepts
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleConcepts) {
       return incomingPossibleConcepts;
@@ -114,14 +135,24 @@ public class PreferredNameForConcept
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return POST_ITERATION;
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.PREFERRED_NAME_FOR_CONCEPT);
       getChildren().stream().forEach((clause) -> {

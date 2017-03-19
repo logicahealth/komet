@@ -39,13 +39,23 @@
 
 package sh.isaac.api.collections.uuidnidmap;
 
+//~--- JDK imports ------------------------------------------------------------
+
+import java.util.Comparator;
+
+//~--- classes ----------------------------------------------------------------
+
 /**
+ * The Class UuidSorting.
  *
  * @author kec
  */
 public class UuidSorting
         extends Object {
-   private static final int SMALL  = 7;
+   /** The Constant SMALL. */
+   private static final int SMALL = 7;
+
+   /** The Constant MEDIUM. */
    private static final int MEDIUM = 40;
 
    //~--- constructors --------------------------------------------------------
@@ -76,10 +86,10 @@ public class UuidSorting
     * @see java.util.Arrays
     */
    public static int binarySearchFromTo(long[] list, long[] key, int from, int to) {
-      long[] midVal = new long[2];
+      final long[] midVal = new long[2];
 
       while (from <= to) {
-         int mid = (from + to) / 2;
+         final int mid = (from + to) / 2;
 
          midVal[0] = list[mid * 2];
          midVal[1] = list[mid * 2 + 1];
@@ -115,7 +125,7 @@ public class UuidSorting
    public static void mergeSort(long[] a, int fromIndex, int toIndex) {
       rangeCheck(a.length, fromIndex, toIndex);
 
-      long aux[] = (long[]) a.clone();
+      final long aux[] = a.clone();
 
       mergeSort1(aux, a, fromIndex, toIndex);
    }
@@ -146,7 +156,7 @@ public class UuidSorting
    public static void mergeSort(long[] a, int fromIndex, int toIndex, UuidComparatorBI c) {
       rangeCheck(a.length, fromIndex, toIndex);
 
-      long aux[] = (long[]) a.clone();
+      final long aux[] = a.clone();
 
       mergeSort1(aux, a, fromIndex, toIndex, c);
    }
@@ -179,11 +189,18 @@ public class UuidSorting
 
    /**
     * Returns the index of the median of the three indexed chars.
+    *
+    * @param x the x
+    * @param a the a
+    * @param b the b
+    * @param c the c
+    * @param comp the comp
+    * @return the int
     */
    private static int med3(long x[], int a, int b, int c, UuidComparatorBI comp) {
-      int ab = comp.compare(x[2 * a], x[2 * a + 1], x[2 * b], x[2 * b + 1]);
-      int ac = comp.compare(x[2 * a], x[2 * a + 1], x[2 * c], x[2 * c + 1]);
-      int bc = comp.compare(x[2 * b], x[2 * b + 1], x[2 * c], x[2 * c + 1]);
+      final int ab = comp.compare(x[2 * a], x[2 * a + 1], x[2 * b], x[2 * b + 1]);
+      final int ac = comp.compare(x[2 * a], x[2 * a + 1], x[2 * c], x[2 * c + 1]);
+      final int bc = comp.compare(x[2 * b], x[2 * b + 1], x[2 * c], x[2 * c + 1]);
 
       return ((ab < 0) ? ((bc < 0) ? b
                                    : (ac < 0) ? c
@@ -193,8 +210,16 @@ public class UuidSorting
             : a));
    }
 
+   /**
+    * Merge sort 1.
+    *
+    * @param src the src
+    * @param dest the dest
+    * @param low the low
+    * @param high the high
+    */
    private static void mergeSort1(long src[], long dest[], int low, int high) {
-      int length = high - low;
+      final int length = high - low;
 
       // Insertion sort on smallest arrays
       if (length < SMALL) {
@@ -212,7 +237,7 @@ public class UuidSorting
       }
 
       // Recursively sort halves of dest into src
-      int mid = (low + high) / 2;
+      final int mid = (low + high) / 2;
 
       mergeSort1(dest, src, low, mid);
       mergeSort1(dest, src, mid, high);
@@ -241,8 +266,17 @@ public class UuidSorting
       }
    }
 
+   /**
+    * Merge sort 1.
+    *
+    * @param src the src
+    * @param dest the dest
+    * @param low the low
+    * @param high the high
+    * @param c the c
+    */
    private static void mergeSort1(long src[], long dest[], int low, int high, UuidComparatorBI c) {
-      int length = high - low;
+      final int length = high - low;
 
       // Insertion sort on smallest arrays
       if (length < SMALL) {
@@ -257,7 +291,7 @@ public class UuidSorting
       }
 
       // Recursively sort halves of dest into src
-      int mid = (low + high) / 2;
+      final int mid = (low + high) / 2;
 
       mergeSort1(dest, src, low, mid, c);
       mergeSort1(dest, src, mid, high, c);
@@ -285,6 +319,11 @@ public class UuidSorting
 
    /**
     * Sorts the specified sub-array of chars into ascending order.
+    *
+    * @param x the x
+    * @param off the off
+    * @param len the len
+    * @param comp the comp
     */
    private static void quickSort1(long x[], int off, int len, UuidComparatorBI comp) {
       // Insertion sort on smallest arrays
@@ -306,7 +345,7 @@ public class UuidSorting
          int n = off + len - 1;
 
          if (len > MEDIUM) {          // Big arrays, pseudomedian of 9
-            int s = len / 8;
+            final int s = len / 8;
 
             l = med3(x, l, l + s, l + 2 * s, comp);
             m = med3(x, m - s, m, m + s, comp);
@@ -316,7 +355,7 @@ public class UuidSorting
          m = med3(x, l, m, n, comp);  // Mid-size, med of 3
       }
 
-      long[] v = new long[2];
+      final long[] v = new long[2];
 
       v[0] = x[m * 2];
       v[1] = x[m * 2 + 1];
@@ -354,8 +393,8 @@ public class UuidSorting
       }
 
       // Swap partition elements back to middle
-      int s,
-          n = off + len;
+      int       s;
+      final int n = off + len;
 
       s = Math.min(a - off, b - a);
       vecswap(x, off, b - s, s);
@@ -374,6 +413,10 @@ public class UuidSorting
 
    /**
     * Check that fromIndex and toIndex are in range, and throw an appropriate exception if they aren't.
+    *
+    * @param arrayLen the array len
+    * @param fromIndex the from index
+    * @param toIndex the to index
     */
    private static void rangeCheck(int arrayLen, int fromIndex, int toIndex) {
       if (fromIndex > toIndex) {
@@ -391,13 +434,17 @@ public class UuidSorting
 
    /**
     * Swaps x[a] with x[b].
+    *
+    * @param x the x
+    * @param a the a
+    * @param b the b
     */
    private static void swap(long x[], int a, int b) {
-      int    aMsb = a * 2;
-      int    aLsb = aMsb + 1;
-      int    bMsb = b * 2;
-      int    bLsb = bMsb + 1;
-      long[] t    = new long[2];
+      final int    aMsb = a * 2;
+      final int    aLsb = aMsb + 1;
+      final int    bMsb = b * 2;
+      final int    bLsb = bMsb + 1;
+      final long[] t    = new long[2];
 
       t[0]    = x[aMsb];
       t[1]    = x[aLsb];
@@ -409,6 +456,11 @@ public class UuidSorting
 
    /**
     * Swaps x[a .. (a+n-1)] with x[b .. (b+n-1)].
+    *
+    * @param x the x
+    * @param a the a
+    * @param b the b
+    * @param n the n
     */
    private static void vecswap(long x[], int a, int b, int n) {
       for (int i = 0; i < n; i++, a++, b++) {

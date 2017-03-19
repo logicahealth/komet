@@ -46,8 +46,10 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface MutableDynamicSememe.
  *
  * @author kec
+ * @param <T> the generic type
  */
 public interface MutableDynamicSememe<T extends MutableDynamicSememe<T>>
         extends MutableSememeVersion<T>, DynamicSememe<T> {
@@ -59,7 +61,7 @@ public interface MutableDynamicSememe<T extends MutableDynamicSememe<T>>
     * If there is one or more data columns associated with a DynamicSememe membership, then the type of each of data columns would
     * be an extension of {@link DynamicSememeData}
     *
-    * @param data
+    * @param data the new data
     */
    void setData(DynamicSememeData[] data);
 }

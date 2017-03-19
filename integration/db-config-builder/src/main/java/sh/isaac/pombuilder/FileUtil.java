@@ -74,26 +74,39 @@ import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link FileUtil}
+ * {@link FileUtil}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class FileUtil {
+   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read file.
+    *
+    * @param fileName the file name
+    * @return the string
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static String readFile(String fileName)
             throws IOException {
       try (InputStream is = DBConfigurationCreator.class.getResourceAsStream("/" + fileName);) {
-         byte[] buffer = new byte[is.available()];
+         final byte[] buffer = new byte[is.available()];
 
          is.read(buffer);
          return new String(buffer, Charset.forName("UTF-8"));
       }
    }
 
+   /**
+    * Recursive delete.
+    *
+    * @param file the file
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static void recursiveDelete(File file)
             throws IOException {
       if ((file == null) ||!file.exists()) {
@@ -118,11 +131,29 @@ public class FileUtil {
       file.delete();
    }
 
+   /**
+    * Write file.
+    *
+    * @param fromFolder the from folder
+    * @param relativePath the relative path
+    * @param toFolder the to folder
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static void writeFile(String fromFolder, String relativePath, File toFolder)
             throws IOException {
       writeFile(fromFolder, relativePath, toFolder, null, null);
    }
 
+   /**
+    * Write file.
+    *
+    * @param fromFolder the from folder
+    * @param relativePath the relative path
+    * @param toFolder the to folder
+    * @param replacementValues the replacement values
+    * @param append the append
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static void writeFile(String fromFolder,
                                 String relativePath,
                                 File toFolder,
@@ -130,14 +161,14 @@ public class FileUtil {
                                 String append)
             throws IOException {
       try (InputStream is = FileUtil.class.getResourceAsStream("/" + fromFolder + "/" + relativePath);) {
-         byte[] buffer = new byte[is.available()];
+         final byte[] buffer = new byte[is.available()];
 
          is.read(buffer);
 
          String temp = new String(buffer, Charset.forName("UTF-8"));
 
          if (replacementValues != null) {
-            for (Entry<String, String> item: replacementValues.entrySet()) {
+            for (final Entry<String, String> item: replacementValues.entrySet()) {
                while (temp.contains(item.getKey())) {
                   temp = temp.replace(item.getKey(), item.getValue());
                }
@@ -150,7 +181,7 @@ public class FileUtil {
             relativePath = relativePath.replaceFirst("/DOT", "/.");  // down in the relative path
          }
 
-         File targetFile = new File(toFolder, relativePath);
+         final File targetFile = new File(toFolder, relativePath);
 
          targetFile.getParentFile()
                    .mkdirs();
@@ -165,17 +196,24 @@ public class FileUtil {
       }
    }
 
+   /**
+    * Write pom file.
+    *
+    * @param model the model
+    * @param projectFolder the project folder
+    * @throws Exception the exception
+    */
    public static void writePomFile(Model model, File projectFolder)
             throws Exception {
       try {
-         JAXBContext ctx = JAXBContext.newInstance(Model.class);
-         Marshaller  ma  = ctx.createMarshaller();
+         final JAXBContext ctx = JAXBContext.newInstance(Model.class);
+         final Marshaller  ma  = ctx.createMarshaller();
 
          ma.setProperty(Marshaller.JAXB_SCHEMA_LOCATION,
                         "http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd");
          ma.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
          ma.marshal(new ObjectFactory().createProject(model), new File(projectFolder, "pom.xml"));
-      } catch (JAXBException e) {
+      } catch (final JAXBException e) {
          LOG.error("Error writing", e);
          throw new Exception("Error writing pom: " + e);
       }

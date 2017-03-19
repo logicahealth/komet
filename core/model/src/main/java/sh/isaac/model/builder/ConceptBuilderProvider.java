@@ -54,22 +54,39 @@ import sh.isaac.api.logic.LogicalExpression;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ConceptBuilderProvider.
  *
  * @author kec
  */
 @Service
 public class ConceptBuilderProvider
          implements ConceptBuilderService {
+   /** The default language for descriptions. */
    private ConceptSpecification defaultLanguageForDescriptions =
       TermAux.getConceptSpecificationForLanguageSequence(Get.configurationService()
                                                             .getDefaultLanguageCoordinate()
                                                             .getLanguageConceptSequence());
+
+   /** The default dialect assemblage for descriptions. */
    private ConceptSpecification defaultDialectAssemblageForDescriptions = TermAux.US_DIALECT_ASSEMBLAGE;
-   private LogicCoordinate      defaultLogicCoordinate = Get.configurationService()
-                                                            .getDefaultLogicCoordinate();
+
+   /** The default logic coordinate. */
+   private LogicCoordinate defaultLogicCoordinate = Get.configurationService()
+                                                       .getDefaultLogicCoordinate();
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the concept builder.
+    *
+    * @param conceptName the concept name
+    * @param semanticTag the semantic tag
+    * @param logicalExpression the logical expression
+    * @param languageForDescriptions the language for descriptions
+    * @param dialectAssemblageForDescriptions the dialect assemblage for descriptions
+    * @param logicCoordinate the logic coordinate
+    * @return the concept builder
+    */
    @Override
    public ConceptBuilder getConceptBuilder(String conceptName,
          String semanticTag,
@@ -85,6 +102,14 @@ public class ConceptBuilderProvider
                                          logicCoordinate);
    }
 
+   /**
+    * Gets the default concept builder.
+    *
+    * @param conceptName the concept name
+    * @param semanticTag the semantic tag
+    * @param logicalExpression the logical expression
+    * @return the default concept builder
+    */
    @Override
    public ConceptBuilder getDefaultConceptBuilder(String conceptName,
          String semanticTag,
@@ -92,13 +117,19 @@ public class ConceptBuilderProvider
       return new ConceptBuilderOchreImpl(conceptName,
                                          semanticTag,
                                          logicalExpression,
-                                         defaultLanguageForDescriptions,
-                                         defaultDialectAssemblageForDescriptions,
-                                         defaultLogicCoordinate);
+                                         this.defaultLanguageForDescriptions,
+                                         this.defaultDialectAssemblageForDescriptions,
+                                         this.defaultLogicCoordinate);
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set default dialect assemblage for descriptions.
+    *
+    * @param defaultDialectAssemblageForDescriptions the default dialect assemblage for descriptions
+    * @return the concept builder provider
+    */
    @Override
    public ConceptBuilderProvider setDefaultDialectAssemblageForDescriptions(
            ConceptSpecification defaultDialectAssemblageForDescriptions) {
@@ -108,18 +139,34 @@ public class ConceptBuilderProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the default dialect for descriptions.
+    *
+    * @return the default dialect for descriptions
+    */
    @Override
    public ConceptSpecification getDefaultDialectForDescriptions() {
-      return defaultDialectAssemblageForDescriptions;
+      return this.defaultDialectAssemblageForDescriptions;
    }
 
+   /**
+    * Gets the default language for descriptions.
+    *
+    * @return the default language for descriptions
+    */
    @Override
    public ConceptSpecification getDefaultLanguageForDescriptions() {
-      return defaultLanguageForDescriptions;
+      return this.defaultLanguageForDescriptions;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set default language for descriptions.
+    *
+    * @param defaultLanguageForDescriptions the default language for descriptions
+    * @return the concept builder provider
+    */
    @Override
    public ConceptBuilderProvider setDefaultLanguageForDescriptions(
            ConceptSpecification defaultLanguageForDescriptions) {
@@ -129,13 +176,24 @@ public class ConceptBuilderProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the default logic coordinate.
+    *
+    * @return the default logic coordinate
+    */
    @Override
    public LogicCoordinate getDefaultLogicCoordinate() {
-      return defaultLogicCoordinate;
+      return this.defaultLogicCoordinate;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set default logic coordinate.
+    *
+    * @param defaultLogicCoordinate the default logic coordinate
+    * @return the concept builder provider
+    */
    @Override
    public ConceptBuilderProvider setDefaultLogicCoordinate(LogicCoordinate defaultLogicCoordinate) {
       this.defaultLogicCoordinate = defaultLogicCoordinate;

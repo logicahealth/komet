@@ -40,10 +40,9 @@
 package sh.isaac.converters.sharedUtils.propertyTypes;
 
 /**
- * Fields to treat as descriptions
+ * Fields to treat as descriptions.
  *
  * @author Daniel Armbrust
- *
  */
 public class BPT_Descriptions
         extends BPT_DualParentPropertyType {
@@ -52,13 +51,24 @@ public class BPT_Descriptions
    // The lowest number found will be used as the FSN.
    // The next higher number will be used as the 'preferred' synonym.
    // The next higher number will be used as the 'acceptable' synonym - continuing until the value is above the description threshold.
+
+   /** The Constant FSN. */
    // Then, the first found description will be the 'preferred' description - the rest will be 'acceptable'.
-   public static final int FSN        = 0;
-   public static final int SYNONYM    = 200;
+   public static final int FSN = 0;
+
+   /** The Constant SYNONYM. */
+   public static final int SYNONYM = 200;
+
+   /** The Constant DEFINITION. */
    public static final int DEFINITION = 400;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new BP T descriptions.
+    *
+    * @param terminologyName the terminology name
+    */
    public BPT_Descriptions(String terminologyName) {
       super("Description Types", terminologyName + " Description Types", false, null);
    }

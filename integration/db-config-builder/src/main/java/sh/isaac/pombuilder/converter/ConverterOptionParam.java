@@ -74,26 +74,45 @@ import sh.isaac.pombuilder.artifacts.Converter;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ConverterOptionParam {
-   public static final String  MAVEN_FILE_TYPE = "options.json";
-   private static final Logger LOG             = LogManager.getLogger();
+   /** The Constant MAVEN_FILE_TYPE. */
+   public static final String MAVEN_FILE_TYPE = "options.json";
+
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
-   private String                               displayName;
-   private String                               internalName;
-   private String                               description;
-   private boolean                              allowNoSelection;
-   private boolean                              allowMultiSelect;
+   /** The display name. */
+   private String displayName;
+
+   /** The internal name. */
+   private String internalName;
+
+   /** The description. */
+   private String description;
+
+   /** The allow no selection. */
+   private boolean allowNoSelection;
+
+   /** The allow multi select. */
+   private boolean allowMultiSelect;
+
+   /** The suggested pick list values. */
    private ConverterOptionParamSuggestedValue[] suggestedPickListValues;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new converter option param.
+    */
    @SuppressWarnings("unused")
    private ConverterOptionParam() {
       // for jackson
    }
 
    /**
+    * Instantiates a new converter option param.
+    *
     * @param displayName The name of this option
     * @param internalName The name to use when writing the option to a pom file
     * @param description A description suitable for display to end users of the system (in the GUI)
@@ -119,6 +138,12 @@ public class ConverterOptionParam {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (this == obj) {
@@ -133,41 +158,41 @@ public class ConverterOptionParam {
          return false;
       }
 
-      ConverterOptionParam other = (ConverterOptionParam) obj;
+      final ConverterOptionParam other = (ConverterOptionParam) obj;
 
-      if (allowNoSelection != other.allowNoSelection) {
+      if (this.allowNoSelection != other.allowNoSelection) {
          return false;
       }
 
-      if (allowMultiSelect != other.allowMultiSelect) {
+      if (this.allowMultiSelect != other.allowMultiSelect) {
          return false;
       }
 
-      if (description == null) {
+      if (this.description == null) {
          if (other.description != null) {
             return false;
          }
-      } else if (!description.equals(other.description)) {
+      } else if (!this.description.equals(other.description)) {
          return false;
       }
 
-      if (displayName == null) {
+      if (this.displayName == null) {
          if (other.displayName != null) {
             return false;
          }
-      } else if (!displayName.equals(other.displayName)) {
+      } else if (!this.displayName.equals(other.displayName)) {
          return false;
       }
 
-      if (internalName == null) {
+      if (this.internalName == null) {
          if (other.internalName != null) {
             return false;
          }
-      } else if (!internalName.equals(other.internalName)) {
+      } else if (!this.internalName.equals(other.internalName)) {
          return false;
       }
 
-      if (!Arrays.equals(suggestedPickListValues, other.suggestedPickListValues)) {
+      if (!Arrays.equals(this.suggestedPickListValues, other.suggestedPickListValues)) {
          return false;
       }
 
@@ -177,7 +202,13 @@ public class ConverterOptionParam {
    /**
     * Read the options specification from a json file found on the provided maven artifact server, with the provided artifact type.
     * May return an empty array, will not return null.
-    * @throws Exception
+    *
+    * @param artifact the artifact
+    * @param baseMavenUrl the base maven url
+    * @param mavenUsername the maven username
+    * @param mavenPassword the maven password
+    * @return the converter option param[]
+    * @throws Exception the exception
     */
    public static ConverterOptionParam[] fromArtifact(Converter artifact,
          String baseMavenUrl,
@@ -193,21 +224,21 @@ public class ConverterOptionParam {
          tempFolder.mkdir();
 
          // First, try to get the pom file to validate the params they sent us.  If this fails, they sent bad info, and we fail.
-         URL pomURL = ArtifactUtilities.makeFullURL(baseMavenUrl,
-                                                    mavenUsername,
-                                                    mavenPassword,
-                                                    artifact.getGroupId(),
-                                                    artifact.getArtifactId(),
-                                                    artifact.getVersion(),
-                                                    artifact.getClassifier(),
-                                                    "pom");
+         final URL pomURL = ArtifactUtilities.makeFullURL(baseMavenUrl,
+                                                          mavenUsername,
+                                                          mavenPassword,
+                                                          artifact.getGroupId(),
+                                                          artifact.getArtifactId(),
+                                                          artifact.getVersion(),
+                                                          artifact.getClassifier(),
+                                                          "pom");
          DownloadUnzipTask dut = new DownloadUnzipTask(mavenUsername, mavenPassword, pomURL, false, true, tempFolder);
 
          WorkExecutors.get()
                       .getExecutor()
                       .execute(dut);
 
-         File pomFile = dut.get();
+         final File pomFile = dut.get();
 
          if (!pomFile.exists()) {
             LOG.debug("Throwing back an exception, as no pom was readable for the specified artifact");
@@ -218,22 +249,22 @@ public class ConverterOptionParam {
 
          // Now that we know that the credentials / artifact / version are good - see if there is a config file (there may not be)
          try {
-            URL config = ArtifactUtilities.makeFullURL(baseMavenUrl,
-                                                       mavenUsername,
-                                                       mavenPassword,
-                                                       artifact.getGroupId(),
-                                                       artifact.getArtifactId(),
-                                                       artifact.getVersion(),
-                                                       artifact.getClassifier(),
-                                                       MAVEN_FILE_TYPE);
+            final URL config = ArtifactUtilities.makeFullURL(baseMavenUrl,
+                                                             mavenUsername,
+                                                             mavenPassword,
+                                                             artifact.getGroupId(),
+                                                             artifact.getArtifactId(),
+                                                             artifact.getVersion(),
+                                                             artifact.getClassifier(),
+                                                             MAVEN_FILE_TYPE);
 
             dut = new DownloadUnzipTask(mavenUsername, mavenPassword, config, false, true, tempFolder);
             WorkExecutors.get()
                          .getExecutor()
                          .execute(dut);
 
-            File                   jsonFile = dut.get();
-            ConverterOptionParam[] temp     = fromFile(jsonFile);
+            final File                   jsonFile = dut.get();
+            final ConverterOptionParam[] temp     = fromFile(jsonFile);
 
             if (LOG.isDebugEnabled()) {
                LOG.debug("Found options: {}", Arrays.toString(temp));
@@ -243,7 +274,7 @@ public class ConverterOptionParam {
 
             jsonFile.delete();
             return temp;
-         } catch (Exception e) {
+         } catch (final Exception e) {
             // If we successfully downloaded the pom file, but failed here, just assume this file doesn't exist / isn't applicable to this converter.
             LOG.info("No config file found for converter " + artifact.getArtifactId());
             return new ConverterOptionParam[] {};
@@ -251,7 +282,7 @@ public class ConverterOptionParam {
       } finally {
          try {
             FileUtil.recursiveDelete(tempFolder);
-         } catch (Exception e) {
+         } catch (final Exception e) {
             LOG.error("Problem cleaning up temp folder " + tempFolder, e);
          }
       }
@@ -259,99 +290,127 @@ public class ConverterOptionParam {
 
    /**
     * Read the options specification from a json file.
+    *
+    * @param jsonConverterOptionFile the json converter option file
+    * @return the converter option param[]
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static ConverterOptionParam[] fromFile(File jsonConverterOptionFile)
             throws IOException {
-      ObjectMapper mapper = new ObjectMapper();
+      final ObjectMapper mapper = new ObjectMapper();
 
       return mapper.readValue(jsonConverterOptionFile, ConverterOptionParam[].class);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       final int prime  = 31;
       int       result = 1;
 
-      result = prime * result + (allowNoSelection ? 1231
+      result = prime * result + (this.allowNoSelection ? 1231
             : 1237);
-      result = prime * result + (allowMultiSelect ? 1231
+      result = prime * result + (this.allowMultiSelect ? 1231
             : 1237);
-      result = prime * result + ((description == null) ? 0
-            : description.hashCode());
-      result = prime * result + ((displayName == null) ? 0
-            : displayName.hashCode());
-      result = prime * result + ((internalName == null) ? 0
-            : internalName.hashCode());
-      result = prime * result + Arrays.hashCode(suggestedPickListValues);
+      result = prime * result + ((this.description == null) ? 0
+            : this.description.hashCode());
+      result = prime * result + ((this.displayName == null) ? 0
+            : this.displayName.hashCode());
+      result = prime * result + ((this.internalName == null) ? 0
+            : this.internalName.hashCode());
+      result = prime * result + Arrays.hashCode(this.suggestedPickListValues);
       return result;
    }
 
    /**
-    * Serialize to json
+    * Serialize to json.
     *
-    * @throws IOException
+    * @param options the options
+    * @param outputFile the output file
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static void serialize(ConverterOptionParam[] options, File outputFile)
             throws IOException {
-      ObjectMapper mapper = new ObjectMapper();
+      final ObjectMapper mapper = new ObjectMapper();
 
       try {
          mapper.writeValue(outputFile, options);
-      } catch (JsonProcessingException e) {
+      } catch (final JsonProcessingException e) {
          throw new RuntimeException("Unexpected error", e);
       }
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "ConverterOptionParam [displayName=" + displayName + ", internalName=" + internalName + ", description=" +
-             description + ", allowNoSelection=" + allowNoSelection + ", allowMultiSelect=" + allowMultiSelect +
-             ", suggestedPickListValues=" + Arrays.toString(suggestedPickListValues) + "]";
+      return "ConverterOptionParam [displayName=" + this.displayName + ", internalName=" + this.internalName +
+             ", description=" + this.description + ", allowNoSelection=" + this.allowNoSelection +
+             ", allowMultiSelect=" + this.allowMultiSelect + ", suggestedPickListValues=" +
+             Arrays.toString(this.suggestedPickListValues) + "]";
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
     * true if it is valie for the user to select more than 1 entry from the pick list, false if they may select at most 1.
+    *
+    * @return true, if allow multi select
     */
    public boolean isAllowMultiSelect() {
-      return allowMultiSelect;
+      return this.allowMultiSelect;
    }
 
    /**
     * true if it is valid for the user to select 0 entries from the pick list, false if they must select 1 or more.
+    *
+    * @return true, if allow no selection
     */
    public boolean isAllowNoSelection() {
-      return allowNoSelection;
+      return this.allowNoSelection;
    }
 
    /**
     * The description of this option suitable to display to the end user, in a GUI.
+    *
+    * @return the description
     */
    public String getDescription() {
-      return description;
+      return this.description;
    }
 
    /**
-    * The displayName of this option - suitable for GUI use to the end user
+    * The displayName of this option - suitable for GUI use to the end user.
+    *
+    * @return the display name
     */
    public String getDisplayName() {
-      return displayName;
+      return this.displayName;
    }
 
    /**
-    * The internalName of this option - use when creating the pom file
+    * The internalName of this option - use when creating the pom file.
+    *
+    * @return the internal name
     */
    public String getInternalName() {
-      return internalName;
+      return this.internalName;
    }
 
    /**
-    * @param suggestedPickListValues the suggested values to provide the user to select from. This may not be an all-inclusive list of values - the
-    * user should still have the option to provide their own value.
+    * Gets the suggested pick list values.
+    *
+    * @return the suggested pick list values
     */
    public ConverterOptionParamSuggestedValue[] getSuggestedPickListValues() {
-      return suggestedPickListValues;
+      return this.suggestedPickListValues;
    }
 }
 

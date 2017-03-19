@@ -74,12 +74,14 @@ public interface ConceptSnapshot
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the chronology.
     *
     * @return the {@code ConceptChronology} that backs this snapshot.
     */
    ConceptChronology<? extends StampedVersion> getChronology();
 
    /**
+    * Gets the contradictions.
     *
     * @return any contradictions that may exist for the given {@code StampCoordinate}.
     */
@@ -95,6 +97,7 @@ public interface ConceptSnapshot
    DescriptionSememe<?> getDescription();
 
    /**
+    * Gets the fully specified description.
     *
     * @return The fully specified description for this concept. Optional in case
     * there is not description that satisfies the {@code StampCoordinate} and the
@@ -103,6 +106,7 @@ public interface ConceptSnapshot
    Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription();
 
    /**
+    * Gets the language coordinate.
     *
     * @return the {@code LanguageCoordinate} that defines the latest
     * version used by this snapshot.
@@ -110,6 +114,7 @@ public interface ConceptSnapshot
    LanguageCoordinate getLanguageCoordinate();
 
    /**
+    * Gets the preferred description.
     *
     * @return The preferred description for this concept. Optional in case
     * there is not description that satisfies the {@code StampCoordinate} and the
@@ -118,6 +123,7 @@ public interface ConceptSnapshot
    Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription();
 
    /**
+    * Gets the stamp coordinate.
     *
     * @return the {@code StampCoordinate} that defines the latest
     * version used by this snapshot.

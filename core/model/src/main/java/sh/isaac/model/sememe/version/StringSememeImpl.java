@@ -50,20 +50,37 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StringSememeImpl.
  *
  * @author kec
  */
 public class StringSememeImpl
         extends SememeVersionImpl<StringSememeImpl>
          implements StringSememe<StringSememeImpl>, MutableStringSememe<StringSememeImpl> {
+   /** The string. */
    private String string = null;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new string sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    */
    public StringSememeImpl(SememeChronologyImpl<StringSememeImpl> container, int stampSequence, short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
+   /**
+    * Instantiates a new string sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    * @param data the data
+    */
    public StringSememeImpl(SememeChronologyImpl<StringSememeImpl> container,
                            int stampSequence,
                            short versionSequence,
@@ -74,37 +91,62 @@ public class StringSememeImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("{String≤");
-      sb.append(string);
+      sb.append(this.string);
       toString(sb);
       sb.append("≥S}");
       return sb.toString();
    }
 
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
-      data.putUTF(string);
+      data.putUTF(this.string);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    @Override
    public SememeType getSememeType() {
       return SememeType.STRING;
    }
 
+   /**
+    * Gets the string.
+    *
+    * @return the string
+    */
    @Override
    public String getString() {
-      return string;
+      return this.string;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the string.
+    *
+    * @param string the new string
+    */
    @Override
    public void setString(String string) {
       if (this.string != null) {

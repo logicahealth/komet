@@ -46,12 +46,21 @@ import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class TestDBConfiguration.
+ */
 public class TestDBConfiguration {
+   /**
+    * The main method.
+    *
+    * @param args the arguments
+    * @throws Exception the exception
+    */
    public static void main(String[] args)
             throws Exception {
-      String testURL  = "https://git.isaac.sh/git/r/dantest.git";
-      String username = "";
-      char[] password = "".toCharArray();
+      final String testURL  = "https://git.isaac.sh/git/r/dantest.git";
+      final String username = "";
+      final char[] password = "".toCharArray();
 
       System.setProperty("java.awt.headless", "true");
 

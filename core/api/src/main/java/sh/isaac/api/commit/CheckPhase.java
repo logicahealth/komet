@@ -45,9 +45,15 @@
 package sh.isaac.api.commit;
 
 /**
+ * The Enum CheckPhase.
  *
  * @author kec
  */
-public enum CheckPhase { ADD_UNCOMMITTED,
-                         COMMIT; }
+public enum CheckPhase {
+   /** The add uncommitted. */
+   ADD_UNCOMMITTED,
+
+   /** The commit. */
+   COMMIT;
+}
 

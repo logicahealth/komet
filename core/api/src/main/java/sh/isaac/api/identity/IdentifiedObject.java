@@ -47,32 +47,57 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.externalizable.OchreExternalizable;
 
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface IdentifiedObject.
  *
  * @author kec
  */
 public interface IdentifiedObject {
+   /**
+    * To user string.
+    *
+    * @return the string
+    */
    default String toUserString() {
       return toString();
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the nid.
+    *
+    * @return the nid
+    */
    default int getNid() {
       return Get.identifierService()
                 .getNidForUuids(getUuidList());
    }
 
+   /**
+    * Gets the primordial uuid.
+    *
+    * @return the primordial uuid
+    */
    default UUID getPrimordialUuid() {
       return getUuidList().get(0);
    }
 
+   /**
+    * Gets the uuid list.
+    *
+    * @return the uuid list
+    */
    List<UUID> getUuidList();
 
+   /**
+    * Gets the uuids.
+    *
+    * @return the uuids
+    */
    default UUID[] getUuids() {
       return getUuidList().toArray(new UUID[getUuidList().size()]);
    }

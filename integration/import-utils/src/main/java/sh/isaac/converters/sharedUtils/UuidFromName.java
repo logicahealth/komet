@@ -52,12 +52,16 @@ import sh.isaac.api.util.UuidT5Generator;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class UuidFromName.
+ */
 public class UuidFromName {
    /**
     * This is how to get a UUID that the WB expects from a string in a pom....
-    * @param args
-    * @throws UnsupportedEncodingException
-    * @throws NoSuchAlgorithmException
+    *
+    * @param args the arguments
+    * @throws NoSuchAlgorithmException the no such algorithm exception
+    * @throws UnsupportedEncodingException the unsupported encoding exception
     */
    public static void main(String[] args)
             throws NoSuchAlgorithmException, UnsupportedEncodingException {

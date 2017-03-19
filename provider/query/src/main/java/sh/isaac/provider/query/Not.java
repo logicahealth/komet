@@ -41,8 +41,6 @@ package sh.isaac.provider.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
-
 import java.util.Optional;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -68,8 +66,11 @@ import sh.isaac.api.component.concept.ConceptVersion;
 @XmlRootElement()
 public class Not
         extends ParentClause {
+   /** The for set. */
    @XmlTransient
    NidSet forSet;
+
+   /** The not set. */
    @XmlTransient
    NidSet notSet;
 
@@ -82,21 +83,33 @@ public class Not
       super();
    }
 
+   /**
+    * Instantiates a new not.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param child the child
+    */
    public Not(Query enclosingQuery, Clause child) {
       super(enclosingQuery, child);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute components.
+    *
+    * @param incomingComponents the incoming components
+    * @return the nid set
+    */
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
-      this.forSet = enclosingQuery.getForSet();
-      assert forSet != null;
+      this.forSet = this.enclosingQuery.getForSet();
+      assert this.forSet != null;
 
-      ConceptSequenceSet activeSet = new ConceptSequenceSet();
+      final ConceptSequenceSet activeSet = new ConceptSequenceSet();
 
       Get.conceptService().getConceptChronologyStream(ConceptSequenceSet.of(incomingComponents)).forEach((ConceptChronology cc) -> {
-                     Optional<ConceptVersion> latestVersion =
+                     final Optional<ConceptVersion> latestVersion =
                         cc.getLatestVersion(ConceptVersion.class, getEnclosingQuery().getStampCoordinate());
 
                      if (latestVersion.isPresent()) {
@@ -104,22 +117,28 @@ public class Not
                      }
                   });
       getChildren().stream().forEach((c) -> {
-                               notSet.or(c.computeComponents(incomingComponents));
+                               this.notSet.or(c.computeComponents(incomingComponents));
                             });
-      forSet = NidSet.of(activeSet);
-      forSet.andNot(notSet);
-      return forSet;
+      this.forSet = NidSet.of(activeSet);
+      this.forSet.andNot(this.notSet);
+      return this.forSet;
    }
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       this.notSet = new NidSet();
 
-      for (Clause c: getChildren()) {
-         for (ClauseComputeType cp: c.getComputePhases()) {
+      for (final Clause c: getChildren()) {
+         for (final ClauseComputeType cp: c.getComputePhases()) {
             switch (cp) {
             case PRE_ITERATION:
-               notSet.or(c.computePossibleComponents(incomingPossibleComponents));
+               this.notSet.or(c.computePossibleComponents(incomingPossibleComponents));
                break;
 
             case ITERATION:
@@ -138,13 +157,18 @@ public class Not
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.NOT);
 
-      for (Clause clause: getChildren()) {
+      for (final Clause clause: getChildren()) {
          whereClause.getChildren()
                     .add(clause.getWhereClause());
       }

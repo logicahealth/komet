@@ -65,30 +65,41 @@ import net.lingala.zip4j.util.Zip4jConstants;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link Zip}
+ * {@link Zip}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class Zip {
-   private ReadOnlyDoubleWrapper totalWork    = new ReadOnlyDoubleWrapper();
-   private ReadOnlyDoubleWrapper workComplete = new ReadOnlyDoubleWrapper();
-   private ReadOnlyStringWrapper status       = new ReadOnlyStringWrapper();
-   private ZipFile               zf;
-   private ZipParameters         zp;
+   /** The total work. */
+   private final ReadOnlyDoubleWrapper totalWork = new ReadOnlyDoubleWrapper();
+
+   /** The work complete. */
+   private final ReadOnlyDoubleWrapper workComplete = new ReadOnlyDoubleWrapper();
+
+   /** The status. */
+   private final ReadOnlyStringWrapper status = new ReadOnlyStringWrapper();
+
+   /** The zf. */
+   private final ZipFile zf;
+
+   /** The zp. */
+   private final ZipParameters zp;
 
    //~--- constructors --------------------------------------------------------
 
    /**
+    * Instantiates a new zip.
     *
-    * @param artifactId
-    * @param version
+    * @param artifactId the artifact id
+    * @param version the version
     * @param classifier - optional
     * @param dataType - optional
-    * @param zipContentCommonRoot
+    * @param outputFolder the output folder
+    * @param zipContentCommonRoot the zip content common root
     * @param createArtifactTopLevelFolder - true to create a top level folder in the zip, false to just add the files starting at the root level
     * @return - progress moniter to utilize during {@link #addFiles(List)}
-    * @throws ZipException
-    * @throws IOException
+    * @throws ZipException the zip exception
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public Zip(String artifactId,
               String version,
@@ -112,65 +123,86 @@ public class Zip {
       }
 
       outputFolder.mkdir();
-      zf = new ZipFile(new File(outputFolder, artifactId + "-" + version + classifierTemp + dataTypeTemp + ".zip"));
-      zf.setRunInThread(true);
-      zp = new ZipParameters();
-      zp.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_MAXIMUM);
-      zp.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
-      zp.setDefaultFolderPath(zipContentCommonRoot.getAbsolutePath());
+      this.zf = new ZipFile(new File(outputFolder,
+                                     artifactId + "-" + version + classifierTemp + dataTypeTemp + ".zip"));
+      this.zf.setRunInThread(true);
+      this.zp = new ZipParameters();
+      this.zp.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_MAXIMUM);
+      this.zp.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
+      this.zp.setDefaultFolderPath(zipContentCommonRoot.getAbsolutePath());
 
-      String rootFolder = (createArtifactTopLevelFolder ? (artifactId + "-" + version + classifierTemp + dataTypeTemp)
-            : "");
+      final String rootFolder = (createArtifactTopLevelFolder
+                                 ? (artifactId + "-" + version + classifierTemp + dataTypeTemp)
+                                 : "");
 
-      zp.setRootFolderInZip(rootFolder);
-      zp.setIncludeRootFolder(createArtifactTopLevelFolder);
-      status.set("Waiting for files");
+      this.zp.setRootFolderInZip(rootFolder);
+      this.zp.setIncludeRootFolder(createArtifactTopLevelFolder);
+      this.status.set("Waiting for files");
    }
 
    //~--- methods -------------------------------------------------------------
 
    /**
     * This will block during add - see the getTotalWork / getWorkComplete methods to monitor progress.
+    *
+    * @param dataFiles the data files
+    * @return the file
+    * @throws Throwable the throwable
     */
    public File addFiles(ArrayList<File> dataFiles)
             throws Throwable {
-      zf.addFiles(dataFiles, zp);
+      this.zf.addFiles(dataFiles, this.zp);
 
-      while (zf.getProgressMonitor()
-               .getResult() == ProgressMonitor.RESULT_WORKING) {
-         totalWork.set(zf.getProgressMonitor()
-                         .getTotalWork());
-         workComplete.set(zf.getProgressMonitor()
-                            .getWorkCompleted());
-         status.set("Compressing " + zf.getProgressMonitor().getFileName());
+      while (this.zf.getProgressMonitor()
+                    .getResult() == ProgressMonitor.RESULT_WORKING) {
+         this.totalWork.set(this.zf.getProgressMonitor()
+                                   .getTotalWork());
+         this.workComplete.set(this.zf.getProgressMonitor()
+                                      .getWorkCompleted());
+         this.status.set("Compressing " + this.zf.getProgressMonitor().getFileName());
          Thread.sleep(100);
       }
 
-      status.set("Done");
-      workComplete.set(1);
-      totalWork.set(1);
+      this.status.set("Done");
+      this.workComplete.set(1);
+      this.totalWork.set(1);
 
-      if (zf.getProgressMonitor()
-            .getResult() == ProgressMonitor.RESULT_ERROR) {
-         throw zf.getProgressMonitor()
-                 .getException();
+      if (this.zf.getProgressMonitor()
+                 .getResult() == ProgressMonitor.RESULT_ERROR) {
+         throw this.zf.getProgressMonitor()
+                      .getException();
       }
 
-      return zf.getFile();
+      return this.zf.getFile();
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the status.
+    *
+    * @return the status
+    */
    public ReadOnlyStringProperty getStatus() {
-      return status.getReadOnlyProperty();
+      return this.status.getReadOnlyProperty();
    }
 
+   /**
+    * Gets the total work.
+    *
+    * @return the total work
+    */
    public ReadOnlyDoubleProperty getTotalWork() {
-      return totalWork.getReadOnlyProperty();
+      return this.totalWork.getReadOnlyProperty();
    }
 
+   /**
+    * Gets the work complete.
+    *
+    * @return the work complete
+    */
    public ReadOnlyDoubleProperty getWorkComplete() {
-      return workComplete.getReadOnlyProperty();
+      return this.workComplete.getReadOnlyProperty();
    }
 }
 

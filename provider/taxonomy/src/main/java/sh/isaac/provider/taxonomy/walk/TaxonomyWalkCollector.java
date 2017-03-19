@@ -64,40 +64,62 @@ import sh.isaac.provider.taxonomy.TaxonomyFlags;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class TaxonomyWalkCollector.
  *
  * @author kec
  */
 public class TaxonomyWalkCollector
          implements ObjIntConsumer<TaxonomyWalkAccumulator>,
                     BiConsumer<TaxonomyWalkAccumulator, TaxonomyWalkAccumulator> {
+   /** The Constant MAX_PRINT_COUNT. */
    private static final int MAX_PRINT_COUNT = 10;
 
    //~--- fields --------------------------------------------------------------
 
-   final OpenIntHashSet     watchSequences = new OpenIntHashSet();
-   int                      errorCount     = 0;
-   int                      printCount     = 0;
+   /** The watch sequences. */
+   final OpenIntHashSet watchSequences = new OpenIntHashSet();
+
+   /** The error count. */
+   int errorCount = 0;
+
+   /** The print count. */
+   int printCount = 0;
+
+   /** The taxonomy coordinate. */
    final TaxonomyCoordinate taxonomyCoordinate;
-   final int                taxonomyFlags;
+
+   /** The taxonomy flags. */
+   final int taxonomyFlags;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new taxonomy walk collector.
+    *
+    * @param taxonomyCoordinate the taxonomy coordinate
+    */
    public TaxonomyWalkCollector(TaxonomyCoordinate taxonomyCoordinate) {
       this.taxonomyCoordinate = taxonomyCoordinate;
-      taxonomyFlags           = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(taxonomyCoordinate);
+      this.taxonomyFlags      = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(taxonomyCoordinate);
 
-      int watchNid = Get.identifierService()
-                        .getNidForUuids(UUID.fromString("df79ab93-4436-35b8-be3f-2a8e5849d732"));
+      final int watchNid = Get.identifierService()
+                              .getNidForUuids(UUID.fromString("df79ab93-4436-35b8-be3f-2a8e5849d732"));
 
-      watchSequences.add(Get.identifierService()
-                            .getConceptSequence(watchNid));
+      this.watchSequences.add(Get.identifierService()
+                                 .getConceptSequence(watchNid));
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Accept.
+    *
+    * @param accumulator the accumulator
+    * @param conceptSequence the concept sequence
+    */
    @Override
    public void accept(TaxonomyWalkAccumulator accumulator, int conceptSequence) {
-      if (watchSequences.contains(conceptSequence)) {
+      if (this.watchSequences.contains(conceptSequence)) {
          accumulator.watchConcept = Get.conceptService()
                                        .getConcept(conceptSequence);
       } else {
@@ -105,17 +127,17 @@ public class TaxonomyWalkCollector
       }
 
       if (Get.conceptService()
-             .isConceptActive(conceptSequence, taxonomyCoordinate.getStampCoordinate())) {
-         IntStream parentSequences = Get.taxonomyService()
-                                        .getTaxonomyParentSequences(conceptSequence, taxonomyCoordinate);
-         int parentCount = (int) parentSequences.count();
+             .isConceptActive(conceptSequence, this.taxonomyCoordinate.getStampCoordinate())) {
+         final IntStream parentSequences = Get.taxonomyService()
+                                              .getTaxonomyParentSequences(conceptSequence, this.taxonomyCoordinate);
+         final int parentCount = (int) parentSequences.count();
 
          if (parentCount == 0) {
-            ConceptChronology<?> c = Get.conceptService()
-                                        .getConcept(conceptSequence);
+            final ConceptChronology<?> c = Get.conceptService()
+                                              .getConcept(conceptSequence);
 
-            if (printCount < MAX_PRINT_COUNT) {
-               printCount++;
+            if (this.printCount < MAX_PRINT_COUNT) {
+               this.printCount++;
                LogManager.getLogger()
                          .warn("No parents for: " + c.toUserString());
             }
@@ -125,6 +147,12 @@ public class TaxonomyWalkCollector
       }
    }
 
+   /**
+    * Accept.
+    *
+    * @param t the t
+    * @param u the u
+    */
    @Override
    public void accept(TaxonomyWalkAccumulator t, TaxonomyWalkAccumulator u) {
       t.combine(u);

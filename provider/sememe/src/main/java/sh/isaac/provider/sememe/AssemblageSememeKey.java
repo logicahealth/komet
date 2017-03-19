@@ -40,16 +40,26 @@
 package sh.isaac.provider.sememe;
 
 /**
+ * The Class AssemblageSememeKey.
  *
  * @author kec
  */
 public class AssemblageSememeKey
          implements Comparable<AssemblageSememeKey> {
+   /** The assemblage sequence. */
    int assemblageSequence;
+
+   /** The sememe sequence. */
    int sememeSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new assemblage sememe key.
+    *
+    * @param assemblageKey the assemblage key
+    * @param sememeSequence the sememe sequence
+    */
    public AssemblageSememeKey(int assemblageKey, int sememeSequence) {
       this.assemblageSequence = assemblageKey;
       this.sememeSequence     = sememeSequence;
@@ -57,27 +67,39 @@ public class AssemblageSememeKey
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(AssemblageSememeKey o) {
-      if (assemblageSequence != o.assemblageSequence) {
-         if (assemblageSequence < o.assemblageSequence) {
+      if (this.assemblageSequence != o.assemblageSequence) {
+         if (this.assemblageSequence < o.assemblageSequence) {
             return -1;
          }
 
          return 1;
       }
 
-      if (sememeSequence == o.sememeSequence) {
+      if (this.sememeSequence == o.sememeSequence) {
          return 0;
       }
 
-      if (sememeSequence < o.sememeSequence) {
+      if (this.sememeSequence < o.sememeSequence) {
          return -1;
       }
 
       return 1;
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -88,37 +110,57 @@ public class AssemblageSememeKey
          return false;
       }
 
-      AssemblageSememeKey otherKey = (AssemblageSememeKey) o;
+      final AssemblageSememeKey otherKey = (AssemblageSememeKey) o;
 
-      if (assemblageSequence != otherKey.assemblageSequence) {
+      if (this.assemblageSequence != otherKey.assemblageSequence) {
          return false;
       }
 
-      return sememeSequence == otherKey.sememeSequence;
+      return this.sememeSequence == otherKey.sememeSequence;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
-      int result = assemblageSequence;
+      int result = this.assemblageSequence;
 
-      result = 31 * result + sememeSequence;
+      result = 31 * result + this.sememeSequence;
       return result;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "AssemblageSememeKey{" + "assemblageSequence=" + assemblageSequence + ", sememeSequence=" +
-             sememeSequence + '}';
+      return "AssemblageSememeKey{" + "assemblageSequence=" + this.assemblageSequence + ", sememeSequence=" +
+             this.sememeSequence + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the assemblage sequence.
+    *
+    * @return the assemblage sequence
+    */
    public int getAssemblageSequence() {
-      return assemblageSequence;
+      return this.assemblageSequence;
    }
 
+   /**
+    * Gets the sememe sequence.
+    *
+    * @return the sememe sequence
+    */
    public int getSememeSequence() {
-      return sememeSequence;
+      return this.sememeSequence;
    }
 }
 

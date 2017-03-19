@@ -56,26 +56,39 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeSequenceTest}
+ * {@link DynamicSememeSequenceTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeSequenceTest {
+   /**
+    * Test serialization.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      int[] testValues = new int[] {
+      final int[] testValues = new int[] {
          Integer.MIN_VALUE, Integer.MAX_VALUE, 0, 4, 6, 984, -234, -29837, 4532
       };
 
-      for (int i: testValues) {
+      for (final int i: testValues) {
          test(i);
       }
    }
 
+   /**
+    * Test.
+    *
+    * @param value the value
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private void test(int value)
             throws PropertyVetoException, IOException {
-      DynamicSememeSequenceImpl i = new DynamicSememeSequenceImpl(value);
+      final DynamicSememeSequenceImpl i = new DynamicSememeSequenceImpl(value);
 
       assertEquals(value, i.getDataSequence());
       assertEquals(value, ((Integer) i.getDataObject()).intValue());

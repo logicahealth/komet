@@ -55,30 +55,43 @@ import javax.xml.bind.annotation.XmlAttribute;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.State;
-import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StampUniversal.
  *
  * @author kec
  */
 public class StampUniversal {
+   /** The status. */
    @XmlAttribute
    public State status;
+
+   /** The time. */
    @XmlAttribute
-   public long  time;
+   public long time;
+
+   /** The author uuid. */
    @XmlAttribute
-   public UUID  authorUuid;
+   public UUID authorUuid;
+
+   /** The module uuid. */
    @XmlAttribute
-   public UUID  moduleUuid;
+   public UUID moduleUuid;
+
+   /** The path uuid. */
    @XmlAttribute
-   public UUID  pathUuid;
+   public UUID pathUuid;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new stamp universal.
+    *
+    * @param in the in
+    */
    public StampUniversal(ByteArrayDataBuffer in) {
       this.status     = State.getFromBoolean(in.getBoolean());
       this.time       = in.getLong();
@@ -87,9 +100,14 @@ public class StampUniversal {
       this.pathUuid   = new UUID(in.getLong(), in.getLong());
    }
 
+   /**
+    * Instantiates a new stamp universal.
+    *
+    * @param stamp the stamp
+    */
    public StampUniversal(int stamp) {
-      StampService      stampService = Get.stampService();
-      IdentifierService idService    = Get.identifierService();
+      final StampService      stampService = Get.stampService();
+      final IdentifierService idService    = Get.identifierService();
 
       this.status     = stampService.getStatusForStamp(stamp);
       this.time       = stampService.getTimeForStamp(stamp);
@@ -103,9 +121,14 @@ public class StampUniversal {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Write external.
+    *
+    * @param out the out
+    */
    public void writeExternal(ByteArrayDataBuffer out) {
       out.putBoolean(this.status.getBoolean());
-      out.putLong(time);
+      out.putLong(this.time);
       out.putLong(this.authorUuid.getMostSignificantBits());
       out.putLong(this.authorUuid.getLeastSignificantBits());
       out.putLong(this.moduleUuid.getMostSignificantBits());
@@ -116,43 +139,85 @@ public class StampUniversal {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the author uuid.
+    *
+    * @return the author uuid
+    */
    public UUID getAuthorUuid() {
-      return authorUuid;
+      return this.authorUuid;
    }
 
+   /**
+    * Gets the.
+    *
+    * @param in the in
+    * @return the stamp universal
+    */
    public static StampUniversal get(ByteArrayDataBuffer in) {
       return new StampUniversal(in);
    }
 
+   /**
+    * Gets the.
+    *
+    * @param stampSequence the stamp sequence
+    * @return the stamp universal
+    */
    public static StampUniversal get(int stampSequence) {
       return new StampUniversal(stampSequence);
    }
 
+   /**
+    * Gets the module uuid.
+    *
+    * @return the module uuid
+    */
    public UUID getModuleUuid() {
-      return moduleUuid;
+      return this.moduleUuid;
    }
 
+   /**
+    * Gets the path uuid.
+    *
+    * @return the path uuid
+    */
    public UUID getPathUuid() {
-      return pathUuid;
+      return this.pathUuid;
    }
 
+   /**
+    * Gets the stamp sequence.
+    *
+    * @return the stamp sequence
+    */
    public int getStampSequence() {
-      IdentifierService idService = Get.identifierService();
+      final IdentifierService idService = Get.identifierService();
 
       return Get.stampService()
-                .getStampSequence(status,
-                                  time,
+                .getStampSequence(this.status,
+                                  this.time,
                                   idService.getConceptSequenceForUuids(this.authorUuid),
                                   idService.getConceptSequenceForUuids(this.moduleUuid),
                                   idService.getConceptSequenceForUuids(this.pathUuid));
    }
 
+   /**
+    * Gets the status.
+    *
+    * @return the status
+    */
    public State getStatus() {
-      return status;
+      return this.status;
    }
 
+   /**
+    * Gets the time.
+    *
+    * @return the time
+    */
    public long getTime() {
-      return time;
+      return this.time;
    }
 }
 

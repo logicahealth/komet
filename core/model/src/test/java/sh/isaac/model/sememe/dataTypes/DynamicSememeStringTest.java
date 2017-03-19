@@ -56,29 +56,42 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeStringTest}
+ * {@link DynamicSememeStringTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeStringTest {
+   /**
+    * Test serialization.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      String[] testValues = new String[] { "", "sdfds", "ksldjflksdjfklsdjlfjsdlkfjdsljflksdjfklsd" };
+      final String[] testValues = new String[] { "", "sdfds", "ksldjflksdjfklsdjlfjsdlkfjdsljflksdjfklsd" };
 
-      for (String i: testValues) {
+      for (final String i: testValues) {
          test(i);
       }
    }
 
+   /**
+    * Test.
+    *
+    * @param value the value
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private void test(String value)
             throws PropertyVetoException, IOException {
-      DynamicSememeStringImpl i = new DynamicSememeStringImpl(value);
+      final DynamicSememeStringImpl i = new DynamicSememeStringImpl(value);
 
       assertEquals(value, i.getDataString());
-      assertEquals(value, (String) i.getDataObject());
-      assertEquals(value, (String) i.getDataObjectProperty()
-                                    .get());
+      assertEquals(value, i.getDataObject());
+      assertEquals(value, i.getDataObjectProperty()
+                           .get());
       assertEquals(i.getDynamicSememeDataType(), DynamicSememeDataType.STRING);
    }
 }

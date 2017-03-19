@@ -41,8 +41,6 @@ package sh.isaac.provider.workflow.model.contents;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.text.SimpleDateFormat;
-
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -66,16 +64,17 @@ import sh.isaac.model.WaitFreeComparable;
  */
 public abstract class AbstractStorableWorkflowContents
          implements WaitFreeComparable {
-   /** The Logger made available to each Workflow Content Store Entry class */
+   /** The Logger made available to each Workflow Content Store Entry class. */
    protected final Logger logger = LogManager.getLogger();
 
-   /**
-    * As every content store entry is key-value based and as all keys are of
-    * type UUID, add in abstract
-    */
+   /** As every content store entry is key-value based and as all keys are of type UUID, add in abstract. */
    protected UUID id;
-   private long   primordialUuidMsb;
-   private long   primordialUuidLsb;
+
+   /** The primordial uuid msb. */
+   private long primordialUuidMsb;
+
+   /** The primordial uuid lsb. */
+   private long primordialUuidLsb;
 
    /**
     * The write sequence is incremented each time data is written, and provides
@@ -101,8 +100,18 @@ public abstract class AbstractStorableWorkflowContents
       out.putInt(0);  // last data is a zero length version record
    }
 
+   /**
+    * Put additional workflow fields.
+    *
+    * @param out the out
+    */
    protected abstract void putAdditionalWorkflowFields(ByteArrayDataBuffer out);
 
+   /**
+    * Read data.
+    *
+    * @param data the data
+    */
    protected void readData(ByteArrayDataBuffer data) {
       if (data.getObjectDataFormatVersion() != 0) {
          throw new UnsupportedOperationException("Can't handle data format version: " +
@@ -134,18 +143,24 @@ public abstract class AbstractStorableWorkflowContents
     */
    protected void writeWorkflowData(ByteArrayDataBuffer data) {
       if (!data.isExternalData()) {
-         data.putInt(writeSequence);
+         data.putInt(this.writeSequence);
       }
 
-      primordialUuidMsb = id.getMostSignificantBits();
-      primordialUuidLsb = id.getLeastSignificantBits();
-      data.putLong(primordialUuidMsb);
-      data.putLong(primordialUuidLsb);
+      this.primordialUuidMsb = this.id.getMostSignificantBits();
+      this.primordialUuidLsb = this.id.getLeastSignificantBits();
+      data.putLong(this.primordialUuidMsb);
+      data.putLong(this.primordialUuidLsb);
       putAdditionalWorkflowFields(data);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the additional workflow fields.
+    *
+    * @param in the in
+    * @return the additional workflow fields
+    */
    protected abstract void getAdditionalWorkflowFields(ByteArrayDataBuffer in);
 
    /**
@@ -169,7 +184,7 @@ public abstract class AbstractStorableWorkflowContents
       setWriteSequence(writeSequence);
 
       // creating a brand new object
-      ByteArrayDataBuffer db = new ByteArrayDataBuffer(10);
+      final ByteArrayDataBuffer db = new ByteArrayDataBuffer(10);
 
       writeWorkflowData(db);
       db.putInt(0);  // zero length version record.
@@ -178,35 +193,44 @@ public abstract class AbstractStorableWorkflowContents
    }
 
    /**
-    * Return an entry's key
+    * Return an entry's key.
     *
     * @return content-store entry key
     */
    public UUID getId() {
-      return id;
+      return this.id;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Set an entry's key
+    * Set an entry's key.
     *
-    * @param key
-    * The key to each content-store entry
+    * @param key The key to each content-store entry
     */
    public void setId(UUID key) {
-      id = key;
+      this.id = key;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the write sequence is incremented each time data is written, and provides a check to see if this chronicle has had any changes written since the data for this chronicle was read. If the write sequence does not match the write sequences in the persistence storage, the data needs to be merged prior to writing, according to the principles of a {@code WaitFreeComparable} object.
+    *
+    * @return the write sequence is incremented each time data is written, and provides a check to see if this chronicle has had any changes written since the data for this chronicle was read
+    */
    @Override
    public int getWriteSequence() {
-      return writeSequence;
+      return this.writeSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set write sequence is incremented each time data is written, and provides a check to see if this chronicle has had any changes written since the data for this chronicle was read. If the write sequence does not match the write sequences in the persistence storage, the data needs to be merged prior to writing, according to the principles of a {@code WaitFreeComparable} object.
+    *
+    * @param writeSequence the new write sequence is incremented each time data is written, and provides a check to see if this chronicle has had any changes written since the data for this chronicle was read
+    */
    @Override
    public void setWriteSequence(int writeSequence) {
       this.writeSequence = writeSequence;

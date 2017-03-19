@@ -56,7 +56,6 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.collections.StampSequenceSet;
-import sh.isaac.api.externalizable.OchreExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -65,17 +64,41 @@ import sh.isaac.api.externalizable.OchreExternalizable;
  * @author kec
  */
 public class CommitRecord {
-   protected Instant            commitTime;
-   protected StampSequenceSet   stampsInCommit;
-   protected AbstractIntIntMap  stampAliases;
-   protected String             commitComment;
+   /** The commit time. */
+   protected Instant commitTime;
+
+   /** The stamps in commit. */
+   protected StampSequenceSet stampsInCommit;
+
+   /** The stamp aliases. */
+   protected AbstractIntIntMap stampAliases;
+
+   /** The commit comment. */
+   protected String commitComment;
+
+   /** The concepts in commit. */
    protected ConceptSequenceSet conceptsInCommit;
-   protected SememeSequenceSet  sememesInCommit;
+
+   /** The sememes in commit. */
+   protected SememeSequenceSet sememesInCommit;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new commit record.
+    */
    public CommitRecord() {}
 
+   /**
+    * Instantiates a new commit record.
+    *
+    * @param commitTime the commit time
+    * @param stampsInCommit the stamps in commit
+    * @param stampAliases the stamp aliases
+    * @param conceptsInCommit the concepts in commit
+    * @param sememesInCommit the sememes in commit
+    * @param commitComment the commit comment
+    */
    public CommitRecord(Instant commitTime,
                        StampSequenceSet stampsInCommit,
                        OpenIntIntHashMap stampAliases,
@@ -92,37 +115,72 @@ public class CommitRecord {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "CommitRecord{" + "commitTime=" + commitTime + ", stampsInCommit=" + stampsInCommit + ", stampAliases=" +
-             stampAliases + ", commitComment=" + commitComment + ", conceptsInCommit=" + conceptsInCommit +
-             ", sememesInCommit=" + sememesInCommit + '}';
+      return "CommitRecord{" + "commitTime=" + this.commitTime + ", stampsInCommit=" + this.stampsInCommit +
+             ", stampAliases=" + this.stampAliases + ", commitComment=" + this.commitComment + ", conceptsInCommit=" +
+             this.conceptsInCommit + ", sememesInCommit=" + this.sememesInCommit + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the commit comment.
+    *
+    * @return the commit comment
+    */
    public String getCommitComment() {
-      return commitComment;
+      return this.commitComment;
    }
 
+   /**
+    * Gets the commit time.
+    *
+    * @return the commit time
+    */
    public Instant getCommitTime() {
-      return commitTime;
+      return this.commitTime;
    }
 
+   /**
+    * Gets the concepts in commit.
+    *
+    * @return the concepts in commit
+    */
    public ConceptSequenceSet getConceptsInCommit() {
-      return conceptsInCommit;
+      return this.conceptsInCommit;
    }
 
+   /**
+    * Gets the sememes in commit.
+    *
+    * @return the sememes in commit
+    */
    public SememeSequenceSet getSememesInCommit() {
-      return sememesInCommit;
+      return this.sememesInCommit;
    }
 
+   /**
+    * Gets the stamp aliases.
+    *
+    * @return the stamp aliases
+    */
    public AbstractIntIntMap getStampAliases() {
-      return stampAliases;
+      return this.stampAliases;
    }
 
+   /**
+    * Gets the stamps in commit.
+    *
+    * @return the stamps in commit
+    */
    public StampSequenceSet getStampsInCommit() {
-      return stampsInCommit;
+      return this.stampsInCommit;
    }
 }
 

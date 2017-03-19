@@ -41,8 +41,6 @@ package sh.isaac.provider.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,61 +52,107 @@ import javax.xml.bind.annotation.XmlTransient;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class WhereClause.
  *
  * @author kec
  */
 @XmlRootElement(name = "clause")
 @XmlAccessorType(value = XmlAccessType.PROPERTY)
 public class WhereClause {
-   List<String>      letKeys  = new ArrayList<>();
+   /** The let keys. */
+   List<String> letKeys = new ArrayList<>();
+
+   /** The children. */
    List<WhereClause> children = new ArrayList<>();
-   ClauseSemantic    semantic;
+
+   /** The semantic. */
+   ClauseSemantic semantic;
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the children.
+    *
+    * @return the children
+    */
    public List<WhereClause> getChildren() {
-      return children;
+      return this.children;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the children.
+    *
+    * @param children the new children
+    */
    public void setChildren(List<WhereClause> children) {
       this.children = children;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the let keys.
+    *
+    * @return the let keys
+    */
    public List<String> getLetKeys() {
-      return letKeys;
+      return this.letKeys;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the let keys.
+    *
+    * @param letKeys the new let keys
+    */
    public void setLetKeys(List<String> letKeys) {
       this.letKeys = letKeys;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the semantic.
+    *
+    * @return the semantic
+    */
    @XmlTransient
    public ClauseSemantic getSemantic() {
-      return semantic;
+      return this.semantic;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the semantic.
+    *
+    * @param semantic the new semantic
+    */
    public void setSemantic(ClauseSemantic semantic) {
       this.semantic = semantic;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the semantic string.
+    *
+    * @return the semantic string
+    */
    public String getSemanticString() {
-      return semantic.name();
+      return this.semantic.name();
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the semantic string.
+    *
+    * @param semanticName the new semantic string
+    */
    public void setSemanticString(String semanticName) {
       this.semantic = ClauseSemantic.valueOf(semanticName);
    }

@@ -89,24 +89,16 @@ public class ProcessHistory
    /** The sequence in the process which the history represents. */
    private int historySequence;
 
-   /**
-    * Process uuid most significant bits
-    */
+   /** Process uuid most significant bits. */
    private long processIdMsb;
 
-   /**
-    * Process uuid least significant bits
-    */
+   /** Process uuid least significant bits. */
    private long processIdLsb;
 
-   /**
-    * User uuid most significant bits
-    */
+   /** User uuid most significant bits. */
    private long userIdMsb;
 
-   /**
-    * User uuid least significant bits
-    */
+   /** User uuid least significant bits. */
    private long userIdLsb;
 
    //~--- constructors --------------------------------------------------------
@@ -124,14 +116,14 @@ public class ProcessHistory
    /**
     * Constructor for a new process history based on specified entry fields.
     *
-    * @param processId
-    * @param userId
-    * @param timeAdvanced
-    * @param initialState
-    * @param action
-    * @param outcomeState
-    * @param comment
-    * @param historySequence
+    * @param processId the process id
+    * @param userId the user id
+    * @param timeAdvanced the time advanced
+    * @param initialState the initial state
+    * @param action the action
+    * @param outcomeState the outcome state
+    * @param comment the comment
+    * @param historySequence the history sequence
     */
    public ProcessHistory(UUID processId,
                          UUID userId,
@@ -157,9 +149,15 @@ public class ProcessHistory
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
-      ProcessHistory other = (ProcessHistory) obj;
+      final ProcessHistory other = (ProcessHistory) obj;
 
       return this.processId.equals(other.processId) &&
              this.userId.equals(other.userId) &&
@@ -171,36 +169,52 @@ public class ProcessHistory
              (this.historySequence == other.historySequence);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
-      return processId.hashCode() + userId.hashCode() + new Long(timeAdvanced).hashCode() + initialState.hashCode() +
-             action.hashCode() + outcomeState.hashCode() + comment.hashCode() + historySequence;
+      return this.processId.hashCode() + this.userId.hashCode() + new Long(this.timeAdvanced).hashCode() +
+             this.initialState.hashCode() + this.action.hashCode() + this.outcomeState.hashCode() +
+             this.comment.hashCode() + this.historySequence;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      LocalDateTime date = LocalDateTime.from(Instant.ofEpochMilli(timeAdvanced)
-                                                     .atZone(ZoneId.systemDefault()));
-      String        timeAdvancedString = BPMNInfo.workflowDateFormatter.format(date);
+      final LocalDateTime date = LocalDateTime.from(Instant.ofEpochMilli(this.timeAdvanced)
+                                                           .atZone(ZoneId.systemDefault()));
+      final String timeAdvancedString = BPMNInfo.workflowDateFormatter.format(date);
 
-      return "\n\t\tId: " + id + "\n\t\tProcess Id: " + processId + "\n\t\tWorkflowUser Id: " + userId +
-             "\n\t\tTime Advanced as Long: " + timeAdvanced + "\n\t\tTime Advanced: " + timeAdvancedString +
-             "\n\t\tInitial State: " + initialState + "\n\t\tAction: " + action + "\n\t\tOutcome State: " +
-             outcomeState + "\n\t\tComment: " + comment + "\n\t\tHistory Sequence: " + historySequence;
+      return "\n\t\tId: " + this.id + "\n\t\tProcess Id: " + this.processId + "\n\t\tWorkflowUser Id: " + this.userId +
+             "\n\t\tTime Advanced as Long: " + this.timeAdvanced + "\n\t\tTime Advanced: " + timeAdvancedString +
+             "\n\t\tInitial State: " + this.initialState + "\n\t\tAction: " + this.action + "\n\t\tOutcome State: " +
+             this.outcomeState + "\n\t\tComment: " + this.comment + "\n\t\tHistory Sequence: " + this.historySequence;
    }
 
+   /**
+    * Put additional workflow fields.
+    *
+    * @param out the out
+    */
    @Override
    protected void putAdditionalWorkflowFields(ByteArrayDataBuffer out) {
-      out.putLong(processIdMsb);
-      out.putLong(processIdLsb);
-      out.putLong(userIdMsb);
-      out.putLong(userIdLsb);
-      out.putLong(timeAdvanced);
-      out.putByteArrayField(initialState.getBytes());
-      out.putByteArrayField(action.getBytes());
-      out.putByteArrayField(outcomeState.getBytes());
-      out.putByteArrayField(comment.getBytes());
-      out.putInt(historySequence);
+      out.putLong(this.processIdMsb);
+      out.putLong(this.processIdLsb);
+      out.putLong(this.userIdMsb);
+      out.putLong(this.userIdLsb);
+      out.putLong(this.timeAdvanced);
+      out.putByteArrayField(this.initialState.getBytes());
+      out.putByteArrayField(this.action.getBytes());
+      out.putByteArrayField(this.outcomeState.getBytes());
+      out.putByteArrayField(this.comment.getBytes());
+      out.putInt(this.historySequence);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -211,23 +225,29 @@ public class ProcessHistory
     * @return the action taken
     */
    public String getAction() {
-      return action;
+      return this.action;
    }
 
+   /**
+    * Gets the additional workflow fields.
+    *
+    * @param in the in
+    * @return the additional workflow fields
+    */
    @Override
    protected void getAdditionalWorkflowFields(ByteArrayDataBuffer in) {
-      processIdMsb    = in.getLong();
-      processIdLsb    = in.getLong();
-      userIdMsb       = in.getLong();
-      userIdLsb       = in.getLong();
-      timeAdvanced    = in.getLong();
-      initialState    = new String(in.getByteArrayField());
-      action          = new String(in.getByteArrayField());
-      outcomeState    = new String(in.getByteArrayField());
-      comment         = new String(in.getByteArrayField());
-      historySequence = in.getInt();
-      processId       = new UUID(processIdMsb, processIdLsb);
-      userId          = new UUID(userIdMsb, userIdLsb);
+      this.processIdMsb    = in.getLong();
+      this.processIdLsb    = in.getLong();
+      this.userIdMsb       = in.getLong();
+      this.userIdLsb       = in.getLong();
+      this.timeAdvanced    = in.getLong();
+      this.initialState    = new String(in.getByteArrayField());
+      this.action          = new String(in.getByteArrayField());
+      this.outcomeState    = new String(in.getByteArrayField());
+      this.comment         = new String(in.getByteArrayField());
+      this.historySequence = in.getInt();
+      this.processId       = new UUID(this.processIdMsb, this.processIdLsb);
+      this.userId          = new UUID(this.userIdMsb, this.userIdLsb);
    }
 
    /**
@@ -236,7 +256,7 @@ public class ProcessHistory
     * @return the comment
     */
    public String getComment() {
-      return comment;
+      return this.comment;
    }
 
    /**
@@ -245,7 +265,7 @@ public class ProcessHistory
     * @return the history sequence
     */
    public int getHistorySequence() {
-      return historySequence;
+      return this.historySequence;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -253,10 +273,11 @@ public class ProcessHistory
    /**
     * Sets the sequence within the process which the history represents.
     *
+    * @param seq the new sequence in the process which the history represents
     * @return the history sequence
     */
    public void setHistorySequence(int seq) {
-      historySequence = seq;
+      this.historySequence = seq;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -267,7 +288,7 @@ public class ProcessHistory
     * @return the initial state of the process
     */
    public String getInitialState() {
-      return initialState;
+      return this.initialState;
    }
 
    /**
@@ -276,7 +297,7 @@ public class ProcessHistory
     * @return the outcome state
     */
    public String getOutcomeState() {
-      return outcomeState;
+      return this.outcomeState;
    }
 
    /**
@@ -285,7 +306,7 @@ public class ProcessHistory
     * @return process key
     */
    public UUID getProcessId() {
-      return processId;
+      return this.processId;
    }
 
    /**
@@ -294,7 +315,7 @@ public class ProcessHistory
     * @return the time the process was advanced
     */
    public long getTimeAdvanced() {
-      return timeAdvanced;
+      return this.timeAdvanced;
    }
 
    /**
@@ -303,7 +324,7 @@ public class ProcessHistory
     * @return the user nid
     */
    public UUID getUserId() {
-      return userId;
+      return this.userId;
    }
 
    //~--- inner classes -------------------------------------------------------
@@ -315,16 +336,26 @@ public class ProcessHistory
     */
    public static class ProcessHistoryComparator
             implements Comparator<ProcessHistory> {
+      /**
+       * Instantiates a new process history comparator.
+       */
       public ProcessHistoryComparator() {}
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Compare.
+       *
+       * @param o1 the o 1
+       * @param o2 the o 2
+       * @return the int
+       */
       @Override
       public int compare(ProcessHistory o1, ProcessHistory o2) {
          if (o1.getProcessId()
                .equals(o2.getProcessId())) {
-            long seq1 = o1.getHistorySequence();
-            long seq2 = o2.getHistorySequence();
+            final long seq1 = o1.getHistorySequence();
+            final long seq2 = o2.getHistorySequence();
 
             if (seq1 > seq2) {
                return 1;

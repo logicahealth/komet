@@ -66,26 +66,52 @@ import sh.isaac.model.observable.ObservableFields;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableVersionImpl.
  *
  * @author kec
- * @param <OV>
- * @param <V>
+ * @param <OV> the generic type
+ * @param <V> the value type
  */
 public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V extends ObjectVersionImpl<?, ?>>
          implements ObservableVersion, CommittableComponent {
-   ObjectProperty<State>              stateProperty;
-   LongProperty                       timeProperty;
-   IntegerProperty                    authorSequenceProperty;
-   IntegerProperty                    moduleSequenceProperty;
-   IntegerProperty                    pathSequenceProperty;
-   ObjectProperty<CommitStates>       commitStateProperty;
-   ObjectBinding<CommitStates>        commitStateBinding;
-   IntegerProperty                    stampSequenceProperty;
-   protected V                        stampedVersion;
+   /** The state property. */
+   ObjectProperty<State> stateProperty;
+
+   /** The time property. */
+   LongProperty timeProperty;
+
+   /** The author sequence property. */
+   IntegerProperty authorSequenceProperty;
+
+   /** The module sequence property. */
+   IntegerProperty moduleSequenceProperty;
+
+   /** The path sequence property. */
+   IntegerProperty pathSequenceProperty;
+
+   /** The commit state property. */
+   ObjectProperty<CommitStates> commitStateProperty;
+
+   /** The commit state binding. */
+   ObjectBinding<CommitStates> commitStateBinding;
+
+   /** The stamp sequence property. */
+   IntegerProperty stampSequenceProperty;
+
+   /** The stamped version. */
+   protected V stampedVersion;
+
+   /** The chronology. */
    protected ObservableChronology<OV> chronology;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new observable version impl.
+    *
+    * @param stampedVersion the stamped version
+    * @param chronology the chronology
+    */
    public ObservableVersionImpl(V stampedVersion, ObservableChronology<OV> chronology) {
       this.stampedVersion = stampedVersion;
       this.chronology     = chronology;
@@ -93,160 +119,225 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Author sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public final IntegerProperty authorSequenceProperty() {
-      if (authorSequenceProperty == null) {
-         authorSequenceProperty = new CommitAwareIntegerProperty(this,
+      if (this.authorSequenceProperty == null) {
+         this.authorSequenceProperty = new CommitAwareIntegerProperty(this,
                ObservableFields.AUTHOR_SEQUENCE_FOR_VERSION.toExternalString(),
                getAuthorSequence());
       }
 
-      return authorSequenceProperty;
+      return this.authorSequenceProperty;
    }
 
+   /**
+    * Commit state property.
+    *
+    * @return the object property
+    */
    @Override
    public final ObjectProperty<CommitStates> commitStateProperty() {
-      if (commitStateProperty == null) {
-         commitStateBinding = new ObjectBinding<CommitStates>() {
+      if (this.commitStateProperty == null) {
+         this.commitStateBinding = new ObjectBinding<CommitStates>() {
             @Override
             protected CommitStates computeValue() {
-               if (timeProperty.get() == Long.MAX_VALUE) {
+               if (ObservableVersionImpl.this.timeProperty.get() == Long.MAX_VALUE) {
                   return CommitStates.UNCOMMITTED;
                }
 
                return CommitStates.COMMITTED;
             }
          };
-         commitStateProperty = new SimpleObjectProperty(this,
+         this.commitStateProperty = new SimpleObjectProperty(this,
                ObservableFields.COMMITTED_STATE_FOR_VERSION.toExternalString(),
-               commitStateBinding.get());
-         commitStateProperty.bind(commitStateBinding);
+               this.commitStateBinding.get());
+         this.commitStateProperty.bind(this.commitStateBinding);
       }
 
-      return commitStateProperty;
+      return this.commitStateProperty;
    }
 
+   /**
+    * Module sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public final IntegerProperty moduleSequenceProperty() {
-      if (moduleSequenceProperty == null) {
-         moduleSequenceProperty = new CommitAwareIntegerProperty(this,
+      if (this.moduleSequenceProperty == null) {
+         this.moduleSequenceProperty = new CommitAwareIntegerProperty(this,
                ObservableFields.MODULE_SEQUENCE_FOR_VERSION.toExternalString(),
                getModuleSequence());
       }
 
-      return moduleSequenceProperty;
+      return this.moduleSequenceProperty;
    }
 
+   /**
+    * Path sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public final IntegerProperty pathSequenceProperty() {
-      if (pathSequenceProperty == null) {
-         pathSequenceProperty = new CommitAwareIntegerProperty(this,
+      if (this.pathSequenceProperty == null) {
+         this.pathSequenceProperty = new CommitAwareIntegerProperty(this,
                ObservableFields.PATH_SEQUENCE_FOR_VERSION.toExternalString(),
                getPathSequence());
       }
 
-      return pathSequenceProperty;
+      return this.pathSequenceProperty;
    }
 
+   /**
+    * Stamp sequence property.
+    *
+    * @return the integer property
+    */
    @Override
    public final IntegerProperty stampSequenceProperty() {
-      if (stampSequenceProperty == null) {
-         stampSequenceProperty = new CommitAwareIntegerProperty(this,
+      if (this.stampSequenceProperty == null) {
+         this.stampSequenceProperty = new CommitAwareIntegerProperty(this,
                ObservableFields.STAMP_SEQUENCE_FOR_VERSION.toExternalString(),
                getStampSequence());
       }
 
-      return stampSequenceProperty;
+      return this.stampSequenceProperty;
    }
 
+   /**
+    * State property.
+    *
+    * @return the object property
+    */
    @Override
    public final ObjectProperty<State> stateProperty() {
-      if (stateProperty == null) {
-         stateProperty = new CommitAwareObjectProperty<>(this,
+      if (this.stateProperty == null) {
+         this.stateProperty = new CommitAwareObjectProperty<>(this,
                ObservableFields.STATUS_FOR_VERSION.toExternalString(),
                getState());
       }
 
-      return stateProperty;
+      return this.stateProperty;
    }
 
+   /**
+    * Time property.
+    *
+    * @return the long property
+    */
    @Override
    public final LongProperty timeProperty() {
-      if (timeProperty == null) {
-         timeProperty = new CommitAwareLongProperty(this,
+      if (this.timeProperty == null) {
+         this.timeProperty = new CommitAwareLongProperty(this,
                ObservableFields.TIME_FOR_VERSION.toExternalString(),
                getTime());
       }
 
-      return timeProperty;
+      return this.timeProperty;
    }
 
+   /**
+    * To user string.
+    *
+    * @return the string
+    */
    @Override
    public String toUserString() {
       return toString();
    }
 
+   /**
+    * Update version.
+    *
+    * @param stampedVersion the stamped version
+    */
    public void updateVersion(V stampedVersion) {
       this.stampedVersion = stampedVersion;
 
-      if (stampSequenceProperty != null) {
-         stampSequenceProperty.set(stampedVersion.getStampSequence());
+      if (this.stampSequenceProperty != null) {
+         this.stampSequenceProperty.set(stampedVersion.getStampSequence());
       }
 
-      if (commitStateBinding != null) {
-         commitStateBinding.invalidate();
+      if (this.commitStateBinding != null) {
+         this.commitStateBinding.invalidate();
       }
 
-      if (stateProperty != null) {
-         stateProperty.set(stampedVersion.getState());
+      if (this.stateProperty != null) {
+         this.stateProperty.set(stampedVersion.getState());
       }
 
-      if (authorSequenceProperty != null) {
-         authorSequenceProperty.set(stampedVersion.getAuthorSequence());
+      if (this.authorSequenceProperty != null) {
+         this.authorSequenceProperty.set(stampedVersion.getAuthorSequence());
       }
 
-      if (moduleSequenceProperty != null) {
-         moduleSequenceProperty.set(stampedVersion.getModuleSequence());
+      if (this.moduleSequenceProperty != null) {
+         this.moduleSequenceProperty.set(stampedVersion.getModuleSequence());
       }
 
-      if (pathSequenceProperty != null) {
-         pathSequenceProperty.set(stampedVersion.getPathSequence());
+      if (this.pathSequenceProperty != null) {
+         this.pathSequenceProperty.set(stampedVersion.getPathSequence());
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the author sequence.
+    *
+    * @return the author sequence
+    */
    @Override
    public final int getAuthorSequence() {
-      if (authorSequenceProperty != null) {
-         return authorSequenceProperty.get();
+      if (this.authorSequenceProperty != null) {
+         return this.authorSequenceProperty.get();
       }
 
-      return stampedVersion.getAuthorSequence();
+      return this.stampedVersion.getAuthorSequence();
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the author sequence.
+    *
+    * @param authorSequence the new author sequence
+    */
    @Override
    public void setAuthorSequence(int authorSequence) {
-      if (authorSequenceProperty != null) {
-         authorSequenceProperty.set(authorSequence);
+      if (this.authorSequenceProperty != null) {
+         this.authorSequenceProperty.set(authorSequence);
       } else {
-         stampedVersion.setAuthorSequence(authorSequence);
+         this.stampedVersion.setAuthorSequence(authorSequence);
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the chronology.
+    *
+    * @return the chronology
+    */
    @Override
    public ObservableChronology<OV> getChronology() {
-      return chronology;
+      return this.chronology;
    }
 
+   /**
+    * Gets the commit state.
+    *
+    * @return the commit state
+    */
    @Override
    public final CommitStates getCommitState() {
-      if (commitStateProperty != null) {
-         return commitStateProperty.get();
+      if (this.commitStateProperty != null) {
+         return this.commitStateProperty.get();
       }
 
       if (getTime() == Long.MAX_VALUE) {
@@ -256,112 +347,177 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
       return CommitStates.COMMITTED;
    }
 
+   /**
+    * Gets the module sequence.
+    *
+    * @return the module sequence
+    */
    @Override
    public final int getModuleSequence() {
-      if (moduleSequenceProperty != null) {
-         return moduleSequenceProperty.get();
+      if (this.moduleSequenceProperty != null) {
+         return this.moduleSequenceProperty.get();
       }
 
-      return stampedVersion.getModuleSequence();
+      return this.stampedVersion.getModuleSequence();
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the module sequence.
+    *
+    * @param moduleSequence the new module sequence
+    */
    @Override
    public void setModuleSequence(int moduleSequence) {
-      if (moduleSequenceProperty != null) {
-         moduleSequenceProperty.set(moduleSequence);
+      if (this.moduleSequenceProperty != null) {
+         this.moduleSequenceProperty.set(moduleSequence);
       } else {
-         stampedVersion.setModuleSequence(moduleSequence);
+         this.stampedVersion.setModuleSequence(moduleSequence);
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the nid.
+    *
+    * @return the nid
+    */
    @Override
    public int getNid() {
-      return stampedVersion.getNid();
+      return this.stampedVersion.getNid();
    }
 
+   /**
+    * Gets the path sequence.
+    *
+    * @return the path sequence
+    */
    @Override
    public final int getPathSequence() {
-      if (pathSequenceProperty != null) {
-         return pathSequenceProperty.get();
+      if (this.pathSequenceProperty != null) {
+         return this.pathSequenceProperty.get();
       }
 
-      return stampedVersion.getPathSequence();
+      return this.stampedVersion.getPathSequence();
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the path sequence.
+    *
+    * @param pathSequence the new path sequence
+    */
    @Override
    public void setPathSequence(int pathSequence) {
-      if (pathSequenceProperty != null) {
-         pathSequenceProperty.set(pathSequence);
+      if (this.pathSequenceProperty != null) {
+         this.pathSequenceProperty.set(pathSequence);
       } else {
-         stampedVersion.setPathSequence(pathSequence);
+         this.stampedVersion.setPathSequence(pathSequence);
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the primordial uuid.
+    *
+    * @return the primordial uuid
+    */
    @Override
    public UUID getPrimordialUuid() {
-      return stampedVersion.getPrimordialUuid();
+      return this.stampedVersion.getPrimordialUuid();
    }
 
+   /**
+    * Gets the stamp sequence.
+    *
+    * @return the stamp sequence
+    */
    @Override
    public final int getStampSequence() {
-      if (stampSequenceProperty != null) {
-         return stampSequenceProperty.get();
+      if (this.stampSequenceProperty != null) {
+         return this.stampSequenceProperty.get();
       }
 
-      return stampedVersion.getStampSequence();
+      return this.stampedVersion.getStampSequence();
    }
 
+   /**
+    * Gets the state.
+    *
+    * @return the state
+    */
    @Override
    public final State getState() {
-      if (stateProperty != null) {
-         return stateProperty.get();
+      if (this.stateProperty != null) {
+         return this.stateProperty.get();
       }
 
-      return stampedVersion.getState();
+      return this.stampedVersion.getState();
    }
 
+   /**
+    * Gets the time.
+    *
+    * @return the time
+    */
    @Override
    public final long getTime() {
-      if (timeProperty != null) {
-         return timeProperty.get();
+      if (this.timeProperty != null) {
+         return this.timeProperty.get();
       }
 
-      return stampedVersion.getTime();
+      return this.stampedVersion.getTime();
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the time.
+    *
+    * @param time the new time
+    */
    @Override
    public void setTime(long time) {
-      if (timeProperty != null) {
-         timeProperty.set(time);
+      if (this.timeProperty != null) {
+         this.timeProperty.set(time);
       } else {
-         stampedVersion.setTime(time);
+         this.stampedVersion.setTime(time);
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if uncommitted.
+    *
+    * @return true, if uncommitted
+    */
    @Override
    public boolean isUncommitted() {
       return getCommitState() == CommitStates.UNCOMMITTED;
    }
 
+   /**
+    * Gets the uuid list.
+    *
+    * @return the uuid list
+    */
    @Override
    public List<UUID> getUuidList() {
-      return stampedVersion.getUuidList();
+      return this.stampedVersion.getUuidList();
    }
 
+   /**
+    * Gets the version sequence.
+    *
+    * @return the version sequence
+    */
    public short getVersionSequence() {
-      return stampedVersion.getVersionSequence();
+      return this.stampedVersion.getVersionSequence();
    }
 }
 

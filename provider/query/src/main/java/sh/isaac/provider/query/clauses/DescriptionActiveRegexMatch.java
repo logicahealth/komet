@@ -66,19 +66,35 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionActiveRegexMatch
         extends DescriptionRegexMatch {
+   /**
+    * Instantiates a new description active regex match.
+    */
    protected DescriptionActiveRegexMatch() {}
 
+   /**
+    * Instantiates a new description active regex match.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param regexKey the regex key
+    * @param viewCoordinateKey the view coordinate key
+    */
    public DescriptionActiveRegexMatch(Query enclosingQuery, String regexKey, String viewCoordinateKey) {
       super(enclosingQuery, regexKey, viewCoordinateKey);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
-      String                                      regex = (String) enclosingQuery.getLetDeclarations()
-                                                                                 .get(regexKey);
-      ConceptChronology<? extends ConceptVersion> conceptChronology = conceptVersion.getChronology();
+      final String regex = (String) this.enclosingQuery.getLetDeclarations()
+                                                       .get(this.regexKey);
+      final ConceptChronology<? extends ConceptVersion> conceptChronology = conceptVersion.getChronology();
 
       conceptChronology.getConceptDescriptionList().stream().forEach((dc) -> {
                                    dc.getVersionList()
@@ -90,15 +106,20 @@ public class DescriptionActiveRegexMatch
                                 });
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.DESCRIPTION_ACTIVE_REGEX_MATCH);
       whereClause.getLetKeys()
-                 .add(regexKey);
+                 .add(this.regexKey);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       return whereClause;
    }
 }

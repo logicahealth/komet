@@ -52,28 +52,63 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class NativeIntIntHashMap.
  *
  * @author kec
  */
 public class NativeIntIntHashMap
         extends OpenIntIntHashMap {
+   /** The Constant serialVersionUID. */
+   private static final long serialVersionUID = 1L;
+
+   //~--- constructors --------------------------------------------------------
+
+   /**
+    * Instantiates a new native int int hash map.
+    */
    public NativeIntIntHashMap() {}
 
+   /**
+    * Instantiates a new native int int hash map.
+    *
+    * @param initialCapacity the initial capacity
+    */
    public NativeIntIntHashMap(int initialCapacity) {
       super(initialCapacity);
    }
 
+   /**
+    * Instantiates a new native int int hash map.
+    *
+    * @param initialCapacity the initial capacity
+    * @param minLoadFactor the min load factor
+    * @param maxLoadFactor the max load factor
+    */
    public NativeIntIntHashMap(int initialCapacity, double minLoadFactor, double maxLoadFactor) {
       super(initialCapacity, minLoadFactor, maxLoadFactor);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Index of insertion.
+    *
+    * @param key the key
+    * @return the int
+    */
    @Override
    protected int indexOfInsertion(int key) {
-      return indexOfInsertion(key, table, state);
+      return indexOfInsertion(key, this.table, this.state);
    }
 
+   /**
+    * Index of insertion.
+    *
+    * @param key the key
+    * @param newTable the new table
+    * @param newState the new state
+    * @return the int
+    */
    protected int indexOfInsertion(int key, int[] newTable, byte[] newState) {
       final int length = newTable.length;
       final int hash   = HashFunctions.hash(key) & 0x7FFFFFFF;
@@ -132,24 +167,24 @@ public class NativeIntIntHashMap
     * Reimplement rehash so that tables are not exposed until after copying is
     * complete.
     *
-    * @param newCapacity
+    * @param newCapacity the new capacity
     */
    @Override
    protected void rehash(int newCapacity) {
-      int oldCapacity = table.length;
+      final int oldCapacity = this.table.length;
 
       // if (oldCapacity == newCapacity) return;
-      int[]  oldTable  = table;
-      int[]  oldValues = values;
-      byte[] oldState  = state;
-      int[]  newTable  = new int[newCapacity];
-      int[]  newValues = new int[newCapacity];
-      byte[] newState  = new byte[newCapacity];
+      final int[]  oldTable  = this.table;
+      final int[]  oldValues = this.values;
+      final byte[] oldState  = this.state;
+      final int[]  newTable  = new int[newCapacity];
+      final int[]  newValues = new int[newCapacity];
+      final byte[] newState  = new byte[newCapacity];
 
       for (int i = oldCapacity; i-- > 0; ) {
          if (oldState[i] == FULL) {
-            int element = oldTable[i];
-            int index   = indexOfInsertion(element, newTable, newState);
+            final int element = oldTable[i];
+            final int index   = indexOfInsertion(element, newTable, newState);
 
             newTable[index]  = element;
             newValues[index] = oldValues[i];
@@ -160,6 +195,14 @@ public class NativeIntIntHashMap
       updateData(newTable, newValues, newState, newCapacity);
    }
 
+   /**
+    * Update data.
+    *
+    * @param newTable the new table
+    * @param newValues the new values
+    * @param newState the new state
+    * @param newCapacity the new capacity
+    */
    protected void updateData(int[] newTable, int[] newValues, byte[] newState, int newCapacity) {
       this.values        = newValues;
       this.state         = newState;
@@ -171,60 +214,110 @@ public class NativeIntIntHashMap
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the distinct.
+    *
+    * @return the distinct
+    */
    public int getDistinct() {
-      return distinct;
+      return this.distinct;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the distinct.
+    *
+    * @param distinct the new distinct
+    */
    public void setDistinct(int distinct) {
       this.distinct = distinct;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the free entries.
+    *
+    * @return the free entries
+    */
    public int getFreeEntries() {
-      return freeEntries;
+      return this.freeEntries;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the free entries.
+    *
+    * @param freeEntries the new free entries
+    */
    public void setFreeEntries(int freeEntries) {
       this.freeEntries = freeEntries;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the state.
+    *
+    * @return the state
+    */
    public byte[] getState() {
-      return state;
+      return this.state;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the state.
+    *
+    * @param state the new state
+    */
    public void setState(byte[] state) {
       this.state = state;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the table.
+    *
+    * @return the table
+    */
    public int[] getTable() {
-      return table;
+      return this.table;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the table.
+    *
+    * @param table the new table
+    */
    public void setTable(int[] table) {
       this.table = table;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the values.
+    *
+    * @return the values
+    */
    public int[] getValues() {
-      return values;
+      return this.values;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the values.
+    *
+    * @param values the new values
+    */
    public void setValues(int[] values) {
       this.values = values;
    }

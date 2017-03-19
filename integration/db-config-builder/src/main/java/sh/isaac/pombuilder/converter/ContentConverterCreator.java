@@ -81,12 +81,14 @@ import sh.isaac.pombuilder.artifacts.SDOSourceContent;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ContentConverterCreator {
+   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 
    /**
     * Create a source conversion project which is executable via maven.
+    *
     * @param sourceContent - The artifact information for the content to be converted.  The artifact information must follow known naming conventions - group id should
     * be sh.isaac.terminology.source.  Currently supported artifactIds are 'loinc-src-data', 'loinc-src-data-tech-preview', 'rf2-src-data-*', 'vhat'
     * @param converterVersion - The version number of the content converter code to utilize.  The jar file for this converter must be available to the
@@ -101,7 +103,7 @@ public class ContentConverterCreator {
     * @param gitUsername - The username to utilize to publish this project
     * @param gitPassword - the password to utilize to publish this project
     * @return the tag created in the repository that carries the created project
-    * @throws Exception
+    * @throws Exception the exception
     */
    public static String createContentConverter(SDOSourceContent sourceContent,
          String converterVersion,
@@ -117,20 +119,20 @@ public class ContentConverterCreator {
                 converterVersion,
                 gitRepositoryURL);
 
-      File f = Files.createTempDirectory("converter-builder")
-                    .toFile();
+      final File f = Files.createTempDirectory("converter-builder")
+                          .toFile();
 
       try {
-         Pair<SupportedConverterTypes, String> artifactInfo    = getConverterType(sourceContent.getArtifactId());
-         SupportedConverterTypes               conversionType  = artifactInfo.getKey();
-         String                                extensionSuffix = artifactInfo.getValue();
-         StringBuilder                         extraProperties = new StringBuilder();
+         final Pair<SupportedConverterTypes, String> artifactInfo    = getConverterType(sourceContent.getArtifactId());
+         final SupportedConverterTypes               conversionType  = artifactInfo.getKey();
+         final String                                extensionSuffix = artifactInfo.getValue();
+         final StringBuilder                         extraProperties = new StringBuilder();
 
          FileUtil.writeFile("converterProjectTemplate", "src/assembly/MANIFEST.MF", f, new HashMap<>(), "");
          FileUtil.writeFile("shared", "LICENSE.txt", f, new HashMap<>(), "");
 
-         StringBuffer            noticeAppend = new StringBuffer();
-         HashMap<String, String> pomSwaps     = new HashMap<>();
+         final StringBuffer            noticeAppend = new StringBuffer();
+         final HashMap<String, String> pomSwaps     = new HashMap<>();
 
          pomSwaps.put("#VERSION#", sourceContent.getVersion() + "-loader-" + converterVersion);
          pomSwaps.put("#NAME#", conversionType.getNiceName() + " Artifact Converter");
@@ -144,9 +146,9 @@ public class ContentConverterCreator {
          temp = temp.replace("#ARTIFACTID#", sourceContent.getArtifactId());
          temp = temp.replace("#VERSION#", sourceContent.getVersion());
 
-         StringBuilder fetches = new StringBuilder(temp);
+         final StringBuilder fetches = new StringBuilder(temp);
 
-         for (SDOSourceContent ac: additionalSourceDependencies) {
+         for (final SDOSourceContent ac: additionalSourceDependencies) {
             temp = FileUtil.readFile("converterProjectTemplate/pomSnippits/fetchExecution.xml");
             temp = temp.replace("#GROUPID#", ac.getGroupId());
             temp = temp.replace("#ARTIFACTID#", ac.getArtifactId());
@@ -158,14 +160,14 @@ public class ContentConverterCreator {
 
          pomSwaps.put("#FETCH_EXECUTION#", fetches.toString());
 
-         StringBuilder dependencies       = new StringBuilder();
-         StringBuilder unpackArtifacts    = new StringBuilder();
-         String        unpackDependencies = "";
+         final StringBuilder dependencies       = new StringBuilder();
+         final StringBuilder unpackArtifacts    = new StringBuilder();
+         String              unpackDependencies = "";
 
          if (additionalIBDFDependencies.length > 0) {
             unpackDependencies = FileUtil.readFile("converterProjectTemplate/pomSnippits/unpackDependency.xml");
 
-            for (IBDFFile ibdf: additionalIBDFDependencies) {
+            for (final IBDFFile ibdf: additionalIBDFDependencies) {
                temp = FileUtil.readFile("converterProjectTemplate/pomSnippits/ibdfDependency.xml");
                temp = temp.replace("#GROUPID#", ibdf.getGroupId());
                temp = temp.replace("#ARTIFACTID#", ibdf.getArtifactId());
@@ -190,29 +192,29 @@ public class ContentConverterCreator {
          pomSwaps.put("#IBDF_DEPENDENCY#", dependencies.toString());
          pomSwaps.put("#UNPACK_DEPENDENCIES#", unpackDependencies);
 
-         String goal = conversionType.getConverterMojoName();
+         final String goal = conversionType.getConverterMojoName();
 
          pomSwaps.put("#LOADER_ARTIFACT#", conversionType.getConverterArtifactId());
          pomSwaps.put("#ARTIFACTID#", conversionType.getConverterOutputArtifactId() + extensionSuffix);
 
-         StringBuffer licenseInfo = new StringBuffer();
+         final StringBuffer licenseInfo = new StringBuffer();
 
-         for (String s: conversionType.getLicenseInformation()) {
+         for (final String s: conversionType.getLicenseInformation()) {
             licenseInfo.append(s);
          }
 
          pomSwaps.put("#LICENSE#", licenseInfo.toString());
 
-         for (String s: conversionType.getNoticeInformation()) {
+         for (final String s: conversionType.getNoticeInformation()) {
             noticeAppend.append(s);
          }
 
-         StringBuilder userOptions = new StringBuilder();
+         final StringBuilder userOptions = new StringBuilder();
 
          if (converterOptionValues != null) {
-            String optionIndent = "                                                                 ";
+            final String optionIndent = "                                                                 ";
 
-            for (Entry<ConverterOptionParam, Set<String>> option: converterOptionValues.entrySet()) {
+            for (final Entry<ConverterOptionParam, Set<String>> option: converterOptionValues.entrySet()) {
                if (option.getValue() != null) {
                   if (!option.getKey().isAllowMultiSelect() && (option.getValue().size() > 1)) {
                      LOG.info("Throwing exception back because the option " + option.getKey().getDisplayName() +
@@ -233,7 +235,7 @@ public class ContentConverterCreator {
                                .isAllowMultiSelect()) {
                         userOptions.append(optionIndent + "<" + option.getKey().getInternalName() + "s>\n");
 
-                        for (String value: option.getValue()) {
+                        for (final String value: option.getValue()) {
                            userOptions.append(optionIndent + "\t<" + option.getKey().getInternalName() + ">");
 
                            if (UUIDUtil.isUUID(value)) {
@@ -251,9 +253,9 @@ public class ContentConverterCreator {
 
                         userOptions.append(optionIndent + "</" + option.getKey().getInternalName() + "s>");
                      } else {
-                        String value = option.getValue()
-                                             .iterator()
-                                             .next();
+                        final String value = option.getValue()
+                                                   .iterator()
+                                                   .next();
 
                         userOptions.append(optionIndent + "<" + option.getKey().getInternalName() + ">");
 
@@ -279,8 +281,8 @@ public class ContentConverterCreator {
             }
          }
 
-         StringBuilder profiles    = new StringBuilder();
-         String[]      classifiers = new String[] {};
+         final StringBuilder profiles    = new StringBuilder();
+         String[]            classifiers = new String[] {};
 
          switch (conversionType) {
          case SCT:
@@ -293,7 +295,7 @@ public class ContentConverterCreator {
             break;
          }
 
-         for (String classifier: classifiers) {
+         for (final String classifier: classifiers) {
             temp = FileUtil.readFile("converterProjectTemplate/pomSnippits/profile.xml");
             temp = temp.replaceAll("#CLASSIFIER#", classifier);
             temp = temp.replaceAll("#CONVERTER#", conversionType.getConverterArtifactId());
@@ -302,10 +304,10 @@ public class ContentConverterCreator {
             temp = temp.replaceAll("#USER_CONFIGURATION_OPTIONS#", userOptions.toString());
             profiles.append(temp);
 
-            String        assemblyInfo     = FileUtil.readFile("converterProjectTemplate/src/assembly/assembly.xml");
-            StringBuilder assemblySnippits = new StringBuilder();
+            String              assemblyInfo = FileUtil.readFile("converterProjectTemplate/src/assembly/assembly.xml");
+            final StringBuilder assemblySnippits = new StringBuilder();
 
-            for (String classifier2: classifiers) {
+            for (final String classifier2: classifiers) {
                String assemblyRef =
                   FileUtil.readFile("converterProjectTemplate/src/assembly/assemblySnippits/assemblyRef.xml");
 
@@ -321,7 +323,7 @@ public class ContentConverterCreator {
                assemblyInfo = assemblyInfo.replaceAll("#CLASSIFIER#", classifier + "*");
             }
 
-            File assemblyFile = new File(f, "src/assembly/assembly-" + classifier + ".xml");
+            final File assemblyFile = new File(f, "src/assembly/assembly-" + classifier + ".xml");
 
             assemblyFile.getParentFile()
                         .mkdirs();
@@ -333,12 +335,12 @@ public class ContentConverterCreator {
 
          pomSwaps.put("#PROFILE#", profiles.toString());
 
-         String tagWithoutRevNumber = "sh.isaac.terminology.converted" + "/" + pomSwaps.get("#ARTIFACTID#") + "/" +
-                                      pomSwaps.get("#VERSION#");
+         final String tagWithoutRevNumber = "sh.isaac.terminology.converted" + "/" + pomSwaps.get("#ARTIFACTID#") +
+                                            "/" + pomSwaps.get("#VERSION#");
 
          LOG.debug("Generated tag (without rev number): '{}'", tagWithoutRevNumber);
 
-         ArrayList<String> existingTags = GitPublish.readTags(gitRepositoryURL, gitUsername, gitPassword);
+         final ArrayList<String> existingTags = GitPublish.readTags(gitRepositoryURL, gitUsername, gitPassword);
 
          if (LOG.isDebugEnabled()) {
             LOG.debug("Currently Existing tags in '{}': {} ",
@@ -346,8 +348,8 @@ public class ContentConverterCreator {
                       Arrays.toString(existingTags.toArray(new String[existingTags.size()])));
          }
 
-         int    highestBuildRevision = GitPublish.readHighestRevisionNumber(existingTags, tagWithoutRevNumber);
-         String tag;
+         final int highestBuildRevision = GitPublish.readHighestRevisionNumber(existingTags, tagWithoutRevNumber);
+         String    tag;
 
          // Fix version number
          if (highestBuildRevision == -1) {
@@ -378,7 +380,7 @@ public class ContentConverterCreator {
       } finally {
          try {
             FileUtil.recursiveDelete(f);
-         } catch (Exception e) {
+         } catch (final Exception e) {
             LOG.error("Problem cleaning up temp folder " + f, e);
          }
       }
@@ -393,7 +395,7 @@ public class ContentConverterCreator {
     * @return - the group and artifact id of the converter tool that is capable of handling that content.
     */
    public static Converter getConverterForSourceArtifact(String artifactId) {
-      SupportedConverterTypes supportedConverterType = getConverterType(artifactId).getKey();
+      final SupportedConverterTypes supportedConverterType = getConverterType(artifactId).getKey();
 
       return new Converter(supportedConverterType.getConverterGroupId(),
                            supportedConverterType.getConverterArtifactId(),
@@ -401,6 +403,14 @@ public class ContentConverterCreator {
    }
 
    /**
+    * Gets the converter options.
+    *
+    * @param converter the converter
+    * @param repositoryBaseURL the repository base URL
+    * @param repositoryUsername the repository username
+    * @param repositoryPassword the repository password
+    * @return the converter options
+    * @throws Exception the exception
     * @see {@link ConverterOptionParam#fromArtifact(Converter, String, String, String)};
     */
    public static ConverterOptionParam[] getConverterOptions(Converter converter,
@@ -411,11 +421,17 @@ public class ContentConverterCreator {
       return ConverterOptionParam.fromArtifact(converter, repositoryBaseURL, repositoryUsername, repositoryPassword);
    }
 
+   /**
+    * Gets the converter type.
+    *
+    * @param artifactId the artifact id
+    * @return the converter type
+    */
    private static Pair<SupportedConverterTypes, String> getConverterType(String artifactId) {
       SupportedConverterTypes conversionType  = null;
       String                  extensionSuffix = "";
 
-      for (SupportedConverterTypes type: SupportedConverterTypes.values()) {
+      for (final SupportedConverterTypes type: SupportedConverterTypes.values()) {
          if (type.getArtifactId()
                  .equals(artifactId)) {
             conversionType = type;
@@ -424,8 +440,8 @@ public class ContentConverterCreator {
 
          if (type.getArtifactId()
                  .contains("*")) {
-            String[] temp = type.getArtifactId()
-                                .split("\\*");
+            final String[] temp = type.getArtifactId()
+                                      .split("\\*");
 
             if (artifactId.startsWith(temp[0]) && artifactId.endsWith(temp[1])) {
                conversionType  = type;
@@ -448,7 +464,8 @@ public class ContentConverterCreator {
    /**
     * Return information about all of the supported conversion types, including all of the information types
     * that must be supplied with each converter.
-    * @return
+    *
+    * @return the supported conversions
     */
    public static SupportedConverterTypes[] getSupportedConversions() {
       return SupportedConverterTypes.values();

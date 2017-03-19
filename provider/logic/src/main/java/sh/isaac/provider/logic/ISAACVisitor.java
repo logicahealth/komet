@@ -78,43 +78,65 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link ISAACVisitor}
+ * {@link ISAACVisitor}.
  *
  * @author Tony Weida
  */
 public class ISAACVisitor
         extends SNOMEDCTExpressionBaseVisitor<Object> {
-   private static final String PC_IRI        = "http://snomed.org/postcoord/";
-   private static final String SCTID_IRI     = "http://snomed.info/id/";
-   private static final String ROLEGROUP_IRI = "http://snomed.info/id/609096000";
-   static Logger               logger        = LogManager.getLogger(ISAACVisitor.class);
+   /** The logger. */
+   static Logger logger = LogManager.getLogger(ISAACVisitor.class);
 
    //~--- fields --------------------------------------------------------------
 
-   private ConceptChronology<?>     definiendum_;
-   private boolean                  defaultToPrimitive_;
-   private LogicalExpressionBuilder defBuilder_;
+   /** The default to primitive. */
+   private final boolean defaultToPrimitive;
+
+   /** The def builder. */
+   private final LogicalExpressionBuilder defBuilder;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new ISAAC visitor.
+    *
+    * @param defBuilder the def builder
+    */
    public ISAACVisitor(LogicalExpressionBuilder defBuilder) {
       this(defBuilder, null);
    }
 
+   /**
+    * Instantiates a new ISAAC visitor.
+    *
+    * @param defBuilder the def builder
+    * @param c the c
+    */
    public ISAACVisitor(LogicalExpressionBuilder defBuilder, ConceptChronology<?> c) {
       this(defBuilder, c, false);
    }
 
+   /**
+    * Instantiates a new ISAAC visitor.
+    *
+    * @param defBuilder the def builder
+    * @param c the c
+    * @param defaultToPrimitive the default to primitive
+    */
    public ISAACVisitor(LogicalExpressionBuilder defBuilder, ConceptChronology<?> c, boolean defaultToPrimitive) {
       super();
-      this.definiendum_        = c;
-      this.defaultToPrimitive_ = defaultToPrimitive;
-      defBuilder_              = defBuilder;
+      this.defaultToPrimitive = defaultToPrimitive;
+      this.defBuilder         = defBuilder;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Visit attribute.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitAttribute(se.liu.imt.mi.snomedct.expression.SNOMEDCTExpressionParser.AttributeContext ctx) {
       logger.debug("visitAttribute: " + ctx.getText());
@@ -124,18 +146,18 @@ public class ISAACVisitor
       if (ctx.attributeValue()
              .getChild(0)
              .getClass() == SNOMEDCTExpressionParser.ConceptReferenceContext.class) {
-         ConceptChronology<?> property = (ConceptChronology<?>) visitConceptReference(ctx.conceptReference());
-         ConceptChronology<?> value = (ConceptChronology<?>) visitConceptReference(ctx.attributeValue()
-                                                                                      .conceptReference());
+         final ConceptChronology<?> property = (ConceptChronology<?>) visitConceptReference(ctx.conceptReference());
+         final ConceptChronology<?> value = (ConceptChronology<?>) visitConceptReference(ctx.attributeValue()
+                                                                                            .conceptReference());
 
-         role = SomeRole(property, ConceptAssertion(value, defBuilder_));
+         role = SomeRole(property, ConceptAssertion(value, this.defBuilder));
       } else if (ctx.attributeValue()
                     .getChild(0)
                     .getClass() == SNOMEDCTExpressionParser.NestedExpressionContext.class) {
-         ConceptChronology<?> property = (ConceptChronology<?>) visitConceptReference(ctx.conceptReference());
-         Assertion            result   = (Assertion) visit(ctx.attributeValue()
-                                                              .nestedExpression()
-                                                              .subExpression());
+         final ConceptChronology<?> property = (ConceptChronology<?>) visitConceptReference(ctx.conceptReference());
+         final Assertion            result = (Assertion) visit(ctx.attributeValue()
+                                                                  .nestedExpression()
+                                                                  .subExpression());
 
          role = SomeRole(property, result);
       } else {
@@ -145,23 +167,41 @@ public class ISAACVisitor
       return role;
    }
 
+   /**
+    * Visit attribute group.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitAttributeGroup(AttributeGroupContext ctx) {
       logger.debug("visitAttributeGroup: " + ctx.getText());
       throw new RuntimeException("LOINC EXPRESSION SERVICE> Cannot (yet) handle attribute group");
    }
 
+   /**
+    * Visit attribute set.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitAttributeSet(AttributeSetContext ctx) {
       logger.debug("visitAttributeSet: " + ctx.getText());
       throw new RuntimeException("LOINC EXPRESSION SERVICE> Cannot (yet) handle attribute set");
    }
 
+   /**
+    * Visit concept reference.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitConceptReference(ConceptReferenceContext ctx) {
       logger.debug("visitConceptReference: " + ctx.getText());
 
-      Optional<Integer> nid = Frills.getNidForSCTID(Long.parseLong(ctx.getText()));
+      final Optional<Integer> nid = Frills.getNidForSCTID(Long.parseLong(ctx.getText()));
 
       if (!nid.isPresent()) {
          throw new RuntimeException(("LOINC EXPRESSION SERVICE> Missing nid for sctid: " + ctx.getText()));
@@ -171,13 +211,19 @@ public class ISAACVisitor
                 .getConcept(nid.get());
    }
 
+   /**
+    * Visit expression.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitExpression(ExpressionContext ctx) {
       logger.debug("visitExpression: " + ctx.getText());
 
-      Object subExpression = visit(ctx.subExpression());
+      final Object subExpression = visit(ctx.subExpression());
 
-      if (((ctx.definitionStatus() == null) && (defaultToPrimitive_ == true)) ||
+      if (((ctx.definitionStatus() == null) && (this.defaultToPrimitive == true)) ||
             (((ctx.definitionStatus() != null) &&
               (ctx.definitionStatus().start.getType() == SNOMEDCTExpressionLexer.SC_OF)))) {
          return NecessarySet((And) subExpression);
@@ -186,6 +232,12 @@ public class ISAACVisitor
       }
    }
 
+   /**
+    * Visit focus concept.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitFocusConcept(FocusConceptContext ctx) {
       logger.debug("visitFocusConcept: " + ctx.getText());
@@ -197,13 +249,20 @@ public class ISAACVisitor
       return visit(ctx.conceptReference(0));
    }
 
+   /**
+    * Visit non grouped attribute set.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
+
    // TODO: see more complex processing in OWLVisitor
    @Override
    public Object visitNonGroupedAttributeSet(NonGroupedAttributeSetContext ctx) {
       logger.debug("visitNonGroupedAttributeSet: " + ctx.getText());
 
-      int         childCount = ctx.getChildCount();
-      Assertion[] assertions = new Assertion[(childCount + 1) / 2];
+      final int         childCount = ctx.getChildCount();
+      final Assertion[] assertions = new Assertion[(childCount + 1) / 2];
 
       for (int i = 0; i < childCount; i = i + 2) {  // Use an iterator
          assertions[(i + 1) / 2] = (SomeRole) visitAttribute((AttributeContext) ctx.getChild(i));
@@ -212,12 +271,24 @@ public class ISAACVisitor
       return assertions;
    }
 
+   /**
+    * Visit refinement.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitRefinement(RefinementContext ctx) {
       logger.debug("visitRefinement: " + ctx.getText());
       return visit(ctx.nonGroupedAttributeSet());
    }
 
+   /**
+    * Visit sub expression.
+    *
+    * @param ctx the ctx
+    * @return the object
+    */
    @Override
    public Object visitSubExpression(SubExpressionContext ctx) {
       logger.debug("visitSubExpression: " + ctx.getText());
@@ -225,14 +296,14 @@ public class ISAACVisitor
       Object result;
 
       if (ctx.getChildCount() > 1) {
-         Assertion[] refinementAssertions = (Assertion[]) visit(ctx.refinement());
-         Assertion[] assertions           = new Assertion[refinementAssertions.length + 1];
+         final Assertion[] refinementAssertions = (Assertion[]) visit(ctx.refinement());
+         final Assertion[] assertions           = new Assertion[refinementAssertions.length + 1];
 
-         assertions[0] = ConceptAssertion((ConceptChronology<?>) visit(ctx.focusConcept()), defBuilder_);
+         assertions[0] = ConceptAssertion((ConceptChronology<?>) visit(ctx.focusConcept()), this.defBuilder);
          System.arraycopy(refinementAssertions, 0, assertions, 1, refinementAssertions.length);
          result = And(assertions);
       } else {
-         result = ConceptAssertion((ConceptChronology<?>) visit(ctx.focusConcept()), defBuilder_);
+         result = ConceptAssertion((ConceptChronology<?>) visit(ctx.focusConcept()), this.defBuilder);
       }
 
       return result;

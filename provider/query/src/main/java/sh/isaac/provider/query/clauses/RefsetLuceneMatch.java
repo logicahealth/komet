@@ -42,7 +42,6 @@ package sh.isaac.provider.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
-import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -54,8 +53,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
-import sh.isaac.api.index.SearchResult;
 import sh.isaac.provider.query.ClauseComputeType;
 import sh.isaac.provider.query.ClauseSemantic;
 import sh.isaac.provider.query.LeafClause;
@@ -74,15 +71,28 @@ import sh.isaac.provider.query.lucene.indexers.SememeIndexer;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class RefsetLuceneMatch
         extends LeafClause {
+   /** The lucene match key. */
    @XmlElement
    String luceneMatchKey;
+
+   /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new refset lucene match.
+    */
    protected RefsetLuceneMatch() {}
 
+   /**
+    * Instantiates a new refset lucene match.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param luceneMatchKey the lucene match key
+    * @param viewCoordinateKey the view coordinate key
+    */
    public RefsetLuceneMatch(Query enclosingQuery, String luceneMatchKey, String viewCoordinateKey) {
       super(enclosingQuery);
       this.luceneMatchKey    = luceneMatchKey;
@@ -91,15 +101,22 @@ public class RefsetLuceneMatch
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                      .get(viewCoordinateKey);
-      String        luceneMatch = (String) enclosingQuery.getLetDeclarations()
-                                                         .get(luceneMatchKey);
-      NidSet        nids        = new NidSet();
-      SememeIndexer si          = LookupService.get()
-                                               .getService(SememeIndexer.class);
+      this.enclosingQuery.getLetDeclarations()
+                         .get(this.viewCoordinateKey);
+      this.enclosingQuery.getLetDeclarations()
+                         .get(this.luceneMatchKey);
+
+      final NidSet        nids = new NidSet();
+      final SememeIndexer si   = LookupService.get()
+                                              .getService(SememeIndexer.class);
 
       if (si == null) {
          throw new IllegalStateException("sememeIndexer is null");
@@ -130,21 +147,37 @@ public class RefsetLuceneMatch
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {}
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.REFSET_LUCENE_MATCH);
       whereClause.getLetKeys()
-                 .add(luceneMatchKey);
+                 .add(this.luceneMatchKey);
       return whereClause;
    }
 }

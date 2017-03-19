@@ -46,18 +46,21 @@ import sh.isaac.api.commit.CommittableComponent;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface SememeObject.
  *
  * @author kec
  */
 public interface SememeObject
         extends CommittableComponent {
    /**
+    * Gets the assemblage sequence.
     *
     * @return concept sequence for the concept that identifies this assemblage.
     */
    int getAssemblageSequence();
 
    /**
+    * Gets the referenced component nid.
     *
     * @return nid for the component referenced by this sememe. Since the referenced component can either
     * be a concept or another sememe, nids are used instead of concept sequences or sememe sequences, since the
@@ -66,6 +69,7 @@ public interface SememeObject
    int getReferencedComponentNid();
 
    /**
+    * Gets the sememe sequence.
     *
     * @return unique sequential identifier >= 0 for this sememe.
     */

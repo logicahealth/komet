@@ -56,16 +56,32 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class SerializedAtomicReferenceArray.
  *
  * @author kec
  */
 public class SerializedAtomicReferenceArray
         extends AtomicReferenceArray<byte[]> {
+   /** The Constant serialVersionUID. */
+   private static final long serialVersionUID = 1L;
+
+   //~--- fields --------------------------------------------------------------
+
+   /** The isaac serializer. */
    WaitFreeMergeSerializer isaacSerializer;
-   int                     segment;
+
+   /** The segment. */
+   int segment;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new serialized atomic reference array.
+    *
+    * @param length the length
+    * @param isaacSerializer the isaac serializer
+    * @param segment the segment
+    */
    public SerializedAtomicReferenceArray(int length, WaitFreeMergeSerializer isaacSerializer, int segment) {
       super(length);
       this.isaacSerializer = isaacSerializer;
@@ -81,18 +97,18 @@ public class SerializedAtomicReferenceArray
     */
    @Override
    public String toString() {
-      int iMax = length() - 1;
+      final int iMax = length() - 1;
 
       if (iMax == -1) {
          return "{Bytes≤≥B}";
       }
 
-      StringBuilder b = new StringBuilder();
+      final StringBuilder b = new StringBuilder();
 
       for (int i = 0; ; i++) {
          b.append("{Bytes≤");
 
-         int sequence = segment * length() + i;
+         final int sequence = this.segment * length() + i;
 
          b.append(sequence);
          b.append(": ");
@@ -101,12 +117,12 @@ public class SerializedAtomicReferenceArray
          b.append(Get.conceptDescriptionText(sequence));
          b.append(" ");
 
-         byte[] byteData = get(i);
+         final byte[] byteData = get(i);
 
          if (byteData != null) {
-            ByteArrayDataBuffer db = new ByteArrayDataBuffer(byteData);
+            final ByteArrayDataBuffer db = new ByteArrayDataBuffer(byteData);
 
-            b.append(isaacSerializer.deserialize(db));
+            b.append(this.isaacSerializer.deserialize(db));
          } else {
             b.append("null");
          }
@@ -122,8 +138,13 @@ public class SerializedAtomicReferenceArray
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the segment.
+    *
+    * @return the segment
+    */
    public int getSegment() {
-      return segment;
+      return this.segment;
    }
 }
 

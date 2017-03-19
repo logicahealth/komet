@@ -68,30 +68,53 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public abstract class AbstractLogicNode
          implements LogicNode {
+   /** The Constant namespaceUuid. */
    protected static final UUID namespaceUuid = UUID.fromString("d64c6d91-a37d-11e4-bcd8-0800200c9a66");
 
    //~--- fields --------------------------------------------------------------
 
-   private short              nodeIndex = Short.MIN_VALUE;
-   protected UUID             nodeUuid  = null;
+   /** The node index. */
+   private short nodeIndex = Short.MIN_VALUE;
+
+   /** The node uuid. */
+   protected UUID nodeUuid = null;
+
+   /** The logic graph version. */
    LogicalExpressionOchreImpl logicGraphVersion;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new abstract logic node.
+    *
+    * @param anotherNode the another node
+    */
    protected AbstractLogicNode(AbstractLogicNode anotherNode) {
       this.nodeIndex = anotherNode.nodeIndex;
       this.nodeUuid  = anotherNode.nodeUuid;
    }
 
+   /**
+    * Instantiates a new abstract logic node.
+    *
+    * @param logicGraphVersion the logic graph version
+    */
    public AbstractLogicNode(LogicalExpressionOchreImpl logicGraphVersion) {
       this.logicGraphVersion = logicGraphVersion;
       logicGraphVersion.addNode(this);
    }
 
+   /**
+    * Instantiates a new abstract logic node.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public AbstractLogicNode(LogicalExpressionOchreImpl logicGraphVersion,
                             DataInputStream dataInputStream)
             throws IOException {
-      nodeIndex              = dataInputStream.readShort();
+      this.nodeIndex         = dataInputStream.readShort();
       this.logicGraphVersion = logicGraphVersion;
       logicGraphVersion.addNode(this);
    }
@@ -101,13 +124,20 @@ public abstract class AbstractLogicNode
    /**
     * Should be overridden by subclasses that need to add concepts.
     * Concepts from connector nodes should not be added.
-    * @param conceptSequenceSet
+    *
+    * @param conceptSequenceSet the concept sequence set
     */
    @Override
    public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
       conceptSequenceSet.add(getNodeSemantic().getConceptSequence());
    }
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(LogicNode o) {
       if (this.getNodeSemantic() != o.getNodeSemantic()) {
@@ -118,6 +148,12 @@ public abstract class AbstractLogicNode
       return compareFields(o);
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -128,6 +164,7 @@ public abstract class AbstractLogicNode
    }
 
    /**
+    * Fragment to string.
     *
     * @return A string representing the fragment of the expression
     * rooted in this node.
@@ -137,11 +174,17 @@ public abstract class AbstractLogicNode
       return fragmentToString("");
    }
 
+   /**
+    * Fragment to string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String fragmentToString(String nodeIdSuffix) {
-      StringBuilder builder = new StringBuilder();
+      final StringBuilder builder = new StringBuilder();
 
-      logicGraphVersion.processDepthFirst(this,
+      this.logicGraphVersion.processDepthFirst(this,
             (LogicNode logicNode,
              TreeNodeVisitData graphVisitData) -> {
                for (int i = 0; i < graphVisitData.getDistance(logicNode.getNodeIndex()); i++) {
@@ -154,79 +197,156 @@ public abstract class AbstractLogicNode
       return builder.toString();
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
-      return (int) nodeIndex;
+      return this.nodeIndex;
    }
 
+   /**
+    * Sort.
+    */
    @Override
    public void sort() {
       // override on nodes with multiple children.
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
       return "";
    }
 
+   /**
+    * Compare fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    protected abstract int compareFields(LogicNode o);
 
+   /**
+    * Inits the node uuid.
+    *
+    * @return the uuid
+    */
    protected abstract UUID initNodeUuid();
 
+   /**
+    * Write data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    protected void writeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {}
 
+   /**
+    * Write node data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    protected abstract void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException;
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the bytes.
+    *
+    * @param dataTarget the data target
+    * @return the bytes
+    */
    @Override
    public byte[] getBytes(DataTarget dataTarget) {
       try {
          try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            DataOutputStream output = new DataOutputStream(outputStream);
+            final DataOutputStream output = new DataOutputStream(outputStream);
 
             output.writeByte(getNodeSemantic().ordinal());
-            output.writeShort(nodeIndex);
+            output.writeShort(this.nodeIndex);
             writeNodeData(output, dataTarget);
             return outputStream.toByteArray();
          }
-      } catch (IOException e) {
+      } catch (final IOException e) {
          throw new RuntimeException(e);
       }
    }
 
+   /**
+    * Gets the children.
+    *
+    * @return the children
+    */
    @Override
    public abstract AbstractLogicNode[] getChildren();
 
+   /**
+    * Gets the descendents.
+    *
+    * @return the descendents
+    */
    @Override
    public AbstractLogicNode[] getDescendents() {
-      List<AbstractLogicNode> descendents = new ArrayList<>();
+      final List<AbstractLogicNode> descendents = new ArrayList<>();
 
       getDescendents(this, descendents);
       return descendents.toArray(new AbstractLogicNode[descendents.size()]);
    }
 
+   /**
+    * Gets the descendents.
+    *
+    * @param parent the parent
+    * @param descendents the descendents
+    * @return the descendents
+    */
    private void getDescendents(AbstractLogicNode parent, List<AbstractLogicNode> descendents) {
-      for (AbstractLogicNode child: parent.getChildren()) {
+      for (final AbstractLogicNode child: parent.getChildren()) {
          descendents.add(child);
          getDescendents(child, descendents);
       }
    }
 
+   /**
+    * Gets the node index.
+    *
+    * @return the node index
+    */
    @Override
    public short getNodeIndex() {
-      return nodeIndex;
+      return this.nodeIndex;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the node index.
+    *
+    * @param nodeIndex the new node index
+    */
    @Override
    public void setNodeIndex(short nodeIndex) {
       if (this.nodeIndex == Short.MIN_VALUE) {
@@ -241,25 +361,36 @@ public abstract class AbstractLogicNode
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the node uuid.
+    *
+    * @return the node uuid
+    */
    protected UUID getNodeUuid() {
-      if (nodeUuid == null) {
-         nodeUuid = initNodeUuid();
+      if (this.nodeUuid == null) {
+         this.nodeUuid = initNodeUuid();
       }
 
-      return nodeUuid;
+      return this.nodeUuid;
    }
 
    ;
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the node uuid set for depth.
+    *
+    * @param depth the depth
+    * @return the node uuid set for depth
+    */
    public SortedSet<UUID> getNodeUuidSetForDepth(int depth) {
-      SortedSet<UUID> uuidSet = new TreeSet<>();
+      final SortedSet<UUID> uuidSet = new TreeSet<>();
 
       uuidSet.add(getNodeUuid());
 
       if (depth > 1) {
-         for (AbstractLogicNode child: getChildren()) {
+         for (final AbstractLogicNode child: getChildren()) {
             uuidSet.addAll(child.getNodeUuidSetForDepth(depth - 1));
          }
       }

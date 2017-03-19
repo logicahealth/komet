@@ -52,7 +52,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.provider.query.ClauseComputeType;
 import sh.isaac.provider.query.ClauseSemantic;
 import sh.isaac.provider.query.LeafClause;
@@ -86,6 +85,9 @@ public class ChangedFromPreviousVersion
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new changed from previous version.
+    */
    protected ChangedFromPreviousVersion() {}
 
    /**
@@ -93,8 +95,8 @@ public class ChangedFromPreviousVersion
     * from the enclosing query and key used in let declarations for a previous
     * <code>ViewCoordinate</code>.
     *
-    * @param enclosingQuery
-    * @param previousViewCoordinateKey
+    * @param enclosingQuery the enclosing query
+    * @param previousViewCoordinateKey the previous view coordinate key
     */
    public ChangedFromPreviousVersion(Query enclosingQuery, String previousViewCoordinateKey) {
       super(enclosingQuery);
@@ -103,6 +105,12 @@ public class ChangedFromPreviousVersion
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
 //    System.out.println(incomingPossibleComponents.size());
@@ -112,16 +120,26 @@ public class ChangedFromPreviousVersion
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
-      TaxonomyCoordinate previousViewCoordinate = (TaxonomyCoordinate) enclosingQuery.getLetDeclarations()
-                                                                                     .get(previousViewCoordinateKey);
-
+      this.enclosingQuery.getLetDeclarations()
+                         .get(this.previousViewCoordinateKey);
       throw new UnsupportedOperationException();
 
       // TODO FIX BACK UP
@@ -134,13 +152,18 @@ public class ChangedFromPreviousVersion
 //    }
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.CHANGED_FROM_PREVIOUS_VERSION);
       whereClause.getLetKeys()
-                 .add(previousViewCoordinateKey);
+                 .add(this.previousViewCoordinateKey);
       return whereClause;
    }
 }

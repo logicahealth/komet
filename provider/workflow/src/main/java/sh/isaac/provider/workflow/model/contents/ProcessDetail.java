@@ -79,7 +79,7 @@ public class ProcessDetail
     * Therefore, if a component has been modified multiple times within a
     * single process, only the first of those times are required on the map.
     */
-   private Map<Integer, Stamp> componentToIntitialEditMap = new HashMap<>();
+   private final Map<Integer, Stamp> componentToIntitialEditMap = new HashMap<>();
 
    /** The time the workflow process was launched. */
    private long timeLaunched = -1L;
@@ -91,8 +91,10 @@ public class ProcessDetail
    private long timeCanceledOrConcluded = -1L;
 
    /** The workflow process's current "owner". */
-   private UUID            ownerId         = BPMNInfo.UNOWNED_PROCESS;
-   private StampSerializer stampSerializer = new StampSerializer();
+   private UUID ownerId = BPMNInfo.UNOWNED_PROCESS;
+
+   /** The stamp serializer. */
+   private final StampSerializer stampSerializer = new StampSerializer();
 
    /** The workflow definition key for which the Process Detail is relevant. */
    private UUID definitionId;
@@ -112,48 +114,34 @@ public class ProcessDetail
    /** The workflow process's description. */
    private String description;
 
-   /**
-    * Definition uuid most significant bits
-    */
+   /** Definition uuid most significant bits. */
    private long definitionIdMsb;
 
-   /**
-    * Definition uuid least significant bits
-    */
+   /** Definition uuid least significant bits. */
    private long definitionIdLsb;
 
-   /**
-    * Creator uuid most significant bits
-    */
+   /** Creator uuid most significant bits. */
    private long creatorIdMsb;
 
-   /**
-    * Creator uuid least significant bits
-    */
+   /** Creator uuid least significant bits. */
    private long creatorIdLsb;
 
-   /**
-    * Owner uuid most significant bits
-    */
+   /** Owner uuid most significant bits. */
    private long ownerIdMsb;
 
-   /**
-    * Owner uuid least significant bits
-    */
+   /** Owner uuid least significant bits. */
    private long ownerIdLsb;
 
    //~--- constant enums ------------------------------------------------------
 
    /**
-    * The exhaustive list of possible ways an instantiated process may be ended
-    *
-    *
+    * The exhaustive list of possible ways an instantiated process may be ended.
     */
    public enum EndWorkflowType {
-      /** Process is stopped without reaching a completed state */
+      /** Process is stopped without reaching a completed state. */
       CANCELED,
 
-      /** Process has been finished by reaching a completed state */
+      /** Process has been finished by reaching a completed state. */
       CONCLUDED
    }
 
@@ -164,13 +152,13 @@ public class ProcessDetail
       /** Process is being defined and has yet to be launched. */
       DEFINED,
 
-      /** Process has been launched */
+      /** Process has been launched. */
       LAUNCHED,
 
-      /** A previously launched or defined process that has been canceled */
+      /** A previously launched or defined process that has been canceled. */
       CANCELED,
 
-      /** A previously launched process that is completed */
+      /** A previously launched process that is completed. */
       CONCLUDED
    }
 
@@ -191,12 +179,12 @@ public class ProcessDetail
    /**
     * Constructor for a new process based on specified entry fields.
     *
-    * @param definitionId
-    * @param creatorId
-    * @param timeCreated
-    * @param status
-    * @param name
-    * @param description
+    * @param definitionId the definition id
+    * @param creatorId the creator id
+    * @param timeCreated the time created
+    * @param status the status
+    * @param name the name
+    * @param description the description
     */
    public ProcessDetail(UUID definitionId,
                         UUID creatorId,
@@ -215,15 +203,21 @@ public class ProcessDetail
       this.definitionIdLsb = definitionId.getLeastSignificantBits();
       this.creatorIdMsb    = creatorId.getMostSignificantBits();
       this.creatorIdLsb    = creatorId.getLeastSignificantBits();
-      this.ownerIdMsb      = ownerId.getMostSignificantBits();
-      this.ownerIdLsb      = ownerId.getLeastSignificantBits();
+      this.ownerIdMsb      = this.ownerId.getMostSignificantBits();
+      this.ownerIdLsb      = this.ownerId.getLeastSignificantBits();
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
-      ProcessDetail other = (ProcessDetail) obj;
+      final ProcessDetail other = (ProcessDetail) obj;
 
       return this.definitionId.equals(other.definitionId) &&
              this.componentToIntitialEditMap.equals(other.componentToIntitialEditMap) &&
@@ -237,114 +231,147 @@ public class ProcessDetail
              this.ownerId.equals(other.ownerId);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
-      return definitionId.hashCode() + componentToIntitialEditMap.hashCode() + creatorId.hashCode() +
-             new Long(timeCreated).hashCode() + new Long(timeLaunched).hashCode() +
-             new Long(timeCanceledOrConcluded).hashCode() + status.hashCode() + name.hashCode() +
-             description.hashCode() + ownerId.hashCode();
+      return this.definitionId.hashCode() + this.componentToIntitialEditMap.hashCode() + this.creatorId.hashCode() +
+             new Long(this.timeCreated).hashCode() + new Long(this.timeLaunched).hashCode() +
+             new Long(this.timeCanceledOrConcluded).hashCode() + this.status.hashCode() + this.name.hashCode() +
+             this.description.hashCode() + this.ownerId.hashCode();
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      StringBuffer buf = new StringBuffer();
+      final StringBuffer buf = new StringBuffer();
 
-      for (Integer compNid: componentToIntitialEditMap.keySet()) {
+      for (final Integer compNid: this.componentToIntitialEditMap.keySet()) {
          buf.append("\n\t\t\tFor Component Nid: " + compNid + " first edited in workflow at Stamp: " +
-                    componentToIntitialEditMap.get(compNid));
+                    this.componentToIntitialEditMap.get(compNid));
       }
 
-      LocalDateTime date = LocalDateTime.from(Instant.ofEpochMilli(timeCreated)
+      LocalDateTime date = LocalDateTime.from(Instant.ofEpochMilli(this.timeCreated)
                                                      .atZone(ZoneId.systemDefault()));
-      String        timeCreatedString = BPMNInfo.workflowDateFormatter.format(date);
+      final String  timeCreatedString = BPMNInfo.workflowDateFormatter.format(date);
 
-      date = LocalDateTime.from(Instant.ofEpochMilli(timeLaunched)
+      date = LocalDateTime.from(Instant.ofEpochMilli(this.timeLaunched)
                                        .atZone(ZoneId.systemDefault()));
 
-      String timeLaunchedString = BPMNInfo.workflowDateFormatter.format(date);
+      final String timeLaunchedString = BPMNInfo.workflowDateFormatter.format(date);
 
-      date = LocalDateTime.from(Instant.ofEpochMilli(timeCanceledOrConcluded)
+      date = LocalDateTime.from(Instant.ofEpochMilli(this.timeCanceledOrConcluded)
                                        .atZone(ZoneId.systemDefault()));
 
-      String timeCanceledOrConcludedString = BPMNInfo.workflowDateFormatter.format(date);
+      final String timeCanceledOrConcludedString = BPMNInfo.workflowDateFormatter.format(date);
 
-      return "\n\t\tId: " + id + "\n\t\tDefinition Id: " + definitionId.toString() +
-             "\n\t\tComponents to Sequences Map: " + buf.toString() + "\n\t\tCreator Id: " + creatorId.toString() +
-             "\n\t\tTime Created: " + timeCreatedString + "\n\t\tTime Launched: " + timeLaunchedString +
-             "\n\t\tTime Canceled or Concluded: " + timeCanceledOrConcludedString + "\n\t\tStatus: " + status +
-             "\n\t\tName: " + name + "\n\t\tDescription: " + description + "\n\t\tOwner Id: " + ownerId.toString();
+      return "\n\t\tId: " + this.id + "\n\t\tDefinition Id: " + this.definitionId.toString() +
+             "\n\t\tComponents to Sequences Map: " + buf.toString() + "\n\t\tCreator Id: " +
+             this.creatorId.toString() + "\n\t\tTime Created: " + timeCreatedString + "\n\t\tTime Launched: " +
+             timeLaunchedString + "\n\t\tTime Canceled or Concluded: " + timeCanceledOrConcludedString +
+             "\n\t\tStatus: " + this.status + "\n\t\tName: " + this.name + "\n\t\tDescription: " + this.description +
+             "\n\t\tOwner Id: " + this.ownerId.toString();
    }
 
+   /**
+    * Put additional workflow fields.
+    *
+    * @param out the out
+    */
    @Override
    protected void putAdditionalWorkflowFields(ByteArrayDataBuffer out) {
-      out.putLong(definitionIdMsb);
-      out.putLong(definitionIdLsb);
-      out.putInt(componentToIntitialEditMap.size());
+      out.putLong(this.definitionIdMsb);
+      out.putLong(this.definitionIdLsb);
+      out.putInt(this.componentToIntitialEditMap.size());
 
-      for (Integer componentNid: componentToIntitialEditMap.keySet()) {
+      for (final Integer componentNid: this.componentToIntitialEditMap.keySet()) {
          out.putNid(componentNid);
 
          try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            stampSerializer.serialize(new DataOutputStream(baos), componentToIntitialEditMap.get(componentNid));
+            this.stampSerializer.serialize(new DataOutputStream(baos),
+                                           this.componentToIntitialEditMap.get(componentNid));
             out.putByteArrayField(baos.toByteArray());
-         } catch (IOException e) {
+         } catch (final IOException e) {
             throw new RuntimeException(e);
          }
       }
 
-      out.putLong(creatorIdMsb);
-      out.putLong(creatorIdLsb);
-      out.putLong(timeCreated);
-      out.putLong(timeLaunched);
-      out.putLong(timeCanceledOrConcluded);
-      out.putByteArrayField(status.name()
-                                  .getBytes());
-      out.putByteArrayField(name.getBytes());
-      out.putByteArrayField(description.getBytes());
-      out.putLong(ownerIdMsb);
-      out.putLong(ownerIdLsb);
+      out.putLong(this.creatorIdMsb);
+      out.putLong(this.creatorIdLsb);
+      out.putLong(this.timeCreated);
+      out.putLong(this.timeLaunched);
+      out.putLong(this.timeCanceledOrConcluded);
+      out.putByteArrayField(this.status.name()
+                                       .getBytes());
+      out.putByteArrayField(this.name.getBytes());
+      out.putByteArrayField(this.description.getBytes());
+      out.putLong(this.ownerIdMsb);
+      out.putLong(this.ownerIdLsb);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Checks if active.
+    *
+    * @return true, if active
+    */
    public boolean isActive() {
-      return (status == ProcessStatus.LAUNCHED) || (status == ProcessStatus.DEFINED);
+      return (this.status == ProcessStatus.LAUNCHED) || (this.status == ProcessStatus.DEFINED);
    }
 
+   /**
+    * Gets the additional workflow fields.
+    *
+    * @param in the in
+    * @return the additional workflow fields
+    */
    @Override
    protected void getAdditionalWorkflowFields(ByteArrayDataBuffer in) {
-      definitionIdMsb = in.getLong();
-      definitionIdLsb = in.getLong();
-      definitionId    = new UUID(definitionIdMsb, definitionIdLsb);
+      this.definitionIdMsb = in.getLong();
+      this.definitionIdLsb = in.getLong();
+      this.definitionId    = new UUID(this.definitionIdMsb, this.definitionIdLsb);
 
-      int collectionCount = in.getInt();
+      final int collectionCount = in.getInt();
 
       for (int i = 0; i < collectionCount; i++) {
-         int compNid = in.getNid();
+         final int compNid = in.getNid();
 
          try (ByteArrayInputStream baos = new ByteArrayInputStream(in.getByteArrayField())) {
-            componentToIntitialEditMap.put(compNid, stampSerializer.deserialize(new DataInputStream(baos)));
-         } catch (IOException e) {
+            this.componentToIntitialEditMap.put(compNid, this.stampSerializer.deserialize(new DataInputStream(baos)));
+         } catch (final IOException e) {
             throw new RuntimeException(e);
          }
       }
 
-      creatorIdMsb            = in.getLong();
-      creatorIdLsb            = in.getLong();
-      creatorId               = new UUID(creatorIdMsb, creatorIdLsb);
-      timeCreated             = in.getLong();
-      timeLaunched            = in.getLong();
-      timeCanceledOrConcluded = in.getLong();
-      status                  = ProcessStatus.valueOf(new String(in.getByteArrayField()));
-      name                    = new String(in.getByteArrayField());
-      description             = new String(in.getByteArrayField());
-      ownerIdMsb              = in.getLong();
-      ownerIdLsb              = in.getLong();
-      ownerId                 = new UUID(ownerIdMsb, ownerIdLsb);
+      this.creatorIdMsb            = in.getLong();
+      this.creatorIdLsb            = in.getLong();
+      this.creatorId               = new UUID(this.creatorIdMsb, this.creatorIdLsb);
+      this.timeCreated             = in.getLong();
+      this.timeLaunched            = in.getLong();
+      this.timeCanceledOrConcluded = in.getLong();
+      this.status                  = ProcessStatus.valueOf(new String(in.getByteArrayField()));
+      this.name                    = new String(in.getByteArrayField());
+      this.description             = new String(in.getByteArrayField());
+      this.ownerIdMsb              = in.getLong();
+      this.ownerIdLsb              = in.getLong();
+      this.ownerId                 = new UUID(this.ownerIdMsb, this.ownerIdLsb);
    }
 
+   /**
+    * Checks if canceled.
+    *
+    * @return true, if canceled
+    */
    public boolean isCanceled() {
-      return status == ProcessStatus.CANCELED;
+      return this.status == ProcessStatus.CANCELED;
    }
 
    /**
@@ -353,11 +380,16 @@ public class ProcessDetail
     * @return map of component nids to ordered stamp sequences
     */
    public Map<Integer, Stamp> getComponentToInitialEditMap() {
-      return componentToIntitialEditMap;
+      return this.componentToIntitialEditMap;
    }
 
+   /**
+    * Checks if concluded.
+    *
+    * @return true, if concluded
+    */
    public boolean isConcluded() {
-      return status == ProcessStatus.CONCLUDED;
+      return this.status == ProcessStatus.CONCLUDED;
    }
 
    /**
@@ -366,7 +398,7 @@ public class ProcessDetail
     * @return the process creator's id
     */
    public UUID getCreatorId() {
-      return creatorId;
+      return this.creatorId;
    }
 
    /**
@@ -375,49 +407,48 @@ public class ProcessDetail
     * @return the key of the definition from which the process is created
     */
    public UUID getDefinitionId() {
-      return definitionId;
+      return this.definitionId;
    }
 
    /**
-    * The description of the process
+    * The description of the process.
     *
     * @return process description
     */
    public String getDescription() {
-      return description;
+      return this.description;
    }
 
    /**
-    * The name of the process
+    * The name of the process.
     *
     * @return process name
     */
    public String getName() {
-      return name;
+      return this.name;
    }
 
    /**
-    * Retrieves the current owner of the process
+    * Retrieves the current owner of the process.
     *
     * @return 0-based UUID: Process is not owned.
     * Otherwise, return the process's current owner id
     */
    public UUID getOwnerId() {
-      return ownerId;
+      return this.ownerId;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the current owner of the process
+    * Sets the current owner of the process.
     *
-    * @param nid
-    * The userId obtaining a lock on the instance. Note '0' means no owner.
+    * @param nid The userId obtaining a lock on the instance. Note '0' means no owner.
     */
    public void setOwnerId(UUID nid) {
-      ownerId    = nid;
-      ownerIdMsb = ownerId.getMostSignificantBits();
-      ownerIdLsb = ownerId.getLeastSignificantBits();
+      this.ownerId    = nid;
+      this.ownerIdMsb = this.ownerId.getMostSignificantBits();
+      this.ownerIdLsb = this.ownerId.getLeastSignificantBits();
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -428,7 +459,7 @@ public class ProcessDetail
     * @return the process Status
     */
    public ProcessStatus getStatus() {
-      return status;
+      return this.status;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -453,7 +484,7 @@ public class ProcessDetail
     * @return the time the process was canceled or concluded
     */
    public long getTimeCanceledOrConcluded() {
-      return timeCanceledOrConcluded;
+      return this.timeCanceledOrConcluded;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -467,7 +498,7 @@ public class ProcessDetail
     * type
     */
    public void setTimeCanceledOrConcluded(long time) {
-      timeCanceledOrConcluded = time;
+      this.timeCanceledOrConcluded = time;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -478,16 +509,16 @@ public class ProcessDetail
     * @return the time the process was created
     */
    public long getTimeCreated() {
-      return timeCreated;
+      return this.timeCreated;
    }
 
    /**
-    * Get the time the process was launched as long primitive type
+    * Get the time the process was launched as long primitive type.
     *
     * @return the time launched
     */
    public long getTimeLaunched() {
-      return timeLaunched;
+      return this.timeLaunched;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -500,7 +531,7 @@ public class ProcessDetail
     * The time the process was launched as long primitive type
     */
    public void setTimeLaunched(long time) {
-      timeLaunched = time;
+      this.timeLaunched = time;
    }
 }
 

@@ -65,27 +65,40 @@ import sh.isaac.api.progress.ActiveTasks;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class WriteAndCheckSememeChronicle.
  *
  * @author kec
  */
 public class WriteAndCheckSememeChronicle
         extends Task<Void> {
-   private final SememeChronology                                               sc;
-   private final ConcurrentSkipListSet<ChangeChecker>                           checkers;
-   private final ConcurrentSkipListSet<Alert>                                   alertCollection;
-   private final Semaphore                                                      writeSemaphore;
+   /** The sc. */
+   private final SememeChronology sc;
+
+   /** The checkers. */
+   private final ConcurrentSkipListSet<ChangeChecker> checkers;
+
+   /** The alert collection. */
+   private final ConcurrentSkipListSet<Alert> alertCollection;
+
+   /** The write semaphore. */
+   private final Semaphore writeSemaphore;
+
+   /** The change listeners. */
    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
-   private final BiConsumer<ObjectChronology, Boolean>                          uncommittedTracking;
+
+   /** The uncommitted tracking. */
+   private final BiConsumer<ObjectChronology, Boolean> uncommittedTracking;
 
    //~--- constructors --------------------------------------------------------
 
    /**
+    * Instantiates a new write and check sememe chronicle.
     *
-    * @param sc
-    * @param checkers
-    * @param alertCollection
-    * @param writeSemaphore
-    * @param changeListeners
+    * @param sc the sc
+    * @param checkers the checkers
+    * @param alertCollection the alert collection
+    * @param writeSemaphore the write semaphore
+    * @param changeListeners the change listeners
     * @param uncommittedTracking A handle to call back to the caller to notify it that the sememe has been
     * written to the SememeService.  Parameter 1 is the Sememe, Parameter two is true to indicate that the
     * change checker is active for this implementation.
@@ -112,38 +125,44 @@ public class WriteAndCheckSememeChronicle
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Call.
+    *
+    * @return the void
+    * @throws Exception the exception
+    */
    @Override
    public Void call()
             throws Exception {
       try {
          Get.sememeService()
-            .writeSememe(sc);
-         uncommittedTracking.accept(sc, true);
+            .writeSememe(this.sc);
+         this.uncommittedTracking.accept(this.sc, true);
          updateProgress(1, 3);
-         updateMessage("checking: " + sc.getSememeType() + " " + sc.getSememeSequence());
+         updateMessage("checking: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
 
-         if (sc.getCommitState() == CommitStates.UNCOMMITTED) {
-            checkers.stream().forEach((check) -> {
-                                check.check(sc, alertCollection, CheckPhase.ADD_UNCOMMITTED);
-                             });
+         if (this.sc.getCommitState() == CommitStates.UNCOMMITTED) {
+            this.checkers.stream().forEach((check) -> {
+                                     check.check(this.sc, this.alertCollection, CheckPhase.ADD_UNCOMMITTED);
+                                  });
          }
 
          updateProgress(2, 3);
-         updateMessage("notifying: " + sc.getSememeType() + " " + sc.getSememeSequence());
-         changeListeners.forEach((listenerRef) -> {
-                                    ChronologyChangeListener listener = listenerRef.get();
+         updateMessage("notifying: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
+         this.changeListeners.forEach((listenerRef) -> {
+                                         final ChronologyChangeListener listener = listenerRef.get();
 
-                                    if (listener == null) {
-                                       changeListeners.remove(listenerRef);
-                                    } else {
-                                       listener.handleChange(sc);
-                                    }
-                                 });
+                                         if (listener == null) {
+                                            this.changeListeners.remove(listenerRef);
+                                         } else {
+                                            listener.handleChange(this.sc);
+                                         }
+                                      });
          updateProgress(3, 3);
-         updateMessage("completed change: " + sc.getSememeType() + " " + sc.getSememeSequence());
+         updateMessage("completed change: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
          return null;
       } finally {
-         writeSemaphore.release();
+         this.writeSemaphore.release();
          LookupService.getService(ActiveTasks.class)
                       .get()
                       .remove(this);

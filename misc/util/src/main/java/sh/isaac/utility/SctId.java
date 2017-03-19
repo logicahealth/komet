@@ -59,14 +59,14 @@ import org.apache.commons.lang3.StringUtils;
  *
  * In java, the SCTID is handled as a long.
  *
- * @see <a href="http://www.snomed.org/tig?t=trg2main_sctid">IHTSDO Technical Implementation Guide - SCT ID</a>
- *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
- *
+ * @see <a href="http://www.snomed.org/tig?t=trg2main_sctid">IHTSDO Technical Implementation Guide - SCT ID</a>
  */
 public class SctId {
+   /** The Fn F. */
+
    // parts of the SCTID algorithm
-   private static int[][] FnF_       = {
+   private static int[][] FnF = {
       {
          0, 1, 2, 3, 4, 5, 6, 7, 8, 9
       }, {
@@ -87,7 +87,9 @@ public class SctId {
          0, 0, 0, 0, 0, 0, 0, 0, 0, 0
       }
    };
-   private static int[][] Dihedral_  = {
+
+   /** The Dihedral. */
+   private static int[][] Dihedral = {
       {
          0, 1, 2, 3, 4, 5, 6, 7, 8, 9
       }, {
@@ -110,16 +112,13 @@ public class SctId {
          9, 8, 7, 6, 5, 4, 3, 2, 1, 0
       }
    };
-   private static int[]   InverseD5_ = {
-      0, 4, 3, 2, 1, 5, 6, 7, 8, 9
-   };
 
    //~--- static initializers -------------------------------------------------
 
    static {
       for (int i = 2; i < 8; i++) {
          for (int j = 0; j < 10; j++) {
-            FnF_[i][j] = FnF_[i - 1][FnF_[1][j]];
+            FnF[i][j] = FnF[i - 1][FnF[1][j]];
          }
       }
    }
@@ -155,7 +154,8 @@ public class SctId {
        */
       SUBSET("13");
 
-      private String digits_;
+      /** The digits. */
+      private final String digits;
 
       //~--- constructors -----------------------------------------------------
 
@@ -165,7 +165,7 @@ public class SctId {
        * @param digits the digits specifying the SCT ID type
        */
       private TYPE(String digits) {
-         this.digits_ = digits;
+         this.digits = digits;
       }
 
       //~--- get methods ------------------------------------------------------
@@ -176,21 +176,27 @@ public class SctId {
        * @return the digits specifying the SCT ID type
        */
       public String getDigits() {
-         return digits_;
+         return this.digits;
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * see {@link #isValidSctId(String)}
+    * see {@link #isValidSctId(String)}.
+    *
+    * @param sctid the sctid
+    * @return true, if valid SCTID
     */
    public static boolean isValidSCTID(int sctid) {
       return isValidSctId(Integer.toString(sctid));
    }
 
    /**
-    * see {@link #isValidSctId(String)}
+    * see {@link #isValidSctId(String)}.
+    *
+    * @param sctid the sctid
+    * @return true, if valid sct id
     */
    public static boolean isValidSctId(long sctid) {
       return isValidSctId(Long.toString(sctid));
@@ -214,7 +220,7 @@ public class SctId {
 //                 throw new RuntimeException("sequence must be > 0");
 //         }
 //
-//         String mergedid = Long.toString(sequence) + projectId + namespaceId + type.digits_;
+//         String mergedid = Long.toString(sequence) + projectId + namespaceId + type.digits;
 //
 //         return mergedid + verhoeffCompute(mergedid);
 // }
@@ -233,7 +239,7 @@ public class SctId {
 //         {
 //                 throw new RuntimeException("sequence must be > 0");
 //         }
-//         String mergedid = Long.toString(sequence) + namespaceString + type.digits_;
+//         String mergedid = Long.toString(sequence) + namespaceString + type.digits;
 //         return mergedid + verhoeffCompute(mergedid);
 // }
 //
@@ -253,7 +259,7 @@ public class SctId {
 //                 throw new RuntimeException("sequence must be > 0");
 //         }
 //
-//         String mergedid = Long.toString(sequence) + namespaceId + type.digits_;
+//         String mergedid = Long.toString(sequence) + namespaceId + type.digits;
 //
 //         return mergedid + verhoeffCompute(mergedid);
 // }
@@ -277,7 +283,7 @@ public class SctId {
 // }
 
    /**
-    * Verifies the check digit of an SCT identifier
+    * Verifies the check digit of an SCT identifier.
     *
     * @param idAsString a String representation of the SCT ID
     * @return <code>true</code>, if the checksum in the string is correct for an SCTID.
@@ -289,12 +295,12 @@ public class SctId {
       }
 
       try {
-         long l = Long.parseLong(idAsString);
+         final long l = Long.parseLong(idAsString);
 
          if ((l < 100000) || (l > 999999999999999999l)) {
             return false;
          }
-      } catch (NumberFormatException e) {
+      } catch (final NumberFormatException e) {
          return false;
       }
 
@@ -302,7 +308,7 @@ public class SctId {
 
       for (int i = idAsString.length() - 1; i >= 0; i--) {
          check =
-            Dihedral_[check][FnF_[(idAsString.length() - i - 1) % 8][new Integer(new String(new char[] { idAsString.charAt(i) }))]];
+            Dihedral[check][FnF[(idAsString.length() - i - 1) % 8][new Integer(new String(new char[] { idAsString.charAt(i) }))]];
       }
 
       if (check != 0) {

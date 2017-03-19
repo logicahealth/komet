@@ -78,15 +78,28 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionLuceneMatch
         extends LeafClause {
+   /** The lucene match key. */
    @XmlElement
    String luceneMatchKey;
+
+   /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new description lucene match.
+    */
    protected DescriptionLuceneMatch() {}
 
+   /**
+    * Instantiates a new description lucene match.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param luceneMatchKey the lucene match key
+    * @param viewCoordinateKey the view coordinate key
+    */
    public DescriptionLuceneMatch(Query enclosingQuery, String luceneMatchKey, String viewCoordinateKey) {
       super(enclosingQuery);
       this.luceneMatchKey    = luceneMatchKey;
@@ -95,18 +108,24 @@ public class DescriptionLuceneMatch
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public final NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      String luceneMatch = (String) enclosingQuery.getLetDeclarations()
-                                                  .get(luceneMatchKey);
-      TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                      .get(viewCoordinateKey);
-      NidSet               nids               = new NidSet();
-      List<IndexServiceBI> indexers           = LookupService.get()
-                                                             .getAllServices(IndexServiceBI.class);
-      IndexServiceBI       descriptionIndexer = null;
+      final String luceneMatch = (String) this.enclosingQuery.getLetDeclarations()
+                                                             .get(this.luceneMatchKey);
+      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+                                                                                            .get(this.viewCoordinateKey);
+      final NidSet               nids               = new NidSet();
+      final List<IndexServiceBI> indexers           = LookupService.get()
+                                                                   .getAllServices(IndexServiceBI.class);
+      IndexServiceBI             descriptionIndexer = null;
 
-      for (IndexServiceBI li: indexers) {
+      for (final IndexServiceBI li: indexers) {
          if (li.getIndexerName()
                .equals("descriptions")) {
             descriptionIndexer = li;
@@ -117,7 +136,7 @@ public class DescriptionLuceneMatch
          throw new IllegalStateException("No description indexer found in: " + indexers);
       }
 
-      List<SearchResult> queryResults = descriptionIndexer.query(luceneMatch, 1000);
+      final List<SearchResult> queryResults = descriptionIndexer.query(luceneMatch, 1000);
 
       queryResults.stream().forEach((s) -> {
                               nids.add(s.getNid());
@@ -125,7 +144,7 @@ public class DescriptionLuceneMatch
 
       // Filter the results, based upon the input ViewCoordinate
       nids.stream().forEach((nid) -> {
-                      Optional<? extends ObjectChronology<? extends StampedVersion>> chronology =
+                      final Optional<? extends ObjectChronology<? extends StampedVersion>> chronology =
                          Get.identifiedObjectService()
                             .getIdentifiedObjectChronology(nid);
 
@@ -144,23 +163,39 @@ public class DescriptionLuceneMatch
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
       getResultsCache();
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.DESCRIPTION_LUCENE_MATCH);
       whereClause.getLetKeys()
-                 .add(luceneMatchKey);
+                 .add(this.luceneMatchKey);
       return whereClause;
    }
 }

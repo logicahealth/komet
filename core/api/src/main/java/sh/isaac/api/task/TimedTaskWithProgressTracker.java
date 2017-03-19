@@ -64,6 +64,7 @@ import sh.isaac.api.util.FortifyFun;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class TimedTaskWithProgressTracker.
  *
  * @author kec
  * @param <T> Type that the completed task returns.
@@ -71,25 +72,30 @@ import sh.isaac.api.util.FortifyFun;
 public abstract class TimedTaskWithProgressTracker<T>
         extends TimedTask<T>
          implements ProgressTracker {
+   /** The Constant MH_SET_TOTAL_WORK. */
    static final MethodHandle MH_SET_TOTAL_WORK;
+
+   /** The Constant MH_SET_PROGRESS. */
    static final MethodHandle MH_SET_PROGRESS;
+
+   /** The Constant MH_SET_WORK_DONE. */
    static final MethodHandle MH_SET_WORK_DONE;
 
    //~--- static initializers -------------------------------------------------
 
    static {
       try {
-         Method setTotalWork = Task.class.getDeclaredMethod("setTotalWork", double.class);
+         final Method setTotalWork = Task.class.getDeclaredMethod("setTotalWork", double.class);
 
          FortifyFun.fixAccessible(setTotalWork);  // setTotalWork.setAccessible(true);
          MH_SET_TOTAL_WORK = publicLookup().unreflect(setTotalWork);
 
-         Method setProgress = Task.class.getDeclaredMethod("setProgress", double.class);
+         final Method setProgress = Task.class.getDeclaredMethod("setProgress", double.class);
 
          FortifyFun.fixAccessible(setProgress);   // setProgress.setAccessible(true);
          MH_SET_PROGRESS = publicLookup().unreflect(setProgress);
 
-         Method setWorkDone = Task.class.getDeclaredMethod("setWorkDone", double.class);
+         final Method setWorkDone = Task.class.getDeclaredMethod("setWorkDone", double.class);
 
          FortifyFun.fixAccessible(setWorkDone);   // setWorkDone.setAccessible(true);
          MH_SET_WORK_DONE = publicLookup().unreflect(setWorkDone);
@@ -100,57 +106,83 @@ public abstract class TimedTaskWithProgressTracker<T>
 
    //~--- fields --------------------------------------------------------------
 
-   private final Ticker progressTicker       = new Ticker();
-   LongAdder            completedUnitsOfWork = new LongAdder();
-   AtomicLong           totalWork            = new AtomicLong();
-   AtomicLong           lastTotalWork        = new AtomicLong();
+   /** The progress ticker. */
+   private final Ticker progressTicker = new Ticker();
+
+   /** The completed units of work. */
+   LongAdder completedUnitsOfWork = new LongAdder();
+
+   /** The total work. */
+   AtomicLong totalWork = new AtomicLong();
+
+   /** The last total work. */
+   AtomicLong lastTotalWork = new AtomicLong();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the to total work.
+    *
+    * @param amountOfWork the amount of work
+    */
    @Override
    public void addToTotalWork(long amountOfWork) {
-      totalWork.addAndGet(amountOfWork);
+      this.totalWork.addAndGet(amountOfWork);
    }
 
+   /**
+    * Completed unit of work.
+    */
    @Override
    public void completedUnitOfWork() {
-      completedUnitsOfWork.increment();
+      this.completedUnitsOfWork.increment();
    }
 
+   /**
+    * Completed units of work.
+    *
+    * @param unitsCompleted the units completed
+    */
    @Override
    public void completedUnitsOfWork(long unitsCompleted) {
-      completedUnitsOfWork.add(unitsCompleted);
+      this.completedUnitsOfWork.add(unitsCompleted);
    }
 
+   /**
+    * Done.
+    */
    @Override
    protected void done() {
       super.done();
-      progressTicker.stop();
+      this.progressTicker.stop();
    }
 
+   /**
+    * Running.
+    */
    @Override
    protected void running() {
       super.running();
 
-      long currentTotalWork = totalWork.get();
+      final long currentTotalWork = this.totalWork.get();
 
-      progressTicker.start(progressUpdateIntervalInSecs,
-                           (value) -> {
-                              try {
-                                 if (currentTotalWork > 0) {
-                                    MH_SET_WORK_DONE.invoke(this, completedUnitsOfWork.doubleValue());
-                                    MH_SET_PROGRESS.invoke(this,
-                                          completedUnitsOfWork.doubleValue() / totalWork.doubleValue());
-                                    MH_SET_TOTAL_WORK.invoke(this, totalWork.doubleValue());
-                                 } else {
-                                    MH_SET_WORK_DONE.invoke(this, -1d);
-                                    MH_SET_PROGRESS.invoke(this, -1d);
-                                    MH_SET_TOTAL_WORK.invoke(this, -1d);
-                                 }
-                              } catch (Throwable throwable) {
-                                 throw new RuntimeException(throwable);
-                              }
-                           });
+      this.progressTicker.start(progressUpdateIntervalInSecs,
+                                (value) -> {
+                                   try {
+                                      if (currentTotalWork > 0) {
+                                         MH_SET_WORK_DONE.invoke(this, this.completedUnitsOfWork.doubleValue());
+                                         MH_SET_PROGRESS.invoke(this,
+                                               this.completedUnitsOfWork.doubleValue() / this.totalWork.doubleValue());
+                                         MH_SET_TOTAL_WORK.invoke(this, this.totalWork.doubleValue());
+                                      } else {
+                                         MH_SET_WORK_DONE.invoke(this, -1d);
+                                         MH_SET_PROGRESS.invoke(this, -1d);
+                                         MH_SET_TOTAL_WORK.invoke(this, -1d);
+                                      }
+                                   } catch (final Throwable throwable) {
+                                      throw new RuntimeException(throwable);
+                                   }
+                                });
    }
 
    /**

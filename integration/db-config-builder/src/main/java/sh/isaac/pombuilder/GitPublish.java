@@ -61,11 +61,12 @@ import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link GitPublish}
+ * {@link GitPublish}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class GitPublish {
+   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
@@ -79,7 +80,7 @@ public class GitPublish {
     *
     * @param gitblitBaseURL a URL like https://git.isaac.sh/git
     * @return the full git URL to a contentConfigurations repository.
-    * @throws IOException
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static String constructChangesetRepositoryURL(String gitblitBaseURL)
             throws IOException {
@@ -96,13 +97,21 @@ public class GitPublish {
       }
    }
 
+   /**
+    * Creates the repository if necessary.
+    *
+    * @param gitRepository the git repository
+    * @param gitUserName the git user name
+    * @param gitPassword the git password
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static void createRepositoryIfNecessary(String gitRepository,
          String gitUserName,
          char[] gitPassword)
             throws IOException {
-      String      baseUrl  = GitBlitUtils.parseBaseRemoteAddress(gitRepository);
-      Set<String> repos    = GitBlitUtils.readRepositories(baseUrl, gitUserName, gitPassword);
-      String      repoName = gitRepository.substring(gitRepository.lastIndexOf("/") + 1);
+      final String      baseUrl  = GitBlitUtils.parseBaseRemoteAddress(gitRepository);
+      final Set<String> repos    = GitBlitUtils.readRepositories(baseUrl, gitUserName, gitPassword);
+      final String      repoName = gitRepository.substring(gitRepository.lastIndexOf("/") + 1);
 
       if (!repos.contains(repoName)) {
          LOG.info("Requested repository '" + gitRepository + "' does not exist - creating");
@@ -123,6 +132,13 @@ public class GitPublish {
     * receives the tag.
     *
     * Calls {@link #constructChangesetRepositoryURL(String) to adjust the URL as necessary
+    *
+    * @param folderWithProject the folder with project
+    * @param gitRepository the git repository
+    * @param gitUserName the git user name
+    * @param gitPassword the git password
+    * @param tagToCreate the tag to create
+    * @throws Exception the exception
     */
    public static void publish(File folderWithProject,
                               String gitRepository,
@@ -135,18 +151,18 @@ public class GitPublish {
                 gitRepository,
                 tagToCreate);
 
-      String correctedURL = constructChangesetRepositoryURL(gitRepository);
+      final String correctedURL = constructChangesetRepositoryURL(gitRepository);
 
       createRepositoryIfNecessary(correctedURL, gitUserName, gitPassword);
 
-      SyncServiceGIT svc = new SyncServiceGIT();
+      final SyncServiceGIT svc = new SyncServiceGIT();
 
       svc.setReadmeFileContent(
           "ISAAC Dataprocessing Configuration Storage\n====\nIt is highly recommended you do not manually interact with this repository.");
       svc.setGitIgnoreContent("");
 
-      boolean ignoreExists = new File(folderWithProject, ".gitignore").exists();
-      boolean readmeExists = new File(folderWithProject, "README.md").exists();
+      final boolean ignoreExists = new File(folderWithProject, ".gitignore").exists();
+      final boolean readmeExists = new File(folderWithProject, "README.md").exists();
 
       svc.setRootLocation(folderWithProject);
       svc.linkAndFetchFromRemote(correctedURL, gitUserName, gitPassword);
@@ -172,20 +188,24 @@ public class GitPublish {
     * This will return -1 if no tag was found matching the tagWithoutRevNumber.
     * This will return 0 if a tag was found matching the tagWithoutRefNumber (but no tag was found with a revision number)
     * This will return X > 0 if one or more tags were found with a revision number - returning the highest value.
+    *
+    * @param existingTags the existing tags
+    * @param tagWithoutRevNumber the tag without rev number
+    * @return the int
     */
    public static int readHighestRevisionNumber(ArrayList<String> existingTags, String tagWithoutRevNumber) {
       int highestBuildRevision = -1;
 
-      for (String s: existingTags) {
+      for (final String s: existingTags) {
          if (s.equals("refs/tags/" + tagWithoutRevNumber)) {
             if (0 > highestBuildRevision) {
                highestBuildRevision = 0;
             }
          } else if (s.startsWith("refs/tags/" + tagWithoutRevNumber + "-")) {
-            String revNumber = s.substring(("refs/tags/" + tagWithoutRevNumber + "-").length(), s.length());
+            final String revNumber = s.substring(("refs/tags/" + tagWithoutRevNumber + "-").length(), s.length());
 
             if (NumericUtils.isInt(revNumber)) {
-               int parsed = Integer.parseInt(revNumber);
+               final int parsed = Integer.parseInt(revNumber);
 
                if (parsed > highestBuildRevision) {
                   highestBuildRevision = parsed;
@@ -198,33 +218,34 @@ public class GitPublish {
    }
 
    /**
-    * Calls {@link #constructChangesetRepositoryURL(String) to adjust the URL as necessary
-    * @param gitRepository
-    * @param gitUserName
-    * @param gitPassword
-    * @return
-    * @throws Exception
+    * Calls {@link #constructChangesetRepositoryURL(String) to adjust the URL as necessary.
+    *
+    * @param gitRepository the git repository
+    * @param gitUserName the git user name
+    * @param gitPassword the git password
+    * @return the array list
+    * @throws Exception the exception
     */
    public static ArrayList<String> readTags(String gitRepository,
          String gitUserName,
          char[] gitPassword)
             throws Exception {
-      String correctedURL = constructChangesetRepositoryURL(gitRepository);
+      final String correctedURL = constructChangesetRepositoryURL(gitRepository);
 
       createRepositoryIfNecessary(correctedURL, gitUserName, gitPassword);
 
-      SyncServiceGIT svc        = new SyncServiceGIT();
-      File           tempFolder = Files.createTempDirectory("tagRead")
-                                       .toFile();
+      final SyncServiceGIT svc        = new SyncServiceGIT();
+      final File           tempFolder = Files.createTempDirectory("tagRead")
+                                             .toFile();
 
       svc.setRootLocation(tempFolder);
       svc.linkAndFetchFromRemote(correctedURL, gitUserName, gitPassword);
 
-      ArrayList<String> temp = svc.readTags(gitUserName, gitPassword);
+      final ArrayList<String> temp = svc.readTags(gitUserName, gitPassword);
 
       try {
          FileUtil.recursiveDelete(tempFolder);
-      } catch (Exception e) {
+      } catch (final Exception e) {
          LOG.error("Problem cleaning up temp folder " + tempFolder, e);
       }
 

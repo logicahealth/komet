@@ -51,17 +51,36 @@ import sh.isaac.api.component.sememe.version.MutableDescriptionSememe;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface DescriptionBuilderService.
  *
  * @author kec
  */
 @Contract
 public interface DescriptionBuilderService {
+   /**
+    * Gets the description builder.
+    *
+    * @param descriptionText the description text
+    * @param conceptBuilder the concept builder
+    * @param descriptionType the description type
+    * @param languageForDescription the language for description
+    * @return the description builder
+    */
    DescriptionBuilder<? extends SememeChronology<?>,
                       ? extends MutableDescriptionSememe<?>> getDescriptionBuilder(String descriptionText,
                             ConceptBuilder conceptBuilder,
                             ConceptSpecification descriptionType,
                             ConceptSpecification languageForDescription);
 
+   /**
+    * Gets the description builder.
+    *
+    * @param descriptionText the description text
+    * @param conceptSequence the concept sequence
+    * @param descriptionType the description type
+    * @param languageForDescription the language for description
+    * @return the description builder
+    */
    DescriptionBuilder<? extends SememeChronology<?>,
                       ? extends MutableDescriptionSememe<?>> getDescriptionBuilder(String descriptionText,
                             int conceptSequence,

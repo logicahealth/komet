@@ -62,77 +62,119 @@ import sh.isaac.model.observable.ObservableFields;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableStampPathImpl.
  *
  * @author kec
  */
 public class ObservableStampPathImpl
         extends ObservableCoordinateImpl
          implements ObservableStampPath {
-   StampPathImpl                                stampPath;
-   ReadOnlyIntegerProperty                      pathConceptSequenceProperty;
+   /** The stamp path. */
+   StampPathImpl stampPath;
+
+   /** The path concept sequence property. */
+   ReadOnlyIntegerProperty pathConceptSequenceProperty;
+
+   /** The path origins property. */
    ReadOnlyListWrapper<ObservableStampPosition> pathOriginsProperty;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new observable stamp path impl.
+    *
+    * @param stampPath the stamp path
+    */
    public ObservableStampPathImpl(StampPath stampPath) {
       this.stampPath = (StampPathImpl) stampPath;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(StampPath o) {
-      return stampPath.compareTo(o);
+      return this.stampPath.compareTo(o);
    }
 
+   /**
+    * Path concept sequence property.
+    *
+    * @return the read only integer property
+    */
    @Override
    public ReadOnlyIntegerProperty pathConceptSequenceProperty() {
-      if (pathConceptSequenceProperty == null) {
-         pathConceptSequenceProperty = new SimpleIntegerProperty(this,
+      if (this.pathConceptSequenceProperty == null) {
+         this.pathConceptSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.PATH_SEQUENCE_FOR_STAMP_PATH.toExternalString(),
                getPathConceptSequence());
       }
 
-      return pathConceptSequenceProperty;
+      return this.pathConceptSequenceProperty;
    }
 
+   /**
+    * Path origins property.
+    *
+    * @return the read only list property
+    */
    @Override
    public ReadOnlyListProperty<ObservableStampPosition> pathOriginsProperty() {
-      if (pathOriginsProperty == null) {
-         pathOriginsProperty = new ReadOnlyListWrapper<>(this,
+      if (this.pathOriginsProperty == null) {
+         this.pathOriginsProperty = new ReadOnlyListWrapper<>(this,
                ObservableFields.PATH_ORIGIN_LIST_FOR_STAMP_PATH.toExternalString(),
                FXCollections.<ObservableStampPosition>observableList(getPathOrigins()));
       }
 
-      return pathOriginsProperty;
+      return this.pathOriginsProperty;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "ObservableStampPathImpl{" + stampPath + '}';
+      return "ObservableStampPathImpl{" + this.stampPath + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the path concept sequence.
+    *
+    * @return the path concept sequence
+    */
    @Override
    public int getPathConceptSequence() {
-      if (pathConceptSequenceProperty != null) {
-         return pathConceptSequenceProperty.get();
+      if (this.pathConceptSequenceProperty != null) {
+         return this.pathConceptSequenceProperty.get();
       }
 
-      return stampPath.getPathConceptSequence();
+      return this.stampPath.getPathConceptSequence();
    }
 
+   /**
+    * Gets the path origins.
+    *
+    * @return the path origins
+    */
    @Override
    public List<ObservableStampPosition> getPathOrigins() {
-      if (pathOriginsProperty != null) {
-         return pathOriginsProperty.get();
+      if (this.pathOriginsProperty != null) {
+         return this.pathOriginsProperty.get();
       }
 
-      return stampPath.getPathOrigins()
-                      .stream()
-                      .map((origin) -> new ObservableStampPositionImpl(origin))
-                      .collect(Collectors.toList());
+      return this.stampPath.getPathOrigins()
+                           .stream()
+                           .map((origin) -> new ObservableStampPositionImpl(origin))
+                           .collect(Collectors.toList());
    }
 }
 

@@ -56,85 +56,117 @@ import java.util.stream.IntStream;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ConcurrentSequenceObjectMap.
  *
  * @author kec
  * @param <E> Type of {@code Object} that are the values of the map.
  */
 public class ConcurrentSequenceObjectMap<E> {
+   /** The Constant SEGMENT_SIZE. */
    private static final int SEGMENT_SIZE = 1280;
 
    //~--- fields --------------------------------------------------------------
 
-   ReentrantLock                                 lock           = new ReentrantLock();
+   /** The lock. */
+   ReentrantLock lock = new ReentrantLock();
+
+   /** The object list list. */
    CopyOnWriteArrayList<AtomicReferenceArray<E>> objectListList = new CopyOnWriteArrayList<>();
-   AtomicInteger                                 maxSequence    = new AtomicInteger(0);
+
+   /** The max sequence. */
+   AtomicInteger maxSequence = new AtomicInteger(0);
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concurrent sequence object map.
+    */
    public ConcurrentSequenceObjectMap() {
-      objectListList.add(new AtomicReferenceArray<>(SEGMENT_SIZE));
+      this.objectListList.add(new AtomicReferenceArray<>(SEGMENT_SIZE));
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Clear.
+    */
    public void clear() {
-      objectListList.clear();
-      objectListList.add(new AtomicReferenceArray<>(SEGMENT_SIZE));
-      maxSequence.set(0);
+      this.objectListList.clear();
+      this.objectListList.add(new AtomicReferenceArray<>(SEGMENT_SIZE));
+      this.maxSequence.set(0);
    }
 
+   /**
+    * Contains key.
+    *
+    * @param sequence the sequence
+    * @return true, if successful
+    */
    public boolean containsKey(int sequence) {
-      int segmentIndex   = sequence / SEGMENT_SIZE;
-      int indexInSegment = sequence % SEGMENT_SIZE;
+      final int segmentIndex   = sequence / SEGMENT_SIZE;
+      final int indexInSegment = sequence % SEGMENT_SIZE;
 
-      if (segmentIndex >= objectListList.size()) {
+      if (segmentIndex >= this.objectListList.size()) {
          return false;
       }
 
-      return objectListList.get(segmentIndex)
-                           .get(indexInSegment) != null;
+      return this.objectListList.get(segmentIndex)
+                                .get(indexInSegment) != null;
    }
 
+   /**
+    * Put.
+    *
+    * @param sequence the sequence
+    * @param value the value
+    * @return the e
+    */
    public E put(int sequence, E value) {
-      maxSequence.set(Math.max(sequence, maxSequence.get()));
+      this.maxSequence.set(Math.max(sequence, this.maxSequence.get()));
 
-      int segmentIndex = sequence / SEGMENT_SIZE;
+      final int segmentIndex = sequence / SEGMENT_SIZE;
 
-      if (segmentIndex >= objectListList.size()) {
-         lock.lock();
+      if (segmentIndex >= this.objectListList.size()) {
+         this.lock.lock();
 
          try {
-            while (segmentIndex >= objectListList.size()) {
-               objectListList.add(new AtomicReferenceArray<>(SEGMENT_SIZE));
+            while (segmentIndex >= this.objectListList.size()) {
+               this.objectListList.add(new AtomicReferenceArray<>(SEGMENT_SIZE));
             }
          } finally {
-            lock.unlock();
+            this.lock.unlock();
          }
       }
 
-      int indexInSegment = sequence % SEGMENT_SIZE;
+      final int indexInSegment = sequence % SEGMENT_SIZE;
 
-      if (objectListList.get(segmentIndex)
-                        .compareAndSet(indexInSegment, (E) null, value)) {
+      if (this.objectListList.get(segmentIndex)
+                             .compareAndSet(indexInSegment, (E) null, value)) {
          return value;
       }
 
-      return objectListList.get(segmentIndex)
-                           .get(indexInSegment);
+      return this.objectListList.get(segmentIndex)
+                                .get(indexInSegment);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the.
+    *
+    * @param sequence the sequence
+    * @return the optional
+    */
    public Optional<E> get(int sequence) {
-      int segmentIndex = sequence / SEGMENT_SIZE;
+      final int segmentIndex = sequence / SEGMENT_SIZE;
 
-      if (segmentIndex >= objectListList.size()) {
+      if (segmentIndex >= this.objectListList.size()) {
          return Optional.empty();
       }
 
-      int indexInSegment = sequence % SEGMENT_SIZE;
+      final int indexInSegment = sequence % SEGMENT_SIZE;
 
-      return Optional.ofNullable((E) objectListList.get(segmentIndex)
+      return Optional.ofNullable(this.objectListList.get(segmentIndex)
             .get(indexInSegment));
    }
 
@@ -142,27 +174,32 @@ public class ConcurrentSequenceObjectMap<E> {
     * Provides no range or null checking. For use with a stream that already
     * filters out null values and out of range sequences.
     *
-    * @param sequence
-    * @return
+    * @param sequence the sequence
+    * @return the quick
     */
    private E getQuick(int sequence) {
-      int segmentIndex   = sequence / SEGMENT_SIZE;
-      int indexInSegment = sequence % SEGMENT_SIZE;
+      final int segmentIndex   = sequence / SEGMENT_SIZE;
+      final int indexInSegment = sequence % SEGMENT_SIZE;
 
-      return (E) objectListList.get(segmentIndex)
-                               .get(indexInSegment);
+      return this.objectListList.get(segmentIndex)
+                                .get(indexInSegment);
    }
 
+   /**
+    * Gets the sequences.
+    *
+    * @return the sequences
+    */
    public IntStream getSequences() {
-      int               maxSize = maxSequence.get();
-      IntStream.Builder builder = IntStream.builder();
+      final int               maxSize = this.maxSequence.get();
+      final IntStream.Builder builder = IntStream.builder();
 
       for (int i = 0; i < maxSize; i++) {
-         int segmentIndex   = i / SEGMENT_SIZE;
-         int indexInSegment = i % SEGMENT_SIZE;
+         final int segmentIndex   = i / SEGMENT_SIZE;
+         final int indexInSegment = i % SEGMENT_SIZE;
 
-         if (objectListList.get(segmentIndex)
-                           .get(indexInSegment) != null) {
+         if (this.objectListList.get(segmentIndex)
+                                .get(indexInSegment) != null) {
             builder.accept(i);
          }
       }

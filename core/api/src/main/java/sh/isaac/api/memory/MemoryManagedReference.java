@@ -41,7 +41,12 @@ package sh.isaac.api.memory;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
@@ -62,37 +67,79 @@ import sh.isaac.api.DataSerializer;
 
 /**
  * Created by kec on 4/10/15.
- * @param <T>
+ *
+ * @param <T> the generic type
  */
 public class MemoryManagedReference<T extends Object>
         extends SoftReference<T>
          implements Comparable<MemoryManagedReference> {
-   private static final AtomicInteger objectIdSupplier          = new AtomicInteger();
+   /** The Constant objectIdSupplier. */
+   private static final AtomicInteger objectIdSupplier = new AtomicInteger();
+
+   /** The Constant referenceSequenceSupplier. */
    private static final AtomicInteger referenceSequenceSupplier = new AtomicInteger(Integer.MIN_VALUE + 1);
 
    //~--- fields --------------------------------------------------------------
 
-   private final int                objectId                  = objectIdSupplier.getAndIncrement();
-   private int                      lastWriteToDiskSequence   = referenceSequenceSupplier.getAndIncrement();
-   private long                     lastWriteToDiskTime       = System.currentTimeMillis();
-   private int                      lastElementUpdateSequence = Integer.MIN_VALUE;
-   private long                     lastElementUpdateTime     = System.currentTimeMillis();
-   private long                     lastElementReadTime       = Long.MIN_VALUE;
-   private final AtomicReference<T> strongReferenceForUpdate  = new AtomicReference<>();
-   private final AtomicReference<T> strongReferenceForCache   = new AtomicReference<>();
-   private final LongAdder          hits                      = new LongAdder();
-   private final AtomicInteger      cacheCount                = new AtomicInteger();
-   private final File               diskLocation;
-   private final DataSerializer<T>  serializer;
+   /** The object id. */
+   private final int objectId = objectIdSupplier.getAndIncrement();
+
+   /** The last write to disk sequence. */
+   private int lastWriteToDiskSequence = referenceSequenceSupplier.getAndIncrement();
+
+   /** The last write to disk time. */
+   private long lastWriteToDiskTime = System.currentTimeMillis();
+
+   /** The last element update sequence. */
+   private int lastElementUpdateSequence = Integer.MIN_VALUE;
+
+   /** The last element update time. */
+   private long lastElementUpdateTime = System.currentTimeMillis();
+
+   /** The last element read time. */
+   private long lastElementReadTime = Long.MIN_VALUE;
+
+   /** The strong reference for update. */
+   private final AtomicReference<T> strongReferenceForUpdate = new AtomicReference<>();
+
+   /** The strong reference for cache. */
+   private final AtomicReference<T> strongReferenceForCache = new AtomicReference<>();
+
+   /** The hits. */
+   private final LongAdder hits = new LongAdder();
+
+   /** The cache count. */
+   private final AtomicInteger cacheCount = new AtomicInteger();
+
+   /** The disk location. */
+   private final File diskLocation;
+
+   /** The serializer. */
+   private final DataSerializer<T> serializer;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new memory managed reference.
+    *
+    * @param referent the referent
+    * @param diskLocation the disk location
+    * @param serializer the serializer
+    */
    public MemoryManagedReference(T referent, File diskLocation, DataSerializer<T> serializer) {
       super(referent);
       this.diskLocation = diskLocation;
       this.serializer   = serializer;
    }
 
+   /**
+    * Instantiates a new memory managed reference.
+    *
+    * @param referent the referent
+    * @param q the q
+    * @param diskLocation the disk location
+    * @param serializer the serializer
+    */
    public MemoryManagedReference(T referent,
                                  ReferenceQueue<? super T> q,
                                  File diskLocation,
@@ -104,38 +151,62 @@ public class MemoryManagedReference<T extends Object>
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Cache entry.
+    */
    public void cacheEntry() {
-      int count = cacheCount.incrementAndGet();
+      final int count = this.cacheCount.incrementAndGet();
 
       if (count == 1) {
-         strongReferenceForCache.set(this.get());
+         this.strongReferenceForCache.set(this.get());
       }
    }
 
+   /**
+    * Cache exit.
+    */
    public void cacheExit() {
-      int count = cacheCount.decrementAndGet();
+      final int count = this.cacheCount.decrementAndGet();
 
       if (count == 0) {
-         strongReferenceForCache.set(null);
+         this.strongReferenceForCache.set(null);
       }
    }
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(MemoryManagedReference o) {
       return this.objectId - o.objectId;
    }
 
+   /**
+    * Element read.
+    */
    public void elementRead() {
-      hits.increment();
+      this.hits.increment();
       this.lastElementReadTime = System.currentTimeMillis();
    }
 
+   /**
+    * Element updated.
+    */
    public void elementUpdated() {
       this.strongReferenceForUpdate.set(this.get());
-      lastElementUpdateSequence = referenceSequenceSupplier.getAndIncrement();
-      lastElementUpdateTime     = System.currentTimeMillis();
+      this.lastElementUpdateSequence = referenceSequenceSupplier.getAndIncrement();
+      this.lastElementUpdateTime     = System.currentTimeMillis();
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -146,41 +217,59 @@ public class MemoryManagedReference<T extends Object>
          return false;
       }
 
-      MemoryManagedReference<?> that = (MemoryManagedReference<?>) o;
+      final MemoryManagedReference<?> that = (MemoryManagedReference<?>) o;
 
-      return objectId == that.objectId;
+      return this.objectId == that.objectId;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
-      return HashFunctions.hash(objectId);
+      return HashFunctions.hash(this.objectId);
    }
 
+   /**
+    * Ms since last unwritten update.
+    *
+    * @return the long
+    */
    public long msSinceLastUnwrittenUpdate() {
-      return lastElementUpdateTime - lastWriteToDiskTime;
+      return this.lastElementUpdateTime - this.lastWriteToDiskTime;
    }
 
+   /**
+    * Time since last read.
+    *
+    * @return the duration
+    */
    public Duration timeSinceLastRead() {
-      return Duration.ofMillis(System.currentTimeMillis() - lastElementReadTime);
+      return Duration.ofMillis(System.currentTimeMillis() - this.lastElementReadTime);
    }
 
+   /**
+    * Write.
+    */
    public void write() {
-      T objectToWrite = strongReferenceForUpdate.get();
+      final T objectToWrite = this.strongReferenceForUpdate.get();
 
       if (objectToWrite != null) {
-         strongReferenceForUpdate.set(null);
+         this.strongReferenceForUpdate.set(null);
          DiskSemaphore.acquire();
-         lastWriteToDiskSequence = referenceSequenceSupplier.getAndIncrement();
-         lastWriteToDiskTime     = System.currentTimeMillis();
-         diskLocation.getParentFile()
-                     .mkdirs();
+         this.lastWriteToDiskSequence = referenceSequenceSupplier.getAndIncrement();
+         this.lastWriteToDiskTime     = System.currentTimeMillis();
+         this.diskLocation.getParentFile()
+                          .mkdirs();
 
          try (DataOutputStream out =
-               new DataOutputStream(new BufferedOutputStream(new FileOutputStream(diskLocation)))) {
-            serializer.serialize(out, objectToWrite);
-         } catch (FileNotFoundException e) {
+               new DataOutputStream(new BufferedOutputStream(new FileOutputStream(this.diskLocation)))) {
+            this.serializer.serialize(out, objectToWrite);
+         } catch (final FileNotFoundException e) {
             throw new RuntimeException(e);
-         } catch (IOException e) {
+         } catch (final IOException e) {
             throw new RuntimeException(e);
          } finally {
             DiskSemaphore.release();
@@ -190,12 +279,22 @@ public class MemoryManagedReference<T extends Object>
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the last write to disk time.
+    *
+    * @return the last write to disk time
+    */
    public long getLastWriteToDiskTime() {
-      return lastWriteToDiskTime;
+      return this.lastWriteToDiskTime;
    }
 
+   /**
+    * Checks for unwritten update.
+    *
+    * @return true, if successful
+    */
    public boolean hasUnwrittenUpdate() {
-      return lastWriteToDiskSequence < lastElementUpdateSequence;
+      return this.lastWriteToDiskSequence < this.lastElementUpdateSequence;
    }
 }
 

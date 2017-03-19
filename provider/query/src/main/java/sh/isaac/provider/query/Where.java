@@ -56,16 +56,27 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "where")
 @XmlAccessorType(XmlAccessType.PROPERTY)
 public class Where {
+   /** The root clause. */
    private WhereClause rootClause;
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the root clause.
+    *
+    * @return the root clause
+    */
    public WhereClause getRootClause() {
-      return rootClause;
+      return this.rootClause;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the root clause.
+    *
+    * @param rootClause the new root clause
+    */
    public void setRootClause(WhereClause rootClause) {
       this.rootClause = rootClause;
    }

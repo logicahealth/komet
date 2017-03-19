@@ -53,25 +53,42 @@ import java.nio.file.StandardOpenOption;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
  * {@link ConsoleUtil}
  *
  * Utility code for writing to the console in a more intelligent way, including detecting running without a real console,
- * and changing the behavior as appropriate
+ * and changing the behavior as appropriate.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ConsoleUtil {
-   private static boolean       progressLine       = false;
-   private static int           printsSinceReturn  = 0;
-   private static boolean       progressLineUsed   = false;
+   /** The progress line. */
+   private static boolean progressLine = false;
+
+   /** The prints since return. */
+   private static int printsSinceReturn = 0;
+
+   /** The progress line used. */
+   private static boolean progressLineUsed = false;
+
+   /** The console output cache. */
    private static StringBuilder consoleOutputCache = new StringBuilder();
-   private static String        eol                = System.getProperty("line.separator");
-   public static boolean        disableFancy       = (System.console() == null);
-   private static int           lastStatus;
+
+   /** The eol. */
+   private static String eol = System.getProperty("line.separator");
+
+   /** The disable fancy. */
+   public static boolean disableFancy = (System.console() == null);
+
+   /** The last status. */
+   private static int lastStatus;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Prints the.
+    *
+    * @param string the string
+    */
    public static void print(String string) {
       if (progressLine) {
          if (disableFancy) {
@@ -90,6 +107,11 @@ public class ConsoleUtil {
       consoleOutputCache.append(string);
    }
 
+   /**
+    * Prints the errorln.
+    *
+    * @param string the string
+    */
    public static void printErrorln(String string) {
       if (progressLine) {
          if (disableFancy) {
@@ -113,6 +135,11 @@ public class ConsoleUtil {
       progressLineUsed  = false;
    }
 
+   /**
+    * Println.
+    *
+    * @param string the string
+    */
    public static void println(String string) {
       if (progressLine) {
          if (disableFancy) {
@@ -132,6 +159,9 @@ public class ConsoleUtil {
       progressLineUsed = false;
    }
 
+   /**
+    * Show progress.
+    */
    public static void showProgress() {
       char c;
 
@@ -184,11 +214,17 @@ public class ConsoleUtil {
       progressLineUsed = true;
    }
 
+   /**
+    * Write output to file.
+    *
+    * @param path the path
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public static void writeOutputToFile(Path path)
             throws IOException {
-      BufferedWriter bw = Files.newBufferedWriter(path,
-                                                  Charset.forName("UTF-8"),
-                                                  new OpenOption[] { StandardOpenOption.CREATE });
+      final BufferedWriter bw = Files.newBufferedWriter(path,
+                                                        Charset.forName("UTF-8"),
+                                                        new OpenOption[] { StandardOpenOption.CREATE });
 
       bw.append(consoleOutputCache.toString());
       bw.close();

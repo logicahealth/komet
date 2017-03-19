@@ -73,17 +73,30 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIsKindOf
         extends LeafClause {
+   /** The kind of spec key. */
    @XmlElement
    String kindOfSpecKey;
+
+   /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concept is kind of.
+    */
    protected ConceptIsKindOf() {
       super();
    }
 
+   /**
+    * Instantiates a new concept is kind of.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param kindOfSpecKey the kind of spec key
+    * @param viewCoordinateKey the view coordinate key
+    */
    public ConceptIsKindOf(Query enclosingQuery, String kindOfSpecKey, String viewCoordinateKey) {
       super(enclosingQuery);
       this.kindOfSpecKey     = kindOfSpecKey;
@@ -92,15 +105,21 @@ public class ConceptIsKindOf
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      TaxonomyCoordinate   tc = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                        .get(viewCoordinateKey);
-      ConceptSpecification kindOfSpec = (ConceptSpecification) enclosingQuery.getLetDeclarations()
-                                                                             .get(kindOfSpecKey);
-      int                  parentNid         = kindOfSpec.getNid();
-      ConceptSequenceSet   kindOfSequenceSet = Get.taxonomyService()
-                                                  .getKindOfSequenceSet(parentNid, tc);
+      final TaxonomyCoordinate tc = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+                                                                            .get(this.viewCoordinateKey);
+      final ConceptSpecification kindOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+                                                                                        .get(this.kindOfSpecKey);
+      final int                parentNid         = kindOfSpec.getNid();
+      final ConceptSequenceSet kindOfSequenceSet = Get.taxonomyService()
+                                                      .getKindOfSequenceSet(parentNid, tc);
 
       getResultsCache().or(NidSet.of(kindOfSequenceSet));
       return getResultsCache();
@@ -108,25 +127,41 @@ public class ConceptIsKindOf
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
       // Nothing to do...
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.CONCEPT_IS_KIND_OF);
       whereClause.getLetKeys()
-                 .add(kindOfSpecKey);
+                 .add(this.kindOfSpecKey);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       return whereClause;
    }
 }

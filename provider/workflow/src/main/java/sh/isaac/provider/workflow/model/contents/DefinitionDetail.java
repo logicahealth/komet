@@ -100,12 +100,12 @@ public class DefinitionDetail
    /**
     * Constructor for a new definition based on specified entry fields.
     *
-    * @param bpmn2Id
-    * @param name
-    * @param namespace
-    * @param version
-    * @param roles
-    * @param description
+    * @param bpmn2Id the bpmn 2 id
+    * @param name the name
+    * @param namespace the namespace
+    * @param version the version
+    * @param roles the roles
+    * @param description the description
     */
    public DefinitionDetail(String bpmn2Id,
                            String name,
@@ -124,9 +124,15 @@ public class DefinitionDetail
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
-      DefinitionDetail other = (DefinitionDetail) obj;
+      final DefinitionDetail other = (DefinitionDetail) obj;
 
       return this.bpmn2Id.equals(other.bpmn2Id) &&
              this.name.equals(other.name) &&
@@ -137,128 +143,149 @@ public class DefinitionDetail
              (this.importDate == other.importDate);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
-      return bpmn2Id.hashCode() + name.hashCode() + namespace.hashCode() + version.hashCode() + roles.hashCode() +
-             description.hashCode() + new Long(importDate).hashCode();
+      return this.bpmn2Id.hashCode() + this.name.hashCode() + this.namespace.hashCode() + this.version.hashCode() +
+             this.roles.hashCode() + this.description.hashCode() + new Long(this.importDate).hashCode();
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      StringBuffer buf = new StringBuffer();
+      final StringBuffer buf = new StringBuffer();
 
-      for (UserRole r: roles) {
+      for (final UserRole r: this.roles) {
          buf.append(r + ", ");
       }
 
-      LocalDate date             = LocalDate.ofEpochDay(importDate);
-      String    importDateString = BPMNInfo.workflowDateFormatter.format(date);
+      final LocalDate date             = LocalDate.ofEpochDay(this.importDate);
+      final String    importDateString = BPMNInfo.workflowDateFormatter.format(date);
 
-      return "\n\t\tId: " + id + "\n\t\tBPMN2 Id: " + bpmn2Id + "\n\t\tName: " + name + "\n\t\tNamespace: " +
-             namespace + "\n\t\tVersion: " + version + "\n\t\tRoles: " + buf.toString() + "\n\t\tDescription: " +
-             description + "\n\t\tImport Date: " + importDateString;
+      return "\n\t\tId: " + this.id + "\n\t\tBPMN2 Id: " + this.bpmn2Id + "\n\t\tName: " + this.name +
+             "\n\t\tNamespace: " + this.namespace + "\n\t\tVersion: " + this.version + "\n\t\tRoles: " +
+             buf.toString() + "\n\t\tDescription: " + this.description + "\n\t\tImport Date: " + importDateString;
    }
 
+   /**
+    * Put additional workflow fields.
+    *
+    * @param out the out
+    */
    @Override
    protected void putAdditionalWorkflowFields(ByteArrayDataBuffer out) {
-      out.putByteArrayField(bpmn2Id.getBytes());
-      out.putByteArrayField(name.getBytes());
-      out.putByteArrayField(namespace.getBytes());
-      out.putByteArrayField(version.getBytes());
-      out.putInt(roles.size());
+      out.putByteArrayField(this.bpmn2Id.getBytes());
+      out.putByteArrayField(this.name.getBytes());
+      out.putByteArrayField(this.namespace.getBytes());
+      out.putByteArrayField(this.version.getBytes());
+      out.putInt(this.roles.size());
 
-      for (UserRole s: roles) {
+      for (final UserRole s: this.roles) {
          out.putInt(s.ordinal());
       }
 
-      out.putByteArrayField(description.getBytes());
-      out.putLong(importDate);
+      out.putByteArrayField(this.description.getBytes());
+      out.putLong(this.importDate);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the additional workflow fields.
+    *
+    * @param in the in
+    * @return the additional workflow fields
+    */
    @Override
    protected void getAdditionalWorkflowFields(ByteArrayDataBuffer in) {
-      bpmn2Id   = new String(in.getByteArrayField());
-      name      = new String(in.getByteArrayField());
-      namespace = new String(in.getByteArrayField());
-      version   = new String(in.getByteArrayField());
+      this.bpmn2Id   = new String(in.getByteArrayField());
+      this.name      = new String(in.getByteArrayField());
+      this.namespace = new String(in.getByteArrayField());
+      this.version   = new String(in.getByteArrayField());
 
-      int colCount = in.getInt();
+      final int colCount = in.getInt();
 
-      roles = new HashSet<>();
+      this.roles = new HashSet<>();
 
       for (int i = 0; i < colCount; i++) {
-         roles.add(UserRole.safeValueOf(in.getInt())
-                           .get());
+         this.roles.add(UserRole.safeValueOf(in.getInt())
+                                .get());
       }
 
-      description = new String(in.getByteArrayField());
-      importDate  = in.getLong();
+      this.description = new String(in.getByteArrayField());
+      this.importDate  = in.getLong();
    }
 
    /**
-    * Gets the BPMN2 file's Id
+    * Gets the BPMN2 file's Id.
     *
     * @return bpmn2 id
     */
    public String getBpmn2Id() {
-      return bpmn2Id;
+      return this.bpmn2Id;
    }
 
    /**
-    * Gets the name of the workflow definition
+    * Gets the name of the workflow definition.
     *
     * @return definition name
     */
    public String getDescription() {
-      return description;
+      return this.description;
    }
 
    /**
     * Gets the date which the BPM2 file containing the definition was imported
-    * into the system
+    * into the system.
     *
     * @return version
     */
    public long getImportDate() {
-      return importDate;
+      return this.importDate;
    }
 
    /**
-    * Gets the name of the workflow definition
+    * Gets the name of the workflow definition.
     *
     * @return definition name
     */
    public String getName() {
-      return name;
+      return this.name;
    }
 
    /**
-    * Gets the namespace for which the definition is relevant
+    * Gets the namespace for which the definition is relevant.
     *
     * @return namespace
     */
    public String getNamespace() {
-      return namespace;
+      return this.namespace;
    }
 
    /**
-    * Gets the workflow roles that are used within the definition
+    * Gets the workflow roles that are used within the definition.
     *
     * @return the workflow roles available
     */
    public Set<UserRole> getRoles() {
-      return roles;
+      return this.roles;
    }
 
    /**
-    * Gets the definition's version
+    * Gets the definition's version.
     *
     * @return version
     */
    public String getVersion() {
-      return version;
+      return this.version;
    }
 }
 

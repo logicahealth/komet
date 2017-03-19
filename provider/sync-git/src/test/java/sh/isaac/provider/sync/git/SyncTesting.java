@@ -54,23 +54,29 @@ import sh.isaac.api.sync.SyncFiles;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link SyncTesting}
+ * {@link SyncTesting}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class SyncTesting {
+   /**
+    * The main method.
+    *
+    * @param args the arguments
+    * @throws Exception the exception
+    */
    public static void main(String[] args)
             throws Exception {
       // Configure Java logging into log4j2
       System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
 
-      SyncFiles ssg         = LookupService.getService(SyncServiceGIT.class);
-      File      localFolder = new File("/mnt/SSD/scratch/gitTesting");
+      final SyncFiles ssg         = LookupService.getService(SyncServiceGIT.class);
+      final File      localFolder = new File("/mnt/SSD/scratch/gitTesting");
 
       ssg.setRootLocation(localFolder);
 
-      String username = "username";
-      char[] password = "password".toCharArray();
+      final String username = "username";
+      final char[] password = "password".toCharArray();
 
       ssg.linkAndFetchFromRemote("https://github.com/" + username + "/test.git", username, password);
       ssg.linkAndFetchFromRemote("ssh://" + username + "@csfe.aceworkspace.net:29418/testrepo", username, password);
@@ -85,7 +91,7 @@ public class SyncTesting {
             password,
             MergeFailOption.FAIL));
 
-      HashMap<String, MergeFailOption> resolutions = new HashMap<>();
+      final HashMap<String, MergeFailOption> resolutions = new HashMap<>();
 
       resolutions.put("b", MergeFailOption.KEEP_REMOTE);
       System.out.println("resolve merge failures result: " + ssg.resolveMergeFailures(resolutions));

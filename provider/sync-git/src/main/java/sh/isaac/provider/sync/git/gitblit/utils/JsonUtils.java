@@ -81,29 +81,28 @@ public class JsonUtils {
    /**
     * Reads a gson object from the specified url.
     *
-    * @param url
-    * @param type
-    * @param username
-    * @param password
+    * @param url the url
+    * @param username the username
+    * @param password the password
     * @return the deserialized object
-    * @throws {@link IOException}
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    @SuppressWarnings("unchecked")
    public static JsonObject<String, Map<String, ?>> retrieveJson(String url,
          String username,
          char[] password)
             throws IOException {
-      String json = retrieveJsonString(url, username, password);
+      final String json = retrieveJsonString(url, username, password);
 
       if (StringUtils.isEmpty(json)) {
          return null;
       }
 
-      DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+      final DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 
       dateformat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-      HashMap<String, Object> config = new HashMap<>();
+      final HashMap<String, Object> config = new HashMap<>();
 
       config.put(JsonWriter.DATE_FORMAT, dateformat);
       return (JsonObject<String, Map<String, ?>>) JsonReader.jsonToJava(json, config);
@@ -112,20 +111,22 @@ public class JsonUtils {
    /**
     * Retrieves a JSON message.
     *
-    * @param url
+    * @param url the url
+    * @param username the username
+    * @param password the password
     * @return the JSON message as a string
-    * @throws {@link IOException}
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static String retrieveJsonString(String url, String username, char[] password)
             throws IOException {
       try {
-         URLConnection conn = ConnectionUtils.openReadConnection(url, username, password);
-         StringBuilder json = new StringBuilder();
+         final URLConnection conn = ConnectionUtils.openReadConnection(url, username, password);
+         final StringBuilder json = new StringBuilder();
 
          try (InputStream is = conn.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, ConnectionUtils.CHARSET));) {
-            char[] buffer = new char[4096];
-            int    len    = 0;
+            final char[] buffer = new char[4096];
+            int          len    = 0;
 
             while ((len = reader.read(buffer)) > -1) {
                json.append(buffer, 0, len);
@@ -133,7 +134,7 @@ public class JsonUtils {
          }
 
          return json.toString();
-      } catch (IOException e) {
+      } catch (final IOException e) {
          if (e.getMessage()
               .indexOf("401") > -1) {
             // unauthorized
@@ -159,20 +160,18 @@ public class JsonUtils {
    /**
     * Sends a JSON message.
     *
-    * @param url
-    * the url to write to
-    * @param json
-    * the json message to send
-    * @param username
-    * @param password
+    * @param url the url to write to
+    * @param json the json message to send
+    * @param username the username
+    * @param password the password
     * @return the http request result code
-    * @throws {@link IOException}
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public static int sendJsonString(String url, String json, String username, char[] password)
             throws IOException {
       try {
-         byte[]        jsonBytes = json.getBytes(ConnectionUtils.CHARSET);
-         URLConnection conn      = ConnectionUtils.openConnection(url, username, password);
+         final byte[]        jsonBytes = json.getBytes(ConnectionUtils.CHARSET);
+         final URLConnection conn      = ConnectionUtils.openConnection(url, username, password);
 
          conn.setRequestProperty("Content-Type", "text/plain;charset=" + ConnectionUtils.CHARSET);
          conn.setRequestProperty("Content-Length", "" + jsonBytes.length);
@@ -182,10 +181,10 @@ public class JsonUtils {
             os.write(jsonBytes);
          }
 
-         int status = ((HttpURLConnection) conn).getResponseCode();
+         final int status = ((HttpURLConnection) conn).getResponseCode();
 
          return status;
-      } catch (IOException e) {
+      } catch (final IOException e) {
          if (e.getMessage()
               .indexOf("401") > -1) {
             // unauthorized
@@ -211,15 +210,15 @@ public class JsonUtils {
    /**
     * Creates JSON from the specified object.
     *
-    * @param o
+    * @param o the o
     * @return json
     */
    public static String toJsonString(Object o) {
-      DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+      final DateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 
       dateformat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-      HashMap<String, Object> config = new HashMap<>();
+      final HashMap<String, Object> config = new HashMap<>();
 
       config.put(JsonWriter.DATE_FORMAT, dateformat);
       config.put(JsonWriter.SKIP_NULL_FIELDS, true);

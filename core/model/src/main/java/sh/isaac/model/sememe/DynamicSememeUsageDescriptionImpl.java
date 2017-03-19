@@ -77,28 +77,44 @@ import sh.isaac.model.configuration.StampCoordinates;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * See {@link DynamicSememeUsageDescription}
+ * See {@link DynamicSememeUsageDescription}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeUsageDescriptionImpl
          implements DynamicSememeUsageDescription {
+   /** The Constant logger. */
    protected static final Logger logger = Logger.getLogger(DynamicSememeUsageDescription.class.getName());
-   private static LruCache<Integer, DynamicSememeUsageDescriptionImpl> cache_ =
+
+   /** The cache. */
+   private static LruCache<Integer, DynamicSememeUsageDescriptionImpl> cache =
       new LruCache<Integer, DynamicSememeUsageDescriptionImpl>(25);
 
    //~--- fields --------------------------------------------------------------
 
-   int                       refexUsageDescriptorSequence_;
-   String                    sememeUsageDescription_;
-   String                    name_;
-   DynamicSememeColumnInfo[] refexColumnInfo_;
-   ObjectChronologyType      referencedComponentTypeRestriction_;
-   SememeType                referencedComponentTypeSubRestriction_;
+   /** The refex usage descriptor sequence. */
+   int refexUsageDescriptorSequence;
+
+   /** The sememe usage description. */
+   String sememeUsageDescription;
+
+   /** The name. */
+   String name;
+
+   /** The refex column info. */
+   DynamicSememeColumnInfo[] refexColumnInfo;
+
+   /** The referenced component type restriction. */
+   ObjectChronologyType referencedComponentTypeRestriction;
+
+   /** The referenced component type sub restriction. */
+   SememeType referencedComponentTypeSubRestriction;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe usage description impl.
+    */
    private DynamicSememeUsageDescriptionImpl() {
       // For use by the mock static method
    }
@@ -113,51 +129,51 @@ public class DynamicSememeUsageDescriptionImpl
     */
    @SuppressWarnings("unchecked")
    public DynamicSememeUsageDescriptionImpl(int refexUsageDescriptorId) {
-      ConceptChronology<?> assemblageConcept = Get.conceptService()
-                                                  .getConcept(refexUsageDescriptorId);
+      final ConceptChronology<?> assemblageConcept = Get.conceptService()
+                                                        .getConcept(refexUsageDescriptorId);
 
-      refexUsageDescriptorSequence_ = assemblageConcept.getConceptSequence();
+      this.refexUsageDescriptorSequence = assemblageConcept.getConceptSequence();
 
-      TreeMap<Integer, DynamicSememeColumnInfo> allowedColumnInfo = new TreeMap<>();
+      final TreeMap<Integer, DynamicSememeColumnInfo> allowedColumnInfo = new TreeMap<>();
 
-      for (SememeChronology<? extends DescriptionSememe<?>> descriptionSememe:
+      for (final SememeChronology<? extends DescriptionSememe<?>> descriptionSememe:
             assemblageConcept.getConceptDescriptionList()) {
          @SuppressWarnings("rawtypes")
-         Optional<LatestVersion<DescriptionSememe<?>>> descriptionVersion =
+         final Optional<LatestVersion<DescriptionSememe<?>>> descriptionVersion =
             ((SememeChronology) descriptionSememe).getLatestVersion(DescriptionSememe.class,
                                                                     StampCoordinates.getDevelopmentLatestActiveOnly());
 
          if (descriptionVersion.isPresent()) {
             @SuppressWarnings("rawtypes")
-            DescriptionSememe ds = descriptionVersion.get()
-                                                     .value();
+            final DescriptionSememe ds = descriptionVersion.get()
+                                                           .value();
 
             if (ds.getDescriptionTypeConceptSequence() == TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
-               Optional<SememeChronology<? extends SememeVersion<?>>> nestesdSememe = Get.sememeService()
-                                                                                         .getSememesForComponentFromAssemblage(
-                                                                                            ds.getNid(),
-                                                                                                  DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION
-                                                                                                        .getSequence())
-                                                                                         .findAny();
+               final Optional<SememeChronology<? extends SememeVersion<?>>> nestesdSememe = Get.sememeService()
+                                                                                               .getSememesForComponentFromAssemblage(
+                                                                                                  ds.getNid(),
+                                                                                                        DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION
+                                                                                                              .getSequence())
+                                                                                               .findAny();
 
                if (nestesdSememe.isPresent()) {
-                  sememeUsageDescription_ = ds.getText();
+                  this.sememeUsageDescription = ds.getText();
                }
                ;
             }
 
             if (ds.getDescriptionTypeConceptSequence() ==
                   TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence()) {
-               name_ = ds.getText();
+               this.name = ds.getText();
             }
 
-            if ((sememeUsageDescription_ != null) && (name_ != null)) {
+            if ((this.sememeUsageDescription != null) && (this.name != null)) {
                break;
             }
          }
       }
 
-      if (StringUtils.isEmpty(sememeUsageDescription_)) {
+      if (StringUtils.isEmpty(this.sememeUsageDescription)) {
          throw new RuntimeException(
              "The Assemblage concept: " + assemblageConcept +
              " is not correctly assembled for use as an Assemblage for " +
@@ -170,15 +186,15 @@ public class DynamicSememeUsageDescriptionImpl
          .forEach(sememe -> {
                      if (sememe.getSememeType() == SememeType.DYNAMIC) {
                         @SuppressWarnings("rawtypes")
-                        Optional<LatestVersion<? extends DynamicSememe>> sememeVersion =
+                        final Optional<LatestVersion<? extends DynamicSememe>> sememeVersion =
                            ((SememeChronology) sememe).getLatestVersion(DynamicSememe.class,
                                                                         StampCoordinates.getDevelopmentLatestActiveOnly());
 
                         if (sememeVersion.isPresent()) {
                            @SuppressWarnings("rawtypes")
-                           DynamicSememe       ds                  = sememeVersion.get()
-                                                                                  .value();
-                           DynamicSememeData[] refexDefinitionData = ds.getData();
+                           final DynamicSememe       ds                  = sememeVersion.get()
+                                                                                        .value();
+                           final DynamicSememeData[] refexDefinitionData = ds.getData();
 
                            if (sememe.getAssemblageSequence() ==
                                DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION.getSequence()) {
@@ -198,9 +214,9 @@ public class DynamicSememeUsageDescriptionImpl
                               // col 5 (if present) is the validator {@link DynamicSememeValidatorType}, stored as a string array.
                               // col 6 (if present) is the validatorData for the validator in column 5, stored as a subtype of DynamicSememeData
                               try {
-                                 int  column          = (Integer) refexDefinitionData[0].getDataObject();
-                                 UUID descriptionUUID = (UUID) refexDefinitionData[1].getDataObject();
-                                 DynamicSememeDataType type =
+                                 final int  column          = (Integer) refexDefinitionData[0].getDataObject();
+                                 final UUID descriptionUUID = (UUID) refexDefinitionData[1].getDataObject();
+                                 final DynamicSememeDataType type =
                                     DynamicSememeDataType.valueOf((String) refexDefinitionData[2].getDataObject());
                                  DynamicSememeData defaultData = null;
 
@@ -231,7 +247,7 @@ public class DynamicSememeUsageDescriptionImpl
                                     if ((refexDefinitionData[5] != null) &&
                                         ((DynamicSememeArray<DynamicSememeString>) refexDefinitionData[5]).getDataArray().length >
                                         0) {
-                                       DynamicSememeArray<DynamicSememeString> readValidators =
+                                       final DynamicSememeArray<DynamicSememeString> readValidators =
                                           (DynamicSememeArray<DynamicSememeString>) refexDefinitionData[5];
 
                                        validators =
@@ -248,7 +264,7 @@ public class DynamicSememeUsageDescriptionImpl
                                        if ((refexDefinitionData[6] != null) &&
                                            ((DynamicSememeArray<? extends DynamicSememeData>) refexDefinitionData[6]).getDataArray().length >
                                            0) {
-                                          DynamicSememeArray<? extends DynamicSememeData> readValidatorsData =
+                                          final DynamicSememeArray<? extends DynamicSememeData> readValidatorsData =
                                              (DynamicSememeArray<? extends DynamicSememeData>) refexDefinitionData[6];
 
                                           validatorsData =
@@ -278,7 +294,7 @@ public class DynamicSememeUsageDescriptionImpl
                                                        validators,
                                                        validatorsData,
                                                        null));
-                              } catch (Exception e) {
+                              } catch (final Exception e) {
                                  throw new RuntimeException("The Assemblage concept: " + assemblageConcept +
                                  " is not correctly assembled for use as an Assemblage for " +
                                  "a DynamicSememeData Refex Type.  The first column must have a data type of integer, and the third column must be a string " +
@@ -297,7 +313,7 @@ public class DynamicSememeUsageDescriptionImpl
 
                               // col 0 is Referenced component restriction information - as a string.
                               try {
-                                 ObjectChronologyType type =
+                                 final ObjectChronologyType type =
                                     ObjectChronologyType.parse(refexDefinitionData[0].getDataObject()
                                                                                      .toString(),
                                                                false);
@@ -305,9 +321,9 @@ public class DynamicSememeUsageDescriptionImpl
                                  if (type == ObjectChronologyType.UNKNOWN_NID) {
                                     // just ignore - it shouldn't have been saved that way anyway.
                                  } else {
-                                    referencedComponentTypeRestriction_ = type;
+                                    this.referencedComponentTypeRestriction = type;
                                  }
-                              } catch (Exception e) {
+                              } catch (final Exception e) {
                                  throw new RuntimeException("The Assemblage concept: " + assemblageConcept +
                                  " is not correctly assembled for use as an Assemblage for " +
                                  "a DynamicSememeData Refex Type.  The component type restriction annotation has an invalid value");
@@ -316,32 +332,32 @@ public class DynamicSememeUsageDescriptionImpl
                               // col 1 is an optional Referenced component sub-restriction information - as a string.
                               if ((refexDefinitionData.length > 1) && (refexDefinitionData[1] != null)) {
                                  try {
-                                    SememeType type = SememeType.parse(refexDefinitionData[1].getDataObject()
-                                                                                             .toString(),
-                                                                       false);
+                                    final SememeType type = SememeType.parse(refexDefinitionData[1].getDataObject()
+                                                                                                   .toString(),
+                                                                             false);
 
                                     if (type == SememeType.UNKNOWN) {
                                        // just ignore - it shouldn't have been saved that way anyway.
                                     } else {
-                                       referencedComponentTypeSubRestriction_ = type;
+                                       this.referencedComponentTypeSubRestriction = type;
                                     }
-                                 } catch (Exception e) {
+                                 } catch (final Exception e) {
                                     throw new RuntimeException("The Assemblage concept: " + assemblageConcept +
                                     " is not correctly assembled for use as an Assemblage for " +
                                     "a DynamicSememeData Refex Type.  The component type restriction annotation has an invalid value");
                                  }
                               } else {
-                                 referencedComponentTypeSubRestriction_ = null;
+                                 this.referencedComponentTypeSubRestriction = null;
                               }
                            }
                         }
                      }
                   });
-      refexColumnInfo_ = new DynamicSememeColumnInfo[allowedColumnInfo.size()];
+      this.refexColumnInfo = new DynamicSememeColumnInfo[allowedColumnInfo.size()];
 
       int i = 0;
 
-      for (int key: allowedColumnInfo.keySet()) {
+      for (final int key: allowedColumnInfo.keySet()) {
          if (key != i) {
             throw new RuntimeException(
                 "The Assemblage concept: " + assemblageConcept +
@@ -349,13 +365,17 @@ public class DynamicSememeUsageDescriptionImpl
                 "a DynamicSememeData Refex Type.  It must contain sequential column numbers, with no gaps, which start at 0.");
          }
 
-         refexColumnInfo_[i++] = allowedColumnInfo.get(key);
+         this.refexColumnInfo[i++] = allowedColumnInfo.get(key);
       }
    }
 
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
     * @see java.lang.Object#equals(java.lang.Object)
     */
    @Override
@@ -372,9 +392,9 @@ public class DynamicSememeUsageDescriptionImpl
          return false;
       }
 
-      DynamicSememeUsageDescriptionImpl other = (DynamicSememeUsageDescriptionImpl) obj;
+      final DynamicSememeUsageDescriptionImpl other = (DynamicSememeUsageDescriptionImpl) obj;
 
-      if (refexUsageDescriptorSequence_ != other.refexUsageDescriptorSequence_) {
+      if (this.refexUsageDescriptorSequence != other.refexUsageDescriptorSequence) {
          return false;
       }
 
@@ -382,6 +402,9 @@ public class DynamicSememeUsageDescriptionImpl
    }
 
    /**
+    * Hash code.
+    *
+    * @return the int
     * @see java.lang.Object#hashCode()
     */
    @Override
@@ -389,29 +412,30 @@ public class DynamicSememeUsageDescriptionImpl
       final int prime  = 31;
       int       result = 1;
 
-      result = prime * result + refexUsageDescriptorSequence_;
+      result = prime * result + this.refexUsageDescriptorSequence;
       return result;
    }
 
    /**
     * Invent DynamicSememeUsageDescription info for other sememe types (that
     * aren't dynamic), otherwise, calls {@link #read(int)} if it is a dynamic
-    * sememe
+    * sememe.
     *
     * @param sememe the sememe in question
+    * @return the dynamic sememe usage description
     */
    public static DynamicSememeUsageDescription mockOrRead(SememeChronology<?> sememe) {
-      DynamicSememeUsageDescriptionImpl dsud = new DynamicSememeUsageDescriptionImpl();
+      final DynamicSememeUsageDescriptionImpl dsud = new DynamicSememeUsageDescriptionImpl();
 
-      dsud.name_                                  = Get.conceptDescriptionText(sememe.getAssemblageSequence());
-      dsud.referencedComponentTypeRestriction_    = null;
-      dsud.referencedComponentTypeSubRestriction_ = null;
-      dsud.refexUsageDescriptorSequence_          = sememe.getAssemblageSequence();
-      dsud.sememeUsageDescription_                = "-";
+      dsud.name                                  = Get.conceptDescriptionText(sememe.getAssemblageSequence());
+      dsud.referencedComponentTypeRestriction    = null;
+      dsud.referencedComponentTypeSubRestriction = null;
+      dsud.refexUsageDescriptorSequence          = sememe.getAssemblageSequence();
+      dsud.sememeUsageDescription                = "-";
 
       switch (sememe.getSememeType()) {
       case COMPONENT_NID:
-         dsud.refexColumnInfo_ = new DynamicSememeColumnInfo[] {
+         dsud.refexColumnInfo = new DynamicSememeColumnInfo[] {
             new DynamicSememeColumnInfo(
                 Get.identifierService().getUuidPrimordialFromConceptId(sememe.getAssemblageSequence()).get(),
                 0,
@@ -425,7 +449,7 @@ public class DynamicSememeUsageDescriptionImpl
          break;
 
       case LONG:
-         dsud.refexColumnInfo_ = new DynamicSememeColumnInfo[] {
+         dsud.refexColumnInfo = new DynamicSememeColumnInfo[] {
             new DynamicSememeColumnInfo(
                 Get.identifierService().getUuidPrimordialFromConceptId(sememe.getAssemblageSequence()).get(),
                 0,
@@ -441,7 +465,7 @@ public class DynamicSememeUsageDescriptionImpl
       case DESCRIPTION:
       case STRING:
       case LOGIC_GRAPH:
-         dsud.refexColumnInfo_ = new DynamicSememeColumnInfo[] {
+         dsud.refexColumnInfo = new DynamicSememeColumnInfo[] {
             new DynamicSememeColumnInfo(
                 Get.identifierService().getUuidPrimordialFromConceptId(sememe.getAssemblageSequence()).get(),
                 0,
@@ -455,7 +479,7 @@ public class DynamicSememeUsageDescriptionImpl
          break;
 
       case MEMBER:
-         dsud.refexColumnInfo_ = new DynamicSememeColumnInfo[] {};
+         dsud.refexColumnInfo = new DynamicSememeColumnInfo[] {};
          break;
 
       case DYNAMIC:
@@ -469,18 +493,24 @@ public class DynamicSememeUsageDescriptionImpl
       return dsud;
    }
 
+   /**
+    * Read.
+    *
+    * @param assemblageNidOrSequence the assemblage nid or sequence
+    * @return the dynamic sememe usage description
+    */
    public static DynamicSememeUsageDescription read(int assemblageNidOrSequence) {
       // TODO (artf231860) [REFEX] maybe? implement a mechanism to allow the cache to be updated... for now
       // cache is uneditable, and may be wrong, if the user changes the definition of a dynamic sememe.  Perhaps
       // implement a callback to clear the cache when we know a change of  a certain type happened instead?
-      int                               sequence = Get.identifierService()
+      final int                         sequence = Get.identifierService()
                                                       .getConceptSequence(assemblageNidOrSequence);
-      DynamicSememeUsageDescriptionImpl temp     = cache_.get(sequence);
+      DynamicSememeUsageDescriptionImpl temp     = cache.get(sequence);
 
       if (temp == null) {
          logger.log(Level.FINEST, "Cache miss on DynamicSememeUsageDescription Cache");
          temp = new DynamicSememeUsageDescriptionImpl(sequence);
-         cache_.put(sequence, temp);
+         cache.put(sequence, temp);
       }
 
       return temp;
@@ -488,24 +518,29 @@ public class DynamicSememeUsageDescriptionImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the column info.
+    *
+    * @return the column info
+    */
+
    /*
     *     @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription#getColumnInfo()
     */
    @Override
    public DynamicSememeColumnInfo[] getColumnInfo() {
-      if (refexColumnInfo_ == null) {
-         refexColumnInfo_ = new DynamicSememeColumnInfo[] {};
+      if (this.refexColumnInfo == null) {
+         this.refexColumnInfo = new DynamicSememeColumnInfo[] {};
       }
 
-      return refexColumnInfo_;
+      return this.refexColumnInfo;
    }
 
    /**
+    * Test if dyn sememe.
     *
-    * Test if dyn sememe
-    *
-    * @param assemblageNidOrSequence
-    * @return
+    * @param assemblageNidOrSequence the assemblage nid or sequence
+    * @return true, if dynamic sememe
     */
    public static boolean isDynamicSememe(int assemblageNidOrSequence) {
       if ((assemblageNidOrSequence >= 0) ||
@@ -514,7 +549,7 @@ public class DynamicSememeUsageDescriptionImpl
          try {
             read(assemblageNidOrSequence);
             return true;
-         } catch (Exception e) {
+         } catch (final Exception e) {
             return false;
          }
       } else {
@@ -522,44 +557,74 @@ public class DynamicSememeUsageDescriptionImpl
       }
    }
 
+   /**
+    * Gets the dynamic sememe name.
+    *
+    * @return the dynamic sememe name
+    */
+
    /*
     *     @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription#getDyanmicSememeName()
     */
    @Override
    public String getDynamicSememeName() {
-      return name_;
+      return this.name;
    }
+
+   /**
+    * Gets the dynamic sememe usage description.
+    *
+    * @return the dynamic sememe usage description
+    */
 
    /*
     *     @see DynamicSememeUsageDescription#getDynamicSememeUsageDescription()
     */
    @Override
    public String getDynamicSememeUsageDescription() {
-      return sememeUsageDescription_;
+      return this.sememeUsageDescription;
    }
+
+   /**
+    * Gets the dynamic sememe usage descriptor sequence.
+    *
+    * @return the dynamic sememe usage descriptor sequence
+    */
 
    /*
     *     @see DynamicSememeUsageDescription#getDynamicSememeUsageDescriptorSequence()
     */
    @Override
    public int getDynamicSememeUsageDescriptorSequence() {
-      return refexUsageDescriptorSequence_;
+      return this.refexUsageDescriptorSequence;
    }
+
+   /**
+    * Gets the referenced component type restriction.
+    *
+    * @return the referenced component type restriction
+    */
 
    /*
     *     @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription#getReferencedComponentTypeRestriction()
     */
    @Override
    public ObjectChronologyType getReferencedComponentTypeRestriction() {
-      return referencedComponentTypeRestriction_;
+      return this.referencedComponentTypeRestriction;
    }
+
+   /**
+    * Gets the referenced component type sub restriction.
+    *
+    * @return the referenced component type sub restriction
+    */
 
    /*
     *     @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription#getReferencedComponentTypeSubRestriction()
     */
    @Override
    public SememeType getReferencedComponentTypeSubRestriction() {
-      return referencedComponentTypeSubRestriction_;
+      return this.referencedComponentTypeSubRestriction;
    }
 }
 

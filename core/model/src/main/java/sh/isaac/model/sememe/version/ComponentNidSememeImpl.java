@@ -56,23 +56,39 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * Used for description dialect preferences
+ * Used for description dialect preferences.
  *
  * @author kec
  */
 public class ComponentNidSememeImpl
         extends SememeVersionImpl<ComponentNidSememeImpl>
          implements MutableComponentNidSememe<ComponentNidSememeImpl> {
+   /** The component nid. */
    int componentNid = Integer.MAX_VALUE;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new component nid sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    */
    public ComponentNidSememeImpl(SememeChronologyImpl<ComponentNidSememeImpl> container,
                                  int stampSequence,
                                  short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
+   /**
+    * Instantiates a new component nid sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    * @param data the data
+    */
    public ComponentNidSememeImpl(SememeChronologyImpl<ComponentNidSememeImpl> container,
                                  int stampSequence,
                                  short versionSequence,
@@ -83,38 +99,43 @@ public class ComponentNidSememeImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("{Component Nid≤");
 
       switch (Get.identifierService()
-                 .getChronologyTypeForNid(componentNid)) {
+                 .getChronologyTypeForNid(this.componentNid)) {
       case CONCEPT:
-         sb.append(Get.conceptDescriptionText(componentNid));
+         sb.append(Get.conceptDescriptionText(this.componentNid));
          break;
 
       case SEMEME:
-         Optional<? extends SememeChronology<? extends SememeVersion<?>>> optionalSememe = Get.sememeService()
-                                                                                              .getOptionalSememe(
-                                                                                                 componentNid);
+         final Optional<? extends SememeChronology<? extends SememeVersion<?>>> optionalSememe = Get.sememeService()
+                                                                                                    .getOptionalSememe(
+                                                                                                       this.componentNid);
 
          if (optionalSememe.isPresent()) {
             sb.append(optionalSememe.get()
                                     .getSememeType());
          } else {
             sb.append("no such sememe: ")
-              .append(componentNid);
+              .append(this.componentNid);
          }
 
          break;
 
       default:
          sb.append(Get.identifierService()
-                      .getChronologyTypeForNid(componentNid))
+                      .getChronologyTypeForNid(this.componentNid))
            .append(" ")
-           .append(componentNid)
+           .append(this.componentNid)
            .append(" ");
       }
 
@@ -123,21 +144,36 @@ public class ComponentNidSememeImpl
       return sb.toString();
    }
 
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
-      data.putNid(componentNid);
+      data.putNid(this.componentNid);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the component nid.
+    *
+    * @return the component nid
+    */
    @Override
    public int getComponentNid() {
-      return componentNid;
+      return this.componentNid;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the component nid.
+    *
+    * @param componentNid the new component nid
+    */
    @Override
    public void setComponentNid(int componentNid) {
       if (this.componentNid != Integer.MAX_VALUE) {
@@ -149,6 +185,11 @@ public class ComponentNidSememeImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    @Override
    public SememeType getSememeType() {
       return SememeType.COMPONENT_NID;

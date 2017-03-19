@@ -40,33 +40,42 @@
 package sh.isaac.api.util;
 
 /**
- * {@link Interval}
+ * {@link Interval}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class Interval {
-   private boolean leftInclusive_, rightInclusive_;
-   private Number  left_, right_;
+   /** The right inclusive. */
+   private boolean leftInclusive, rightInclusive;
+
+   /** The right. */
+   private Number left, right;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new interval.
+    *
+    * @param parseFrom the parse from
+    * @throws NumberFormatException the number format exception
+    */
    public Interval(String parseFrom)
             throws NumberFormatException {
-      String s = parseFrom.trim();
+      final String s = parseFrom.trim();
 
       if (s.charAt(0) == '[') {
-         leftInclusive_ = true;
+         this.leftInclusive = true;
       } else if (s.charAt(0) == '(') {
-         leftInclusive_ = false;
+         this.leftInclusive = false;
       } else {
          throw new NumberFormatException(
              "Invalid INTERVAL definition in the validator definition data - char 0 should be [ or (");
       }
 
       if (s.charAt(s.length() - 1) == ']') {
-         rightInclusive_ = true;
+         this.rightInclusive = true;
       } else if (s.charAt(s.length() - 1) == ')') {
-         rightInclusive_ = false;
+         this.rightInclusive = false;
       } else {
          throw new NumberFormatException(
              "Invalid INTERVAL definition in the validator definition data - last char should be ] or )");
@@ -76,64 +85,80 @@ public class Interval {
 
       numeric = numeric.replaceAll("\\s", "");
 
-      int pos = numeric.indexOf(',');
+      final int pos = numeric.indexOf(',');
 
       if (pos == 0) {
          // left is null (- infinity)
-         right_ = NumericUtils.parseUnknown(numeric.substring(1, numeric.length()));
+         this.right = NumericUtils.parseUnknown(numeric.substring(1, numeric.length()));
       } else if (pos > 0) {
-         left_ = NumericUtils.parseUnknown(numeric.substring(0, pos));
+         this.left = NumericUtils.parseUnknown(numeric.substring(0, pos));
 
          if (numeric.length() > (pos + 1)) {
-            right_ = NumericUtils.parseUnknown(numeric.substring(pos + 1));
+            this.right = NumericUtils.parseUnknown(numeric.substring(pos + 1));
          }
       } else {
          throw new NumberFormatException("Invalid INTERVAL definition in the validator definition data");
       }
 
       // make sure interval is properly specified
-      if ((left_ != null) && (right_ != null)) {
-         if (NumericUtils.compare(left_, right_) > 0) {
+      if ((this.left != null) && (this.right != null)) {
+         if (NumericUtils.compare(this.left, this.right) > 0) {
             throw new NumberFormatException("Invalid INTERVAL definition the left value should be <= the right value");
          }
       }
    }
 
+   /**
+    * Instantiates a new interval.
+    *
+    * @param left the left
+    * @param leftInclusive the left inclusive
+    * @param right the right
+    * @param rightInclusive the right inclusive
+    */
    public Interval(Number left, boolean leftInclusive, Number right, boolean rightInclusive) {
-      this.left_           = left;
-      this.right_          = right;
-      this.leftInclusive_  = leftInclusive;
-      this.rightInclusive_ = rightInclusive;
+      this.left           = left;
+      this.right          = right;
+      this.leftInclusive  = leftInclusive;
+      this.rightInclusive = rightInclusive;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the left.
+    *
     * @return the left
     */
    public Number getLeft() {
-      return left_;
+      return this.left;
    }
 
    /**
+    * Checks if left inclusive.
+    *
     * @return the leftInclusive
     */
    public boolean isLeftInclusive() {
-      return leftInclusive_;
+      return this.leftInclusive;
    }
 
    /**
+    * Gets the right.
+    *
     * @return the right
     */
    public Number getRight() {
-      return right_;
+      return this.right;
    }
 
    /**
+    * Checks if right inclusive.
+    *
     * @return the rightInclusive
     */
    public boolean isRightInclusive() {
-      return rightInclusive_;
+      return this.rightInclusive;
    }
 }
 

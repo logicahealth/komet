@@ -54,29 +54,46 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeDoubleImpl}
+ * {@link DynamicSememeDoubleImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeDoubleImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeDouble {
-   private ObjectProperty<Double> property_;
+   /** The property. */
+   private ObjectProperty<Double> property;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe double impl.
+    *
+    * @param data the data
+    */
    protected DynamicSememeDoubleImpl(byte[] data) {
       super(data);
    }
 
+   /**
+    * Instantiates a new dynamic sememe double impl.
+    *
+    * @param d the d
+    */
    public DynamicSememeDoubleImpl(double d) {
       super();
-      data_ = ByteBuffer.allocate(8)
-                        .putDouble(d)
-                        .array();
+      this.data = ByteBuffer.allocate(8)
+                             .putDouble(d)
+                             .array();
    }
 
+   /**
+    * Instantiates a new dynamic sememe double impl.
+    *
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    protected DynamicSememeDoubleImpl(byte[] data, int assemblageSequence, int columnNumber) {
       super(data, assemblageSequence, columnNumber);
    }
@@ -84,27 +101,36 @@ public class DynamicSememeDoubleImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data double.
+    *
+    * @return the data double
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI#getDataDouble()
     */
    @Override
    public double getDataDouble() {
-      return ByteBuffer.wrap(data_)
+      return ByteBuffer.wrap(this.data)
                        .getDouble();
    }
 
    /**
+    * Gets the data double property.
+    *
+    * @return the data double property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicDoubleBI#getDataDoubleProperty()
     */
    @Override
    public ReadOnlyObjectProperty<Double> getDataDoubleProperty() {
-      if (property_ == null) {
-         property_ = new SimpleObjectProperty<>(null, getName(), getDataDouble());
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<>(null, getName(), getDataDouble());
       }
 
-      return property_;
+      return this.property;
    }
 
    /**
+    * Gets the data object.
+    *
+    * @return the data object
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
     */
    @Override
@@ -113,6 +139,9 @@ public class DynamicSememeDoubleImpl
    }
 
    /**
+    * Gets the data object property.
+    *
+    * @return the data object property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
     */
    @Override

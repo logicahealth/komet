@@ -55,11 +55,23 @@ import sh.isaac.api.commit.Stamp;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StampSerializer.
  *
  * @author kec
  */
 public class StampSerializer
          implements DataSerializer<Stamp>, Serializable {
+   /** The Constant serialVersionUID. */
+   private static final long serialVersionUID = 1L;
+
+   //~--- methods -------------------------------------------------------------
+
+   /**
+    * Deserialize.
+    *
+    * @param in the in
+    * @return the stamp
+    */
    @Override
    public Stamp deserialize(DataInput in) {
       try {
@@ -68,11 +80,17 @@ public class StampSerializer
                           in.readInt(),
                           in.readInt(),
                           in.readInt());
-      } catch (IOException ex) {
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }
 
+   /**
+    * Serialize.
+    *
+    * @param out the out
+    * @param stamp the stamp
+    */
    @Override
    public void serialize(DataOutput out, Stamp stamp) {
       try {
@@ -82,7 +100,7 @@ public class StampSerializer
          out.writeInt(stamp.getAuthorSequence());
          out.writeInt(stamp.getModuleSequence());
          out.writeInt(stamp.getPathSequence());
-      } catch (IOException ex) {
+      } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
    }

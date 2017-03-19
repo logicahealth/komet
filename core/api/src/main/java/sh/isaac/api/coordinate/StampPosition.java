@@ -46,14 +46,21 @@ import java.time.Instant;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface StampPosition.
  *
  * @author kec
  */
 public interface StampPosition
         extends Comparable<StampPosition> {
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    default int compareTo(StampPosition o) {
-      int comparison = Long.compare(this.getTime(), o.getTime());
+      final int comparison = Long.compare(this.getTime(), o.getTime());
 
       if (comparison != 0) {
          return comparison;
@@ -64,12 +71,32 @@ public interface StampPosition
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the stamp path.
+    *
+    * @return the stamp path
+    */
    StampPath getStampPath();
 
+   /**
+    * Gets the stamp path sequence.
+    *
+    * @return the stamp path sequence
+    */
    int getStampPathSequence();
 
+   /**
+    * Gets the time.
+    *
+    * @return the time
+    */
    long getTime();
 
+   /**
+    * Gets the time as instant.
+    *
+    * @return the time as instant
+    */
    default Instant getTimeAsInstant() {
       return Instant.ofEpochMilli(getTime());
    }

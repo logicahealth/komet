@@ -53,16 +53,26 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LogicalExpressionBuilderOchreProvider.
  *
  * @author kec
  */
 @Service
 public class LogicalExpressionBuilderOchreProvider
          implements LogicalExpressionBuilderService {
+   /**
+    * Instantiates a new logical expression builder ochre provider.
+    */
    public LogicalExpressionBuilderOchreProvider() {}
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * From sememe.
+    *
+    * @param sememe the sememe
+    * @return the logical expression
+    */
    @Override
    public LogicalExpression fromSememe(LogicGraphSememe<?> sememe) {
       return new LogicalExpressionOchreImpl(sememe.getGraphData(),
@@ -72,6 +82,11 @@ public class LogicalExpressionBuilderOchreProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the logical expression builder.
+    *
+    * @return the logical expression builder
+    */
    @Override
    public LogicalExpressionBuilder getLogicalExpressionBuilder() {
       return new LogicalExpressionBuilderOchreImpl();

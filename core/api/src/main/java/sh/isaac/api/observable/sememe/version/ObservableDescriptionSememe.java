@@ -47,50 +47,111 @@ import javafx.beans.property.StringProperty;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ObservableDescriptionSememe.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public interface ObservableDescriptionSememe<V extends ObservableDescriptionSememe<V>>
         extends ObservableSememeVersion<V> {
+   /**
+    * Case significance concept sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty caseSignificanceConceptSequenceProperty();
 
+   /**
+    * Description type concept sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty descriptionTypeConceptSequenceProperty();
 
+   /**
+    * Language concept sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty languageConceptSequenceProperty();
 
+   /**
+    * Text property.
+    *
+    * @return the string property
+    */
    StringProperty textProperty();
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the case significance concept sequence.
+    *
+    * @return the case significance concept sequence
+    */
    int getCaseSignificanceConceptSequence();
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the case significance concept sequence.
+    *
+    * @param caseSignificanceConceptSequence the new case significance concept sequence
+    */
    void setCaseSignificanceConceptSequence(int caseSignificanceConceptSequence);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the description type concept sequence.
+    *
+    * @return the description type concept sequence
+    */
    int getDescriptionTypeConceptSequence();
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the description type concept sequence.
+    *
+    * @param descriptionTypeConceptSequence the new description type concept sequence
+    */
    void setDescriptionTypeConceptSequence(int descriptionTypeConceptSequence);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the language concept sequence.
+    *
+    * @return the language concept sequence
+    */
    int getLanguageConceptSequence();
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the language concept sequence.
+    *
+    * @param languageConceptSequence the new language concept sequence
+    */
    void setLanguageConceptSequence(int languageConceptSequence);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the text.
+    *
+    * @return the text
+    */
    String getText();
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the text.
+    *
+    * @param text the new text
+    */
    void setText(String text);
 }
 

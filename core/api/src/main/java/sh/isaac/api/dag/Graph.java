@@ -47,39 +47,68 @@ import java.util.List;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class Graph.
  *
  * @author kec
  * @param <T> The type of object enclosed by nodes in this graph.
  */
 public class Graph<T> {
+   /** The nodes. */
    private final List<Node<T>> nodes = new ArrayList<>();
-   private Node<T>             root;
-   private Node<T>             lastAddedNode;
+
+   /** The root. */
+   private Node<T> root;
+
+   /** The last added node. */
+   private Node<T> lastAddedNode;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new graph.
+    */
    public Graph() {}
 
+   /**
+    * Instantiates a new graph.
+    *
+    * @param rootData the root data
+    */
    public Graph(T rootData) {
       createRoot(rootData);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Creates the root.
+    *
+    * @param rootData the root data
+    */
    public final void createRoot(T rootData) {
-      root               = new Node<>(rootData, this);
-      this.lastAddedNode = root;
-      this.nodes.add(lastAddedNode);
+      this.root          = new Node<>(rootData, this);
+      this.lastAddedNode = this.root;
+      this.nodes.add(this.lastAddedNode);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the last added node.
+    *
+    * @return the last added node
+    */
    public Node<T> getLastAddedNode() {
-      return lastAddedNode;
+      return this.lastAddedNode;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the last added node.
+    *
+    * @param lastAddedNode the new last added node
+    */
    public void setLastAddedNode(Node<T> lastAddedNode) {
       this.lastAddedNode = lastAddedNode;
       this.nodes.add(lastAddedNode);
@@ -87,8 +116,13 @@ public class Graph<T> {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the root.
+    *
+    * @return the root
+    */
    public Node<T> getRoot() {
-      return root;
+      return this.root;
    }
 }
 

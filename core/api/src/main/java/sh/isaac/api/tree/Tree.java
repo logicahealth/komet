@@ -93,6 +93,7 @@ public interface Tree {
    TreeNodeVisitData depthFirstProcess(int startSequence, ObjIntConsumer<TreeNodeVisitData> consumer);
 
    /**
+    * Size.
     *
     * @return the number of nodes in the tree.
     */
@@ -101,6 +102,7 @@ public interface Tree {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the children sequence stream.
     *
     * @param parentSequence sequence of the concept from which to find children
     * @return an IntStream of child sequences.
@@ -108,6 +110,7 @@ public interface Tree {
    IntStream getChildrenSequenceStream(int parentSequence);
 
    /**
+    * Gets the children sequences.
     *
     * @param parentSequence sequence of the concept from which to find children
     * @return an array of child sequences.
@@ -115,6 +118,7 @@ public interface Tree {
    int[] getChildrenSequences(int parentSequence);
 
    /**
+    * Gets the descendent sequence set.
     *
     * @param parentSequence sequence of the concept from which to compute
     * descendents.
@@ -123,6 +127,7 @@ public interface Tree {
    ConceptSequenceSet getDescendentSequenceSet(int parentSequence);
 
    /**
+    * Gets the parent sequence stream.
     *
     * @param childSequence sequence of the concept from which to find parent
     * @return an IntStream of parent sequences.
@@ -130,6 +135,7 @@ public interface Tree {
    IntStream getParentSequenceStream(int childSequence);
 
    /**
+    * Gets the parent sequences.
     *
     * @param childSequence sequence of the concept from which to find parent
     * @return an array of parent sequences.
@@ -137,12 +143,14 @@ public interface Tree {
    int[] getParentSequences(int childSequence);
 
    /**
+    * Gets the root sequence stream.
     *
     * @return IntStream of sequence identifiers for the root concept[s] of this tree.
     */
    IntStream getRootSequenceStream();
 
    /**
+    * Gets the root sequences.
     *
     * @return sequence identifiers for the root concept[s] of this tree.
     */

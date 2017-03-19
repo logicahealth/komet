@@ -55,7 +55,6 @@ import java.nio.file.Path;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.Optional;
@@ -77,8 +76,14 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.*;
-import sh.isaac.api.DatabaseServices.DatabaseValidity;
+import sh.isaac.api.ConceptActiveService;
+import sh.isaac.api.ConfigurationService;
+import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.SystemStatusService;
+import sh.isaac.api.TaxonomyService;
+import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.LruCache;
@@ -115,6 +120,7 @@ import sh.isaac.provider.taxonomy.graph.GraphCollector;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class TaxonomyProvider.
  *
  * @author kec
  */
@@ -122,23 +128,47 @@ import sh.isaac.provider.taxonomy.graph.GraphCollector;
 @RunLevel(value = 1)
 public class TaxonomyProvider
          implements TaxonomyService, ConceptActiveService, ChronologyChangeListener {
-   private static final Logger LOG                    = LogManager.getLogger();
-   private static final String TAXONOMY               = "taxonomy";
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
+
+   /** The Constant TAXONOMY. */
+   private static final String TAXONOMY = "taxonomy";
+
+   /** The Constant ORIGIN_DESTINATION_MAP. */
    private static final String ORIGIN_DESTINATION_MAP = "origin-destination.map";
 
    //~--- fields --------------------------------------------------------------
 
+   /** The destination origin record set. */
    private final ConcurrentSkipListSet<DestinationOriginRecord> destinationOriginRecordSet =
       new ConcurrentSkipListSet<>();
-   private final AtomicBoolean                  loadRequired                       = new AtomicBoolean();
-   private final LogicCoordinate                logicCoordinate = LogicCoordinates.getStandardElProfile();
-   private final int                            isaSequence                        = TermAux.IS_A.getConceptSequence();
-   private final int                            roleGroupSequence = TermAux.ROLE_GROUP.getConceptSequence();
-   private final UUID                           providerUuid                       = UUID.randomUUID();
+
+   /** The load required. */
+   private final AtomicBoolean loadRequired = new AtomicBoolean();
+
+   /** The logic coordinate. */
+   private final LogicCoordinate logicCoordinate = LogicCoordinates.getStandardElProfile();
+
+   /** The isa sequence. */
+   private final int isaSequence = TermAux.IS_A.getConceptSequence();
+
+   /** The role group sequence. */
+   private final int roleGroupSequence = TermAux.ROLE_GROUP.getConceptSequence();
+
+   /** The provider uuid. */
+   private final UUID providerUuid = UUID.randomUUID();
+
+   /** The sememe sequences for unhandled changes. */
    private final ConcurrentSkipListSet<Integer> sememeSequencesForUnhandledChanges = new ConcurrentSkipListSet<>();
-   private final StampedLock                    stampedLock                        = new StampedLock();
-   private DatabaseValidity                     databaseValidity                   = DatabaseValidity.NOT_SET;
-   private LruCache<Integer, Tree>              treeCache                          = new LruCache<>(5);
+
+   /** The stamped lock. */
+   private final StampedLock stampedLock = new StampedLock();
+
+   /** The database validity. */
+   private DatabaseValidity databaseValidity = DatabaseValidity.NOT_SET;
+
+   /** The tree cache. */
+   private final LruCache<Integer, Tree> treeCache = new LruCache<>(5);
 
    /**
     * The {@code taxonomyMap} associates concept sequence keys with a primitive
@@ -146,31 +176,50 @@ public class TaxonomyProvider
     * flags for parent and child concepts.
     */
    private final CasSequenceObjectMap<TaxonomyRecordPrimitive> originDestinationTaxonomyRecordMap;
-   private final Path                                          folderPath;
-   private final Path                                          taxonomyProviderFolder;
-   private IdentifierService                                   identifierService;
+
+   /** The folder path. */
+   private final Path folderPath;
+
+   /** The taxonomy provider folder. */
+   private final Path taxonomyProviderFolder;
+
+   /** The identifier service. */
+   private IdentifierService identifierService;
 
    //~--- constant enums ------------------------------------------------------
 
-   private enum AllowedRelTypes { HIERARCHICAL_ONLY,
-                                  ALL_RELS; }
+   /**
+    * The Enum AllowedRelTypes.
+    */
+   private enum AllowedRelTypes {
+      /** The hierarchical only. */
+      HIERARCHICAL_ONLY,
+
+      /** The all rels. */
+      ALL_RELS;
+   }
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new taxonomy provider.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private TaxonomyProvider()
             throws IOException {
-      folderPath             = LookupService.getService(ConfigurationService.class)
+      this.folderPath             = LookupService.getService(ConfigurationService.class)
             .getChronicleFolderPath();
-      taxonomyProviderFolder = folderPath.resolve(TAXONOMY);
+      this.taxonomyProviderFolder = this.folderPath.resolve(TAXONOMY);
 
-      if (!Files.exists(taxonomyProviderFolder)) {
-         databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
+      if (!Files.exists(this.taxonomyProviderFolder)) {
+         this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
       }
 
-      loadRequired.set(!Files.exists(taxonomyProviderFolder));
-      Files.createDirectories(taxonomyProviderFolder);
-      originDestinationTaxonomyRecordMap = new CasSequenceObjectMap<>(new TaxonomyRecordSerializer(),
-            taxonomyProviderFolder,
+      this.loadRequired.set(!Files.exists(this.taxonomyProviderFolder));
+      Files.createDirectories(this.taxonomyProviderFolder);
+      this.originDestinationTaxonomyRecordMap = new CasSequenceObjectMap<>(new TaxonomyRecordSerializer(),
+            this.taxonomyProviderFolder,
             "seg.",
             ".taxonomy.map");
       LOG.info("CradleTaxonomyProvider constructed");
@@ -178,41 +227,64 @@ public class TaxonomyProvider
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Clear database validity value.
+    */
    @Override
    public void clearDatabaseValidityValue() {
       // Reset to enforce analysis
-      databaseValidity = DatabaseValidity.NOT_SET;
+      this.databaseValidity = DatabaseValidity.NOT_SET;
    }
 
+   /**
+    * Handle change.
+    *
+    * @param cc the cc
+    */
    @Override
    public void handleChange(ConceptChronology<? extends StampedVersion> cc) {
       // not interested on concept changes
    }
 
+   /**
+    * Handle change.
+    *
+    * @param sc the sc
+    */
    @Override
    public void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
       if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {
-         sememeSequencesForUnhandledChanges.add(sc.getSememeSequence());
+         this.sememeSequencesForUnhandledChanges.add(sc.getSememeSequence());
       }
    }
 
+   /**
+    * Handle commit.
+    *
+    * @param commitRecord the commit record
+    */
    @Override
    public void handleCommit(CommitRecord commitRecord) {
       // If a logic graph changed, clear our cache.
-      if (sememeSequencesForUnhandledChanges.size() > 0) {
-         treeCache.clear();
+      if (this.sememeSequencesForUnhandledChanges.size() > 0) {
+         this.treeCache.clear();
       }
 
-      UpdateTaxonomyAfterCommitTask.get(this, commitRecord, sememeSequencesForUnhandledChanges, stampedLock);
+      UpdateTaxonomyAfterCommitTask.get(this, commitRecord, this.sememeSequencesForUnhandledChanges, this.stampedLock);
    }
 
+   /**
+    * Update status.
+    *
+    * @param conceptChronology the concept chronology
+    */
    @Override
    public void updateStatus(ConceptChronology<?> conceptChronology) {
-      int                     conceptSequence = conceptChronology.getConceptSequence();
+      final int               conceptSequence = conceptChronology.getConceptSequence();
       TaxonomyRecordPrimitive parentTaxonomyRecord;
 
-      if (originDestinationTaxonomyRecordMap.containsKey(conceptSequence)) {
-         parentTaxonomyRecord = originDestinationTaxonomyRecordMap.get(conceptSequence)
+      if (this.originDestinationTaxonomyRecordMap.containsKey(conceptSequence)) {
+         parentTaxonomyRecord = this.originDestinationTaxonomyRecordMap.get(conceptSequence)
                .get();
       } else {
          parentTaxonomyRecord = new TaxonomyRecordPrimitive();
@@ -225,14 +297,20 @@ public class TaxonomyProvider
                                                stampSequence,
                                                TaxonomyFlags.CONCEPT_STATUS.bits);
                                 });
-      originDestinationTaxonomyRecordMap.put(conceptSequence, parentTaxonomyRecord);
+      this.originDestinationTaxonomyRecordMap.put(conceptSequence, parentTaxonomyRecord);
    }
 
+   /**
+    * Update taxonomy.
+    *
+    * @param logicGraphChronology the logic graph chronology
+    */
    @Override
    public void updateTaxonomy(SememeChronology<LogicGraphSememe<?>> logicGraphChronology) {
-      int conceptSequence = identifierService.getConceptSequence(logicGraphChronology.getReferencedComponentNid());
-      Optional<TaxonomyRecordPrimitive> record = originDestinationTaxonomyRecordMap.get(conceptSequence);
-      TaxonomyRecordPrimitive           parentTaxonomyRecord;
+      final int conceptSequence =
+         this.identifierService.getConceptSequence(logicGraphChronology.getReferencedComponentNid());
+      final Optional<TaxonomyRecordPrimitive> record = this.originDestinationTaxonomyRecordMap.get(conceptSequence);
+      TaxonomyRecordPrimitive                 parentTaxonomyRecord;
 
       if (record.isPresent()) {
          parentTaxonomyRecord = record.get();
@@ -242,20 +320,27 @@ public class TaxonomyProvider
 
       TaxonomyFlags taxonomyFlags;
 
-      if (logicGraphChronology.getAssemblageSequence() == logicCoordinate.getInferredAssemblageSequence()) {
+      if (logicGraphChronology.getAssemblageSequence() == this.logicCoordinate.getInferredAssemblageSequence()) {
          taxonomyFlags = TaxonomyFlags.INFERRED;
       } else {
          taxonomyFlags = TaxonomyFlags.STATED;
       }
 
-      List<Graph<? extends LogicGraphSememe<?>>> versionGraphList = logicGraphChronology.getVersionGraphList();
+      final List<Graph<? extends LogicGraphSememe<?>>> versionGraphList = logicGraphChronology.getVersionGraphList();
 
       versionGraphList.forEach((versionGraph) -> {
                                   processVersionNode(versionGraph.getRoot(), parentTaxonomyRecord, taxonomyFlags);
                                });
-      originDestinationTaxonomyRecordMap.put(conceptSequence, parentTaxonomyRecord);
+      this.originDestinationTaxonomyRecordMap.put(conceptSequence, parentTaxonomyRecord);
    }
 
+   /**
+    * Was ever kind of.
+    *
+    * @param childId the child id
+    * @param parentId the parent id
+    * @return true, if successful
+    */
    @Override
    public boolean wasEverKindOf(int childId, int parentId) {
       childId  = Get.identifierService()
@@ -267,29 +352,37 @@ public class TaxonomyProvider
          return true;
       }
 
-      long    stamp         = stampedLock.tryOptimisticRead();
-      boolean wasEverKindOf = recursiveFindAncestor(childId, parentId, new HashSet<>());
+      long          stamp         = this.stampedLock.tryOptimisticRead();
+      final boolean wasEverKindOf = recursiveFindAncestor(childId, parentId, new HashSet<>());
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          return wasEverKindOf;
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
          return recursiveFindAncestor(childId, parentId, new HashSet<>());
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
    }
 
+   /**
+    * Filter origin sequences.
+    *
+    * @param origins the origins
+    * @param parentSequence the parent sequence
+    * @param typeSequenceSet the type sequence set
+    * @return the int stream
+    */
    private IntStream filterOriginSequences(IntStream origins, int parentSequence, ConceptSequenceSet typeSequenceSet) {
       return origins.filter((originSequence) -> {
-                               Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional =
-                                  originDestinationTaxonomyRecordMap.get(originSequence);
+                               final Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional =
+                                  this.originDestinationTaxonomyRecordMap.get(originSequence);
 
                                if (taxonomyRecordOptional.isPresent()) {
-                                  TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
+                                  final TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
 
                                   return taxonomyRecord.containsSequenceViaType(parentSequence,
                                         typeSequenceSet,
@@ -300,16 +393,25 @@ public class TaxonomyProvider
                             });
    }
 
+   /**
+    * Filter origin sequences.
+    *
+    * @param origins the origins
+    * @param parentSequence the parent sequence
+    * @param typeSequenceSet the type sequence set
+    * @param tc the tc
+    * @return the int stream
+    */
    private IntStream filterOriginSequences(IntStream origins,
          int parentSequence,
          ConceptSequenceSet typeSequenceSet,
          TaxonomyCoordinate tc) {
       return origins.filter((originSequence) -> {
-                               Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional =
-                                  originDestinationTaxonomyRecordMap.get(originSequence);
+                               final Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional =
+                                  this.originDestinationTaxonomyRecordMap.get(originSequence);
 
                                if (taxonomyRecordOptional.isPresent()) {
-                                  TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
+                                  final TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
 
                                   if (taxonomyRecord.conceptSatisfiesStamp(originSequence, tc.getStampCoordinate())) {
                                      return taxonomyRecord.containsSequenceViaType(parentSequence,
@@ -323,13 +425,22 @@ public class TaxonomyProvider
                             });
    }
 
+   /**
+    * Filter origin sequences.
+    *
+    * @param origins the origins
+    * @param parentSequence the parent sequence
+    * @param typeSequence the type sequence
+    * @param flags the flags
+    * @return the int stream
+    */
    private IntStream filterOriginSequences(IntStream origins, int parentSequence, int typeSequence, int flags) {
       return origins.filter((originSequence) -> {
-                               Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional =
-                                  originDestinationTaxonomyRecordMap.get(originSequence);
+                               final Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional =
+                                  this.originDestinationTaxonomyRecordMap.get(originSequence);
 
                                if (taxonomyRecordOptional.isPresent()) {
-                                  TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
+                                  final TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
 
                                   return taxonomyRecord.containsSequenceViaTypeWithFlags(parentSequence,
                                         typeSequence,
@@ -340,17 +451,27 @@ public class TaxonomyProvider
                             });
    }
 
+   /**
+    * Filter origin sequences.
+    *
+    * @param origins the origins
+    * @param parentSequence the parent sequence
+    * @param typeSequence the type sequence
+    * @param tc the tc
+    * @param allowedRelTypes the allowed rel types
+    * @return the int stream
+    */
    private IntStream filterOriginSequences(IntStream origins,
          int parentSequence,
          int typeSequence,
          TaxonomyCoordinate tc,
          AllowedRelTypes allowedRelTypes) {
       return origins.filter((originSequence) -> {
-                               Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional =
-                                  originDestinationTaxonomyRecordMap.get(originSequence);
+                               final Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional =
+                                  this.originDestinationTaxonomyRecordMap.get(originSequence);
 
                                if (taxonomyRecordOptional.isPresent()) {
-                                  TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
+                                  final TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
 
                                   if (taxonomyRecord.conceptSatisfiesStamp(originSequence, tc.getStampCoordinate())) {
                                      if (allowedRelTypes == AllowedRelTypes.ALL_RELS) {
@@ -368,11 +489,18 @@ public class TaxonomyProvider
                             });
    }
 
+   /**
+    * Process new logic graph.
+    *
+    * @param firstVersion the first version
+    * @param parentTaxonomyRecord the parent taxonomy record
+    * @param taxonomyFlags the taxonomy flags
+    */
    private void processNewLogicGraph(LogicGraphSememe firstVersion,
                                      TaxonomyRecordPrimitive parentTaxonomyRecord,
                                      TaxonomyFlags taxonomyFlags) {
       if (firstVersion.getCommitState() == CommitStates.COMMITTED) {
-         LogicalExpression expression = firstVersion.getLogicalExpression();
+         final LogicalExpression expression = firstVersion.getLogicalExpression();
 
          expression.getRoot().getChildStream().forEach((necessaryOrSufficientSet) -> {
                                necessaryOrSufficientSet.getChildStream()
@@ -385,6 +513,15 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Process relationship root.
+    *
+    * @param logicalLogicNode the logical logic node
+    * @param parentTaxonomyRecord the parent taxonomy record
+    * @param taxonomyFlags the taxonomy flags
+    * @param stampSequence the stamp sequence
+    * @param comparisonExpression the comparison expression
+    */
    private void processRelationshipRoot(LogicNode logicalLogicNode,
          TaxonomyRecordPrimitive parentTaxonomyRecord,
          TaxonomyFlags taxonomyFlags,
@@ -417,23 +554,30 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Process version node.
+    *
+    * @param node the node
+    * @param parentTaxonomyRecord the parent taxonomy record
+    * @param taxonomyFlags the taxonomy flags
+    */
    private void processVersionNode(Node<? extends LogicGraphSememe> node,
                                    TaxonomyRecordPrimitive parentTaxonomyRecord,
                                    TaxonomyFlags taxonomyFlags) {
       if (node.getParent() == null) {
          processNewLogicGraph(node.getData(), parentTaxonomyRecord, taxonomyFlags);
       } else {
-         LogicalExpression comparisonExpression = node.getParent()
-                                                      .getData()
-                                                      .getLogicalExpression();
-         LogicalExpression referenceExpression  = node.getData()
-                                                      .getLogicalExpression();
-         IsomorphicResultsBottomUp isomorphicResults = new IsomorphicResultsBottomUp(referenceExpression,
-                                                                                     comparisonExpression);
+         final LogicalExpression comparisonExpression = node.getParent()
+                                                            .getData()
+                                                            .getLogicalExpression();
+         final LogicalExpression referenceExpression  = node.getData()
+                                                            .getLogicalExpression();
+         final IsomorphicResultsBottomUp isomorphicResults = new IsomorphicResultsBottomUp(referenceExpression,
+                                                                                           comparisonExpression);
 
          isomorphicResults.getAddedRelationshipRoots().forEach((logicalNode) -> {
-                                      int stampSequence = node.getData()
-                                                              .getStampSequence();
+                                      final int stampSequence = node.getData()
+                                                                    .getStampSequence();
 
                                       processRelationshipRoot(logicalNode,
                                             parentTaxonomyRecord,
@@ -442,10 +586,10 @@ public class TaxonomyProvider
                                             comparisonExpression);
                                    });
          isomorphicResults.getDeletedRelationshipRoots().forEach((logicalNode) -> {
-                                      int activeStampSequence = node.getData()
-                                                                    .getStampSequence();
-                                      int stampSequence       = Get.stampService()
-                                                                   .getRetiredStampSequence(activeStampSequence);
+                                      final int activeStampSequence = node.getData()
+                                                                          .getStampSequence();
+                                      final int stampSequence       = Get.stampService()
+                                                                         .getRetiredStampSequence(activeStampSequence);
 
                                       processRelationshipRoot(logicalNode,
                                             parentTaxonomyRecord,
@@ -460,6 +604,14 @@ public class TaxonomyProvider
                    });
    }
 
+   /**
+    * Recursive find ancestor.
+    *
+    * @param childSequence the child sequence
+    * @param parentSequence the parent sequence
+    * @param examined the examined
+    * @return true, if successful
+    */
    private boolean recursiveFindAncestor(int childSequence, int parentSequence, HashSet<Integer> examined) {
       // currently unpacking from array to object.
       // TODO operate directly on array if unpacking is a performance bottleneck.
@@ -469,12 +621,12 @@ public class TaxonomyProvider
 
       examined.add(childSequence);
 
-      Optional<TaxonomyRecordPrimitive> record = originDestinationTaxonomyRecordMap.get(childSequence);
+      final Optional<TaxonomyRecordPrimitive> record = this.originDestinationTaxonomyRecordMap.get(childSequence);
 
       if (record.isPresent()) {
-         TaxonomyRecordUnpacked childTaxonomyRecords = new TaxonomyRecordUnpacked(record.get().getArray());
-         int[] conceptSequencesForType = childTaxonomyRecords.getConceptSequencesForType(isaSequence)
-                                                             .toArray();
+         final TaxonomyRecordUnpacked childTaxonomyRecords = new TaxonomyRecordUnpacked(record.get().getArray());
+         final int[] conceptSequencesForType = childTaxonomyRecords.getConceptSequencesForType(this.isaSequence)
+                                                                   .toArray();
 
          if (Arrays.stream(conceptSequencesForType)
                    .anyMatch((int parentSequenceOfType) -> parentSequenceOfType == parentSequence)) {
@@ -490,15 +642,23 @@ public class TaxonomyProvider
       return false;
    }
 
+   /**
+    * Recursive find ancestor.
+    *
+    * @param childSequence the child sequence
+    * @param parentSequence the parent sequence
+    * @param tc the tc
+    * @return true, if successful
+    */
    private boolean recursiveFindAncestor(int childSequence, int parentSequence, TaxonomyCoordinate tc) {
       // currently unpacking from array to object.
       // TODO operate directly on array if unpacking is a performance bottleneck.
-      Optional<TaxonomyRecordPrimitive> record = originDestinationTaxonomyRecordMap.get(childSequence);
+      final Optional<TaxonomyRecordPrimitive> record = this.originDestinationTaxonomyRecordMap.get(childSequence);
 
       if (record.isPresent()) {
-         TaxonomyRecordUnpacked childTaxonomyRecords = new TaxonomyRecordUnpacked(record.get().getArray());
-         int[] activeConceptSequences = childTaxonomyRecords.getConceptSequencesForType(isaSequence, tc)
-                                                            .toArray();
+         final TaxonomyRecordUnpacked childTaxonomyRecords = new TaxonomyRecordUnpacked(record.get().getArray());
+         final int[] activeConceptSequences = childTaxonomyRecords.getConceptSequencesForType(this.isaSequence, tc)
+                                                                  .toArray();
 
          if (Arrays.stream(activeConceptSequences)
                    .anyMatch((int activeParentSequence) -> activeParentSequence == parentSequence)) {
@@ -514,15 +674,22 @@ public class TaxonomyProvider
       return false;
    }
 
+   /**
+    * Recursive find ancestors.
+    *
+    * @param childSequence the child sequence
+    * @param ancestors the ancestors
+    * @param tc the tc
+    */
    private void recursiveFindAncestors(int childSequence, ConceptSequenceSet ancestors, TaxonomyCoordinate tc) {
       // currently unpacking from array to object.
       // TODO operate directly on array if unpacking is a performance bottleneck.
-      Optional<TaxonomyRecordPrimitive> record = originDestinationTaxonomyRecordMap.get(childSequence);
+      final Optional<TaxonomyRecordPrimitive> record = this.originDestinationTaxonomyRecordMap.get(childSequence);
 
       if (record.isPresent()) {
-         TaxonomyRecordUnpacked childTaxonomyRecords = new TaxonomyRecordUnpacked(record.get().getArray());
-         int[] activeConceptSequences = childTaxonomyRecords.getConceptSequencesForType(isaSequence, tc)
-                                                            .toArray();
+         final TaxonomyRecordUnpacked childTaxonomyRecords = new TaxonomyRecordUnpacked(record.get().getArray());
+         final int[] activeConceptSequences = childTaxonomyRecords.getConceptSequencesForType(this.isaSequence, tc)
+                                                                  .toArray();
 
          Arrays.stream(activeConceptSequences).forEach((parent) -> {
                            if (!ancestors.contains(parent)) {
@@ -533,65 +700,80 @@ public class TaxonomyProvider
       }
    }
 
+   /**
+    * Start me.
+    */
    @PostConstruct
    private void startMe() {
       try {
          LOG.info("Starting TaxonomyService post-construct");
 
-         if (!loadRequired.get()) {
+         if (!this.loadRequired.get()) {
             LOG.info("Reading taxonomy.");
 
-            boolean isPopulated = originDestinationTaxonomyRecordMap.initialize();
-            File    inputFile   = new File(taxonomyProviderFolder.toFile(), ORIGIN_DESTINATION_MAP);
+            final boolean isPopulated = this.originDestinationTaxonomyRecordMap.initialize();
+            final File    inputFile   = new File(this.taxonomyProviderFolder.toFile(), ORIGIN_DESTINATION_MAP);
 
             try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(inputFile)))) {
-               int size = in.readInt();
+               final int size = in.readInt();
 
                for (int i = 0; i < size; i++) {
-                  destinationOriginRecordSet.add(new DestinationOriginRecord(in.readInt(), in.readInt()));
+                  this.destinationOriginRecordSet.add(new DestinationOriginRecord(in.readInt(), in.readInt()));
                }
             }
 
             if (isPopulated) {
-               databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
+               this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
             }
          }
 
          Get.commitService()
             .addChangeListener(this);
-         identifierService = Get.identifierService();
-      } catch (Exception e) {
+         this.identifierService = Get.identifierService();
+      } catch (final Exception e) {
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Cradle Taxonomy Provider", e);
          throw new RuntimeException(e);
       }
    }
 
+   /**
+    * Stop me.
+    */
    @PreDestroy
    private void stopMe() {
       LOG.info("Writing taxonomy.");
-      originDestinationTaxonomyRecordMap.write();
+      this.originDestinationTaxonomyRecordMap.write();
 
-      File outputFile = new File(taxonomyProviderFolder.toFile(), ORIGIN_DESTINATION_MAP);
+      final File outputFile = new File(this.taxonomyProviderFolder.toFile(), ORIGIN_DESTINATION_MAP);
 
       outputFile.getParentFile()
                 .mkdirs();
 
       try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)))) {
-         out.writeInt(destinationOriginRecordSet.size());
-         destinationOriginRecordSet.forEach((rec) -> {
-                                               try {
-                                                  out.writeInt(rec.getDestinationSequence());
-                                                  out.writeInt(rec.getOriginSequence());
-                                               } catch (IOException ex) {
-                                                  throw new RuntimeException(ex);
-                                               }
-                                            });
-      } catch (IOException e) {
+         out.writeInt(this.destinationOriginRecordSet.size());
+         this.destinationOriginRecordSet.forEach((rec) -> {
+                  try {
+                     out.writeInt(rec.getDestinationSequence());
+                     out.writeInt(rec.getOriginSequence());
+                  } catch (final IOException ex) {
+                     throw new RuntimeException(ex);
+                  }
+               });
+      } catch (final IOException e) {
          throw new RuntimeException(e);
       }
    }
 
+   /**
+    * Update isa rel.
+    *
+    * @param conceptNode the concept node
+    * @param parentTaxonomyRecord the parent taxonomy record
+    * @param taxonomyFlags the taxonomy flags
+    * @param stampSequence the stamp sequence
+    * @param originSequence the origin sequence
+    */
    private void updateIsaRel(ConceptNodeWithSequences conceptNode,
                              TaxonomyRecordPrimitive parentTaxonomyRecord,
                              TaxonomyFlags taxonomyFlags,
@@ -599,19 +781,29 @@ public class TaxonomyProvider
                              int originSequence) {
       parentTaxonomyRecord.getTaxonomyRecordUnpacked()
                           .addStampRecord(conceptNode.getConceptSequence(),
-                                isaSequence,
+                                this.isaSequence,
                                 stampSequence,
                                 taxonomyFlags.bits);
-      destinationOriginRecordSet.add(new DestinationOriginRecord(conceptNode.getConceptSequence(), originSequence));
+      this.destinationOriginRecordSet.add(new DestinationOriginRecord(conceptNode.getConceptSequence(),
+            originSequence));
    }
 
+   /**
+    * Update some role.
+    *
+    * @param someNode the some node
+    * @param parentTaxonomyRecord the parent taxonomy record
+    * @param taxonomyFlags the taxonomy flags
+    * @param stampSequence the stamp sequence
+    * @param originSequence the origin sequence
+    */
    private void updateSomeRole(RoleNodeSomeWithSequences someNode,
                                TaxonomyRecordPrimitive parentTaxonomyRecord,
                                TaxonomyFlags taxonomyFlags,
                                int stampSequence,
                                int originSequence) {
-      if (someNode.getTypeConceptSequence() == roleGroupSequence) {
-         AndNode andNode = (AndNode) someNode.getOnlyChild();
+      if (someNode.getTypeConceptSequence() == this.roleGroupSequence) {
+         final AndNode andNode = (AndNode) someNode.getOnlyChild();
 
          andNode.getChildStream().forEach((roleGroupSomeNode) -> {
                             if (roleGroupSomeNode instanceof RoleNodeSomeWithSequences) {
@@ -627,14 +819,14 @@ public class TaxonomyProvider
                          });
       } else {
          if (someNode.getOnlyChild() instanceof ConceptNodeWithSequences) {
-            ConceptNodeWithSequences restrictionNode = (ConceptNodeWithSequences) someNode.getOnlyChild();
+            final ConceptNodeWithSequences restrictionNode = (ConceptNodeWithSequences) someNode.getOnlyChild();
 
             parentTaxonomyRecord.getTaxonomyRecordUnpacked()
                                 .addStampRecord(restrictionNode.getConceptSequence(),
                                       someNode.getTypeConceptSequence(),
                                       stampSequence,
                                       taxonomyFlags.bits);
-            destinationOriginRecordSet.add(new DestinationOriginRecord(restrictionNode.getConceptSequence(),
+            this.destinationOriginRecordSet.add(new DestinationOriginRecord(restrictionNode.getConceptSequence(),
                   originSequence));
          } else {
             // TODO dan put this here to stop a pile of errors. It was returning AndNode.  Not sure what to do with it
@@ -644,10 +836,16 @@ public class TaxonomyProvider
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the all circular relationship origin sequences.
+    *
+    * @param tc the tc
+    * @return the all circular relationship origin sequences
+    */
    @Override
    public IntStream getAllCircularRelationshipOriginSequences(TaxonomyCoordinate tc) {
-      ConceptService  conceptService  = Get.conceptService();
-      StampCoordinate stampCoordinate = tc.getStampCoordinate();
+      final ConceptService  conceptService  = Get.conceptService();
+      final StampCoordinate stampCoordinate = tc.getStampCoordinate();
 
       return Get.identifierService().getParallelConceptSequenceStream().filter((conceptSequence) -> {
                            if (conceptService.isConceptActive(conceptSequence, stampCoordinate)) {
@@ -661,18 +859,25 @@ public class TaxonomyProvider
                         });
    }
 
+   /**
+    * Gets the all circular relationship type sequences.
+    *
+    * @param originId the origin id
+    * @param tc the tc
+    * @return the all circular relationship type sequences
+    */
    @Override
    public IntStream getAllCircularRelationshipTypeSequences(int originId, TaxonomyCoordinate tc) {
-      int                originSequence = Get.identifierService()
-                                             .getConceptSequence(originId);
-      ConceptSequenceSet ancestors      = getAncestorOfSequenceSet(originId, tc);
+      final int                originSequence = Get.identifierService()
+                                                   .getConceptSequence(originId);
+      final ConceptSequenceSet ancestors      = getAncestorOfSequenceSet(originId, tc);
 
       if (tc.getTaxonomyType() != PremiseType.INFERRED) {
          ancestors.or(getAncestorOfSequenceSet(originId, tc.makeAnalog(PremiseType.INFERRED)));
       }
 
-      ConceptSequenceSet excludedTypes       = ConceptSequenceSet.of(isaSequence);
-      IntStream.Builder  typeSequenceBuilder = IntStream.builder();
+      final ConceptSequenceSet excludedTypes       = ConceptSequenceSet.of(this.isaSequence);
+      final IntStream.Builder  typeSequenceBuilder = IntStream.builder();
 
       getAllRelationshipDestinationSequencesNotOfType(originId,
             excludedTypes,
@@ -683,15 +888,21 @@ public class TaxonomyProvider
       return typeSequenceBuilder.build();
    }
 
+   /**
+    * Gets the all relationship destination sequences.
+    *
+    * @param originId the origin id
+    * @return the all relationship destination sequences
+    */
    @Override
    public IntStream getAllRelationshipDestinationSequences(int originId) {
       originId = Get.identifierService()
                     .getConceptSequence(originId);
 
-      long                              stamp                  = stampedLock.tryOptimisticRead();
-      Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional = originDestinationTaxonomyRecordMap.get(originId);
+      long                              stamp                  = this.stampedLock.tryOptimisticRead();
+      Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional = this.originDestinationTaxonomyRecordMap.get(originId);
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          if (taxonomyRecordOptional.isPresent()) {
             return taxonomyRecordOptional.get()
                                          .getDestinationSequences();
@@ -700,28 +911,43 @@ public class TaxonomyProvider
          return IntStream.empty();
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
-         taxonomyRecordOptional = originDestinationTaxonomyRecordMap.get(originId);
+         taxonomyRecordOptional = this.originDestinationTaxonomyRecordMap.get(originId);
 
          if (taxonomyRecordOptional.isPresent()) {
             return taxonomyRecordOptional.get()
                                          .getDestinationSequences();
          }
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
 
       return IntStream.empty();
    }
 
+   /**
+    * Gets the all relationship destination sequences.
+    *
+    * @param originId the origin id
+    * @param tc the tc
+    * @return the all relationship destination sequences
+    */
    @Override
    public IntStream getAllRelationshipDestinationSequences(int originId, TaxonomyCoordinate tc) {
       // lock handled by called method
       return getAllRelationshipDestinationSequencesOfType(originId, new ConceptSequenceSet(), tc);
    }
 
+   /**
+    * Gets the all relationship destination sequences not of type.
+    *
+    * @param originId the origin id
+    * @param typeSequenceSet the type sequence set
+    * @param tc the tc
+    * @return the all relationship destination sequences not of type
+    */
    @Override
    public IntStream getAllRelationshipDestinationSequencesNotOfType(int originId,
          ConceptSequenceSet typeSequenceSet,
@@ -729,10 +955,10 @@ public class TaxonomyProvider
       originId = Get.identifierService()
                     .getConceptSequence(originId);
 
-      long                              stamp                  = stampedLock.tryOptimisticRead();
-      Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional = originDestinationTaxonomyRecordMap.get(originId);
+      long                              stamp                  = this.stampedLock.tryOptimisticRead();
+      Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional = this.originDestinationTaxonomyRecordMap.get(originId);
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          if (taxonomyRecordOptional.isPresent()) {
             return taxonomyRecordOptional.get()
                                          .getDestinationSequencesNotOfType(typeSequenceSet, tc);
@@ -741,31 +967,38 @@ public class TaxonomyProvider
          return IntStream.empty();
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
-         taxonomyRecordOptional = originDestinationTaxonomyRecordMap.get(originId);
+         taxonomyRecordOptional = this.originDestinationTaxonomyRecordMap.get(originId);
 
          if (taxonomyRecordOptional.isPresent()) {
             return taxonomyRecordOptional.get()
                                          .getDestinationSequencesNotOfType(typeSequenceSet, tc);
          }
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
 
       return IntStream.empty();
    }
 
+   /**
+    * Gets the all relationship destination sequences of type.
+    *
+    * @param originId the origin id
+    * @param typeSequenceSet the type sequence set
+    * @return the all relationship destination sequences of type
+    */
    @Override
    public IntStream getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet) {
       originId = Get.identifierService()
                     .getConceptSequence(originId);
 
-      long                              stamp                  = stampedLock.tryOptimisticRead();
-      Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional = originDestinationTaxonomyRecordMap.get(originId);
+      long                              stamp                  = this.stampedLock.tryOptimisticRead();
+      Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional = this.originDestinationTaxonomyRecordMap.get(originId);
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          if (taxonomyRecordOptional.isPresent()) {
             return taxonomyRecordOptional.get()
                                          .getDestinationSequencesOfType(typeSequenceSet);
@@ -774,22 +1007,30 @@ public class TaxonomyProvider
          return IntStream.empty();
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
-         taxonomyRecordOptional = originDestinationTaxonomyRecordMap.get(originId);
+         taxonomyRecordOptional = this.originDestinationTaxonomyRecordMap.get(originId);
 
          if (taxonomyRecordOptional.isPresent()) {
             return taxonomyRecordOptional.get()
                                          .getDestinationSequencesOfType(typeSequenceSet);
          }
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
 
       return IntStream.empty();
    }
 
+   /**
+    * Gets the all relationship destination sequences of type.
+    *
+    * @param originId the origin id
+    * @param typeSequenceSet the type sequence set
+    * @param tc the tc
+    * @return the all relationship destination sequences of type
+    */
    @Override
    public IntStream getAllRelationshipDestinationSequencesOfType(int originId,
          ConceptSequenceSet typeSequenceSet,
@@ -797,10 +1038,10 @@ public class TaxonomyProvider
       originId = Get.identifierService()
                     .getConceptSequence(originId);
 
-      long                              stamp                  = stampedLock.tryOptimisticRead();
-      Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional = originDestinationTaxonomyRecordMap.get(originId);
+      long                              stamp                  = this.stampedLock.tryOptimisticRead();
+      Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional = this.originDestinationTaxonomyRecordMap.get(originId);
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          if (taxonomyRecordOptional.isPresent()) {
             return taxonomyRecordOptional.get()
                                          .getDestinationSequencesOfType(typeSequenceSet, tc);
@@ -809,61 +1050,89 @@ public class TaxonomyProvider
          return IntStream.empty();
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
-         taxonomyRecordOptional = originDestinationTaxonomyRecordMap.get(originId);
+         taxonomyRecordOptional = this.originDestinationTaxonomyRecordMap.get(originId);
 
          if (taxonomyRecordOptional.isPresent()) {
             return taxonomyRecordOptional.get()
                                          .getDestinationSequencesOfType(typeSequenceSet, tc);
          }
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
 
       return IntStream.empty();
    }
 
+   /**
+    * Gets the all relationship origin sequences.
+    *
+    * @param destination the destination
+    * @return the all relationship origin sequences
+    */
    @Override
    public IntStream getAllRelationshipOriginSequences(int destination) {
       // lock handled by getOriginSequenceStream
       return getOriginSequenceStream(destination);
    }
 
+   /**
+    * Gets the all relationship origin sequences.
+    *
+    * @param destination the destination
+    * @param tc the tc
+    * @return the all relationship origin sequences
+    */
    @Override
    public IntStream getAllRelationshipOriginSequences(int destination, TaxonomyCoordinate tc) {
       // Set of all concept sequences that point to the parent.
       // lock handled by getOriginSequenceStream
-      IntStream origins = getOriginSequenceStream(destination);
+      final IntStream origins = getOriginSequenceStream(destination);
 
-      return filterOriginSequences(origins, destination, isaSequence, tc, AllowedRelTypes.ALL_RELS);
+      return filterOriginSequences(origins, destination, this.isaSequence, tc, AllowedRelTypes.ALL_RELS);
    }
 
+   /**
+    * Gets the all relationship origin sequences of type.
+    *
+    * @param destinationId the destination id
+    * @param typeSequenceSet the type sequence set
+    * @return the all relationship origin sequences of type
+    */
    @Override
    public IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet) {
       destinationId = Get.identifierService()
                          .getConceptSequence(destinationId);
 
-      long stamp = stampedLock.tryOptimisticRead();
+      long stamp = this.stampedLock.tryOptimisticRead();
 
       // Set of all concept sequences that point to the parent.
       IntStream origins = getOriginSequenceStream(destinationId);
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          return filterOriginSequences(origins, destinationId, typeSequenceSet);
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
          origins = getOriginSequenceStream(destinationId);
          return filterOriginSequences(origins, destinationId, typeSequenceSet);
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
    }
 
+   /**
+    * Gets the all relationship origin sequences of type.
+    *
+    * @param destinationId the destination id
+    * @param typeSequenceSet the type sequence set
+    * @param tc the tc
+    * @return the all relationship origin sequences of type
+    */
    @Override
    public IntStream getAllRelationshipOriginSequencesOfType(int destinationId,
          ConceptSequenceSet typeSequenceSet,
@@ -871,34 +1140,42 @@ public class TaxonomyProvider
       destinationId = Get.identifierService()
                          .getConceptSequence(destinationId);
 
-      long stamp = stampedLock.tryOptimisticRead();
+      long stamp = this.stampedLock.tryOptimisticRead();
 
       // Set of all concept sequences that point to the parent.
       IntStream origins = getOriginSequenceStream(destinationId);
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          return filterOriginSequences(origins, destinationId, typeSequenceSet, tc);
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
          origins = getOriginSequenceStream(destinationId);
          return filterOriginSequences(origins, destinationId, typeSequenceSet, tc);
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
    }
 
+   /**
+    * Gets the all types for relationship.
+    *
+    * @param originId the origin id
+    * @param destinationId the destination id
+    * @param tc the tc
+    * @return the all types for relationship
+    */
    @Override
    public IntStream getAllTypesForRelationship(int originId, int destinationId, TaxonomyCoordinate tc) {
       originId = Get.identifierService()
                     .getConceptSequence(originId);
 
-      long                              stamp                  = stampedLock.tryOptimisticRead();
-      Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional = originDestinationTaxonomyRecordMap.get(originId);
+      long                              stamp                  = this.stampedLock.tryOptimisticRead();
+      Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional = this.originDestinationTaxonomyRecordMap.get(originId);
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          if (taxonomyRecordOptional.isPresent()) {
             return taxonomyRecordOptional.get()
                                          .getTypesForRelationship(destinationId, tc);
@@ -907,31 +1184,46 @@ public class TaxonomyProvider
          return IntStream.empty();
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
-         taxonomyRecordOptional = originDestinationTaxonomyRecordMap.get(originId);
+         taxonomyRecordOptional = this.originDestinationTaxonomyRecordMap.get(originId);
 
          if (taxonomyRecordOptional.isPresent()) {
             return taxonomyRecordOptional.get()
                                          .getTypesForRelationship(destinationId, tc);
          }
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
 
       return IntStream.empty();
    }
 
+   /**
+    * Gets the ancestor of sequence set.
+    *
+    * @param childId the child id
+    * @param tc the tc
+    * @return the ancestor of sequence set
+    */
    @Override
    public ConceptSequenceSet getAncestorOfSequenceSet(int childId, TaxonomyCoordinate tc) {
-      ConceptSequenceSet ancestors = new ConceptSequenceSet();
+      final ConceptSequenceSet ancestors = new ConceptSequenceSet();
 
       recursiveFindAncestors(Get.identifierService()
                                 .getConceptSequence(childId), ancestors, tc);
       return ancestors;
    }
 
+   /**
+    * Checks if child of.
+    *
+    * @param childId the child id
+    * @param parentId the parent id
+    * @param tc the tc
+    * @return true, if child of
+    */
    @Override
    public boolean isChildOf(int childId, int parentId, TaxonomyCoordinate tc) {
       childId  = Get.identifierService()
@@ -939,22 +1231,22 @@ public class TaxonomyProvider
       parentId = Get.identifierService()
                     .getConceptSequence(parentId);
 
-      RelativePositionCalculator        computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
-      int                               flags    = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
-      long                              stamp    = stampedLock.tryOptimisticRead();
-      Optional<TaxonomyRecordPrimitive> record   = originDestinationTaxonomyRecordMap.get(childId);
+      final RelativePositionCalculator  computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
+      final int                         flags    = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
+      long                              stamp    = this.stampedLock.tryOptimisticRead();
+      Optional<TaxonomyRecordPrimitive> record   = this.originDestinationTaxonomyRecordMap.get(childId);
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          if (record.isPresent()) {
-            TaxonomyRecordUnpacked childTaxonomyRecords = new TaxonomyRecordUnpacked(record.get().getArray());
-            Optional<TypeStampTaxonomyRecords> parentStampRecordsOptional =
+            final TaxonomyRecordUnpacked childTaxonomyRecords = new TaxonomyRecordUnpacked(record.get().getArray());
+            final Optional<TypeStampTaxonomyRecords> parentStampRecordsOptional =
                childTaxonomyRecords.getConceptSequenceStampRecords(parentId);
 
             if (parentStampRecordsOptional.isPresent()) {
-               TypeStampTaxonomyRecords parentStampRecords = parentStampRecordsOptional.get();
+               final TypeStampTaxonomyRecords parentStampRecords = parentStampRecordsOptional.get();
 
-               if (computer.isLatestActive(parentStampRecords.getStampsOfTypeWithFlags(isaSequence, flags))) {
-                  if (stampedLock.validate(stamp)) {
+               if (computer.isLatestActive(parentStampRecords.getStampsOfTypeWithFlags(this.isaSequence, flags))) {
+                  if (this.stampedLock.validate(stamp)) {
                      return true;
                   }
                }
@@ -964,53 +1256,67 @@ public class TaxonomyProvider
          return false;
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
-         record = originDestinationTaxonomyRecordMap.get(childId);
+         record = this.originDestinationTaxonomyRecordMap.get(childId);
 
          if (record.isPresent()) {
-            TaxonomyRecordUnpacked childTaxonomyRecords = new TaxonomyRecordUnpacked(record.get().getArray());
-            Optional<TypeStampTaxonomyRecords> parentStampRecordsOptional =
+            final TaxonomyRecordUnpacked childTaxonomyRecords = new TaxonomyRecordUnpacked(record.get().getArray());
+            final Optional<TypeStampTaxonomyRecords> parentStampRecordsOptional =
                childTaxonomyRecords.getConceptSequenceStampRecords(parentId);
 
             if (parentStampRecordsOptional.isPresent()) {
-               TypeStampTaxonomyRecords parentStampRecords = parentStampRecordsOptional.get();
+               final TypeStampTaxonomyRecords parentStampRecords = parentStampRecordsOptional.get();
 
-               if (computer.isLatestActive(parentStampRecords.getStampsOfTypeWithFlags(isaSequence, flags))) {
-                  if (stampedLock.validate(stamp)) {
+               if (computer.isLatestActive(parentStampRecords.getStampsOfTypeWithFlags(this.isaSequence, flags))) {
+                  if (this.stampedLock.validate(stamp)) {
                      return true;
                   }
                }
             }
          }
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
 
       return false;
    }
 
+   /**
+    * Gets the child of sequence set.
+    *
+    * @param parentId the parent id
+    * @param tc the tc
+    * @return the child of sequence set
+    */
    @Override
    public ConceptSequenceSet getChildOfSequenceSet(int parentId, TaxonomyCoordinate tc) {
       // Set of all concept sequences that point to the parent.
       // lock handled by getOriginSequenceStream
-      IntStream origins = getOriginSequenceStream(parentId);
+      final IntStream origins = getOriginSequenceStream(parentId);
 
       return ConceptSequenceSet.of(filterOriginSequences(origins,
             parentId,
-            isaSequence,
+            this.isaSequence,
             tc,
             AllowedRelTypes.HIERARCHICAL_ONLY));
    }
 
+   /**
+    * Checks if concept active.
+    *
+    * @param conceptSequence the concept sequence
+    * @param stampCoordinate the stamp coordinate
+    * @return true, if concept active
+    */
    @Override
    public boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate) {
-      long                              stamp                  = stampedLock.tryOptimisticRead();
+      long stamp = this.stampedLock.tryOptimisticRead();
       Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional =
-         originDestinationTaxonomyRecordMap.get(conceptSequence);
+         this.originDestinationTaxonomyRecordMap.get(conceptSequence);
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          if (taxonomyRecordOptional.isPresent()) {
             return taxonomyRecordOptional.get()
                                          .isConceptActive(conceptSequence, stampCoordinate);
@@ -1019,10 +1325,10 @@ public class TaxonomyProvider
          return false;
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
-         taxonomyRecordOptional = originDestinationTaxonomyRecordMap.get(conceptSequence);
+         taxonomyRecordOptional = this.originDestinationTaxonomyRecordMap.get(conceptSequence);
 
          if (taxonomyRecordOptional.isPresent()) {
             return taxonomyRecordOptional.get()
@@ -1031,24 +1337,47 @@ public class TaxonomyProvider
 
          return false;
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
    }
 
+   /**
+    * Gets the database folder.
+    *
+    * @return the database folder
+    */
    @Override
    public Path getDatabaseFolder() {
-      return taxonomyProviderFolder;
+      return this.taxonomyProviderFolder;
    }
 
+   /**
+    * Gets the database validity status.
+    *
+    * @return the database validity status
+    */
    @Override
    public DatabaseValidity getDatabaseValidityStatus() {
-      return databaseValidity;
+      return this.databaseValidity;
    }
 
+   /**
+    * Gets the destination origin record set.
+    *
+    * @return the destination origin record set
+    */
    public ConcurrentSkipListSet<DestinationOriginRecord> getDestinationOriginRecordSet() {
-      return destinationOriginRecordSet;
+      return this.destinationOriginRecordSet;
    }
 
+   /**
+    * Checks if kind of.
+    *
+    * @param childId the child id
+    * @param parentId the parent id
+    * @param tc the tc
+    * @return true, if kind of
+    */
    @Override
    public boolean isKindOf(int childId, int parentId, TaxonomyCoordinate tc) {
       childId  = Get.identifierService()
@@ -1060,32 +1389,39 @@ public class TaxonomyProvider
          return true;
       }
 
-      long    stamp    = stampedLock.tryOptimisticRead();
-      boolean isKindOf = recursiveFindAncestor(childId, parentId, tc);
+      long          stamp    = this.stampedLock.tryOptimisticRead();
+      final boolean isKindOf = recursiveFindAncestor(childId, parentId, tc);
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          return isKindOf;
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
          return recursiveFindAncestor(childId, parentId, tc);
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
    }
 
+   /**
+    * Gets the kind of sequence set.
+    *
+    * @param rootId the root id
+    * @param tc the tc
+    * @return the kind of sequence set
+    */
    @Override
    public ConceptSequenceSet getKindOfSequenceSet(int rootId, TaxonomyCoordinate tc) {
       rootId = Get.identifierService()
                   .getConceptSequence(rootId);
 
-      long stamp = stampedLock.tryOptimisticRead();
+      long stamp = this.stampedLock.tryOptimisticRead();
 
       // TODO Look at performance of getTaxonomyTree...
-      Tree               tree      = getTaxonomyTree(tc);
-      ConceptSequenceSet kindOfSet = ConceptSequenceSet.of(rootId);
+      Tree                     tree      = getTaxonomyTree(tc);
+      final ConceptSequenceSet kindOfSet = ConceptSequenceSet.of(rootId);
 
       tree.depthFirstProcess(rootId,
                              (TreeNodeVisitData t,
@@ -1093,16 +1429,16 @@ public class TaxonomyProvider
                                 kindOfSet.add(conceptSequence);
                              });
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          return kindOfSet;
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
          tree = getTaxonomyTree(tc);
 
-         ConceptSequenceSet kindOfSet2 = ConceptSequenceSet.of(rootId);
+         final ConceptSequenceSet kindOfSet2 = ConceptSequenceSet.of(rootId);
 
          tree.depthFirstProcess(rootId,
                                 (TreeNodeVisitData t,
@@ -1111,100 +1447,147 @@ public class TaxonomyProvider
                                 });
          return kindOfSet2;
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
    }
 
+   /**
+    * Gets the listener uuid.
+    *
+    * @return the listener uuid
+    */
    @Override
    public UUID getListenerUuid() {
-      return providerUuid;
+      return this.providerUuid;
    }
 
+   /**
+    * Gets the origin destination taxonomy records.
+    *
+    * @return the origin destination taxonomy records
+    */
    public CasSequenceObjectMap<TaxonomyRecordPrimitive> getOriginDestinationTaxonomyRecords() {
-      return originDestinationTaxonomyRecordMap;
+      return this.originDestinationTaxonomyRecordMap;
    }
 
+   /**
+    * Gets the origin sequence stream.
+    *
+    * @param parentId the parent id
+    * @return the origin sequence stream
+    */
    private IntStream getOriginSequenceStream(int parentId) {
       // Set of all concept sequences that point to the parent.
       parentId = Get.identifierService()
                     .getConceptSequence(parentId);
 
-      long stamp = stampedLock.tryOptimisticRead();
+      long stamp = this.stampedLock.tryOptimisticRead();
       NavigableSet<DestinationOriginRecord> subSet =
-         destinationOriginRecordSet.subSet(new DestinationOriginRecord(parentId,
-                                                                       Integer.MIN_VALUE),
-                                           new DestinationOriginRecord(parentId,
-                                                 Integer.MAX_VALUE));
+         this.destinationOriginRecordSet.subSet(new DestinationOriginRecord(parentId,
+                                                                            Integer.MIN_VALUE),
+                                                new DestinationOriginRecord(parentId,
+                                                      Integer.MAX_VALUE));
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          return subSet.stream()
                       .mapToInt((DestinationOriginRecord record) -> record.getOriginSequence());
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
-         subSet = destinationOriginRecordSet.subSet(new DestinationOriginRecord(parentId, Integer.MIN_VALUE),
+         subSet = this.destinationOriginRecordSet.subSet(new DestinationOriginRecord(parentId, Integer.MIN_VALUE),
                new DestinationOriginRecord(parentId, Integer.MAX_VALUE));
          return subSet.stream()
                       .mapToInt((DestinationOriginRecord record) -> record.getOriginSequence());
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
    }
 
+   /**
+    * Gets the roots.
+    *
+    * @param tc the tc
+    * @return the roots
+    */
    @Override
    public IntStream getRoots(TaxonomyCoordinate tc) {
-      long stamp = stampedLock.tryOptimisticRead();
+      long stamp = this.stampedLock.tryOptimisticRead();
       Tree tree  = getTaxonomyTree(tc);
 
-      if (!stampedLock.validate(stamp)) {
-         stamp = stampedLock.readLock();
+      if (!this.stampedLock.validate(stamp)) {
+         stamp = this.stampedLock.readLock();
 
          try {
             tree = getTaxonomyTree(tc);
          } finally {
-            stampedLock.unlock(stamp);
+            this.stampedLock.unlock(stamp);
          }
       }
 
       return tree.getRootSequenceStream();
    }
 
+   /**
+    * Gets the snapshot.
+    *
+    * @param tc the tc
+    * @return the snapshot
+    */
    @Override
    public TaxonomySnapshotService getSnapshot(TaxonomyCoordinate tc) {
       return new TaxonomySnapshotProvider(tc);
    }
 
+   /**
+    * Gets the taxonomy child sequences.
+    *
+    * @param parentId the parent id
+    * @return the taxonomy child sequences
+    */
    @Override
    public IntStream getTaxonomyChildSequences(int parentId) {
       // Set of all concept sequences that point to the parent.
       // lock handled by getOriginSequenceStream
-      IntStream origins = getOriginSequenceStream(parentId);
+      final IntStream origins = getOriginSequenceStream(parentId);
 
-      return filterOriginSequences(origins, parentId, isaSequence, TaxonomyFlags.ALL_RELS);
+      return filterOriginSequences(origins, parentId, this.isaSequence, TaxonomyFlags.ALL_RELS);
    }
 
+   /**
+    * Gets the taxonomy child sequences.
+    *
+    * @param parentId the parent id
+    * @param tc the tc
+    * @return the taxonomy child sequences
+    */
    @Override
    public IntStream getTaxonomyChildSequences(int parentId, TaxonomyCoordinate tc) {
       // Set of all concept sequences that point to the parent.
       // lock handled by getOriginSequenceStream
-      IntStream origins = getOriginSequenceStream(parentId);
+      final IntStream origins = getOriginSequenceStream(parentId);
 
-      return filterOriginSequences(origins, parentId, isaSequence, tc, AllowedRelTypes.HIERARCHICAL_ONLY);
+      return filterOriginSequences(origins, parentId, this.isaSequence, tc, AllowedRelTypes.HIERARCHICAL_ONLY);
    }
 
+   /**
+    * Gets the taxonomy parent sequences.
+    *
+    * @param childId the child id
+    * @return the taxonomy parent sequences
+    */
    @Override
    public IntStream getTaxonomyParentSequences(int childId) {
       childId = Get.identifierService()
                    .getConceptSequence(childId);
 
-      long                              stamp                  = stampedLock.tryOptimisticRead();
-      Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional = originDestinationTaxonomyRecordMap.get(childId);
+      long                              stamp                  = this.stampedLock.tryOptimisticRead();
+      Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional = this.originDestinationTaxonomyRecordMap.get(childId);
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          if (taxonomyRecordOptional.isPresent()) {
-            TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
+            final TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
 
             return taxonomyRecord.getParentSequences()
                                  .distinct();
@@ -1213,13 +1596,13 @@ public class TaxonomyProvider
          return IntStream.empty();
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
-         taxonomyRecordOptional = originDestinationTaxonomyRecordMap.get(childId);
+         taxonomyRecordOptional = this.originDestinationTaxonomyRecordMap.get(childId);
 
          if (taxonomyRecordOptional.isPresent()) {
-            TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
+            final TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
 
             return taxonomyRecord.getParentSequences()
                                  .distinct();
@@ -1227,21 +1610,28 @@ public class TaxonomyProvider
 
          return IntStream.empty();
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
    }
 
+   /**
+    * Gets the taxonomy parent sequences.
+    *
+    * @param childId the child id
+    * @param tc the tc
+    * @return the taxonomy parent sequences
+    */
    @Override
    public IntStream getTaxonomyParentSequences(int childId, TaxonomyCoordinate tc) {
       childId = Get.identifierService()
                    .getConceptSequence(childId);
 
-      long                              stamp                  = stampedLock.tryOptimisticRead();
-      Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional = originDestinationTaxonomyRecordMap.get(childId);
+      long                              stamp                  = this.stampedLock.tryOptimisticRead();
+      Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional = this.originDestinationTaxonomyRecordMap.get(childId);
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          if (taxonomyRecordOptional.isPresent()) {
-            TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
+            final TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
 
             return taxonomyRecord.getParentSequences(tc);
          }
@@ -1249,27 +1639,33 @@ public class TaxonomyProvider
          return IntStream.empty();
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
-         taxonomyRecordOptional = originDestinationTaxonomyRecordMap.get(childId);
+         taxonomyRecordOptional = this.originDestinationTaxonomyRecordMap.get(childId);
 
          if (taxonomyRecordOptional.isPresent()) {
-            TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
+            final TaxonomyRecordPrimitive taxonomyRecord = taxonomyRecordOptional.get();
 
             return taxonomyRecord.getParentSequences(tc);
          }
 
          return IntStream.empty();
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
    }
 
+   /**
+    * Gets the taxonomy tree.
+    *
+    * @param tc the tc
+    * @return the taxonomy tree
+    */
    @Override
    public Tree getTaxonomyTree(TaxonomyCoordinate tc) {
       // TODO determine if the returned tree is thread safe for multiple accesses in parallel, if not, may need a pool of these.
-      Tree temp = treeCache.get(tc.hashCode());
+      Tree temp = this.treeCache.get(tc.hashCode());
 
       {
          if (temp != null) {
@@ -1277,100 +1673,177 @@ public class TaxonomyProvider
          }
       }
 
-      long            stamp                 = stampedLock.tryOptimisticRead();
+      long            stamp                 = this.stampedLock.tryOptimisticRead();
       IntStream       conceptSequenceStream = Get.identifierService()
                                                  .getParallelConceptSequenceStream();
-      GraphCollector  collector             = new GraphCollector(originDestinationTaxonomyRecordMap, tc);
+      GraphCollector  collector             = new GraphCollector(this.originDestinationTaxonomyRecordMap, tc);
       HashTreeBuilder graphBuilder          = conceptSequenceStream.collect(HashTreeBuilder::new, collector, collector);
 
-      if (stampedLock.validate(stamp)) {
+      if (this.stampedLock.validate(stamp)) {
          temp = graphBuilder.getSimpleDirectedGraphGraph();
-         treeCache.put(tc.hashCode(), temp);
+         this.treeCache.put(tc.hashCode(), temp);
          return temp;
       }
 
-      stamp = stampedLock.readLock();
+      stamp = this.stampedLock.readLock();
 
       try {
          conceptSequenceStream = Get.identifierService()
                                     .getParallelConceptSequenceStream();
-         collector             = new GraphCollector(originDestinationTaxonomyRecordMap, tc);
+         collector             = new GraphCollector(this.originDestinationTaxonomyRecordMap, tc);
          graphBuilder          = conceptSequenceStream.collect(HashTreeBuilder::new, collector, collector);
          temp                  = graphBuilder.getSimpleDirectedGraphGraph();
-         treeCache.put(tc.hashCode(), temp);
+         this.treeCache.put(tc.hashCode(), temp);
          return temp;
       } finally {
-         stampedLock.unlock(stamp);
+         this.stampedLock.unlock(stamp);
       }
    }
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class TaxonomySnapshotProvider.
+    */
    private class TaxonomySnapshotProvider
             implements TaxonomySnapshotService {
+      /** The tc. */
       TaxonomyCoordinate tc;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new taxonomy snapshot provider.
+       *
+       * @param tc the tc
+       */
       public TaxonomySnapshotProvider(TaxonomyCoordinate tc) {
          this.tc = tc;
       }
 
       //~--- get methods ------------------------------------------------------
 
+      /**
+       * Gets the all relationship destination sequences.
+       *
+       * @param originId the origin id
+       * @return the all relationship destination sequences
+       */
       @Override
       public IntStream getAllRelationshipDestinationSequences(int originId) {
-         return TaxonomyProvider.this.getAllRelationshipDestinationSequences(originId, tc);
+         return TaxonomyProvider.this.getAllRelationshipDestinationSequences(originId, this.tc);
       }
 
+      /**
+       * Gets the all relationship destination sequences of type.
+       *
+       * @param originId the origin id
+       * @param typeSequenceSet the type sequence set
+       * @return the all relationship destination sequences of type
+       */
       @Override
       public IntStream getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet) {
-         return TaxonomyProvider.this.getAllRelationshipDestinationSequencesOfType(originId, typeSequenceSet, tc);
+         return TaxonomyProvider.this.getAllRelationshipDestinationSequencesOfType(originId, typeSequenceSet, this.tc);
       }
 
+      /**
+       * Gets the all relationship origin sequences.
+       *
+       * @param destination the destination
+       * @return the all relationship origin sequences
+       */
       @Override
       public IntStream getAllRelationshipOriginSequences(int destination) {
-         return TaxonomyProvider.this.getAllRelationshipOriginSequences(destination, tc);
+         return TaxonomyProvider.this.getAllRelationshipOriginSequences(destination, this.tc);
       }
 
+      /**
+       * Gets the all relationship origin sequences of type.
+       *
+       * @param destinationId the destination id
+       * @param typeSequenceSet the type sequence set
+       * @return the all relationship origin sequences of type
+       */
       @Override
       public IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet) {
-         return TaxonomyProvider.this.getAllRelationshipOriginSequencesOfType(destinationId, typeSequenceSet, tc);
+         return TaxonomyProvider.this.getAllRelationshipOriginSequencesOfType(destinationId, typeSequenceSet, this.tc);
       }
 
+      /**
+       * Checks if child of.
+       *
+       * @param childId the child id
+       * @param parentId the parent id
+       * @return true, if child of
+       */
       @Override
       public boolean isChildOf(int childId, int parentId) {
-         return TaxonomyProvider.this.isChildOf(childId, parentId, tc);
+         return TaxonomyProvider.this.isChildOf(childId, parentId, this.tc);
       }
 
+      /**
+       * Checks if kind of.
+       *
+       * @param childId the child id
+       * @param parentId the parent id
+       * @return true, if kind of
+       */
       @Override
       public boolean isKindOf(int childId, int parentId) {
-         return TaxonomyProvider.this.isKindOf(childId, parentId, tc);
+         return TaxonomyProvider.this.isKindOf(childId, parentId, this.tc);
       }
 
+      /**
+       * Gets the kind of sequence set.
+       *
+       * @param rootId the root id
+       * @return the kind of sequence set
+       */
       @Override
       public ConceptSequenceSet getKindOfSequenceSet(int rootId) {
-         return TaxonomyProvider.this.getKindOfSequenceSet(rootId, tc);
+         return TaxonomyProvider.this.getKindOfSequenceSet(rootId, this.tc);
       }
 
+      /**
+       * Gets the roots.
+       *
+       * @return the roots
+       */
       @Override
       public IntStream getRoots() {
-         return TaxonomyProvider.this.getRoots(tc);
+         return TaxonomyProvider.this.getRoots(this.tc);
       }
 
+      /**
+       * Gets the taxonomy child sequences.
+       *
+       * @param parentId the parent id
+       * @return the taxonomy child sequences
+       */
       @Override
       public IntStream getTaxonomyChildSequences(int parentId) {
-         return TaxonomyProvider.this.getTaxonomyChildSequences(parentId, tc);
+         return TaxonomyProvider.this.getTaxonomyChildSequences(parentId, this.tc);
       }
 
+      /**
+       * Gets the taxonomy parent sequences.
+       *
+       * @param childId the child id
+       * @return the taxonomy parent sequences
+       */
       @Override
       public IntStream getTaxonomyParentSequences(int childId) {
-         return TaxonomyProvider.this.getTaxonomyParentSequences(childId, tc);
+         return TaxonomyProvider.this.getTaxonomyParentSequences(childId, this.tc);
       }
 
+      /**
+       * Gets the taxonomy tree.
+       *
+       * @return the taxonomy tree
+       */
       @Override
       public Tree getTaxonomyTree() {
-         return TaxonomyProvider.this.getTaxonomyTree(tc);
+         return TaxonomyProvider.this.getTaxonomyTree(this.tc);
       }
    }
 }

@@ -45,16 +45,30 @@ import java.io.IOException;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class GitBlitException.
+ */
 public class GitBlitException
         extends IOException {
+   /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 1L;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new git blit exception.
+    *
+    * @param message the message
+    */
    public GitBlitException(String message) {
       super(message);
    }
 
+   /**
+    * Instantiates a new git blit exception.
+    *
+    * @param cause the cause
+    */
    public GitBlitException(Throwable cause) {
       super(cause);
    }
@@ -67,10 +81,16 @@ public class GitBlitException
     */
    public static class ForbiddenException
            extends GitBlitException {
+      /** The Constant serialVersionUID. */
       private static final long serialVersionUID = 1L;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new forbidden exception.
+       *
+       * @param message the message
+       */
       public ForbiddenException(String message) {
          super(message);
       }
@@ -83,10 +103,16 @@ public class GitBlitException
     */
    public static class NotAllowedException
            extends GitBlitException {
+      /** The Constant serialVersionUID. */
       private static final long serialVersionUID = 1L;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new not allowed exception.
+       *
+       * @param message the message
+       */
       public NotAllowedException(String message) {
          super(message);
       }
@@ -99,10 +125,16 @@ public class GitBlitException
     */
    public static class UnauthorizedException
            extends GitBlitException {
+      /** The Constant serialVersionUID. */
       private static final long serialVersionUID = 1L;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new unauthorized exception.
+       *
+       * @param message the message
+       */
       public UnauthorizedException(String message) {
          super(message);
       }
@@ -115,10 +147,16 @@ public class GitBlitException
     */
    public static class UnknownRequestException
            extends GitBlitException {
+      /** The Constant serialVersionUID. */
       private static final long serialVersionUID = 1L;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new unknown request exception.
+       *
+       * @param message the message
+       */
       public UnknownRequestException(String message) {
          super(message);
       }

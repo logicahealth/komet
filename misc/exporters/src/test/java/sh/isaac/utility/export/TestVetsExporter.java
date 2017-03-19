@@ -57,28 +57,43 @@ import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class TestVetsExporter.
+ */
 public class TestVetsExporter {
+   /** The log. */
    private static Logger log = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * The main method.
+    *
+    * @param args the arguments
+    */
    public static void main(String[] args) {
       new TestVetsExporter();
       issacInit();
 
-      VetsExporter ve = new VetsExporter();
+      final VetsExporter ve = new VetsExporter();
 
       ve.export(System.out, 1451628000000l, System.currentTimeMillis(), false);
       isaacStop();
       javafx.application.Platform.exit();
    }
 
+   /**
+    * Isaac stop.
+    */
    private static void isaacStop() {
       log.info("Stopping ISAAC");
       LookupService.shutdownSystem();
       log.info("ISAAC stopped");
    }
 
+   /**
+    * Issac init.
+    */
    private static void issacInit() {
       log.info("Isaac Init called");
 
@@ -86,11 +101,10 @@ public class TestVetsExporter {
          log.info("ISAAC Init thread begins");
 
          if (StringUtils.isBlank(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY))) {
-            // if there isn't an official system property set, check this one.
-            String sysProp           = System.getProperty("isaacDatabaseLocation");
+            System.getProperty("isaacDatabaseLocation");
 
             // File temp = new File(sysProp);
-            File   dataStoreLocation = DBLocator.findDBFolder(new File(""));  // temp
+            final File dataStoreLocation = DBLocator.findDBFolder(new File(""));  // temp
 
             if (!dataStoreLocation.exists()) {
                throw new RuntimeException("Couldn't find a data store from the input of '" +
@@ -113,7 +127,7 @@ public class TestVetsExporter {
 
          // status_.set("Ready");
          System.out.println("Done setting up ISAAC");
-      } catch (Exception e) {
+      } catch (final Exception e) {
          log.error("Failure starting ISAAC", e);
       }
    }

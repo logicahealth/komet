@@ -64,8 +64,6 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.commit.Stamp;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
@@ -95,30 +93,50 @@ import sh.isaac.utility.Frills;
  * Contains methods necessary to perform workflow-based accessing
  *
  * {@link WorkflowContentStore} {@link WorkflowProvider}
- * {@link BPMNInfo}
+ * {@link BPMNInfo}.
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 @Service
 @Singleton
 public class WorkflowAccessor {
-   private WorkflowProvider workflowProvider_;
+   /** The workflow provider. */
+   private final WorkflowProvider workflowProvider;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new workflow accessor.
+    */
+
    // for HK2
    private WorkflowAccessor() {
-      workflowProvider_ = LookupService.get()
-                                       .getService(WorkflowProvider.class);
+      this.workflowProvider = LookupService.get()
+            .getService(WorkflowProvider.class);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Format string association information.
+    *
+    * @param value the value
+    * @param target the target
+    * @return the string
+    */
    private String formatStringAssociationInformation(String value, String target) {
       // Association: <Source Component> : <Target Component>
       return String.format("Association: %s : %s", value, target);
    }
 
+   /**
+    * Format string concept information.
+    *
+    * @param nid the nid
+    * @param stampCoord the stamp coord
+    * @param langCoord the lang coord
+    * @return the string
+    */
    private String formatStringConceptInformation(int nid, StampCoordinate stampCoord, LanguageCoordinate langCoord) {
       // Concept: <Concept FSN>
       return String.format("Concept: %s",
@@ -130,17 +148,36 @@ public class WorkflowAccessor {
                                  .getText());
    }
 
+   /**
+    * Format string description information.
+    *
+    * @param descSem the desc sem
+    * @return the string
+    */
    private String formatStringDescriptionInformation(LatestVersion<DescriptionSememe> descSem) {
       // Description: <Desctipion Text>
       return String.format("Description: %s", descSem.value()
             .getText());
    }
 
+   /**
+    * Format string map information.
+    *
+    * @param value the value
+    * @param target the target
+    * @return the string
+    */
    private String formatStringMapInformation(String value, String target) {
       // Map: <MapSet FSN>-<Source Code> : <Target Code>
       return String.format("Map: %s : %s", value, target);
    }
 
+   /**
+    * Format string value information.
+    *
+    * @param value the value
+    * @return the string
+    */
    private String formatStringValueInformation(String value) {
       // Value: <Value Text>
       return String.format("Value: %s", value);
@@ -166,18 +203,19 @@ public class WorkflowAccessor {
     */
    public Map<ProcessDetail, SortedSet<ProcessHistory>> getAdvanceableProcessInformation(UUID definitionId,
          UUID userId) {
-      Map<ProcessDetail, SortedSet<ProcessHistory>> processInformation = new HashMap<>();
+      final Map<ProcessDetail, SortedSet<ProcessHistory>> processInformation = new HashMap<>();
 
       // Get User Roles
-      Map<String, Set<AvailableAction>> actionsByInitialState = getUserAvailableActionsByInitialState(definitionId,
-                                                                                                      userId);
+      final Map<String, Set<AvailableAction>> actionsByInitialState =
+         getUserAvailableActionsByInitialState(definitionId,
+                                               userId);
 
       // For each ActiveProcesses, see if its current state is "applicable
       // current state" and if
-      for (ProcessDetail process: workflowProvider_.getProcessDetailStore()
+      for (final ProcessDetail process: this.workflowProvider.getProcessDetailStore()
             .values()) {
          if (process.isActive() && process.getDefinitionId().equals(definitionId)) {
-            SortedSet<ProcessHistory> hx = getProcessHistory(process.getId());
+            final SortedSet<ProcessHistory> hx = getProcessHistory(process.getId());
 
             if (actionsByInitialState.containsKey(hx.last()
                   .getOutcomeState())) {
@@ -207,7 +245,7 @@ public class WorkflowAccessor {
     * @return True if the component is in an active workflow.
     */
    public boolean isComponentInActiveWorkflow(UUID definitionId, int compNid) {
-      for (ProcessDetail proc: workflowProvider_.getProcessDetailStore()
+      for (final ProcessDetail proc: this.workflowProvider.getProcessDetailStore()
             .values()) {
          if (proc.getDefinitionId().equals(definitionId) &&
                proc.isActive() &&
@@ -219,8 +257,15 @@ public class WorkflowAccessor {
       return false;
    }
 
+   /**
+    * Checks if component in process.
+    *
+    * @param processId the process id
+    * @param componentNid the component nid
+    * @return true, if component in process
+    */
    public boolean isComponentInProcess(UUID processId, int componentNid) {
-      ProcessDetail process = getProcessDetails(processId);
+      final ProcessDetail process = getProcessDetails(processId);
 
       return (process != null) ? process.getComponentToInitialEditMap()
                                         .containsKey(componentNid)
@@ -230,28 +275,28 @@ public class WorkflowAccessor {
    /**
     * Return a String formatted for component modifications. Includes Concept, Description, Map, Association, or Value.
     *
-    *  @param nid int - Component id
-    *  @param stampCoord StampCoordinate
-    *  @param langCoord LanguageCoordinate
-    *
-    *  @exception Exception
+    * @param nid int - Component id
+    * @param stampCoord StampCoordinate
+    * @param langCoord LanguageCoordinate
+    * @return the component modification
+    * @exception Exception the exception
     */
    private String getComponentModification(int nid,
          StampCoordinate stampCoord,
          LanguageCoordinate langCoord)
             throws Exception {
-      ObjectChronologyType oct = Get.identifierService()
-                                    .getChronologyTypeForNid(nid);
+      final ObjectChronologyType oct = Get.identifierService()
+                                          .getChronologyTypeForNid(nid);
 
       if (oct == ObjectChronologyType.CONCEPT) {
          return formatStringConceptInformation(nid, stampCoord, langCoord);
       } else if (oct == ObjectChronologyType.SEMEME) {
-         SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeService()
-                                                                  .getSememe(nid);
+         final SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeService()
+                                                                        .getSememe(nid);
 
          switch (sememe.getSememeType()) {
          case DESCRIPTION:
-            LatestVersion<DescriptionSememe> descSem =
+            final LatestVersion<DescriptionSememe> descSem =
                (LatestVersion<DescriptionSememe>) ((SememeChronology) sememe).getLatestVersion(LogicGraphSememe.class,
                                                                                                stampCoord)
                                                                              .get();
@@ -259,19 +304,21 @@ public class WorkflowAccessor {
             return formatStringDescriptionInformation(descSem);
 
          case DYNAMIC:
-            LatestVersion<DynamicSememe> dynSem =
+            final LatestVersion<DynamicSememe> dynSem =
                (LatestVersion<DynamicSememe>) ((SememeChronology) sememe).getLatestVersion(LogicGraphSememe.class,
                                                                                            stampCoord)
                                                                          .get();
-            int                                            assemblageSeq = dynSem.value()
-                                                                                 .getAssemblageSequence();
-            ConceptChronology<? extends ConceptVersion<?>> conChron = Get.conceptService()
-                                                                         .getConcept(assemblageSeq);
-            String                                         target        = null;
-            String                                         value         = null;
-            DynamicSememeUsageDescription sememeDefinition               = DynamicSememeUsageDescriptionImpl.read(nid);
+            final int assemblageSeq = dynSem.value()
+                                            .getAssemblageSequence();
 
-            for (DynamicSememeColumnInfo info: sememeDefinition.getColumnInfo()) {
+            Get.conceptService()
+               .getConcept(assemblageSeq);
+
+            String                              target           = null;
+            String                              value            = null;
+            final DynamicSememeUsageDescription sememeDefinition = DynamicSememeUsageDescriptionImpl.read(nid);
+
+            for (final DynamicSememeColumnInfo info: sememeDefinition.getColumnInfo()) {
                if (info.getColumnDescriptionConcept()
                        .equals(DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE
                              .getUUID())) {
@@ -304,25 +351,24 @@ public class WorkflowAccessor {
     * Return an ArrayList of Strings formatted for component modifications for a given processId.
     * Includes Concept, Description, Map, Association, or Value.
     *
-    *  @param processId UUID - identifier of the process.
-    *  @return ArrayList<String> - collection of formatted string of component modifications.
-    *
-    *  @exception Exception
+    * @param processId UUID - identifier of the process.
+    * @return ArrayList<String> - collection of formatted string of component modifications.
+    * @exception Exception the exception
     */
    public ArrayList<String> getComponentModifications(UUID processId)
             throws Exception {
       // get process detail for process
-      ProcessDetail     processDetail               = getProcessDetails(processId);
-      ArrayList<String> componentModificationString = new ArrayList<>();
+      final ProcessDetail     processDetail               = getProcessDetails(processId);
+      final ArrayList<String> componentModificationString = new ArrayList<>();
 
-      for (Map.Entry<Integer, Stamp> entry: processDetail.getComponentToInitialEditMap()
+      for (final Map.Entry<Integer, Stamp> entry: processDetail.getComponentToInitialEditMap()
             .entrySet()) {
          try {
             componentModificationString.add(getComponentModification(entry.getKey(),
 
             // Verify these two parameters.
             (StampCoordinate) entry.getValue(), (LanguageCoordinate) entry.getValue()));
-         } catch (Exception ex) {
+         } catch (final Exception ex) {
             throw ex;
          }
       }
@@ -342,8 +388,8 @@ public class WorkflowAccessor {
     * @return The definition details entry requested
     */
    public DefinitionDetail getDefinitionDetails(UUID definitionId) {
-      return workflowProvider_.getDefinitionDetailStore()
-                              .get(definitionId);
+      return this.workflowProvider.getDefinitionDetailStore()
+                                   .get(definitionId);
    }
 
    /**
@@ -357,11 +403,11 @@ public class WorkflowAccessor {
     * @return the sorted history of the process.
     */
    public ProcessHistory getLastProcessHistory(UUID processId) {
-      for (ProcessDetail process: workflowProvider_.getProcessDetailStore()
+      for (final ProcessDetail process: this.workflowProvider.getProcessDetailStore()
             .values()) {
          if (process.getId()
                     .compareTo(processId) == 0) {
-            SortedSet<ProcessHistory> hx = getProcessHistory(process.getId());
+            final SortedSet<ProcessHistory> hx = getProcessHistory(process.getId());
 
             return hx.last();
          }
@@ -382,8 +428,8 @@ public class WorkflowAccessor {
     * @return The process details entry requested.  If none exists, return null
     */
    public ProcessDetail getProcessDetails(UUID processId) {
-      return workflowProvider_.getProcessDetailStore()
-                              .get(processId);
+      return this.workflowProvider.getProcessDetailStore()
+                                   .get(processId);
    }
 
    /**
@@ -400,9 +446,9 @@ public class WorkflowAccessor {
     * @return the sorted history of the process.
     */
    public SortedSet<ProcessHistory> getProcessHistory(UUID processId) {
-      SortedSet<ProcessHistory> allHistoryForProcess = new TreeSet<>(new ProcessHistoryComparator());
+      final SortedSet<ProcessHistory> allHistoryForProcess = new TreeSet<>(new ProcessHistoryComparator());
 
-      for (ProcessHistory hx: workflowProvider_.getProcessHistoryStore()
+      for (final ProcessHistory hx: this.workflowProvider.getProcessHistoryStore()
             .values()) {
          if (hx.getProcessId()
                .equals(processId)) {
@@ -416,17 +462,15 @@ public class WorkflowAccessor {
    /**
     * Request a list of workflow processes.  Can request any or all workflow statuses of DEFINED, LAUNCHED, CANCELED or CONCLUDED.
     *
-    * @param definitionId
-    *            The workflow definition (type) being examined.
-    * @param status
-    *            A list of statuses to include.
-    *
+    * @param definitionId            The workflow definition (type) being examined.
+    * @param userId the user id
+    * @param status            A list of statuses to include.
     * @return The list of processes filtered by the status provided.
     */
    public ArrayList<ProcessDetail> getProcessInformation(UUID definitionId,
          UUID userId,
          ArrayList<ProcessStatus> status) {
-      ArrayList<ProcessDetail> processes = new ArrayList<>();
+      final ArrayList<ProcessDetail> processes = new ArrayList<>();
 
       // Get User Roles
 
@@ -436,7 +480,7 @@ public class WorkflowAccessor {
        */
 
       // For each process, see if its current state is "applicable current state"
-      for (ProcessDetail process: workflowProvider_.getProcessDetailStore()
+      for (final ProcessDetail process: this.workflowProvider.getProcessDetailStore()
             .values()) {
          if (process.getDefinitionId().equals(definitionId) && status.contains(process.getStatus())) {
             processes.add(process);
@@ -451,30 +495,27 @@ public class WorkflowAccessor {
     * definition's possible initial-states
     *
     * Used to support the getAdvanceableProcessInformation() and
-    * getUserPermissibleActionsForProcess()
+    * getUserPermissibleActionsForProcess().
     *
-    * @param definitionId
-    *            The definition being examined
-    * @param userId
-    *            The user is being examined
-    *
+    * @param definitionId            The definition being examined
+    * @param userId            The user is being examined
     * @return The set of all Available Actions for each initial state for which
     *         the user can advance workflow.
     */
    private Map<String, Set<AvailableAction>> getUserAvailableActionsByInitialState(UUID definitionId, UUID userId) {
-      Map<String, Set<AvailableAction>> applicableActions = new HashMap<>();
+      final Map<String, Set<AvailableAction>> applicableActions = new HashMap<>();
 
       // Get User Roles
-      Set<UserRole> userRoles = workflowProvider_.getUserRoleStore()
-                                                 .getUserRoles(userId);
+      final Set<UserRole> userRoles = this.workflowProvider.getUserRoleStore()
+                                                            .getUserRoles(userId);
 
       // Get Map of available actions (by initialState) that can be executed
       // based on userRoles
-      for (AvailableAction action: workflowProvider_.getAvailableActionStore()
+      for (final AvailableAction action: this.workflowProvider.getAvailableActionStore()
             .values()) {
          if (action.getDefinitionId().equals(definitionId) && userRoles.contains(action.getRole())) {
             if (!applicableActions.containsKey(action.getInitialState())) {
-               applicableActions.put(action.getInitialState(), new HashSet<AvailableAction>());
+               applicableActions.put(action.getInitialState(), new HashSet<>());
             }
 
             applicableActions.get(action.getInitialState())
@@ -489,22 +530,19 @@ public class WorkflowAccessor {
     * Identifies the set of Available Actions containing actions which the user
     * may take on a given process
     *
-    * Used to determine which actions populate the Transition Workflow picklist
+    * Used to determine which actions populate the Transition Workflow picklist.
     *
-    * @param processId
-    *            The process being examined
-    * @param userId
-    *            The user for whom available actions are being identified
-    *
+    * @param processId            The process being examined
+    * @param userId            The user for whom available actions are being identified
     * @return A set of AvailableActions defining the actions a user can take on
     *         the process
     */
    public Set<AvailableAction> getUserPermissibleActionsForProcess(UUID processId, UUID userId) {
-      ProcessDetail processDetail = getProcessDetails(processId);
+      final ProcessDetail processDetail = getProcessDetails(processId);
 
       if (processDetail != null) {
-         ProcessHistory processLatest = getProcessHistory(processId).last();
-         Map<String, Set<AvailableAction>> actionsByInitialState =
+         final ProcessHistory processLatest = getProcessHistory(processId).last();
+         final Map<String, Set<AvailableAction>> actionsByInitialState =
             getUserAvailableActionsByInitialState(processDetail.getDefinitionId(),
                                                   userId);
 
@@ -517,18 +555,14 @@ public class WorkflowAccessor {
    }
 
    /**
-    * Identify the version of the component prior to workflow process being launched
+    * Identify the version of the component prior to workflow process being launched.
     *
-    * @param processId
-    *            The process being examined
-    * @param compNid
-    *            The component to be investigated
+    * @param processId            The process being examined
+    * @param compNid            The component to be investigated
     * @return The version of the component prior to it entering into workflow. If no version is found, the chronology was created within this workflow process
-    *
-    * @throws Exception
     */
    public StampedVersion getVersionPriorToWorkflow(UUID processId, int compNid) {
-      ProcessDetail proc = getProcessDetails(processId);
+      final ProcessDetail proc = getProcessDetails(processId);
 
       if (!proc.getComponentToInitialEditMap()
                .keySet()
@@ -536,7 +570,7 @@ public class WorkflowAccessor {
          return null;
       }
 
-      long                timeLaunched = proc.getTimeCreated();
+      final long          timeLaunched = proc.getTimeCreated();
       ObjectChronology<?> objChron;
 
       if (Get.identifierService()
@@ -551,15 +585,15 @@ public class WorkflowAccessor {
          throw new RuntimeException("Cannot reconcile NID with Identifier Service for nid: " + compNid);
       }
 
-      OfInt stampSequencesItr = objChron.getVersionStampSequences()
-                                        .iterator();
-      int   stampSeq          = -1;
-      long  stampTime         = 0;
+      final OfInt stampSequencesItr = objChron.getVersionStampSequences()
+                                              .iterator();
+      int         stampSeq          = -1;
+      long        stampTime         = 0;
 
       while (stampSequencesItr.hasNext() && (stampTime < timeLaunched)) {
-         int  currentStampSeq  = stampSequencesItr.next();
-         long currentStampTime = Get.stampService()
-                                    .getTimeForStamp(currentStampSeq);
+         final int  currentStampSeq  = stampSequencesItr.next();
+         final long currentStampTime = Get.stampService()
+                                          .getTimeForStamp(currentStampSeq);
 
          if (currentStampTime < timeLaunched) {
             stampTime = currentStampTime;
@@ -567,7 +601,7 @@ public class WorkflowAccessor {
          }
       }
 
-      for (StampedVersion version: objChron.getVersionList()) {
+      for (final StampedVersion version: objChron.getVersionList()) {
          if (version.getStampSequence() == stampSeq) {
             return version;
          }
@@ -576,11 +610,21 @@ public class WorkflowAccessor {
       return null;
    }
 
+   /**
+    * Gets the version prior to workflow.
+    *
+    * @param <T> the generic type
+    * @param versionClazz the version clazz
+    * @param processId the process id
+    * @param compNid the comp nid
+    * @return the version prior to workflow
+    * @throws Exception the exception
+    */
    public <T extends StampedVersion> T getVersionPriorToWorkflow(Class<T> versionClazz,
          UUID processId,
          int compNid)
             throws Exception {
-      StampedVersion version = getVersionPriorToWorkflow(processId, compNid);
+      final StampedVersion version = getVersionPriorToWorkflow(processId, compNid);
 
       return versionClazz.cast(version);
    }

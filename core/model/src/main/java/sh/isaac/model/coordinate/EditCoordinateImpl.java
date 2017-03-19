@@ -52,17 +52,30 @@ import sh.isaac.api.coordinate.EditCoordinate;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class EditCoordinateImpl.
  *
  * @author kec
  */
 public class EditCoordinateImpl
          implements EditCoordinate {
+   /** The author sequence. */
    int authorSequence;
+
+   /** The module sequence. */
    int moduleSequence;
+
+   /** The path sequence. */
    int pathSequence;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new edits the coordinate impl.
+    *
+    * @param authorId the author id
+    * @param moduleId the module id
+    * @param pathId the path id
+    */
    public EditCoordinateImpl(int authorId, int moduleId, int pathId) {
       this.authorSequence = Get.identifierService()
                                .getConceptSequence(authorId);
@@ -74,6 +87,12 @@ public class EditCoordinateImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
@@ -101,6 +120,11 @@ public class EditCoordinateImpl
       return true;
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int hash = 3;
@@ -111,32 +135,54 @@ public class EditCoordinateImpl
       return hash;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "EditCoordinate{a: " + Get.conceptDescriptionText(authorSequence) + ", m: " +
-             Get.conceptDescriptionText(moduleSequence) + ", p: " + Get.conceptDescriptionText(pathSequence) + '}';
+      return "EditCoordinate{a: " + Get.conceptDescriptionText(this.authorSequence) + ", m: " +
+             Get.conceptDescriptionText(this.moduleSequence) + ", p: " +
+             Get.conceptDescriptionText(this.pathSequence) + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the author sequence.
+    *
+    * @return the author sequence
+    */
    @Override
    public int getAuthorSequence() {
-      return authorSequence;
+      return this.authorSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the author sequence.
+    *
+    * @param authorId the new author sequence
+    */
    public void setAuthorSequence(int authorId) {
       this.authorSequence = Get.identifierService()
                                .getConceptSequence(authorId);
    }
 
+   /**
+    * Set author sequence property.
+    *
+    * @param authorSequenceProperty the author sequence property
+    * @return the change listener
+    */
    public ChangeListener<Number> setAuthorSequenceProperty(IntegerProperty authorSequenceProperty) {
-      ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
-                                         Number oldValue,
-                                         Number newValue) -> {
-                                           authorSequence = newValue.intValue();
-                                        };
+      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+                                               Number oldValue,
+                                               Number newValue) -> {
+               this.authorSequence = newValue.intValue();
+            };
 
       authorSequenceProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
@@ -144,24 +190,40 @@ public class EditCoordinateImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the module sequence.
+    *
+    * @return the module sequence
+    */
    @Override
    public int getModuleSequence() {
-      return moduleSequence;
+      return this.moduleSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the module sequence.
+    *
+    * @param moduleId the new module sequence
+    */
    public void setModuleSequence(int moduleId) {
       this.moduleSequence = Get.identifierService()
                                .getConceptSequence(moduleId);
    }
 
+   /**
+    * Set module sequence property.
+    *
+    * @param moduleSequenceProperty the module sequence property
+    * @return the change listener
+    */
    public ChangeListener<Number> setModuleSequenceProperty(IntegerProperty moduleSequenceProperty) {
-      ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
-                                         Number oldValue,
-                                         Number newValue) -> {
-                                           moduleSequence = newValue.intValue();
-                                        };
+      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+                                               Number oldValue,
+                                               Number newValue) -> {
+               this.moduleSequence = newValue.intValue();
+            };
 
       moduleSequenceProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
@@ -169,24 +231,40 @@ public class EditCoordinateImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the path sequence.
+    *
+    * @return the path sequence
+    */
    @Override
    public int getPathSequence() {
-      return pathSequence;
+      return this.pathSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the path sequence.
+    *
+    * @param pathId the new path sequence
+    */
    public void setPathSequence(int pathId) {
       this.pathSequence = Get.identifierService()
                              .getConceptSequence(pathId);
    }
 
+   /**
+    * Set path sequence property.
+    *
+    * @param pathSequenceProperty the path sequence property
+    * @return the change listener
+    */
    public ChangeListener<Number> setPathSequenceProperty(IntegerProperty pathSequenceProperty) {
-      ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
-                                         Number oldValue,
-                                         Number newValue) -> {
-                                           pathSequence = newValue.intValue();
-                                        };
+      final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
+                                               Number oldValue,
+                                               Number newValue) -> {
+               this.pathSequence = newValue.intValue();
+            };
 
       pathSequenceProperty.addListener(new WeakChangeListener<>(listener));
       return listener;

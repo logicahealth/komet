@@ -53,19 +53,45 @@ import sh.isaac.api.coordinate.TaxonomyCoordinate;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ObservableTaxonomyCoordinate.
  *
  * @author kec
  */
 public interface ObservableTaxonomyCoordinate
         extends TaxonomyCoordinate {
+   /**
+    * Language coordinate property.
+    *
+    * @return the object property
+    */
    ObjectProperty<ObservableLanguageCoordinate> languageCoordinateProperty();
 
+   /**
+    * Logic coordinate property.
+    *
+    * @return the object property
+    */
    ObjectProperty<ObservableLogicCoordinate> logicCoordinateProperty();
 
+   /**
+    * Premise type property.
+    *
+    * @return the object property
+    */
    ObjectProperty<PremiseType> premiseTypeProperty();
 
+   /**
+    * Stamp coordinate property.
+    *
+    * @return the object property
+    */
    ObjectProperty<ObservableStampCoordinate> stampCoordinateProperty();
 
+   /**
+    * Uuid property.
+    *
+    * @return the object property
+    */
    ObjectProperty<UUID> uuidProperty();
 }
 

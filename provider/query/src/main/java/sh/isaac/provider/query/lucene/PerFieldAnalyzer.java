@@ -61,27 +61,45 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
  */
 public class PerFieldAnalyzer
         extends AnalyzerWrapper {
+   /** The Constant WHITE_SPACE_FIELD_MARKER. */
    public static final String WHITE_SPACE_FIELD_MARKER = "_wsa";
 
    //~--- fields --------------------------------------------------------------
 
-   private WhitespaceAnalyzer wa = new WhitespaceAnalyzer();
-   private StandardAnalyzer   sa = new StandardAnalyzer();
+   /** The wa. */
+   private final WhitespaceAnalyzer wa = new WhitespaceAnalyzer();
+
+   /** The sa. */
+   private final StandardAnalyzer sa = new StandardAnalyzer();
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new per field analyzer.
+    */
    public PerFieldAnalyzer() {
       super(Analyzer.PER_FIELD_REUSE_STRATEGY);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "PerFieldAnalyzer(default=" + sa + ", fields ending with '" + WHITE_SPACE_FIELD_MARKER + "': " + wa + ")";
+      return "PerFieldAnalyzer(default=" + this.sa + ", fields ending with '" + WHITE_SPACE_FIELD_MARKER + "': " +
+             this.wa + ")";
    }
 
    /**
+    * Wrap components.
+    *
+    * @param fieldName the field name
+    * @param components the components
+    * @return the token stream components
     * @see org.apache.lucene.analysis.AnalyzerWrapper#wrapComponents(java.lang.String, org.apache.lucene.analysis.Analyzer.TokenStreamComponents)
     */
    @Override
@@ -96,14 +114,18 @@ public class PerFieldAnalyzer
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the wrapped analyzer.
+    *
+    * @param fieldName the field name
+    * @return the wrapped analyzer
     * @see org.apache.lucene.analysis.AnalyzerWrapper#getWrappedAnalyzer(java.lang.String)
     */
    @Override
    protected Analyzer getWrappedAnalyzer(String fieldName) {
       if (fieldName.endsWith(WHITE_SPACE_FIELD_MARKER)) {
-         return wa;
+         return this.wa;
       } else {
-         return sa;
+         return this.sa;
       }
    }
 }

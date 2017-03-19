@@ -42,29 +42,25 @@ package sh.isaac.api.util.metainf;
 /**
  * {@link MavenLicenseInfo}
  *
- * This class carries license information
+ * This class carries license information.
  *
  * @author <a href="mailto:joel.kniaz.list@gmail.com">Joel Kniaz</a>
  */
 public class MavenLicenseInfo {
-   /**
-    * Name of the license
-    */
+   /** Name of the license. */
    public String name;
 
-   /**
-    * URL to the license text
-    */
+   /** URL to the license text. */
    public String url;
 
-   /**
-    * Comments related to the license
-    */
+   /** Comments related to the license. */
    public String comments;
 
    //~--- constructors --------------------------------------------------------
 
    /**
+    * Instantiates a new maven license info.
+    *
     * @param name of the license
     * @param url of the license text
     * @param comments related to the license
@@ -78,9 +74,14 @@ public class MavenLicenseInfo {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "MavenLicenseInfo [name=" + name + ", url=" + url + ", comments=" + comments + "]";
+      return "MavenLicenseInfo [name=" + this.name + ", url=" + this.url + ", comments=" + this.comments + "]";
    }
 }
 

@@ -62,8 +62,6 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.MetaData;
-import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
@@ -73,6 +71,7 @@ import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.constants.DynamicSememeConstants;
 import sh.isaac.api.index.IndexServiceBI;
 import sh.isaac.api.index.SearchResult;
+import sh.isaac.MetaData;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
@@ -105,16 +104,30 @@ import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 public class DescriptionIndexer
         extends LuceneIndexer
          implements IndexServiceBI {
-   private static final Semaphore     setupNidsSemaphore         = new Semaphore(1);
-   private static final AtomicBoolean sequencesSetup             = new AtomicBoolean(false);
-   private static final String        FIELD_INDEXED_STRING_VALUE = "_string_content_";
+   /** The Constant setupNidsSemaphore. */
+   private static final Semaphore setupNidsSemaphore = new Semaphore(1);
+
+   /** The Constant sequencesSetup. */
+   private static final AtomicBoolean sequencesSetup = new AtomicBoolean(false);
+
+   /** The Constant FIELD_INDEXED_STRING_VALUE. */
+   private static final String FIELD_INDEXED_STRING_VALUE = "_string_content_";
 
    //~--- fields --------------------------------------------------------------
 
+   /** The sequence type map. */
    private final HashMap<Integer, String> sequenceTypeMap = new HashMap<>();
-   private int                            descExtendedTypeSequence;
+
+   /** The desc extended type sequence. */
+   private int descExtendedTypeSequence;
 
    //~--- constructors --------------------------------------------------------
+
+   /**
+    * Instantiates a new description indexer.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
 
    // for HK2 only
    private DescriptionIndexer()
@@ -213,15 +226,11 @@ public class DescriptionIndexer
     * For example:
     * The query "family test" will return results that contain 'Family Testudinidae'
     * The query "family test " will not match on  'Testudinidae', so that will be excluded.
-    *
-    * @param semeneConceptSequence optional - The concept seqeuence of the sememes that you wish to search within.  If null or empty
-    * searches all indexed content.  This would be set to the concept sequence of {@link MetaData#ENGLISH_DESCRIPTION_ASSEMBLAGE}
-    * or the concept sequence {@link MetaData#SCTID} for example.
+    * @param sememeConceptSequence the sememe concept sequence
     * @param sizeLimit The maximum size of the result list.
     * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need
     * to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any in progress
     * indexing operations are completed - and then use the latest index.
-    *
     * @return a List of {@link SearchResult} that contains the nid of the component that matched, and the score of that match relative
     * to other matches.
     */
@@ -258,10 +267,7 @@ public class DescriptionIndexer
     * For example:
     * The query "family test" will return results that contain 'Family Testudinidae'
     * The query "family test " will not match on  'Testudinidae', so that will be excluded.
-    *
-    * @param semeneConceptSequence optional - The concept seqeuence of the sememes that you wish to search within.  If null or empty
-    * searches all indexed content.  This would be set to the concept sequence of {@link MetaData#ENGLISH_DESCRIPTION_ASSEMBLAGE}
-    * or the concept sequence {@link MetaData#SCTID} for example.
+    * @param sememeConceptSequence the sememe concept sequence
     * @param sizeLimit The maximum size of the result list.
     * @param targetGeneration target generation that must be included in the search or Long.MIN_VALUE if there is no need
     * to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until any in progress
@@ -269,7 +275,6 @@ public class DescriptionIndexer
     * @param filter - an optional filter on results - if provided, the filter should expect nids, and can return true, if
     * the nid should be allowed in the result, false otherwise.  Note that this may cause large performance slowdowns, depending
     * on the implementation of your filter
-    *
     * @return a List of {@link SearchResult} that contains the nid of the component that matched, and the score of that match relative
     * to other matches.
     */
@@ -286,11 +291,17 @@ public class DescriptionIndexer
                     filter);
    }
 
+   /**
+    * Adds the fields.
+    *
+    * @param chronicle the chronicle
+    * @param doc the doc
+    */
    @SuppressWarnings("unchecked")
    @Override
    protected void addFields(ObjectChronology<?> chronicle, Document doc) {
       if (chronicle instanceof SememeChronology) {
-         SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
+         final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
 
          if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
             indexDescription(doc,
@@ -300,12 +311,18 @@ public class DescriptionIndexer
       }
    }
 
+   /**
+    * Index chronicle.
+    *
+    * @param chronicle the chronicle
+    * @return true, if successful
+    */
    @Override
    protected boolean indexChronicle(ObjectChronology<?> chronicle) {
       setupNidConstants();
 
       if (chronicle instanceof SememeChronology) {
-         SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
+         final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
 
          if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
             return true;
@@ -315,6 +332,14 @@ public class DescriptionIndexer
       return false;
    }
 
+   /**
+    * Adds the field.
+    *
+    * @param doc the doc
+    * @param fieldName the field name
+    * @param value the value
+    * @param tokenize the tokenize
+    */
    private void addField(Document doc, String fieldName, String value, boolean tokenize) {
       // index twice per field - once with the standard analyzer, once with the whitespace analyzer.
       if (tokenize) {
@@ -324,18 +349,25 @@ public class DescriptionIndexer
       doc.add(new TextField(fieldName + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, value, Field.Store.NO));
    }
 
+   /**
+    * Index description.
+    *
+    * @param doc the doc
+    * @param sememeChronology the sememe chronology
+    */
    private void indexDescription(Document doc,
                                  SememeChronology<DescriptionSememe<? extends DescriptionSememe<?>>> sememeChronology) {
       doc.add(new TextField(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE,
                             sememeChronology.getAssemblageSequence() + "",
                             Field.Store.NO));
 
-      String                lastDescText     = null;
-      String                lastDescType     = null;
-      TreeMap<Long, String> uniqueTextValues = new TreeMap<>();
+      String                      lastDescText     = null;
+      String                      lastDescType     = null;
+      final TreeMap<Long, String> uniqueTextValues = new TreeMap<>();
 
-      for (DescriptionSememe<? extends DescriptionSememe<?>> descriptionVersion: sememeChronology.getVersionList()) {
-         String descType = sequenceTypeMap.get(descriptionVersion.getDescriptionTypeConceptSequence());
+      for (final DescriptionSememe<? extends DescriptionSememe<?>> descriptionVersion:
+            sememeChronology.getVersionList()) {
+         final String descType = this.sequenceTypeMap.get(descriptionVersion.getDescriptionTypeConceptSequence());
 
          // No need to index if the text is the same as the previous version.
          if ((lastDescText == null) ||
@@ -357,24 +389,24 @@ public class DescriptionIndexer
       String lastExtendedDescType = null;
       String lastValue            = null;
 
-      for (SememeChronology<? extends SememeVersion<?>> sememeChronicle: sememeChronology.getSememeList()) {
+      for (final SememeChronology<? extends SememeVersion<?>> sememeChronicle: sememeChronology.getSememeList()) {
          if (sememeChronicle.getSememeType() == SememeType.DYNAMIC) {
             @SuppressWarnings("unchecked")
-            SememeChronology<DynamicSememe<?>> sememeDynamicChronicle =
+            final SememeChronology<DynamicSememe<?>> sememeDynamicChronicle =
                (SememeChronology<DynamicSememe<?>>) sememeChronicle;
 
-            for (DynamicSememe<?> sememeDynamic: sememeDynamicChronicle.getVersionList()) {
+            for (final DynamicSememe<?> sememeDynamic: sememeDynamicChronicle.getVersionList()) {
                // If this sememe is the sememe recording a dynamic sememe extended type....
-               if (sememeDynamic.getAssemblageSequence() == descExtendedTypeSequence) {
+               if (sememeDynamic.getAssemblageSequence() == this.descExtendedTypeSequence) {
                   // this is a UUID, but we want to treat it as a string anyway
-                  String extendedDescType = sememeDynamic.getData()[0]
-                                                         .getDataObject()
-                                                         .toString();
-                  String value            = null;
+                  final String extendedDescType = sememeDynamic.getData()[0]
+                                                               .getDataObject()
+                                                               .toString();
+                  String       value            = null;
 
                   // Find the text that was active at the time of this refex - timestamp on the refex must not be
                   // greater than the timestamp on the value
-                  for (Entry<Long, String> x: uniqueTextValues.entrySet()) {
+                  for (final Entry<Long, String> x: uniqueTextValues.entrySet()) {
                      if ((value == null) || (x.getKey() <= sememeDynamic.getTime())) {
                         value = x.getValue();
                      } else if (x.getKey() > sememeDynamic.getTime()) {
@@ -404,6 +436,9 @@ public class DescriptionIndexer
       }
    }
 
+   /**
+    * Setup nid constants.
+    */
    private void setupNidConstants() {
       // Can't put these in the start me, because if the database is not yet imported, then these calls will fail.
       if (!sequencesSetup.get()) {
@@ -411,12 +446,12 @@ public class DescriptionIndexer
 
          try {
             if (!sequencesSetup.get()) {
-               sequenceTypeMap.put(MetaData.FULLY_SPECIFIED_NAME.getConceptSequence(),
-                                   LuceneDescriptionType.FSN.name());
-               sequenceTypeMap.put(MetaData.DEFINITION_DESCRIPTION_TYPE.getConceptSequence(),
-                                   LuceneDescriptionType.DEFINITION.name());
-               sequenceTypeMap.put(MetaData.SYNONYM.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
-               descExtendedTypeSequence = DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
+               this.sequenceTypeMap.put(MetaData.FULLY_SPECIFIED_NAME.getConceptSequence(),
+                                        LuceneDescriptionType.FSN.name());
+               this.sequenceTypeMap.put(MetaData.DEFINITION_DESCRIPTION_TYPE.getConceptSequence(),
+                                        LuceneDescriptionType.DEFINITION.name());
+               this.sequenceTypeMap.put(MetaData.SYNONYM.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
+               this.descExtendedTypeSequence = DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
                      .getConceptSequence();
             }
 

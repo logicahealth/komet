@@ -40,11 +40,18 @@
 package sh.isaac.api.component.sememe.version;
 
 /**
+ * The Interface MutableComponentNidSememe.
  *
  * @author kec
+ * @param <T> the generic type
  */
 public interface MutableComponentNidSememe<T extends MutableComponentNidSememe<T>>
         extends MutableSememeVersion<T>, ComponentNidSememe<T> {
+   /**
+    * Sets the component nid.
+    *
+    * @param componentNid the new component nid
+    */
    void setComponentNid(int componentNid);
 }
 

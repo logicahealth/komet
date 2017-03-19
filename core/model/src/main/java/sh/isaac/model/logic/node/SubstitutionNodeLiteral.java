@@ -56,12 +56,25 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public abstract class SubstitutionNodeLiteral
         extends SubstitutionNode {
+   /**
+    * Instantiates a new substitution node literal.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public SubstitutionNodeLiteral(LogicalExpressionOchreImpl logicGraphVersion,
                                   DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
    }
 
+   /**
+    * Instantiates a new substitution node literal.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param substitutionFieldSpecification the substitution field specification
+    */
    public SubstitutionNodeLiteral(LogicalExpressionOchreImpl logicGraphVersion,
                                   SubstitutionFieldSpecification substitutionFieldSpecification) {
       super(logicGraphVersion, substitutionFieldSpecification);

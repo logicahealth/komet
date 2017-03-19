@@ -56,19 +56,24 @@ import org.apache.mahout.math.map.PrimeFinder;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class UuidToIntHashMap.
  *
  * @author kec
  */
 public class UuidToIntHashMap
         extends AbstractUuidToIntHashMap
          implements UuidToIntMap {
-   /**
-    *    
-    */
-   private static final long   serialVersionUID = -3621266181773866347L;
-   protected static final byte FREE             = 0;
-   protected static final byte FULL             = 1;
-   protected static final byte REMOVED          = 2;
+   /** The Constant serialVersionUID. */
+   private static final long serialVersionUID = -3621266181773866347L;
+
+   /** The Constant FREE. */
+   protected static final byte FREE = 0;
+
+   /** The Constant FULL. */
+   protected static final byte FULL = 1;
+
+   /** The Constant REMOVED. */
+   protected static final byte REMOVED = 2;
 
    //~--- fields --------------------------------------------------------------
 
@@ -147,7 +152,7 @@ public class UuidToIntHashMap
       // new UuidArrayList(values).fillFromToWith(0, state.length-1, 0); //
       // delta
       this.distinct    = 0;
-      this.freeEntries = state.length;  // delta
+      this.freeEntries = this.state.length;  // delta
       trimToSize();
    }
 
@@ -158,18 +163,18 @@ public class UuidToIntHashMap
     */
    @Override
    public Object clone() {
-      UuidToIntHashMap copy = (UuidToIntHashMap) super.clone();
+      final UuidToIntHashMap copy = (UuidToIntHashMap) super.clone();
 
-      copy.table  = (long[]) copy.table.clone();
-      copy.values = (int[]) copy.values.clone();
-      copy.state  = (byte[]) copy.state.clone();
+      copy.table  = copy.table.clone();
+      copy.values = copy.values.clone();
+      copy.state  = copy.state.clone();
       return copy;
    }
 
    /**
     * Returns {@code true} if the receiver contains the specified key.
     *
-    * @param key
+    * @param key the key
     * @return {@code true} if the receiver contains the specified key.
     */
    @Override
@@ -177,6 +182,12 @@ public class UuidToIntHashMap
       return indexOfKey(key) >= 0;
    }
 
+   /**
+    * Contains key.
+    *
+    * @param key the key
+    * @return true, if successful
+    */
    @Override
    public boolean containsKey(UUID key) {
       return indexOfKey(key) >= 0;
@@ -185,7 +196,7 @@ public class UuidToIntHashMap
    /**
     * Returns {@code true} if the receiver contains the specified value.
     *
-    * @param value
+    * @param value the value
     * @return {@code true} if the receiver contains the specified value.
     */
    @Override
@@ -204,21 +215,27 @@ public class UuidToIntHashMap
     */
    @Override
    public void ensureCapacity(int minCapacity) {
-      if (state.length < minCapacity) {
-         int newCapacity = nextPrime(minCapacity);
+      if (this.state.length < minCapacity) {
+         final int newCapacity = nextPrime(minCapacity);
 
          rehash(newCapacity);
       }
    }
 
+   /**
+    * For each key.
+    *
+    * @param procedure the procedure
+    * @return true, if successful
+    */
    @Override
    public boolean forEachKey(UuidProcedure procedure) {
-      for (int i = state.length; i-- > 0; ) {
-         if (state[i] == FULL) {
-            long[] key = new long[2];
+      for (int i = this.state.length; i-- > 0; ) {
+         if (this.state[i] == FULL) {
+            final long[] key = new long[2];
 
-            key[0] = table[i * 2];
-            key[1] = table[i * 2 + 1];
+            key[0] = this.table[i * 2];
+            key[1] = this.table[i * 2 + 1];
 
             if (!procedure.apply(key)) {
                ;
@@ -242,14 +259,14 @@ public class UuidToIntHashMap
     */
    @Override
    public boolean forEachPair(final UuidIntProcedure procedure) {
-      for (int i = state.length; i-- > 0; ) {
-         if (state[i] == FULL) {
-            long[] key = new long[2];
+      for (int i = this.state.length; i-- > 0; ) {
+         if (this.state[i] == FULL) {
+            final long[] key = new long[2];
 
-            key[0] = table[i * 2];
-            key[1] = table[i * 2 + 1];
+            key[0] = this.table[i * 2];
+            key[1] = this.table[i * 2 + 1];
 
-            if (!procedure.apply(key, values[i])) {
+            if (!procedure.apply(key, this.values[i])) {
                return false;
             }
          }
@@ -271,18 +288,18 @@ public class UuidToIntHashMap
    public long[] keyOf(int value) {
       // returns the first key found; there may be more matching keys,
       // however.
-      int i = indexOfValue(value);
+      final int i = indexOfValue(value);
 
       if (i < 0) {
          return null;
       }
 
-      long[] uuid = new long[2];
-      int    msb  = i * 2;
-      int    lsb  = msb + 1;
+      final long[] uuid = new long[2];
+      final int    msb  = i * 2;
+      final int    lsb  = msb + 1;
 
-      uuid[0] = table[msb];
-      uuid[1] = table[lsb];
+      uuid[0] = this.table[msb];
+      uuid[1] = this.table[lsb];
       return uuid;
    }
 
@@ -297,19 +314,19 @@ public class UuidToIntHashMap
     */
    @Override
    public void keys(UuidArrayList list) {
-      list.setSize(distinct);
+      list.setSize(this.distinct);
 
-      long[] elements = list.elements();
-      long[] tab      = table;
-      byte[] stat     = state;
-      int    j        = 0;
+      final long[] elements = list.elements();
+      final long[] tab      = this.table;
+      final byte[] stat     = this.state;
+      int          j        = 0;
 
       for (int i = stat.length; i-- > 0; ) {
          if (stat[i] == FULL) {
-            int iMsb = i * 2;
-            int iLsb = iMsb + 1;
-            int jMsb = j * 2;
-            int jLsb = jMsb + 1;
+            final int iMsb = i * 2;
+            final int iLsb = iMsb + 1;
+            final int jMsb = j * 2;
+            final int jLsb = jMsb + 1;
 
             elements[jMsb] = tab[iMsb];
             elements[jLsb] = tab[iLsb];
@@ -318,16 +335,22 @@ public class UuidToIntHashMap
       }
    }
 
+   /**
+    * Keys of.
+    *
+    * @param value the value
+    * @return the list
+    */
    public List<UUID> keysOf(int value) {
-      List<Integer> indexes = indexesOfValue(value);
-      List<UUID>    keys    = new ArrayList<>(indexes.size());
+      final List<Integer> indexes = indexesOfValue(value);
+      final List<UUID>    keys    = new ArrayList<>(indexes.size());
 
       indexes.stream()
              .map((index) -> index * 2)
              .forEach((msb) -> {
-                         int lsb = msb + 1;
+                         final int lsb = msb + 1;
 
-                         keys.add(new UUID(table[msb], table[lsb]));
+                         keys.add(new UUID(this.table[msb], this.table[lsb]));
                       });
       return keys;
    }
@@ -354,7 +377,7 @@ public class UuidToIntHashMap
     */
    @Override
    public boolean removeKey(long[] key) {
-      int i = indexOfKey(key);
+      final int i = indexOfKey(key);
 
       if (i < 0) {
          return false;  // key not contained
@@ -366,7 +389,7 @@ public class UuidToIntHashMap
       this.distinct--;
 
       if (this.distinct < this.lowWaterMark) {
-         int newCapacity = chooseShrinkCapacity(this.distinct, this.minLoadFactor, this.maxLoadFactor);
+         final int newCapacity = chooseShrinkCapacity(this.distinct, this.minLoadFactor, this.maxLoadFactor);
 
          /*
           * if (state.length != newCapacity) {
@@ -390,9 +413,9 @@ public class UuidToIntHashMap
       // * 1.2 because open addressing's performance exponentially degrades
       // beyond that point
       // so that even rehashing the table can take very long
-      int newCapacity = nextPrime((int) (1 + 1.2 * size()));
+      final int newCapacity = nextPrime((int) (1 + 1.2 * size()));
 
-      if (state.length > newCapacity) {
+      if (this.state.length > newCapacity) {
          rehash(newCapacity);
       }
    }
@@ -408,12 +431,12 @@ public class UuidToIntHashMap
     */
    @Override
    public void values(IntArrayList list) {
-      list.setSize(distinct);
+      list.setSize(this.distinct);
 
-      int[]  elements = list.elements();
-      int[]  val      = values;
-      byte[] stat     = state;
-      int    j        = 0;
+      final int[]  elements = list.elements();
+      final int[]  val      = this.values;
+      final byte[] stat     = this.state;
+      int          j        = 0;
 
       for (int i = stat.length; i-- > 0; ) {
          if (stat[i] == FULL) {
@@ -423,6 +446,8 @@ public class UuidToIntHashMap
    }
 
    /**
+    * Index of insertion.
+    *
     * @param key the key to be added to the receiver.
     * @return the index where the key would need to be inserted, if it is not already contained. Returns
     * -index-1 if the key is already contained at slot index. Therefore, if the returned index < 0, then it
@@ -430,9 +455,9 @@ public class UuidToIntHashMap
     * should be inserted at slot index.
     */
    protected int indexOfInsertion(long[] key) {
-      final long tab[]     = table;
-      final byte stat[]    = state;
-      final int  length    = state.length;
+      final long tab[]     = this.table;
+      final byte stat[]    = this.state;
+      final int  length    = this.state.length;
       final int  hash      = HashFunctions.hash(key[0] + key[1]) & 0x7FFFFFFF;
       int        i         = hash % length;
       int        decrement = hash % (length - 2);  // double hashing, see
@@ -458,7 +483,7 @@ public class UuidToIntHashMap
          // stop if we find a free slot, or if we find the key itself.
          // do skip over removed slots (yes, open addressing is like that...)
          // assertion: there is at least one FREE slot.
-         int j = i;
+         final int j = i;
 
          while ((stat[i] != FREE) && ((stat[i] == REMOVED) || ((tab[i * 2] != key[0]) || (tab[i * 2 + 1] != key[1])))) {
             i -= decrement;
@@ -485,6 +510,14 @@ public class UuidToIntHashMap
       return i;
    }
 
+   /**
+    * Index of insertion for rehash.
+    *
+    * @param key the key
+    * @param tab the tab
+    * @param stat the stat
+    * @return the int
+    */
    protected int indexOfInsertionForRehash(long[] key, long[] tab, byte[] stat) {
       final int length    = stat.length;
       final int hash      = HashFunctions.hash(key[0] + key[1]) & 0x7FFFFFFF;
@@ -512,7 +545,7 @@ public class UuidToIntHashMap
          // stop if we find a free slot, or if we find the key itself.
          // do skip over removed slots (yes, open addressing is like that...)
          // assertion: there is at least one FREE slot.
-         int j = i;
+         final int j = i;
 
          while ((stat[i] != FREE) && ((stat[i] == REMOVED) || ((tab[i * 2] != key[0]) || (tab[i * 2 + 1] != key[1])))) {
             i -= decrement;
@@ -540,12 +573,14 @@ public class UuidToIntHashMap
    }
 
    /**
+    * Index of key.
+    *
     * @param key the key to be searched in the receiver.
     * @return the index where the key is contained in the receiver, returns -1 if the key was not found.
     */
    protected int indexOfKey(long[] key) {
-      final long tab[]     = table;
-      final byte stat[]    = state;
+      final long tab[]     = this.table;
+      final byte stat[]    = this.state;
       final int  length    = stat.length;
       final int  hash      = HashFunctions.hash(key[0] + key[1]) & 0x7FFFFFFF;
       int        i         = hash % length;
@@ -575,17 +610,25 @@ public class UuidToIntHashMap
       return i;  // found, return index where key is contained
    }
 
+   /**
+    * Index of key.
+    *
+    * @param key the key
+    * @return the int
+    */
    protected int indexOfKey(UUID key) {
       return indexOfKey(new long[] { key.getMostSignificantBits(), key.getLeastSignificantBits() });
    }
 
    /**
+    * Index of value.
+    *
     * @param value the value to be searched in the receiver.
     * @return the index where the value is contained in the receiver, returns -1 if the value was not found.
     */
    protected int indexOfValue(int value) {
-      final int  val[]  = values;
-      final byte stat[] = state;
+      final int  val[]  = this.values;
+      final byte stat[] = this.state;
 
       for (int i = stat.length; --i >= 0; ) {
          if ((stat[i] == FULL) && (val[i] == value)) {
@@ -596,10 +639,16 @@ public class UuidToIntHashMap
       return -1;  // not found
    }
 
+   /**
+    * Indexes of value.
+    *
+    * @param value the value
+    * @return the list
+    */
    protected List<Integer> indexesOfValue(int value) {
-      List<Integer> indexes = new ArrayList<>();
-      final int     val[]   = values;
-      final byte    stat[]  = state;
+      final List<Integer> indexes = new ArrayList<>();
+      final int           val[]   = this.values;
+      final byte          stat[]  = this.state;
 
       for (int i = stat.length; --i >= 0; ) {
          if ((stat[i] == FULL) && (val[i] == value)) {
@@ -610,6 +659,13 @@ public class UuidToIntHashMap
       return indexes;  // not found
    }
 
+   /**
+    * Private put.
+    *
+    * @param key the key
+    * @param value the value
+    * @return true, if successful
+    */
    protected boolean privatePut(long[] key, int value) {
       int i = indexOfInsertion(key);
 
@@ -620,13 +676,13 @@ public class UuidToIntHashMap
       }
 
       if (this.distinct > this.highWaterMark) {
-         int newCapacity = chooseGrowCapacity(this.distinct + 1, this.minLoadFactor, this.maxLoadFactor);
+         final int newCapacity = chooseGrowCapacity(this.distinct + 1, this.minLoadFactor, this.maxLoadFactor);
 
          rehash(newCapacity);
          return privatePut(key, value);
       }
 
-      int msb = i * 2;
+      final int msb = i * 2;
 
       this.table[msb]     = key[0];
       this.table[msb + 1] = key[1];
@@ -640,7 +696,7 @@ public class UuidToIntHashMap
       this.distinct++;
 
       if (this.freeEntries < 1) {  // delta
-         int newCapacity = chooseGrowCapacity(this.distinct + 1, this.minLoadFactor, this.maxLoadFactor);
+         final int newCapacity = chooseGrowCapacity(this.distinct + 1, this.minLoadFactor, this.maxLoadFactor);
 
          rehash(newCapacity);
       }
@@ -652,30 +708,31 @@ public class UuidToIntHashMap
     * Rehashes the contents of the receiver into a new table with a smaller or larger capacity. This method
     * is called automatically when the number of keys in the receiver exceeds the high water mark or falls
     * below the low water mark.
-    * @param newCapacity
+    *
+    * @param newCapacity the new capacity
     */
    protected void rehash(int newCapacity) {
-      int oldCapacity = state.length;
+      final int oldCapacity = this.state.length;
 
       if (oldCapacity == newCapacity) {
          return;
       }
 
-      long oldTable[]  = table;
-      int  oldValues[] = values;
-      byte oldState[]  = state;
-      long newTable[]  = new long[newCapacity * 2 + 1];
-      int  newValues[] = new int[newCapacity];
-      byte newState[]  = new byte[newCapacity];
+      final long oldTable[]  = this.table;
+      final int  oldValues[] = this.values;
+      final byte oldState[]  = this.state;
+      final long newTable[]  = new long[newCapacity * 2 + 1];
+      final int  newValues[] = new int[newCapacity];
+      final byte newState[]  = new byte[newCapacity];
 
       for (int i = oldCapacity; i-- > 0; ) {
-         long[] element = new long[2];
+         final long[] element = new long[2];
 
          if (oldState[i] == FULL) {
             element[0] = oldTable[i * 2];
             element[1] = oldTable[i * 2 + 1];
 
-            int index = indexOfInsertionForRehash(element, newTable, newState);
+            final int index = indexOfInsertionForRehash(element, newTable, newState);
 
             newTable[index * 2]     = element[0];
             newTable[index * 2 + 1] = element[1];
@@ -687,6 +744,14 @@ public class UuidToIntHashMap
       updateAfterRehash(newCapacity, newTable, newValues, newState);
    }
 
+   /**
+    * Update after rehash.
+    *
+    * @param newCapacity the new capacity
+    * @param newTable the new table
+    * @param newValues the new values
+    * @param newState the new state
+    */
    protected void updateAfterRehash(int newCapacity, long[] newTable, int[] newValues, byte[] newState) {
       this.lowWaterMark  = chooseLowWaterMark(newCapacity, this.minLoadFactor);
       this.highWaterMark = chooseHighWaterMark(newCapacity, this.maxLoadFactor);
@@ -698,12 +763,22 @@ public class UuidToIntHashMap
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the number of table entries in state==FREE.
+    *
+    * @return the number of table entries in state==FREE
+    */
    public int getFreeEntries() {
-      return freeEntries;
+      return this.freeEntries;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set number of table entries in state==FREE.
+    *
+    * @param freeEntries the new number of table entries in state==FREE
+    */
    public void setFreeEntries(int freeEntries) {
       this.freeEntries = freeEntries;
    }
@@ -720,32 +795,48 @@ public class UuidToIntHashMap
     */
    @Override
    public int get(long[] key) {
-      int i = indexOfKey(key);
+      final int i = indexOfKey(key);
 
       if (i < 0) {
          return Integer.MAX_VALUE;  // not contained
       }
 
-      return values[i];
+      return this.values[i];
    }
 
+   /**
+    * Gets the.
+    *
+    * @param key the key
+    * @return the int
+    */
    @Override
    public int get(UUID key) {
-      int i = indexOfKey(key);
+      final int i = indexOfKey(key);
 
       if (i < 0) {
          return Integer.MAX_VALUE;  // not contained
       }
 
-      return values[i];
+      return this.values[i];
    }
 
+   /**
+    * Gets the state of each hash table entry (FREE, FULL, REMOVED).
+    *
+    * @return the state of each hash table entry (FREE, FULL, REMOVED)
+    */
    public byte[] getState() {
-      return state;
+      return this.state;
    }
 
+   /**
+    * Gets the hash table keys.
+    *
+    * @return the hash table keys
+    */
    public long[] getTable() {
-      return table;
+      return this.table;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -801,8 +892,13 @@ public class UuidToIntHashMap
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the hash table values.
+    *
+    * @return the hash table values
+    */
    public int[] getValues() {
-      return values;
+      return this.values;
    }
 }
 

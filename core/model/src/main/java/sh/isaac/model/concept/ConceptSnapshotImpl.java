@@ -63,18 +63,33 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ConceptSnapshotImpl.
  *
  * @author kec
  */
 public class ConceptSnapshotImpl
          implements ConceptSnapshot {
-   private final ConceptChronologyImpl             conceptChronology;
-   private final StampCoordinate                   stampCoordinate;
-   private final LanguageCoordinate                languageCoordinate;
+   /** The concept chronology. */
+   private final ConceptChronologyImpl conceptChronology;
+
+   /** The stamp coordinate. */
+   private final StampCoordinate stampCoordinate;
+
+   /** The language coordinate. */
+   private final LanguageCoordinate languageCoordinate;
+
+   /** The snapshot version. */
    private final LatestVersion<ConceptVersionImpl> snapshotVersion;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concept snapshot impl.
+    *
+    * @param conceptChronology the concept chronology
+    * @param stampCoordinate the stamp coordinate
+    * @param languageCoordinate the language coordinate
+    */
    public ConceptSnapshotImpl(ConceptChronologyImpl conceptChronology,
                               StampCoordinate stampCoordinate,
                               LanguageCoordinate languageCoordinate) {
@@ -82,69 +97,115 @@ public class ConceptSnapshotImpl
       this.stampCoordinate    = stampCoordinate;
       this.languageCoordinate = languageCoordinate;
 
-      Optional<LatestVersion<ConceptVersionImpl>> optionalVersion =
+      final Optional<LatestVersion<ConceptVersionImpl>> optionalVersion =
          RelativePositionCalculator.getCalculator(stampCoordinate)
                                    .getLatestVersion(conceptChronology);
 
-      snapshotVersion = optionalVersion.get();
+      this.snapshotVersion = optionalVersion.get();
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Contains active description.
+    *
+    * @param descriptionText the description text
+    * @return true, if successful
+    */
    @Override
    public boolean containsActiveDescription(String descriptionText) {
-      return conceptChronology.containsDescription(descriptionText, stampCoordinate);
+      return this.conceptChronology.containsDescription(descriptionText, this.stampCoordinate);
    }
 
+   /**
+    * To user string.
+    *
+    * @return the string
+    */
    @Override
    public String toUserString() {
-      return snapshotVersion.toString();
+      return this.snapshotVersion.toString();
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the author sequence.
+    *
+    * @return the author sequence
+    */
    @Override
    public int getAuthorSequence() {
-      return snapshotVersion.value()
-                            .getAuthorSequence();
+      return this.snapshotVersion.value()
+                                 .getAuthorSequence();
    }
 
+   /**
+    * Gets the chronology.
+    *
+    * @return the chronology
+    */
    @Override
    public ConceptChronologyImpl getChronology() {
-      return conceptChronology;
+      return this.conceptChronology;
    }
 
+   /**
+    * Gets the commit state.
+    *
+    * @return the commit state
+    */
    @Override
    public CommitStates getCommitState() {
-      return snapshotVersion.value()
-                            .getCommitState();
+      return this.snapshotVersion.value()
+                                 .getCommitState();
    }
 
+   /**
+    * Gets the concept description text.
+    *
+    * @return the concept description text
+    */
    @Override
    public String getConceptDescriptionText() {
       return getDescription().getText();
    }
 
+   /**
+    * Gets the concept sequence.
+    *
+    * @return the concept sequence
+    */
    @Override
    public int getConceptSequence() {
-      return conceptChronology.getConceptSequence();
+      return this.conceptChronology.getConceptSequence();
    }
 
+   /**
+    * Gets the contradictions.
+    *
+    * @return the contradictions
+    */
    @Override
    public Optional<? extends Set<? extends StampedVersion>> getContradictions() {
-      return snapshotVersion.contradictions();
+      return this.snapshotVersion.contradictions();
    }
 
+   /**
+    * Gets the description.
+    *
+    * @return the description
+    */
    @Override
    public DescriptionSememe<?> getDescription() {
-      Optional<LatestVersion<DescriptionSememe<?>>> fsd = getFullySpecifiedDescription();
+      final Optional<LatestVersion<DescriptionSememe<?>>> fsd = getFullySpecifiedDescription();
 
       if (fsd.isPresent()) {
          return fsd.get()
                    .value();
       }
 
-      Optional<LatestVersion<DescriptionSememe<?>>> pd = getPreferredDescription();
+      final Optional<LatestVersion<DescriptionSememe<?>>> pd = getPreferredDescription();
 
       if (pd.isPresent()) {
          return pd.get()
@@ -159,78 +220,138 @@ public class ConceptSnapshotImpl
                 .get(0);
    }
 
+   /**
+    * Gets the fully specified description.
+    *
+    * @return the fully specified description
+    */
    @Override
    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription() {
-      return languageCoordinate.getFullySpecifiedDescription(Get.sememeService()
+      return this.languageCoordinate.getFullySpecifiedDescription(Get.sememeService()
             .getDescriptionsForComponent(getNid())
             .collect(Collectors.toList()),
-            stampCoordinate);
+            this.stampCoordinate);
    }
 
+   /**
+    * Gets the language coordinate.
+    *
+    * @return the language coordinate
+    */
    @Override
    public LanguageCoordinate getLanguageCoordinate() {
-      return languageCoordinate;
+      return this.languageCoordinate;
    }
 
+   /**
+    * Gets the module sequence.
+    *
+    * @return the module sequence
+    */
    @Override
    public int getModuleSequence() {
-      return snapshotVersion.value()
-                            .getModuleSequence();
+      return this.snapshotVersion.value()
+                                 .getModuleSequence();
    }
 
+   /**
+    * Gets the nid.
+    *
+    * @return the nid
+    */
    @Override
    public int getNid() {
-      return snapshotVersion.value()
-                            .getNid();
+      return this.snapshotVersion.value()
+                                 .getNid();
    }
 
+   /**
+    * Gets the path sequence.
+    *
+    * @return the path sequence
+    */
    @Override
    public int getPathSequence() {
-      return snapshotVersion.value()
-                            .getPathSequence();
+      return this.snapshotVersion.value()
+                                 .getPathSequence();
    }
 
+   /**
+    * Gets the preferred description.
+    *
+    * @return the preferred description
+    */
    @Override
    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription() {
-      return languageCoordinate.getPreferredDescription(Get.sememeService()
+      return this.languageCoordinate.getPreferredDescription(Get.sememeService()
             .getDescriptionsForComponent(getNid())
             .collect(Collectors.toList()),
-            stampCoordinate);
+            this.stampCoordinate);
    }
 
+   /**
+    * Gets the primordial uuid.
+    *
+    * @return the primordial uuid
+    */
    @Override
    public UUID getPrimordialUuid() {
-      return snapshotVersion.value()
-                            .getPrimordialUuid();
+      return this.snapshotVersion.value()
+                                 .getPrimordialUuid();
    }
 
+   /**
+    * Gets the stamp coordinate.
+    *
+    * @return the stamp coordinate
+    */
    @Override
    public StampCoordinate getStampCoordinate() {
-      return stampCoordinate;
+      return this.stampCoordinate;
    }
 
+   /**
+    * Gets the stamp sequence.
+    *
+    * @return the stamp sequence
+    */
    @Override
    public int getStampSequence() {
-      return snapshotVersion.value()
-                            .getStampSequence();
+      return this.snapshotVersion.value()
+                                 .getStampSequence();
    }
 
+   /**
+    * Gets the state.
+    *
+    * @return the state
+    */
    @Override
    public State getState() {
-      return snapshotVersion.value()
-                            .getState();
+      return this.snapshotVersion.value()
+                                 .getState();
    }
 
+   /**
+    * Gets the time.
+    *
+    * @return the time
+    */
    @Override
    public long getTime() {
-      return snapshotVersion.value()
-                            .getTime();
+      return this.snapshotVersion.value()
+                                 .getTime();
    }
 
+   /**
+    * Gets the uuid list.
+    *
+    * @return the uuid list
+    */
    @Override
    public List<UUID> getUuidList() {
-      return snapshotVersion.value()
-                            .getUuidList();
+      return this.snapshotVersion.value()
+                                 .getUuidList();
    }
 }
 

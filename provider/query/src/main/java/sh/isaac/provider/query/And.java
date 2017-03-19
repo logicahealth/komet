@@ -68,26 +68,44 @@ public class And
       super();
    }
 
+   /**
+    * Instantiates a new and.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param clauses the clauses
+    */
    public And(Query enclosingQuery, Clause... clauses) {
       super(enclosingQuery, clauses);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute components.
+    *
+    * @param incomingComponents the incoming components
+    * @return the nid set
+    */
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
-      NidSet results = NidSet.of(incomingComponents.stream());
+      final NidSet results = NidSet.of(incomingComponents.stream());
 
-      for (Clause clause: getChildren()) {
+      for (final Clause clause: getChildren()) {
          results.and(clause.computeComponents(incomingComponents));
       }
 
       return results;
    }
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      NidSet results = NidSet.of(incomingPossibleComponents.stream());
+      final NidSet results = NidSet.of(incomingPossibleComponents.stream());
 
       getChildren().stream().forEach((clause) -> {
                                results.and(clause.computePossibleComponents(incomingPossibleComponents));
@@ -97,13 +115,18 @@ public class And
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.AND);
 
-      for (Clause clause: getChildren()) {
+      for (final Clause clause: getChildren()) {
          whereClause.getChildren()
                     .add(clause.getWhereClause());
       }

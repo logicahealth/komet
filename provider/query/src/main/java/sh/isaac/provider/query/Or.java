@@ -41,8 +41,6 @@ package sh.isaac.provider.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -66,15 +64,27 @@ public class Or
       super();
    }
 
+   /**
+    * Instantiates a new or.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param clauses the clauses
+    */
    public Or(Query enclosingQuery, Clause... clauses) {
       super(enclosingQuery, clauses);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute components.
+    *
+    * @param incomingComponents the incoming components
+    * @return the nid set
+    */
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
-      NidSet results = new NidSet();
+      final NidSet results = new NidSet();
 
       getChildren().stream().forEach((clause) -> {
                                results.or(clause.computeComponents(incomingComponents));
@@ -82,9 +92,15 @@ public class Or
       return results;
    }
 
+   /**
+    * Compute possible components.
+    *
+    * @param searchSpace the search space
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet searchSpace) {
-      NidSet results = new NidSet();
+      final NidSet results = new NidSet();
 
       getChildren().stream().forEach((clause) -> {
                                results.or(clause.computePossibleComponents(searchSpace));
@@ -94,9 +110,14 @@ public class Or
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.OR);
       getChildren().stream().forEach((clause) -> {

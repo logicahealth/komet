@@ -60,53 +60,83 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public abstract class ConnectorNode
         extends AbstractLogicNode {
+   /** The child indices. */
    private final ShortArrayList childIndices;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new connector node.
+    *
+    * @param another the another
+    */
    public ConnectorNode(AbstractLogicNode another) {
       super(another);
-      childIndices = new ShortArrayList(another.getChildren().length);
+      this.childIndices = new ShortArrayList(another.getChildren().length);
 
-      for (AbstractLogicNode child: another.getChildren()) {
-         childIndices.add(child.getNodeIndex());
+      for (final AbstractLogicNode child: another.getChildren()) {
+         this.childIndices.add(child.getNodeIndex());
       }
    }
 
+   /**
+    * Instantiates a new connector node.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param children the children
+    */
    public ConnectorNode(LogicalExpressionOchreImpl logicGraphVersion, AbstractLogicNode... children) {
       super(logicGraphVersion);
-      childIndices = new ShortArrayList(children.length);
+      this.childIndices = new ShortArrayList(children.length);
 
-      for (AbstractLogicNode child: children) {
-         childIndices.add(child.getNodeIndex());
+      for (final AbstractLogicNode child: children) {
+         this.childIndices.add(child.getNodeIndex());
       }
    }
 
+   /**
+    * Instantiates a new connector node.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public ConnectorNode(LogicalExpressionOchreImpl logicGraphVersion,
                         DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
 
-      short childrenSize = dataInputStream.readShort();
+      final short childrenSize = dataInputStream.readShort();
 
-      childIndices = new ShortArrayList(childrenSize);
+      this.childIndices = new ShortArrayList(childrenSize);
 
       for (int index = 0; index < childrenSize; index++) {
-         childIndices.add(dataInputStream.readShort());
+         this.childIndices.add(dataInputStream.readShort());
       }
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the children.
+    *
+    * @param children the children
+    */
    @Override
    public void addChildren(LogicNode... children) {
-      for (LogicNode child: children) {
-         childIndices.add(child.getNodeIndex());
+      for (final LogicNode child: children) {
+         this.childIndices.add(child.getNodeIndex());
       }
 
       sort();
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -120,40 +150,59 @@ public abstract class ConnectorNode
       return super.equals(o);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int result = super.hashCode();
 
-      result = 31 * result + childIndices.hashCode();
+      result = 31 * result + this.childIndices.hashCode();
       return result;
    }
 
+   /**
+    * Sort.
+    */
    @Override
    public final void sort() {
-      childIndices.mergeSortFromTo(0,
-                                   childIndices.size() - 1,
-                                   (short o1,
-                                    short o2) -> logicGraphVersion.getNode(o1)
-                                          .compareTo(logicGraphVersion.getNode(o2)));
+      this.childIndices.mergeSortFromTo(0,
+                                        this.childIndices.size() - 1,
+                                        (short o1,
+                                         short o2) -> this.logicGraphVersion.getNode(o1)
+                                               .compareTo(this.logicGraphVersion.getNode(o2)));
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
-      if ((childIndices != null) &&!childIndices.isEmpty()) {
-         StringBuilder builder = new StringBuilder();
+      if ((this.childIndices != null) &&!this.childIndices.isEmpty()) {
+         final StringBuilder builder = new StringBuilder();
 
          builder.append("➞[");
-         childIndices.forEach((index) -> {
-                                 builder.append(index);
-                                 builder.append(nodeIdSuffix);
-                                 builder.append(", ");
-                                 return true;
-                              });
+         this.childIndices.forEach((index) -> {
+                                      builder.append(index);
+                                      builder.append(nodeIdSuffix);
+                                      builder.append(", ");
+                                      return true;
+                                   });
          builder.deleteCharAt(builder.length() - 1);
          builder.deleteCharAt(builder.length() - 1);
          builder.append("]");
@@ -163,22 +212,41 @@ public abstract class ConnectorNode
       return "";
    }
 
+   /**
+    * Compare fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    protected int compareFields(LogicNode o) {
       // node semantic is already determined to be the same...
       return compareNodeFields(o);
    }
 
+   /**
+    * Compare node fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    protected abstract int compareNodeFields(LogicNode o);
 
+   /**
+    * Write data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    protected void writeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
       sort();
       super.writeData(dataOutput, dataTarget);
-      dataOutput.writeShort(childIndices.size());
+      dataOutput.writeShort(this.childIndices.size());
 
-      for (short value: childIndices.elements()) {
+      for (final short value: this.childIndices.elements()) {
          dataOutput.writeShort(value);
       }
    }
@@ -186,15 +254,16 @@ public abstract class ConnectorNode
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the children.
     *
     * @return a sorted array of child <code>LogicNode</code>s.
     */
    @Override
    public AbstractLogicNode[] getChildren() {
-      AbstractLogicNode[] childNodes = new AbstractLogicNode[childIndices.size()];
+      final AbstractLogicNode[] childNodes = new AbstractLogicNode[this.childIndices.size()];
 
       for (int i = 0; i < childNodes.length; i++) {
-         childNodes[i] = (AbstractLogicNode) logicGraphVersion.getNode(childIndices.get(i));
+         childNodes[i] = (AbstractLogicNode) this.logicGraphVersion.getNode(this.childIndices.get(i));
       }
 
       return childNodes;

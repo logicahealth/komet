@@ -51,13 +51,12 @@ import java.util.concurrent.locks.StampedLock;
  */
 public class ConcurrentUuidToIntHashMap
         extends UuidToIntHashMap {
-   /**
-    *    
-    */
+   /** The Constant serialVersionUID. */
    private static final long serialVersionUID = -6525403154660005459L;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The sl. */
    StampedLock sl = new StampedLock();
 
    //~--- constructors --------------------------------------------------------
@@ -97,88 +96,161 @@ public class ConcurrentUuidToIntHashMap
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Contains key.
+    *
+    * @param key the key
+    * @return true, if successful
+    */
    @Override
    public boolean containsKey(long[] key) {
-      long    stamp       = sl.tryOptimisticRead();
+      long    stamp       = this.sl.tryOptimisticRead();
       boolean containsKey = indexOfKey(key) >= 0;
 
-      if (!sl.validate(stamp)) {
-         stamp = sl.readLock();
+      if (!this.sl.validate(stamp)) {
+         stamp = this.sl.readLock();
 
          try {
             containsKey = indexOfKey(key) >= 0;
          } finally {
-            sl.unlockRead(stamp);
+            this.sl.unlockRead(stamp);
          }
       }
 
       return containsKey;
    }
 
+   /**
+    * Contains key.
+    *
+    * @param key the key
+    * @return true, if successful
+    */
    @Override
    public boolean containsKey(UUID key) {
       return this.containsKey(new long[] { key.getMostSignificantBits(), key.getLeastSignificantBits() });
    }
 
+   /**
+    * Put.
+    *
+    * @param key the key
+    * @param value the value
+    * @return true, if successful
+    */
    @Override
    public boolean put(long[] key, int value) {
       throw new UnsupportedOperationException("Use put(long[] key, int value, long stamp) instead.");
    }
 
+   /**
+    * Put.
+    *
+    * @param key the key
+    * @param value the value
+    * @param stamp the stamp
+    * @return true, if successful
+    */
    public boolean put(long[] key, int value, long stamp) {
-      sl.validate(stamp);
+      this.sl.validate(stamp);
       return super.put(key, value);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the distinct.
+    *
+    * @return the distinct
+    */
    public int getDistinct() {
-      return distinct;
+      return this.distinct;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the distinct.
+    *
+    * @param distinct the new distinct
+    */
    public void setDistinct(int distinct) {
       this.distinct = distinct;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the.
+    *
+    * @param key the key
+    * @return the int
+    */
    @Override
    public int get(long[] key) {
-      long stamp = sl.tryOptimisticRead();
+      long stamp = this.sl.tryOptimisticRead();
       int  value = super.get(key);
 
-      if (!sl.validate(stamp)) {
-         stamp = sl.readLock();
+      if (!this.sl.validate(stamp)) {
+         stamp = this.sl.readLock();
 
          try {
             value = super.get(key);
          } finally {
-            sl.unlockRead(stamp);
+            this.sl.unlockRead(stamp);
          }
       }
 
       return value;
    }
 
+   /**
+    * Gets the.
+    *
+    * @param key the key
+    * @return the int
+    */
    @Override
    public int get(UUID key) {
       return this.get(new long[] { key.getMostSignificantBits(), key.getLeastSignificantBits() });
    }
 
+   /**
+    * Gets the.
+    *
+    * @param key the key
+    * @param stampLong the stamp long
+    * @return the int
+    */
    public int get(long[] key, long stampLong) {
       return super.get(key);
    }
 
+   /**
+    * Gets the.
+    *
+    * @param key the key
+    * @param stampSequence the stamp sequence
+    * @return the int
+    */
    public int get(UUID key, long stampSequence) {
       return this.get(new long[] { key.getMostSignificantBits(), key.getLeastSignificantBits() }, stampSequence);
    }
 
+   /**
+    * Gets the stamped lock.
+    *
+    * @return the stamped lock
+    */
    public StampedLock getStampedLock() {
-      return sl;
+      return this.sl;
    }
 
+   /**
+    * Gets the stats.
+    *
+    * @return the stats
+    */
    public String getStats() {
       return "distinct: " + getDistinct() + " free: " + getFreeEntries() + " utilization: " +
              getDistinct() * 100 / (getDistinct() + getFreeEntries());

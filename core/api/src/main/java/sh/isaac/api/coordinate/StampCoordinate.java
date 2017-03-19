@@ -86,6 +86,7 @@ public interface StampCoordinate
    ConceptSequenceSet getModuleSequences();
 
    /**
+    * Gets the module specification list.
     *
     * @return A list of {@code ConceptSpecification} that represent the modules to include in version computations
     * based on this stamp coordinate.
@@ -95,6 +96,7 @@ public interface StampCoordinate
    }
 
    /**
+    * Gets the stamp position.
     *
     * @return the position (time on a path) that is used to
     * compute what stamped objects versions are the latest with respect to this

@@ -68,29 +68,45 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeImpl}
+ * {@link DynamicSememeImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeImpl
         extends SememeVersionImpl<DynamicSememeImpl>
          implements MutableDynamicSememe<DynamicSememeImpl> {
+   /** The bootstrap mode. */
    private static boolean bootstrapMode = Get.configurationService()
                                              .inBootstrapMode();
 
    //~--- fields --------------------------------------------------------------
 
-   private DynamicSememeData[] data_ = null;
+   /** The data. */
+   private DynamicSememeData[] data = null;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    */
    public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container,
                             int stampSequence,
                             short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
+   /**
+    * Instantiates a new dynamic sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    * @param data the data
+    */
    public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container,
                             int stampSequence,
                             short versionSequence,
@@ -98,29 +114,29 @@ public class DynamicSememeImpl
       super(container, stampSequence, versionSequence);
 
       // read the following format - dataFieldCount [dataFieldType dataFieldBytes] [dataFieldType dataFieldBytes] ...
-      int colCount = data.getInt();
+      final int colCount = data.getInt();
 
-      data_ = new DynamicSememeData[colCount];
+      this.data = new DynamicSememeData[colCount];
 
       for (int i = 0; i < colCount; i++) {
-         DynamicSememeDataType dt = DynamicSememeDataType.getFromToken(data.getInt());
+         final DynamicSememeDataType dt = DynamicSememeDataType.getFromToken(data.getInt());
 
          if (dt == DynamicSememeDataType.UNKNOWN) {
-            data_[i] = null;
+            this.data[i] = null;
          } else {
             if (data.isExternalData() && (dt == DynamicSememeDataType.NID)) {
-               UUID temp =
+               final UUID temp =
                   ((DynamicSememeUUIDImpl) DynamicSememeTypeToClassUtility.typeToClass(DynamicSememeDataType.UUID,
                                                                                        data.getByteArrayField(),
                                                                                        0,
                                                                                        0)).getDataUUID();
 
-               data_[i] = DynamicSememeTypeToClassUtility.typeToClass(dt,
+               this.data[i] = DynamicSememeTypeToClassUtility.typeToClass(dt,
                      new DynamicSememeNidImpl(Get.identifierService().getNidForUuids(temp)).getData(),
                      getAssemblageSequence(),
                      i);
             } else {
-               data_[i] = DynamicSememeTypeToClassUtility.typeToClass(dt,
+               this.data[i] = DynamicSememeTypeToClassUtility.typeToClass(dt,
                      data.getByteArrayField(),
                      getAssemblageSequence(),
                      i);
@@ -131,18 +147,28 @@ public class DynamicSememeImpl
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Data to string.
+    *
+    * @return the string
+    */
    @Override
    public String dataToString() {
       return DynamicSememeUtilityImpl.toString(getData());
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append("{DynamicSememeData≤");
 
-      DynamicSememeData[] data = getData();
+      final DynamicSememeData[] data = getData();
 
       // make sure the column numbers are set, so lookups can happen for column names.
       for (int i = 0; i < data.length; i++) {
@@ -157,6 +183,11 @@ public class DynamicSememeImpl
       return sb.toString();
    }
 
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
@@ -166,7 +197,7 @@ public class DynamicSememeImpl
       if (getData() != null) {
          data.putInt(getData().length);
 
-         for (DynamicSememeData column: getData()) {
+         for (final DynamicSememeData column: getData()) {
             if (column == null) {
                data.putInt(DynamicSememeDataType.UNKNOWN.getTypeToken());
             } else {
@@ -174,9 +205,9 @@ public class DynamicSememeImpl
                                  .getTypeToken());
 
                if (data.isExternalData() && (column.getDynamicSememeDataType() == DynamicSememeDataType.NID)) {
-                  DynamicSememeUUIDImpl temp = new DynamicSememeUUIDImpl(
-                                                   Get.identifierService().getUuidPrimordialForNid(
-                                                      ((DynamicSememeNidImpl) column).getDataNid()).get());
+                  final DynamicSememeUUIDImpl temp = new DynamicSememeUUIDImpl(
+                                                        Get.identifierService().getUuidPrimordialForNid(
+                                                           ((DynamicSememeNidImpl) column).getDataNid()).get());
 
                   data.putByteArrayField(temp.getData());
                } else {
@@ -192,24 +223,41 @@ public class DynamicSememeImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data.
+    *
+    * @return the data
     * @see sh.isaac.api.component.sememe.version.DynamicSememe#getData()
     */
    @Override
    public DynamicSememeData[] getData() {
-      return (data_ == null) ? new DynamicSememeData[] {}
-                             : data_;
+      return (this.data == null) ? new DynamicSememeData[] {}
+                                  : this.data;
    }
 
+   /**
+    * Gets the data.
+    *
+    * @param columnNumber the column number
+    * @return the data
+    * @throws IndexOutOfBoundsException the index out of bounds exception
+    */
    @Override
    public DynamicSememeData getData(int columnNumber)
             throws IndexOutOfBoundsException {
       return getData()[columnNumber];
    }
 
+   /**
+    * Gets the data.
+    *
+    * @param columnName the column name
+    * @return the data
+    * @throws InvalidNameException the invalid name exception
+    */
    @Override
    public DynamicSememeData getData(String columnName)
             throws InvalidNameException {
-      for (DynamicSememeColumnInfo ci: getDynamicSememeUsageDescription().getColumnInfo()) {
+      for (final DynamicSememeColumnInfo ci: getDynamicSememeUsageDescription().getColumnInfo()) {
          if (ci.getColumnName()
                .equals(columnName)) {
             return getData(ci.getColumnOrder());
@@ -221,33 +269,48 @@ public class DynamicSememeImpl
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the data.
+    *
+    * @param data the new data
+    */
    @Override
    public void setData(DynamicSememeData[] data) {
-      if (data_ != null) {
+      if (this.data != null) {
          checkUncommitted();
       }
 
       // TODO while this checks basic sememe structure / column alignment, it can't fire certain validators, as those require coordinates.
       // The column-specific validators will have to be fired during commit.
       if (!bootstrapMode) {  // We can't run the validators when we are building the initial system.
-         DynamicSememeUsageDescription dsud = DynamicSememeUsageDescriptionImpl.read(getAssemblageSequence());
+         final DynamicSememeUsageDescription dsud = DynamicSememeUsageDescriptionImpl.read(getAssemblageSequence());
 
          LookupService.get()
                       .getService(DynamicSememeUtility.class)
                       .validate(dsud, data, getReferencedComponentNid(), null, null);
       }
 
-      data_ = (data == null) ? new DynamicSememeData[] {}
-                             : data;
+      this.data = (data == null) ? new DynamicSememeData[] {}
+                                  : data;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the dynamic sememe usage description.
+    *
+    * @return the dynamic sememe usage description
+    */
    @Override
    public DynamicSememeUsageDescription getDynamicSememeUsageDescription() {
       return DynamicSememeUsageDescriptionImpl.read(this.getAssemblageSequence());
    }
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    @Override
    public SememeType getSememeType() {
       return SememeType.DYNAMIC;

@@ -60,181 +60,258 @@ import sh.isaac.api.util.StringUtils;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link StampedItem}
+ * {@link StampedItem}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public abstract class StampedItem {
-   public static final Comparator<StampedItem> statusComparator = new Comparator<StampedItem>() {
-      @Override
-      public int compare(StampedItem o1, StampedItem o2) {
-         // o1 and o2 intentionally reversed in this call, to make Active come before Inactive
-         return Boolean.compare(o2.isActive(), o1.isActive());
-      }
-   };
-   public static final Comparator<StampedItem> timeComparator = new Comparator<StampedItem>() {
-      @Override
-      public int compare(StampedItem o1, StampedItem o2) {
-         return Long.compare(o1.getTime(), o2.getTime());
-      }
-   };
-   public static final Comparator<StampedItem> authorComparator = new Comparator<StampedItem>() {
-      @Override
-      public int compare(StampedItem o1, StampedItem o2) {
-         return StringUtils.compareStringsIgnoreCase(o1.getAuthorProperty()
-               .get(), o2.getAuthorProperty()
-                         .get());
-      }
-   };
-   public static final Comparator<StampedItem> moduleComparator = new Comparator<StampedItem>() {
-      @Override
-      public int compare(StampedItem o1, StampedItem o2) {
-         return StringUtils.compareStringsIgnoreCase(o1.getModuleProperty()
-               .get(), o2.getModuleProperty()
-                         .get());
-      }
-   };
-   public static final Comparator<StampedItem> pathComparator = new Comparator<StampedItem>() {
-      @Override
-      public int compare(StampedItem o1, StampedItem o2) {
-         return StringUtils.compareStringsIgnoreCase(o1.getPathProperty()
-               .get(), o2.getPathProperty()
-                         .get());
-      }
-   };
+   /** The Constant statusComparator. */
+   public static final Comparator<StampedItem> statusComparator = (o1, o2) -> Boolean.compare(o2.isActive(),
+                                                                                              o1.isActive());
+
+   /** The Constant timeComparator. */
+   public static final Comparator<StampedItem> timeComparator = (o1, o2) -> Long.compare(o1.getTime(), o2.getTime());
+
+   /** The Constant authorComparator. */
+   public static final Comparator<StampedItem> authorComparator =
+      (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getAuthorProperty()
+                                                         .get(),
+                                                       o2.getAuthorProperty()
+                                                             .get());
+
+   /** The Constant moduleComparator. */
+   public static final Comparator<StampedItem> moduleComparator =
+      (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getModuleProperty()
+                                                         .get(),
+                                                       o2.getModuleProperty()
+                                                             .get());
+
+   /** The Constant pathComparator. */
+   public static final Comparator<StampedItem> pathComparator =
+      (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getPathProperty()
+                                                         .get(),
+                                                       o2.getPathProperty()
+                                                             .get());
 
    //~--- fields --------------------------------------------------------------
 
-   private transient boolean              lazyLoadFinished_ = false;
-   private transient SimpleStringProperty authorSSP         = new SimpleStringProperty("-");
-   private transient SimpleStringProperty moduleSSP         = new SimpleStringProperty("-");;
-   private transient SimpleStringProperty pathSSP           = new SimpleStringProperty("-");;
-   private transient SimpleStringProperty statusSSP         = new SimpleStringProperty("-");;
-   private transient SimpleStringProperty timeSSP           = new SimpleStringProperty("-");;
-   private StampedVersion                 componentVersion_;
-   private transient UUID                 authorUUID;
-   private transient UUID                 moduleUUID;
-   private transient UUID                 pathUUID;
+   /** The lazy load finished. */
+   private transient boolean lazyLoadFinished = false;
+
+   /** The author SSP. */
+   private transient SimpleStringProperty authorSSP = new SimpleStringProperty("-");
+
+   /** The module SSP. */
+   private transient SimpleStringProperty moduleSSP = new SimpleStringProperty("-");;
+
+   /** The path SSP. */
+   private transient SimpleStringProperty pathSSP = new SimpleStringProperty("-");;
+
+   /** The status SSP. */
+   private transient SimpleStringProperty statusSSP = new SimpleStringProperty("-");;
+
+   /** The time SSP. */
+   private transient SimpleStringProperty timeSSP = new SimpleStringProperty("-");;
+
+   /** The component version. */
+   private StampedVersion componentVersion;
+
+   /** The author UUID. */
+   private transient UUID authorUUID;
+
+   /** The module UUID. */
+   private transient UUID moduleUUID;
+
+   /** The path UUID. */
+   private transient UUID pathUUID;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Read stamp details.
+    *
+    * @param componentVersion the component version
+    * @throws RuntimeException the runtime exception
+    */
    protected void readStampDetails(StampedVersion componentVersion)
             throws RuntimeException {
-      componentVersion_ = componentVersion;
+      this.componentVersion = componentVersion;
    }
 
+   /**
+    * Lazy load.
+    */
    private void lazyLoad() {
-      if (!lazyLoadFinished_) {
-         authorUUID = Get.identifierService()
-                         .getUuidPrimordialFromConceptId(componentVersion_.getAuthorSequence())
-                         .get();
-         moduleUUID = Get.identifierService()
-                         .getUuidPrimordialFromConceptId(componentVersion_.getModuleSequence())
-                         .get();
-         pathUUID = Get.identifierService()
-                       .getUuidPrimordialFromConceptId(componentVersion_.getPathSequence())
-                       .get();
+      if (!this.lazyLoadFinished) {
+         this.authorUUID = Get.identifierService()
+                              .getUuidPrimordialFromConceptId(this.componentVersion.getAuthorSequence())
+                              .get();
+         this.moduleUUID = Get.identifierService()
+                              .getUuidPrimordialFromConceptId(this.componentVersion.getModuleSequence())
+                              .get();
+         this.pathUUID = Get.identifierService()
+                            .getUuidPrimordialFromConceptId(this.componentVersion.getPathSequence())
+                            .get();
          Get.workExecutors().getExecutor().execute(() -> {
-                        String authorName = Get.conceptDescriptionText(Get.identifierService()
-                                                                          .getConceptSequenceForUuids(authorUUID));
-                        String moduleName = Get.conceptDescriptionText(Get.identifierService()
-                                                                          .getConceptSequenceForUuids(moduleUUID));
-                        String pathName = Get.conceptDescriptionText(Get.identifierService()
-                                                                        .getConceptSequenceForUuids(pathUUID));
+                        final String authorName = Get.conceptDescriptionText(Get.identifierService()
+                                                                                .getConceptSequenceForUuids(
+                                                                                   this.authorUUID));
+                        final String moduleName = Get.conceptDescriptionText(Get.identifierService()
+                                                                                .getConceptSequenceForUuids(
+                                                                                   this.moduleUUID));
+                        final String pathName = Get.conceptDescriptionText(Get.identifierService()
+                                                                              .getConceptSequenceForUuids(
+                                                                                 this.pathUUID));
 
                         Platform.runLater(() -> {
-                                             authorSSP.set(authorName);
-                                             moduleSSP.set(moduleName);
-                                             pathSSP.set(pathName);
-                                             statusSSP.set(this.isActive() ? "Active"
+                                             this.authorSSP.set(authorName);
+                                             this.moduleSSP.set(moduleName);
+                                             this.pathSSP.set(pathName);
+                                             this.statusSSP.set(this.isActive() ? "Active"
                      : "Inactive");
-                                             timeSSP.set(new SimpleDateFormat("MM/dd/yy HH:mm").format(this.getTime()));
+                                             this.timeSSP.set(
+                                                 new SimpleDateFormat("MM/dd/yy HH:mm").format(this.getTime()));
                                           });
                      });
       }
 
-      lazyLoadFinished_ = true;
+      this.lazyLoadFinished = true;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Checks if active.
+    *
     * @return the isActive
     */
    public boolean isActive() {
-      return componentVersion_.getState() == State.ACTIVE;
-   }
-
-   public int getAuthor() {
-      return componentVersion_.getAuthorSequence();
+      return this.componentVersion.getState() == State.ACTIVE;
    }
 
    /**
+    * Gets the author.
+    *
+    * @return the author
+    */
+   public int getAuthor() {
+      return this.componentVersion.getAuthorSequence();
+   }
+
+   /**
+    * Gets the author name.
+    *
     * @return the authorName - a UUID that identifies a concept that represents the Author
     */
    public UUID getAuthorName() {
       lazyLoad();
-      return authorUUID;
-   }
-
-   public SimpleStringProperty getAuthorProperty() {
-      lazyLoad();
-      return authorSSP;
-   }
-
-   public StampedVersion getComponentVersion() {
-      return componentVersion_;
-   }
-
-   public int getModule() {
-      return componentVersion_.getModuleSequence();
-   }
-
-   public SimpleStringProperty getModuleProperty() {
-      lazyLoad();
-      return moduleSSP;
+      return this.authorUUID;
    }
 
    /**
+    * Gets the author property.
+    *
+    * @return the author property
+    */
+   public SimpleStringProperty getAuthorProperty() {
+      lazyLoad();
+      return this.authorSSP;
+   }
+
+   /**
+    * Gets the component version.
+    *
+    * @return the component version
+    */
+   public StampedVersion getComponentVersion() {
+      return this.componentVersion;
+   }
+
+   /**
+    * Gets the module.
+    *
+    * @return the module
+    */
+   public int getModule() {
+      return this.componentVersion.getModuleSequence();
+   }
+
+   /**
+    * Gets the module property.
+    *
+    * @return the module property
+    */
+   public SimpleStringProperty getModuleProperty() {
+      lazyLoad();
+      return this.moduleSSP;
+   }
+
+   /**
+    * Gets the module UUID.
+    *
     * @return the moduleUUID
     */
    public UUID getModuleUUID() {
       lazyLoad();
-      return moduleUUID;
-   }
-
-   public int getPath() {
-      return componentVersion_.getPathSequence();
-   }
-
-   public SimpleStringProperty getPathProperty() {
-      lazyLoad();
-      return pathSSP;
+      return this.moduleUUID;
    }
 
    /**
+    * Gets the path.
+    *
+    * @return the path
+    */
+   public int getPath() {
+      return this.componentVersion.getPathSequence();
+   }
+
+   /**
+    * Gets the path property.
+    *
+    * @return the path property
+    */
+   public SimpleStringProperty getPathProperty() {
+      lazyLoad();
+      return this.pathSSP;
+   }
+
+   /**
+    * Gets the path UUID.
+    *
     * @return the pathUUID
     */
    public UUID getPathUUID() {
       lazyLoad();
-      return pathUUID;
-   }
-
-   public SimpleStringProperty getStatusProperty() {
-      lazyLoad();
-      return statusSSP;
+      return this.pathUUID;
    }
 
    /**
+    * Gets the status property.
+    *
+    * @return the status property
+    */
+   public SimpleStringProperty getStatusProperty() {
+      lazyLoad();
+      return this.statusSSP;
+   }
+
+   /**
+    * Gets the time.
+    *
     * @return the creationDate
     */
    public long getTime() {
-      return componentVersion_.getTime();
+      return this.componentVersion.getTime();
    }
 
+   /**
+    * Gets the time property.
+    *
+    * @return the time property
+    */
    public SimpleStringProperty getTimeProperty() {
       lazyLoad();
-      return timeSSP;
+      return this.timeSSP;
    }
 }
 

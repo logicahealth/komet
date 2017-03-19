@@ -51,17 +51,22 @@ import javafx.util.Pair;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.SystemStatusService;
-
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class SystemStatusProvider.
+ */
 @Service
 public class SystemStatusProvider
          implements SystemStatusService {
+   /** The configuration failures. */
    private List<Pair<String, Exception>> configurationFailures = null;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new system status provider.
+    */
    private SystemStatusProvider() {
       // for HK2
    }
@@ -69,26 +74,32 @@ public class SystemStatusProvider
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Notify service configuration failure.
+    *
+    * @param serviceName the service name
+    * @param failureDetails the failure details
     * @see sh.isaac.api.SystemStatusService#notifyServiceConfigurationFailure(java.lang.String, java.lang.Exception)
     */
    @Override
    public void notifyServiceConfigurationFailure(String serviceName, Exception failureDetails) {
-      if (configurationFailures == null) {
-         configurationFailures = new ArrayList<>();
+      if (this.configurationFailures == null) {
+         this.configurationFailures = new ArrayList<>();
       }
 
-      configurationFailures.add(new Pair<String, Exception>(serviceName, failureDetails));
+      this.configurationFailures.add(new Pair<>(serviceName, failureDetails));
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the service configuration failures.
     *
+    * @return the service configuration failures
     * @see sh.isaac.api.SystemStatusService#getServiceConfigurationFailures()
     */
    @Override
    public Optional<List<Pair<String, Exception>>> getServiceConfigurationFailures() {
-      return Optional.of(configurationFailures);
+      return Optional.of(this.configurationFailures);
    }
 }
 

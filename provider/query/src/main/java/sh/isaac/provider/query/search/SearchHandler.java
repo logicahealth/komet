@@ -61,7 +61,6 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.ObjectChronology;
@@ -73,6 +72,7 @@ import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.TaskCompleteCallback;
 import sh.isaac.api.util.UUIDUtil;
+import sh.isaac.MetaData;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
@@ -93,21 +93,23 @@ import sh.isaac.utility.Frills;
 
 //TODO need to rework these APIs to take in path info - so that the path for the search can easily be customized from the search GUI
 public class SearchHandler {
-   private static final Logger LOG                                = LoggerFactory.getLogger(SearchHandler.class);
-   private static Integer[]    descriptionSememeAssemblagesCache_ = null;
+   /** The Constant LOG. */
+   private static final Logger LOG = LoggerFactory.getLogger(SearchHandler.class);
+
+   /** The description sememe assemblages cache. */
+   private static Integer[] descriptionSememeAssemblagesCache = null;
 
    //~--- methods -------------------------------------------------------------
 
    /**
     * Calls {@link #descriptionSearch(String, int, boolean, TaskCompleteCallback, Integer, SearchResultsFilter, Comparator, boolean, Supplier)}
-    * passing false for prefixSearch, null for the taskID, null for the filter, null for the comparator
+    * passing false for prefixSearch, null for the taskID, null for the filter, null for the comparator.
+    *
     * @param query - The query string
     * @param resultLimit - limit to X results.  Use {@link Integer#MAX_VALUE} for no limit.
     * @param operationToRunWhenSearchComplete - (optional) Pass the function that you want to have executed when the search is complete and the results
     * are ready for use.  Note that this function will also be executed in the background thread.
-    * @param mergeOnConcepts - If true, when multiple description objects within the same concept match the search, this will be returned
-    *   as a single result representing the concept - with each matching string listed, and the score being the best score of any of the
-    *   matching strings.  When false, you will get one search result per description match - so concepts can be returned multiple times.
+    * @param mergeResultsOnConcepts the merge results on concepts
     * @param includeOffPathResults - true to give back results for all hits (which may have unresolvable concepts) or false to filter those
     *   out that are not on THE CURRENT COORDINATE configuration
     * @return A handle to the running search.
@@ -178,118 +180,121 @@ public class SearchHandler {
       final String localQuery = query;
 
       // Do search in background.
-      Runnable r = new Runnable() {
-         @Override
-         public void run() {
-            List<CompositeSearchResult> initialSearchResults = new ArrayList<>();
+      final Runnable r = () -> {
+                            final List<CompositeSearchResult> initialSearchResults = new ArrayList<>();
 
-            try {
-               if (localQuery.length() > 0) {
-                  // If search query is an ID, look up concept and add the result.
-                  if (UUIDUtil.isUUID(localQuery) || NumericUtils.isLong(localQuery)) {
-                     Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> temp =
-                        Frills.getConceptForUnknownIdentifier(localQuery);
+                            try {
+                               if (localQuery.length() > 0) {
+                                  // If search query is an ID, look up concept and add the result.
+                                  if (UUIDUtil.isUUID(localQuery) || NumericUtils.isLong(localQuery)) {
+                                     final Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> temp =
+                                        Frills.getConceptForUnknownIdentifier(localQuery);
 
-                     if (temp.isPresent()) {
-                        CompositeSearchResult gsr = new CompositeSearchResult(temp.get(), 2.0f);
+                                     if (temp.isPresent()) {
+                                        final CompositeSearchResult gsr = new CompositeSearchResult(temp.get(), 2.0f);
 
-                        initialSearchResults.add(gsr);
-                     }
-                  }
+                                        initialSearchResults.add(gsr);
+                                     }
+                                  }
 
-                  LOG.debug("Lucene Search: '" + localQuery + "'");
+                                  LOG.debug("Lucene Search: '" + localQuery + "'");
 
-                  DescriptionIndexer descriptionIndexer = LookupService.getService(DescriptionIndexer.class);
+                                  final DescriptionIndexer descriptionIndexer =
+                                     LookupService.getService(DescriptionIndexer.class);
 
-                  if (descriptionIndexer == null) {
-                     LOG.warn("No description indexer found, aborting.");
-                     searchHandle.setError(new Exception("No description indexer available, cannot search"));
-                  } else {
-                     // Look for description matches.
-                     List<SearchResult> searchResults = searchFunction.apply(descriptionIndexer, localQuery);
-                     final int          resultCount   = searchResults.size();
+                                  if (descriptionIndexer == null) {
+                                     LOG.warn("No description indexer found, aborting.");
+                                     searchHandle.setError(
+                                         new Exception("No description indexer available, cannot search"));
+                                  } else {
+                                     // Look for description matches.
+                                     final List<SearchResult> searchResults = searchFunction.apply(descriptionIndexer,
+                                                                                                   localQuery);
+                                     final int resultCount = searchResults.size();
 
-                     LOG.debug(resultCount + " results");
+                                     LOG.debug(resultCount + " results");
 
-                     if (resultCount > 0) {
-                        // Compute the max score of all results.
-                        float maxScore = 0.0f;
+                                     if (resultCount > 0) {
+                                        // Compute the max score of all results.
+                                        float maxScore = 0.0f;
 
-                        for (SearchResult searchResult: searchResults) {
-                           float score = searchResult.getScore();
+                                        for (final SearchResult searchResult1: searchResults) {
+                                           final float score = searchResult1.getScore();
 
-                           if (score > maxScore) {
-                              maxScore = score;
-                           }
-                        }
+                                           if (score > maxScore) {
+                                              maxScore = score;
+                                           }
+                                        }
 
-                        for (SearchResult searchResult: searchResults) {
-                           // Abort if search has been cancelled.
-                           if (searchHandle.isCancelled()) {
-                              break;
-                           }
+                                        for (final SearchResult searchResult2: searchResults) {
+                                           // Abort if search has been cancelled.
+                                           if (searchHandle.isCancelled()) {
+                                              break;
+                                           }
 
-                           // Get the description object.
-                           Optional<? extends ObjectChronology<? extends StampedVersion>> io =
-                              Get.identifiedObjectService()
-                                 .getIdentifiedObjectChronology(searchResult.getNid());
+                                           // Get the description object.
+                                           final Optional<? extends ObjectChronology<? extends StampedVersion>> io =
+                                              Get.identifiedObjectService()
+                                                 .getIdentifiedObjectChronology(searchResult2.getNid());
 
-                           // normalize the scores between 0 and 1
-                           float                 normScore = (searchResult.getScore() / maxScore);
-                           CompositeSearchResult csr = (io.isPresent() ? new CompositeSearchResult(io.get(), normScore)
-                                 : new CompositeSearchResult(searchResult.getNid(), normScore));
+                                           // normalize the scores between 0 and 1
+                                           final float normScore = (searchResult2.getScore() / maxScore);
+                                           final CompositeSearchResult csr = (io.isPresent()
+                                                                              ? new CompositeSearchResult(io.get(),
+                                                                                    normScore)
+                              : new CompositeSearchResult(searchResult2.getNid(), normScore));
 
-                           initialSearchResults.add(csr);
+                                           initialSearchResults.add(csr);
 
-                           // add one to the scores when we are doing a prefix search, and it hits.
-                           if (prefixSearch &&
-                                 (csr.getBestScore() <= 1.0f) &&
-                                 io.isPresent() &&
-                                 (io.get() instanceof DescriptionSememe<?>)) {
-                              String matchingString = ((DescriptionSememe<?>) io.get()).getText();
-                              float  adjustValue    = 0f;
+                                           // add one to the scores when we are doing a prefix search, and it hits.
+                                           if (prefixSearch &&
+                                               (csr.getBestScore() <= 1.0f) &&
+                                               io.isPresent() &&
+                                               (io.get() instanceof DescriptionSememe<?>)) {
+                                              final String matchingString = ((DescriptionSememe<?>) io.get()).getText();
+                                              float        adjustValue    = 0f;
 
-                              if (matchingString.toLowerCase(Locale.ENGLISH)
-                                                .equals(localQuery.trim()
-                                                      .toLowerCase(Locale.ENGLISH))) {
-                                 // "exact match, bump by 2"
-                                 adjustValue = 2.0f;
-                              } else if (matchingString.toLowerCase(Locale.ENGLISH)
-                                                       .startsWith(localQuery.trim()
-                                                             .toLowerCase(Locale.ENGLISH))) {
-                                 // "add 1, plus a bit more boost based on the length of the matches (shorter matches get more boost)"
-                                 adjustValue = 1.0f +
-                                               (1.0f -
-                                                ((float) (matchingString.length() - localQuery.trim().length()) /
-                                                 (float) matchingString.length()));
-                              }
+                                              if (matchingString.toLowerCase(Locale.ENGLISH)
+                                                    .equals(localQuery.trim()
+                                                          .toLowerCase(Locale.ENGLISH))) {
+                                                 // "exact match, bump by 2"
+                                                 adjustValue = 2.0f;
+                                              } else if (matchingString.toLowerCase(Locale.ENGLISH)
+                                                    .startsWith(localQuery.trim()
+                                                          .toLowerCase(Locale.ENGLISH))) {
+                                                 // "add 1, plus a bit more boost based on the length of the matches (shorter matches get more boost)"
+                                                 adjustValue =
+                                                    1.0f +
+                                                    (1.0f -
+                                                     ((float) (matchingString.length() - localQuery.trim().length()) /
+                                                      (float) matchingString.length()));
+                                              }
 
-                              if (adjustValue > 0f) {
-                                 csr.adjustScore(csr.getBestScore() + adjustValue);
-                              }
-                           }
-                        }
-                     }
-                  }
-               }
+                                              if (adjustValue > 0f) {
+                                                 csr.adjustScore(csr.getBestScore() + adjustValue);
+                                              }
+                                           }
+                                        }
+                                     }
+                                  }
+                               }
 
-               // sort, filter and merge the results as necessary
-               processResults(searchHandle,
-                              initialSearchResults,
-                              filter,
-                              comparator,
-                              mergeOnConcepts,
-                              includeOffPathResults);
-            } catch (Exception ex) {
-               LOG.error("Unexpected error during lucene search", ex);
-               searchHandle.setError(ex);
-            }
+                               // sort, filter and merge the results as necessary
+                               processResults(searchHandle,
+                                              initialSearchResults,
+                                              filter,
+                                              comparator,
+                                              mergeOnConcepts,
+                                              includeOffPathResults);
+                            } catch (final Exception ex) {
+                               LOG.error("Unexpected error during lucene search", ex);
+                               searchHandle.setError(ex);
+                            }
 
-            if (operationToRunWhenSearchComplete != null) {
-               operationToRunWhenSearchComplete.accept(searchHandle);
-            }
-         }
-      };
+                            if (operationToRunWhenSearchComplete != null) {
+                               operationToRunWhenSearchComplete.accept(searchHandle);
+                            }
+                         };
 
       Get.workExecutors()
          .getExecutor()
@@ -339,7 +344,7 @@ public class SearchHandler {
                                            getDescriptionSememeAssemblages(),
                                            resultLimit,
                                            Long.MIN_VALUE);
-                                  } catch (Exception e) {
+                                  } catch (final Exception e) {
                                      throw new RuntimeException(e);
                                   }
                                },
@@ -392,7 +397,7 @@ public class SearchHandler {
                                (index, queryString) -> {
                                   try {
                                      return index.query(queryString, descriptionType, resultLimit, Long.MIN_VALUE);
-                                  } catch (Exception e) {
+                                  } catch (final Exception e) {
                                      throw new RuntimeException(e);
                                   }
                                },
@@ -449,7 +454,7 @@ public class SearchHandler {
                                            extendedDescriptionType,
                                            resultLimit,
                                            Long.MIN_VALUE);
-                                  } catch (Exception e) {
+                                  } catch (final Exception e) {
                                      throw new RuntimeException(e);
                                   }
                                },
@@ -496,40 +501,37 @@ public class SearchHandler {
       final SearchHandle searchHandle = new SearchHandle(taskId);
 
       // Do search in background.
-      Runnable r = new Runnable() {
-         @Override
-         public void run() {
-            try {
-               List<CompositeSearchResult> initialSearchResults = new ArrayList<>();
-               SememeIndexer               refexIndexer         = LookupService.getService(SememeIndexer.class);
+      final Runnable r = () -> {
+                            try {
+                               List<CompositeSearchResult> initialSearchResults = new ArrayList<>();
+                               final SememeIndexer         refexIndexer = LookupService.getService(SememeIndexer.class);
 
-               if (refexIndexer == null) {
-                  LOG.warn("No sememe indexer found, aborting.");
-                  searchHandle.setError(new Exception("No sememe indexer available, cannot search"));
-               } else {
-                  List<SearchResult> searchResults = searchFunction.apply(refexIndexer);
+                               if (refexIndexer == null) {
+                                  LOG.warn("No sememe indexer found, aborting.");
+                                  searchHandle.setError(new Exception("No sememe indexer available, cannot search"));
+                               } else {
+                                  final List<SearchResult> searchResults = searchFunction.apply(refexIndexer);
 
-                  LOG.debug(searchResults.size() + " results");
-                  initialSearchResults = normalizeScores(searchResults, searchHandle);
-               }
+                                  LOG.debug(searchResults.size() + " results");
+                                  initialSearchResults = normalizeScores(searchResults, searchHandle);
+                               }
 
-               // sort, filter and merge the results as necessary
-               processResults(searchHandle,
-                              initialSearchResults,
-                              filter,
-                              comparator,
-                              mergeOnConcepts,
-                              includeOffPathResults);
-            } catch (Exception ex) {
-               LOG.error("Unexpected error during lucene search", ex);
-               searchHandle.setError(ex);
-            }
+                               // sort, filter and merge the results as necessary
+                               processResults(searchHandle,
+                                              initialSearchResults,
+                                              filter,
+                                              comparator,
+                                              mergeOnConcepts,
+                                              includeOffPathResults);
+                            } catch (final Exception ex) {
+                               LOG.error("Unexpected error during lucene search", ex);
+                               searchHandle.setError(ex);
+                            }
 
-            if (operationToRunWhenSearchComplete != null) {
-               operationToRunWhenSearchComplete.accept(searchHandle);
-            }
-         }
-      };
+                            if (operationToRunWhenSearchComplete != null) {
+                               operationToRunWhenSearchComplete.accept(searchHandle);
+                            }
+                         };
 
       Get.workExecutors()
          .getExecutor()
@@ -577,7 +579,7 @@ public class SearchHandler {
                   : new Integer[] { assemblageNid }),
                                       resultLimit,
                                       Long.MIN_VALUE);
-                             } catch (Exception e) {
+                             } catch (final Exception e) {
                                 throw new RuntimeException(e);
                              }
                           },
@@ -589,36 +591,43 @@ public class SearchHandler {
                           includeOffPathResults);
    }
 
+   /**
+    * Normalize scores.
+    *
+    * @param searchResults the search results
+    * @param searchHandle the search handle
+    * @return the list
+    */
    private static List<CompositeSearchResult> normalizeScores(List<SearchResult> searchResults,
          SearchHandle searchHandle) {
-      List<CompositeSearchResult> initialSearchResults = new ArrayList<>();
+      final List<CompositeSearchResult> initialSearchResults = new ArrayList<>();
 
       if (searchResults.size() > 0) {
          // Compute the max score of all results.
          float maxScore = 0.0f;
 
-         for (SearchResult searchResult: searchResults) {
-            float score = searchResult.getScore();
+         for (final SearchResult searchResult: searchResults) {
+            final float score = searchResult.getScore();
 
             if (score > maxScore) {
                maxScore = score;
             }
          }
 
-         for (SearchResult searchResult: searchResults) {
+         for (final SearchResult searchResult: searchResults) {
             // Abort if search has been cancelled.
             if (searchHandle.isCancelled()) {
                break;
             }
 
             // Get the match object.
-            Optional<? extends ObjectChronology<? extends StampedVersion>> io = Get.identifiedObjectService()
-                                                                                   .getIdentifiedObjectChronology(
-                                                                                      searchResult.getNid());
+            final Optional<? extends ObjectChronology<? extends StampedVersion>> io = Get.identifiedObjectService()
+                                                                                         .getIdentifiedObjectChronology(
+                                                                                            searchResult.getNid());
 
             // normalize the scores between 0 and 1
-            float                 normScore = (searchResult.getScore() / maxScore);
-            CompositeSearchResult csr       = (io.isPresent() ? new CompositeSearchResult(io.get(), normScore)
+            final float                 normScore = (searchResult.getScore() / maxScore);
+            final CompositeSearchResult csr       = (io.isPresent() ? new CompositeSearchResult(io.get(), normScore)
                   : new CompositeSearchResult(searchResult.getNid(), normScore));
 
             initialSearchResults.add(csr);
@@ -628,6 +637,17 @@ public class SearchHandler {
       return initialSearchResults;
    }
 
+   /**
+    * Process results.
+    *
+    * @param searchHandle the search handle
+    * @param rawResults the raw results
+    * @param filter the filter
+    * @param comparator the comparator
+    * @param mergeOnConcepts the merge on concepts
+    * @param includeOffPathResults the include off path results
+    * @throws SearchResultsFilterException the search results filter exception
+    */
    private static void processResults(SearchHandle searchHandle,
                                       List<CompositeSearchResult> rawResults,
                                       final Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter,
@@ -647,7 +667,7 @@ public class SearchHandler {
          rawResults = new Function<List<CompositeSearchResult>, List<CompositeSearchResult>>() {
             @Override
             public List<CompositeSearchResult> apply(List<CompositeSearchResult> t) {
-               Iterator<CompositeSearchResult> it = t.iterator();
+               final Iterator<CompositeSearchResult> it = t.iterator();
 
                while (it.hasNext()) {
                   if (!it.next()
@@ -664,19 +684,19 @@ public class SearchHandler {
       }
 
       if (mergeOnConcepts) {
-         Hashtable<Integer, CompositeSearchResult> merged      = new Hashtable<>();
-         ArrayList<CompositeSearchResult>          unmergeable = new ArrayList<>();
+         final Hashtable<Integer, CompositeSearchResult> merged      = new Hashtable<>();
+         final ArrayList<CompositeSearchResult>          unmergeable = new ArrayList<>();
 
-         for (CompositeSearchResult csr: rawResults) {
+         for (final CompositeSearchResult csr: rawResults) {
             if (!csr.getContainingConcept()
                     .isPresent()) {
                unmergeable.add(csr);
                continue;
             }
 
-            CompositeSearchResult found = merged.get(csr.getContainingConcept()
-                                                        .get()
-                                                        .getNid());
+            final CompositeSearchResult found = merged.get(csr.getContainingConcept()
+                                                              .get()
+                                                              .getNid());
 
             if (found == null) {
                merged.put(csr.getContainingConcept()
@@ -699,17 +719,23 @@ public class SearchHandler {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the description sememe assemblages.
+    *
+    * @return the description sememe assemblages
+    */
    private static Integer[] getDescriptionSememeAssemblages() {
-      if (descriptionSememeAssemblagesCache_ == null) {
-         Set<Integer> descSememes = Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_ASSEMBLAGE.getConceptSequence(),
-                                                                   true,
-                                                                   false);
+      if (descriptionSememeAssemblagesCache == null) {
+         final Set<Integer> descSememes =
+            Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_ASSEMBLAGE.getConceptSequence(),
+                                           true,
+                                           false);
 
          descSememes.add(MetaData.DESCRIPTION_ASSEMBLAGE.getConceptSequence());
-         descriptionSememeAssemblagesCache_ = descSememes.toArray(new Integer[descSememes.size()]);
+         descriptionSememeAssemblagesCache = descSememes.toArray(new Integer[descSememes.size()]);
       }
 
-      return descriptionSememeAssemblagesCache_;
+      return descriptionSememeAssemblagesCache;
    }
 }
 

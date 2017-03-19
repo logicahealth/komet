@@ -62,30 +62,58 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
  */
 public class DynamicSememeColumnInfo
          implements Comparable<DynamicSememeColumnInfo> {
-   private UUID             columnDescriptionConceptUUID_;
-   private transient String columnName_;
-   private transient String columnDescription_;
-   private transient Boolean indexColumn_;  // This is not populated by default, nor is it stored.  Typically used to pass data from a constant, rather
+   /** The column description concept UUI D. */
+   private UUID columnDescriptionConceptUUID;
+
+   /** The column name. */
+   private transient String columnName;
+
+   /** The column description. */
+   private transient String columnDescription;
+
+   /** The index column. */
+   private transient Boolean indexColumn;  // This is not populated by default, nor is it stored.  Typically used to pass data from a constant, rather
+
+   /** The column order. */
 
    // than run-time lookup of the index configuration.
-   private int                          columnOrder_;
-   private UUID                         assemblageConcept_;
-   private DynamicSememeDataType        columnDataType_;
-   private DynamicSememeData            defaultData_;
-   private boolean                      columnRequired_;
-   private DynamicSememeValidatorType[] validatorType_;
-   private DynamicSememeData[]          validatorData_;
+   private int columnOrder;
+
+   /** The assemblage concept. */
+   private UUID assemblageConcept;
+
+   /** The column data type. */
+   private DynamicSememeDataType columnDataType;
+
+   /** The default data. */
+   private DynamicSememeData defaultData;
+
+   /** The column required. */
+   private boolean columnRequired;
+
+   /** The validator type. */
+   private DynamicSememeValidatorType[] validatorType;
+
+   /** The validator data. */
+   private DynamicSememeData[] validatorData;
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Useful for building up a new one step by step
+    * Useful for building up a new one step by step.
     */
    public DynamicSememeColumnInfo() {}
 
    /**
     * calls {@link #DynamicSememeColumnInfo(UUID, int, UUID, DynamicSememeDataType, DynamicSememeDataBI, Boolean, DynamicSememeValidatorType[], DynamicSememeDataBI[])
-    * with a null assemblage concept, null validator info
+    * with a null assemblage concept, null validator info.
+    *
+    * @param columnOrder the column order
+    * @param columnDescriptionConcept the column description concept
+    * @param columnDataType the column data type
+    * @param defaultData the default data
+    * @param columnRequired the column required
+    * @param index the index
     */
    public DynamicSememeColumnInfo(int columnOrder,
                                   UUID columnDescriptionConcept,
@@ -98,7 +126,16 @@ public class DynamicSememeColumnInfo
 
    /**
     * calls {@link #DynamicSememeColumnInfo(UUID, int, UUID, DynamicSememeDataType, DynamicSememeDataBI, Boolean, DynamicSememeValidatorType[], DynamicSememeDataBI[])
-    * with a null assemblage concept, and a single array item for the validator info
+    * with a null assemblage concept, and a single array item for the validator info.
+    *
+    * @param columnOrder the column order
+    * @param columnDescriptionConcept the column description concept
+    * @param columnDataType the column data type
+    * @param defaultData the default data
+    * @param columnRequired the column required
+    * @param validatorType the validator type
+    * @param validatorData the validator data
+    * @param index the index
     */
    public DynamicSememeColumnInfo(int columnOrder,
                                   UUID columnDescriptionConcept,
@@ -123,7 +160,16 @@ public class DynamicSememeColumnInfo
 
    /**
     * calls {@link #DynamicSememeColumnInfo(UUID, int, UUID, DynamicSememeDataType, DynamicSememeDataBI, Boolean, DynamicSememeValidatorType, DynamicSememeDataBI)
-    * with a null assemblage concept
+    * with a null assemblage concept.
+    *
+    * @param columnOrder the column order
+    * @param columnDescriptionConcept the column description concept
+    * @param columnDataType the column data type
+    * @param defaultData the default data
+    * @param columnRequired the column required
+    * @param validatorType the validator type
+    * @param validatorData the validator data
+    * @param index the index
     */
    public DynamicSememeColumnInfo(int columnOrder,
                                   UUID columnDescriptionConcept,
@@ -173,19 +219,26 @@ public class DynamicSememeColumnInfo
                                   DynamicSememeValidatorType[] validatorType,
                                   DynamicSememeData[] validatorData,
                                   Boolean index) {
-      assemblageConcept_            = assemblageConcept;
-      columnOrder_                  = columnOrder;
-      columnDescriptionConceptUUID_ = columnDescriptionConcept;
-      columnDataType_               = columnDataType;
-      defaultData_                  = defaultData;
-      columnRequired_               = ((columnRequired == null) ? false
+      this.assemblageConcept            = assemblageConcept;
+      this.columnOrder                  = columnOrder;
+      this.columnDescriptionConceptUUID = columnDescriptionConcept;
+      this.columnDataType               = columnDataType;
+      this.defaultData                  = defaultData;
+      this.columnRequired               = ((columnRequired == null) ? false
             : columnRequired);
-      validatorType_                = validatorType;
-      validatorData_                = validatorData;
-      indexColumn_                  = index;
+      this.validatorType                = validatorType;
+      this.validatorData                = validatorData;
+      this.indexColumn                  = index;
    }
 
    //~--- methods -------------------------------------------------------------
+
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
 
    /*
     * @see java.lang.Comparable#compareTo(java.lang.Object)
@@ -195,173 +248,209 @@ public class DynamicSememeColumnInfo
       return Integer.compare(this.getColumnOrder(), o.getColumnOrder());
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "DynamicSememeColumnInfo [columnName_=" + columnName_ + ", columnDescription_=" + columnDescription_ +
-             ", columnOrder_=" + columnOrder_ + ", assemblageConcept_=" + assemblageConcept_ + ", columnDataType_=" +
-             columnDataType_ + ", defaultData_=" + defaultData_ + ", columnRequired_=" + columnRequired_ +
-             ", validatorType_=" + Arrays.toString(validatorType_) + ", validatorData_=" +
-             Arrays.toString(validatorData_) + "]";
+      return "DynamicSememeColumnInfo [columnName_=" + this.columnName + ", columnDescription_=" +
+             this.columnDescription + ", columnOrder_=" + this.columnOrder + ", assemblageConcept_=" +
+             this.assemblageConcept + ", columnDataType_=" + this.columnDataType + ", defaultData_=" +
+             this.defaultData + ", columnRequired_=" + this.columnRequired + ", validatorType_=" +
+             Arrays.toString(this.validatorType) + ", validatorData_=" + Arrays.toString(this.validatorData) + "]";
    }
 
+   /**
+    * Read.
+    */
    private void read() {
-      DynamicSememeColumnUtility util = LookupService.get()
-                                                     .getService(DynamicSememeColumnUtility.class);
+      final DynamicSememeColumnUtility util = LookupService.get()
+                                                           .getService(DynamicSememeColumnUtility.class);
 
       if (util == null) {
-         columnName_        = "Unable to locate reader!";
-         columnDescription_ = "Unable to locate reader!";
+         this.columnName        = "Unable to locate reader!";
+         this.columnDescription = "Unable to locate reader!";
       } else {
-         String[] temp = util.readDynamicSememeColumnNameDescription(columnDescriptionConceptUUID_);
+         final String[] temp = util.readDynamicSememeColumnNameDescription(this.columnDescriptionConceptUUID);
 
-         columnName_        = temp[0];
-         columnDescription_ = temp[1];
+         this.columnName        = temp[0];
+         this.columnDescription = temp[1];
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the assemblage concept.
+    *
     * @return the UUID of the assemblage concept that this column data was read from
     * or null in the case where this column is not yet associated with an assemblage.
     */
    public UUID getAssemblageConcept() {
-      return assemblageConcept_;
+      return this.assemblageConcept;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the assemblage concept.
+    *
     * @param assemblageConcept - the assemblage concept that this was read from (or null, if not yet part of an assemblage)
     */
    public void setAssemblageConcept(UUID assemblageConcept) {
-      assemblageConcept_ = assemblageConcept;
+      this.assemblageConcept = assemblageConcept;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the column data type.
+    *
     * @return The defined data type for this column of the sememe.  Note that this value will be identical to the {@link DynamicSememeDataType}
     * returned by {@link DynamicSememeData} EXCEPT for cases where this returns {@link DynamicSememeDataType#POLYMORPHIC}.  In those cases, the
     * data type can only be determined by examining the actual member data in {@link DynamicSememeData}
     */
    public DynamicSememeDataType getColumnDataType() {
-      return columnDataType_;
+      return this.columnDataType;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the column data type.
+    *
     * @param columnDataType - the data type as defined in the assemblage concept
     */
    public void setColumnDataType(DynamicSememeDataType columnDataType) {
-      columnDataType_ = columnDataType;
+      this.columnDataType = columnDataType;
    }
 
    /**
+    * Sets the column default data.
+    *
     * @param defaultData - The type of this Object must align with the data type specified in columnDataType.  For example,
     * if columnDataType is set to {@link DynamicSememeDataType#FLOAT} then this field must be a {@link DynamicSememeFloat}.
     */
    public void setColumnDefaultData(DynamicSememeData defaultData) {
-      defaultData_ = defaultData;
+      this.defaultData = defaultData;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the column description.
+    *
     * @return The user-friendly description of this column of data.  To be used by GUIs to provide a more detailed explanation of
     * the type of data found in this column.
     */
    public String getColumnDescription() {
-      if (columnDescription_ == null) {
+      if (this.columnDescription == null) {
          read();
       }
 
-      return columnDescription_;
+      return this.columnDescription;
    }
 
    /**
+    * Gets the column description concept.
+    *
     * @return The UUID of the concept where the columnName and columnDescription were read from.
     */
    public UUID getColumnDescriptionConcept() {
-      return columnDescriptionConceptUUID_;
+      return this.columnDescriptionConceptUUID;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the column description concept.
+    *
     * @param columnDescriptionConcept - The concept where columnName and columnDescription should be read from
     */
    public void setColumnDescriptionConcept(UUID columnDescriptionConcept) {
-      columnDescriptionConceptUUID_ = columnDescriptionConcept;
-      columnName_                   = null;
-      columnDescription_            = null;
+      this.columnDescriptionConceptUUID = columnDescriptionConcept;
+      this.columnName                   = null;
+      this.columnDescription            = null;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the column name.
+    *
     * @return The user-friendly name of this column of data.  To be used by GUIs to label the data in this column.
     */
    public String getColumnName() {
-      if (columnName_ == null) {
+      if (this.columnName == null) {
          read();
       }
 
-      return columnName_;
+      return this.columnName;
    }
 
    /**
+    * Gets the column order.
+    *
     * @return Defined the order in which the data columns will be stored, so that the column name / description can be aligned
     * with the {@link DynamicSememeData} columns in the {@link DynamicSememeVersionBI#getData(int)}.
     *
     * Note, this value is 0 indexed (It doesn't start at 1)
     */
    public int getColumnOrder() {
-      return columnOrder_;
+      return this.columnOrder;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the column order.
+    *
     * @param columnOrder - the column order as defined in the assemblage concept
     */
    public void setColumnOrder(int columnOrder) {
-      columnOrder_ = columnOrder;
+      this.columnOrder = columnOrder;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Checks if column required.
+    *
     * @return When creating this refex, must this column be provided?
     */
    public boolean isColumnRequired() {
-      return columnRequired_;
+      return this.columnRequired;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the column required.
+    *
     * @param columnRequired - Is this column required when creating an instance of the sememe?  True for yes, false or null for no.
     */
    public void setColumnRequired(boolean columnRequired) {
-      columnRequired_ = columnRequired;
+      this.columnRequired = columnRequired;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the default column value.
+    *
     * @return the default value to use for this column, if no value is specified in a refex that is created using this column info
     */
    public DynamicSememeData getDefaultColumnValue() {
       // Handle folks sending empty strings gracefully
-      if ((defaultData_ != null) &&
-            (defaultData_ instanceof DynamicSememeString) &&
-            ((DynamicSememeString) defaultData_).getDataString().length() == 0) {
+      if ((this.defaultData != null) &&
+            (this.defaultData instanceof DynamicSememeString) &&
+            ((DynamicSememeString) this.defaultData).getDataString().length() == 0) {
          return null;
       }
 
-      return defaultData_;
+      return this.defaultData;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -369,9 +458,11 @@ public class DynamicSememeColumnInfo
    /**
     * This is typically used in the metadata code to pass in the initial index configuration for a column.  It has no impact on
     * the actual config at runtime, in a running system.
+    *
+    * @param indexColumn the new default index config
     */
    public void setDefaultIndexConfig(boolean indexColumn) {
-      indexColumn_ = indexColumn;
+      this.indexColumn = indexColumn;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -379,45 +470,54 @@ public class DynamicSememeColumnInfo
    /**
     * Return true, if this column is currently configured for indexing, otherwise false.  Note, this is not currently implemented runtime usage
     * and will instead throw an UnsupportedOperationException.  This is only used in the construction of metadata concepts.
+    *
+    * @return the index config
     */
    public boolean getIndexConfig() {
-      if (indexColumn_ == null) {
+      if (this.indexColumn == null) {
          throw new UnsupportedOperationException(
              "Convenience method to read current index config from lucene indexer not yet implemented");
       } else {
-         return indexColumn_;
+         return this.indexColumn;
       }
    }
 
    /**
+    * Gets the validator.
+    *
     * @return The type of the validator(s) (if any) which must be used to validate user data before accepting the refex
     */
    public DynamicSememeValidatorType[] getValidator() {
-      return validatorType_;
+      return this.validatorType;
    }
 
    /**
-    * @param validatorData - The data required to execute the validatorType specified.  The format and type of this will depend on the
-    * validatorType field.  See {@link DynamicSememeValidatorType} for details on the valid data for this field.  Should be null when validatorType is null.
+    * Gets the validator data.
+    *
+    * @return the validator data
     */
    public DynamicSememeData[] getValidatorData() {
-      return validatorData_;
+      return this.validatorData;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * @param validatorType - The Validator(s) to use when creating an instance of this Refex.  Null for no validator
+    * Sets the validator data.
+    *
+    * @param validatorData the new validator data
     */
    public void setValidatorData(DynamicSememeData[] validatorData) {
-      validatorData_ = validatorData;
+      this.validatorData = validatorData;
    }
 
    /**
+    * Sets the validator type.
+    *
     * @param validatorType - The Validator(s) to use when creating an instance of this sememe.  Null for no validator
     */
    public void setValidatorType(DynamicSememeValidatorType[] validatorType) {
-      validatorType_ = validatorType;
+      this.validatorType = validatorType;
    }
 }
 

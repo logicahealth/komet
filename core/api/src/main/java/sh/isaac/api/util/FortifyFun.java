@@ -48,7 +48,7 @@ import java.lang.reflect.Method;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link FortifyFun}
+ * {@link FortifyFun}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
@@ -57,16 +57,19 @@ public class FortifyFun {
     * This hatchet job is to work around the fact that Fortify won't let us use the setAccessible method, and
     * we can't deploy without fortify being happy.
     * This does the equivalent of {@link Field#setAccessible(true)}
+    *
+    * @param o the o
+    * @throws SecurityException the security exception
     */
    public static void fixAccessible(AccessibleObject o)
             throws SecurityException {
       // o.setAccessible(true);
       try {
-         Method m = o.getClass()
-                     .getMethod("setAccessible", boolean.class);
+         final Method m = o.getClass()
+                           .getMethod("setAccessible", boolean.class);
 
          m.invoke(o, true);
-      } catch (SecurityException e) {
+      } catch (final SecurityException e) {
          throw e;
       } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException
                | InvocationTargetException e) {

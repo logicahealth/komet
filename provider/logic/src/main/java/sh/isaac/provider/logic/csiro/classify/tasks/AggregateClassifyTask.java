@@ -52,11 +52,18 @@ import sh.isaac.api.task.SequentialAggregateTask;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class AggregateClassifyTask.
  *
  * @author kec
  */
 public class AggregateClassifyTask
         extends SequentialAggregateTask<ClassifierResults> {
+   /**
+    * Instantiates a new aggregate classify task.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param logicCoordinate the logic coordinate
+    */
    private AggregateClassifyTask(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
       super("Classify",
             new Task[] { new ExtractAxioms(stampCoordinate,
@@ -68,13 +75,14 @@ public class AggregateClassifyTask
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the.
     *
-    * @param stampCoordinate
-    * @param logicCoordinate
+    * @param stampCoordinate the stamp coordinate
+    * @param logicCoordinate the logic coordinate
     * @return an {@code AggregateClassifyTask} already submitted to an executor.
     */
    public static AggregateClassifyTask get(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
-      AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampCoordinate, logicCoordinate);
+      final AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampCoordinate, logicCoordinate);
 
       Get.activeTasks()
          .add(classifyTask);

@@ -56,12 +56,14 @@ public interface OchreExternalizable {
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data format version.
     *
     * @return the data format version
     */
    byte getDataFormatVersion();
 
    /**
+    * Gets the ochre object type.
     *
     * @return the type of the object.
     */

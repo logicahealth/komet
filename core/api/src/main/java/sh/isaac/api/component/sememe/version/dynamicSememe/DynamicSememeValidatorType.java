@@ -58,8 +58,15 @@ import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.*;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeDouble;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeFloat;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeLong;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeNid;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeSequence;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
+import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUID;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.util.Interval;
@@ -110,57 +117,104 @@ import sh.isaac.api.util.NumericUtils;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public enum DynamicSememeValidatorType {
+   /** The less than. */
    LESS_THAN("<"),
+
+   /** The greater than. */
    GREATER_THAN(">"),
+
+   /** The less than or equal. */
    LESS_THAN_OR_EQUAL("<="),
-   GREATER_THAN_OR_EQUAL(">="),   // Standard math stuff
-   INTERVAL("Interval"),          // math interval notation - such as [5,10)
-   REGEXP("Regular Expression"),  // http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html
-   EXTERNAL("External"),          // see class docs above - implemented by an ExternalValidatorBI
-   IS_CHILD_OF(
-      "Is Child Of"),             // OTF is child of - which only includes immediate (not recursive) children on the 'Is A' relationship.
-   IS_KIND_OF(
-      "Is Kind Of"),  // OTF kind of - which is child of - but recursive, and self (heart disease is a kind-of heart disease);
-   COMPONENT_TYPE("Component Type Restriction"),  // specify which type of nid can be put into a UUID or nid column
+
+   /** The greater than or equal. */
+   GREATER_THAN_OR_EQUAL(">="),
+
+   /** The interval. */
+
+   // Standard math stuff
+   INTERVAL("Interval"),
+
+   /** The regexp. */
+
+   // math interval notation - such as [5,10)
+   REGEXP("Regular Expression"),
+
+   /** The external. */
+
+   // http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html
+   EXTERNAL("External"),
+
+   /** The is child of. */
+
+   // see class docs above - implemented by an ExternalValidatorBI
+   IS_CHILD_OF("Is Child Of"),
+
+   /** The is kind of. */
+
+   // OTF is child of - which only includes immediate (not recursive) children on the 'Is A' relationship.
+   IS_KIND_OF("Is Kind Of"),
+
+   /** The component type. */
+
+   // OTF kind of - which is child of - but recursive, and self (heart disease is a kind-of heart disease);
+   COMPONENT_TYPE("Component Type Restriction"),
+
+   /** The unknown. */
+
+   // specify which type of nid can be put into a UUID or nid column
    UNKNOWN(
       "Unknown");  // Not a real validator, only exists to allow GUI convenience, or potentially store other validator data that we don't support in OTF
 
    // but we may need to store / retreive
 
-   private static Logger logger = Logger.getLogger(DynamicSememeValidatorType.class.getName());
+   /** The logger. */
+   private static final Logger logger = Logger.getLogger(DynamicSememeValidatorType.class.getName());
 
    //~--- fields --------------------------------------------------------------
 
-   private String displayName_;
+   /** The display name. */
+   private final String displayName;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe validator type.
+    *
+    * @param displayName the display name
+    */
    private DynamicSememeValidatorType(String displayName) {
-      displayName_ = displayName;
+      this.displayName = displayName;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Parses the.
+    *
+    * @param nameOrEnumId the name or enum id
+    * @param exceptionOnParseFail the exception on parse fail
+    * @return the dynamic sememe validator type
+    */
    public static DynamicSememeValidatorType parse(String nameOrEnumId, boolean exceptionOnParseFail) {
       if (nameOrEnumId == null) {
          return null;
       }
 
-      String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH)
-                                 .trim();
+      final String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH)
+                                       .trim();
 
       if (StringUtils.isBlank(clean)) {
          return null;
       }
 
       try {
-         int i = Integer.parseInt(clean);
+         final int i = Integer.parseInt(clean);
 
          // enumId
          return DynamicSememeValidatorType.values()[i];
-      } catch (NumberFormatException e) {
-         for (DynamicSememeValidatorType x: DynamicSememeValidatorType.values()) {
-            if (x.displayName_.equalsIgnoreCase(clean) || x.name().toLowerCase().equals(clean)) {
+      } catch (final NumberFormatException e) {
+         for (final DynamicSememeValidatorType x: DynamicSememeValidatorType.values()) {
+            if (x.displayName.equalsIgnoreCase(clean) || x.name().toLowerCase().equals(clean)) {
                return x;
             }
          }
@@ -174,12 +228,19 @@ public enum DynamicSememeValidatorType {
       }
    }
 
+   /**
+    * Parses the.
+    *
+    * @param nameOrEnumId the name or enum id
+    * @param exceptionOnParseFail the exception on parse fail
+    * @return the dynamic sememe validator type[]
+    */
    public static DynamicSememeValidatorType[] parse(String[] nameOrEnumId, boolean exceptionOnParseFail) {
       if (nameOrEnumId == null) {
          return null;
       }
 
-      DynamicSememeValidatorType[] temp = new DynamicSememeValidatorType[nameOrEnumId.length];
+      final DynamicSememeValidatorType[] temp = new DynamicSememeValidatorType[nameOrEnumId.length];
 
       {
          for (int i = 0; i < nameOrEnumId.length; i++) {
@@ -193,13 +254,14 @@ public enum DynamicSememeValidatorType {
     * These are all defined from the perspective of the userData - so for passesValidator to return true -
     * userData must be LESS_THAN validatorDefinitionData, for example.
     *
-    * @param userData
-    * @param validatorDefinitionData
+    * @param userData the user data
+    * @param validatorDefinitionData the validator definition data
     * @param sc The Stamp Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
     *   {@link IllegalArgumentException} will be thrown if the coordinate was required for the validator (but it wasn't supplied)
     * @param tc The Taxonomy Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
     *    {@link IllegalArgumentException} will be thrown if the coordinate was required for the validator (but it wasn't supplied)
-    * @return
+    * @return true, if successful
+    * @throws IllegalArgumentException the illegal argument exception
     */
    @SuppressWarnings("unchecked")
    public boolean passesValidator(DynamicSememeData userData,
@@ -213,7 +275,7 @@ public enum DynamicSememeValidatorType {
 
       if (userData instanceof DynamicSememeArray) {
          // If the user data is an array, unwrap, and validate each.
-         for (DynamicSememeData userDataItem: ((DynamicSememeArray<?>) userData).getDataArray()) {
+         for (final DynamicSememeData userDataItem: ((DynamicSememeArray<?>) userData).getDataArray()) {
             if (!passesValidator(userDataItem, validatorDefinitionData, sc, tc)) {
                return false;
             }
@@ -259,7 +321,7 @@ public enum DynamicSememeValidatorType {
             return Pattern.matches(((DynamicSememeString) validatorDefinitionData).getDataString(),
                                    userData.getDataObject()
                                            .toString());
-         } catch (Exception e) {
+         } catch (final Exception e) {
             throw new RuntimeException("The specified validator data object was not a valid regular expression: " +
                                        e.getMessage());
          }
@@ -307,9 +369,9 @@ public enum DynamicSememeValidatorType {
                             .isKindOf(childId, parentId, tc);
                }
             }
-         } catch (IllegalArgumentException e) {
+         } catch (final IllegalArgumentException e) {
             throw e;
-         } catch (Exception e) {
+         } catch (final Exception e) {
             logger.log(Level.WARNING, "Failure executing validator", e);
             throw new RuntimeException("Failure executing validator", e);
          }
@@ -318,7 +380,7 @@ public enum DynamicSememeValidatorType {
             int nid;
 
             if (userData instanceof DynamicSememeUUID) {
-               DynamicSememeUUID uuid = (DynamicSememeUUID) userData;
+               final DynamicSememeUUID uuid = (DynamicSememeUUID) userData;
 
                if (!Get.identifierService()
                        .hasUuid(uuid.getDataUUID())) {
@@ -335,11 +397,11 @@ public enum DynamicSememeValidatorType {
             }
 
             // Position 0 tells us the ObjectChronologyType.  When the type is Sememe, position 2 tells us the (optional) SememeType of the assemblage restriction
-            DynamicSememeString[] valData =
+            final DynamicSememeString[] valData =
                ((DynamicSememeArray<DynamicSememeString>) validatorDefinitionData).getDataArray();
-            ObjectChronologyType expectedCT = ObjectChronologyType.parse(valData[0].getDataString(), false);
-            ObjectChronologyType component  = Get.identifierService()
-                                                 .getChronologyTypeForNid(nid);
+            final ObjectChronologyType expectedCT = ObjectChronologyType.parse(valData[0].getDataString(), false);
+            final ObjectChronologyType component  = Get.identifierService()
+                                                       .getChronologyTypeForNid(nid);
 
             if (expectedCT == ObjectChronologyType.UNKNOWN_NID) {
                throw new RuntimeException("Couldn't determine validator type from validator data '" + valData + "'");
@@ -352,10 +414,9 @@ public enum DynamicSememeValidatorType {
 
             if ((expectedCT == ObjectChronologyType.SEMEME) && (valData.length == 2)) {
                // they specified a specific sememe type.  Verify.
-               SememeType                                   st     = SememeType.parse(valData[1].getDataString(),
-                                                                                      false);
-               SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeService()
-                                                                        .getSememe(nid);
+               final SememeType st = SememeType.parse(valData[1].getDataString(), false);
+               final SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeService()
+                                                                              .getSememe(nid);
 
                if (sememe.getSememeType() != st) {
                   throw new RuntimeException("The specified component must be of type " + st.toString() + ", not " +
@@ -364,24 +425,24 @@ public enum DynamicSememeValidatorType {
             }
 
             return true;
-         } catch (RuntimeException e) {
+         } catch (final RuntimeException e) {
             throw e;
-         } catch (Exception e) {
+         } catch (final Exception e) {
             logger.log(Level.WARNING, "Failure executing validator", e);
             throw new RuntimeException("Failure executing validator", e);
          }
       } else {
-         Number userDataNumber = NumericUtils.readNumber(userData);
-         Number validatorDefinitionDataNumber;
+         final Number userDataNumber = NumericUtils.readNumber(userData);
+         Number       validatorDefinitionDataNumber;
 
          if (this == DynamicSememeValidatorType.INTERVAL) {
-            String   s        = validatorDefinitionData.getDataObject()
-                                                       .toString()
-                                                       .trim();
-            Interval interval = new Interval(s);
+            final String   s        = validatorDefinitionData.getDataObject()
+                                                             .toString()
+                                                             .trim();
+            final Interval interval = new Interval(s);
 
             if (interval.getLeft() != null) {
-               int compareLeft = NumericUtils.compare(userDataNumber, interval.getLeft());
+               final int compareLeft = NumericUtils.compare(userDataNumber, interval.getLeft());
 
                if ((!interval.isLeftInclusive() && (compareLeft == 0)) || (compareLeft < 0)) {
                   return false;
@@ -389,7 +450,7 @@ public enum DynamicSememeValidatorType {
             }
 
             if (interval.getRight() != null) {
-               int compareRight = NumericUtils.compare(userDataNumber, interval.getRight());
+               final int compareRight = NumericUtils.compare(userDataNumber, interval.getRight());
 
                if ((!interval.isRightInclusive() && (compareRight == 0)) || (compareRight > 0)) {
                   return false;
@@ -400,7 +461,7 @@ public enum DynamicSememeValidatorType {
          } else {
             validatorDefinitionDataNumber = NumericUtils.readNumber(validatorDefinitionData);
 
-            int compareResult = NumericUtils.compare(userDataNumber, validatorDefinitionDataNumber);
+            final int compareResult = NumericUtils.compare(userDataNumber, validatorDefinitionDataNumber);
 
             switch (this) {
             case LESS_THAN:
@@ -429,8 +490,8 @@ public enum DynamicSememeValidatorType {
     * These are all defined from the perspective of the userData - so for passesValidator to return true -
     * userData must be LESS_THAN validatorDefinitionData, for example.
     *
-    * @param userData
-    * @param validatorDefinitionData
+    * @param userData the user data
+    * @param validatorDefinitionData the validator definition data
     * @param sc - The Stamp Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
     * @param tc - The Taxonomy Coordinate - not needed for some types of validations. Null allowed when unneeded (for math based tests, for example)
     * @return - empty string if valid, an error message otherwise.
@@ -445,11 +506,17 @@ public enum DynamicSememeValidatorType {
          } else {
             return "The value does not pass the validator";
          }
-      } catch (Exception e) {
+      } catch (final Exception e) {
          return e.getMessage();
       }
    }
 
+   /**
+    * Validator supports type.
+    *
+    * @param type the type
+    * @return true, if successful
+    */
    public boolean validatorSupportsType(DynamicSememeDataType type) {
       // These are supported by all types - external specifies itself, what it supports, and we always include UNKNOWN.
       if ((this == UNKNOWN) || (this == EXTERNAL)) {
@@ -515,8 +582,13 @@ public enum DynamicSememeValidatorType {
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the display name.
+    *
+    * @return the display name
+    */
    public String getDisplayName() {
-      return displayName_;
+      return this.displayName;
    }
 }
 

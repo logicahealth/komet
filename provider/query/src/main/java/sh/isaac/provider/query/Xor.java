@@ -41,8 +41,6 @@ package sh.isaac.provider.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.IOException;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -70,15 +68,27 @@ public class Xor
       super();
    }
 
+   /**
+    * Instantiates a new xor.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param clauses the clauses
+    */
    public Xor(Query enclosingQuery, Clause... clauses) {
       super(enclosingQuery, clauses);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute components.
+    *
+    * @param incomingComponents the incoming components
+    * @return the nid set
+    */
    @Override
    public NidSet computeComponents(NidSet incomingComponents) {
-      NidSet xorSet = new NidSet();
+      final NidSet xorSet = new NidSet();
 
       getChildren().stream().forEach((c) -> {
                                xorSet.xor(c.computeComponents(incomingComponents));
@@ -86,9 +96,15 @@ public class Xor
       return xorSet;
    }
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      NidSet unionSet = new NidSet();
+      final NidSet unionSet = new NidSet();
 
       getChildren().stream().forEach((c) -> {
                                unionSet.or(c.computePossibleComponents(incomingPossibleComponents));
@@ -98,13 +114,18 @@ public class Xor
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.XOR);
 
-      for (Clause clause: getChildren()) {
+      for (final Clause clause: getChildren()) {
          whereClause.getChildren()
                     .add(clause.getWhereClause());
       }

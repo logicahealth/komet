@@ -42,7 +42,6 @@ package sh.isaac.model.builder;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -63,31 +62,51 @@ import sh.isaac.api.task.OptionalWaitTask;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ComponentBuilder.
  *
  * @author kec
- * @param <T>
+ * @param <T> the generic type
  */
 public abstract class ComponentBuilder<T extends CommittableComponent>
          implements IdentifiedComponentBuilder<T> {
-   protected final List<UUID>             additionalUuids = new ArrayList<>();
-   private UUID                           primordialUuid  = null;
-   protected final List<SememeBuilder<?>> sememeBuilders  = new ArrayList<>();
-   protected State                        state           = State.ACTIVE;
+   /** The additional uuids. */
+   protected final List<UUID> additionalUuids = new ArrayList<>();
+
+   /** The primordial uuid. */
+   private UUID primordialUuid = null;
+
+   /** The sememe builders. */
+   protected final List<SememeBuilder<?>> sememeBuilders = new ArrayList<>();
+
+   /** The state. */
+   protected State state = State.ACTIVE;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the sememe.
+    *
+    * @param sememeBuilder the sememe builder
+    * @return the component builder
+    */
    @Override
    public ComponentBuilder<T> addSememe(SememeBuilder<?> sememeBuilder) {
-      sememeBuilders.add(sememeBuilder);
+      this.sememeBuilders.add(sememeBuilder);
       return this;
    }
 
+   /**
+    * Adds the uuids.
+    *
+    * @param uuids the uuids
+    * @return the identified component builder
+    */
    @Override
    public IdentifiedComponentBuilder<T> addUuids(UUID... uuids) {
       if (uuids != null) {
-         for (UUID uuid: uuids) {
-            if (!uuid.equals(primordialUuid)) {
-               additionalUuids.add(uuid);
+         for (final UUID uuid: uuids) {
+            if (!uuid.equals(this.primordialUuid)) {
+               this.additionalUuids.add(uuid);
             }
          }
       }
@@ -95,6 +114,14 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
       return this;
    }
 
+   /**
+    * Builds the.
+    *
+    * @param editCoordinate the edit coordinate
+    * @param changeCheckerMode the change checker mode
+    * @return the optional wait task
+    * @throws IllegalStateException the illegal state exception
+    */
    @Override
    public final OptionalWaitTask<T> build(EditCoordinate editCoordinate,
          ChangeCheckerMode changeCheckerMode)
@@ -104,6 +131,13 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set identifier for authority.
+    *
+    * @param identifier the identifier
+    * @param identifierAuthority the identifier authority
+    * @return the identified component builder
+    */
    @Override
    public IdentifiedComponentBuilder<T> setIdentifierForAuthority(String identifier, ConceptProxy identifierAuthority) {
       throw new UnsupportedOperationException(
@@ -112,12 +146,22 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the nid.
+    *
+    * @return the nid
+    */
    @Override
    public int getNid() {
       return Get.identifierService()
                 .getNidForUuids(getUuids());
    }
 
+   /**
+    * Gets the primordial uuid.
+    *
+    * @return the primordial uuid
+    */
    @Override
    public UUID getPrimordialUuid() {
       if (this.primordialUuid == null) {
@@ -131,7 +175,8 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
 
    /**
     * If not set, a randomly generated UUID will be automatically used.
-    * @param uuid
+    *
+    * @param uuid the uuid
     * @return the builder for chaining of operations in a fluent pattern.
     */
    @Override
@@ -140,6 +185,12 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
       return this;
    }
 
+   /**
+    * Set state.
+    *
+    * @param state the state
+    * @return the identified component builder
+    */
    @Override
    public IdentifiedComponentBuilder<T> setState(State state) {
       this.state = state;
@@ -148,22 +199,32 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the uuid list.
+    *
+    * @return the uuid list
+    */
    @Override
    public List<UUID> getUuidList() {
-      Stream.Builder<UUID> builder = Stream.builder();
+      final Stream.Builder<UUID> builder = Stream.builder();
 
       builder.accept(getPrimordialUuid());
-      additionalUuids.forEach((uuid) -> builder.accept(uuid));
+      this.additionalUuids.forEach((uuid) -> builder.accept(uuid));
       return builder.build()
                     .collect(Collectors.toList());
    }
 
+   /**
+    * Gets the uuids.
+    *
+    * @return the uuids
+    */
    @Override
    public UUID[] getUuids() {
-      Stream.Builder<UUID> builder = Stream.builder();
+      final Stream.Builder<UUID> builder = Stream.builder();
 
       builder.accept(getPrimordialUuid());
-      additionalUuids.forEach((uuid) -> builder.accept(uuid));
+      this.additionalUuids.forEach((uuid) -> builder.accept(uuid));
       return builder.build()
                     .toArray((int length) -> new UUID[length]);
    }

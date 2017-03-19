@@ -69,15 +69,22 @@ import sh.isaac.model.logic.node.internal.TypedNodeWithSequences;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class TypedNodeWithUuids.
  *
  * @author kec
  */
 public abstract class TypedNodeWithUuids
         extends ConnectorNode {
+   /** The type concept uuid. */
    UUID typeConceptUuid;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new typed node with uuids.
+    *
+    * @param internalForm the internal form
+    */
    public TypedNodeWithUuids(TypedNodeWithSequences internalForm) {
       super(internalForm);
       this.typeConceptUuid = Get.identifierService()
@@ -85,6 +92,13 @@ public abstract class TypedNodeWithUuids
                                 .get();
    }
 
+   /**
+    * Instantiates a new typed node with uuids.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public TypedNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion,
                              DataInputStream dataInputStream)
             throws IOException {
@@ -92,6 +106,13 @@ public abstract class TypedNodeWithUuids
       this.typeConceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
    }
 
+   /**
+    * Instantiates a new typed node with uuids.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param typeConceptUuid the type concept uuid
+    * @param child the child
+    */
    public TypedNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion,
                              UUID typeConceptUuid,
                              AbstractLogicNode child) {
@@ -101,6 +122,12 @@ public abstract class TypedNodeWithUuids
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Equals.
+    *
+    * @param obj the obj
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object obj) {
       if (this == obj) {
@@ -124,6 +151,11 @@ public abstract class TypedNodeWithUuids
       return super.equals(obj);
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
       int hash = super.hashCode();
@@ -132,24 +164,42 @@ public abstract class TypedNodeWithUuids
       return hash;
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return toString("");
    }
 
+   /**
+    * To string.
+    *
+    * @param nodeIdSuffix the node id suffix
+    * @return the string
+    */
    @Override
    public String toString(String nodeIdSuffix) {
-      return " " + Get.conceptService().getConcept(typeConceptUuid).toUserString();
+      return " " + Get.conceptService().getConcept(this.typeConceptUuid).toUserString();
    }
 
+   /**
+    * Write node data.
+    *
+    * @param dataOutput the data output
+    * @param dataTarget the data target
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
             throws IOException {
       switch (dataTarget) {
       case EXTERNAL:
          super.writeData(dataOutput, dataTarget);
-         dataOutput.writeLong(typeConceptUuid.getMostSignificantBits());
-         dataOutput.writeLong(typeConceptUuid.getLeastSignificantBits());
+         dataOutput.writeLong(this.typeConceptUuid.getMostSignificantBits());
+         dataOutput.writeLong(this.typeConceptUuid.getLeastSignificantBits());
          break;
 
       case INTERNAL:
@@ -175,24 +225,41 @@ public abstract class TypedNodeWithUuids
       }
    }
 
+   /**
+    * Compare node fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    protected final int compareNodeFields(LogicNode o) {
       // node semantic already determined equals.
-      TypedNodeWithUuids other = (TypedNodeWithUuids) o;
+      final TypedNodeWithUuids other = (TypedNodeWithUuids) o;
 
-      if (!typeConceptUuid.equals(other.typeConceptUuid)) {
-         return typeConceptUuid.compareTo(other.typeConceptUuid);
+      if (!this.typeConceptUuid.equals(other.typeConceptUuid)) {
+         return this.typeConceptUuid.compareTo(other.typeConceptUuid);
       }
 
       return compareTypedNodeFields(o);
    }
 
+   /**
+    * Compare typed node fields.
+    *
+    * @param o the o
+    * @return the int
+    */
    protected abstract int compareTypedNodeFields(LogicNode o);
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the only child.
+    *
+    * @return the only child
+    */
    public LogicNode getOnlyChild() {
-      LogicNode[] children = getChildren();
+      final LogicNode[] children = getChildren();
 
       if (children.length == 1) {
          return children[0];
@@ -201,8 +268,13 @@ public abstract class TypedNodeWithUuids
       throw new IllegalStateException("Typed nodes can have only one child. Found: " + Arrays.toString(children));
    }
 
+   /**
+    * Gets the type concept uuid.
+    *
+    * @return the type concept uuid
+    */
    public UUID getTypeConceptUuid() {
-      return typeConceptUuid;
+      return this.typeConceptUuid;
    }
 }
 

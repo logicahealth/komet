@@ -48,37 +48,64 @@ import sh.isaac.model.sememe.version.SememeVersionImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObservableSememeVersionImpl.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public class ObservableSememeVersionImpl<V extends ObservableSememeVersionImpl<V>>
         extends ObservableVersionImpl<V, SememeVersionImpl<?>>
          implements ObservableSememeVersion<V> {
+   /**
+    * Instantiates a new observable sememe version impl.
+    *
+    * @param stampedVersion the stamped version
+    * @param chronology the chronology
+    */
    public ObservableSememeVersionImpl(SememeVersionImpl<?> stampedVersion, ObservableSememeChronology<V> chronology) {
       super(stampedVersion, chronology);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the assemblage sequence.
+    *
+    * @return the assemblage sequence
+    */
    @Override
    public int getAssemblageSequence() {
-      return stampedVersion.getAssemblageSequence();
+      return this.stampedVersion.getAssemblageSequence();
    }
 
+   /**
+    * Gets the chronology.
+    *
+    * @return the chronology
+    */
    @Override
    public ObservableSememeChronology<V> getChronology() {
-      return (ObservableSememeChronology<V>) chronology;
+      return (ObservableSememeChronology<V>) this.chronology;
    }
 
+   /**
+    * Gets the referenced component nid.
+    *
+    * @return the referenced component nid
+    */
    @Override
    public int getReferencedComponentNid() {
-      return stampedVersion.getReferencedComponentNid();
+      return this.stampedVersion.getReferencedComponentNid();
    }
 
+   /**
+    * Gets the sememe sequence.
+    *
+    * @return the sememe sequence
+    */
    @Override
    public int getSememeSequence() {
-      return stampedVersion.getSememeSequence();
+      return this.stampedVersion.getSememeSequence();
    }
 }
 

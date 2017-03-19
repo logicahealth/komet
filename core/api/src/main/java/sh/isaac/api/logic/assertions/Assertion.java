@@ -46,10 +46,16 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface Assertion.
  *
  * @author kec
  */
 public interface Assertion {
+   /**
+    * Gets the builder.
+    *
+    * @return the builder
+    */
    LogicalExpressionBuilder getBuilder();
 }
 

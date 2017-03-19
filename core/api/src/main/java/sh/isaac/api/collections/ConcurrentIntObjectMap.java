@@ -41,7 +41,11 @@ package sh.isaac.api.collections;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
@@ -58,79 +62,123 @@ import sh.isaac.api.DataSerializer;
 
 /**
  * Created by kec on 12/18/14.
+ *
+ * @param <T> the generic type
  */
 public class ConcurrentIntObjectMap<T> {
-   private final ReentrantReadWriteLock rwl     = new ReentrantReadWriteLock();
-   private final Lock                   read    = rwl.readLock();
-   private final Lock                   write   = rwl.writeLock();
-   OpenIntObjectHashMap<byte[]>         map     = new OpenIntObjectHashMap<>();
-   private boolean                      changed = false;
-   DataSerializer<T>                    serializer;
+   /** The rwl. */
+   private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+
+   /** The read. */
+   private final Lock read = this.rwl.readLock();
+
+   /** The write. */
+   private final Lock write = this.rwl.writeLock();
+
+   /** The map. */
+   OpenIntObjectHashMap<byte[]> map = new OpenIntObjectHashMap<>();
+
+   /** The serializer. */
+   DataSerializer<T> serializer;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new concurrent int object map.
+    *
+    * @param serializer the serializer
+    */
    public ConcurrentIntObjectMap(DataSerializer<T> serializer) {
       this.serializer = serializer;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Contains key.
+    *
+    * @param key the key
+    * @return true, if successful
+    */
    public boolean containsKey(int key) {
       try {
-         read.lock();
-         return map.containsKey(key);
+         this.read.lock();
+         return this.map.containsKey(key);
       } finally {
-         if (read != null) {
-            read.unlock();
+         if (this.read != null) {
+            this.read.unlock();
          }
       }
    }
 
+   /**
+    * For each pair.
+    *
+    * @param procedure the procedure
+    * @return true, if successful
+    */
    public boolean forEachPair(IntObjectProcedure<T> procedure) {
-      map.forEachPair((int first,
-                       byte[] data) -> {
-                         try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data))) {
-                            return procedure.apply(first, serializer.deserialize(dis));
-                         } catch (IOException e) {
-                            throw new RuntimeException(e);
-                         }
-                      });
+      this.map.forEachPair((int first,
+                            byte[] data) -> {
+                              try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data))) {
+                                 return procedure.apply(first, this.serializer.deserialize(dis));
+                              } catch (final IOException e) {
+                                 throw new RuntimeException(e);
+                              }
+                           });
       return true;
    }
 
+   /**
+    * Put.
+    *
+    * @param key the key
+    * @param value the value
+    * @return true, if successful
+    */
    public boolean put(int key, T value) {
       try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-         serializer.serialize(new DataOutputStream(baos), value);
-         changed = true;
+         this.serializer.serialize(new DataOutputStream(baos), value);
 
          try {
-            write.lock();
-            return map.put(key, baos.toByteArray());
+            this.write.lock();
+            return this.map.put(key, baos.toByteArray());
          } finally {
-            if (write != null) {
-               write.unlock();
+            if (this.write != null) {
+               this.write.unlock();
             }
          }
-      } catch (IOException e) {
+      } catch (final IOException e) {
          throw new RuntimeException(e);
       }
    }
 
+   /**
+    * Size.
+    *
+    * @return the int
+    */
    public int size() {
-      return map.size();
+      return this.map.size();
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the.
+    *
+    * @param key the key
+    * @return the optional
+    */
    public Optional<T> get(int key) {
       byte[] data;
 
       try {
-         read.lock();
-         data = map.get(key);
+         this.read.lock();
+         data = this.map.get(key);
       } finally {
-         if (read != null) {
-            read.unlock();
+         if (this.read != null) {
+            this.read.unlock();
          }
       }
 
@@ -139,8 +187,8 @@ public class ConcurrentIntObjectMap<T> {
       }
 
       try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data))) {
-         return Optional.of(serializer.deserialize(dis));
-      } catch (IOException e) {
+         return Optional.of(this.serializer.deserialize(dis));
+      } catch (final IOException e) {
          throw new RuntimeException(e);
       }
    }

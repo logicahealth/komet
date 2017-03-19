@@ -56,7 +56,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import java.util.Optional;
-import java.util.Spliterator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
@@ -65,7 +64,6 @@ import java.util.stream.StreamSupport;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.map.OpenIntObjectHashMap;
 
 import sh.isaac.api.externalizable.StampComment;
@@ -73,107 +71,157 @@ import sh.isaac.api.externalizable.StampComment;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StampCommentMap.
  *
  * @author kec
  */
 public class StampCommentMap {
-   private final ReentrantReadWriteLock rwl             = new ReentrantReadWriteLock();
-   private final Lock                   read            = rwl.readLock();
-   private final Lock                   write           = rwl.writeLock();
-   OpenIntObjectHashMap<String>         stampCommentMap = new OpenIntObjectHashMap();
+   /** The rwl. */
+   private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+
+   /** The read. */
+   private final Lock read = this.rwl.readLock();
+
+   /** The write. */
+   private final Lock write = this.rwl.writeLock();
+
+   /** The stamp comment map. */
+   OpenIntObjectHashMap<String> stampCommentMap = new OpenIntObjectHashMap();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the comment.
+    *
+    * @param stamp the stamp
+    * @param comment the comment
+    */
    public void addComment(int stamp, String comment) {
       try {
-         write.lock();
+         this.write.lock();
 
          if (comment != null) {
-            stampCommentMap.put(stamp, comment);
+            this.stampCommentMap.put(stamp, comment);
          } else {
-            stampCommentMap.removeKey(stamp);
+            this.stampCommentMap.removeKey(stamp);
          }
       } finally {
-         if (write != null) {
-            write.unlock();
+         if (this.write != null) {
+            this.write.unlock();
          }
       }
    }
 
+   /**
+    * Read.
+    *
+    * @param mapFile the map file
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void read(File mapFile)
             throws IOException {
       try (DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(mapFile)))) {
-         int size = input.readInt();
+         final int size = input.readInt();
 
-         stampCommentMap.ensureCapacity(size);
+         this.stampCommentMap.ensureCapacity(size);
 
          for (int i = 0; i < size; i++) {
-            int    stamp   = input.readInt();
-            String comment = input.readUTF();
+            final int    stamp   = input.readInt();
+            final String comment = input.readUTF();
 
-            stampCommentMap.put(stamp, comment);
+            this.stampCommentMap.put(stamp, comment);
          }
       }
    }
 
+   /**
+    * Write.
+    *
+    * @param mapFile the map file
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void write(File mapFile)
             throws IOException {
       try (DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(mapFile)))) {
-         output.writeInt(stampCommentMap.size());
-         stampCommentMap.forEachPair((int nid,
-                                      String comment) -> {
-                                        try {
-                                           output.writeInt(nid);
-                                           output.writeUTF(comment);
-                                           return true;
-                                        } catch (IOException ex) {
-                                           throw new RuntimeException(ex);
-                                        }
-                                     });
+         output.writeInt(this.stampCommentMap.size());
+         this.stampCommentMap.forEachPair((int nid,
+                                           String comment) -> {
+                                             try {
+                                                output.writeInt(nid);
+                                                output.writeUTF(comment);
+                                                return true;
+                                             } catch (final IOException ex) {
+                                                throw new RuntimeException(ex);
+                                             }
+                                          });
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the comment.
     *
-    * @param stamp
+    * @param stamp the stamp
     * @return Comment associated with the stamp.
     */
    public Optional<String> getComment(int stamp) {
       try {
-         read.lock();
-         return Optional.ofNullable(stampCommentMap.get(stamp));
+         this.read.lock();
+         return Optional.ofNullable(this.stampCommentMap.get(stamp));
       } finally {
-         if (read != null) {
-            read.unlock();
+         if (this.read != null) {
+            this.read.unlock();
          }
       }
    }
 
+   /**
+    * Gets the size.
+    *
+    * @return the size
+    */
    public int getSize() {
-      return stampCommentMap.size();
+      return this.stampCommentMap.size();
    }
 
+   /**
+    * Gets the stamp comment stream.
+    *
+    * @return the stamp comment stream
+    */
    public Stream<StampComment> getStampCommentStream() {
       return StreamSupport.stream(new StampCommentSpliterator(), false);
    }
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class StampCommentSpliterator.
+    */
    private class StampCommentSpliterator
            extends IndexedStampSequenceSpliterator<StampComment> {
+      /**
+       * Instantiates a new stamp comment spliterator.
+       */
       public StampCommentSpliterator() {
-         super(stampCommentMap.keys());
+         super(StampCommentMap.this.stampCommentMap.keys());
       }
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Try advance.
+       *
+       * @param action the action
+       * @return true, if successful
+       */
       @Override
       public boolean tryAdvance(Consumer<? super StampComment> action) {
          if (getIterator().hasNext()) {
-            int          mapIndex     = getIterator().nextInt();
-            StampComment stampComment = new StampComment(stampCommentMap.get(mapIndex), mapIndex);
+            final int mapIndex = getIterator().nextInt();
+            final StampComment stampComment = new StampComment(StampCommentMap.this.stampCommentMap.get(mapIndex),
+                                                               mapIndex);
 
             action.accept(stampComment);
             return true;

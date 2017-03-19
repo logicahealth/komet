@@ -77,22 +77,37 @@ import sh.isaac.provider.ibdf.diff.BinaryDataDifferProvider;
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 public class BinaryDataDifferTest {
+   /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
-   private final String             TERMINOLOGY_INPUT_FILE_NAME = "vhat-ibdf";
-   private final String             OLD_VERSION                 = "4.3-SNAPSHOT";
-   private final String             NEW_VERSION                 = "4.31-SNAPSHOT";
-   private final File               DATASTORE_PATH              = new File("target/db");
-   private BinaryDataDifferProvider differProvider              = new BinaryDataDifferProvider();
+   /** The terminology input file name. */
+   private final String TERMINOLOGY_INPUT_FILE_NAME = "vhat-ibdf";
+
+   /** The old version. */
+   private final String OLD_VERSION = "4.3-SNAPSHOT";
+
+   /** The new version. */
+   private final String NEW_VERSION = "4.31-SNAPSHOT";
+
+   /** The datastore path. */
+   private final File DATASTORE_PATH = new File("target/db");
+
+   /** The differ provider. */
+   private final BinaryDataDifferProvider differProvider = new BinaryDataDifferProvider();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Setup DB.
+    *
+    * @throws Exception the exception
+    */
    @Before
    public void setupDB()
             throws Exception {
-      File dataStoreLocation = DBLocator.findDBFolder(DATASTORE_PATH);
+      final File dataStoreLocation = DBLocator.findDBFolder(this.DATASTORE_PATH);
 
       if (!dataStoreLocation.exists()) {
          throw new IOException("Couldn't find a data store from the input of '" +
@@ -111,6 +126,11 @@ public class BinaryDataDifferTest {
       log.info("Done setting up ISAAC");
    }
 
+   /**
+    * Shutdown DB.
+    *
+    * @throws Exception the exception
+    */
    @After
    public void shutdownDB()
             throws Exception {
@@ -119,20 +139,20 @@ public class BinaryDataDifferTest {
    }
 
    /**
-    * Mimick the IbdfDiffMojo
+    * Mimick the IbdfDiffMojo.
     */
    @Test
    public void testDiff() {
       // Parameters used by Mojo
       // Input Files
-      final File oldVersionFile = new File("src/test/resources/data/old/" + TERMINOLOGY_INPUT_FILE_NAME + ".ibdf");
-      final File newVersionFile = new File("src/test/resources/data/new/" + TERMINOLOGY_INPUT_FILE_NAME + ".ibdf");
+      final File oldVersionFile = new File("src/test/resources/data/old/" + this.TERMINOLOGY_INPUT_FILE_NAME + ".ibdf");
+      final File newVersionFile = new File("src/test/resources/data/new/" + this.TERMINOLOGY_INPUT_FILE_NAME + ".ibdf");
 
       // Output Files
       final String ibdfFileOutputDir      = "target/unitTestOutput/ibdfFileOutputDir/";
       final String analysisFilesOutputDir = "target/unitTestOutput/analysisFilesOutputDir/";
-      final String ouptutIbdfFileName = TERMINOLOGY_INPUT_FILE_NAME + "-Diff-" + OLD_VERSION + "-to-" + NEW_VERSION +
-                                        ".ibdf";
+      final String ouptutIbdfFileName = this.TERMINOLOGY_INPUT_FILE_NAME + "-Diff-" + this.OLD_VERSION + "-to-" +
+                                        this.NEW_VERSION + ".ibdf";
 
       // Others
       final String  importDate          = "2016-09-30";
@@ -143,36 +163,36 @@ public class BinaryDataDifferTest {
       final boolean diffOnTimestamp     = true;
       final boolean createAnalysisFiles = true;
 
-      differProvider.initialize(analysisFilesOutputDir,
-                                ibdfFileOutputDir,
-                                ouptutIbdfFileName,
-                                createAnalysisFiles,
-                                diffOnStatus,
-                                diffOnTimestamp,
-                                diffOnAuthor,
-                                diffOnModule,
-                                diffOnPath,
-                                importDate);
+      this.differProvider.initialize(analysisFilesOutputDir,
+                                     ibdfFileOutputDir,
+                                     ouptutIbdfFileName,
+                                     createAnalysisFiles,
+                                     diffOnStatus,
+                                     diffOnTimestamp,
+                                     diffOnAuthor,
+                                     diffOnModule,
+                                     diffOnPath,
+                                     importDate);
 
       try {
-         Map<OchreExternalizableObjectType, Set<OchreExternalizable>> oldContentMap =
-            differProvider.processVersion(oldVersionFile);
-         Map<OchreExternalizableObjectType, Set<OchreExternalizable>> newContentMap =
-            differProvider.processVersion(newVersionFile);
-         Map<ChangeType, List<OchreExternalizable>> changedComponents =
-            differProvider.identifyVersionChanges(oldContentMap,
-                                                  newContentMap);
+         final Map<OchreExternalizableObjectType, Set<OchreExternalizable>> oldContentMap =
+            this.differProvider.processVersion(oldVersionFile);
+         final Map<OchreExternalizableObjectType, Set<OchreExternalizable>> newContentMap =
+            this.differProvider.processVersion(newVersionFile);
+         final Map<ChangeType, List<OchreExternalizable>> changedComponents =
+            this.differProvider.identifyVersionChanges(oldContentMap,
+                                                       newContentMap);
 
-         differProvider.generateDiffedIbdfFile(changedComponents);
+         this.differProvider.generateDiffedIbdfFile(changedComponents);
 
          if (createAnalysisFiles) {
-            differProvider.writeFilesForAnalysis(oldContentMap,
+            this.differProvider.writeFilesForAnalysis(oldContentMap,
                   newContentMap,
                   changedComponents,
                   ibdfFileOutputDir,
                   analysisFilesOutputDir);
          }
-      } catch (Exception e) {
+      } catch (final Exception e) {
          assertTrue(false);
       }
 

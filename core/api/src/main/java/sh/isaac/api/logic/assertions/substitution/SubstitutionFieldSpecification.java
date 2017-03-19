@@ -40,11 +40,17 @@
 package sh.isaac.api.logic.assertions.substitution;
 
 /**
+ * The Interface SubstitutionFieldSpecification.
  *
  * @author kec
  */
 public interface SubstitutionFieldSpecification
         extends Comparable<SubstitutionFieldSpecification> {
+   /**
+    * Gets the bytes.
+    *
+    * @return the bytes
+    */
    byte[] getBytes();
 }
 

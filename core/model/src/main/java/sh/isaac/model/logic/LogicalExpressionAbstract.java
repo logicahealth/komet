@@ -40,19 +40,29 @@
 package sh.isaac.model.logic;
 
 /**
+ * The Class LogicalExpressionAbstract.
  *
  * @author kec
  */
 public abstract class LogicalExpressionAbstract
         extends LogicalExpressionOchreImpl {
+   /**
+    * Instantiates a new logical expression abstract.
+    */
    public LogicalExpressionAbstract() {
       super();
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Creates the.
+    */
    public abstract void create();
 
+   /**
+    * Inits the.
+    */
    @Override
    public final void init() {
       create();

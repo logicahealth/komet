@@ -70,64 +70,87 @@ import org.apache.logging.log4j.Logger;
  */
 public class WriteCompletionService
          implements Runnable {
+   /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
-   private boolean                         run = false;
-   private ExecutorService                 writeConceptCompletionServiceThread;
+   /** The run. */
+   private boolean run = false;
+
+   /** The write concept completion service thread. */
+   private ExecutorService writeConceptCompletionServiceThread;
+
+   /** The conversion service. */
    private ExecutorCompletionService<Void> conversionService;
-   private ExecutorService                 workerPool;
+
+   /** The worker pool. */
+   private ExecutorService workerPool;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Run.
+    */
    @Override
    public void run() {
       log.info("WriteCompletionService starting");
 
-      while (run) {
+      while (this.run) {
          try {
-            conversionService.take()
-                             .get();
-         } catch (InterruptedException ex) {
-            if (run) {
+            this.conversionService.take()
+                                  .get();
+         } catch (final InterruptedException ex) {
+            if (this.run) {
                // Only warn if we were not asked to shutdown
                log.warn(ex.getLocalizedMessage(), ex);
             }
-         } catch (ExecutionException ex) {
+         } catch (final ExecutionException ex) {
             log.error(ex.getLocalizedMessage(), ex);
          }
       }
 
-      conversionService                   = null;
-      writeConceptCompletionServiceThread = null;
-      workerPool                          = null;
+      this.conversionService                   = null;
+      this.writeConceptCompletionServiceThread = null;
+      this.workerPool                          = null;
       log.info("WriteCompletionService closed");
    }
 
+   /**
+    * Start.
+    */
    public void start() {
       log.info("Starting WriteCompletionService");
-      run        = true;
-      workerPool = Executors.newFixedThreadPool(4,
+      this.run        = true;
+      this.workerPool = Executors.newFixedThreadPool(4,
             (Runnable r) -> {
                return new Thread(r, "writeCommitDataPool");
             });
-      conversionService                   = new ExecutorCompletionService<>(workerPool);
-      writeConceptCompletionServiceThread = Executors.newSingleThreadExecutor((Runnable r) -> {
+      this.conversionService                   = new ExecutorCompletionService<>(this.workerPool);
+      this.writeConceptCompletionServiceThread = Executors.newSingleThreadExecutor((Runnable r) -> {
                return new Thread(r, "writeCompletionService");
             });
-      writeConceptCompletionServiceThread.submit(this);
+      this.writeConceptCompletionServiceThread.submit(this);
    }
 
+   /**
+    * Stop.
+    */
    public void stop() {
       log.info("Stopping WriteCompletionService");
-      run = false;
-      writeConceptCompletionServiceThread.shutdown();
-      workerPool.shutdown();
+      this.run = false;
+      this.writeConceptCompletionServiceThread.shutdown();
+      this.workerPool.shutdown();
    }
 
+   /**
+    * Submit.
+    *
+    * @param task the task
+    * @return the future
+    */
    protected Future<Void> submit(Task<Void> task) {
-      return conversionService.submit(task, null);
+      return this.conversionService.submit(task, null);
    }
 }
 

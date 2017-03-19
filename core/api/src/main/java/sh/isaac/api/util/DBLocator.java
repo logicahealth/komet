@@ -60,6 +60,7 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DBLocator {
+   /** The Constant LOG. */
    private static final Logger LOG = LoggerFactory.getLogger(DBLocator.class);
 
    //~--- methods -------------------------------------------------------------
@@ -70,8 +71,9 @@ public class DBLocator {
     * 2) Otherwise, we scan the children of the passed in folder, looking for a folder that ends with .data
     * 3) If still not found - it will scan the sibling folders of the passed in folder, looking for a folder that ends with .data
     * 4) Finally, if nothing matches, it just returns the input folder - however, if the folder doesn't exist, it will create it.
-    * @param inputFolder
-    * @return
+    *
+    * @param inputFolder the input folder
+    * @return the file
     */
    public static File findDBFolder(File inputFolder) {
       inputFolder = inputFolder.getAbsoluteFile();
@@ -84,7 +86,7 @@ public class DBLocator {
 
       // Otherwise see if we can find a .data folder as a direct child
       if (inputFolder.isDirectory()) {
-         for (File f: inputFolder.listFiles()) {
+         for (final File f: inputFolder.listFiles()) {
             if (f.getName().endsWith(".data") && f.isDirectory()) {
                LOG.info("Data Store Location set to " + f.getAbsolutePath());
                return f;
@@ -95,8 +97,8 @@ public class DBLocator {
       // Or as a sibling
       if (inputFolder.getParentFile()
                      .isDirectory()) {
-         for (File f: inputFolder.getParentFile()
-                                 .listFiles()) {
+         for (final File f: inputFolder.getParentFile()
+                                       .listFiles()) {
             // If it is a folder with a '.bdb' at the end of the name, then berkeley-db will be in a sub-folder.
             if (f.getName().endsWith(".data") && f.isDirectory()) {
                LOG.info("Data Store Location set to " + f.getAbsolutePath());

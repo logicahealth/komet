@@ -56,39 +56,53 @@ import sh.isaac.api.util.StringUtils;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class MappingObject.
+ */
 public class MappingObject
         extends StampedItem {
-   public static final Comparator<MappingObject> editorStatusComparator = new Comparator<MappingObject>() {
-      @Override
-      public int compare(MappingObject o1, MappingObject o2) {
-         return StringUtils.compareStringsIgnoreCase(o1.getEditorStatusName(), o2.getEditorStatusName());
-      }
-   };
+   /** The Constant editorStatusComparator. */
+   public static final Comparator<MappingObject> editorStatusComparator =
+      (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getEditorStatusName(),
+                                                       o2.getEditorStatusName());
 
    //~--- fields --------------------------------------------------------------
 
-   protected UUID                       editorStatusConcept         = null;
-   protected int                        editorStatusConceptNid      = 0;
+   /** The editor status concept. */
+   protected UUID editorStatusConcept = null;
+
+   /** The editor status concept nid. */
+   protected int editorStatusConceptNid = 0;
+
+   /** The editor status concept property. */
    protected final SimpleStringProperty editorStatusConceptProperty = new SimpleStringProperty();
-   protected HashMap<UUID, String>      cachedValues                = new HashMap<>();
+
+   /** The cached values. */
+   protected HashMap<UUID, String> cachedValues = new HashMap<>();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Property lookup.
+    *
+    * @param uuid the uuid
+    * @param property the property
+    */
    protected void propertyLookup(UUID uuid, SimpleStringProperty property) {
       if (uuid == null) {
          property.set(null);
       } else {
-         String cachedValue = cachedValues.get(uuid);
+         final String cachedValue = this.cachedValues.get(uuid);
 
          if (cachedValue != null) {
             property.set(cachedValue);
          } else {
             property.set("-");
             Get.workExecutors().getExecutor().execute(() -> {
-                           String s = Get.conceptDescriptionText(Get.identifierService()
-                                                                    .getConceptSequenceForUuids(uuid));
+                           final String s = Get.conceptDescriptionText(Get.identifierService()
+                                                                          .getConceptSequenceForUuids(uuid));
 
-                           cachedValues.put(uuid, s);
+                           this.cachedValues.put(uuid, s);
                            Platform.runLater(() -> {
                                                 property.set(s);
                                              });
@@ -100,37 +114,62 @@ public class MappingObject
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the editor status concept.
+    *
     * @return the editorStatusConcept
     */
    public UUID getEditorStatusConcept() {
-      return editorStatusConcept;
+      return this.editorStatusConcept;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
+    * Sets the editor status concept.
+    *
     * @param editorStatusConcept the editorStatusConcept to set
     */
    public void setEditorStatusConcept(UUID editorStatusConcept) {
       this.editorStatusConcept    = editorStatusConcept;
       this.editorStatusConceptNid = getNidForUuidSafe(editorStatusConcept);
-      propertyLookup(editorStatusConcept, editorStatusConceptProperty);
+      propertyLookup(editorStatusConcept, this.editorStatusConceptProperty);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the editor status concept nid.
+    *
+    * @return the editor status concept nid
+    */
    public int getEditorStatusConceptNid() {
-      return editorStatusConceptNid;
+      return this.editorStatusConceptNid;
    }
 
+   /**
+    * Gets the editor status concept property.
+    *
+    * @return the editor status concept property
+    */
    public SimpleStringProperty getEditorStatusConceptProperty() {
-      return editorStatusConceptProperty;
+      return this.editorStatusConceptProperty;
    }
 
+   /**
+    * Gets the editor status name.
+    *
+    * @return the editor status name
+    */
    public String getEditorStatusName() {
-      return editorStatusConceptProperty.get();
+      return this.editorStatusConceptProperty.get();
    }
 
+   /**
+    * Gets the nid for uuid safe.
+    *
+    * @param uuid the uuid
+    * @return the nid for uuid safe
+    */
    public static int getNidForUuidSafe(UUID uuid) {
       return (uuid == null) ? 0
                             : Get.identifierService()

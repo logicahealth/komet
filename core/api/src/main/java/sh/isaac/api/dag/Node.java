@@ -47,24 +47,44 @@ import java.util.List;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class Node.
  *
  * @author kec
- * @param <T>
+ * @param <T> the generic type
  */
 public class Node<T> {
+   /** The children. */
    private final List<Node<T>> children = new ArrayList<>();
-   private final T             data;
-   private final Node<T>       parent;
-   private final Graph<T>      graph;
+
+   /** The data. */
+   private final T data;
+
+   /** The parent. */
+   private final Node<T> parent;
+
+   /** The graph. */
+   private final Graph<T> graph;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new node.
+    *
+    * @param data the data
+    * @param graph the graph
+    */
    public Node(T data, Graph<T> graph) {
       this.data   = data;
       this.parent = null;
       this.graph  = graph;
    }
 
+   /**
+    * Instantiates a new node.
+    *
+    * @param data the data
+    * @param parent the parent
+    */
    public Node(T data, Node<T> parent) {
       this.data   = data;
       this.parent = parent;
@@ -73,30 +93,56 @@ public class Node<T> {
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the child.
+    *
+    * @param t the t
+    * @return the node
+    */
    public final Node<T> addChild(T t) {
-      Node<T> child = new Node<>(t, this);
+      final Node<T> child = new Node<>(t, this);
 
-      children.add(child);
+      this.children.add(child);
       this.graph.setLastAddedNode(child);
       return child;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the children.
+    *
+    * @return the children
+    */
    public List<Node<T>> getChildren() {
-      return children;
+      return this.children;
    }
 
+   /**
+    * Gets the data.
+    *
+    * @return the data
+    */
    public T getData() {
-      return data;
+      return this.data;
    }
 
+   /**
+    * Gets the graph.
+    *
+    * @return the graph
+    */
    public Graph<T> getGraph() {
-      return graph;
+      return this.graph;
    }
 
+   /**
+    * Gets the parent.
+    *
+    * @return the parent
+    */
    public Node<T> getParent() {
-      return parent;
+      return this.parent;
    }
 }
 

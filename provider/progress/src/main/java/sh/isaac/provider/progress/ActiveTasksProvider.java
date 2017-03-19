@@ -67,25 +67,41 @@ import sh.isaac.api.progress.ActiveTasks;
 @Singleton
 public class ActiveTasksProvider
          implements ActiveTasks {
+   /** The task set. */
    Set<Task<?>> taskSet = ConcurrentHashMap.newKeySet();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the.
+    *
+    * @param task the task
+    */
    @Override
    public void add(Task<?> task) {
-      taskSet.add(task);
+      this.taskSet.add(task);
    }
 
+   /**
+    * Removes the.
+    *
+    * @param task the task
+    */
    @Override
    public void remove(Task<?> task) {
-      taskSet.remove(task);
+      this.taskSet.remove(task);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the.
+    *
+    * @return the set
+    */
    @Override
    public Set<Task<?>> get() {
-      return taskSet;
+      return this.taskSet;
    }
 }
 

@@ -52,13 +52,15 @@ import java.util.stream.Stream;
  */
 public interface IsomorphicResults {
    /**
-    * 
-    *  @return roots for connected nodes that comprise is-a, typed relationships, or relationship groups that are
+    * Gets the added relationship roots.
+    *
+    * @return roots for connected nodes that comprise is-a, typed relationships, or relationship groups that are
     *  in the referenceExpression, but not in the comparisonExpression.
     */
    Stream<LogicNode> getAddedRelationshipRoots();
 
    /**
+    * Gets the additional node roots.
     *
     * @return roots for connected nodes that are in the reference expression, but not in the
     * common expression.
@@ -66,6 +68,7 @@ public interface IsomorphicResults {
    Stream<LogicNode> getAdditionalNodeRoots();
 
    /**
+    * Gets the comparison expression.
     *
     * @return the expression that is compared to the reference expression to compute
     * isomorphic results.
@@ -73,6 +76,7 @@ public interface IsomorphicResults {
    LogicalExpression getComparisonExpression();
 
    /**
+    * Gets the deleted node roots.
     *
     * @return roots for connected nodes that are in the comparison expression, but are not in
     * the common expression.
@@ -80,6 +84,7 @@ public interface IsomorphicResults {
    Stream<LogicNode> getDeletedNodeRoots();
 
    /**
+    * Gets the deleted relationship roots.
     *
     * @return roots for connected nodes that comprise is-a, typed relationships, or relationship groups that are
     * in the comparisonExpression, but not in the referenceExpression.
@@ -87,28 +92,31 @@ public interface IsomorphicResults {
    Stream<LogicNode> getDeletedRelationshipRoots();
 
    /**
-    * 
-    *  @return an expression containing only the connected set of nodes representing
+    * Gets the isomorphic expression.
+    *
+    * @return an expression containing only the connected set of nodes representing
     *  the maximal common isomorphism between the two expressions that are connected
     *  to their respective roots.
     */
    LogicalExpression getIsomorphicExpression();
 
    /**
-    *  
+    *
     *   @return an expression containing a merger of all the nodes in the reference and comparison expression.
     */
    LogicalExpression getMergedExpression();
 
    /**
+    * Gets the reference expression.
     *
     * @return the expression that isomorphic results are computed with respect to.
     */
    LogicalExpression getReferenceExpression();
 
    /**
-    * 
-    *  @return roots for connected nodes that comprise is-a, typed relationships, or relationship groups that are
+    * Gets the shared relationship roots.
+    *
+    * @return roots for connected nodes that comprise is-a, typed relationships, or relationship groups that are
     *  in both the referenceExpression and in the comparisonExpression.
     */
    Stream<LogicNode> getSharedRelationshipRoots();

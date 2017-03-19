@@ -49,14 +49,23 @@ import sh.isaac.api.ticker.Ticker;
  * Created by kec on 4/9/15.
  */
 public class HeapUseTicker {
+   /** The Constant ticker. */
    private static final Ticker ticker = new Ticker();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Start.
+    *
+    * @param intervalInSeconds the interval in seconds
+    */
    public static void start(int intervalInSeconds) {
       ticker.start(intervalInSeconds, (tick) -> System.out.println(MemoryUtil.getHeapPercentUse()));
    }
 
+   /**
+    * Stop.
+    */
    public static void stop() {
       ticker.stop();
    }

@@ -48,15 +48,24 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeFloat}
+ * {@link DynamicSememeFloat}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface DynamicSememeFloat
         extends DynamicSememeData {
+   /**
+    * Gets the data float.
+    *
+    * @return the data float
+    */
    public float getDataFloat();
 
+   /**
+    * Gets the data float property.
+    *
+    * @return the data float property
+    */
    public ReadOnlyObjectProperty<Float> getDataFloatProperty();
 }
 

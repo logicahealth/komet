@@ -58,29 +58,42 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link DynamicSememeUUIDTest}
+ * {@link DynamicSememeUUIDTest}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeUUIDTest {
+   /**
+    * Test serialization.
+    *
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Test
    public void testSerialization()
             throws PropertyVetoException, IOException {
-      UUID[] testValues = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
+      final UUID[] testValues = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
 
-      for (UUID uuid: testValues) {
+      for (final UUID uuid: testValues) {
          test(uuid);
       }
    }
 
+   /**
+    * Test.
+    *
+    * @param value the value
+    * @throws PropertyVetoException the property veto exception
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private void test(UUID value)
             throws PropertyVetoException, IOException {
-      DynamicSememeUUIDImpl uuid = new DynamicSememeUUIDImpl(value);
+      final DynamicSememeUUIDImpl uuid = new DynamicSememeUUIDImpl(value);
 
       assertEquals(value, uuid.getDataUUID());
-      assertEquals(value, (UUID) uuid.getDataObject());
-      assertEquals(value, (UUID) uuid.getDataObjectProperty()
-                                     .get());
+      assertEquals(value, uuid.getDataObject());
+      assertEquals(value, uuid.getDataObjectProperty()
+                              .get());
       assertEquals(uuid.getDynamicSememeDataType(), DynamicSememeDataType.UUID);
    }
 }

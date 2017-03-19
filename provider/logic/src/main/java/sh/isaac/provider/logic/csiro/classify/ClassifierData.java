@@ -71,29 +71,58 @@ import sh.isaac.provider.logic.csiro.axioms.GraphToAxiomTranslator;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ClassifierData.
  *
  * @author kec
  */
 public class ClassifierData
          implements ChronologyChangeListener {
-   private static final Logger                          log                = LogManager.getLogger();
+   /** The Constant log. */
+   private static final Logger log = LogManager.getLogger();
+
+   /** The Constant singletonReference. */
    private static final AtomicReference<ClassifierData> singletonReference = new AtomicReference<>();
 
    //~--- fields --------------------------------------------------------------
 
-   private final UUID     listenerUuid                 = UUID.randomUUID();
-   private boolean        incrementalAllowed           = false;
-   GraphToAxiomTranslator allGraphsToAxiomTranslator   = new GraphToAxiomTranslator();
+   /** The listener uuid. */
+   private final UUID listenerUuid = UUID.randomUUID();
+
+   /** The incremental allowed. */
+   private boolean incrementalAllowed = false;
+
+   /** The all graphs to axiom translator. */
+   GraphToAxiomTranslator allGraphsToAxiomTranslator = new GraphToAxiomTranslator();
+
+   /** The incremental to axiom translator. */
    GraphToAxiomTranslator incrementalToAxiomTranslator = new GraphToAxiomTranslator();
-   IReasoner              reasoner                     = new SnorocketReasoner();
-   ConceptSequenceSet     loadedConcepts               = new ConceptSequenceSet();
-   Instant                lastClassifyInstant;
-   ClassificationType     lastClassifyType;
-   StampCoordinate        stampCoordinate;
-   LogicCoordinate        logicCoordinate;
+
+   /** The reasoner. */
+   IReasoner reasoner = new SnorocketReasoner();
+
+   /** The loaded concepts. */
+   ConceptSequenceSet loadedConcepts = new ConceptSequenceSet();
+
+   /** The last classify instant. */
+   Instant lastClassifyInstant;
+
+   /** The last classify type. */
+   ClassificationType lastClassifyType;
+
+   /** The stamp coordinate. */
+   StampCoordinate stampCoordinate;
+
+   /** The logic coordinate. */
+   LogicCoordinate logicCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new classifier data.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param logicCoordinate the logic coordinate
+    */
    private ClassifierData(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
       this.stampCoordinate = stampCoordinate;
       this.logicCoordinate = logicCoordinate;
@@ -101,62 +130,81 @@ public class ClassifierData
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Classify.
+    *
+    * @return the i reasoner
+    */
    public IReasoner classify() {
-      loadedConcepts = allGraphsToAxiomTranslator.getLoadedConcepts();
-      allGraphsToAxiomTranslator.clear();
-      lastClassifyInstant = Instant.now();
+      this.loadedConcepts = this.allGraphsToAxiomTranslator.getLoadedConcepts();
+      this.allGraphsToAxiomTranslator.clear();
+      this.lastClassifyInstant = Instant.now();
 
-      if (lastClassifyType == null) {
-         lastClassifyType   = ClassificationType.COMPLETE;
-         incrementalAllowed = true;
+      if (this.lastClassifyType == null) {
+         this.lastClassifyType   = ClassificationType.COMPLETE;
+         this.incrementalAllowed = true;
       } else {
-         if (incrementalAllowed) {
-            lastClassifyType = ClassificationType.INCREMENTAL;
-            incrementalToAxiomTranslator.clear();
+         if (this.incrementalAllowed) {
+            this.lastClassifyType = ClassificationType.INCREMENTAL;
+            this.incrementalToAxiomTranslator.clear();
          } else {
-            lastClassifyType = ClassificationType.COMPLETE;
+            this.lastClassifyType = ClassificationType.COMPLETE;
          }
       }
 
-      return reasoner.classify();
+      return this.reasoner.classify();
    }
 
+   /**
+    * Clear axioms.
+    */
    public void clearAxioms() {
-      allGraphsToAxiomTranslator.clear();
-      incrementalToAxiomTranslator.clear();
+      this.allGraphsToAxiomTranslator.clear();
+      this.incrementalToAxiomTranslator.clear();
    }
 
+   /**
+    * Handle change.
+    *
+    * @param cc the cc
+    */
    @Override
    public void handleChange(ConceptChronology cc) {
       // Nothing to do... Only concerned about changes to logic graph.
    }
 
+   /**
+    * Handle change.
+    *
+    * @param sc the sc
+    */
    @Override
    public void handleChange(SememeChronology sc) {
-      if (sc.getAssemblageSequence() == logicCoordinate.getStatedAssemblageSequence()) {
+      if (sc.getAssemblageSequence() == this.logicCoordinate.getStatedAssemblageSequence()) {
          log.info("Stated form change: " + sc);
 
          // only process if incremental is a possibility.
-         if (incrementalAllowed) {
-            Optional<LatestVersion<LogicGraphSememeImpl>> optionalLatest =
+         if (this.incrementalAllowed) {
+            final Optional<LatestVersion<LogicGraphSememeImpl>> optionalLatest =
                sc.getLatestVersion(LogicGraphSememeImpl.class,
-                                   stampCoordinate);
+                                   this.stampCoordinate);
 
             if (optionalLatest.isPresent()) {
-               LatestVersion<LogicGraphSememeImpl> latest = optionalLatest.get();
+               final LatestVersion<LogicGraphSememeImpl> latest = optionalLatest.get();
 
                // get stampCoordinate for last classify.
-               StampCoordinate stampToCompare = stampCoordinate.makeAnalog(lastClassifyInstant.toEpochMilli());
+               final StampCoordinate stampToCompare =
+                  this.stampCoordinate.makeAnalog(this.lastClassifyInstant.toEpochMilli());
 
                // See if there is a change in the optionalLatest vs the last classify.
-               Optional<LatestVersion<LogicGraphSememeImpl>> optionalPrevious =
+               final Optional<LatestVersion<LogicGraphSememeImpl>> optionalPrevious =
                   sc.getLatestVersion(LogicGraphSememeImpl.class,
                                       stampToCompare);
 
                if (optionalPrevious.isPresent()) {
                   // See if the change has deletions, if so then incremental is not allowed.
-                  LatestVersion<LogicGraphSememeImpl> previous  = optionalPrevious.get();
-                  boolean                             deletions = false;
+                  final LatestVersion<LogicGraphSememeImpl> previous  = optionalPrevious.get();
+                  boolean                                   deletions = false;
 
                   if (latest.value()
                             .getGraphData().length <= previous.value().getGraphData().length) {
@@ -167,79 +215,122 @@ public class ClassifierData
                   }
 
                   if (deletions) {
-                     incrementalAllowed = false;
-                     incrementalToAxiomTranslator.clear();
-                     reasoner = new SnorocketReasoner();
+                     this.incrementalAllowed = false;
+                     this.incrementalToAxiomTranslator.clear();
+                     this.reasoner = new SnorocketReasoner();
                   } else {
                      // Otherwise add axioms...
-                     incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value());
+                     this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value());
                   }
                } else {
                   // Otherwise add axioms...
-                  incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value());
+                  this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value());
                }
             }
          }
       }
    }
 
+   /**
+    * Handle commit.
+    *
+    * @param commitRecord the commit record
+    */
    @Override
    public void handleCommit(CommitRecord commitRecord) {
       // already handled with the handle change above.
    }
 
+   /**
+    * Load axioms.
+    */
    public void loadAxioms() {
-      if (incrementalAllowed) {
-         reasoner.loadAxioms(incrementalToAxiomTranslator.getAxioms());
-         loadedConcepts = incrementalToAxiomTranslator.getLoadedConcepts();
+      if (this.incrementalAllowed) {
+         this.reasoner.loadAxioms(this.incrementalToAxiomTranslator.getAxioms());
+         this.loadedConcepts = this.incrementalToAxiomTranslator.getLoadedConcepts();
       } else {
-         reasoner.loadAxioms(allGraphsToAxiomTranslator.getAxioms());
-         loadedConcepts = allGraphsToAxiomTranslator.getLoadedConcepts();
+         this.reasoner.loadAxioms(this.allGraphsToAxiomTranslator.getAxioms());
+         this.loadedConcepts = this.allGraphsToAxiomTranslator.getLoadedConcepts();
       }
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return "ClassifierData{" + "graphToAxiomTranslator=" + allGraphsToAxiomTranslator +
-             ",\n incrementalToAxiomTranslator=" + incrementalToAxiomTranslator + ",\n reasoner=" + reasoner +
-             ",\n lastClassifyInstant=" + lastClassifyInstant + ",\n lastClassifyType=" + lastClassifyType +
-             ",\n stampCoordinate=" + stampCoordinate + ",\n logicCoordinate=" + logicCoordinate + '}';
+      return "ClassifierData{" + "graphToAxiomTranslator=" + this.allGraphsToAxiomTranslator +
+             ",\n incrementalToAxiomTranslator=" + this.incrementalToAxiomTranslator + ",\n reasoner=" +
+             this.reasoner + ",\n lastClassifyInstant=" + this.lastClassifyInstant + ",\n lastClassifyType=" +
+             this.lastClassifyType + ",\n stampCoordinate=" + this.stampCoordinate + ",\n logicCoordinate=" +
+             this.logicCoordinate + '}';
    }
 
+   /**
+    * Translate.
+    *
+    * @param lgs the lgs
+    */
    public void translate(LogicGraphSememeImpl lgs) {
-      allGraphsToAxiomTranslator.convertToAxiomsAndAdd(lgs);
+      this.allGraphsToAxiomTranslator.convertToAxiomsAndAdd(lgs);
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the affected concept sequence set.
+    *
+    * @return the affected concept sequence set
+    */
    public ConceptSequenceSet getAffectedConceptSequenceSet() {
-      ConceptSequenceSet affectedConceptSequences = new ConceptSequenceSet();
+      final ConceptSequenceSet affectedConceptSequences = new ConceptSequenceSet();
 
-      if (lastClassifyType == ClassificationType.INCREMENTAL) {
+      if (this.lastClassifyType == ClassificationType.INCREMENTAL) {
          // not returning loaded concepts here, because incremental classification
          // can affect concepts other than what was loaded.
-         reasoner.getClassifiedOntology().getAffectedNodes().forEach((node) -> {
-                             if (node != null) {  // TODO why does the classifier include null in the affected node set.
-                                node.getEquivalentConcepts()
-                                    .forEach(
-                                        (equalivent) -> affectedConceptSequences.add(Integer.parseInt(equalivent)));
-                             }
-                          });
+         this.reasoner.getClassifiedOntology().getAffectedNodes().forEach((node) -> {
+                                  if (node !=
+                                      null) {  // TODO why does the classifier include null in the affected node set.
+                                     node.getEquivalentConcepts()
+                                         .forEach(
+                                             (equalivent) -> affectedConceptSequences.add(
+                                                 Integer.parseInt(equalivent)));
+                                  }
+                               });
       } else {
-         return loadedConcepts;
+         return this.loadedConcepts;
       }
 
       return affectedConceptSequences;
    }
 
+   /**
+    * Checks if classified.
+    *
+    * @return true, if classified
+    */
    public boolean isClassified() {
-      return reasoner.isClassified();
+      return this.reasoner.isClassified();
    }
 
+   /**
+    * Gets the classified ontology.
+    *
+    * @return the classified ontology
+    */
    public Ontology getClassifiedOntology() {
-      return reasoner.getClassifiedOntology();
+      return this.reasoner.getClassifiedOntology();
    }
 
+   /**
+    * Gets the.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param logicCoordinate the logic coordinate
+    * @return the classifier data
+    */
    public static ClassifierData get(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
       if (singletonReference.get() == null) {
          singletonReference.compareAndSet(null, new ClassifierData(stampCoordinate, logicCoordinate));
@@ -251,7 +342,7 @@ public class ClassifierData
             Get.commitService()
                .removeChangeListener(classifierData);
 
-            ClassifierData newClassifierData = new ClassifierData(stampCoordinate, logicCoordinate);
+            final ClassifierData newClassifierData = new ClassifierData(stampCoordinate, logicCoordinate);
 
             singletonReference.compareAndSet(classifierData, newClassifierData);
             classifierData = singletonReference.get();
@@ -263,17 +354,32 @@ public class ClassifierData
       return singletonReference.get();
    }
 
+   /**
+    * Checks if incremental allowed.
+    *
+    * @return true, if incremental allowed
+    */
    public boolean isIncrementalAllowed() {
-      return incrementalAllowed;
+      return this.incrementalAllowed;
    }
 
+   /**
+    * Gets the last classify instant.
+    *
+    * @return the last classify instant
+    */
    public Instant getLastClassifyInstant() {
       return this.lastClassifyInstant;
    }
 
+   /**
+    * Gets the listener uuid.
+    *
+    * @return the listener uuid
+    */
    @Override
    public UUID getListenerUuid() {
-      return listenerUuid;
+      return this.listenerUuid;
    }
 }
 

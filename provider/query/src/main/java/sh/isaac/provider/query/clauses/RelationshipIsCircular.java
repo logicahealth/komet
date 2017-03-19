@@ -74,18 +74,36 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class RelationshipIsCircular
         extends LeafClause {
+   /** The rel type key. */
    @XmlElement
-   String             relTypeKey;
+   String relTypeKey;
+
+   /** The view coordinate key. */
    @XmlElement
-   String             viewCoordinateKey;
+   String viewCoordinateKey;
+
+   /** The rel type subsumption key. */
    @XmlElement
-   String             relTypeSubsumptionKey;
+   String relTypeSubsumptionKey;
+
+   /** The rel type set. */
    ConceptSequenceSet relTypeSet;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new relationship is circular.
+    */
    protected RelationshipIsCircular() {}
 
+   /**
+    * Instantiates a new relationship is circular.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param relTypeKey the rel type key
+    * @param viewCoordinateKey the view coordinate key
+    * @param relTypeSubsumptionKey the rel type subsumption key
+    */
    public RelationshipIsCircular(Query enclosingQuery,
                                  String relTypeKey,
                                  String viewCoordinateKey,
@@ -98,27 +116,33 @@ public class RelationshipIsCircular
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compute possible components.
+    *
+    * @param incomingPossibleComponents the incoming possible components
+    * @return the nid set
+    */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
 //    System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
-      TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) enclosingQuery.getLetDeclarations()
-                                                                                 .get(viewCoordinateKey);
-      ConceptSpecification relType = (ConceptSpecification) enclosingQuery.getLetDeclarations()
-                                                                          .get(relTypeKey);
-      Boolean              relTypeSubsumption = (Boolean) enclosingQuery.getLetDeclarations()
-                                                                        .get(relTypeSubsumptionKey);
+      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+                                                                                            .get(this.viewCoordinateKey);
+      final ConceptSpecification relType = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+                                                                                     .get(this.relTypeKey);
+      Boolean relTypeSubsumption = (Boolean) this.enclosingQuery.getLetDeclarations()
+                                                                .get(this.relTypeSubsumptionKey);
 
       // The default is to set relTypeSubsumption and destinationSubsumption to true.
       if (relTypeSubsumption == null) {
          relTypeSubsumption = true;
       }
 
-      relTypeSet = new ConceptSequenceSet();
-      relTypeSet.add(relType.getConceptSequence());
+      this.relTypeSet = new ConceptSequenceSet();
+      this.relTypeSet.add(relType.getConceptSequence());
 
       if (relTypeSubsumption) {
-         relTypeSet.or(Get.taxonomyService()
-                          .getKindOfSequenceSet(relType.getConceptSequence(), taxonomyCoordinate));
+         this.relTypeSet.or(Get.taxonomyService()
+                               .getKindOfSequenceSet(relType.getConceptSequence(), taxonomyCoordinate));
       }
 
       return incomingPossibleComponents;
@@ -126,11 +150,22 @@ public class RelationshipIsCircular
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_ITERATION_AND_ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
       throw new UnsupportedOperationException();
@@ -147,17 +182,22 @@ public class RelationshipIsCircular
        */
    }
 
+   /**
+    * Gets the where clause.
+    *
+    * @return the where clause
+    */
    @Override
    public WhereClause getWhereClause() {
-      WhereClause whereClause = new WhereClause();
+      final WhereClause whereClause = new WhereClause();
 
       whereClause.setSemantic(ClauseSemantic.RELATIONSHIP_IS_CIRCULAR);
       whereClause.getLetKeys()
-                 .add(relTypeKey);
+                 .add(this.relTypeKey);
       whereClause.getLetKeys()
-                 .add(viewCoordinateKey);
+                 .add(this.viewCoordinateKey);
       whereClause.getLetKeys()
-                 .add(relTypeSubsumptionKey);
+                 .add(this.relTypeSubsumptionKey);
 
 //    System.out.println("Where clause size: " + whereClause.getLetKeys().size());
       return whereClause;

@@ -39,12 +39,6 @@
 
 package sh.isaac.api.component.sememe.version.dynamicSememe;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.io.IOException;
-
-import java.util.function.Supplier;
-
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -52,7 +46,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- * {@link DynamicSememeData}
+ * {@link DynamicSememeData}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
@@ -62,19 +56,23 @@ public interface DynamicSememeData {
     * If necessary, the missing information can be set via this method, so that the toString and getDataXXXProperty() methods
     * can have an appropriate name in them.  This method does nothing, if it already had the information necessary to calculate
     *
-    * @param nameProvider
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
     */
    public void configureNameProvider(int assemblageSequence, int columnNumber);
 
    /**
-    * Return a string representation of the data fields
-    * @return
+    * Return a string representation of the data fields.
+    *
+    * @return the string
     */
    public String dataToString();
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data.
+    *
     * @return The data object itself, in its most compact, serialized form. You
     *         probably don't want this method unless you are doing something clever....
     *         For a getData() method that doesn't require deserialization, see the {@link #getDataObject()} method.
@@ -84,6 +82,8 @@ public interface DynamicSememeData {
    public byte[] getData();
 
    /**
+    * Gets the data object.
+    *
     * @return The data object itself.
     *         For a getData() method that doesn't  require casting of the output, see the getDataXXX() method
     *         available within implementations of the {@link DynamicSememeData} interface.
@@ -91,15 +91,17 @@ public interface DynamicSememeData {
    public Object getDataObject();
 
    /**
+    * Gets the data object property.
+    *
     * @return The data object itself.
     *         For a getDataProperty() method that doesn't  require casting of the output, see the getDataXXXProperty() methods
     *         available within implementations of the {@link DynamicSememeData} interface.
-    * @throws ContradictionException
-    * @throws IOException
     */
    public ReadOnlyObjectProperty<?> getDataObjectProperty();
 
    /**
+    * Gets the dynamic sememe data type.
+    *
     * @return The type information of the data
     */
    public DynamicSememeDataType getDynamicSememeDataType();

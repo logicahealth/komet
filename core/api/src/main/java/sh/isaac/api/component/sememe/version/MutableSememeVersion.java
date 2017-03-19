@@ -46,9 +46,10 @@ import sh.isaac.api.chronicle.MutableStampedVersion;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface MutableSememeVersion.
  *
  * @author kec
- * @param <T>
+ * @param <T> the generic type
  */
 public interface MutableSememeVersion<T extends MutableSememeVersion<T>>
         extends MutableStampedVersion, SememeVersion<T> {}

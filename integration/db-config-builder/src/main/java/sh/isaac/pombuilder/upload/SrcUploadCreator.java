@@ -53,7 +53,6 @@ import java.util.List;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 
 import javafx.concurrent.Task;
 
@@ -71,36 +70,38 @@ import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
  * {@link SrcUploadCreator}
- * Create a new maven pom project which when executed, will upload a set of SDO input files
+ * Create a new maven pom project which when executed, will upload a set of SDO input files.
+ *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class SrcUploadCreator {
+   /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Creates the src upload configuration.
+    *
     * @param uploadType - What type of content is being uploaded.
     * @param version - What version number does the passed in content represent
     * @param extensionName - optional - If the upload type is a type such as {@link SupportedConverterTypes#SCT_EXTENSION} which contains a
     * wildcard '*' in its {@link SupportedConverterTypes#getArtifactId()} value, this parameter must be provided, and is the string to use to
     * replace the wildcard.  This would typically be a value such as "en" or "fr", when used for snomed extension content.
-    * @param folderContainingContent - The folder that contains the required data files - these files will be zipped into an artifact and uploaded
-    * to the artifactRepositoryURL.
+    * @param filesToUpload the files to upload
     * @param gitRepositoryURL - The URL to publish this built project to
     * @param gitUsername - The username to utilize to publish this project
-    * @param getPassword - The password to utilize to publish this project
-    * @return the tag created in the repository that carries the created project
+    * @param gitPassword the git password
     * @param artifactRepositoryURL - The artifact server path where the created artifact should be transferred.  This path should go all the way down to
     * a specific repository, such as http://artifactory.isaac.sh/artifactory/libs-release-local or http://artifactory.isaac.sh/artifactory/termdata-release-local
     * This should not point to a URL that represents a 'group' repository view.
     * @param repositoryUsername - The username to utilize to upload the artifact to the artifact server
     * @param repositoryPassword - The passwordto utilize to upload the artifact to the artifact server
-    * @return - the task handle - which will return the tag that was created in the git repository upon completion.  Note that the task is NOT yet started, when
+    * @return the tag created in the repository that carries the created project
+    * - the task handle - which will return the tag that was created in the git repository upon completion.  Note that the task is NOT yet started, when
     * it is returned.
-    * @throws Throwable
+    * @throws Throwable the throwable
     */
    public static Task<String> createSrcUploadConfiguration(SupportedConverterTypes uploadType,
          String version,
@@ -130,7 +131,7 @@ public class SrcUploadCreator {
          throw new Exception("No content was found to upload!");
       }
 
-      Task<String> uploader = new Task<String>() {
+      final Task<String> uploader = new Task<String>() {
          @Override
          protected String call()
                   throws Exception {
@@ -143,7 +144,7 @@ public class SrcUploadCreator {
                                  .toFile();
 
                // Otherwise, move forward.  Create our native-source folder, and move everything into it.
-               File nativeSource = new File(baseFolder, "native-source");
+               final File nativeSource = new File(baseFolder, "native-source");
 
                if (nativeSource.exists()) {
                   LOG.info("Task failing due to unexpected file in upload content '{}'", nativeSource);
@@ -152,7 +153,7 @@ public class SrcUploadCreator {
 
                nativeSource.mkdir();
 
-               for (File f: filesToUpload) {
+               for (final File f: filesToUpload) {
                   // validate it is a file, move it into native-source
                   if (f.isFile()) {
                      Files.move(f.toPath(), nativeSource.toPath()
@@ -164,8 +165,8 @@ public class SrcUploadCreator {
                   }
                }
 
-               StringBuffer            noticeAppend = new StringBuffer();
-               HashMap<String, String> pomSwaps     = new HashMap<>();
+               final StringBuffer            noticeAppend = new StringBuffer();
+               final HashMap<String, String> pomSwaps     = new HashMap<>();
 
                pomSwaps.put("#VERSION#", version);
                pomSwaps.put("#SCM_URL#", GitPublish.constructChangesetRepositoryURL(gitRepositoryURL));
@@ -188,12 +189,12 @@ public class SrcUploadCreator {
                             uploadType.getLicenseInformation()[0]);  // we only use the first license for source upload
                noticeAppend.append(uploadType.getNoticeInformation()[0]);  // only use the first notice info
 
-               String tagWithoutRevNumber = pomSwaps.get("#GROUPID#") + "/" + pomSwaps.get("#ARTIFACTID#") + "/" +
-                                            pomSwaps.get("#VERSION#");
+               final String tagWithoutRevNumber = pomSwaps.get("#GROUPID#") + "/" + pomSwaps.get("#ARTIFACTID#") +
+                                                  "/" + pomSwaps.get("#VERSION#");
 
                LOG.debug("Desired tag (withoutRevNumber): {}", tagWithoutRevNumber);
 
-               ArrayList<String> existingTags = GitPublish.readTags(gitRepositoryURL, gitUsername, gitPassword);
+               final ArrayList<String> existingTags = GitPublish.readTags(gitRepositoryURL, gitUsername, gitPassword);
 
                if (LOG.isDebugEnabled()) {
                   LOG.debug("Currently Existing tags in '{}': {} ",
@@ -201,8 +202,8 @@ public class SrcUploadCreator {
                             Arrays.toString(existingTags.toArray(new String[existingTags.size()])));
                }
 
-               int    highestBuildRevision = GitPublish.readHighestRevisionNumber(existingTags, tagWithoutRevNumber);
-               String tag;
+               final int highestBuildRevision = GitPublish.readHighestRevisionNumber(existingTags, tagWithoutRevNumber);
+               String    tag;
 
                // Fix version number
                if (highestBuildRevision == -1) {
@@ -230,16 +231,16 @@ public class SrcUploadCreator {
                updateTitle("Zipping content");
                LOG.debug("Zipping content");
 
-               Zip z = new Zip(pomSwaps.get("#ARTIFACTID#"),
-                               pomSwaps.get("#VERSION#"),
-                               null,
-                               null,
-                               new File(baseFolder, "target"),
-                               nativeSource,
-                               false);
-               ArrayList<File> toZip = new ArrayList<>();
+               final Zip z = new Zip(pomSwaps.get("#ARTIFACTID#"),
+                                     pomSwaps.get("#VERSION#"),
+                                     null,
+                                     null,
+                                     new File(baseFolder, "target"),
+                                     nativeSource,
+                                     false);
+               final ArrayList<File> toZip = new ArrayList<>();
 
-               for (File f: nativeSource.listFiles()) {
+               for (final File f: nativeSource.listFiles()) {
                   if (f.getName()
                        .equals(".gitignore")) {
                      // noop
@@ -248,55 +249,37 @@ public class SrcUploadCreator {
                   }
                }
 
-               z.getStatus().addListener(new ChangeListener<String>() {
-                                @Override
-                                public void changed(ObservableValue<? extends String> observable,
-                                                    String oldValue,
-                                                    String newValue) {
-                                   updateMessage(newValue);
-                                }
-                             });
+               z.getStatus()
+                .addListener((ChangeListener<String>) (observable, oldValue, newValue) -> updateMessage(newValue));
                z.getTotalWork()
                 .add(z.getWorkComplete())
-                .addListener(new ChangeListener<Number>() {
-                                @Override
-                                public void changed(
-                                ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                                   updateProgress(z.getWorkComplete()
-                                                   .get(), z.getTotalWork()
-                                                         .get());
-                                }
-                             });
+                .addListener((ChangeListener<Number>) (observable, oldValue,
+                     newValue) -> updateProgress(z.getWorkComplete()
+                                                  .get(),
+                                                 z.getTotalWork()
+                                                  .get()));
 
                // This blocks till complete
-               File zipFile = z.addFiles(toZip);
+               final File zipFile = z.addFiles(toZip);
 
                LOG.info("Zip complete, publishing to artifact repo {}", artifactRepositoryURL);
                updateTitle("Publishing files to the Artifact Repository");
 
-               MavenPublish pm = new MavenPublish(pomSwaps.get("#GROUPID#"),
-                                                  pomSwaps.get("#ARTIFACTID#"),
-                                                  pomSwaps.get("#VERSION#"),
-                                                  new File(baseFolder, "pom.xml"),
-                                                  new File[] { zipFile },
-                                                  artifactRepositoryURL,
-                                                  repositoryUsername,
-                                                  repositoryPassword);
+               final MavenPublish pm = new MavenPublish(pomSwaps.get("#GROUPID#"),
+                                                        pomSwaps.get("#ARTIFACTID#"),
+                                                        pomSwaps.get("#VERSION#"),
+                                                        new File(baseFolder, "pom.xml"),
+                                                        new File[] { zipFile },
+                                                        artifactRepositoryURL,
+                                                        repositoryUsername,
+                                                        repositoryPassword);
 
-               pm.progressProperty().addListener(new ChangeListener<Number>() {
-                                 @Override
-                                 public void changed(
-                                 ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                                    updateProgress(pm.getWorkDone(), pm.getTotalWork());
-                                 }
-                              });
-               pm.messageProperty().addListener(new ChangeListener<String>() {
-                                 @Override
-                                 public void changed(
-                                 ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                                    updateMessage(newValue);
-                                 }
-                              });
+               pm.progressProperty()
+                 .addListener((ChangeListener<Number>) (observable, oldValue,
+                     newValue) -> updateProgress(pm.getWorkDone(),
+                                                 pm.getTotalWork()));
+               pm.messageProperty()
+                 .addListener((ChangeListener<String>) (observable, oldValue, newValue) -> updateMessage(newValue));
                WorkExecutors.get()
                             .getExecutor()
                             .execute(pm);
@@ -307,19 +290,19 @@ public class SrcUploadCreator {
 
                try {
                   FileUtil.recursiveDelete(baseFolder);
-               } catch (Exception e) {
+               } catch (final Exception e) {
                   LOG.error("Problem cleaning up temp folder " + baseFolder, e);
                }
 
                updateTitle("Complete");
                return tag;
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
                LOG.error("Unexpected error", e);
                throw new RuntimeException(e);
             } finally {
                try {
                   FileUtil.recursiveDelete(baseFolder);
-               } catch (Exception e) {
+               } catch (final Exception e) {
                   LOG.error("Problem cleaning up temp folder " + baseFolder, e);
                }
             }

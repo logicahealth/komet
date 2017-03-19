@@ -48,15 +48,24 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeNid}
+ * {@link DynamicSememeNid}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface DynamicSememeNid
         extends DynamicSememeData {
+   /**
+    * Gets the data nid.
+    *
+    * @return the data nid
+    */
    public int getDataNid();
 
+   /**
+    * Gets the data nid property.
+    *
+    * @return the data nid property
+    */
    public ReadOnlyObjectProperty<Integer> getDataNidProperty();
 }
 

@@ -48,7 +48,6 @@ import java.util.function.ObjIntConsumer;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.mahout.math.function.ObjectIntProcedure;
 import org.apache.mahout.math.map.OpenObjectIntHashMap;
 
 //~--- classes ----------------------------------------------------------------
@@ -58,61 +57,97 @@ import org.apache.mahout.math.map.OpenObjectIntHashMap;
  * @param <T> Type of object in map.
  */
 public class ConcurrentObjectIntMap<T> {
-   private final ReentrantReadWriteLock rwl        = new ReentrantReadWriteLock();
-   private final Lock                   read       = rwl.readLock();
-   private final Lock                   write      = rwl.writeLock();
-   OpenObjectIntHashMap<T>              backingMap = new OpenObjectIntHashMap<>();
+   /** The rwl. */
+   private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+
+   /** The read. */
+   private final Lock read = this.rwl.readLock();
+
+   /** The write. */
+   private final Lock write = this.rwl.writeLock();
+
+   /** The backing map. */
+   OpenObjectIntHashMap<T> backingMap = new OpenObjectIntHashMap<>();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Contains key.
+    *
+    * @param key the key
+    * @return true, if successful
+    */
    public boolean containsKey(T key) {
       try {
-         read.lock();
-         return backingMap.containsKey(key);
+         this.read.lock();
+         return this.backingMap.containsKey(key);
       } finally {
-         if (read != null) {
-            read.unlock();
+         if (this.read != null) {
+            this.read.unlock();
          }
       }
    }
 
+   /**
+    * For each pair.
+    *
+    * @param consumer the consumer
+    */
    public void forEachPair(ObjIntConsumer<T> consumer) {
-      backingMap.forEachPair((T first,
-                              int second) -> {
-                                consumer.accept(first, second);
-                                return true;
-                             });
+      this.backingMap.forEachPair((T first,
+                                   int second) -> {
+                                     consumer.accept(first, second);
+                                     return true;
+                                  });
    }
 
+   /**
+    * Put.
+    *
+    * @param key the key
+    * @param value the value
+    * @return true, if successful
+    */
    public boolean put(T key, int value) {
       try {
-         write.lock();
-         return backingMap.put(key, value);
+         this.write.lock();
+         return this.backingMap.put(key, value);
       } finally {
-         if (write != null) {
-            write.unlock();
+         if (this.write != null) {
+            this.write.unlock();
          }
       }
    }
 
+   /**
+    * Size.
+    *
+    * @return the int
+    */
    public int size() {
-      return backingMap.size();
+      return this.backingMap.size();
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the.
+    *
+    * @param key the key
+    * @return the optional int
+    */
    public OptionalInt get(T key) {
       try {
-         read.lock();
+         this.read.lock();
 
-         if (backingMap.containsKey(key)) {
-            return OptionalInt.of(backingMap.get(key));
+         if (this.backingMap.containsKey(key)) {
+            return OptionalInt.of(this.backingMap.get(key));
          }
 
          return OptionalInt.empty();
       } finally {
-         if (read != null) {
-            read.unlock();
+         if (this.read != null) {
+            this.read.unlock();
          }
       }
    }

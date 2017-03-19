@@ -39,31 +39,58 @@
 
 package sh.isaac.converters.sharedUtils.sql;
 
+/**
+ * The Class ColumnDefinition.
+ */
 public class ColumnDefinition {
-   private String   columnName_;
-   private DataType dataType_;
+   /** The column name. */
+   private final String columnName;
+
+   /** The data type. */
+   private final DataType dataType;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new column definition.
+    *
+    * @param columnName the column name
+    * @param dataType the data type
+    */
    public ColumnDefinition(String columnName, DataType dataType) {
-      columnName_ = columnName;
-      dataType_   = dataType;
+      this.columnName = columnName;
+      this.dataType   = dataType;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * As H 2.
+    *
+    * @return the string
+    */
    public String asH2() {
-      return columnName_ + " " + dataType_.asH2();
+      return this.columnName + " " + this.dataType.asH2();
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the column name.
+    *
+    * @return the column name
+    */
    public String getColumnName() {
-      return columnName_;
+      return this.columnName;
    }
 
+   /**
+    * Gets the data type.
+    *
+    * @return the data type
+    */
    public DataType getDataType() {
-      return dataType_;
+      return this.dataType;
    }
 }
 

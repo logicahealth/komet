@@ -81,12 +81,14 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class ObjectChronologyImpl.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
          implements ObjectChronology<V>, WaitFreeComparable {
+   /** The Constant STAMPED_LOCKS. */
    private static final StampedLock[] STAMPED_LOCKS = new StampedLock[256];
 
    //~--- static initializers -------------------------------------------------
@@ -104,9 +106,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     */
    private short versionSequence = 0;
 
-   /**
-    * Position in the data where chronicle data ends, and version data starts
-    */
+   /** Position in the data where chronicle data ends, and version data starts. */
    private int versionStartPosition = -1;
 
    /**
@@ -119,24 +119,16 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     */
    private int writeSequence;
 
-   /**
-    * Primordial uuid most significant bits for this component
-    */
+   /** Primordial uuid most significant bits for this component. */
    private long primordialUuidMsb;
 
-   /**
-    * Primordial uuid least significant bits for this component
-    */
+   /** Primordial uuid least significant bits for this component. */
    private long primordialUuidLsb;
 
-   /**
-    * additional uuid most and least significant bits for this component
-    */
+   /** additional uuid most and least significant bits for this component. */
    protected long[] additionalUuidParts;
 
-   /**
-    * Native identifier of this component
-    */
+   /** Native identifier of this component. */
    private int nid;
 
    /**
@@ -190,13 +182,24 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the additional uuids.
+    *
+    * @param uuid the uuid
+    */
    public void addAdditionalUuids(UUID uuid) {
-      List<UUID> temp = getUuidList();
+      final List<UUID> temp = getUuidList();
 
       temp.add(uuid);
       setAdditionalUuids(temp);
    }
 
+   /**
+    * Equals.
+    *
+    * @param o the o
+    * @return true, if successful
+    */
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -207,13 +210,13 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
          return false;
       }
 
-      ObjectChronologyImpl<?> that = (ObjectChronologyImpl<?>) o;
+      final ObjectChronologyImpl<?> that = (ObjectChronologyImpl<?>) o;
 
-      if (nid != that.nid) {
+      if (this.nid != that.nid) {
          return false;
       }
 
-      List<? extends V> versionList = getVersionList();
+      final List<? extends V> versionList = getVersionList();
 
       if (versionList.size() != that.getVersionList().size()) {
          return false;
@@ -223,14 +226,19 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
                              .equals(StampSequenceSet.of(that.getVersionStampSequences()));
    }
 
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
    @Override
    public int hashCode() {
-      return nid;
+      return this.nid;
    }
 
    /**
     * Merge this data, with data from another source to integrate into a single
-    * data sequence
+    * data sequence.
     *
     * @param writeSequence the write sequence to use for the merged data
     * @param dataToMerge data from another source to integrate with this data
@@ -239,36 +247,36 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
    public byte[] mergeData(int writeSequence, byte[] dataToMerge) {
       setWriteSequence(writeSequence);
 
-      ByteArrayDataBuffer db = new ByteArrayDataBuffer(512);
+      final ByteArrayDataBuffer db = new ByteArrayDataBuffer(512);
 
       writeChronicleData(db);
 
-      OpenIntHashSet writtenStamps = new OpenIntHashSet(11);
+      final OpenIntHashSet writtenStamps = new OpenIntHashSet(11);
 
-      if (unwrittenData != null) {
-         unwrittenData.values().forEach((version) -> {
-                                  int stampSequenceForVersion = version.getStampSequence();
+      if (this.unwrittenData != null) {
+         this.unwrittenData.values().forEach((version) -> {
+                                       final int stampSequenceForVersion = version.getStampSequence();
 
-                                  if (Get.stampService()
-                                         .isNotCanceled(stampSequenceForVersion)) {
-                                     writtenStamps.add(stampSequenceForVersion);
+                                       if (Get.stampService()
+                                              .isNotCanceled(stampSequenceForVersion)) {
+                                          writtenStamps.add(stampSequenceForVersion);
 
-                                     int startWritePosition = db.getPosition();
+                                          final int startWritePosition = db.getPosition();
 
-                                     db.putInt(0);  // placeholder for length
-                                     version.writeVersionData(db);
+                                          db.putInt(0);  // placeholder for length
+                                          version.writeVersionData(db);
 
-                                     int versionLength = db.getPosition() - startWritePosition;
+                                          final int versionLength = db.getPosition() - startWritePosition;
 
-                                     db.setPosition(startWritePosition);
-                                     db.putInt(versionLength);
-                                     db.setPosition(db.getLimit());
-                                  }
-                               });
+                                          db.setPosition(startWritePosition);
+                                          db.putInt(versionLength);
+                                          db.setPosition(db.getLimit());
+                                       }
+                                    });
       }
 
-      if (writtenData != null) {
-         mergeData(writtenData, writtenStamps, db);
+      if (this.writtenData != null) {
+         mergeData(this.writtenData, writtenStamps, db);
       }
 
       if (dataToMerge != null) {
@@ -285,13 +293,14 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * ByteArrayDataBuffer using externally valid identifiers (all nids, sequences, replaced with UUIDs).
     * @param out the buffer to write to.
     */
+   @Override
    public final void putExternal(ByteArrayDataBuffer out) {
       assert out.isExternalData() == true;
       writeChronicleData(out);
 
       // add versions...
-      for (V version: getVersionList()) {
-         int stampSequenceForVersion = version.getStampSequence();
+      for (final V version: getVersionList()) {
+         final int stampSequenceForVersion = version.getStampSequence();
 
          writeIfNotCanceled(out, version, stampSequenceForVersion);
       }
@@ -299,9 +308,14 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
       out.putInt(0);  // last data is a zero length version record
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      StringBuilder builder = new StringBuilder();
+      final StringBuilder builder = new StringBuilder();
 
       builder.append(this.getClass()
                          .getSimpleName());
@@ -311,14 +325,19 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
       return builder.toString();
    }
 
+   /**
+    * To string.
+    *
+    * @param builder the builder
+    */
    public void toString(StringBuilder builder) {
       builder  // .append("write:").append(writeSequence)
             .append("uuid:")
-            .append(new UUID(primordialUuidMsb, primordialUuidLsb))
+            .append(new UUID(this.primordialUuidMsb, this.primordialUuidLsb))
             .append(",\n nid:")
-            .append(nid)
+            .append(this.nid)
             .append("\n container:")
-            .append(containerSequence)
+            .append(this.containerSequence)
 
       // .append(", versionStartPosition:").append(versionStartPosition)
       .append(",\n versions[");
@@ -335,6 +354,11 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
       builder.append("]");
    }
 
+   /**
+    * To user string.
+    *
+    * @return the string
+    */
    @Override
    public String toUserString() {
       return toString();
@@ -346,21 +370,21 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * @param version the version to add
     */
    protected void addVersion(V version) {
-      if (unwrittenData == null) {
-         long lockStamp = getLock(nid).writeLock();
+      if (this.unwrittenData == null) {
+         final long lockStamp = getLock(this.nid).writeLock();
 
          try {
-            unwrittenData = new ConcurrentSkipListMap<>();
+            this.unwrittenData = new ConcurrentSkipListMap<>();
          } finally {
-            getLock(nid).unlockWrite(lockStamp);
+            getLock(this.nid).unlockWrite(lockStamp);
          }
       }
 
-      unwrittenData.put(version.getStampSequence(), version);
+      this.unwrittenData.put(version.getStampSequence(), version);
 
       // invalidate the version reference list, it will be reconstructed with the new version
       // added if requested via a call to versionStream();
-      versionListReference = null;
+      this.versionListReference = null;
    }
 
    /**
@@ -370,7 +394,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * @param data the buffer from which to derive the location data.
     */
    protected final void constructorEnd(ByteArrayDataBuffer data) {
-      versionStartPosition = data.getPosition();
+      this.versionStartPosition = data.getPosition();
    }
 
    /**
@@ -397,14 +421,14 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
       assert nextPosition >= 0: bb;
 
       while (nextPosition < bb.getLimit()) {
-         int versionLength = bb.getInt();
+         final int versionLength = bb.getInt();
 
          assert versionLength >= 0: bb;
 
          if (versionLength > 0) {
             nextPosition = nextPosition + versionLength;
 
-            int stampSequence = bb.getStampSequence();
+            final int stampSequence = bb.getStampSequence();
 
             if (stampSequence >= 0) {
                results.add(makeVersion(stampSequence, bb));
@@ -415,8 +439,15 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
       }
    }
 
+   /**
+    * Merge data.
+    *
+    * @param dataToMerge the data to merge
+    * @param writtenStamps the written stamps
+    * @param db the db
+    */
    protected void mergeData(byte[] dataToMerge, OpenIntHashSet writtenStamps, ByteArrayDataBuffer db) {
-      ByteArrayDataBuffer writtenBuffer = new ByteArrayDataBuffer(dataToMerge);
+      final ByteArrayDataBuffer writtenBuffer = new ByteArrayDataBuffer(dataToMerge);
 
       goToVersionStart(writtenBuffer);
 
@@ -425,10 +456,10 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
       while (nextPosition < writtenBuffer.getLimit()) {
          writtenBuffer.setPosition(nextPosition);
 
-         int versionLength = writtenBuffer.getInt();
+         final int versionLength = writtenBuffer.getInt();
 
          if (versionLength > 0) {
-            int stampSequenceForVersion = writtenBuffer.getInt();
+            final int stampSequenceForVersion = writtenBuffer.getInt();
 
             if ((!writtenStamps.contains(stampSequenceForVersion)) &&
                   Get.stampService().isNotCanceled(stampSequenceForVersion)) {
@@ -443,16 +474,27 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
       }
    }
 
+   /**
+    * Next version sequence.
+    *
+    * @return the short
+    */
    protected short nextVersionSequence() {
-      return versionSequence++;
+      return this.versionSequence++;
    }
 
+   /**
+    * Put additional chronicle fields.
+    *
+    * @param out the out
+    */
    protected abstract void putAdditionalChronicleFields(ByteArrayDataBuffer out);
 
    /**
     * Reads data from the ByteArrayDataBuffer. If the data is external, it reads all versions from the ByteArrayDataBuffer.
     * If the data is internal, versions are lazily read.
-    * @param data
+    *
+    * @param data the data
     */
    protected void readData(ByteArrayDataBuffer data) {
       if (data.getObjectDataFormatVersion() != 0) {
@@ -475,17 +517,17 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
          this.nid = Get.identifierService()
                        .getNidForUuids(new UUID(this.primordialUuidMsb, this.primordialUuidLsb));
 
-         for (UUID uuid: getUuidList()) {
+         for (final UUID uuid: getUuidList()) {
             Get.identifierService()
                .addUuidForNid(uuid, this.nid);
          }
 
          if (this instanceof ConceptChronologyImpl) {
             this.containerSequence = Get.identifierService()
-                                        .getConceptSequence(nid);
+                                        .getConceptSequence(this.nid);
          } else if (this instanceof SememeChronologyImpl) {
             this.containerSequence = Get.identifierService()
-                                        .getSememeSequence(nid);
+                                        .getSememeSequence(this.nid);
          } else {
             throw new UnsupportedOperationException("Can't handle " + this.getClass().getSimpleName());
          }
@@ -501,6 +543,11 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
       }
    }
 
+   /**
+    * Skip additional chronicle fields.
+    *
+    * @param in the in
+    */
    protected abstract void skipAdditionalChronicleFields(ByteArrayDataBuffer in);
 
    /**
@@ -512,29 +559,34 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     */
    protected void writeChronicleData(ByteArrayDataBuffer data) {
       if (!data.isExternalData()) {
-         data.putInt(writeSequence);
+         data.putInt(this.writeSequence);
       }
 
-      data.putLong(primordialUuidMsb);
-      data.putLong(primordialUuidLsb);
+      data.putLong(this.primordialUuidMsb);
+      data.putLong(this.primordialUuidLsb);
 
-      if (additionalUuidParts == null) {
+      if (this.additionalUuidParts == null) {
          data.putInt(0);
       } else {
-         data.putInt(additionalUuidParts.length);
-         LongStream.of(additionalUuidParts)
+         data.putInt(this.additionalUuidParts.length);
+         LongStream.of(this.additionalUuidParts)
                    .forEach((uuidPart) -> data.putLong(uuidPart));
       }
 
       if (!data.isExternalData()) {
-         data.putInt(nid);
-         data.putInt(containerSequence);
-         data.putShort(versionSequence);
+         data.putInt(this.nid);
+         data.putInt(this.containerSequence);
+         data.putShort(this.versionSequence);
       }
 
       putAdditionalChronicleFields(data);
    }
 
+   /**
+    * Go to version start.
+    *
+    * @param data the data
+    */
    private void goToVersionStart(ByteArrayDataBuffer data) {
       if (data.isExternalData()) {
          throw new UnsupportedOperationException("Can't handle external data for this method.");
@@ -550,17 +602,22 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
       skipAdditionalChronicleFields(data);
    }
 
+   /**
+    * Read version list.
+    *
+    * @param bb the bb
+    */
    private void readVersionList(ByteArrayDataBuffer bb) {
       if (bb.isExternalData()) {
          int nextPosition = bb.getPosition();
 
          while (nextPosition < bb.getLimit()) {
-            int versionLength = bb.getInt();
+            final int versionLength = bb.getInt();
 
             if (versionLength > 0) {
                nextPosition = nextPosition + versionLength;
 
-               int stampSequence = bb.getStampSequence();
+               final int stampSequence = bb.getStampSequence();
 
                if (stampSequence >= 0) {
                   addVersion(makeVersion(stampSequence, bb));
@@ -574,8 +631,13 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
       }
    }
 
+   /**
+    * Skip additional uuids.
+    *
+    * @param data the data
+    */
    private void skipAdditionalUuids(ByteArrayDataBuffer data) {
-      int additionalUuidPartsSize = data.getInt();
+      final int additionalUuidPartsSize = data.getInt();
 
       if (additionalUuidPartsSize > 0) {
          for (int i = 0; i < additionalUuidPartsSize; i++) {
@@ -584,15 +646,22 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
       }
    }
 
+   /**
+    * Write if not canceled.
+    *
+    * @param db the db
+    * @param version the version
+    * @param stampSequenceForVersion the stamp sequence for version
+    */
    private void writeIfNotCanceled(ByteArrayDataBuffer db, V version, int stampSequenceForVersion) {
       if (Get.stampService()
              .isNotCanceled(stampSequenceForVersion)) {
-         int startWritePosition = db.getPosition();
+         final int startWritePosition = db.getPosition();
 
          db.putInt(0);  // placeholder for length
          version.writeVersionData(db);
 
-         int versionLength = db.getPosition() - startWritePosition;
+         final int versionLength = db.getPosition() - startWritePosition;
 
          db.setPosition(startWritePosition);
          db.putInt(versionLength);
@@ -602,35 +671,57 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the additional chronicle fields.
+    *
+    * @param in the in
+    * @return the additional chronicle fields
+    */
    protected abstract void getAdditionalChronicleFields(ByteArrayDataBuffer in);
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the additional uuids.
+    *
+    * @param uuids the new additional uuids
+    */
    public void setAdditionalUuids(List<UUID> uuids) {
-      additionalUuidParts = new long[uuids.size() * 2];
+      this.additionalUuidParts = new long[uuids.size() * 2];
 
       for (int i = 0; i < uuids.size(); i++) {
-         UUID uuid = uuids.get(i);
+         final UUID uuid = uuids.get(i);
 
-         additionalUuidParts[2 * i]     = uuid.getMostSignificantBits();
-         additionalUuidParts[2 * i + 1] = uuid.getLeastSignificantBits();
+         this.additionalUuidParts[2 * i]     = uuid.getMostSignificantBits();
+         this.additionalUuidParts[2 * i + 1] = uuid.getLeastSignificantBits();
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the additional uuids.
+    *
+    * @param data the data
+    * @return the additional uuids
+    */
    private void getAdditionalUuids(ByteArrayDataBuffer data) {
-      int additionalUuidPartsSize = data.getInt();
+      final int additionalUuidPartsSize = data.getInt();
 
       if (additionalUuidPartsSize > 0) {
-         additionalUuidParts = new long[additionalUuidPartsSize];
+         this.additionalUuidParts = new long[additionalUuidPartsSize];
 
          for (int i = 0; i < additionalUuidPartsSize; i++) {
-            additionalUuidParts[i] = data.getLong();
+            this.additionalUuidParts[i] = data.getLong();
          }
       }
    }
 
+   /**
+    * Gets the commit state.
+    *
+    * @return the commit state
+    */
    @Override
    public CommitStates getCommitState() {
       if (getVersionStampSequences().anyMatch((stampSequence) -> Get.stampService()
@@ -641,8 +732,13 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
       return CommitStates.COMMITTED;
    }
 
+   /**
+    * Gets the concept sequence if a concept. Sememe sequence otherwise.
+    *
+    * @return the concept sequence if a concept
+    */
    public int getContainerSequence() {
-      return containerSequence;
+      return this.containerSequence;
    }
 
    /**
@@ -665,16 +761,16 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
    public byte[] getDataToWrite(int writeSequence) {
       setWriteSequence(writeSequence);
 
-      if (unwrittenData == null) {
+      if (this.unwrittenData == null) {
          // no changes, so nothing to merge.
-         if (writtenData != null) {
-            ByteArrayDataBuffer db = new ByteArrayDataBuffer(writtenData);
+         if (this.writtenData != null) {
+            final ByteArrayDataBuffer db = new ByteArrayDataBuffer(this.writtenData);
 
             return db.getData();
          }
 
          // creating a brand new object
-         ByteArrayDataBuffer db = new ByteArrayDataBuffer(10);
+         final ByteArrayDataBuffer db = new ByteArrayDataBuffer(10);
 
          writeChronicleData(db);
          db.putInt(0);  // zero length version record.
@@ -682,55 +778,69 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
          return db.getData();
       }
 
-      ByteArrayDataBuffer db = new ByteArrayDataBuffer(512);
+      final ByteArrayDataBuffer db = new ByteArrayDataBuffer(512);
 
       writeChronicleData(db);
 
-      if (writtenData != null) {
-         db.put(writtenData,
-                versionStartPosition,
-                writtenData.length - versionStartPosition - 4);  // 4 for the zero length version at the end.
+      if (this.writtenData != null) {
+         db.put(this.writtenData,
+                this.versionStartPosition,
+                this.writtenData.length - this.versionStartPosition - 4);  // 4 for the zero length version at the end.
       }
 
       // add versions..
-      unwrittenData.values().forEach((version) -> {
-                               int stampSequenceForVersion = version.getStampSequence();
+      this.unwrittenData.values().forEach((version) -> {
+                                    final int stampSequenceForVersion = version.getStampSequence();
 
-                               writeIfNotCanceled(db, version, stampSequenceForVersion);
-                            });
+                                    writeIfNotCanceled(db, version, stampSequenceForVersion);
+                                 });
       db.putInt(0);  // last data is a zero length version record
       db.trimToSize();
       return db.getData();
    }
 
+   /**
+    * Gets the latest version.
+    *
+    * @param type the type
+    * @param coordinate the coordinate
+    * @return the latest version
+    */
    @Override
    public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate coordinate) {
-      RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+      final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
 
-      if (versionListReference != null) {
-         ArrayList<V> versions = versionListReference.get();
+      if (this.versionListReference != null) {
+         final ArrayList<V> versions = this.versionListReference.get();
 
          if (versions != null) {
             return calc.getLatestVersion(this);
          }
       }
 
-      StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
+      final StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
       if (latestStampSequences.isEmpty()) {
          return Optional.empty();
       }
 
-      return Optional.of(new LatestVersion<>((List<V>) getVersionsForStamps(latestStampSequences)));
+      return Optional.of(new LatestVersion<>(getVersionsForStamps(latestStampSequences)));
    }
 
+   /**
+    * Checks if latest version active.
+    *
+    * @param coordinate the coordinate
+    * @return true, if latest version active
+    */
    @Override
    public boolean isLatestVersionActive(StampCoordinate coordinate) {
-      RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate.makeAnalog(State.ACTIVE,
-                                                                                                       State.INACTIVE,
-                                                                                                       State.CANCELED,
-                                                                                                       State.PRIMORDIAL));
-      StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
+      final RelativePositionCalculator calc =
+         RelativePositionCalculator.getCalculator(coordinate.makeAnalog(State.ACTIVE,
+                                                                        State.INACTIVE,
+                                                                        State.CANCELED,
+                                                                        State.PRIMORDIAL));
+      final StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
       if (latestStampSequences.isEmpty()) {
          return false;
@@ -741,70 +851,111 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
                                        .getStatusForStamp(stampSequence) == State.ACTIVE);
    }
 
+   /**
+    * Gets the lock.
+    *
+    * @param key the key
+    * @return the lock
+    */
    protected static StampedLock getLock(int key) {
-      return STAMPED_LOCKS[((int) ((byte) key)) - Byte.MIN_VALUE];
+      return STAMPED_LOCKS[(((byte) key)) - Byte.MIN_VALUE];
    }
 
+   /**
+    * Gets the native identifier of this component.
+    *
+    * @return the native identifier of this component
+    */
    @Override
    public int getNid() {
-      return nid;
+      return this.nid;
    }
 
+   /**
+    * Gets the primordial uuid.
+    *
+    * @return the primordial uuid
+    */
    @Override
    public UUID getPrimordialUuid() {
-      return new UUID(primordialUuidMsb, primordialUuidLsb);
+      return new UUID(this.primordialUuidMsb, this.primordialUuidLsb);
    }
 
+   /**
+    * Gets the sememe list.
+    *
+    * @return the sememe list
+    */
    @Override
    public List<SememeChronology<? extends SememeVersion<?>>> getSememeList() {
       return Get.sememeService()
-                .getSememesForComponent(nid)
+                .getSememesForComponent(this.nid)
                 .collect(Collectors.toList());
    }
 
+   /**
+    * Gets the sememe list from assemblage.
+    *
+    * @param assemblageSequence the assemblage sequence
+    * @return the sememe list from assemblage
+    */
    @Override
    public List<SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
       return Get.sememeService()
-                .getSememesForComponentFromAssemblage(nid, assemblageSequence)
+                .getSememesForComponentFromAssemblage(this.nid, assemblageSequence)
                 .collect(Collectors.toList());
    }
 
+   /**
+    * Gets the sememe list from assemblage of type.
+    *
+    * @param <SV> the generic type
+    * @param assemblageSequence the assemblage sequence
+    * @param type the type
+    * @return the sememe list from assemblage of type
+    */
    @Override
    public <SV extends SememeVersion> List<SememeChronology<SV>> getSememeListFromAssemblageOfType(
            int assemblageSequence,
            Class<SV> type) {
-      List<SememeChronology<SV>> results = Get.sememeService()
-                                              .ofType(type)
-                                              .getSememesForComponentFromAssemblage(nid, assemblageSequence)
-                                              .collect(Collectors.toList());
+      final List<SememeChronology<SV>> results = Get.sememeService()
+                                                    .ofType(type)
+                                                    .getSememesForComponentFromAssemblage(this.nid, assemblageSequence)
+                                                    .collect(Collectors.toList());
 
       return results;
    }
 
    /**
+    * Gets the unwritten version list.
     *
     * @return a list of all unwritten versions contained in this chronicle.
     */
    @Override
    public List<? extends V> getUnwrittenVersionList() {
-      ArrayList<V> results = new ArrayList<>();
+      final ArrayList<V> results = new ArrayList<>();
 
-      if (unwrittenData != null) {
-         results.addAll(unwrittenData.values());
+      if (this.unwrittenData != null) {
+         results.addAll(this.unwrittenData.values());
       }
 
       return results;
    }
 
+   /**
+    * Gets the uuid list.
+    *
+    * @return the uuid list
+    */
    @Override
    public List<UUID> getUuidList() {
-      List<UUID> uuids = new ArrayList<>();
+      final List<UUID> uuids = new ArrayList<>();
 
       uuids.add(getPrimordialUuid());
 
-      if (additionalUuidParts != null) {
-         for (int i = 0; i < additionalUuidParts.length; i = i + 2) {
-            uuids.add(new UUID(additionalUuidParts[i], additionalUuidParts[i + 1]));
+      if (this.additionalUuidParts != null) {
+         for (int i = 0; i < this.additionalUuidParts.length; i = i + 2) {
+            uuids.add(new UUID(this.additionalUuidParts[i], this.additionalUuidParts[i + 1]));
          }
       }
 
@@ -820,11 +971,11 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * @return the version with the corresponding stamp sequence
     */
    public Optional<V> getVersionForStamp(int stampSequence) {
-      if (versionListReference != null) {
-         List<V> versions = versionListReference.get();
+      if (this.versionListReference != null) {
+         final List<V> versions = this.versionListReference.get();
 
          if (versions != null) {
-            for (V v: versions) {
+            for (final V v: versions) {
                if (v.getStampSequence() == stampSequence) {
                   return Optional.of(v);
                }
@@ -832,22 +983,22 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
          }
       }
 
-      if ((unwrittenData != null) && unwrittenData.containsKey(stampSequence)) {
-         return Optional.of(unwrittenData.get(stampSequence));
+      if ((this.unwrittenData != null) && this.unwrittenData.containsKey(stampSequence)) {
+         return Optional.of(this.unwrittenData.get(stampSequence));
       }
 
-      ByteArrayDataBuffer bb = new ByteArrayDataBuffer(writtenData);
+      final ByteArrayDataBuffer bb = new ByteArrayDataBuffer(this.writtenData);
 
-      bb.setPosition(versionStartPosition);
+      bb.setPosition(this.versionStartPosition);
 
       int nextPosition = bb.getPosition();
 
       while (nextPosition < bb.getLimit()) {
-         int versionLength = bb.getInt();
+         final int versionLength = bb.getInt();
 
          nextPosition = nextPosition + versionLength;
 
-         int stampSequenceForVersion = bb.getStampSequence();
+         final int stampSequenceForVersion = bb.getStampSequence();
 
          if (stampSequence == stampSequenceForVersion) {
             return Optional.of(makeVersion(stampSequence, bb));
@@ -859,19 +1010,24 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
       return Optional.empty();
    }
 
+   /**
+    * Gets the version graph list.
+    *
+    * @return the version graph list
+    */
    @Override
    public List<Graph<? extends V>> getVersionGraphList() {
-      HashMap<StampPath, TreeSet<V>> versionMap = new HashMap<>();
+      final HashMap<StampPath, TreeSet<V>> versionMap = new HashMap<>();
 
       getVersionList().forEach((version) -> {
-                                  StampPath  path       = Get.pathService()
-                                                             .getStampPath(version.getPathSequence());
-                                  TreeSet<V> versionSet = versionMap.get(path);
+                                  final StampPath path       = Get.pathService()
+                                                                  .getStampPath(version.getPathSequence());
+                                  TreeSet<V>      versionSet = versionMap.get(path);
 
                                   if (versionSet == null) {
                                      versionSet = new TreeSet<>((V v1,
                                            V v2) -> {
-                     int comparison = Long.compare(v1.getTime(), v2.getTime());
+                     final int comparison = Long.compare(v1.getTime(), v2.getTime());
 
                      if (comparison != 0) {
                         return comparison;
@@ -887,8 +1043,8 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
 
       if (versionMap.size() == 1) {
          // easy case...
-         List<Graph<? extends V>> results = new ArrayList<>();
-         Graph<V>                 graph   = new Graph<>();
+         final List<Graph<? extends V>> results = new ArrayList<>();
+         final Graph<V>                 graph   = new Graph<>();
 
          results.add(graph);
          versionMap.entrySet().forEach((entry) -> {
@@ -909,6 +1065,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
    }
 
    /**
+    * Gets the version list.
     *
     * @return a list of all versions contained in this chronicle.
     */
@@ -916,76 +1073,85 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
    public List<? extends V> getVersionList() {
       ArrayList<V> results = null;
 
-      if (versionListReference != null) {
-         results = versionListReference.get();
+      if (this.versionListReference != null) {
+         results = this.versionListReference.get();
       }
 
       while (results == null) {
          results = new ArrayList<>();
 
-         if ((writtenData != null) && (writtenData.length >= 4)) {
-            ByteArrayDataBuffer bb = new ByteArrayDataBuffer(writtenData);
+         if ((this.writtenData != null) && (this.writtenData.length >= 4)) {
+            final ByteArrayDataBuffer bb = new ByteArrayDataBuffer(this.writtenData);
 
-            if (versionStartPosition < 0) {
+            if (this.versionStartPosition < 0) {
                goToVersionStart(bb);
-               versionStartPosition = bb.getPosition();
+               this.versionStartPosition = bb.getPosition();
             } else {
-               bb.setPosition(versionStartPosition);
+               bb.setPosition(this.versionStartPosition);
             }
 
             makeVersions(bb, results);
          }
 
-         if (unwrittenData != null) {
-            results.addAll(unwrittenData.values());
+         if (this.unwrittenData != null) {
+            results.addAll(this.unwrittenData.values());
          }
 
-         versionListReference = new SoftReference<>(results);
+         this.versionListReference = new SoftReference<>(results);
       }
 
       return results;
    }
 
    /**
+    * Gets the version stamp sequences.
     *
     * @return a stream of the stampSequences for each version of this
     * chronology.
     */
    @Override
    public IntStream getVersionStampSequences() {
-      IntStream.Builder builder  = IntStream.builder();
-      List<V>           versions = null;
+      final IntStream.Builder builder  = IntStream.builder();
+      List<V>                 versions = null;
 
-      if (versionListReference != null) {
-         versions = versionListReference.get();
+      if (this.versionListReference != null) {
+         versions = this.versionListReference.get();
       }
 
       if (versions != null) {
          versions.forEach((version) -> builder.accept(version.getStampSequence()));
-      } else if (writtenData != null) {
-         ByteArrayDataBuffer bb = new ByteArrayDataBuffer(writtenData);
+      } else if (this.writtenData != null) {
+         final ByteArrayDataBuffer bb = new ByteArrayDataBuffer(this.writtenData);
 
-         getVersionStampSequences(versionStartPosition, bb, builder);
+         getVersionStampSequences(this.versionStartPosition, bb, builder);
       }
 
-      if (unwrittenData != null) {
-         unwrittenData.keySet()
-                      .forEach((stamp) -> builder.accept(stamp));
+      if (this.unwrittenData != null) {
+         this.unwrittenData.keySet()
+                           .forEach((stamp) -> builder.accept(stamp));
       }
 
       return builder.build();
    }
 
+   /**
+    * Gets the version stamp sequences.
+    *
+    * @param index the index
+    * @param bb the bb
+    * @param builder the builder
+    * @return the version stamp sequences
+    */
    protected void getVersionStampSequences(int index, ByteArrayDataBuffer bb, IntStream.Builder builder) {
-      int limit = bb.getLimit();
+      final int limit = bb.getLimit();
 
       while (index < limit) {
          bb.setPosition(index);
 
-         int versionLength = bb.getInt();
+         final int versionLength = bb.getInt();
 
          if (versionLength > 0) {
-            int stampSequence = bb.getStampSequence();
+            final int stampSequence = bb.getStampSequence();
 
             builder.accept(stampSequence);
             index = index + versionLength;
@@ -1001,36 +1167,48 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * Overwrites existing versions. Use to remove duplicates, etc. Deliberately
     * not advertised in standard API, as this call may lose audit data.
     *
-    * @param versions
+    * @param versions the new versions
     */
    public void setVersions(Collection<V> versions) {
-      if (unwrittenData != null) {
-         unwrittenData.clear();
+      if (this.unwrittenData != null) {
+         this.unwrittenData.clear();
       }
 
       // reset written data
-      writtenData = null;
+      this.writtenData = null;
       versions.forEach((V version) -> addVersion(version));
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the versions for stamps.
+    *
+    * @param stampSequences the stamp sequences
+    * @return the versions for stamps
+    */
    private List<V> getVersionsForStamps(StampSequenceSet stampSequences) {
-      List<V> versions = new ArrayList<>(stampSequences.size());
+      final List<V> versions = new ArrayList<>(stampSequences.size());
 
       stampSequences.stream()
                     .forEach((stampSequence) -> versions.add(getVersionForStamp(stampSequence).get()));
       return versions;
    }
 
+   /**
+    * Gets the visible ordered version list.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @return the visible ordered version list
+    */
    @Override
    public List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
-      RelativePositionCalculator calc              = RelativePositionCalculator.getCalculator(stampCoordinate);
-      SortedSet<V>               sortedLogicGraphs = new TreeSet<>((V graph1,
-                                                                    V graph2) -> {
-               RelativePosition relativePosition = calc.fastRelativePosition(graph1,
-                                                                             graph2,
-                                                                             stampCoordinate.getStampPrecedence());
+      final RelativePositionCalculator calc              = RelativePositionCalculator.getCalculator(stampCoordinate);
+      final SortedSet<V>               sortedLogicGraphs = new TreeSet<>((V graph1,
+                                                                          V graph2) -> {
+               final RelativePosition relativePosition = calc.fastRelativePosition(graph1,
+                                                                                   graph2,
+                                                                                   stampCoordinate.getStampPrecedence());
 
                switch (relativePosition) {
                case BEFORE:
@@ -1054,13 +1232,23 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
                               .collect(Collectors.toList());
    }
 
+   /**
+    * Gets the write sequence is incremented each time data is written, and provides a check to see if this chronicle has had any changes written since the data for this chronicle was read. If the write sequence does not match the write sequences in the persistence storage, the data needs to be merged prior to writing, according to the principles of a {@code WaitFreeComparable} object.
+    *
+    * @return the write sequence is incremented each time data is written, and provides a check to see if this chronicle has had any changes written since the data for this chronicle was read
+    */
    @Override
    public int getWriteSequence() {
-      return writeSequence;
+      return this.writeSequence;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set write sequence is incremented each time data is written, and provides a check to see if this chronicle has had any changes written since the data for this chronicle was read. If the write sequence does not match the write sequences in the persistence storage, the data needs to be merged prior to writing, according to the principles of a {@code WaitFreeComparable} object.
+    *
+    * @param writeSequence the new write sequence is incremented each time data is written, and provides a check to see if this chronicle has had any changes written since the data for this chronicle was read
+    */
    @Override
    public void setWriteSequence(int writeSequence) {
       this.writeSequence = writeSequence;
@@ -1070,7 +1258,8 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * Called after merge and write operations to set the objects data to be the data
     * actually written so that the object in memory has the same value as the object
     * just written to the database.
-    * @param writtenData
+    *
+    * @param writtenData the new data previously persisted
     */
    public void setWrittenData(byte[] writtenData) {
       this.writtenData          = writtenData;

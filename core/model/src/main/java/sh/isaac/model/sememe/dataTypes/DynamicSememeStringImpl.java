@@ -50,22 +50,32 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 //~--- classes ----------------------------------------------------------------
 
 /**
- *
- * {@link DynamicSememeStringImpl}
+ * {@link DynamicSememeStringImpl}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeStringImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeString {
-   private ObjectProperty<String> property_;
+   /** The property. */
+   private ObjectProperty<String> property;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new dynamic sememe string impl.
+    *
+    * @param data the data
+    */
    protected DynamicSememeStringImpl(byte[] data) {
       super(data);
    }
 
+   /**
+    * Instantiates a new dynamic sememe string impl.
+    *
+    * @param string the string
+    */
    public DynamicSememeStringImpl(String string) {
       super();
 
@@ -73,9 +83,16 @@ public class DynamicSememeStringImpl
          throw new RuntimeException("The string value cannot be null", null);
       }
 
-      data_ = string.getBytes();
+      this.data = string.getBytes();
    }
 
+   /**
+    * Instantiates a new dynamic sememe string impl.
+    *
+    * @param data the data
+    * @param assemblageSequence the assemblage sequence
+    * @param columnNumber the column number
+    */
    protected DynamicSememeStringImpl(byte[] data, int assemblageSequence, int columnNumber) {
       super(data, assemblageSequence, columnNumber);
    }
@@ -83,6 +100,9 @@ public class DynamicSememeStringImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the data object.
+    *
+    * @return the data object
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObject()
     */
    @Override
@@ -91,6 +111,9 @@ public class DynamicSememeStringImpl
    }
 
    /**
+    * Gets the data object property.
+    *
+    * @return the data object property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.RefexDynamicDataBI#getDataObjectProperty()
     */
    @Override
@@ -99,23 +122,29 @@ public class DynamicSememeStringImpl
    }
 
    /**
+    * Gets the data string.
+    *
+    * @return the data string
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicStringBI#getDataString()
     */
    @Override
    public String getDataString() {
-      return new String(data_);
+      return new String(this.data);
    }
 
    /**
+    * Gets the data string property.
+    *
+    * @return the data string property
     * @see org.ihtsdo.otf.tcc.api.refexDynamic.data.dataTypes.RefexDynamicStringBI#getDataStringProperty()
     */
    @Override
    public ReadOnlyObjectProperty<String> getDataStringProperty() {
-      if (property_ == null) {
-         property_ = new SimpleObjectProperty<>(null, getName(), getDataString());
+      if (this.property == null) {
+         this.property = new SimpleObjectProperty<>(null, getName(), getDataString());
       }
 
-      return property_;
+      return this.property;
    }
 }
 

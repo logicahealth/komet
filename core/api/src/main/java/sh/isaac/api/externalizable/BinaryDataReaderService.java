@@ -46,6 +46,7 @@ import java.util.stream.Stream;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface BinaryDataReaderService.
  *
  * @author kec
  */
@@ -54,8 +55,9 @@ public interface BinaryDataReaderService
    /**
     * Return a stream of the ochreExternlizables, already parsed
     *
-    * The implementation behind this guarantees order, but it slow (single threaded)
-    * @return
+    * The implementation behind this guarantees order, but it slow (single threaded).
+    *
+    * @return the stream
     */
    Stream<OchreExternalizable> getStream();
 }

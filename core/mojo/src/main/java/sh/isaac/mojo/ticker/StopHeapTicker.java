@@ -59,6 +59,11 @@ import sh.isaac.api.memory.HeapUseTicker;
 )
 public class StopHeapTicker
         extends AbstractMojo {
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
    @Override
    public void execute()
             throws MojoExecutionException {

@@ -46,18 +46,21 @@ package sh.isaac.api.coordinate;
  */
 public interface LogicCoordinate {
    /**
+    * Gets the classifier sequence.
     *
     * @return concept sequence for the classifier for this coordinate.
     */
    int getClassifierSequence();
 
    /**
+    * Gets the description logic profile sequence.
     *
     * @return concept sequence for the description-logic profile for this coordinate.
     */
    int getDescriptionLogicProfileSequence();
 
    /**
+    * Gets the inferred assemblage sequence.
     *
     * @return concept sequence for the assemblage where the inferred logical form
     * of concept definition graphs are stored.
@@ -65,6 +68,7 @@ public interface LogicCoordinate {
    int getInferredAssemblageSequence();
 
    /**
+    * Gets the stated assemblage sequence.
     *
     * @return concept sequence for the assemblage where the stated logical form
     * of concept definition graphs are stored.

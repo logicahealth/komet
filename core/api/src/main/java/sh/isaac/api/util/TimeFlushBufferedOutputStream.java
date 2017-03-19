@@ -71,20 +71,33 @@ import sh.isaac.api.Get;
  */
 public class TimeFlushBufferedOutputStream
         extends BufferedOutputStream {
-   private static final ArrayList<WeakReference<TimeFlushBufferedOutputStream>> instances_ = new ArrayList<>();
+   /** The Constant instances_. */
+   private static final ArrayList<WeakReference<TimeFlushBufferedOutputStream>> instances = new ArrayList<>();
+
+   /** The Constant logger. */
    private static final Logger logger = LoggerFactory.getLogger(TimeFlushBufferedOutputStream.class);
-   private static ScheduledFuture<?>                                            scheduledJob_;
+
+   /** The scheduled job. */
+   private static ScheduledFuture<?> scheduledJob;
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    * @param out
+    * Instantiates a new time flush buffered output stream.
+    *
+    * @param out the out
     */
    public TimeFlushBufferedOutputStream(OutputStream out) {
       super(out);
       scheduleFlush();
    }
 
+   /**
+    * Instantiates a new time flush buffered output stream.
+    *
+    * @param out the out
+    * @param size the size
+    */
    public TimeFlushBufferedOutputStream(OutputStream out, int size) {
       super(out, size);
       scheduleFlush();
@@ -92,11 +105,16 @@ public class TimeFlushBufferedOutputStream
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Close.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void close()
             throws IOException {
-      synchronized (instances_) {
-         Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = instances_.iterator();
+      synchronized (instances) {
+         final Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = instances.iterator();
 
          while (it.hasNext()) {
             if (it.next()
@@ -110,28 +128,31 @@ public class TimeFlushBufferedOutputStream
       super.close();
    }
 
+   /**
+    * Schedule flush.
+    */
    private void scheduleFlush() {
-      synchronized (instances_) {
-         instances_.add(new WeakReference<TimeFlushBufferedOutputStream>(this));
+      synchronized (instances) {
+         instances.add(new WeakReference<>(this));
       }
 
       // Just sync on something at the class level
       synchronized (logger) {
-         if (scheduledJob_ == null) {
+         if (scheduledJob == null) {
             logger.info("Scheduling thread to flush time flush buffers");
-            scheduledJob_ = Get.workExecutors().getScheduledThreadPoolExecutor().scheduleAtFixedRate(() -> {
-                     if (instances_.size() == 0) {
-                        scheduledJob_.cancel(false);
-                        scheduledJob_ = null;
+            scheduledJob = Get.workExecutors().getScheduledThreadPoolExecutor().scheduleAtFixedRate(() -> {
+                     if (instances.isEmpty()) {
+                        scheduledJob.cancel(false);
+                        scheduledJob = null;
                         logger.info("Stopping time flush buffer thread, as no instances are registered");
                      } else {
-                        logger.debug("Calling flush on " + instances_.size() + " buffered writers");
+                        logger.debug("Calling flush on " + instances.size() + " buffered writers");
 
-                        synchronized (instances_) {
-                           Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = instances_.iterator();
+                        synchronized (instances) {
+                           final Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = instances.iterator();
 
                            while (it.hasNext()) {
-                              WeakReference<TimeFlushBufferedOutputStream> item = it.next();
+                              final WeakReference<TimeFlushBufferedOutputStream> item = it.next();
 
                               if (item.get() == null) {
                                  it.remove();
@@ -139,7 +160,7 @@ public class TimeFlushBufferedOutputStream
                                  try {
                                     item.get()
                                         .flush();
-                                 } catch (Exception e) {
+                                 } catch (final Exception e) {
                                     logger.error("error during time flush", e);
                                  }
                               }

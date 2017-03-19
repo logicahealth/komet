@@ -62,180 +62,270 @@ import org.roaringbitmap.RoaringBitmap;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class RoaringIntSet.
  *
  * @author kec
  */
 public class RoaringIntSet
          implements IntSet {
+   /** The rbmp. */
    RoaringBitmap rbmp;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new roaring int set.
+    */
    protected RoaringIntSet() {
-      rbmp = new RoaringBitmap();
+      this.rbmp = new RoaringBitmap();
    }
 
+   /**
+    * Instantiates a new roaring int set.
+    *
+    * @param members the members
+    */
    protected RoaringIntSet(int... members) {
-      rbmp = RoaringBitmap.bitmapOf(members);
+      this.rbmp = RoaringBitmap.bitmapOf(members);
    }
 
+   /**
+    * Instantiates a new roaring int set.
+    *
+    * @param memberStream the member stream
+    */
    protected RoaringIntSet(IntStream memberStream) {
-      rbmp = new RoaringBitmap();
-      memberStream.forEach((member) -> rbmp.add(member));
+      this.rbmp = new RoaringBitmap();
+      memberStream.forEach((member) -> this.rbmp.add(member));
    }
 
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Adds the.
     *
     * @param item to add to set.
     */
    @Override
    public void add(int item) {
-      rbmp.add(item);
+      this.rbmp.add(item);
    }
 
+   /**
+    * Adds the all.
+    *
+    * @param intStream the int stream
+    */
    @Override
    public void addAll(IntStream intStream) {
-      intStream.forEach((anInt) -> rbmp.add(anInt));
+      intStream.forEach((anInt) -> this.rbmp.add(anInt));
    }
 
+   /**
+    * And.
+    *
+    * @param otherSet the other set
+    * @return the int set
+    */
    @Override
    public IntSet and(IntSet otherSet) {
-      rbmp.and(getRoaringSet(otherSet));
+      this.rbmp.and(getRoaringSet(otherSet));
       return this;
    }
 
+   /**
+    * And not.
+    *
+    * @param otherSet the other set
+    * @return the int set
+    */
    @Override
    public IntSet andNot(IntSet otherSet) {
-      rbmp.andNot(getRoaringSet(otherSet));
+      this.rbmp.andNot(getRoaringSet(otherSet));
       return this;
    }
 
+   /**
+    * As array.
+    *
+    * @return the int[]
+    */
    @Override
    public int[] asArray() {
       return stream().toArray();
    }
 
+   /**
+    * Clear.
+    */
    @Override
    public void clear() {
-      rbmp.clear();
+      this.rbmp.clear();
    }
 
    /**
+    * Contains.
     *
     * @param item to test for containment in set.
     * @return true if item is contained in set.
     */
    @Override
    public boolean contains(int item) {
-      return rbmp.contains(item);
+      return this.rbmp.contains(item);
    }
 
+   /**
+    * Find first.
+    *
+    * @return the optional int
+    */
    @Override
    public OptionalInt findFirst() {
       return stream().findFirst();
    }
 
+   /**
+    * Or.
+    *
+    * @param otherSet the other set
+    * @return the int set
+    */
    @Override
    public IntSet or(IntSet otherSet) {
-      rbmp.or(getRoaringSet(otherSet));
+      this.rbmp.or(getRoaringSet(otherSet));
       return this;
    }
 
    /**
+    * Parallel stream.
     *
     * @return the set members as an {@code IntStream}
     */
    @Override
    public IntStream parallelStream() {
-      if (rbmp.isEmpty()) {
+      if (this.rbmp.isEmpty()) {
          return IntStream.empty();
       }
 
-      Supplier<? extends Spliterator.OfInt> streamSupplier = this.get();
+      final Supplier<? extends Spliterator.OfInt> streamSupplier = this.get();
 
       return StreamSupport.intStream(streamSupplier, streamSupplier.get()
             .characteristics(), true);
    }
 
    /**
+    * Removes the.
     *
     * @param item to remove from set.
     */
    @Override
    public void remove(int item) {
-      rbmp.remove(item);
+      this.rbmp.remove(item);
    }
 
    /**
+    * Size.
     *
     * @return the number of elements in this set.
     */
    @Override
    public int size() {
-      return rbmp.getCardinality();
+      return this.rbmp.getCardinality();
    }
 
    /**
+    * Stream.
     *
     * @return the set members as an {@code IntStream}
     */
    @Override
    public IntStream stream() {
-      if (rbmp.isEmpty()) {
+      if (this.rbmp.isEmpty()) {
          return IntStream.empty();
       }
 
-      Supplier<? extends Spliterator.OfInt> streamSupplier = this.get();
+      final Supplier<? extends Spliterator.OfInt> streamSupplier = this.get();
 
       return StreamSupport.intStream(streamSupplier, streamSupplier.get()
             .characteristics(), false);
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
       return this.getClass()
-                 .getSimpleName() + " size: " + size() + " elements: " + rbmp;
+                 .getSimpleName() + " size: " + size() + " elements: " + this.rbmp;
    }
 
+   /**
+    * Xor.
+    *
+    * @param otherSet the other set
+    * @return the int set
+    */
    @Override
    public IntSet xor(IntSet otherSet) {
-      rbmp.xor(getRoaringSet(otherSet));
+      this.rbmp.xor(getRoaringSet(otherSet));
       return this;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Checks if empty.
     *
     * @return true if the set is empty.
     */
    @Override
    public boolean isEmpty() {
-      return rbmp.isEmpty();
+      return this.rbmp.isEmpty();
    }
 
+   /**
+    * Gets the.
+    *
+    * @return the supplier<? extends spliterator. of int>
+    */
    protected Supplier<? extends Spliterator.OfInt> get() {
       return new SpliteratorSupplier();
    }
 
+   /**
+    * Gets the int iterator.
+    *
+    * @return the int iterator
+    */
    @Override
    public PrimitiveIterator.OfInt getIntIterator() {
-      return new OfIntWrapper(rbmp.getIntIterator());
+      return new OfIntWrapper(this.rbmp.getIntIterator());
    }
 
+   /**
+    * Gets the reverse int iterator.
+    *
+    * @return the reverse int iterator
+    */
    @Override
    public PrimitiveIterator.OfInt getReverseIntIterator() {
-      return new OfIntWrapper(rbmp.getReverseIntIterator());
+      return new OfIntWrapper(this.rbmp.getReverseIntIterator());
    }
 
+   /**
+    * Gets the roaring set.
+    *
+    * @param set the set
+    * @return the roaring set
+    */
    private RoaringBitmap getRoaringSet(IntSet set) {
       if (set instanceof RoaringIntSet) {
          return ((RoaringIntSet) set).rbmp;
       }
 
-      RoaringBitmap roaringSet = new RoaringBitmap();
+      final RoaringBitmap roaringSet = new RoaringBitmap();
 
       set.stream()
          .forEach((member) -> roaringSet.add(member));
@@ -244,29 +334,54 @@ public class RoaringIntSet
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class BitSetSpliterator.
+    */
    private class BitSetSpliterator
             implements Spliterator.OfInt {
-      IntIterator intIterator = rbmp.getIntIterator();
+      /** The int iterator. */
+      IntIterator intIterator = RoaringIntSet.this.rbmp.getIntIterator();
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Characteristics.
+       *
+       * @return the int
+       */
       @Override
       public int characteristics() {
          return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED
                 | Spliterator.SIZED | Spliterator.SORTED;
       }
 
+      /**
+       * Estimate size.
+       *
+       * @return the long
+       */
       @Override
       public long estimateSize() {
          return RoaringIntSet.this.size();
       }
 
+      /**
+       * Try advance.
+       *
+       * @param action the action
+       * @return true, if successful
+       */
       @Override
       public boolean tryAdvance(IntConsumer action) {
-         action.accept(intIterator.next());
-         return intIterator.hasNext();
+         action.accept(this.intIterator.next());
+         return this.intIterator.hasNext();
       }
 
+      /**
+       * Try split.
+       *
+       * @return the spliterator. of int
+       */
       @Override
       public Spliterator.OfInt trySplit() {
          return null;
@@ -274,34 +389,61 @@ public class RoaringIntSet
    }
 
 
+   /**
+    * The Class OfIntWrapper.
+    */
    private static class OfIntWrapper
             implements PrimitiveIterator.OfInt {
+      /** The int iterator. */
       IntIterator intIterator;
 
       //~--- constructors -----------------------------------------------------
 
+      /**
+       * Instantiates a new of int wrapper.
+       *
+       * @param intIterator the int iterator
+       */
       public OfIntWrapper(IntIterator intIterator) {
          this.intIterator = intIterator;
       }
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Next int.
+       *
+       * @return the int
+       */
       @Override
       public int nextInt() {
-         return intIterator.next();
+         return this.intIterator.next();
       }
 
       //~--- get methods ------------------------------------------------------
 
+      /**
+       * Checks for next.
+       *
+       * @return true, if successful
+       */
       @Override
       public boolean hasNext() {
-         return intIterator.hasNext();
+         return this.intIterator.hasNext();
       }
    }
 
 
+   /**
+    * The Class SpliteratorSupplier.
+    */
    private class SpliteratorSupplier
             implements Supplier<Spliterator.OfInt> {
+      /**
+       * Gets the.
+       *
+       * @return the spliterator. of int
+       */
       @Override
       public Spliterator.OfInt get() {
          return new BitSetSpliterator();

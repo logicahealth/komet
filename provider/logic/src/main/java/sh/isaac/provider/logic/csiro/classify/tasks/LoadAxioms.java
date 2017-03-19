@@ -52,16 +52,26 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LoadAxioms.
  *
  * @author kec
  */
 public class LoadAxioms
         extends TimedTaskWithProgressTracker<Void> {
+   /** The stamp coordinate. */
    StampCoordinate stampCoordinate;
+
+   /** The logic coordinate. */
    LogicCoordinate logicCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new load axioms.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param logicCoordinate the logic coordinate
+    */
    public LoadAxioms(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
       this.stampCoordinate = stampCoordinate;
       this.logicCoordinate = logicCoordinate;
@@ -70,13 +80,19 @@ public class LoadAxioms
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Call.
+    *
+    * @return the void
+    * @throws Exception the exception
+    */
    @Override
    protected Void call()
             throws Exception {
       LookupService.getService(MemoryManagementService.class)
                    .setMemoryConfiguration(MemoryConfigurations.CLASSIFY);
 
-      ClassifierData cd = ClassifierData.get(stampCoordinate, logicCoordinate);
+      final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
 
       cd.loadAxioms();
       return null;

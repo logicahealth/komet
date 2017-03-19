@@ -43,10 +43,6 @@ package sh.isaac.converters.sharedUtils.propertyTypes;
 
 import java.util.List;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
-
 //~--- classes ----------------------------------------------------------------
 
 /**
@@ -56,17 +52,27 @@ import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
  */
 public abstract class BPT_Skip
         extends PropertyType {
+   /**
+    * Instantiates a new BP T skip.
+    *
+    * @param description the description
+    */
    public BPT_Skip(String description) {
       super(description, false, null);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the skip list entries.
+    *
+    * @param skipLists the skip lists
+    */
    protected void addSkipListEntries(List<String>[] skipLists) {
       if (skipLists != null) {
-         for (List<String> skipList: skipLists) {
+         for (final List<String> skipList: skipLists) {
             if (skipList != null) {
-               for (String s: skipList) {
+               for (final String s: skipList) {
                   addProperty(s);
                }
             }

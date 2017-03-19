@@ -51,7 +51,6 @@ import java.util.stream.Stream;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.DatabaseServices;
-import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -59,6 +58,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ConceptService.
  *
  * @author kec
  */
@@ -79,6 +79,7 @@ public interface ConceptService
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the concept.
     *
     * @param conceptId either a concept sequence or a concept nid.
     * @return the concept chronology associated with the identifier.
@@ -86,6 +87,7 @@ public interface ConceptService
    ConceptChronology<? extends ConceptVersion<?>> getConcept(int conceptId);
 
    /**
+    * Gets the concept.
     *
     * @param conceptUuids a UUID that identifies a concept.
     * @return the concept chronology associated with the identifier.
@@ -100,22 +102,56 @@ public interface ConceptService
     */
    boolean hasConcept(int conceptId);
 
+   /**
+    * Checks if concept active.
+    *
+    * @param conceptSequence the concept sequence
+    * @param stampCoordinate the stamp coordinate
+    * @return true, if concept active
+    */
    boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate);
 
+   /**
+    * Gets the concept chronology stream.
+    *
+    * @return the concept chronology stream
+    */
    Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream();
 
+   /**
+    * Gets the concept chronology stream.
+    *
+    * @param conceptSequences the concept sequences
+    * @return the concept chronology stream
+    */
    Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream(
            ConceptSequenceSet conceptSequences);
 
+   /**
+    * Gets the concept count.
+    *
+    * @return the concept count
+    */
    int getConceptCount();
 
+   /**
+    * Gets the concept key parallel stream.
+    *
+    * @return the concept key parallel stream
+    */
    IntStream getConceptKeyParallelStream();
 
+   /**
+    * Gets the concept key stream.
+    *
+    * @return the concept key stream
+    */
    IntStream getConceptKeyStream();
 
    /**
     * Return the UUID that was generated for this datastore when the concept store was first created.
-    * @return
+    *
+    * @return the data store id
     */
    public UUID getDataStoreId();
 
@@ -135,11 +171,29 @@ public interface ConceptService
     */
    Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(UUID... conceptUuids);
 
+   /**
+    * Gets the parallel concept chronology stream.
+    *
+    * @return the parallel concept chronology stream
+    */
    Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream();
 
+   /**
+    * Gets the parallel concept chronology stream.
+    *
+    * @param conceptSequences the concept sequences
+    * @return the parallel concept chronology stream
+    */
    Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream(
            ConceptSequenceSet conceptSequences);
 
+   /**
+    * Gets the snapshot.
+    *
+    * @param stampCoordinate the stamp coordinate
+    * @param languageCoordinate the language coordinate
+    * @return the snapshot
+    */
    ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate);
 }
 

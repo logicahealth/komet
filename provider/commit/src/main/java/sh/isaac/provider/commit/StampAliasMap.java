@@ -55,7 +55,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import java.util.Spliterator;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
@@ -63,114 +62,135 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static java.util.Spliterator.DISTINCT;
-import static java.util.Spliterator.IMMUTABLE;
-import static java.util.Spliterator.NONNULL;
-import static java.util.Spliterator.SIZED;
-
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.apache.mahout.math.list.IntArrayList;
 
 import sh.isaac.api.collections.NativeIntIntHashMap;
 import sh.isaac.api.externalizable.StampAlias;
-import sh.isaac.api.externalizable.StampComment;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class StampAliasMap.
  *
  * @author kec
  */
 public class StampAliasMap {
-   private final ReentrantReadWriteLock rwl           = new ReentrantReadWriteLock();
-   private final Lock                   read          = rwl.readLock();
-   private final Lock                   write         = rwl.writeLock();
-   NativeIntIntHashMap                  stampAliasMap = new NativeIntIntHashMap();
-   NativeIntIntHashMap                  aliasStampMap = new NativeIntIntHashMap();
+   /** The rwl. */
+   private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+
+   /** The read. */
+   private final Lock read = this.rwl.readLock();
+
+   /** The write. */
+   private final Lock write = this.rwl.writeLock();
+
+   /** The stamp alias map. */
+   NativeIntIntHashMap stampAliasMap = new NativeIntIntHashMap();
+
+   /** The alias stamp map. */
+   NativeIntIntHashMap aliasStampMap = new NativeIntIntHashMap();
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the alias.
+    *
+    * @param stamp the stamp
+    * @param alias the alias
+    */
    public void addAlias(int stamp, int alias) {
       try {
-         write.lock();
+         this.write.lock();
 
-         if (!stampAliasMap.containsKey(stamp)) {
-            stampAliasMap.put(stamp, alias);
-            aliasStampMap.put(alias, stamp);
-         } else if (stampAliasMap.get(stamp) == alias) {
+         if (!this.stampAliasMap.containsKey(stamp)) {
+            this.stampAliasMap.put(stamp, alias);
+            this.aliasStampMap.put(alias, stamp);
+         } else if (this.stampAliasMap.get(stamp) == alias) {
             // already added...
          } else {
             // add an additional alias
-            aliasStampMap.put(alias, stamp);
+            this.aliasStampMap.put(alias, stamp);
          }
       } finally {
-         if (write != null) {
-            write.unlock();
+         if (this.write != null) {
+            this.write.unlock();
          }
       }
    }
 
+   /**
+    * Read.
+    *
+    * @param mapFile the map file
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void read(File mapFile)
             throws IOException {
       try (DataInputStream input = new DataInputStream(new BufferedInputStream(new FileInputStream(mapFile)))) {
          int size = input.readInt();
 
-         stampAliasMap.ensureCapacity(size);
+         this.stampAliasMap.ensureCapacity(size);
 
          for (int i = 0; i < size; i++) {
-            stampAliasMap.put(input.readInt(), input.readInt());
+            this.stampAliasMap.put(input.readInt(), input.readInt());
          }
 
          size = input.readInt();
-         aliasStampMap.ensureCapacity(size);
+         this.aliasStampMap.ensureCapacity(size);
 
          for (int i = 0; i < size; i++) {
-            aliasStampMap.put(input.readInt(), input.readInt());
+            this.aliasStampMap.put(input.readInt(), input.readInt());
          }
       }
    }
 
+   /**
+    * Write.
+    *
+    * @param mapFile the map file
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public void write(File mapFile)
             throws IOException {
       try (DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(mapFile)))) {
-         output.writeInt(stampAliasMap.size());
-         stampAliasMap.forEachPair((int stampSequence,
-                                    int aliasSequence) -> {
-                                      try {
-                                         output.writeInt(stampSequence);
-                                         output.writeInt(aliasSequence);
-                                         return true;
-                                      } catch (IOException ex) {
-                                         throw new RuntimeException(ex);
-                                      }
-                                   });
-         output.writeInt(aliasStampMap.size());
-         aliasStampMap.forEachPair((int aliasSequence,
-                                    int stampSequence) -> {
-                                      try {
-                                         output.writeInt(aliasSequence);
-                                         output.writeInt(stampSequence);
-                                         return true;
-                                      } catch (IOException ex) {
-                                         throw new RuntimeException(ex);
-                                      }
-                                   });
+         output.writeInt(this.stampAliasMap.size());
+         this.stampAliasMap.forEachPair((int stampSequence,
+                                         int aliasSequence) -> {
+                                           try {
+                                              output.writeInt(stampSequence);
+                                              output.writeInt(aliasSequence);
+                                              return true;
+                                           } catch (final IOException ex) {
+                                              throw new RuntimeException(ex);
+                                           }
+                                        });
+         output.writeInt(this.aliasStampMap.size());
+         this.aliasStampMap.forEachPair((int aliasSequence,
+                                         int stampSequence) -> {
+                                           try {
+                                              output.writeInt(aliasSequence);
+                                              output.writeInt(stampSequence);
+                                              return true;
+                                           } catch (final IOException ex) {
+                                              throw new RuntimeException(ex);
+                                           }
+                                        });
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the aliases.
     *
-    * @param stamp
+    * @param stamp the stamp
     * @return array of unique aliases, which do not include the stamp itself.
     */
    public int[] getAliases(int stamp) {
       try {
-         read.lock();
+         this.read.lock();
 
-         IntStream.Builder builder = IntStream.builder();
+         final IntStream.Builder builder = IntStream.builder();
 
          getAliasesForward(stamp, builder);
          getAliasesReverse(stamp, builder);
@@ -178,55 +198,92 @@ public class StampAliasMap {
                        .distinct()
                        .toArray();
       } finally {
-         if (read != null) {
-            read.unlock();
+         if (this.read != null) {
+            this.read.unlock();
          }
       }
    }
 
+   /**
+    * Gets the aliases forward.
+    *
+    * @param stamp the stamp
+    * @param builder the builder
+    * @return the aliases forward
+    */
    private void getAliasesForward(int stamp, IntStream.Builder builder) {
-      if (stampAliasMap.containsKey(stamp)) {
-         int alias = stampAliasMap.get(stamp);
+      if (this.stampAliasMap.containsKey(stamp)) {
+         final int alias = this.stampAliasMap.get(stamp);
 
          builder.add(alias);
          getAliasesForward(alias, builder);
       }
    }
 
+   /**
+    * Gets the aliases reverse.
+    *
+    * @param stamp the stamp
+    * @param builder the builder
+    * @return the aliases reverse
+    */
    private void getAliasesReverse(int stamp, IntStream.Builder builder) {
-      if (aliasStampMap.containsKey(stamp)) {
-         int alias = aliasStampMap.get(stamp);
+      if (this.aliasStampMap.containsKey(stamp)) {
+         final int alias = this.aliasStampMap.get(stamp);
 
          builder.add(alias);
          getAliasesReverse(alias, builder);
       }
    }
 
+   /**
+    * Gets the size.
+    *
+    * @return the size
+    */
    public int getSize() {
-      assert stampAliasMap.size() == aliasStampMap.size():
-             "stampAliasMap.size() = " + stampAliasMap.size() + " aliasStampMap.size() = " + aliasStampMap.size();
-      return aliasStampMap.size();
+      assert this.stampAliasMap.size() == this.aliasStampMap.size():
+             "stampAliasMap.size() = " + this.stampAliasMap.size() + " aliasStampMap.size() = " +
+             this.aliasStampMap.size();
+      return this.aliasStampMap.size();
    }
 
+   /**
+    * Gets the stamp alias stream.
+    *
+    * @return the stamp alias stream
+    */
    public Stream<StampAlias> getStampAliasStream() {
       return StreamSupport.stream(new StampAliasSpliterator(), false);
    }
 
    //~--- inner classes -------------------------------------------------------
 
+   /**
+    * The Class StampAliasSpliterator.
+    */
    private class StampAliasSpliterator
            extends IndexedStampSequenceSpliterator<StampAlias> {
+      /**
+       * Instantiates a new stamp alias spliterator.
+       */
       public StampAliasSpliterator() {
-         super(aliasStampMap.keys());
+         super(StampAliasMap.this.aliasStampMap.keys());
       }
 
       //~--- methods ----------------------------------------------------------
 
+      /**
+       * Try advance.
+       *
+       * @param action the action
+       * @return true, if successful
+       */
       @Override
       public boolean tryAdvance(Consumer<? super StampAlias> action) {
          if (getIterator().hasNext()) {
-            int        alias      = getIterator().nextInt();
-            StampAlias stampAlias = new StampAlias(aliasStampMap.get(alias), alias);
+            final int        alias      = getIterator().nextInt();
+            final StampAlias stampAlias = new StampAlias(StampAliasMap.this.aliasStampMap.get(alias), alias);
 
             action.accept(stampAlias);
             return true;

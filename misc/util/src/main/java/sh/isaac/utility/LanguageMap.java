@@ -43,10 +43,10 @@ package sh.isaac.utility;
 
 import java.util.Optional;
 import java.util.UUID;
+import sh.isaac.MetaData;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.MetaData;
 import sh.isaac.api.LanguageCode;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
@@ -58,6 +58,12 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class LanguageMap {
+   /**
+    * Gets the concept for language code.
+    *
+    * @param lc the lc
+    * @return the concept for language code
+    */
    public static ConceptSpecification getConceptForLanguageCode(LanguageCode lc) {
       switch (lc) {
       case EN:
@@ -138,13 +144,19 @@ public class LanguageMap {
       }
    }
 
+   /**
+    * Gets the language code for UUID.
+    *
+    * @param uuid the uuid
+    * @return the language code for UUID
+    */
    public static Optional<LanguageCode> getLanguageCodeForUUID(UUID uuid) {
-      for (LanguageCode lc: LanguageCode.values()) {
+      for (final LanguageCode lc: LanguageCode.values()) {
          if (lc == LanguageCode.ZZ) {
             continue;
          }
 
-         for (UUID itemUuid: getConceptForLanguageCode(lc).getUuids()) {
+         for (final UUID itemUuid: getConceptForLanguageCode(lc).getUuids()) {
             if (itemUuid.equals(uuid)) {
                return Optional.of(lc);
             }

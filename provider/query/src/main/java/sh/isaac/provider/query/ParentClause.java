@@ -46,7 +46,11 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -88,14 +92,20 @@ public abstract class ParentClause
    /**
     * Constructor from a Query and child clauses.
     *
-    * @param enclosingQuery
-    * @param children
+    * @param enclosingQuery the enclosing query
+    * @param children the children
     */
    public ParentClause(Query enclosingQuery, Clause... children) {
       super(enclosingQuery);
       setChildren(Arrays.asList(children));
    }
 
+   /**
+    * Instantiates a new parent clause.
+    *
+    * @param enclosingQuery the enclosing query
+    * @param children the children
+    */
    public ParentClause(Query enclosingQuery, List<Clause> children) {
       super(enclosingQuery);
       setChildren(children);
@@ -103,32 +113,54 @@ public abstract class ParentClause
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the array of instances of <code>Clause</code> that are children of the ParentClause in the tree used to compute the constructed <code>Query</code>.
+    *
+    * @return the array of instances of <code>Clause</code> that are children of the ParentClause in the tree used to compute the constructed <code>Query</code>
+    */
+   @Override
    public List<Clause> getChildren() {
-      return children;
+      return this.children;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set array of instances of <code>Clause</code> that are children of the ParentClause in the tree used to compute the constructed <code>Query</code>.
+    *
+    * @param children the new array of instances of <code>Clause</code> that are children of the ParentClause in the tree used to compute the constructed <code>Query</code>
+    */
    public void setChildren(List<Clause> children) {
       this.children = children;
 
-      for (Clause child: children) {
+      for (final Clause child: children) {
          child.setParent(this);
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the compute phases.
+    *
+    * @return the compute phases
+    */
    @Override
    public EnumSet<ClauseComputeType> getComputePhases() {
       return PRE_AND_POST_ITERATION;
    }
 
+   /**
+    * Gets the query matches.
+    *
+    * @param conceptVersion the concept version
+    * @return the query matches
+    */
    @Override
    public final void getQueryMatches(ConceptVersion conceptVersion) {
-      children.stream().forEach((c) -> {
-                          c.getQueryMatches(conceptVersion);
-                       });
+      this.children.stream().forEach((c) -> {
+                               c.getQueryMatches(conceptVersion);
+                            });
    }
 }
 

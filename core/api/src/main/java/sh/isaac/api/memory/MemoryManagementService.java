@@ -52,6 +52,11 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface MemoryManagementService {
+   /**
+    * Sets the memory configuration.
+    *
+    * @param memoryConfiguration the new memory configuration
+    */
    void setMemoryConfiguration(MemoryConfigurations memoryConfiguration);
 }
 

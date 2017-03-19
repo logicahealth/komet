@@ -48,85 +48,138 @@ package sh.isaac.api.collections;
 
 import java.util.OptionalInt;
 import java.util.PrimitiveIterator;
-import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import org.apache.mahout.math.set.OpenIntHashSet;
-
-import org.roaringbitmap.IntIterator;
 
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface IntSet.
  *
  * @author kec
  */
 public interface IntSet {
    /**
+    * Adds the.
     *
     * @param item to add to set.
     */
    void add(int item);
 
+   /**
+    * Adds the all.
+    *
+    * @param intStream the int stream
+    */
    void addAll(IntStream intStream);
 
+   /**
+    * And.
+    *
+    * @param otherSet the other set
+    * @return the int set
+    */
    IntSet and(IntSet otherSet);
 
+   /**
+    * And not.
+    *
+    * @param otherSet the other set
+    * @return the int set
+    */
    IntSet andNot(IntSet otherSet);
 
+   /**
+    * As array.
+    *
+    * @return the int[]
+    */
    int[] asArray();
 
+   /**
+    * Clear.
+    */
    void clear();
 
    /**
+    * Contains.
     *
     * @param item to test for containment in set.
     * @return true if item is contained in set.
     */
    boolean contains(int item);
 
+   /**
+    * Find first.
+    *
+    * @return the optional int
+    */
    OptionalInt findFirst();
 
+   /**
+    * Or.
+    *
+    * @param otherSet the other set
+    * @return the int set
+    */
    IntSet or(IntSet otherSet);
 
    /**
+    * Parallel stream.
     *
     * @return the set members as an {@code IntStream}
     */
    IntStream parallelStream();
 
    /**
+    * Removes the.
     *
     * @param item to remove from set.
     */
    void remove(int item);
 
    /**
+    * Size.
     *
     * @return the number of elements in this set.
     */
    int size();
 
    /**
+    * Stream.
     *
     * @return the set members as an {@code IntStream}
     */
    IntStream stream();
 
+   /**
+    * Xor.
+    *
+    * @param otherSet the other set
+    * @return the int set
+    */
    IntSet xor(IntSet otherSet);
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Checks if empty.
     *
     * @return true if the set is empty.
     */
    boolean isEmpty();
 
+   /**
+    * Gets the int iterator.
+    *
+    * @return the int iterator
+    */
    PrimitiveIterator.OfInt getIntIterator();
 
+   /**
+    * Gets the reverse int iterator.
+    *
+    * @return the reverse int iterator
+    */
    PrimitiveIterator.OfInt getReverseIntIterator();
 }
 

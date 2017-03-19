@@ -62,14 +62,26 @@ import sh.isaac.api.observable.sememe.version.ObservableDescriptionSememe;
 //~--- interfaces -------------------------------------------------------------
 
 /**
+ * The Interface ObservableConceptChronology.
  *
  * @author kec
- * @param <V>
+ * @param <V> the value type
  */
 public interface ObservableConceptChronology<V extends ObservableConceptVersion>
         extends ObservableChronology<V> {
+   /**
+    * Concept description list property.
+    *
+    * @param <T> the generic type
+    * @return the list property
+    */
    <T extends ObservableDescriptionSememe<T>> ListProperty<ObservableSememeChronology<T>> conceptDescriptionListProperty();
 
+   /**
+    * Concept sequence property.
+    *
+    * @return the integer property
+    */
    IntegerProperty conceptSequenceProperty();
 
    /**
@@ -110,19 +122,41 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the concept description list.
+    *
+    * @param <T> the generic type
+    * @return the concept description list
+    */
    <T extends ObservableDescriptionSememe<T>> ObservableList<? extends ObservableSememeChronology<T>> getConceptDescriptionList();
 
    /**
+    * Gets the concept sequence.
     *
     * @return the sequence of this concept. A contiguously assigned identifier for
     * concepts >= 0;
     */
    int getConceptSequence();
 
+   /**
+    * Gets the fully specified description.
+    *
+    * @param languageCoordinate the language coordinate
+    * @param stampCoordinate the stamp coordinate
+    * @return the fully specified description
+    */
    Optional<LatestVersion<ObservableDescriptionSememe<?>>> getFullySpecifiedDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate);
 
+   /**
+    * Gets the preferred description.
+    *
+    * @param <T> the generic type
+    * @param languageCoordinate the language coordinate
+    * @param stampCoordinate the stamp coordinate
+    * @return the preferred description
+    */
    <T extends ObservableDescriptionSememe<T>> Optional<LatestVersion<T>> getPreferredDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate);

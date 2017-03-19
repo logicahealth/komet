@@ -79,18 +79,29 @@ import sh.isaac.mojo.external.QuasiMojo;
 @Service(name = "diff-ibdfs")
 public class BinaryDataDifferMojo
         extends QuasiMojo {
+   /** The diff on status. */
    @Parameter
-   private Boolean diffOnStatus        = false;
+   private final Boolean diffOnStatus = false;
+
+   /** The diff on timestamp. */
    @Parameter
-   private Boolean diffOnTimestamp     = false;
+   private final Boolean diffOnTimestamp = false;
+
+   /** The diff on author. */
    @Parameter
-   private Boolean diffOnAuthor        = false;
+   private final Boolean diffOnAuthor = false;
+
+   /** The diff on module. */
    @Parameter
-   private Boolean diffOnModule        = false;
+   private final Boolean diffOnModule = false;
+
+   /** The diff on path. */
    @Parameter
-   private Boolean diffOnPath          = false;
+   private final Boolean diffOnPath = false;
+
+   /** The create analysis files. */
    @Parameter
-   private Boolean createAnalysisFiles = false;
+   private final Boolean createAnalysisFiles = false;
 
    /**
     * {@code ibdf format} files to import.
@@ -115,47 +126,57 @@ public class BinaryDataDifferMojo
     */
    @Parameter(required = true)
    private String ibdfFileOutputDir;
+
+   /** The import date. */
    @Parameter
    private String importDate;
+
+   /** The changeset file name. */
    @Parameter(required = true)
-   String         changesetFileName;
+   String changesetFileName;
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Execute.
+    *
+    * @throws MojoExecutionException the mojo execution exception
+    */
+   @Override
    public void execute()
             throws MojoExecutionException {
-      BinaryDataDifferService differService = LookupService.getService(BinaryDataDifferService.class);
+      final BinaryDataDifferService differService = LookupService.getService(BinaryDataDifferService.class);
 
-      differService.initialize(analysisFilesOutputDir,
-                               ibdfFileOutputDir,
-                               changesetFileName,
-                               createAnalysisFiles,
-                               diffOnStatus,
-                               diffOnTimestamp,
-                               diffOnAuthor,
-                               diffOnModule,
-                               diffOnPath,
-                               importDate);
+      differService.initialize(this.analysisFilesOutputDir,
+                               this.ibdfFileOutputDir,
+                               this.changesetFileName,
+                               this.createAnalysisFiles,
+                               this.diffOnStatus,
+                               this.diffOnTimestamp,
+                               this.diffOnAuthor,
+                               this.diffOnModule,
+                               this.diffOnPath,
+                               this.importDate);
 
       try {
-         Map<OchreExternalizableObjectType, Set<OchreExternalizable>> oldContentMap =
-            differService.processVersion(oldVersionFile);
-         Map<OchreExternalizableObjectType, Set<OchreExternalizable>> newContentMap =
-            differService.processVersion(newVersionFile);
-         Map<ChangeType, List<OchreExternalizable>> changedComponents =
+         final Map<OchreExternalizableObjectType, Set<OchreExternalizable>> oldContentMap =
+            differService.processVersion(this.oldVersionFile);
+         final Map<OchreExternalizableObjectType, Set<OchreExternalizable>> newContentMap =
+            differService.processVersion(this.newVersionFile);
+         final Map<ChangeType, List<OchreExternalizable>> changedComponents =
             differService.identifyVersionChanges(oldContentMap,
                                                  newContentMap);
 
          differService.generateDiffedIbdfFile(changedComponents);
 
-         if (createAnalysisFiles) {
+         if (this.createAnalysisFiles) {
             differService.writeFilesForAnalysis(oldContentMap,
                   newContentMap,
                   changedComponents,
-                  ibdfFileOutputDir,
-                  analysisFilesOutputDir);
+                  this.ibdfFileOutputDir,
+                  this.analysisFilesOutputDir);
          }
-      } catch (Exception e) {
+      } catch (final Exception e) {
          throw new MojoExecutionException(e.getMessage(), e);
       }
    }

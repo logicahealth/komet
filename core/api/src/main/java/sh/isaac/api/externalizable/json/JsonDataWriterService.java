@@ -71,7 +71,7 @@ import sh.isaac.api.util.TimeFlushBufferedOutputStream;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link JsonDataWriterService} - serialize to JSON
+ * {@link JsonDataWriterService} - serialize to JSON.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
@@ -79,19 +79,39 @@ import sh.isaac.api.util.TimeFlushBufferedOutputStream;
 @PerLookup
 public class JsonDataWriterService
          implements DataWriterService {
-   private Logger           logger     = LoggerFactory.getLogger(JsonDataWriterService.class);
-   private Semaphore        pauseBlock = new Semaphore(1);
-   private JsonWriter       json_;
-   private FileOutputStream fos_;
-   private Path             dataPath;
+   /** The logger. */
+   private final Logger logger = LoggerFactory.getLogger(JsonDataWriterService.class);
+
+   /** The pause block. */
+   private final Semaphore pauseBlock = new Semaphore(1);
+
+   /** The json. */
+   private JsonWriter json;
+
+   /** The fos. */
+   private FileOutputStream fos;
+
+   /** The data path. */
+   private Path dataPath;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new json data writer service.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    private JsonDataWriterService()
             throws IOException {
       // For HK2
    }
 
+   /**
+    * Instantiates a new json data writer service.
+    *
+    * @param path the path
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    public JsonDataWriterService(File path)
             throws IOException {
       this();
@@ -99,9 +119,10 @@ public class JsonDataWriterService
    }
 
    /**
-    * To support non HK2 useage
-    * @param path
-    * @throws IOException
+    * To support non HK2 useage.
+    *
+    * @param path the path
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public JsonDataWriterService(Path path)
             throws IOException {
@@ -111,105 +132,141 @@ public class JsonDataWriterService
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Close.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void close()
             throws IOException {
       try {
-         json_.close();
-         fos_.close();
+         this.json.close();
+         this.fos.close();
       } finally {
-         json_ = null;
-         fos_  = null;
+         this.json = null;
+         this.fos  = null;
       }
-   }
-
-   @Override
-   public void configure(Path path)
-            throws IOException {
-      if (json_ != null) {
-         throw new IOException("Reconfiguration not supported");
-      }
-
-      Map<String, Object> args = new HashMap<>();
-
-      args.put(JsonWriter.PRETTY_PRINT, true);
-      dataPath = path;
-      fos_     = new FileOutputStream(path.toFile(), true);
-      json_    = new JsonWriter(new TimeFlushBufferedOutputStream(fos_), args);
-      json_.addWriter(ConceptChronology.class, new Writers.ConceptChronologyJsonWriter());
-      json_.addWriter(SememeChronology.class, new Writers.SememeChronologyJsonWriter());
-      logger.info("json changeset writer has been configured to write to " + dataPath.toAbsolutePath().toString());
    }
 
    /**
-    * @throws IOException
+    * Configure.
+    *
+    * @param path the path
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
+   @Override
+   public void configure(Path path)
+            throws IOException {
+      if (this.json != null) {
+         throw new IOException("Reconfiguration not supported");
+      }
+
+      final Map<String, Object> args = new HashMap<>();
+
+      args.put(JsonWriter.PRETTY_PRINT, true);
+      this.dataPath = path;
+      this.fos     = new FileOutputStream(path.toFile(), true);
+      this.json    = new JsonWriter(new TimeFlushBufferedOutputStream(this.fos), args);
+      this.json.addWriter(ConceptChronology.class, new Writers.ConceptChronologyJsonWriter());
+      this.json.addWriter(SememeChronology.class, new Writers.SememeChronologyJsonWriter());
+      this.logger.info("json changeset writer has been configured to write to " +
+                       this.dataPath.toAbsolutePath().toString());
+   }
+
+   /**
+    * Flush.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
     * @see sh.isaac.api.externalizable.DataWriterService#flush()
     */
    @Override
    public void flush()
             throws IOException {
-      if (json_ != null) {
-         json_.flush();
+      if (this.json != null) {
+         this.json.flush();
       }
    }
 
+   /**
+    * Pause.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void pause()
             throws IOException {
-      if (json_ == null) {
-         logger.warn("already paused!");
+      if (this.json == null) {
+         this.logger.warn("already paused!");
          return;
       }
 
-      pauseBlock.acquireUninterruptibly();
+      this.pauseBlock.acquireUninterruptibly();
       close();
-      logger.debug("json writer paused");
+      this.logger.debug("json writer paused");
    }
 
+   /**
+    * Put.
+    *
+    * @param ochreObject the ochre object
+    */
    @Override
    public void put(OchreExternalizable ochreObject) {
       try {
-         pauseBlock.acquireUninterruptibly();
-         json_.write(ochreObject);
+         this.pauseBlock.acquireUninterruptibly();
+         this.json.write(ochreObject);
       } finally {
-         pauseBlock.release();
+         this.pauseBlock.release();
       }
    }
 
    /**
     * Write out a string object to the json file - this will encode all illegal characters within the string.
     * Useful for writing debugging files
+    *
+    * @param string the string
     */
    public void put(String string) {
       try {
-         pauseBlock.acquireUninterruptibly();
-         json_.write(string);
+         this.pauseBlock.acquireUninterruptibly();
+         this.json.write(string);
       } finally {
-         pauseBlock.release();
+         this.pauseBlock.release();
       }
    }
 
+   /**
+    * Resume.
+    *
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
    @Override
    public void resume()
             throws IOException {
-      if (pauseBlock.availablePermits() == 1) {
-         logger.warn("asked to resume, but not paused?");
+      if (this.pauseBlock.availablePermits() == 1) {
+         this.logger.warn("asked to resume, but not paused?");
          return;
       }
 
-      if (json_ == null) {
-         configure(dataPath);
+      if (this.json == null) {
+         configure(this.dataPath);
       }
 
-      pauseBlock.release();
-      logger.debug("json writer resumed");
+      this.pauseBlock.release();
+      this.logger.debug("json writer resumed");
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the current path.
+    *
+    * @return the current path
+    */
    @Override
    public Path getCurrentPath() {
-      return dataPath;
+      return this.dataPath;
    }
 }
 

@@ -45,48 +45,79 @@ import java.util.UUID;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class ValuePropertyPair.
+ */
 public class ValuePropertyPair
          implements Comparable<ValuePropertyPair> {
-   private Boolean  valueDisabled_ = null;  // used for overriding the property default with instance data
-   protected Long   time_          = null;
-   private Property property_;
-   private String   value_;
-   private UUID     descriptionUUID_;
+   /** The value disabled. */
+   private Boolean valueDisabled = null;  // used for overriding the property default with instance data
+
+   /** The time. */
+   protected Long time = null;
+
+   /** The property. */
+   private final Property property;
+
+   /** The value. */
+   private final String value;
+
+   /** The description UUI D. */
+   private UUID descriptionUUID;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new value property pair.
+    *
+    * @param value the value
+    * @param property the property
+    */
    public ValuePropertyPair(String value, Property property) {
-      value_           = value;
-      property_        = property;
-      descriptionUUID_ = null;
+      this.value           = value;
+      this.property        = property;
+      this.descriptionUUID = null;
    }
 
+   /**
+    * Instantiates a new value property pair.
+    *
+    * @param value the value
+    * @param descriptionUUID the description UUID
+    * @param property the property
+    */
    public ValuePropertyPair(String value, UUID descriptionUUID, Property property) {
-      value_           = value;
-      property_        = property;
-      descriptionUUID_ = descriptionUUID;
+      this.value           = value;
+      this.property        = property;
+      this.descriptionUUID = descriptionUUID;
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
    public int compareTo(ValuePropertyPair o) {
-      int result = property_.getPropertyType()
-                            .getClass()
-                            .getName()
-                            .compareTo(o.property_.getPropertyType()
-                                  .getClass()
-                                  .getName());
+      int result = this.property.getPropertyType()
+                                 .getClass()
+                                 .getName()
+                                 .compareTo(o.property.getPropertyType()
+                                       .getClass()
+                                       .getName());
 
       if (result == 0) {
-         result = property_.getPropertySubType() - o.property_.getPropertySubType();
+         result = this.property.getPropertySubType() - o.property.getPropertySubType();
 
          if (result == 0) {
-            result = property_.getSourcePropertyNameFSN()
-                              .compareTo(o.property_.getSourcePropertyNameFSN());
+            result = this.property.getSourcePropertyNameFSN()
+                                   .compareTo(o.property.getSourcePropertyNameFSN());
 
             if (result == 0) {
-               result = value_.compareTo(o.value_);
+               result = this.value.compareTo(o.value);
             }
          }
       }
@@ -98,54 +129,90 @@ public class ValuePropertyPair
 
    /**
     * Should this description instance be disabled, taking into account local override (if set) and falling back to property default.
-    * @return
+    *
+    * @return true, if disabled
     */
    public boolean isDisabled() {
-      if (valueDisabled_ != null) {
-         return valueDisabled_;
+      if (this.valueDisabled != null) {
+         return this.valueDisabled;
       } else {
-         return property_.isDisabled();
+         return this.property.isDisabled();
       }
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the disabled.
+    *
+    * @param disabled the new disabled
+    */
    public void setDisabled(boolean disabled) {
-      valueDisabled_ = disabled;
+      this.valueDisabled = disabled;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the property.
+    *
+    * @return the property
+    */
    public Property getProperty() {
-      return property_;
+      return this.property;
    }
 
+   /**
+    * Gets the time.
+    *
+    * @return the time
+    */
    public Long getTime() {
-      return time_;
+      return this.time;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the time.
+    *
+    * @param time the new time
+    */
    public void setTime(long time) {
-      time_ = time;
+      this.time = time;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the uuid.
+    *
+    * @return the uuid
+    */
    public UUID getUUID() {
-      return descriptionUUID_;
+      return this.descriptionUUID;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the uuid.
+    *
+    * @param uuid the new uuid
+    */
    public void setUUID(UUID uuid) {
-      descriptionUUID_ = uuid;
+      this.descriptionUUID = uuid;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the value.
+    *
+    * @return the value
+    */
    public String getValue() {
-      return value_;
+      return this.value;
    }
 }
 

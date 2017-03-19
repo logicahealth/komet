@@ -53,98 +53,167 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class MetadataConceptConstant.
+ */
 public abstract class MetadataConceptConstant
          implements ConceptSpecification {
-   private final List<String> synonyms_    = new ArrayList<>();
-   private final List<String> definitions_ = new ArrayList<>();
-   private ConceptSpecification parent_ =
+   /** The synonyms. */
+   private final List<String> synonyms = new ArrayList<>();
+
+   /** The definitions. */
+   private final List<String> definitions = new ArrayList<>();
+
+   /** The parent. */
+   private ConceptSpecification parent =
       null;  // Optional use - most constants have their parent set by the IsaacMetadataAuxiliary parent/child mechanism
-   private final String primaryName_;
-   private final UUID   uuid_;
+
+   /** The primary name. */
+   private final String primaryName;
+
+   /** The uuid. */
+   private final UUID uuid;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new metadata concept constant.
+    *
+    * @param primaryName the primary name
+    * @param uuid the uuid
+    */
    protected MetadataConceptConstant(String primaryName, UUID uuid) {
-      primaryName_ = primaryName;
-      uuid_        = uuid;
+      this.primaryName = primaryName;
+      this.uuid        = uuid;
    }
 
+   /**
+    * Instantiates a new metadata concept constant.
+    *
+    * @param primaryName the primary name
+    * @param uuid the uuid
+    * @param definition the definition
+    */
    protected MetadataConceptConstant(String primaryName, UUID uuid, String definition) {
-      primaryName_ = primaryName;
-      uuid_        = uuid;
+      this.primaryName = primaryName;
+      this.uuid        = uuid;
       addDefinition(definition);
    }
 
+   /**
+    * Instantiates a new metadata concept constant.
+    *
+    * @param primaryName the primary name
+    * @param uuid the uuid
+    * @param definition the definition
+    * @param parent the parent
+    */
    protected MetadataConceptConstant(String primaryName, UUID uuid, String definition, ConceptSpecification parent) {
-      primaryName_ = primaryName;
-      uuid_        = uuid;
+      this.primaryName = primaryName;
+      this.uuid        = uuid;
       addDefinition(definition);
       setParent(parent);
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Adds the definition.
+    *
+    * @param definition the definition
+    */
    protected void addDefinition(String definition) {
-      definitions_.add(definition);
+      this.definitions.add(definition);
    }
 
+   /**
+    * Adds the synonym.
+    *
+    * @param synonym the synonym
+    */
    protected void addSynonym(String synonym) {
-      synonyms_.add(synonym);
+      this.synonyms.add(synonym);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * This method is identical to {@link #getPrimaryName()}
+    * This method is identical to {@link #getPrimaryName()}.
+    *
+    * @return the concept description text
     * @see sh.isaac.api.component.concept.ConceptSpecification#getConceptDescriptionText()
     */
    @Override
    public String getConceptDescriptionText() {
-      return primaryName_;
+      return this.primaryName;
    }
 
    /**
+    * Gets the definitions.
+    *
     * @return The descriptions for this concept (if any). Will not return null.
     */
    public List<String> getDefinitions() {
-      return definitions_;
+      return this.definitions;
    }
 
    /**
+    * Gets the nid.
+    *
     * @return The nid for the concept.
     */
+   @Override
    public int getNid() {
       return Get.conceptService()
                 .getConcept(getUUID())
                 .getNid();
    }
 
+   /**
+    * Gets the parent.
+    *
+    * @return the parent
+    */
    public ConceptSpecification getParent() {
-      return parent_;
+      return this.parent;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the parent.
+    *
+    * @param parent the new parent
+    */
    protected void setParent(ConceptSpecification parent) {
-      parent_ = parent;
+      this.parent = parent;
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
+    * Gets the primary name.
+    *
     * @return The name for this concept, used to construct the FSN and preferred term.
     * This method is identical to {@link #getConceptDescriptionText()}
     */
    public String getPrimaryName() {
-      return primaryName_;
+      return this.primaryName;
    }
 
+   /**
+    * Gets the primordial uuid.
+    *
+    * @return the primordial uuid
+    */
    @Override
    public UUID getPrimordialUuid() {
       return getUUID();
    }
 
    /**
+    * Gets the sequence.
+    *
     * @return The concept sequence for the concept.
     */
    public int getSequence() {
@@ -154,23 +223,32 @@ public abstract class MetadataConceptConstant
    }
 
    /**
+    * Gets the synonyms.
+    *
     * @return The alternate synonyms for this concept (if any) - does not
     * include the preferred synonym. Will not return null.
     */
    public List<String> getSynonyms() {
-      return synonyms_;
+      return this.synonyms;
    }
 
    /**
+    * Gets the uuid.
+    *
     * @return The UUID for the concept
     */
    public UUID getUUID() {
-      return uuid_;
+      return this.uuid;
    }
 
+   /**
+    * Gets the uuid list.
+    *
+    * @return the uuid list
+    */
    @Override
    public List<UUID> getUuidList() {
-      return Arrays.asList(new UUID[] { uuid_ });
+      return Arrays.asList(new UUID[] { this.uuid });
    }
 }
 

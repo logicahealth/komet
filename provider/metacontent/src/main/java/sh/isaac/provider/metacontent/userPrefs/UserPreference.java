@@ -46,38 +46,58 @@ import sh.isaac.api.metacontent.userPrefs.StorableUserPreferences;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link UserPreference}
+ * {@link UserPreference}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class UserPreference
          implements StorableUserPreferences {
+   /** The sample. */
+
    // TODO finish this class as needed
-   private String sample;
+   private final String sample;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new user preference.
+    *
+    * @param data the data
+    */
    public UserPreference(byte[] data) {
-      sample = new String(data);
+      this.sample = new String(data);
    }
 
+   /**
+    * Instantiates a new user preference.
+    *
+    * @param foo the foo
+    */
    public UserPreference(String foo) {
-      sample = foo;
+      this.sample = foo;
    }
 
    //~--- methods -------------------------------------------------------------
 
    /**
+    * Serialize.
+    *
+    * @return the byte[]
     * @see sh.isaac.api.metacontent.userPrefs.StorableUserPreferences#serialize()
     */
    @Override
    public byte[] serialize() {
-      return sample.getBytes();
+      return this.sample.getBytes();
    }
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      return sample;
+      return this.sample;
    }
 }
 

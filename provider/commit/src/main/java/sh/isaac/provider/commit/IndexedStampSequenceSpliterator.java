@@ -49,39 +49,62 @@ import java.util.stream.IntStream;
 
 import org.apache.mahout.math.list.IntArrayList;
 
-import sh.isaac.api.commit.StampService;
-
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class IndexedStampSequenceSpliterator.
  *
  * @author kec
+ * @param <T> the generic type
  */
 public abstract class IndexedStampSequenceSpliterator<T>
          implements Spliterator<T> {
+   /** The iterator. */
    final PrimitiveIterator.OfInt iterator;
-   final int                     size;
+
+   /** The size. */
+   final int size;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new indexed stamp sequence spliterator.
+    *
+    * @param keys the keys
+    */
    public IndexedStampSequenceSpliterator(IntArrayList keys) {
-      size     = keys.size();
-      iterator = IntStream.of(keys.elements())
-                          .iterator();
+      this.size     = keys.size();
+      this.iterator = IntStream.of(keys.elements())
+                               .iterator();
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * Characteristics.
+    *
+    * @return the int
+    */
    @Override
    public final int characteristics() {
       return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.SIZED;
    }
 
+   /**
+    * Estimate size.
+    *
+    * @return the long
+    */
    @Override
    public final long estimateSize() {
-      return size;
+      return this.size;
    }
 
+   /**
+    * Try split.
+    *
+    * @return the spliterator
+    */
    @Override
    public final Spliterator<T> trySplit() {
       return null;
@@ -89,8 +112,13 @@ public abstract class IndexedStampSequenceSpliterator<T>
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the iterator.
+    *
+    * @return the iterator
+    */
    public PrimitiveIterator.OfInt getIterator() {
-      return iterator;
+      return this.iterator;
    }
 }
 

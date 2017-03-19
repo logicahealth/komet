@@ -64,11 +64,18 @@ import sh.isaac.converters.sharedUtils.ConsoleUtil;
 
 //~--- classes ----------------------------------------------------------------
 
+/**
+ * The Class H2DatabaseHandle.
+ */
 public class H2DatabaseHandle {
-   protected Connection connection_;
+   /** The connection. */
+   protected Connection connection;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new h 2 database handle.
+    */
    public H2DatabaseHandle() {
       super();
    }
@@ -78,13 +85,18 @@ public class H2DatabaseHandle {
    /**
     * If file provided, created or opened at that path.  If file is null, an in-memory db is created.
     * Returns false if the database already existed, true if it was newly created.
+    *
+    * @param dbFile the db file
+    * @return true, if successful
+    * @throws ClassNotFoundException the class not found exception
+    * @throws SQLException the SQL exception
     */
    public boolean createOrOpenDatabase(File dbFile)
             throws ClassNotFoundException, SQLException {
       boolean createdNew = true;
 
       if (dbFile != null) {
-         File temp = new File(dbFile.getParentFile(), dbFile.getName() + ".h2.db");
+         final File temp = new File(dbFile.getParentFile(), dbFile.getName() + ".h2.db");
 
          if (temp.exists()) {
             createdNew = false;
@@ -94,20 +106,26 @@ public class H2DatabaseHandle {
       Class.forName("org.h2.Driver");
 
       if (dbFile == null) {
-         connection_ = DriverManager.getConnection("jdbc:h2:mem:;MV_STORE=FALSE");
+         this.connection = DriverManager.getConnection("jdbc:h2:mem:;MV_STORE=FALSE");
       } else {
-         connection_ = DriverManager.getConnection("jdbc:h2:" + dbFile.getAbsolutePath() +
+         this.connection = DriverManager.getConnection("jdbc:h2:" + dbFile.getAbsolutePath() +
                ";LOG=0;CACHE_SIZE=1024000;LOCK_MODE=0;;MV_STORE=FALSE");
       }
 
       return createdNew;
    }
 
+   /**
+    * Creates the table.
+    *
+    * @param td the td
+    * @throws SQLException the SQL exception
+    */
    public void createTable(TableDefinition td)
             throws SQLException {
-      Statement     s         = connection_.createStatement();
-      StringBuilder sql       = new StringBuilder();
-      String        tableName = td.getTableName();
+      final Statement     s         = this.connection.createStatement();
+      final StringBuilder sql       = new StringBuilder();
+      String              tableName = td.getTableName();
 
       if (tableName.indexOf('/') > 0) {
          tableName = tableName.substring(tableName.indexOf('/') + 1);
@@ -115,7 +133,7 @@ public class H2DatabaseHandle {
 
       sql.append("CREATE TABLE " + tableName + " (");
 
-      for (ColumnDefinition cd: td.getColumns()) {
+      for (final ColumnDefinition cd: td.getColumns()) {
          sql.append(cd.asH2());
          sql.append(",");
       }
@@ -127,6 +145,13 @@ public class H2DatabaseHandle {
    }
 
    /**
+    * Load data into table.
+    *
+    * @param td the td
+    * @param data the data
+    * @return the int
+    * @throws SQLException the SQL exception
+    * @throws IOException Signals that an I/O exception has occurred.
     * @returns rowCount loaded
     */
    public int loadDataIntoTable(TableDefinition td, TerminologyFileReader data)
@@ -135,14 +160,16 @@ public class H2DatabaseHandle {
    }
 
    /**
-    * @param td
-    * @param data
+    * Load data into table.
+    *
+    * @param td the td
+    * @param data the data
     * @param includeValuesColumnName - (optional) the name of the column to check for an include values filter
     * @param includeValues - (optional) - the values to include.  If this parameter, and the above parameter are specified, only rows which have
     * a column name that matches 'includeValuesColumnName' with a value from the set of 'includeValues" will be loaded.
-    * @throws SQLException
-    * @throws IOException
     * @return row count loaded
+    * @throws SQLException the SQL exception
+    * @throws IOException Signals that an I/O exception has occurred.
     */
    public int loadDataIntoTable(TableDefinition td,
                                 TerminologyFileReader data,
@@ -152,7 +179,7 @@ public class H2DatabaseHandle {
                    IOException {
       ConsoleUtil.println("Loading table " + td.getTableName());
 
-      StringBuilder insert = new StringBuilder();
+      final StringBuilder insert = new StringBuilder();
 
       insert.append("INSERT INTO ");
 
@@ -165,7 +192,7 @@ public class H2DatabaseHandle {
       insert.append(tableName);
       insert.append("(");
 
-      for (ColumnDefinition cd: td.getColumns()) {
+      for (final ColumnDefinition cd: td.getColumns()) {
          insert.append(cd.getColumnName());
          insert.append(",");
       }
@@ -180,9 +207,9 @@ public class H2DatabaseHandle {
       insert.setLength(insert.length() - 1);
       insert.append(")");
 
-      PreparedStatement ps           = connection_.prepareStatement(insert.toString());
-      int               filterColumn = -1;
-      HashSet<String>   sabHashSet   = null;
+      final PreparedStatement ps           = this.connection.prepareStatement(insert.toString());
+      int                     filterColumn = -1;
+      HashSet<String>         sabHashSet   = null;
 
       if ((includeValues != null) && (includeValues.size() > 0) && (includeValuesColumnName != null)) {
          sabHashSet = new HashSet<>(includeValues);
@@ -190,7 +217,7 @@ public class H2DatabaseHandle {
          int pos = 0;
 
          // Find the skip column in this table, if it has one.
-         for (ColumnDefinition cd: td.getColumns()) {
+         for (final ColumnDefinition cd: td.getColumns()) {
             if (cd.getColumnName()
                   .equalsIgnoreCase(includeValuesColumnName)) {
                filterColumn = pos;
@@ -201,12 +228,12 @@ public class H2DatabaseHandle {
          }
       }
 
-      int             rowCount     = 0;
-      int             sabSkipCount = 0;
-      HashSet<String> skippedSabs  = new HashSet<>();
+      int                   rowCount     = 0;
+      int                   sabSkipCount = 0;
+      final HashSet<String> skippedSabs  = new HashSet<>();
 
       while (data.hasNextRow()) {
-         List<String> cols = data.getNextRow();
+         final List<String> cols = data.getNextRow();
 
          if (cols.size() != td.getColumns().length) {
             throw new RuntimeException("Data length mismatch!");
@@ -224,9 +251,9 @@ public class H2DatabaseHandle {
 
          int psIndex = 1;
 
-         for (String s: cols) {
-            DataType colType = td.getColumns()[psIndex - 1]
-                                 .getDataType();
+         for (final String s: cols) {
+            final DataType colType = td.getColumns()[psIndex - 1]
+                                       .getDataType();
 
             if (colType.isBoolean()) {
                if ((s == null) || (s.length() == 0)) {
@@ -285,15 +312,25 @@ public class H2DatabaseHandle {
       return rowCount;
    }
 
+   /**
+    * Shutdown.
+    *
+    * @throws SQLException the SQL exception
+    */
    public void shutdown()
             throws SQLException {
-      connection_.close();
+      this.connection.close();
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the connection.
+    *
+    * @return the connection
+    */
    public Connection getConnection() {
-      return connection_;
+      return this.connection;
    }
 }
 

@@ -49,29 +49,49 @@ import javax.xml.bind.annotation.XmlRootElement;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LetMap.
  *
  * @author kec
  */
 @XmlRootElement
 public class LetMap {
+   /** The map. */
    private Map<String, Object> map = new HashMap<>();
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new let map.
+    */
    public LetMap() {}
 
+   /**
+    * Instantiates a new let map.
+    *
+    * @param map the map
+    */
    public LetMap(Map<String, Object> map) {
       this.map = map;
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the map.
+    *
+    * @return the map
+    */
    public Map<String, Object> getMap() {
-      return map;
+      return this.map;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Set map.
+    *
+    * @param map the map
+    */
    public void setMap(Map<String, Object> map) {
       this.map = map;
    }

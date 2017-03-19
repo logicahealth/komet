@@ -58,61 +58,84 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
+ * The Class LogicGraphSememeImpl.
  *
  * @author kec
  */
 public class LogicGraphSememeImpl
         extends SememeVersionImpl<LogicGraphSememeImpl>
          implements MutableLogicGraphSememe<LogicGraphSememeImpl> {
+   /** The converter. */
    private static LogicalExpressionByteArrayConverter converter;
 
    //~--- fields --------------------------------------------------------------
 
+   /** The graph data. */
    byte[][] graphData = null;
 
    //~--- constructors --------------------------------------------------------
 
+   /**
+    * Instantiates a new logic graph sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    */
    public LogicGraphSememeImpl(SememeChronologyImpl<LogicGraphSememeImpl> container,
                                int stampSequence,
                                short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
+   /**
+    * Instantiates a new logic graph sememe impl.
+    *
+    * @param container the container
+    * @param stampSequence the stamp sequence
+    * @param versionSequence the version sequence
+    * @param data the data
+    */
    public LogicGraphSememeImpl(SememeChronologyImpl<LogicGraphSememeImpl> container,
                                int stampSequence,
                                short versionSequence,
                                ByteArrayDataBuffer data) {
       super(container, stampSequence, versionSequence);
 
-      int graphNodes = data.getInt();
+      final int graphNodes = data.getInt();
 
       this.graphData = new byte[graphNodes][];
 
       for (int i = 0; i < graphNodes; i++) {
          try {
             this.graphData[i] = data.getByteArrayField();
-         } catch (ArrayIndexOutOfBoundsException e) {
+         } catch (final ArrayIndexOutOfBoundsException e) {
             throw new RuntimeException(e);
          }
       }
 
       if (data.isExternalData()) {
-         graphData = getExternalDataConverter().convertLogicGraphForm(graphData, DataTarget.INTERNAL);
+         this.graphData = getExternalDataConverter().convertLogicGraphForm(this.graphData, DataTarget.INTERNAL);
       }
    }
 
    //~--- methods -------------------------------------------------------------
 
+   /**
+    * To string.
+    *
+    * @return the string
+    */
    @Override
    public String toString() {
-      StringBuilder sb = new StringBuilder();
+      final StringBuilder sb = new StringBuilder();
 
       sb.append(getSememeType().toString());
 
-      LogicalExpressionOchreImpl lg = new LogicalExpressionOchreImpl(graphData,
-                                                                     DataSource.INTERNAL,
-                                                                     Get.identifierService().getConceptSequence(
-                                                                        getReferencedComponentNid()));
+      final LogicalExpressionOchreImpl lg = new LogicalExpressionOchreImpl(this.graphData,
+                                                                           DataSource.INTERNAL,
+                                                                           Get.identifierService().getConceptSequence(
+                                                                              getReferencedComponentNid()));
 
       sb.append("\n ");
       sb.append(lg.toString());
@@ -120,11 +143,16 @@ public class LogicGraphSememeImpl
       return sb.toString();
    }
 
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
 
-      byte[][] temp = graphData;
+      byte[][] temp = this.graphData;
 
       if (data.isExternalData()) {
          temp = getExternalGraphData();
@@ -132,13 +160,19 @@ public class LogicGraphSememeImpl
 
       data.putInt(temp.length);
 
-      for (byte[] graphDataElement: temp) {
+      for (final byte[] graphDataElement: temp) {
          data.putByteArrayField(graphDataElement);
       }
    }
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the external data converter.
+    *
+    * @return the external data converter
+    * @throws MultiException the multi exception
+    */
    private static LogicalExpressionByteArrayConverter getExternalDataConverter()
             throws MultiException {
       if (converter == null) {
@@ -149,18 +183,33 @@ public class LogicGraphSememeImpl
       return converter;
    }
 
+   /**
+    * Gets the external graph data.
+    *
+    * @return the external graph data
+    */
    @Override
    public byte[][] getExternalGraphData() {
-      return getExternalDataConverter().convertLogicGraphForm(graphData, DataTarget.EXTERNAL);
+      return getExternalDataConverter().convertLogicGraphForm(this.graphData, DataTarget.EXTERNAL);
    }
 
+   /**
+    * Gets the graph data.
+    *
+    * @return the graph data
+    */
    @Override
    public byte[][] getGraphData() {
-      return graphData;
+      return this.graphData;
    }
 
    //~--- set methods ---------------------------------------------------------
 
+   /**
+    * Sets the graph data.
+    *
+    * @param graphData the new graph data
+    */
    @Override
    public void setGraphData(byte[][] graphData) {
       if (this.graphData != null) {
@@ -172,11 +221,21 @@ public class LogicGraphSememeImpl
 
    //~--- get methods ---------------------------------------------------------
 
+   /**
+    * Gets the logical expression.
+    *
+    * @return the logical expression
+    */
    @Override
    public LogicalExpression getLogicalExpression() {
-      return new LogicalExpressionOchreImpl(graphData, DataSource.INTERNAL, getReferencedComponentNid());
+      return new LogicalExpressionOchreImpl(this.graphData, DataSource.INTERNAL, getReferencedComponentNid());
    }
 
+   /**
+    * Gets the sememe type.
+    *
+    * @return the sememe type
+    */
    @Override
    public SememeType getSememeType() {
       return SememeType.LOGIC_GRAPH;
