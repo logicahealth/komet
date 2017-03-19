@@ -45,7 +45,6 @@ package sh.isaac.api;
  * @author kec
  */
 public interface ProgressTracker {
-   
    /**
     * Adds the to total work.
     *

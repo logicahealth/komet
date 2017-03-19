@@ -61,61 +61,60 @@ import sh.isaac.converters.sharedUtils.umlsUtils.Relationship;
  * The Class REL.
  */
 public class REL {
-   
    /** The stype 1. */
    private final String cui1, aui1, stype1;
 
-/** The rel. */
-private String rel;
+   /** The rel. */
+   private String rel;
 
-/** The cui 2. */
-private final String cui2;
+   /** The cui 2. */
+   private final String cui2;
 
-/** The aui 2. */
-private final String aui2;
+   /** The aui 2. */
+   private final String aui2;
 
-/** The stype 2. */
-private final String stype2;
+   /** The stype 2. */
+   private final String stype2;
 
-/** The rela. */
-private String rela;
+   /** The rela. */
+   private String rela;
 
-/** The rui. */
-private final String rui;
+   /** The rui. */
+   private final String rui;
 
-/** The srui. */
-private final String srui;
+   /** The srui. */
+   private final String srui;
 
-/** The sab. */
-private final String sab;
+   /** The sab. */
+   private final String sab;
 
-/** The sl. */
-private final String sl;
+   /** The sl. */
+   private final String sl;
 
-/** The rg. */
-private final String rg;
+   /** The rg. */
+   private final String rg;
 
-/** The dir. */
-private final String dir;
+   /** The dir. */
+   private final String dir;
 
-/** The suppress. */
-private final String suppress;
+   /** The suppress. */
+   private final String suppress;
 
-/** The cvf. */
-private final String cvf;
+   /** The cvf. */
+   private final String cvf;
 
-/** The target SAB. */
-private String targetSAB;
+   /** The target SAB. */
+   private String targetSAB;
 
-/** The target CODE. */
-private String targetCODE;
+   /** The target CODE. */
+   private String targetCODE;
 
-/** The source SAB. */
-private final String sourceSAB;
-   
+   /** The source SAB. */
+   private final String sourceSAB;
+
    /** The rel hash. */
-   private UUID    sourceUUID_, targetUUID_, relHash_;
-   
+   private UUID sourceUUID_, targetUUID_, relHash_;
+
    /** The looked up 2. */
    private final boolean lookedUp2_;
 
@@ -140,15 +139,15 @@ private final String sourceSAB;
       this.sourceSAB  = sourceSab;
       this.lookedUp2_ = lookedUp2;
       this.cui1       = rs.getString(isRxNorm ? "RXCUI1"
-                                         : "CUI1");
+            : "CUI1");
       this.aui1       = rs.getString(isRxNorm ? "RXAUI1"
-                                         : "AUI1");
+            : "AUI1");
       this.stype1     = rs.getString("STYPE1");
       this.rel        = rs.getString("REL");
       this.cui2       = rs.getString(isRxNorm ? "RXCUI2"
-                                         : "CUI2");
+            : "CUI2");
       this.aui2       = rs.getString(isRxNorm ? "RXAUI2"
-                                         : "AUI2");
+            : "AUI2");
       this.stype2     = rs.getString("STYPE2");
       this.rela       = rs.getString("RELA");
       this.rui        = rs.getString("RUI");
@@ -243,15 +242,16 @@ private final String sourceSAB;
    public UUID getInverseRelHash(Function<String, Relationship> nameToRelMapper) {
       // reverse the direction of the rels, and the source/target
       final String relInverse  = nameToRelMapper.apply(this.rel)
-                                          .getFSNName();
-      String relaInverse = null;
+                                                .getFSNName();
+      String       relaInverse = null;
 
       if (this.rela != null) {
          relaInverse = nameToRelMapper.apply(this.rela)
                                       .getFSNName();
       }
 
-      return UUID.nameUUIDFromBytes(new String(relInverse + relaInverse + this.targetUUID_ + this.sourceUUID_).getBytes());
+      return UUID.nameUUIDFromBytes(new String(relInverse + relaInverse + this.targetUUID_ +
+            this.sourceUUID_).getBytes());
    }
 
    /**
@@ -270,7 +270,8 @@ private final String sourceSAB;
     */
    public UUID getRelHash() {
       if (this.relHash_ == null) {
-         this.relHash_ = UUID.nameUUIDFromBytes(new String(this.rel + this.rela + this.sourceUUID_ + this.targetUUID_).getBytes());
+         this.relHash_ = UUID.nameUUIDFromBytes(new String(this.rel + this.rela + this.sourceUUID_ +
+               this.targetUUID_).getBytes());
       }
 
       return this.relHash_;
@@ -328,7 +329,7 @@ private final String sourceSAB;
     */
    public String getSourceAUI() {
       return this.lookedUp2_ ? this.aui2
-                        : this.aui1;
+                             : this.aui1;
    }
 
    /**
@@ -338,7 +339,7 @@ private final String sourceSAB;
     */
    public String getSourceCUI() {
       return this.lookedUp2_ ? this.cui2
-                        : this.cui1;
+                             : this.cui1;
    }
 
    /**
@@ -416,7 +417,7 @@ private final String sourceSAB;
     */
    public String getTargetAUI() {
       return this.lookedUp2_ ? this.aui1
-                        : this.aui2;
+                             : this.aui2;
    }
 
    /**
@@ -426,7 +427,7 @@ private final String sourceSAB;
     */
    public String getTargetCUI() {
       return this.lookedUp2_ ? this.cui1
-                        : this.cui2;
+                             : this.cui2;
    }
 
    /**

@@ -72,7 +72,6 @@ import sh.isaac.api.observable.coordinate.ObservableTaxonomyCoordinate;
  */
 @Contract
 public interface ConfigurationService {
-   
    /**
     * Enable verbose debug.
     *
@@ -102,7 +101,7 @@ public interface ConfigurationService {
 
    /**
     * When building a DB, we don't want to index per commit, or write changeset files, among other things.
-    * 
+    *
     * Note that this mode can be enabled-only only.  If you enable dbBuildMode, the mode cannot be turned off later.
     *
     * @return true, if successful
@@ -129,11 +128,11 @@ public interface ConfigurationService {
     * data-store specific folder such as "cradle" inside this folder. The
     * default implementation returns the result of
     * {@link #getDataStoreFolderPath()} + {@link Constants#DEFAULT_CHRONICLE_FOLDER}
-    * 
+    *
     * The returned path exists on disk at the time that this method returns.
     */
    public default Path getChronicleFolderPath() {
-      Path           result;
+      Path                 result;
       final Optional<Path> rootPath = getDataStoreFolderPath();
 
       if (!rootPath.isPresent()) {
@@ -173,17 +172,17 @@ public interface ConfigurationService {
     * subfolders of
     * {@link Constants#DEFAULT_CHRONICLE_FOLDER} and
     * {@link Constants#DEFAULT_SEARCH_FOLDER}.
-    * 
-    * 
+    *
+    *
     * This method will return (in the following order):
-    * 
+    *
     * - The value specified by a call to {@link #setDataStoreFolderPath(Path)}
     * - a path constructed from the value of
     * {@link Constants#DATA_STORE_ROOT_LOCATION_PROPERTY} if
     * {@link #setDataStoreFolderPath(Path)} was never called
     * - Nothing if
     * {@link Constants#DATA_STORE_ROOT_LOCATION_PROPERTY} has not been set.
-    * 
+    *
     * If a value is returned, the returned path will exist on disk at the time
     * that this method returns.
     */
@@ -195,7 +194,7 @@ public interface ConfigurationService {
     * Specify the root folder of the database. The specified folder should
     * contain subfolders of {@link Constants#DEFAULT_CHRONICLE_FOLDER} and
     * {@link Constants#DEFAULT_SEARCH_FOLDER}.
-    * 
+    *
     * This method can only be utilized prior to the first call to
     * {@link LookupService#startupIsaac()}
     *
@@ -399,16 +398,16 @@ public interface ConfigurationService {
     * @return The root folder of the search data store - one would expect to
     * find a data-store specific folder such as "lucene" inside this folder.
     * The default implementation returns either:
-    * 
+    *
     * A path as specified exactly via
     * {@link Constants#SEARCH_ROOT_LOCATION_PROPERTY} (if the property is set)
     * or the result of
     * {@link #getDataStoreFolderPath()} + {@link Constants#DEFAULT_SEARCH_FOLDER}
-    * 
+    *
     * The returned path exists on disk at the time that this method returns.
     */
    public default Path getSearchFolderPath() {
-      Path           result;
+      Path                 result;
       final Optional<Path> rootPath = getDataStoreFolderPath();
 
       if (!rootPath.isPresent()) {

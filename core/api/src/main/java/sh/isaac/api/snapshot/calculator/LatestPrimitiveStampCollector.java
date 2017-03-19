@@ -58,7 +58,6 @@ import sh.isaac.api.coordinate.StampCoordinate;
  */
 public class LatestPrimitiveStampCollector
          implements ObjIntConsumer<StampSequenceSet> {
-   
    /** The computer. */
    private final RelativePositionCalculator computer;
 
@@ -93,9 +92,10 @@ public class LatestPrimitiveStampCollector
       } else if (oldResult.size() == 1) {
          // Only a single existing result (no contradiction identified), so see which is
          // latest, or if a contradiction exists.
-         final int              oldStampSequence = oldResult.getIntIterator()
-                                                      .next();
-         final RelativePosition relativePosition = this.computer.relativePosition(oldStampSequence, possibleNewLatestStamp);
+         final int oldStampSequence = oldResult.getIntIterator()
+                                               .next();
+         final RelativePosition relativePosition = this.computer.relativePosition(oldStampSequence,
+                                                                                  possibleNewLatestStamp);
 
          switch (relativePosition) {
          case AFTER:
@@ -133,7 +133,8 @@ public class LatestPrimitiveStampCollector
          final EnumSet<RelativePosition> relativePositions = EnumSet.noneOf(RelativePosition.class);
 
          oldResult.stream().forEach((oldResultStamp) -> {
-                              relativePositions.add(this.computer.relativePosition(possibleNewLatestStamp, oldResultStamp));
+                              relativePositions.add(
+                                  this.computer.relativePosition(possibleNewLatestStamp, oldResultStamp));
                            });
 
          if (relativePositions.size() == 1) {

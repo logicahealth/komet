@@ -60,7 +60,6 @@ import org.apache.commons.lang3.StringUtils;
  * The Class AbbreviationExpansion.
  */
 public class AbbreviationExpansion {
-   
    /** The description. */
    String abbreviation_, expansion_, description_;
 
@@ -92,7 +91,7 @@ public class AbbreviationExpansion {
             throws IOException {
       final HashMap<String, AbbreviationExpansion> results = new HashMap<>();
       final BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.ISO_8859_1));
-      String                                 line    = br.readLine();
+      String                                       line    = br.readLine();
 
       while (line != null) {
          if (StringUtils.isBlank(line) || line.startsWith("#")) {

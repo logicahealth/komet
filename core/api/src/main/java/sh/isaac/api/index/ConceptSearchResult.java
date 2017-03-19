@@ -152,7 +152,7 @@ public class ConceptSearchResult
    @Override
    public int getNid() {
       return this.nids.iterator()
-                 .next();
+                      .next();
    }
 
    /**

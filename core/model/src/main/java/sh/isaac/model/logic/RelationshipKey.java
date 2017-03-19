@@ -53,7 +53,6 @@ import sh.isaac.api.logic.LogicNode;
  */
 public class RelationshipKey
          implements Comparable<RelationshipKey> {
-   
    /** The concepts referenced at node or below. */
    ConceptSequenceSet conceptsReferencedAtNodeOrBelow = new ConceptSequenceSet();
 

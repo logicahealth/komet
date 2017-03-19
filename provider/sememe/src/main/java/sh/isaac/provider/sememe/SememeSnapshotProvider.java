@@ -70,16 +70,15 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  */
 public class SememeSnapshotProvider<V extends SememeVersion<?>>
          implements SememeSnapshotService<V> {
-   
    /** The version type. */
-   Class<V>                   versionType;
-   
+   Class<V> versionType;
+
    /** The stamp coordinate. */
-   StampCoordinate            stampCoordinate;
-   
+   StampCoordinate stampCoordinate;
+
    /** The sememe provider. */
-   SememeService              sememeProvider;
-   
+   SememeService sememeProvider;
+
    /** The calculator. */
    RelativePositionCalculator calculator;
 
@@ -123,7 +122,7 @@ public class SememeSnapshotProvider<V extends SememeVersion<?>>
     */
    @Override
    public Optional<LatestVersion<V>> getLatestSememeVersion(int sememeSequenceOrNid) {
-      final SememeChronologyImpl<?> sc              = (SememeChronologyImpl<?>) this.sememeProvider.getSememe(sememeSequenceOrNid);
+      final SememeChronologyImpl<?> sc = (SememeChronologyImpl<?>) this.sememeProvider.getSememe(sememeSequenceOrNid);
       final IntStream               stampSequences  = sc.getVersionStampSequences();
       final StampSequenceSet        latestSequences = this.calculator.getLatestStampSequencesAsSet(stampSequences);
 
@@ -151,9 +150,10 @@ public class SememeSnapshotProvider<V extends SememeVersion<?>>
          ProgressTracker... progressTrackers) {
       return sememeSequenceStream.mapToObj((int sememeSequence) -> {
                try {
-                  final SememeChronologyImpl<?> sc = (SememeChronologyImpl<?>) this.sememeProvider.getSememe(sememeSequence);
-                  final IntStream               stampSequences       = sc.getVersionStampSequences();
-                  final StampSequenceSet        latestStampSequences =
+                  final SememeChronologyImpl<?> sc =
+                     (SememeChronologyImpl<?>) this.sememeProvider.getSememe(sememeSequence);
+                  final IntStream stampSequences = sc.getVersionStampSequences();
+                  final StampSequenceSet latestStampSequences =
                      this.calculator.getLatestStampSequencesAsSet(stampSequences);
 
                   if (latestStampSequences.isEmpty()) {

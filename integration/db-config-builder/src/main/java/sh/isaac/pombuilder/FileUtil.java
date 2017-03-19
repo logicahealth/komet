@@ -79,7 +79,6 @@ import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class FileUtil {
-   
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 

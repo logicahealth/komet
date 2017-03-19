@@ -92,24 +92,23 @@ import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
  * @author kec
  */
 public class GraphToAxiomTranslator {
-   
    /** The axioms. */
-   Set<Axiom>                           axioms                  = new ConcurrentSkipListSet<>();
-   
+   Set<Axiom> axioms = new ConcurrentSkipListSet<>();
+
    /** The sequence logic concept map. */
    ConcurrentSequenceObjectMap<Concept> sequenceLogicConceptMap = new ConcurrentSequenceObjectMap<>();
-   
+
    /** The sequence logic role map. */
-   ConcurrentHashMap<Integer, Role>     sequenceLogicRoleMap    = new ConcurrentHashMap<>();
-   
+   ConcurrentHashMap<Integer, Role> sequenceLogicRoleMap = new ConcurrentHashMap<>();
+
    /** The sequence logic feature map. */
-   ConcurrentHashMap<Integer, Feature>  sequenceLogicFeatureMap = new ConcurrentHashMap<>();
-   
+   ConcurrentHashMap<Integer, Feature> sequenceLogicFeatureMap = new ConcurrentHashMap<>();
+
    /** The loaded concepts. */
-   ConcurrentSkipListSet<Integer>       loadedConcepts          = new ConcurrentSkipListSet<>();
-   
+   ConcurrentSkipListSet<Integer> loadedConcepts = new ConcurrentSkipListSet<>();
+
    /** The f. */
-   Factory                              f                       = new Factory();
+   Factory f = new Factory();
 
    //~--- methods -------------------------------------------------------------
 
@@ -134,7 +133,7 @@ public class GraphToAxiomTranslator {
       this.loadedConcepts.add(logicGraphSememe.getReferencedComponentNid());
 
       final LogicalExpressionOchreImpl logicGraph = new LogicalExpressionOchreImpl(logicGraphSememe.getGraphData(),
-                                                                             DataSource.INTERNAL);
+                                                                                   DataSource.INTERNAL);
 
       generateAxioms(logicGraph.getRoot(), logicGraphSememe.getReferencedComponentNid(), logicGraph);
    }
@@ -147,8 +146,9 @@ public class GraphToAxiomTranslator {
    @Override
    public String toString() {
       return "GraphToAxiomTranslator{" + "axioms=" + this.axioms.size() + ", sequenceLogicConceptMap=" +
-             this.sequenceLogicConceptMap.getSequences().count() + ", sequenceLogicRoleMap=" + this.sequenceLogicRoleMap.size() +
-             ", sequenceLogicFeatureMap=" + this.sequenceLogicFeatureMap.size() + '}';
+             this.sequenceLogicConceptMap.getSequences().count() + ", sequenceLogicRoleMap=" +
+             this.sequenceLogicRoleMap.size() + ", sequenceLogicFeatureMap=" + this.sequenceLogicFeatureMap.size() +
+             '}';
    }
 
    /**

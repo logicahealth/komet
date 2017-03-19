@@ -65,7 +65,6 @@ import javafx.collections.SetChangeListener;
  */
 public class WeakSetChangeListener<T>
          implements WeakListener, SetChangeListener<T> {
-   
    /** The ref. */
    private final WeakReference<SetChangeListener<T>> ref;
 

@@ -56,7 +56,6 @@ import sh.isaac.api.collections.ConceptSequenceSet;
  */
 public interface LogicNode
         extends Comparable<LogicNode> {
-   
    /**
     * Adds the children.
     *
@@ -160,7 +159,6 @@ public interface LogicNode
     * @return the node semantic
     */
    NodeSemantic getNodeSemantic();
-
    ;
 }
 

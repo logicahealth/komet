@@ -60,7 +60,6 @@ import sh.isaac.api.State;
  * @author kec
  */
 public interface StampedVersion {
-   
    /**
     * Gets the author sequence.
     *

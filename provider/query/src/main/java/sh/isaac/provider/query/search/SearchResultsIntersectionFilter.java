@@ -70,7 +70,6 @@ import org.slf4j.LoggerFactory;
  */
 public class SearchResultsIntersectionFilter
          implements Function<List<CompositeSearchResult>, List<CompositeSearchResult>> {
-   
    /** The Constant LOG. */
    private static final Logger LOG = LoggerFactory.getLogger(SearchResultsIntersectionFilter.class);
 

@@ -54,22 +54,21 @@ import java.util.concurrent.Semaphore;
  * @author ocarlsen
  */
 public class SearchHandle {
-   
    /** The search start time. */
-   private final long                  searchStartTime = System.currentTimeMillis();
-   
+   private final long searchStartTime = System.currentTimeMillis();
+
    /** The result block. */
-   private final Semaphore                   resultBlock_    = new Semaphore(1);
-   
+   private final Semaphore resultBlock_ = new Semaphore(1);
+
    /** The cancelled. */
-   private volatile boolean            cancelled       = false;
-   
+   private volatile boolean cancelled = false;
+
    /** The error. */
-   private Exception                   error           = null;
-   
+   private Exception error = null;
+
    /** The search I D. */
-   private final Integer                     searchID_;
-   
+   private final Integer searchID_;
+
    /** The result. */
    private List<CompositeSearchResult> result_;
 

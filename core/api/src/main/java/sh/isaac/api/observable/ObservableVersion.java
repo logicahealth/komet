@@ -58,7 +58,6 @@ import sh.isaac.api.commit.CommitStates;
  */
 public interface ObservableVersion
         extends MutableStampedVersion {
-   
    /**
     * Author sequence property.
     *

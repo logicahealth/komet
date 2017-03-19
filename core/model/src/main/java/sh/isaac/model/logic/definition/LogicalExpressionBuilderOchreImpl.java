@@ -105,21 +105,20 @@ import sh.isaac.model.logic.node.internal.TemplateNodeWithSequences;
  */
 public class LogicalExpressionBuilderOchreImpl
          implements LogicalExpressionBuilder {
-   
    /** The built. */
-   private boolean                                         built           = false;
-   
+   private boolean built = false;
+
    /** The next axiom id. */
-   private short                                           nextAxiomId     = 0;
-   
+   private short nextAxiomId = 0;
+
    /** The root sets. */
-   private final Set<GenericAxiom>                         rootSets        = new HashSet<>();
-   
+   private final Set<GenericAxiom> rootSets = new HashSet<>();
+
    /** The definition tree. */
-   private final HashMap<GenericAxiom, List<GenericAxiom>> definitionTree  = new HashMap<>(20);
-   
+   private final HashMap<GenericAxiom, List<GenericAxiom>> definitionTree = new HashMap<>(20);
+
    /** The axiom parameters. */
-   private final OpenShortObjectHashMap<Object>            axiomParameters = new OpenShortObjectHashMap<>(20);
+   private final OpenShortObjectHashMap<Object> axiomParameters = new OpenShortObjectHashMap<>(20);
 
    //~--- constructors --------------------------------------------------------
 
@@ -644,7 +643,8 @@ public class LogicalExpressionBuilderOchreImpl
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.TEMPLATE, this);
 
-      this.axiomParameters.put(axiom.getIndex(), new Object[] { templateChronology, assemblageToPopulateTemplateConcept });
+      this.axiomParameters.put(axiom.getIndex(),
+                               new Object[] { templateChronology, assemblageToPopulateTemplateConcept });
       return axiom;
    }
 
@@ -663,7 +663,7 @@ public class LogicalExpressionBuilderOchreImpl
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.TEMPLATE, this);
 
       this.axiomParameters.put(axiom.getIndex(),
-                          new Object[] { templateSpecification, assemblageToPopulateTemplateSpecification });
+                               new Object[] { templateSpecification, assemblageToPopulateTemplateSpecification });
       return axiom;
    }
 
@@ -722,7 +722,8 @@ public class LogicalExpressionBuilderOchreImpl
                                             .get(0), definition));
          }
 
-         final ConceptChronology<?> featureTypeSpecification = (ConceptChronology<?>) this.axiomParameters.get(axiom.getIndex());
+         final ConceptChronology<?> featureTypeSpecification =
+            (ConceptChronology<?>) this.axiomParameters.get(axiom.getIndex());
 
          return definition.Feature(featureTypeSpecification.getNid(),
                                    addToDefinition(this.definitionTree.get(axiom)
@@ -738,7 +739,8 @@ public class LogicalExpressionBuilderOchreImpl
                 ((ConceptSpecification) this.axiomParameters.get(axiom.getIndex())).getConceptSequence());
          }
 
-         final ConceptChronology<?> conceptSpecification = (ConceptChronology<?>) this.axiomParameters.get(axiom.getIndex());
+         final ConceptChronology<?> conceptSpecification =
+            (ConceptChronology<?>) this.axiomParameters.get(axiom.getIndex());
 
          return definition.Concept(conceptSpecification.getConceptSequence());
 
@@ -787,8 +789,9 @@ public class LogicalExpressionBuilderOchreImpl
          }
 
          if (params[0] instanceof ConceptSpecification) {
-            final ConceptSpecification templateConceptSpecification                     = (ConceptSpecification) params[0];
-            final ConceptSpecification assemblageToPopulateTemplateConceptSpecification = (ConceptSpecification) params[1];
+            final ConceptSpecification templateConceptSpecification = (ConceptSpecification) params[0];
+            final ConceptSpecification assemblageToPopulateTemplateConceptSpecification =
+               (ConceptSpecification) params[1];
 
             return definition.Template(templateConceptSpecification.getConceptSequence(),
                                        assemblageToPopulateTemplateConceptSpecification.getConceptSequence());
@@ -1068,7 +1071,7 @@ public class LogicalExpressionBuilderOchreImpl
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.TEMPLATE, this);
 
       this.axiomParameters.put(axiom.getIndex(),
-                          new Object[] { templateChronologyId, assemblageToPopulateTemplateConceptId });
+                               new Object[] { templateChronologyId, assemblageToPopulateTemplateConceptId });
       return axiom;
    }
 

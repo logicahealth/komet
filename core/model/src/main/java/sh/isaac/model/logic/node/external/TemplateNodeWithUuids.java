@@ -72,7 +72,6 @@ import sh.isaac.model.logic.node.internal.TemplateNodeWithSequences;
  */
 public class TemplateNodeWithUuids
         extends AbstractLogicNode {
-   
    /** Sequence of the concept that defines the template. */
    UUID templateConceptUuid;
 

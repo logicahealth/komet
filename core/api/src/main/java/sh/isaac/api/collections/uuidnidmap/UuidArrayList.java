@@ -58,7 +58,6 @@ import org.apache.mahout.math.Arrays;
  */
 public class UuidArrayList
         extends AbstractUuidList {
-   
    /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 1L;
 
@@ -510,7 +509,7 @@ public class UuidArrayList
       }  // nothing to do
 
       final int    limit       = other.size() - 1;
-      int    j           = 0;
+      int          j           = 0;
       final long[] theElements = this.elements;
       final int    mySize      = size();
       final double N           = other.size();
@@ -624,7 +623,7 @@ public class UuidArrayList
        * Hence, if N*logN + M*logN < M*N, we use b) otherwise we use a).
        */
       final int    limit       = other.size() - 1;
-      int    j           = 0;
+      int          j           = 0;
       final long[] theElements = this.elements;
       final int    mySize      = size();
       final double N           = other.size();
@@ -683,7 +682,7 @@ public class UuidArrayList
       // overridden for performance only.
       final long[] tmp         = new long[2];
       final int    limit       = this.size / 2;
-      int    j           = this.size - 1;
+      int          j           = this.size - 1;
       final long[] theElements = this.elements;
 
       for (int i = 0; i < limit; ) {  // swap
@@ -777,9 +776,11 @@ public class UuidArrayList
     */
    public long[] get(int index, int nid) {
       // overridden for performance only.
-      assert index < this.size: " index out of bounds. index: " + index + " current size: " + this.size + " nid: " + nid;
+      assert index < this.size:
+             " index out of bounds. index: " + index + " current size: " + this.size + " nid: " + nid;
       assert index >= 0:
-             " index out of bounds (cannot be netagive). index: " + index + " current size: " + this.size + " nid: " + nid;
+             " index out of bounds (cannot be netagive). index: " + index + " current size: " + this.size + " nid: " +
+             nid;
       return getUuid(index);
    }
 

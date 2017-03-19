@@ -61,7 +61,6 @@ import sh.isaac.api.logic.LogicalExpression;
  */
 @Contract
 public interface SememeBuilderService<C extends SememeChronology<? extends SememeVersion<?>>> {
-   
    /**
     * Gets the component sememe builder.
     *

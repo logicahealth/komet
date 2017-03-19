@@ -45,22 +45,21 @@ package sh.isaac.pombuilder.converter;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class UploadFileInfo {
-   
    /** The suggested source location. */
-   private final String  suggestedSourceLocation;
-   
+   private final String suggestedSourceLocation;
+
    /** The suggested source URL. */
-   private final String  suggestedSourceURL;
-   
+   private final String suggestedSourceURL;
+
    /** The sample name. */
-   private final String  sampleName;
-   
+   private final String sampleName;
+
    /** The expected naming pattern description. */
-   private final String  expectedNamingPatternDescription;
-   
+   private final String expectedNamingPatternDescription;
+
    /** The expected naming pattern reg exp pattern. */
-   private final String  expectedNamingPatternRegExpPattern;
-   
+   private final String expectedNamingPatternRegExpPattern;
+
    /** The file is required. */
    private final boolean fileIsRequired;
 

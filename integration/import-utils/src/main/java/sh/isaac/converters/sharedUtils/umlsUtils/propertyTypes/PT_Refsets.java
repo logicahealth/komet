@@ -53,7 +53,6 @@ import sh.isaac.converters.sharedUtils.propertyTypes.Property;
  */
 public class PT_Refsets
         extends BPT_Refsets {
-   
    /** The cui concepts. */
    public Property CUI_CONCEPTS;
 

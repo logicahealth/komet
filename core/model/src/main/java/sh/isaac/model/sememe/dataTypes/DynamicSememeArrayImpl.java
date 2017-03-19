@@ -68,7 +68,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 public class DynamicSememeArrayImpl<T extends DynamicSememeData>
         extends DynamicSememeDataImpl
          implements DynamicSememeArray<T> {
-   
    /** The property. */
    private ReadOnlyObjectProperty<T[]> property_;
 
@@ -96,7 +95,7 @@ public class DynamicSememeArrayImpl<T extends DynamicSememeData>
       }
 
       final byte[][] allData    = new byte[dataArray.length][];
-      long     totalBytes = 0;
+      long           totalBytes = 0;
 
       for (int i = 0; i < dataArray.length; i++) {
          allData[i] = dataArray[i].getData();

@@ -64,50 +64,49 @@ import sh.isaac.provider.sync.git.gitblit.utils.StringUtils;
  */
 public class RepositoryModel
          implements Serializable, Comparable<RepositoryModel> {
-   
    /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 1L;
 
    //~--- fields --------------------------------------------------------------
 
    /** The name. */
-   public String       name;
-   
+   public String name;
+
    /** The description. */
-   public String       description;
-   
+   public String description;
+
    /** The owners. */
    public List<String> owners;
-   
+
    /** The last change. */
-   public Date         lastChange;
-   
+   public Date lastChange;
+
    /** The access restriction. */
-   public String       accessRestriction;
-   
+   public String accessRestriction;
+
    /** The authorization control. */
-   public String       authorizationControl;
-   
+   public String authorizationControl;
+
    /** The federation strategy. */
-   public String       federationStrategy;
-   
+   public String federationStrategy;
+
    /** The federation sets. */
    public List<String> federationSets;
-   
+
    /** The is bare. */
-   public boolean      isBare;
-   
+   public boolean isBare;
+
    /** The project path. */
-   public String       projectPath;
-   
+   public String projectPath;
+
    /** The display name. */
-   private String      displayName;
-   
+   private String displayName;
+
    /** The accept new patchsets. */
-   public boolean      acceptNewPatchsets;
-   
+   public boolean acceptNewPatchsets;
+
    /** The accept new tickets. */
-   public boolean      acceptNewTickets;
+   public boolean acceptNewTickets;
 
    //~--- constructors --------------------------------------------------------
 

@@ -58,7 +58,6 @@ import sh.isaac.model.coordinate.StampPositionImpl;
  * @author kec
  */
 public class StampCoordinates {
-   
    /**
     * Gets the development latest.
     *
@@ -66,7 +65,7 @@ public class StampCoordinates {
     */
    public static StampCoordinate getDevelopmentLatest() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
-                                                          TermAux.DEVELOPMENT_PATH.getConceptSequence());
+                                                                TermAux.DEVELOPMENT_PATH.getConceptSequence());
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
@@ -81,7 +80,7 @@ public class StampCoordinates {
     */
    public static StampCoordinate getDevelopmentLatestActiveOnly() {
       final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
-                                                          TermAux.DEVELOPMENT_PATH.getConceptSequence());
+                                                                TermAux.DEVELOPMENT_PATH.getConceptSequence());
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
@@ -95,7 +94,8 @@ public class StampCoordinates {
     * @return the master latest
     */
    public static StampCoordinate getMasterLatest() {
-      final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.MASTER_PATH.getConceptSequence());
+      final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
+                                                                TermAux.MASTER_PATH.getConceptSequence());
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
@@ -109,7 +109,8 @@ public class StampCoordinates {
     * @return the master latest active only
     */
    public static StampCoordinate getMasterLatestActiveOnly() {
-      final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.MASTER_PATH.getConceptSequence());
+      final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE,
+                                                                TermAux.MASTER_PATH.getConceptSequence());
 
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,

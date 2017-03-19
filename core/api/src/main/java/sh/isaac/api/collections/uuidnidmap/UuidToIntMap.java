@@ -49,7 +49,6 @@ import java.util.UUID;
  * Created by kec on 7/27/14.
  */
 public interface UuidToIntMap {
-   
    /**
     * Contains key.
     *

@@ -57,7 +57,6 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
  */
 public interface ObservableLanguageCoordinate
         extends LanguageCoordinate {
-   
    /**
     * Description type preference list property.
     *

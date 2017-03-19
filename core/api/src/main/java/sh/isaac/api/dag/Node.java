@@ -53,18 +53,17 @@ import java.util.List;
  * @param <T> the generic type
  */
 public class Node<T> {
-   
    /** The children. */
    private final List<Node<T>> children = new ArrayList<>();
-   
+
    /** The data. */
-   private final T             data;
-   
+   private final T data;
+
    /** The parent. */
-   private final Node<T>       parent;
-   
+   private final Node<T> parent;
+
    /** The graph. */
-   private final Graph<T>      graph;
+   private final Graph<T> graph;
 
    //~--- constructors --------------------------------------------------------
 

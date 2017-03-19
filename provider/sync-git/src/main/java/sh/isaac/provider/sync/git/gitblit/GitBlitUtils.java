@@ -72,7 +72,6 @@ import sh.isaac.provider.sync.git.gitblit.utils.RpcUtils.AccessRestrictionType;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class GitBlitUtils {
-   
    /** The log. */
    private static Logger log = LoggerFactory.getLogger(GitBlitUtils.class);
 
@@ -81,7 +80,7 @@ public class GitBlitUtils {
    /**
     * This hackery is being done because of a code-sync issue between PRISME and ISAAC-Rest, where PRISME is putting a bare URL into the props file.
     * It will be fixed on the PRISME side, eventually, making this method a noop - but for now, handle either the old or new style.
-    * 
+    *
     * Essentially, if we see a bare URL like https://vaauscttdbs80.aac.va.gov:8080 we add /git to the end of it.
     * If we see a URL that includes a location - like https://vaauscttdbs80.aac.va.gov:8080/gitServer - we do nothing more than add a trailing forward slash
     *
@@ -127,7 +126,10 @@ public class GitBlitUtils {
             rm.accessRestriction = AccessRestrictionType.PUSH.toString();
          }
 
-         final boolean status = RpcUtils.createRepository(rm, adjustBareUrlForGitBlit(baseRemoteAddress), username, password);
+         final boolean status = RpcUtils.createRepository(rm,
+                                                          adjustBareUrlForGitBlit(baseRemoteAddress),
+                                                          username,
+                                                          password);
 
          log.info("Repository: " + repoName + ", create successfully: " + status);
 

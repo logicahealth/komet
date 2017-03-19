@@ -121,13 +121,12 @@ import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 @RunLevel(value = 2)
 public class SememeIndexer
         extends LuceneIndexer {
-   
    /** The Constant log. */
-   private static final Logger log               = LogManager.getLogger();
-   
+   private static final Logger log = LogManager.getLogger();
+
    /** The Constant INDEX_NAME. */
-   public static final String  INDEX_NAME        = "sememes";
-   
+   public static final String INDEX_NAME = "sememes";
+
    /** The Constant COLUMN_FIELD_DATA. */
    private static final String COLUMN_FIELD_DATA = "colData";
 
@@ -155,9 +154,9 @@ public class SememeIndexer
    /**
     * Search for matches to the specified nid. Note that in the current implementation, you will only find matches to sememes
     * of type {@link SememeType#COMPONENT_NID} or {@link SememeType#LOGIC_GRAPH}.
-    * 
+    *
     * This only supports nids, not sequences.
-    * 
+    *
     * If searching a component nid sememe, this will only match on the attached component nid value.  It will not match
     * on the assemblage concept, nor the referenced component nid.  Those can be found directly via standard sememe APIs.
     * If searching a logic graph sememe, it will find a match in any concept that is involved in the graph, except for the
@@ -191,10 +190,10 @@ public class SememeIndexer
 
    /**
     * A convenience method.
-    * 
+    *
     * Search DynamicSememeData columns, treating them as text - and handling the search in the same mechanism as if this were a
     * call to the method {@link LuceneIndexer#query(String, boolean, Integer, int, long)}
-    * 
+    *
     * Calls the method {@link #query(DynamicSememeDataBI, Integer, boolean, Integer[], int, long) with a null parameter for
     * the searchColumns, and wraps the queryString into a DynamicSememeString.
     *
@@ -252,7 +251,6 @@ public class SememeIndexer
                // '-' signs are operators to lucene... but we want to allow nid lookups.  So escape any leading hyphens
                // and any hyphens that are preceeded by spaces.  This way, we don't mess up UUID handling.
                // (lucene handles UUIDs ok, because the - sign is only treated special at the beginning, or when preceeded by a space)
-
                if (queryString.startsWith("-")) {
                   queryString = "\\" + queryString;
                }
@@ -475,8 +473,8 @@ public class SememeIndexer
       // likewise, with Double - if they pass in a double, that would fit in a float, also generate a float query.
       try {
          final BooleanQuery bq          = new BooleanQuery();
-         boolean      fitsInFloat = false;
-         boolean      fitsInInt   = false;
+         boolean            fitsInFloat = false;
+         boolean            fitsInInt   = false;
 
          if ((queryDataLower instanceof DynamicSememeDouble) || (queryDataUpper instanceof DynamicSememeDouble)) {
             final Double upperVal = ((queryDataUpper == null) ? null
@@ -741,7 +739,6 @@ public class SememeIndexer
     * The Class QueryWrapperForColumnHandling.
     */
    private abstract class QueryWrapperForColumnHandling {
-      
       /**
        * Builds the query.
        *

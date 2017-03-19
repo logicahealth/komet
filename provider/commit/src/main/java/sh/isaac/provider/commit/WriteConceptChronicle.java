@@ -67,18 +67,17 @@ import sh.isaac.api.progress.ActiveTasks;
  */
 public class WriteConceptChronicle
         extends Task<Void> {
-   
    /** The cc. */
-   private final ConceptChronology                                              cc;
-   
+   private final ConceptChronology cc;
+
    /** The write semaphore. */
-   private final Semaphore                                                      writeSemaphore;
-   
+   private final Semaphore writeSemaphore;
+
    /** The change listeners. */
    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
-   
+
    /** The uncommitted tracking. */
-   private final BiConsumer<ObjectChronology, Boolean>                          uncommittedTracking;
+   private final BiConsumer<ObjectChronology, Boolean> uncommittedTracking;
 
    //~--- constructors --------------------------------------------------------
 
@@ -126,14 +125,14 @@ public class WriteConceptChronicle
          updateProgress(1, 2);
          updateMessage("notifying: " + Get.conceptDescriptionText(this.cc.getConceptSequence()));
          this.changeListeners.forEach((listenerRef) -> {
-                                    final ChronologyChangeListener listener = listenerRef.get();
+                                         final ChronologyChangeListener listener = listenerRef.get();
 
-                                    if (listener == null) {
-                                       this.changeListeners.remove(listenerRef);
-                                    } else {
-                                       listener.handleChange(this.cc);
-                                    }
-                                 });
+                                         if (listener == null) {
+                                            this.changeListeners.remove(listenerRef);
+                                         } else {
+                                            listener.handleChange(this.cc);
+                                         }
+                                      });
          updateProgress(2, 2);
          updateMessage("complete: " + Get.conceptDescriptionText(this.cc.getConceptSequence()));
          return null;

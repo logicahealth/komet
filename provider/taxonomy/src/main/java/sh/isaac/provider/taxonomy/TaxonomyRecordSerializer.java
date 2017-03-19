@@ -58,7 +58,6 @@ import sh.isaac.model.waitfree.WaitFreeMergeSerializer;
  */
 public class TaxonomyRecordSerializer
          implements WaitFreeMergeSerializer<TaxonomyRecordPrimitive> {
-   
    /**
     * Deserialize.
     *

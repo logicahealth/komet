@@ -83,21 +83,20 @@ import sh.isaac.api.constants.ModuleProvidedConstants;
 @Mojo(name = "export-taxonomy")
 public class ExportTaxonomy
         extends AbstractMojo {
-   
    /** The binding package. */
    @Parameter(required = true)
    private String bindingPackage;
-   
+
    /** The binding class. */
    @Parameter(required = true)
    private String bindingClass;
-   
+
    /** The build directory. */
    @Parameter(
       required     = true,
       defaultValue = "${project.build.directory}"
    )
-   File           buildDirectory;
+   File buildDirectory;
 
    //~--- methods -------------------------------------------------------------
 
@@ -117,7 +116,7 @@ public class ExportTaxonomy
             .setDBBuildMode();
 
          final IsaacTaxonomy taxonomy = LookupService.get()
-                                               .getService(IsaacTaxonomy.class);
+                                                     .getService(IsaacTaxonomy.class);
          final File          javaDir  = new File(this.buildDirectory, "src/generated");
 
          javaDir.mkdirs();
@@ -128,8 +127,8 @@ public class ExportTaxonomy
 
          final File   metadataXmlDataFile  = new File(metadataDirectory, taxonomy.getClass().getSimpleName() + ".xml");
          final String bindingFileDirectory = this.bindingPackage.concat(".")
-                                                     .concat(this.bindingClass)
-                                                     .replace('.', '/');
+                                                                .concat(this.bindingClass)
+                                                                .replace('.', '/');
 
          // Write out the java binding file before we read in the MetadataConceptConstant objects, as these already come from classes
          // and I don't want to have duplicate constants in the system
@@ -166,10 +165,12 @@ public class ExportTaxonomy
             taxonomy.exportJaxb(xmlData);
          }
 
-         final Path ibdfPath = Paths.get(metadataDirectory.getAbsolutePath(), taxonomy.getClass()
-                                                                                .getSimpleName() + ".ibdf");
-         final Path jsonPath = Paths.get(metadataDirectory.getAbsolutePath(), taxonomy.getClass()
-                                                                                .getSimpleName() + ".json");
+         final Path ibdfPath = Paths.get(metadataDirectory.getAbsolutePath(),
+                                         taxonomy.getClass()
+                                               .getSimpleName() + ".ibdf");
+         final Path jsonPath = Paths.get(metadataDirectory.getAbsolutePath(),
+                                         taxonomy.getClass()
+                                               .getSimpleName() + ".json");
 
          taxonomy.export(Optional.of(jsonPath), Optional.of(ibdfPath));
       } catch (final Exception ex) {

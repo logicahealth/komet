@@ -60,7 +60,6 @@ import sh.isaac.api.progress.ActiveTasksTicker;
 )
 public class StartTasksTicker
         extends AbstractMojo {
-   
    /** The interval in seconds. */
    @Parameter
    String intervalInSeconds = "10";

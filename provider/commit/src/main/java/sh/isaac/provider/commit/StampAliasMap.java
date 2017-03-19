@@ -84,21 +84,20 @@ import sh.isaac.api.externalizable.StampComment;
  * @author kec
  */
 public class StampAliasMap {
-   
    /** The rwl. */
-   private final ReentrantReadWriteLock rwl           = new ReentrantReadWriteLock();
-   
+   private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+
    /** The read. */
-   private final Lock                   read          = this.rwl.readLock();
-   
+   private final Lock read = this.rwl.readLock();
+
    /** The write. */
-   private final Lock                   write         = this.rwl.writeLock();
-   
+   private final Lock write = this.rwl.writeLock();
+
    /** The stamp alias map. */
-   NativeIntIntHashMap                  stampAliasMap = new NativeIntIntHashMap();
-   
+   NativeIntIntHashMap stampAliasMap = new NativeIntIntHashMap();
+
    /** The alias stamp map. */
-   NativeIntIntHashMap                  aliasStampMap = new NativeIntIntHashMap();
+   NativeIntIntHashMap aliasStampMap = new NativeIntIntHashMap();
 
    //~--- methods -------------------------------------------------------------
 
@@ -165,26 +164,26 @@ public class StampAliasMap {
       try (DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(mapFile)))) {
          output.writeInt(this.stampAliasMap.size());
          this.stampAliasMap.forEachPair((int stampSequence,
-                                    int aliasSequence) -> {
-                                      try {
-                                         output.writeInt(stampSequence);
-                                         output.writeInt(aliasSequence);
-                                         return true;
-                                      } catch (final IOException ex) {
-                                         throw new RuntimeException(ex);
-                                      }
-                                   });
+                                         int aliasSequence) -> {
+                                           try {
+                                              output.writeInt(stampSequence);
+                                              output.writeInt(aliasSequence);
+                                              return true;
+                                           } catch (final IOException ex) {
+                                              throw new RuntimeException(ex);
+                                           }
+                                        });
          output.writeInt(this.aliasStampMap.size());
          this.aliasStampMap.forEachPair((int aliasSequence,
-                                    int stampSequence) -> {
-                                      try {
-                                         output.writeInt(aliasSequence);
-                                         output.writeInt(stampSequence);
-                                         return true;
-                                      } catch (final IOException ex) {
-                                         throw new RuntimeException(ex);
-                                      }
-                                   });
+                                         int stampSequence) -> {
+                                           try {
+                                              output.writeInt(aliasSequence);
+                                              output.writeInt(stampSequence);
+                                              return true;
+                                           } catch (final IOException ex) {
+                                              throw new RuntimeException(ex);
+                                           }
+                                        });
       }
    }
 
@@ -253,7 +252,8 @@ public class StampAliasMap {
     */
    public int getSize() {
       assert this.stampAliasMap.size() == this.aliasStampMap.size():
-             "stampAliasMap.size() = " + this.stampAliasMap.size() + " aliasStampMap.size() = " + this.aliasStampMap.size();
+             "stampAliasMap.size() = " + this.stampAliasMap.size() + " aliasStampMap.size() = " +
+             this.aliasStampMap.size();
       return this.aliasStampMap.size();
    }
 
@@ -273,7 +273,6 @@ public class StampAliasMap {
     */
    private class StampAliasSpliterator
            extends IndexedStampSequenceSpliterator<StampAlias> {
-      
       /**
        * Instantiates a new stamp alias spliterator.
        */

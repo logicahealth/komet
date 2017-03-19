@@ -55,7 +55,6 @@ import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
  */
 public class PT_SAB_Metadata
         extends PropertyType {
-   
    /**
     * Instantiates a new p T SA B metadata.
     */

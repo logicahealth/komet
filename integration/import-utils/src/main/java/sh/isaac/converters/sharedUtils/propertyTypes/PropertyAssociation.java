@@ -54,15 +54,14 @@ import sh.isaac.api.constants.DynamicSememeConstants;
  */
 public class PropertyAssociation
         extends Property {
-   
    /** The association inverse name. */
-   private final String               associationInverseName_;
-   
+   private final String associationInverseName_;
+
    /** The association component type restriction. */
    private final ObjectChronologyType associationComponentTypeRestriction_;
-   
+
    /** The association component type sub restriction. */
-   private final SememeType           associationComponentTypeSubRestriction_;
+   private final SememeType associationComponentTypeSubRestriction_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -166,11 +165,11 @@ public class PropertyAssociation
    @Override
    public DynamicSememeColumnInfo[] getDataColumnsForDynamicRefex() {
       final DynamicSememeColumnInfo[] columns = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,
-                                                                                                      DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(),
-                                                                                                      DynamicSememeDataType.UUID,
-                                                                                                      null,
-                                                                                                      false,
-                                                                                                      true) };
+                                                                                                            DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(),
+                                                                                                            DynamicSememeDataType.UUID,
+                                                                                                            null,
+                                                                                                            false,
+                                                                                                            true) };
 
       return columns;
    }

@@ -73,11 +73,10 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIsKindOf
         extends LeafClause {
-   
    /** The kind of spec key. */
    @XmlElement
    String kindOfSpecKey;
-   
+
    /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
@@ -114,13 +113,13 @@ public class ConceptIsKindOf
     */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      final TaxonomyCoordinate   tc = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                        .get(this.viewCoordinateKey);
+      final TaxonomyCoordinate tc = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+                                                                            .get(this.viewCoordinateKey);
       final ConceptSpecification kindOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-                                                                             .get(this.kindOfSpecKey);
-      final int                  parentNid         = kindOfSpec.getNid();
-      final ConceptSequenceSet   kindOfSequenceSet = Get.taxonomyService()
-                                                  .getKindOfSequenceSet(parentNid, tc);
+                                                                                        .get(this.kindOfSpecKey);
+      final int                parentNid         = kindOfSpec.getNid();
+      final ConceptSequenceSet kindOfSequenceSet = Get.taxonomyService()
+                                                      .getKindOfSequenceSet(parentNid, tc);
 
       getResultsCache().or(NidSet.of(kindOfSequenceSet));
       return getResultsCache();

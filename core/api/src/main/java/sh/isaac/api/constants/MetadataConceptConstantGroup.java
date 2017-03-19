@@ -52,7 +52,6 @@ import java.util.UUID;
  */
 public abstract class MetadataConceptConstantGroup
         extends MetadataConceptConstant {
-   
    /** The children. */
    private final List<MetadataConceptConstant> children_ = new ArrayList<>();
 

@@ -75,18 +75,17 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class RefsetContainsString
         extends LeafClause {
-   
    /** The query text. */
    @XmlElement
    String queryText;
-   
+
    /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
-   
+
    /** The cache. */
    NidSet cache;
-   
+
    /** The refset spec key. */
    @XmlElement
    String refsetSpecKey;

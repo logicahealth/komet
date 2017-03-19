@@ -48,13 +48,12 @@ package sh.isaac.api.sync;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public enum MergeFailOption {
-   
    /** The keep local. */
    KEEP_LOCAL,
-   
+
    /** The keep remote. */
    KEEP_REMOTE,
-   
+
    /** The fail. */
    FAIL;
 }

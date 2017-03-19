@@ -84,21 +84,20 @@ import sh.isaac.model.observable.ObservableFields;
 public final class ObservableLanguageCoordinateImpl
         extends ObservableCoordinateImpl
          implements ObservableLanguageCoordinate {
-   
    /** The language concept sequence property. */
    @XmlTransient
-   IntegerProperty                        languageConceptSequenceProperty         = null;
-   
+   IntegerProperty languageConceptSequenceProperty = null;
+
    /** The dialect assemblage preference list property. */
    @XmlTransient
    ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty = null;
-   
+
    /** The description type preference list property. */
    @XmlTransient
-   ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty   = null;
-   
+   ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty = null;
+
    /** The language coordinate. */
-   private LanguageCoordinateImpl         languageCoordinate;
+   private LanguageCoordinateImpl languageCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
@@ -132,7 +131,8 @@ public final class ObservableLanguageCoordinateImpl
                ObservableFields.DESCRIPTION_TYPE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
                FXCollections.observableIntegerArray(getDescriptionTypePreferenceList()));
          addListenerReference(
-             this.languageCoordinate.setDescriptionTypePreferenceListProperty(this.descriptionTypePreferenceListProperty));
+             this.languageCoordinate.setDescriptionTypePreferenceListProperty(
+                 this.descriptionTypePreferenceListProperty));
       }
 
       return this.descriptionTypePreferenceListProperty;
@@ -150,7 +150,8 @@ public final class ObservableLanguageCoordinateImpl
                ObservableFields.DIALECT_ASSEMBLAGE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
                FXCollections.observableIntegerArray(getDialectAssemblagePreferenceList()));
          addListenerReference(
-             this.languageCoordinate.setDialectAssemblagePreferenceListProperty(this.dialectAssemblagePreferenceListProperty));
+             this.languageCoordinate.setDialectAssemblagePreferenceListProperty(
+                 this.dialectAssemblagePreferenceListProperty));
       }
 
       return this.dialectAssemblagePreferenceListProperty;
@@ -167,7 +168,8 @@ public final class ObservableLanguageCoordinateImpl
          this.languageConceptSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.LANGUAGE_SEQUENCE_FOR_LANGUAGE_COORDINATE.toExternalString(),
                getLanguageConceptSequence());
-         addListenerReference(this.languageCoordinate.setLanguageConceptSequenceProperty(this.languageConceptSequenceProperty));
+         addListenerReference(
+             this.languageCoordinate.setLanguageConceptSequenceProperty(this.languageConceptSequenceProperty));
       }
 
       return this.languageConceptSequenceProperty;

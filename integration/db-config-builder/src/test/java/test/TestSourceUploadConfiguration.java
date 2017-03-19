@@ -51,6 +51,7 @@ import java.util.ArrayList;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.value.ChangeListener;
+
 import javafx.concurrent.Task;
 
 import sh.isaac.api.util.WorkExecutors;
@@ -65,7 +66,6 @@ import sh.isaac.pombuilder.upload.SrcUploadCreator;
  * The Class TestSourceUploadConfiguration.
  */
 public class TestSourceUploadConfiguration {
-   
    /**
     * The main method.
     *
@@ -97,19 +97,25 @@ public class TestSourceUploadConfiguration {
       System.out.println(GitPublish.readTags(gitTestURL, gitUsername, gitPassword));
 
       final Task<String> t = SrcUploadCreator.createSrcUploadConfiguration(SupportedConverterTypes.SCT_EXTENSION,
-                                                                     "50.6",
-                                                                     "us",
-                                                                     files,
-                                                                     gitTestURL,
-                                                                     gitUsername,
-                                                                     gitPassword,
-                                                                     artifactRepository,
-                                                                     repositoryUsername,
-                                                                     repositoryPassword);
+                                                                           "50.6",
+                                                                           "us",
+                                                                           files,
+                                                                           gitTestURL,
+                                                                           gitUsername,
+                                                                           gitPassword,
+                                                                           artifactRepository,
+                                                                           repositoryUsername,
+                                                                           repositoryPassword);
 
-      t.progressProperty().addListener((ChangeListener<Number>) (observable, oldValue, newValue) -> System.out.println("[Change] Progress " + newValue));
-      t.messageProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> System.out.println("[Change] Message " + newValue));
-      t.titleProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> System.out.println("[Change] Title " + newValue));
+      t.progressProperty()
+       .addListener((ChangeListener<Number>) (observable, oldValue,
+            newValue) -> System.out.println("[Change] Progress " + newValue));
+      t.messageProperty()
+       .addListener((ChangeListener<String>) (observable, oldValue,
+            newValue) -> System.out.println("[Change] Message " + newValue));
+      t.titleProperty()
+       .addListener((ChangeListener<String>) (observable, oldValue,
+            newValue) -> System.out.println("[Change] Title " + newValue));
       WorkExecutors.get()
                    .getExecutor()
                    .execute(t);

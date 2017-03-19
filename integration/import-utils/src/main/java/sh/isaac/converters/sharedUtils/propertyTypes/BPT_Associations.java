@@ -54,14 +54,13 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnIn
  * The Class BPT_Associations.
  *
  * @author Daniel Armbrust
- * 
+ *
  * Associations get loaded using the new add-on association API (internally represented as sememes)
- * 
+ *
  * These get ignored by the classifier, for example.
  */
 public class BPT_Associations
         extends PropertyType {
-   
    /** The all associations. */
    private static HashSet<UUID> allAssociations_ = new HashSet<>();
 
@@ -100,6 +99,7 @@ public class BPT_Associations
     * @param propertyNameFSN the property name FSN
     * @return the property
     */
+
    // Override all of these as unsupported, as, we require only PropertyAssociation object here.
    @Override
    public Property addProperty(String propertyNameFSN) {

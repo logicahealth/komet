@@ -87,7 +87,6 @@ import sh.isaac.provider.query.clauses.RelRestriction;
  * @author kec
  */
 public class JaxbForQuery {
-   
    /** The singleton. */
    public static JAXBContext singleton;
 

@@ -64,15 +64,14 @@ import sh.isaac.converters.sharedUtils.propertyTypes.ValuePropertyPair;
  */
 public class ValuePropertyPairWithAttributes
         extends ValuePropertyPair {
-   
    /** The string attributes. */
    protected HashMap<UUID, ArrayList<String>> stringAttributes = new HashMap<>();
-   
+
    /** The uuid attributes. */
-   protected HashMap<UUID, ArrayList<UUID>>   uuidAttributes   = new HashMap<>();
-   
+   protected HashMap<UUID, ArrayList<UUID>> uuidAttributes = new HashMap<>();
+
    /** The refset membership. */
-   protected ArrayList<UUID>                  refsetMembership = new ArrayList<>();
+   protected ArrayList<UUID> refsetMembership = new ArrayList<>();
 
    //~--- constructors --------------------------------------------------------
 

@@ -56,6 +56,7 @@ import java.util.Base64;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.value.ChangeListener;
+
 import javafx.concurrent.Task;
 
 import org.apache.commons.lang3.StringUtils;
@@ -75,7 +76,6 @@ import net.lingala.zip4j.progress.ProgressMonitor;
  */
 public class DownloadUnzipTask
         extends Task<File> {
-   
    /** The log. */
    private static Logger log = LoggerFactory.getLogger(DownloadUnzipTask.class);
 
@@ -83,21 +83,21 @@ public class DownloadUnzipTask
 
    /** The cancel. */
    private boolean cancel_ = false;
-   
+
    /** The psswrd. */
-   String          username_, psswrd_;
-   
+   String username_, psswrd_;
+
    /** The url. */
-   URL             url_;
-   
+   URL url_;
+
    /** The unzip. */
    private final boolean unzip_;
-   
+
    /** The fail on bad cheksum. */
    private final boolean failOnBadCheksum_;
-   
+
    /** The target folder. */
-   private File    targetFolder_;
+   private File targetFolder_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -164,9 +164,9 @@ public class DownloadUnzipTask
    @Override
    protected File call()
             throws Exception {
-      final File   dataFile            = download(this.url_);
-      String calculatedSha1Value = null;
-      String expectedSha1Value   = null;;
+      final File dataFile            = download(this.url_);
+      String     calculatedSha1Value = null;
+      String     expectedSha1Value   = null;;
 
       try {
          log.debug("Attempting to get .sha1 file");
@@ -178,8 +178,13 @@ public class DownloadUnzipTask
 
          final Task<String> calculateTask = ChecksumGenerator.calculateChecksum("SHA1", dataFile);
 
-         calculateTask.messageProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> updateMessage(newValue));
-         calculateTask.progressProperty().addListener((ChangeListener<Number>) (observable, oldValue, newValue) -> updateProgress(calculateTask.getProgress(), calculateTask.getTotalWork()));
+         calculateTask.messageProperty()
+                      .addListener((ChangeListener<String>) (observable, oldValue,
+                      newValue) -> updateMessage(newValue));
+         calculateTask.progressProperty()
+                      .addListener((ChangeListener<Number>) (observable, oldValue,
+                      newValue) -> updateProgress(calculateTask.getProgress(),
+                            calculateTask.getTotalWork()));
          WorkExecutors.get()
                       .getExecutor()
                       .execute(calculateTask);
@@ -264,7 +269,7 @@ public class DownloadUnzipTask
 
       if (StringUtils.isNotBlank(this.username_) || StringUtils.isNotBlank(this.psswrd_)) {
          final String encoded = Base64.getEncoder()
-                                .encodeToString((this.username_ + ":" + this.psswrd_).getBytes());
+                                      .encodeToString((this.username_ + ":" + this.psswrd_).getBytes());
 
          httpCon.setRequestProperty("Authorization", "Basic " + encoded);
       }
@@ -274,8 +279,8 @@ public class DownloadUnzipTask
       httpCon.setConnectTimeout(30 * 1000);
       httpCon.setReadTimeout(60 * 60 * 1000);
 
-      final long   fileLength = httpCon.getContentLengthLong();
-      String temp       = url.toString();
+      final long fileLength = httpCon.getContentLengthLong();
+      String     temp       = url.toString();
 
       temp = temp.substring(temp.lastIndexOf('/') + 1, temp.length());
 
@@ -284,8 +289,8 @@ public class DownloadUnzipTask
       try (InputStream in = httpCon.getInputStream();
          FileOutputStream fos = new FileOutputStream(file);) {
          final byte[] buf       = new byte[1048576];
-         int    read      = 0;
-         long   totalRead = 0;
+         int          read      = 0;
+         long         totalRead = 0;
 
          while (!this.cancel_ && (read = in.read(buf, 0, buf.length)) > 0) {
             totalRead += read;

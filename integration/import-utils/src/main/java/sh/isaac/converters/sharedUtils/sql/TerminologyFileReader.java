@@ -51,7 +51,6 @@ import java.util.List;
  * The Interface TerminologyFileReader.
  */
 public interface TerminologyFileReader {
-   
    /**
     * Close.
     *

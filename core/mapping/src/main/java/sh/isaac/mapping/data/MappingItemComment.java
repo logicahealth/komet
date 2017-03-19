@@ -57,18 +57,17 @@ import sh.isaac.api.component.sememe.version.DynamicSememe;
  */
 public class MappingItemComment
         extends StampedItem {
-   
    /** The comment text. */
    private String commentText;
-   
+
    /** The comment context. */
    private String commentContext;
-   
+
    /** The mapping item UUID. */
-   private UUID   mappingItemUUID;
-   
+   private UUID mappingItemUUID;
+
    /** The primoridal UUID. */
-   private UUID   primoridalUUID;
+   private UUID primoridalUUID;
 
    //~--- constructors --------------------------------------------------------
 
@@ -94,17 +93,17 @@ public class MappingItemComment
    private void read(DynamicSememe<?> commentRefex)
             throws RuntimeException {
       this.commentText = commentRefex.getData()[0]
-                                .getDataObject()
-                                .toString();
+                                     .getDataObject()
+                                     .toString();
       this.commentContext = (((commentRefex.getData().length > 1) &&
-                         (commentRefex.getData()[1] != null)) ? commentRefex.getData()[1]
-                               .getDataObject()
-                               .toString()
+                              (commentRefex.getData()[1] != null)) ? commentRefex.getData()[1]
+                                    .getDataObject()
+                                    .toString()
             : null);
       this.mappingItemUUID = Get.identifierService()
-                           .getUuidPrimordialForNid(commentRefex.getReferencedComponentNid())
-                           .get();
-      this.primoridalUUID  = commentRefex.getPrimordialUuid();
+                                .getUuidPrimordialForNid(commentRefex.getReferencedComponentNid())
+                                .get();
+      this.primoridalUUID = commentRefex.getPrimordialUuid();
       readStampDetails(commentRefex);
    }
 

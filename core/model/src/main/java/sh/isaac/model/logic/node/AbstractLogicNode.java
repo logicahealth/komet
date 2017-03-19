@@ -68,18 +68,17 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public abstract class AbstractLogicNode
          implements LogicNode {
-   
    /** The Constant namespaceUuid. */
    protected static final UUID namespaceUuid = UUID.fromString("d64c6d91-a37d-11e4-bcd8-0800200c9a66");
 
    //~--- fields --------------------------------------------------------------
 
    /** The node index. */
-   private short              nodeIndex = Short.MIN_VALUE;
-   
+   private short nodeIndex = Short.MIN_VALUE;
+
    /** The node uuid. */
-   protected UUID             nodeUuid  = null;
-   
+   protected UUID nodeUuid = null;
+
    /** The logic graph version. */
    LogicalExpressionOchreImpl logicGraphVersion;
 
@@ -115,7 +114,7 @@ public abstract class AbstractLogicNode
    public AbstractLogicNode(LogicalExpressionOchreImpl logicGraphVersion,
                             DataInputStream dataInputStream)
             throws IOException {
-      this.nodeIndex              = dataInputStream.readShort();
+      this.nodeIndex         = dataInputStream.readShort();
       this.logicGraphVersion = logicGraphVersion;
       logicGraphVersion.addNode(this);
    }

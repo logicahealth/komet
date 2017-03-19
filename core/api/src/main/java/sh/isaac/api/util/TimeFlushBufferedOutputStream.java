@@ -71,15 +71,14 @@ import sh.isaac.api.Get;
  */
 public class TimeFlushBufferedOutputStream
         extends BufferedOutputStream {
-   
    /** The Constant instances_. */
    private static final ArrayList<WeakReference<TimeFlushBufferedOutputStream>> instances_ = new ArrayList<>();
-   
+
    /** The Constant logger. */
    private static final Logger logger = LoggerFactory.getLogger(TimeFlushBufferedOutputStream.class);
-   
+
    /** The scheduled job. */
-   private static ScheduledFuture<?>                                            scheduledJob_;
+   private static ScheduledFuture<?> scheduledJob_;
 
    //~--- constructors --------------------------------------------------------
 

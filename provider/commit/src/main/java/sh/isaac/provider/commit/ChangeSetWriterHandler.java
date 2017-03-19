@@ -92,38 +92,37 @@ import sh.isaac.api.util.NamedThreadFactory;
 @RunLevel(value = 4)
 public class ChangeSetWriterHandler
          implements ChangeSetWriterService, ChangeSetListener {
-   
    /** The Constant LOG. */
-   private static final Logger LOG            = LogManager.getLogger();
-   
+   private static final Logger LOG = LogManager.getLogger();
+
    /** The Constant jsonFileSuffix. */
    private static final String jsonFileSuffix = "json";
-   
+
    /** The Constant ibdfFileSuffix. */
    private static final String ibdfFileSuffix = "ibdf";
-   
+
    /** The Constant CHANGESETS. */
-   private static final String CHANGESETS     = "changesets";
+   private static final String CHANGESETS = "changesets";
 
    //~--- fields --------------------------------------------------------------
 
    /** The change set writer handler uuid. */
-   private final UUID        changeSetWriterHandlerUuid = UUID.randomUUID();
-   
+   private final UUID changeSetWriterHandlerUuid = UUID.randomUUID();
+
    /** The writer. */
    private DataWriterService writer;
-   
+
    /** The change set write executor. */
-   private ExecutorService   changeSetWriteExecutor;
-   
+   private ExecutorService changeSetWriteExecutor;
+
    /** The write enabled. */
-   private boolean           writeEnabled;
-   
+   private boolean writeEnabled;
+
    /** The db build mode. */
-   private Boolean           dbBuildMode;
-   
+   private Boolean dbBuildMode;
+
    /** The change set folder. */
-   private final Path              changeSetFolder;
+   private final Path changeSetFolder;
 
    //~--- constructors --------------------------------------------------------
 
@@ -135,14 +134,14 @@ public class ChangeSetWriterHandler
    public ChangeSetWriterHandler()
             throws Exception {
       final Optional<Path> databasePath = LookupService.getService(ConfigurationService.class)
-                                                 .getDataStoreFolderPath();
+                                                       .getDataStoreFolderPath();
 
       this.changeSetFolder = databasePath.get()
-                                    .resolve(CHANGESETS);
+                                         .resolve(CHANGESETS);
       Files.createDirectories(this.changeSetFolder);
 
       if (!this.changeSetFolder.toFile()
-                          .isDirectory()) {
+                               .isDirectory()) {
          throw new RuntimeException("Cannot initialize Changeset Store - was unable to create " +
                                     this.changeSetFolder.toAbsolutePath());
       }
@@ -182,7 +181,7 @@ public class ChangeSetWriterHandler
 
       if (this.dbBuildMode == null) {
          this.dbBuildMode = Get.configurationService()
-                          .inDBBuildMode();
+                               .inDBBuildMode();
 
          if (this.dbBuildMode) {
             stopMe();
@@ -192,23 +191,27 @@ public class ChangeSetWriterHandler
       if (this.writeEnabled &&!this.dbBuildMode) {
          // Do in the backgound
          final Runnable r = () -> {
-		   try {
-		      if ((commitRecord.getConceptsInCommit() != null) && (commitRecord.getConceptsInCommit().size() > 0)) {
-		         sequenceSetChange(commitRecord.getConceptsInCommit());
-		         LOG.debug("handle Post Commit: {} concepts", commitRecord.getConceptsInCommit()
-		               .size());
-		      }
+                               try {
+                                  if ((commitRecord.getConceptsInCommit() != null) &&
+                                      (commitRecord.getConceptsInCommit().size() > 0)) {
+                                     sequenceSetChange(commitRecord.getConceptsInCommit());
+                                     LOG.debug("handle Post Commit: {} concepts",
+                                               commitRecord.getConceptsInCommit()
+                                                     .size());
+                                  }
 
-		      if ((commitRecord.getSememesInCommit() != null) && (commitRecord.getSememesInCommit().size() > 0)) {
-		         sequenceSetChange(commitRecord.getSememesInCommit());
-		         LOG.debug("handle Post Commit: {} sememes", commitRecord.getSememesInCommit()
-		               .size());
-		      }
-		   } catch (final Exception e) {
-		      LOG.error("Error in Change set writer handler ", e.getMessage());
-		      throw new RuntimeException(e);
-		   }
-		};
+                                  if ((commitRecord.getSememesInCommit() != null) &&
+                                      (commitRecord.getSememesInCommit().size() > 0)) {
+                                     sequenceSetChange(commitRecord.getSememesInCommit());
+                                     LOG.debug("handle Post Commit: {} sememes",
+                                               commitRecord.getSememesInCommit()
+                                                     .size());
+                                  }
+                               } catch (final Exception e) {
+                                  LOG.error("Error in Change set writer handler ", e.getMessage());
+                                  throw new RuntimeException(e);
+                               }
+                            };
 
          this.changeSetWriteExecutor.execute(r);
       } else {
@@ -247,13 +250,14 @@ public class ChangeSetWriterHandler
     *
     * @param conceptSequenceSet the concept sequence set
     */
+
    /*
     */
    private void sequenceSetChange(ConceptSequenceSet conceptSequenceSet) {
       conceptSequenceSet.stream().forEach((conceptSequence) -> {
                                     final ConceptChronology<? extends ConceptVersion<?>> concept = Get.conceptService()
-                                                                                                .getConcept(
-                                                                                                   conceptSequence);
+                                                                                                      .getConcept(
+                                                                                                         conceptSequence);
 
                                     try {
                                        writeToFile(concept);
@@ -268,12 +272,14 @@ public class ChangeSetWriterHandler
     *
     * @param sememeSequenceSet the sememe sequence set
     */
+
    /*
     */
    private void sequenceSetChange(SememeSequenceSet sememeSequenceSet) {
       sememeSequenceSet.stream().forEach((sememeSequence) -> {
                                    final SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeService()
-                                                                                            .getSememe(sememeSequence);
+                                                                                                  .getSememe(
+                                                                                                     sememeSequence);
 
                                    try {
                                       writeToFile(sememe);

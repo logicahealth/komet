@@ -55,7 +55,6 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
  * Created by kec on 1/21/16.
  */
 public class LogicalExpressionBuilderTest {
-   
    /** The builder provider. */
    LogicalExpressionBuilderOchreProvider builderProvider = new LogicalExpressionBuilderOchreProvider();
 

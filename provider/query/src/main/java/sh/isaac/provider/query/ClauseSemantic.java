@@ -49,7 +49,7 @@ public enum ClauseSemantic {
     * Logical And connective clause.
     */
    AND,
-   
+
    /** The and not. */
    AND_NOT,
 

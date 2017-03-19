@@ -75,7 +75,6 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
 public class DynamicSememeImpl
         extends SememeVersionImpl<DynamicSememeImpl>
          implements MutableDynamicSememe<DynamicSememeImpl> {
-   
    /** The bootstrap mode. */
    private static boolean bootstrapMode = Get.configurationService()
                                              .inBootstrapMode();
@@ -207,8 +206,8 @@ public class DynamicSememeImpl
 
                if (data.isExternalData() && (column.getDynamicSememeDataType() == DynamicSememeDataType.NID)) {
                   final DynamicSememeUUIDImpl temp = new DynamicSememeUUIDImpl(
-                                                   Get.identifierService().getUuidPrimordialForNid(
-                                                      ((DynamicSememeNidImpl) column).getDataNid()).get());
+                                                        Get.identifierService().getUuidPrimordialForNid(
+                                                           ((DynamicSememeNidImpl) column).getDataNid()).get());
 
                   data.putByteArrayField(temp.getData());
                } else {
@@ -232,7 +231,7 @@ public class DynamicSememeImpl
    @Override
    public DynamicSememeData[] getData() {
       return (this.data_ == null) ? new DynamicSememeData[] {}
-                             : this.data_;
+                                  : this.data_;
    }
 
    /**
@@ -292,7 +291,7 @@ public class DynamicSememeImpl
       }
 
       this.data_ = (data == null) ? new DynamicSememeData[] {}
-                             : data;
+                                  : data;
    }
 
    //~--- get methods ---------------------------------------------------------

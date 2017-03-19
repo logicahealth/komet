@@ -62,7 +62,6 @@ import sh.isaac.api.coordinate.TaxonomyCoordinate;
  */
 @Contract
 public interface DynamicSememeExternalValidator {
-   
    /**
     * Validate.
     *

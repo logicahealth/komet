@@ -79,21 +79,20 @@ import sh.isaac.api.util.TimeFlushBufferedOutputStream;
 @PerLookup
 public class JsonDataWriterService
          implements DataWriterService {
-   
    /** The logger. */
-   private final Logger           logger     = LoggerFactory.getLogger(JsonDataWriterService.class);
-   
+   private final Logger logger = LoggerFactory.getLogger(JsonDataWriterService.class);
+
    /** The pause block. */
-   private final Semaphore        pauseBlock = new Semaphore(1);
-   
+   private final Semaphore pauseBlock = new Semaphore(1);
+
    /** The json. */
-   private JsonWriter       json_;
-   
+   private JsonWriter json_;
+
    /** The fos. */
    private FileOutputStream fos_;
-   
+
    /** The data path. */
-   private Path             dataPath;
+   private Path dataPath;
 
    //~--- constructors --------------------------------------------------------
 
@@ -171,7 +170,8 @@ public class JsonDataWriterService
       this.json_    = new JsonWriter(new TimeFlushBufferedOutputStream(this.fos_), args);
       this.json_.addWriter(ConceptChronology.class, new Writers.ConceptChronologyJsonWriter());
       this.json_.addWriter(SememeChronology.class, new Writers.SememeChronologyJsonWriter());
-      this.logger.info("json changeset writer has been configured to write to " + this.dataPath.toAbsolutePath().toString());
+      this.logger.info("json changeset writer has been configured to write to " +
+                       this.dataPath.toAbsolutePath().toString());
    }
 
    /**

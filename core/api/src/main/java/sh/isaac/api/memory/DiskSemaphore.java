@@ -51,7 +51,6 @@ import java.util.concurrent.Semaphore;
  * @author kec
  */
 public class DiskSemaphore {
-   
    /** The Constant WRITE_SEMAPHORE. */
    private static final Semaphore WRITE_SEMAPHORE = new Semaphore(1, true);
 

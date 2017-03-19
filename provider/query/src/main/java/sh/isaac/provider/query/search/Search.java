@@ -68,7 +68,6 @@ import sh.isaac.provider.query.lucene.LuceneDescriptionType;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class Search {
-   
    /**
     * Launch a search in a background thread (returns immediately) handing back a handle to the search.
     *
@@ -96,66 +95,67 @@ public class Search {
 
       if (targetCodeSystemPathNidOrSequence != null) {
          final int pathFilterSequence = (targetCodeSystemPathNidOrSequence < 0) ? Get.identifierService()
-                                                                               .getConceptSequence(
-                                                                                  targetCodeSystemPathNidOrSequence)
+                                                                                     .getConceptSequence(
+                                                                                        targetCodeSystemPathNidOrSequence)
                : targetCodeSystemPathNidOrSequence;
 
          filters.add(t -> {
-		   final ArrayList<CompositeSearchResult> keep = new ArrayList<>();
+                        final ArrayList<CompositeSearchResult> keep = new ArrayList<>();
 
-		   for (final CompositeSearchResult csr: t) {
-		      if (csr.getContainingConcept().isPresent() &&
-		          (csr.getContainingConcept().get().getPathSequence() == pathFilterSequence)) {
-		         keep.add(csr);
-		      }
-		   }
+                        for (final CompositeSearchResult csr: t) {
+                           if (csr.getContainingConcept().isPresent() &&
+                               (csr.getContainingConcept().get().getPathSequence() == pathFilterSequence)) {
+                              keep.add(csr);
+                           }
+                        }
 
-		   return keep;
-		});
+                        return keep;
+                     });
       }
 
       if (memberOfRefsetNid != null) {
          filters.add(t -> {
-		   try {
-		      final ArrayList<CompositeSearchResult> keep          = new ArrayList<>();
-		      final HashSet<Integer>                 refsetMembers = new HashSet<>();
+                        try {
+                           final ArrayList<CompositeSearchResult> keep          = new ArrayList<>();
+                           final HashSet<Integer>                 refsetMembers = new HashSet<>();
 
-		      Get.sememeService().getSememesFromAssemblage(Get.identifierService()
-		            .getSememeSequence(memberOfRefsetNid)).forEach(sememeC -> {
-		                     refsetMembers.add(sememeC.getReferencedComponentNid());
-		                  });
+                           Get.sememeService().getSememesFromAssemblage(Get.identifierService()
+                                 .getSememeSequence(memberOfRefsetNid)).forEach(sememeC -> {
+                                          refsetMembers.add(sememeC.getReferencedComponentNid());
+                                       });
 
-		      for (final CompositeSearchResult csr: t) {
-		         if (csr.getContainingConcept().isPresent() &&
-		             refsetMembers.contains(csr.getContainingConcept().get().getNid())) {
-		            keep.add(csr);
-		         }
-		      }
+                           for (final CompositeSearchResult csr: t) {
+                              if (csr.getContainingConcept().isPresent() &&
+                                  refsetMembers.contains(csr.getContainingConcept().get().getNid())) {
+                                 keep.add(csr);
+                              }
+                           }
 
-		      return keep;
-		   } catch (final Exception e) {
-		      throw new RuntimeException(e);
-		   }
-		});
+                           return keep;
+                        } catch (final Exception e) {
+                           throw new RuntimeException(e);
+                        }
+                     });
       }
 
       if (kindOfNid != null) {
          filters.add(t -> {
-		   final ArrayList<CompositeSearchResult> keep = new ArrayList<>();
+                        final ArrayList<CompositeSearchResult> keep = new ArrayList<>();
 
-		   for (final CompositeSearchResult csr: t) {
-		      if (csr.getContainingConcept().isPresent() &&
-		          Get.taxonomyService().wasEverKindOf(csr.getContainingConcept().get().getNid(),
-		                kindOfNid)) {
-		         keep.add(csr);
-		      }
-		   }
+                        for (final CompositeSearchResult csr: t) {
+                           if (csr.getContainingConcept().isPresent() &&
+                               Get.taxonomyService().wasEverKindOf(csr.getContainingConcept().get().getNid(),
+                                     kindOfNid)) {
+                              keep.add(csr);
+                           }
+                        }
 
-		   return keep;
-		});
+                        return keep;
+                     });
       }
 
-      final SearchResultsIntersectionFilter filterSet = ((filters.size() > 0) ? new SearchResultsIntersectionFilter(filters)
+      final SearchResultsIntersectionFilter filterSet = ((filters.size() > 0)
+                                                         ? new SearchResultsIntersectionFilter(filters)
             : null);
 
       // TODO At some point, Dan needs to update this to avoid the query processor when we are automating the query generation
@@ -233,8 +233,7 @@ public class Search {
          .getDescriptionsForComponent(sourceConceptNid)
          .forEach(descriptionC -> {
                      @SuppressWarnings({ "rawtypes", "unchecked" })
-					final
-                     Optional<LatestVersion<DescriptionSememe<?>>> latest =
+                     final Optional<LatestVersion<DescriptionSememe<?>>> latest =
                         ((SememeChronology) descriptionC).getLatestVersion(DescriptionSememe.class,
                                                                            (stampCoord == null)
                                                                            ? Get.configurationService()

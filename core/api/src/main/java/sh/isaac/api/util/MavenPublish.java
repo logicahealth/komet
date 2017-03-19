@@ -61,6 +61,7 @@ import java.util.concurrent.ExecutionException;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.value.ChangeListener;
+
 import javafx.concurrent.Task;
 
 import org.slf4j.Logger;
@@ -75,7 +76,6 @@ import org.slf4j.LoggerFactory;
  */
 public class MavenPublish
         extends Task<Integer> {
-   
    /** The log. */
    private static Logger log = LoggerFactory.getLogger(MavenPublish.class);
 
@@ -83,25 +83,25 @@ public class MavenPublish
 
    /** The group id. */
    String groupId_;
-   
+
    /** The artifact id. */
    String artifactId_;
-   
+
    /** The version. */
    String version_;
-   
+
    /** The pom file. */
-   File   pomFile_;
-   
+   File pomFile_;
+
    /** The data files. */
    File[] dataFiles_;
-   
+
    /** The url. */
    String url_;
-   
+
    /** The username. */
    String username_;
-   
+
    /** The psswrd. */
    String psswrd_;
 
@@ -193,7 +193,8 @@ public class MavenPublish
             throws Exception {
       final String groupIdTemp = this.groupId_.replaceAll("\\.", "//");
       final URL    url         = new URL(this.url_ + (this.url_.endsWith("/") ? ""
-            : "/") + groupIdTemp + "/" + this.artifactId_ + "/" + this.version_ + "/" + ((targetFileName == null) ? file.getName()
+            : "/") + groupIdTemp + "/" + this.artifactId_ + "/" + this.version_ + "/" +
+                     ((targetFileName == null) ? file.getName()
             : targetFileName));
 
       log.info("Uploading " + file.getAbsolutePath() + " to " + url.toString());
@@ -204,7 +205,7 @@ public class MavenPublish
 
       if ((this.username_.length() > 0) || (this.psswrd_.length() > 0)) {
          final String encoded = Base64.getEncoder()
-                                .encodeToString((this.username_ + ":" + this.psswrd_).getBytes());
+                                      .encodeToString((this.username_ + ":" + this.psswrd_).getBytes());
 
          httpCon.setRequestProperty("Authorization", "Basic " + encoded);
       }
@@ -219,8 +220,8 @@ public class MavenPublish
       httpCon.setFixedLengthStreamingMode(fileLength);
 
       final byte[] buf       = new byte[8192];
-      long   loopCount = 0;
-      int    read      = 0;
+      long         loopCount = 0;
+      int          read      = 0;
 
       try (OutputStream out = httpCon.getOutputStream();
          FileInputStream fis = new FileInputStream(file);) {
@@ -244,7 +245,7 @@ public class MavenPublish
 
          final byte[]     buffer  = new byte[1024];
          final CharBuffer cBuffer = ByteBuffer.wrap(buffer)
-                                        .asCharBuffer();
+                                              .asCharBuffer();
 
          while (read != -1) {
             read = is.read(buffer);
@@ -283,8 +284,11 @@ public class MavenPublish
 
       final Task<String> gen = ChecksumGenerator.calculateChecksum(type, file);
 
-      gen.messageProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> updateMessage(newValue));
-      gen.progressProperty().addListener((ChangeListener<Number>) (observable, oldValue, newValue) -> updateProgress(gen.getWorkDone(), gen.getTotalWork()));
+      gen.messageProperty()
+         .addListener((ChangeListener<String>) (observable, oldValue, newValue) -> updateMessage(newValue));
+      gen.progressProperty()
+         .addListener((ChangeListener<Number>) (observable, oldValue, newValue) -> updateProgress(gen.getWorkDone(),
+               gen.getTotalWork()));
       WorkExecutors.get()
                    .getExecutor()
                    .execute(gen);

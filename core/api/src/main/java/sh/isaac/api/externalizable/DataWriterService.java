@@ -59,7 +59,6 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface DataWriterService
         extends AutoCloseable {
-   
    /**
     * Close.
     *
@@ -93,7 +92,7 @@ public interface DataWriterService
     * flush any unwritten data, close the file writer, and block any {@link DataWriterService#put(OchreExternalizable)} calls until
     * resume is called.  This feature is useful when you want to ensure the file on disk doesn't change while another thread picks
     * up the file and pushes it to git, for example.
-    * 
+    *
     * Ensure that if pause() is called, that resume is called from the same thread.
     *
     * @throws IOException Signals that an I/O exception has occurred.

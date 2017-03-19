@@ -81,7 +81,6 @@ import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 @RunLevel(value = 1)
 public class ObservableChronologyProvider
          implements ObservableChronologyService, ChronologyChangeListener {
-   
    /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
@@ -89,12 +88,12 @@ public class ObservableChronologyProvider
 
    /** The listener uuid. */
    private final UUID listenerUuid = UUID.randomUUID();
-   
+
    /** The observable concept map. */
    ConcurrentReferenceHashMap<Integer, ObservableConceptChronology<?>> observableConceptMap =
       new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
                                        ConcurrentReferenceHashMap.ReferenceType.WEAK);
-   
+
    /** The observable sememe map. */
    ConcurrentReferenceHashMap<Integer, ObservableSememeChronology<?>> observableSememeMap =
       new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
@@ -147,9 +146,9 @@ public class ObservableChronologyProvider
 
       // handle referenced component
       // Concept, description, or sememe
-      final ObjectChronologyType     oct = Get.identifierService()
-                                        .getChronologyTypeForNid(sc.getReferencedComponentNid());
-      ChronologyChangeListener referencedComponent = null;
+      final ObjectChronologyType oct = Get.identifierService()
+                                          .getChronologyTypeForNid(sc.getReferencedComponentNid());
+      ChronologyChangeListener   referencedComponent = null;
 
       switch (oct) {
       case CONCEPT:

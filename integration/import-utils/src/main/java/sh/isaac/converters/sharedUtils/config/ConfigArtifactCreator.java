@@ -69,7 +69,6 @@ import sh.isaac.pombuilder.converter.ConverterOptionParam;
 @Service(name = "create-config-artifact")
 public class ConfigArtifactCreator
         extends QuasiMojo {
-   
    /**
     * Execute.
     *
@@ -80,7 +79,7 @@ public class ConfigArtifactCreator
             throws MojoExecutionException {
       try {
          final List<ConfigOptionsDescriptor> configs = LookupService.get()
-                                                              .getAllServices(ConfigOptionsDescriptor.class);
+                                                                    .getAllServices(ConfigOptionsDescriptor.class);
 
          for (final ConfigOptionsDescriptor c: configs) {
             ConverterOptionParam.serialize(c.getConfigOptions(),

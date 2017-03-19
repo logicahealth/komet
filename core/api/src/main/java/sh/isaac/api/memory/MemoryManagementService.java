@@ -52,7 +52,6 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface MemoryManagementService {
-   
    /**
     * Sets the memory configuration.
     *

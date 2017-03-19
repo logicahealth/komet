@@ -64,7 +64,6 @@ import sh.isaac.api.tree.TreeNodeVisitData;
  */
 public abstract class AbstractHashTree
          implements Tree {
-   
    /** The Constant EMPTY_INT_ARRAY. */
    static final int[] EMPTY_INT_ARRAY = new int[0];
 

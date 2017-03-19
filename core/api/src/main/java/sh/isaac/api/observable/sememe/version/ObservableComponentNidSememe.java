@@ -53,7 +53,6 @@ import javafx.beans.property.IntegerProperty;
  */
 public interface ObservableComponentNidSememe<T extends ObservableComponentNidSememe<T>>
         extends ObservableSememeVersion<T> {
-   
    /**
     * Component nid property.
     *

@@ -53,7 +53,6 @@ import javafx.beans.property.SimpleObjectProperty;
  */
 public class CommitAwareObjectProperty<T>
         extends SimpleObjectProperty<T> {
-   
    /**
     * Instantiates a new commit aware object property.
     *

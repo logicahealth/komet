@@ -71,7 +71,6 @@ import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY
 //https://github.com/saden1/hk2-testng
 @HK2("integration")
 public class IntegrationSuiteManagement {
-   
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 

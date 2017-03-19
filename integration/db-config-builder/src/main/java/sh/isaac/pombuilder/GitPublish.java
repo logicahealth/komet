@@ -66,7 +66,6 @@ import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class GitPublish {
-   
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
@@ -75,7 +74,7 @@ public class GitPublish {
    /**
     * Take in a URL such as https://git.isaac.sh/git/ or https://git.isaac.sh/git and turn it into
     * https://git.isaac.sh/git/r/contentConfigurations.git
-    * 
+    *
     * If a full repo URL is passed in, such as https://git.isaac.sh/git/r/contentConfigurations.git, this does no processing
     * and returns the passed in value.
     *
@@ -131,7 +130,7 @@ public class GitPublish {
     * This routine will check out the project from the repository (which should have an empty master branch) - then locally
     * commit the changes to master, then tag it - then push the tag (but not the changes to master) so the upstream repo only
     * receives the tag.
-    * 
+    *
     * Calls {@link #constructChangesetRepositoryURL(String) to adjust the URL as necessary
     *
     * @param folderWithProject the folder with project
@@ -237,7 +236,7 @@ public class GitPublish {
 
       final SyncServiceGIT svc        = new SyncServiceGIT();
       final File           tempFolder = Files.createTempDirectory("tagRead")
-                                       .toFile();
+                                             .toFile();
 
       svc.setRootLocation(tempFolder);
       svc.linkAndFetchFromRemote(correctedURL, gitUserName, gitPassword);

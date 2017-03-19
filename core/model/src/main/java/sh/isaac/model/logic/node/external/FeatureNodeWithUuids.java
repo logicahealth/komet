@@ -72,7 +72,6 @@ import sh.isaac.model.logic.node.internal.FeatureNodeWithSequences;
  */
 public class FeatureNodeWithUuids
         extends TypedNodeWithUuids {
-   
    /** The concrete domain operators. */
    static ConcreteDomainOperators[] concreteDomainOperators = ConcreteDomainOperators.values();
 
@@ -97,13 +96,14 @@ public class FeatureNodeWithUuids
 //    unitsConceptUuid = Get.identifierService().getUuidPrimordialForNid(internalNode.getUnitsConceptSequence()).get();
    }
 
-/**
- * Instantiates a new feature node with uuids.
- *
- * @param logicGraphVersion the logic graph version
- * @param dataInputStream the data input stream
- * @throws IOException Signals that an I/O exception has occurred.
- */
+   /**
+    * Instantiates a new feature node with uuids.
+    *
+    * @param logicGraphVersion the logic graph version
+    * @param dataInputStream the data input stream
+    * @throws IOException Signals that an I/O exception has occurred.
+    */
+
 // UUID unitsConceptUuid;
    public FeatureNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion,
                                DataInputStream dataInputStream)
@@ -225,12 +225,13 @@ public class FeatureNodeWithUuids
 
 // public UUID getUnitsConceptUuid() {
 //     return unitsConceptUuid;
-/**
- * Compare typed node fields.
- *
- * @param o the o
- * @return the int
- */
+
+   /**
+    * Compare typed node fields.
+    *
+    * @param o the o
+    * @return the int
+    */
 // }
    @Override
    protected int compareTypedNodeFields(LogicNode o) {

@@ -176,8 +176,9 @@ public class ProcessHistory
     */
    @Override
    public int hashCode() {
-      return this.processId.hashCode() + this.userId.hashCode() + new Long(this.timeAdvanced).hashCode() + this.initialState.hashCode() +
-             this.action.hashCode() + this.outcomeState.hashCode() + this.comment.hashCode() + this.historySequence;
+      return this.processId.hashCode() + this.userId.hashCode() + new Long(this.timeAdvanced).hashCode() +
+             this.initialState.hashCode() + this.action.hashCode() + this.outcomeState.hashCode() +
+             this.comment.hashCode() + this.historySequence;
    }
 
    /**
@@ -188,8 +189,8 @@ public class ProcessHistory
    @Override
    public String toString() {
       final LocalDateTime date = LocalDateTime.from(Instant.ofEpochMilli(this.timeAdvanced)
-                                                     .atZone(ZoneId.systemDefault()));
-      final String        timeAdvancedString = BPMNInfo.workflowDateFormatter.format(date);
+                                                           .atZone(ZoneId.systemDefault()));
+      final String timeAdvancedString = BPMNInfo.workflowDateFormatter.format(date);
 
       return "\n\t\tId: " + this.id + "\n\t\tProcess Id: " + this.processId + "\n\t\tWorkflowUser Id: " + this.userId +
              "\n\t\tTime Advanced as Long: " + this.timeAdvanced + "\n\t\tTime Advanced: " + timeAdvancedString +
@@ -335,7 +336,6 @@ public class ProcessHistory
     */
    public static class ProcessHistoryComparator
             implements Comparator<ProcessHistory> {
-      
       /**
        * Instantiates a new process history comparator.
        */

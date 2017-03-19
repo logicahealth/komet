@@ -60,7 +60,6 @@ import sh.isaac.model.sememe.version.DescriptionSememeImpl;
 @Service
 public class DescriptionBuilderProvider
          implements DescriptionBuilderService {
-   
    /**
     * Gets the description builder.
     *

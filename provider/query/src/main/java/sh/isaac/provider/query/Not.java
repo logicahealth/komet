@@ -68,11 +68,10 @@ import sh.isaac.api.component.concept.ConceptVersion;
 @XmlRootElement()
 public class Not
         extends ParentClause {
-   
    /** The for set. */
    @XmlTransient
    NidSet forSet;
-   
+
    /** The not set. */
    @XmlTransient
    NidSet notSet;

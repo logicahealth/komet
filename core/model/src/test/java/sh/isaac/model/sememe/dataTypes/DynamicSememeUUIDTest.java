@@ -63,7 +63,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeUUIDTest {
-   
    /**
     * Test serialization.
     *
@@ -94,7 +93,7 @@ public class DynamicSememeUUIDTest {
       assertEquals(value, uuid.getDataUUID());
       assertEquals(value, uuid.getDataObject());
       assertEquals(value, uuid.getDataObjectProperty()
-                                     .get());
+                              .get());
       assertEquals(uuid.getDynamicSememeDataType(), DynamicSememeDataType.UUID);
    }
 }

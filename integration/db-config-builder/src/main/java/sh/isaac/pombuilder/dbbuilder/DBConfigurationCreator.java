@@ -81,21 +81,20 @@ import sh.isaac.pombuilder.artifacts.IBDFFile;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DBConfigurationCreator {
-   
    /** The Constant LOG. */
-   private static final Logger LOG              = LogManager.getLogger();
-   
+   private static final Logger LOG = LogManager.getLogger();
+
    /** The Constant parentGroupId. */
-   private static final String parentGroupId    = "sh.isaac.modules";
-   
+   private static final String parentGroupId = "sh.isaac.modules";
+
    /** The Constant parentArtifactId. */
    private static final String parentArtifactId = "db-builder";
-   
+
    /** The Constant parentVersion. */
-   private static final String parentVersion    = VersionFinder.findProjectVersion();
-   
+   private static final String parentVersion = VersionFinder.findProjectVersion();
+
    /** The Constant groupId. */
-   public static final String  groupId          = "sh.isaac.db";
+   public static final String groupId = "sh.isaac.db";
 
    //~--- methods -------------------------------------------------------------
 
@@ -188,7 +187,7 @@ public class DBConfigurationCreator {
       model.setLicenses(licenses);
 
       final Dependencies dependencies = new Dependencies();
-      Dependency   dependency   = new Dependency();
+      Dependency         dependency   = new Dependency();
 
       dependency.setGroupId("sh.isaac.modules");
       dependency.setArtifactId("ochre-metadata");
@@ -221,7 +220,7 @@ public class DBConfigurationCreator {
 
       final Build   build   = new Build();
       final Plugins plugins = new Plugins();
-      Plugin  plugin  = new Plugin();
+      Plugin        plugin  = new Plugin();
 
       plugin.setGroupId("org.apache.maven.plugins");
       plugin.setArtifactId("maven-dependency-plugin");
@@ -240,7 +239,7 @@ public class DBConfigurationCreator {
            .add("unpack-dependencies");
       pe.setGoals(goals);
 
-      Configuration configuration = new Configuration();
+      Configuration       configuration = new Configuration();
       final StringBuilder sb            = new StringBuilder();
 
       for (final IBDFFile ibdf: ibdfFiles) {
@@ -340,7 +339,7 @@ public class DBConfigurationCreator {
       model.setBuild(build);
 
       final File f = Files.createTempDirectory("db-builder")
-                    .toFile();
+                          .toFile();
 
       FileUtil.writePomFile(model, f);
       FileUtil.writeFile("dbProjectTemplate", "DOTgitattributes", f);

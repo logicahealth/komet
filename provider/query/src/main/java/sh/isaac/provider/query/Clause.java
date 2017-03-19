@@ -67,23 +67,22 @@ import sh.isaac.api.component.concept.ConceptVersion;
 @XmlRootElement(name = "CLAUSE")
 @XmlAccessorType(value = XmlAccessType.NONE)
 public abstract class Clause {
-   
    /** The Constant PRE_AND_POST_ITERATION. */
    protected static final EnumSet<ClauseComputeType> PRE_AND_POST_ITERATION =
       EnumSet.of(ClauseComputeType.PRE_ITERATION,
                  ClauseComputeType.POST_ITERATION);
-   
+
    /** The Constant PRE_ITERATION. */
    protected static final EnumSet<ClauseComputeType> PRE_ITERATION = EnumSet.of(ClauseComputeType.PRE_ITERATION);
-   
+
    /** The Constant PRE_ITERATION_AND_ITERATION. */
    protected static final EnumSet<ClauseComputeType> PRE_ITERATION_AND_ITERATION =
       EnumSet.of(ClauseComputeType.PRE_ITERATION,
                  ClauseComputeType.ITERATION);
-   
+
    /** The Constant ITERATION. */
-   protected static final EnumSet<ClauseComputeType> ITERATION      = EnumSet.of(ClauseComputeType.ITERATION);
-   
+   protected static final EnumSet<ClauseComputeType> ITERATION = EnumSet.of(ClauseComputeType.ITERATION);
+
    /** The Constant POST_ITERATION. */
    protected static final EnumSet<ClauseComputeType> POST_ITERATION = EnumSet.of(ClauseComputeType.POST_ITERATION);
 

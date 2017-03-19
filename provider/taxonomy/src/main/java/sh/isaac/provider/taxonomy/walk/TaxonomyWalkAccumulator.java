@@ -56,24 +56,23 @@ import sh.isaac.api.component.concept.ConceptChronology;
  * @author kec
  */
 public class TaxonomyWalkAccumulator {
-   
    /** The concepts processed. */
-   public int           conceptsProcessed = 0;
-   
+   public int conceptsProcessed = 0;
+
    /** The connections. */
-   public int           connections       = 0;
-   
+   public int connections = 0;
+
    /** The max connections. */
-   public int           maxConnections    = 0;
-   
+   public int maxConnections = 0;
+
    /** The min connections. */
-   public int           minConnections    = 0;
-   
+   public int minConnections = 0;
+
    /** The parent connections. */
-   public int           parentConnections = 0;
-   
+   public int parentConnections = 0;
+
    /** The watch concept. */
-   ConceptChronology<?> watchConcept      = null;
+   ConceptChronology<?> watchConcept = null;
 
    //~--- methods -------------------------------------------------------------
 
@@ -84,9 +83,9 @@ public class TaxonomyWalkAccumulator {
     */
    @Override
    public String toString() {
-      return "TaxonomyWalkAccumulator{" + "conceptsProcessed=" + this.conceptsProcessed + ", connections=" + this.connections +
-             ", maxConnections=" + this.maxConnections + ", minConnections=" + this.minConnections + ", parentConnections=" +
-             this.parentConnections + '}';
+      return "TaxonomyWalkAccumulator{" + "conceptsProcessed=" + this.conceptsProcessed + ", connections=" +
+             this.connections + ", maxConnections=" + this.maxConnections + ", minConnections=" + this.minConnections +
+             ", parentConnections=" + this.parentConnections + '}';
    }
 
    /**

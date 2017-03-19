@@ -78,27 +78,26 @@ import sh.isaac.model.sememe.version.DescriptionSememeImpl;
 public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extends DescriptionSememeImpl>
         extends ComponentBuilder<T>
          implements DescriptionBuilder<T, V> {
-   
    /** The preferred in dialect assemblages. */
-   private final ArrayList<ConceptSpecification> preferredInDialectAssemblages  = new ArrayList<>();
-   
+   private final ArrayList<ConceptSpecification> preferredInDialectAssemblages = new ArrayList<>();
+
    /** The acceptable in dialect assemblages. */
    private final ArrayList<ConceptSpecification> acceptableInDialectAssemblages = new ArrayList<>();
-   
+
    /** The concept sequence. */
-   private int                                   conceptSequence                = Integer.MAX_VALUE;
-   
+   private int conceptSequence = Integer.MAX_VALUE;
+
    /** The description text. */
-   private final String                          descriptionText;
-   
+   private final String descriptionText;
+
    /** The description type. */
-   private final ConceptSpecification            descriptionType;
-   
+   private final ConceptSpecification descriptionType;
+
    /** The language for description. */
-   private final ConceptSpecification            languageForDescription;
-   
+   private final ConceptSpecification languageForDescription;
+
    /** The concept builder. */
-   private final ConceptBuilder                  conceptBuilder;
+   private final ConceptBuilder conceptBuilder;
 
    //~--- constructors --------------------------------------------------------
 
@@ -179,7 +178,7 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
             throws IllegalStateException {
       if (this.conceptSequence == Integer.MAX_VALUE) {
          this.conceptSequence = Get.identifierService()
-                              .getConceptSequenceForUuids(this.conceptBuilder.getUuids());
+                                   .getConceptSequenceForUuids(this.conceptBuilder.getUuids());
       }
 
       final SememeBuilderService sememeBuilder = LookupService.getService(SememeBuilderService.class);
@@ -232,7 +231,7 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
             throws IllegalStateException {
       if (this.conceptSequence == Integer.MAX_VALUE) {
          this.conceptSequence = Get.identifierService()
-                              .getConceptSequenceForUuids(this.conceptBuilder.getUuids());
+                                   .getConceptSequenceForUuids(this.conceptBuilder.getUuids());
       }
 
       final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();

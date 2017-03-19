@@ -58,7 +58,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public abstract class LiteralNode
         extends AbstractLogicNode {
-   
    /**
     * Instantiates a new literal node.
     *

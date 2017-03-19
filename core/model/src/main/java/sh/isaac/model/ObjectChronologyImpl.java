@@ -88,7 +88,6 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  */
 public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
          implements ObjectChronology<V>, WaitFreeComparable {
-   
    /** The Constant STAMPED_LOCKS. */
    private static final StampedLock[] STAMPED_LOCKS = new StampedLock[256];
 
@@ -256,24 +255,24 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
 
       if (this.unwrittenData != null) {
          this.unwrittenData.values().forEach((version) -> {
-                                  final int stampSequenceForVersion = version.getStampSequence();
+                                       final int stampSequenceForVersion = version.getStampSequence();
 
-                                  if (Get.stampService()
-                                         .isNotCanceled(stampSequenceForVersion)) {
-                                     writtenStamps.add(stampSequenceForVersion);
+                                       if (Get.stampService()
+                                              .isNotCanceled(stampSequenceForVersion)) {
+                                          writtenStamps.add(stampSequenceForVersion);
 
-                                     final int startWritePosition = db.getPosition();
+                                          final int startWritePosition = db.getPosition();
 
-                                     db.putInt(0);  // placeholder for length
-                                     version.writeVersionData(db);
+                                          db.putInt(0);  // placeholder for length
+                                          version.writeVersionData(db);
 
-                                     final int versionLength = db.getPosition() - startWritePosition;
+                                          final int versionLength = db.getPosition() - startWritePosition;
 
-                                     db.setPosition(startWritePosition);
-                                     db.putInt(versionLength);
-                                     db.setPosition(db.getLimit());
-                                  }
-                               });
+                                          db.setPosition(startWritePosition);
+                                          db.putInt(versionLength);
+                                          db.setPosition(db.getLimit());
+                                       }
+                                    });
       }
 
       if (this.writtenData != null) {
@@ -295,7 +294,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * @param out the buffer to write to.
     */
    @Override
-public final void putExternal(ByteArrayDataBuffer out) {
+   public final void putExternal(ByteArrayDataBuffer out) {
       assert out.isExternalData() == true;
       writeChronicleData(out);
 
@@ -791,10 +790,10 @@ public final void putExternal(ByteArrayDataBuffer out) {
 
       // add versions..
       this.unwrittenData.values().forEach((version) -> {
-                               final int stampSequenceForVersion = version.getStampSequence();
+                                    final int stampSequenceForVersion = version.getStampSequence();
 
-                               writeIfNotCanceled(db, version, stampSequenceForVersion);
-                            });
+                                    writeIfNotCanceled(db, version, stampSequenceForVersion);
+                                 });
       db.putInt(0);  // last data is a zero length version record
       db.trimToSize();
       return db.getData();
@@ -836,10 +835,11 @@ public final void putExternal(ByteArrayDataBuffer out) {
     */
    @Override
    public boolean isLatestVersionActive(StampCoordinate coordinate) {
-      final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate.makeAnalog(State.ACTIVE,
-                                                                                                       State.INACTIVE,
-                                                                                                       State.CANCELED,
-                                                                                                       State.PRIMORDIAL));
+      final RelativePositionCalculator calc =
+         RelativePositionCalculator.getCalculator(coordinate.makeAnalog(State.ACTIVE,
+                                                                        State.INACTIVE,
+                                                                        State.CANCELED,
+                                                                        State.PRIMORDIAL));
       final StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
       if (latestStampSequences.isEmpty()) {
@@ -919,9 +919,9 @@ public final void putExternal(ByteArrayDataBuffer out) {
            int assemblageSequence,
            Class<SV> type) {
       final List<SememeChronology<SV>> results = Get.sememeService()
-                                              .ofType(type)
-                                              .getSememesForComponentFromAssemblage(this.nid, assemblageSequence)
-                                              .collect(Collectors.toList());
+                                                    .ofType(type)
+                                                    .getSememesForComponentFromAssemblage(this.nid, assemblageSequence)
+                                                    .collect(Collectors.toList());
 
       return results;
    }
@@ -1020,9 +1020,9 @@ public final void putExternal(ByteArrayDataBuffer out) {
       final HashMap<StampPath, TreeSet<V>> versionMap = new HashMap<>();
 
       getVersionList().forEach((version) -> {
-                                  final StampPath  path       = Get.pathService()
-                                                             .getStampPath(version.getPathSequence());
-                                  TreeSet<V> versionSet = versionMap.get(path);
+                                  final StampPath path       = Get.pathService()
+                                                                  .getStampPath(version.getPathSequence());
+                                  TreeSet<V>      versionSet = versionMap.get(path);
 
                                   if (versionSet == null) {
                                      versionSet = new TreeSet<>((V v1,
@@ -1112,7 +1112,7 @@ public final void putExternal(ByteArrayDataBuffer out) {
    @Override
    public IntStream getVersionStampSequences() {
       final IntStream.Builder builder  = IntStream.builder();
-      List<V>           versions = null;
+      List<V>                 versions = null;
 
       if (this.versionListReference != null) {
          versions = this.versionListReference.get();
@@ -1128,7 +1128,7 @@ public final void putExternal(ByteArrayDataBuffer out) {
 
       if (this.unwrittenData != null) {
          this.unwrittenData.keySet()
-                      .forEach((stamp) -> builder.accept(stamp));
+                           .forEach((stamp) -> builder.accept(stamp));
       }
 
       return builder.build();
@@ -1205,10 +1205,10 @@ public final void putExternal(ByteArrayDataBuffer out) {
    public List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
       final RelativePositionCalculator calc              = RelativePositionCalculator.getCalculator(stampCoordinate);
       final SortedSet<V>               sortedLogicGraphs = new TreeSet<>((V graph1,
-                                                                    V graph2) -> {
+                                                                          V graph2) -> {
                final RelativePosition relativePosition = calc.fastRelativePosition(graph1,
-                                                                             graph2,
-                                                                             stampCoordinate.getStampPrecedence());
+                                                                                   graph2,
+                                                                                   stampCoordinate.getStampPrecedence());
 
                switch (relativePosition) {
                case BEFORE:

@@ -60,7 +60,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public abstract class ConnectorNode
         extends AbstractLogicNode {
-   
    /** The child indices. */
    private final ShortArrayList childIndices;
 
@@ -170,10 +169,10 @@ public abstract class ConnectorNode
    @Override
    public final void sort() {
       this.childIndices.mergeSortFromTo(0,
-                                   this.childIndices.size() - 1,
-                                   (short o1,
-                                    short o2) -> this.logicGraphVersion.getNode(o1)
-                                          .compareTo(this.logicGraphVersion.getNode(o2)));
+                                        this.childIndices.size() - 1,
+                                        (short o1,
+                                         short o2) -> this.logicGraphVersion.getNode(o1)
+                                               .compareTo(this.logicGraphVersion.getNode(o2)));
    }
 
    /**
@@ -199,11 +198,11 @@ public abstract class ConnectorNode
 
          builder.append("➞[");
          this.childIndices.forEach((index) -> {
-                                 builder.append(index);
-                                 builder.append(nodeIdSuffix);
-                                 builder.append(", ");
-                                 return true;
-                              });
+                                      builder.append(index);
+                                      builder.append(nodeIdSuffix);
+                                      builder.append(", ");
+                                      return true;
+                                   });
          builder.deleteCharAt(builder.length() - 1);
          builder.deleteCharAt(builder.length() - 1);
          builder.append("]");

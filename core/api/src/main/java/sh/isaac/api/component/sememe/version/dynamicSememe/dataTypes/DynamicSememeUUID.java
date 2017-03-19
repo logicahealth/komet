@@ -58,7 +58,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
  */
 public interface DynamicSememeUUID
         extends DynamicSememeData {
-   
    /**
     * Gets the data UUID.
     *

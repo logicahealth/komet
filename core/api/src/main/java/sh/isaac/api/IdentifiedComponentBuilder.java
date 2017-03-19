@@ -65,7 +65,6 @@ import sh.isaac.api.task.OptionalWaitTask;
  */
 public interface IdentifiedComponentBuilder<T extends CommittableComponent>
         extends IdentifiedObject {
-   
    /**
     * Add a nested Sememe that should be chained / built when build is called on this component.
     *

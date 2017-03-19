@@ -71,7 +71,6 @@ import sh.isaac.api.externalizable.StampComment;
 @Contract
 public interface CommitService
         extends DatabaseServices {
-   
    /**
     * Adds the alias.
     *
@@ -79,6 +78,7 @@ public interface CommitService
     * @param stampAlias the stamp alias
     * @param aliasCommitComment the alias commit comment
     */
+
    // should the change set get generated here?
    void addAlias(int stampSequence, int stampAlias, String aliasCommitComment);
 

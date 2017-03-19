@@ -61,19 +61,18 @@ import sh.isaac.api.logic.LogicalExpression;
 @Service
 public class ConceptBuilderProvider
          implements ConceptBuilderService {
-   
    /** The default language for descriptions. */
    private ConceptSpecification defaultLanguageForDescriptions =
       TermAux.getConceptSpecificationForLanguageSequence(Get.configurationService()
                                                             .getDefaultLanguageCoordinate()
                                                             .getLanguageConceptSequence());
-   
+
    /** The default dialect assemblage for descriptions. */
    private ConceptSpecification defaultDialectAssemblageForDescriptions = TermAux.US_DIALECT_ASSEMBLAGE;
-   
+
    /** The default logic coordinate. */
-   private LogicCoordinate      defaultLogicCoordinate = Get.configurationService()
-                                                            .getDefaultLogicCoordinate();
+   private LogicCoordinate defaultLogicCoordinate = Get.configurationService()
+                                                       .getDefaultLogicCoordinate();
 
    //~--- get methods ---------------------------------------------------------
 

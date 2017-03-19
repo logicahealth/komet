@@ -97,10 +97,9 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
  */
 public class ProcessClassificationResults
         extends TimedTask<ClassifierResults> {
-   
    /** The stamp coordinate. */
    StampCoordinate stampCoordinate;
-   
+
    /** The logic coordinate. */
    LogicCoordinate logicCoordinate;
 
@@ -285,7 +284,7 @@ public class ProcessClassificationResults
                                         final LatestVersion<LogicGraphSememe> latestStatedDefinition =
                                            latestStatedDefinitionOptional.get();
                                         final LogicalExpression statedDefinition = latestStatedDefinition.value()
-                                                                                                   .getLogicalExpression();
+                                                                                                         .getLogicalExpression();
 
                                         if (statedDefinition.contains(NodeSemantic.SUFFICIENT_SET)) {
                                            sufficientSets.incrementAndGet();
@@ -297,9 +296,9 @@ public class ProcessClassificationResults
                                         }
 
                                         // Need to construct the necessary set from classifier results.
-                                        final Node                   inferredNode =
+                                        final Node inferredNode                 =
                                            inferredAxioms.getNode(Integer.toString(conceptSequence));
-                                        final List<ConceptAssertion> parentList   = new ArrayList<>();
+                                        final List<ConceptAssertion> parentList = new ArrayList<>();
 
                                         inferredNode.getParents().forEach((parent) -> {
                         parent.getEquivalentConcepts().forEach((parentString) -> {

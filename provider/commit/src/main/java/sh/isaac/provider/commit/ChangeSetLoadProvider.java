@@ -99,27 +99,26 @@ import sh.isaac.model.configuration.StampCoordinates;
 @RunLevel(value = 3)
 public class ChangeSetLoadProvider
          implements ChangeSetLoadService {
-   
    /** The Constant LOG. */
-   private static final Logger   LOG                     = LogManager.getLogger();
-   
+   private static final Logger LOG = LogManager.getLogger();
+
    /** The Constant CHANGESETS. */
-   private static final String   CHANGESETS              = "changesets";
-   
+   private static final String CHANGESETS = "changesets";
+
    /** The Constant CHANGESETS_ID. */
-   private static final String   CHANGESETS_ID           = "changesetId.txt";
-   
+   private static final String CHANGESETS_ID = "changesetId.txt";
+
    /** The Constant MAVEN_ARTIFACT_IDENTITY. */
-   private static final String   MAVEN_ARTIFACT_IDENTITY = "dbMavenArtifactIdentity.txt";
-   
+   private static final String MAVEN_ARTIFACT_IDENTITY = "dbMavenArtifactIdentity.txt";
+
    /** The database path. */
    private static Optional<Path> databasePath;
 
    //~--- fields --------------------------------------------------------------
 
    /** The changeset path. */
-   private Path                           changesetPath;
-   
+   private Path changesetPath;
+
    /** The processed changesets. */
    private ConcurrentMap<String, Boolean> processedChangesets;
 
@@ -128,6 +127,7 @@ public class ChangeSetLoadProvider
    /**
     * Instantiates a new change set load provider.
     */
+
    // For HK2
    private ChangeSetLoadProvider() {}
 
@@ -189,10 +189,10 @@ public class ChangeSetLoadProvider
     */
    private UUID readSememeDbId() {
       final Optional<SememeChronology<? extends SememeVersion<?>>> sdic = Get.sememeService()
-                                                                       .getSememesForComponentFromAssemblage(
-                                                                          TermAux.ISAAC_ROOT.getNid(),
-                                                                                TermAux.DATABASE_UUID.getConceptSequence())
-                                                                       .findFirst();
+                                                                             .getSememesForComponentFromAssemblage(
+                                                                                TermAux.ISAAC_ROOT.getNid(),
+                                                                                      TermAux.DATABASE_UUID.getConceptSequence())
+                                                                             .findFirst();
 
       if (sdic.isPresent()) {
          final Optional<LatestVersion<StringSememe>> sdi =
@@ -220,26 +220,26 @@ public class ChangeSetLoadProvider
    private void startMe() {
       try {
          LOG.info("Loading change set files.");
-         databasePath  = LookupService.getService(ConfigurationService.class)
-                                      .getDataStoreFolderPath();
+         databasePath       = LookupService.getService(ConfigurationService.class)
+                                           .getDataStoreFolderPath();
          this.changesetPath = databasePath.get()
-                                     .resolve(CHANGESETS);
+                                          .resolve(CHANGESETS);
          Files.createDirectories(this.changesetPath);
 
          if (!this.changesetPath.toFile()
-                           .isDirectory()) {
+                                .isDirectory()) {
             throw new RuntimeException("Cannot initialize Changeset Store - was unable to create " +
                                        this.changesetPath.toAbsolutePath());
          }
 
          final UUID chronicleDbId = Get.conceptService()
-                                 .getDataStoreId();
+                                       .getDataStoreId();
 
          if (chronicleDbId == null) {
             throw new RuntimeException("Chronicle store did not return a dbId!");
          }
 
-         UUID changesetsDbId   = null;
+         UUID       changesetsDbId   = null;
          final Path changesetsIdPath = this.changesetPath.resolve(CHANGESETS_ID);
 
          if (changesetsIdPath.toFile()
@@ -292,7 +292,7 @@ public class ChangeSetLoadProvider
          // during normal operation do not need to be reprocessed.  The BinaryDataWriterProvider also automatically updates this list with the
          // files as it writes them.
          final MetaContentService mcs = LookupService.get()
-                                               .getService(MetaContentService.class);
+                                                     .getService(MetaContentService.class);
 
          this.processedChangesets = (mcs == null) ? null
                : mcs.<String, Boolean>openStore("processedChangesets");

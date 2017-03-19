@@ -47,7 +47,6 @@ package sh.isaac.api.component.sememe.version;
  */
 public interface ComponentNidSememe<T extends ComponentNidSememe<T>>
         extends SememeVersion<T> {
-   
    /**
     * Gets the component nid.
     *

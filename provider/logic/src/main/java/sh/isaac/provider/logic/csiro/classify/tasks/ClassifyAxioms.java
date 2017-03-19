@@ -55,10 +55,9 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
  */
 public class ClassifyAxioms
         extends TimedTask<Void> {
-   
    /** The stamp coordinate. */
    StampCoordinate stampCoordinate;
-   
+
    /** The logic coordinate. */
    LogicCoordinate logicCoordinate;
 

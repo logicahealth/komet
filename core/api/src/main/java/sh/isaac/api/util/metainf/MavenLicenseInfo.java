@@ -41,13 +41,12 @@ package sh.isaac.api.util.metainf;
 
 /**
  * {@link MavenLicenseInfo}
- * 
+ *
  * This class carries license information.
  *
  * @author <a href="mailto:joel.kniaz.list@gmail.com">Joel Kniaz</a>
  */
 public class MavenLicenseInfo {
-   
    /** Name of the license. */
    public String name;
 

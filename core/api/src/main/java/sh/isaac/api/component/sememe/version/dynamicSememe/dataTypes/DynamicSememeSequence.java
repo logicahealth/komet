@@ -54,7 +54,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
  */
 public interface DynamicSememeSequence
         extends DynamicSememeData {
-   
    /**
     * Gets the data sequence.
     *

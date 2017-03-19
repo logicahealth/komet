@@ -66,7 +66,6 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionActiveRegexMatch
         extends DescriptionRegexMatch {
-   
    /**
     * Instantiates a new description active regex match.
     */
@@ -93,8 +92,8 @@ public class DescriptionActiveRegexMatch
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
-      final String                                      regex = (String) this.enclosingQuery.getLetDeclarations()
-                                                                                 .get(this.regexKey);
+      final String regex = (String) this.enclosingQuery.getLetDeclarations()
+                                                       .get(this.regexKey);
       final ConceptChronology<? extends ConceptVersion> conceptChronology = conceptVersion.getChronology();
 
       conceptChronology.getConceptDescriptionList().stream().forEach((dc) -> {

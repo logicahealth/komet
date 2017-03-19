@@ -61,7 +61,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeBooleanTest {
-   
    /**
     * Test serialization.
     *
@@ -92,7 +91,7 @@ public class DynamicSememeBooleanTest {
       assertEquals(value, i.getDataBoolean());
       assertEquals(value, i.getDataObject());
       assertEquals(value, i.getDataObjectProperty()
-                                     .get());
+                           .get());
       assertEquals(i.getDynamicSememeDataType(), DynamicSememeDataType.BOOLEAN);
    }
 }

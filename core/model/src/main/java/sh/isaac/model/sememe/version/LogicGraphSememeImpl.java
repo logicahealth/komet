@@ -65,7 +65,6 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 public class LogicGraphSememeImpl
         extends SememeVersionImpl<LogicGraphSememeImpl>
          implements MutableLogicGraphSememe<LogicGraphSememeImpl> {
-   
    /** The converter. */
    private static LogicalExpressionByteArrayConverter converter;
 
@@ -134,9 +133,9 @@ public class LogicGraphSememeImpl
       sb.append(getSememeType().toString());
 
       final LogicalExpressionOchreImpl lg = new LogicalExpressionOchreImpl(this.graphData,
-                                                                     DataSource.INTERNAL,
-                                                                     Get.identifierService().getConceptSequence(
-                                                                        getReferencedComponentNid()));
+                                                                           DataSource.INTERNAL,
+                                                                           Get.identifierService().getConceptSequence(
+                                                                              getReferencedComponentNid()));
 
       sb.append("\n ");
       sb.append(lg.toString());

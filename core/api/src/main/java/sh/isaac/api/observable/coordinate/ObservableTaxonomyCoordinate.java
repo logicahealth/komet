@@ -59,7 +59,6 @@ import sh.isaac.api.coordinate.TaxonomyCoordinate;
  */
 public interface ObservableTaxonomyCoordinate
         extends TaxonomyCoordinate {
-   
    /**
     * Language coordinate property.
     *

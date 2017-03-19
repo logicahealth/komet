@@ -66,7 +66,6 @@ import org.w3c.dom.Node;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class VersionFinder {
-   
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
@@ -86,7 +85,7 @@ public class VersionFinder {
          domFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 
          final DocumentBuilder builder = domFactory.newDocumentBuilder();
-         Document        dDoc;
+         Document              dDoc;
 
          if (is != null) {
             dDoc = builder.parse(is);
@@ -94,9 +93,11 @@ public class VersionFinder {
             dDoc = builder.parse(new File("pom.xml"));  // running in eclipse, this should work.
          }
 
-         final XPath  xPath = XPathFactory.newInstance()
-                                    .newXPath();
-         final String temp  = ((Node) xPath.evaluate("/project/parent/version", dDoc, XPathConstants.NODE)).getTextContent();
+         final XPath xPath = XPathFactory.newInstance()
+                                         .newXPath();
+         final String temp = ((Node) xPath.evaluate("/project/parent/version",
+                                                    dDoc,
+                                                    XPathConstants.NODE)).getTextContent();
 
          LOG.debug("VersionFinder finds {} (for the version of this release of the converter library)", temp);
          return temp;

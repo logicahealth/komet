@@ -44,13 +44,12 @@ package sh.isaac.provider.sememe;
  */
 public class ReferencedNidAssemblageSequenceSememeSequenceKey
          implements Comparable<ReferencedNidAssemblageSequenceSememeSequenceKey> {
-   
    /** The referenced nid. */
    int referencedNid;
-   
+
    /** The assemblage sequence. */
    int assemblageSequence;
-   
+
    /** The sememe sequence. */
    int sememeSequence;
 
@@ -124,7 +123,8 @@ public class ReferencedNidAssemblageSequenceSememeSequenceKey
          return false;
       }
 
-      final ReferencedNidAssemblageSequenceSememeSequenceKey sememeKey = (ReferencedNidAssemblageSequenceSememeSequenceKey) o;
+      final ReferencedNidAssemblageSequenceSememeSequenceKey sememeKey =
+         (ReferencedNidAssemblageSequenceSememeSequenceKey) o;
 
       if (this.referencedNid != sememeKey.referencedNid) {
          return false;

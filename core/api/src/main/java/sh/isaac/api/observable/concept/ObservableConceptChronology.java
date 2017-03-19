@@ -69,7 +69,6 @@ import sh.isaac.api.observable.sememe.version.ObservableDescriptionSememe;
  */
 public interface ObservableConceptChronology<V extends ObservableConceptVersion>
         extends ObservableChronology<V> {
-   
    /**
     * Concept description list property.
     *

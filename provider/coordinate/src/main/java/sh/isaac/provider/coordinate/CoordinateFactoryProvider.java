@@ -93,7 +93,6 @@ import sh.isaac.model.coordinate.StampPositionImpl;
 @Singleton
 public class CoordinateFactoryProvider
          implements CoordinateFactory {
-   
    /**
     * Case significance to concept sequence.
     *
@@ -319,12 +318,13 @@ public class CoordinateFactoryProvider
          int minute,
          int second) {
       final StampPositionImpl stampPosition = new StampPositionImpl(LocalDateTime.of(year,
-                                                                               month,
-                                                                               dayOfMonth,
-                                                                               hour,
-                                                                               minute,
-                                                                               second).toEpochSecond(ZoneOffset.UTC),
-                                                              stampPath.getConceptSequence());
+                                                                                     month,
+                                                                                     dayOfMonth,
+                                                                                     hour,
+                                                                                     minute,
+                                                                                     second).toEpochSecond(
+                                                                                        ZoneOffset.UTC),
+                                                                    stampPath.getConceptSequence());
 
       return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, allowedStateSet);
    }
@@ -441,9 +441,9 @@ public class CoordinateFactoryProvider
          LanguageCoordinate languageCoordinate) {
       for (final int descType: languageCoordinate.getDescriptionTypePreferenceList()) {
          final Optional<LatestVersion<DescriptionSememe<?>>> match = getSpecifiedDescription(stampCoordinate,
-                                                                                       descriptionList,
-                                                                                       descType,
-                                                                                       languageCoordinate);
+                                                                                             descriptionList,
+                                                                                             descType,
+                                                                                             languageCoordinate);
 
          if (match.isPresent()) {
             return match;
@@ -468,14 +468,13 @@ public class CoordinateFactoryProvider
          int typeSequence,
          LanguageCoordinate languageCoordinate) {
       final SememeSnapshotService<ComponentNidSememe> acceptabilitySnapshot = Get.sememeService()
-                                                                           .getSnapshot(ComponentNidSememe.class,
-                                                                                 stampCoordinate);
+                                                                                 .getSnapshot(ComponentNidSememe.class,
+                                                                                       stampCoordinate);
       final List<DescriptionSememe<?>> descriptionsForLanguageOfType = new ArrayList<>();
 
       descriptionList.stream().forEach((descriptionChronicle) -> {
                                  @SuppressWarnings("unchecked")
-								final
-                                 Optional<LatestVersion<DescriptionSememe<?>>> latestDescription =
+                                 final Optional<LatestVersion<DescriptionSememe<?>>> latestDescription =
                                     ((SememeChronology) descriptionChronicle).getLatestVersion(DescriptionSememe.class,
                                                                                                stampCoordinate);
 

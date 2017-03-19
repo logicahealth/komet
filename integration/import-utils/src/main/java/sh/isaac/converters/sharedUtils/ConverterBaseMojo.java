@@ -66,7 +66,6 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
  */
 public abstract class ConverterBaseMojo
         extends AbstractMojo {
-   
    /** Location to write the output file. */
    @Parameter(
       required     = true,
@@ -161,8 +160,8 @@ public abstract class ConverterBaseMojo
     * An optional list of relationship names which should be skipped during this transformation.
     */
    @Parameter(required = false)
-   protected List<String>        relationshipSkipList;
-   
+   protected List<String> relationshipSkipList;
+
    /** The import util. */
    protected IBDFCreationUtility importUtil_;
 
@@ -178,7 +177,8 @@ public abstract class ConverterBaseMojo
             throws MojoExecutionException {
       Get.configurationService()
          .setBootstrapMode();
-      ConverterUUID.disableUUIDMap_ = (((this.createDebugUUIDMap == null) || (this.createDebugUUIDMap.length() == 0)) ? false
+      ConverterUUID.disableUUIDMap_ = (((this.createDebugUUIDMap == null) ||
+                                        (this.createDebugUUIDMap.length() == 0)) ? false
             : Boolean.parseBoolean(this.createDebugUUIDMap));
 
       if (ConverterUUID.disableUUIDMap_) {
@@ -198,6 +198,7 @@ public abstract class ConverterBaseMojo
     *
     * @return true, if successful
     */
+
    // Individual loaders need to override the methods below, if they wish to support the various skiplists
    protected boolean supportsAnnotationSkipList() {
       throw new UnsupportedOperationException("This loader does not support an annotation skip list");

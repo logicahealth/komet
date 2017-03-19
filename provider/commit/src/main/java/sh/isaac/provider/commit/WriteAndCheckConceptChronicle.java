@@ -70,24 +70,23 @@ import sh.isaac.api.progress.ActiveTasks;
  */
 public class WriteAndCheckConceptChronicle
         extends Task<Void> {
-   
    /** The cc. */
-   private final ConceptChronology                                              cc;
-   
+   private final ConceptChronology cc;
+
    /** The checkers. */
-   private final ConcurrentSkipListSet<ChangeChecker>                           checkers;
-   
+   private final ConcurrentSkipListSet<ChangeChecker> checkers;
+
    /** The alert collection. */
-   private final ConcurrentSkipListSet<Alert>                                   alertCollection;
-   
+   private final ConcurrentSkipListSet<Alert> alertCollection;
+
    /** The write semaphore. */
-   private final Semaphore                                                      writeSemaphore;
-   
+   private final Semaphore writeSemaphore;
+
    /** The change listeners. */
    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
-   
+
    /** The uncommitted tracking. */
-   private final BiConsumer<ObjectChronology, Boolean>                          uncommittedTracking;
+   private final BiConsumer<ObjectChronology, Boolean> uncommittedTracking;
 
    //~--- constructors --------------------------------------------------------
 
@@ -148,8 +147,8 @@ public class WriteAndCheckConceptChronicle
 
          if (this.cc.isUncommitted()) {
             this.checkers.stream().forEach((check) -> {
-                                check.check(this.cc, this.alertCollection, CheckPhase.ADD_UNCOMMITTED);
-                             });
+                                     check.check(this.cc, this.alertCollection, CheckPhase.ADD_UNCOMMITTED);
+                                  });
          }
 
          updateProgress(2, 3);
@@ -157,14 +156,14 @@ public class WriteAndCheckConceptChronicle
          // TODO dan disabled for the same reason as above.
          updateMessage("notifying nid: " + this.cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
          this.changeListeners.forEach((listenerRef) -> {
-                                    final ChronologyChangeListener listener = listenerRef.get();
+                                         final ChronologyChangeListener listener = listenerRef.get();
 
-                                    if (listener == null) {
-                                       this.changeListeners.remove(listenerRef);
-                                    } else {
-                                       listener.handleChange(this.cc);
-                                    }
-                                 });
+                                         if (listener == null) {
+                                            this.changeListeners.remove(listenerRef);
+                                         } else {
+                                            listener.handleChange(this.cc);
+                                         }
+                                      });
          updateProgress(3, 3);
 
          // TODO dan disabled for the same reason as above.

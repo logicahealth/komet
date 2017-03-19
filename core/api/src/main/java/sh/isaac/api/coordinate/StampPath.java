@@ -52,7 +52,6 @@ import java.util.Collection;
  */
 public interface StampPath
         extends Comparable<StampPath> {
-   
    /**
     * Gets the path concept sequence.
     *

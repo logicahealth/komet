@@ -61,12 +61,11 @@ import sh.isaac.api.commit.StampService;
  */
 public abstract class IndexedStampSequenceSpliterator<T>
          implements Spliterator<T> {
-   
    /** The iterator. */
    final PrimitiveIterator.OfInt iterator;
-   
+
    /** The size. */
-   final int                     size;
+   final int size;
 
    //~--- constructors --------------------------------------------------------
 
@@ -78,7 +77,7 @@ public abstract class IndexedStampSequenceSpliterator<T>
    public IndexedStampSequenceSpliterator(IntArrayList keys) {
       this.size     = keys.size();
       this.iterator = IntStream.of(keys.elements())
-                          .iterator();
+                               .iterator();
    }
 
    //~--- methods -------------------------------------------------------------

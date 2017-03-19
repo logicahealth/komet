@@ -57,7 +57,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 public class DynamicSememeFloatImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeFloat {
-   
    /** The property. */
    private ObjectProperty<Float> property_;
 

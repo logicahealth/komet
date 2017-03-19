@@ -48,7 +48,6 @@ package sh.isaac.pombuilder.artifacts;
  */
 public class SDOSourceContent
         extends Artifact {
-   
    /**
     * Instantiates a new SDO source content.
     *

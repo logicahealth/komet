@@ -57,7 +57,6 @@ import sh.isaac.api.collections.StampSequenceSet;
  */
 public class LatestPrimitiveStampCombiner
          implements BiConsumer<StampSequenceSet, StampSequenceSet> {
-   
    /** The computer. */
    private final RelativePositionCalculator computer;
 
@@ -88,9 +87,9 @@ public class LatestPrimitiveStampCombiner
 
       if ((tStampSet.size() == 1) && (uStampSet.size() == 1)) {
          final int              stamp1           = tStampSet.getIntIterator()
-                                                      .next();
+                                                            .next();
          final int              stamp2           = uStampSet.getIntIterator()
-                                                      .next();
+                                                            .next();
          final RelativePosition relativePosition = this.computer.relativePosition(stamp1, stamp2);
 
          switch (relativePosition) {

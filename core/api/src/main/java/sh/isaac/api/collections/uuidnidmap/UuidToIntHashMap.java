@@ -63,18 +63,17 @@ import org.apache.mahout.math.map.PrimeFinder;
 public class UuidToIntHashMap
         extends AbstractUuidToIntHashMap
          implements UuidToIntMap {
-   
    /** The Constant serialVersionUID. */
-   private static final long   serialVersionUID = -3621266181773866347L;
-   
+   private static final long serialVersionUID = -3621266181773866347L;
+
    /** The Constant FREE. */
-   protected static final byte FREE             = 0;
-   
+   protected static final byte FREE = 0;
+
    /** The Constant FULL. */
-   protected static final byte FULL             = 1;
-   
+   protected static final byte FULL = 1;
+
    /** The Constant REMOVED. */
-   protected static final byte REMOVED          = 2;
+   protected static final byte REMOVED = 2;
 
    //~--- fields --------------------------------------------------------------
 
@@ -320,7 +319,7 @@ public class UuidToIntHashMap
       final long[] elements = list.elements();
       final long[] tab      = this.table;
       final byte[] stat     = this.state;
-      int    j        = 0;
+      int          j        = 0;
 
       for (int i = stat.length; i-- > 0; ) {
          if (stat[i] == FULL) {
@@ -437,7 +436,7 @@ public class UuidToIntHashMap
       final int[]  elements = list.elements();
       final int[]  val      = this.values;
       final byte[] stat     = this.state;
-      int    j        = 0;
+      int          j        = 0;
 
       for (int i = stat.length; i-- > 0; ) {
          if (stat[i] == FULL) {
@@ -648,8 +647,8 @@ public class UuidToIntHashMap
     */
    protected List<Integer> indexesOfValue(int value) {
       final List<Integer> indexes = new ArrayList<>();
-      final int     val[]   = this.values;
-      final byte    stat[]  = this.state;
+      final int           val[]   = this.values;
+      final byte          stat[]  = this.state;
 
       for (int i = stat.length; --i >= 0; ) {
          if ((stat[i] == FULL) && (val[i] == value)) {

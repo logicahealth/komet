@@ -69,13 +69,12 @@ import sh.isaac.model.sememe.version.DescriptionSememeImpl;
 public class ObservableSememeChronologyImpl<OV extends ObservableSememeVersionImpl<OV>, C extends SememeChronology<?>>
         extends ObservableChronologyImpl<OV, C>
          implements ObservableSememeChronology<OV> {
-   
    /** The sememe sequence property. */
    private IntegerProperty sememeSequenceProperty;
-   
+
    /** The assemblage sequence property. */
    private IntegerProperty assemblageSequenceProperty;
-   
+
    /** The referenced component nid property. */
    private IntegerProperty referencedComponentNidProperty;
 
@@ -208,8 +207,8 @@ public class ObservableSememeChronologyImpl<OV extends ObservableSememeVersionIm
       final ObservableList<OV> observableList = FXCollections.observableArrayList();
 
       this.chronicledObjectLocal.getVersionList().stream().forEach((sememeVersion) -> {
-                                       observableList.add(wrapInObservable(sememeVersion));
-                                    });
+                                            observableList.add(wrapInObservable(sememeVersion));
+                                         });
       return observableList;
    }
 

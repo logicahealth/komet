@@ -74,65 +74,67 @@ import sh.isaac.utility.Frills;
  */
 public class MappingItem
         extends MappingObject {
-   
    /** The Constant LOG. */
-   private static final Logger                 LOG              = LoggerFactory.getLogger(MappingItem.class);
-   
+   private static final Logger LOG = LoggerFactory.getLogger(MappingItem.class);
+
    /** The Constant NO_MAP_NAME. */
-   private static final String                 NO_MAP_NAME      = "(not mapped)";
-   
+   private static final String NO_MAP_NAME = "(not mapped)";
+
    /** The Constant sourceComparator. */
-   public static final Comparator<MappingItem> sourceComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getSourceConceptProperty()
-       .get(),
-       o2.getSourceConceptProperty()
-         .get());
-   
+   public static final Comparator<MappingItem> sourceComparator =
+      (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getSourceConceptProperty()
+                                                         .get(),
+                                                       o2.getSourceConceptProperty()
+                                                             .get());
+
    /** The Constant targetComparator. */
-   public static final Comparator<MappingItem> targetComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getTargetConceptProperty()
-       .get(),
-       o2.getTargetConceptProperty()
-         .get());
-   
+   public static final Comparator<MappingItem> targetComparator =
+      (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getTargetConceptProperty()
+                                                         .get(),
+                                                       o2.getTargetConceptProperty()
+                                                             .get());
+
    /** The Constant qualifierComparator. */
-   public static final Comparator<MappingItem> qualifierComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getQualifierConceptProperty()
-       .get(),
-       o2.getQualifierConceptProperty()
-         .get());
+   public static final Comparator<MappingItem> qualifierComparator =
+      (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getQualifierConceptProperty()
+                                                         .get(),
+                                                       o2.getQualifierConceptProperty()
+                                                             .get());
 
    //~--- fields --------------------------------------------------------------
 
    /** The lazy load complete. */
-   private transient boolean                    lazyLoadComplete         = false;
-   
+   private transient boolean lazyLoadComplete = false;
+
    /** The source concept property. */
-   private transient final SimpleStringProperty sourceConceptProperty    = new SimpleStringProperty();
-   
+   private transient final SimpleStringProperty sourceConceptProperty = new SimpleStringProperty();
+
    /** The target concept property. */
-   private transient final SimpleStringProperty targetConceptProperty    = new SimpleStringProperty();
-   
+   private transient final SimpleStringProperty targetConceptProperty = new SimpleStringProperty();
+
    /** The qualifier concept property. */
    private transient final SimpleStringProperty qualifierConceptProperty = new SimpleStringProperty();
-   
+
    /** The comments property. */
-   private transient final SimpleStringProperty commentsProperty         = new SimpleStringProperty();
-   
+   private transient final SimpleStringProperty commentsProperty = new SimpleStringProperty();
+
    /** The uuids. */
-   private List<UUID>                           uuids;
-   
+   private List<UUID> uuids;
+
    /** The mapping set sequence. */
-   private int                                  sourceConceptNid, mappingSetSequence;
-   
+   private int sourceConceptNid, mappingSetSequence;
+
    /** The target concept. */
-   private UUID                                 qualifierConcept, targetConcept;
-   
+   private UUID qualifierConcept, targetConcept;
+
    /** The data. */
-   private DynamicSememeData[]                  data_;
-   
+   private DynamicSememeData[] data_;
+
    /** The source concept. */
-   private transient UUID                       mappingSetIDConcept, sourceConcept;
-   
+   private transient UUID mappingSetIDConcept, sourceConcept;
+
    /** The qualifier concept nid. */
-   private transient int                        targetConceptNid, qualifierConceptNid;
+   private transient int targetConceptNid, qualifierConceptNid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -206,8 +208,8 @@ public class MappingItem
    private void lazyLoad() {
       if (!this.lazyLoadComplete) {
          this.mappingSetIDConcept = Get.identifierService()
-                                  .getUuidPrimordialForNid(this.mappingSetSequence)
-                                  .get();
+                                       .getUuidPrimordialForNid(this.mappingSetSequence)
+                                       .get();
          setSourceConcept(Get.identifierService()
                              .getUuidPrimordialForNid(this.sourceConceptNid)
                              .get());

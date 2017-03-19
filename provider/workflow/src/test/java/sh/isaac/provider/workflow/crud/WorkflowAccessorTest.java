@@ -83,7 +83,6 @@ import sh.isaac.provider.workflow.user.RoleConfigurator;
  */
 public class WorkflowAccessorTest
         extends AbstractWorkflowProviderTestPackage {
-   
    /**
     * Before test.
     */
@@ -304,7 +303,7 @@ public class WorkflowAccessorTest
    public void testGetDefinitionDetails()
             throws Exception {
       final DefinitionDetail entry         = wp_.getWorkflowAccessor()
-                                          .getDefinitionDetails(mainDefinitionId);
+                                                .getDefinitionDetails(mainDefinitionId);
       final Set<UserRole>    expectedRoles = new HashSet<>();
 
       expectedRoles.add(UserRole.EDITOR);
@@ -327,7 +326,7 @@ public class WorkflowAccessorTest
    @Test
    public void testGetProcessDetails()
             throws Exception {
-      final UUID          processId = createFirstWorkflowProcess(mainDefinitionId);
+      final UUID    processId = createFirstWorkflowProcess(mainDefinitionId);
       ProcessDetail entry     = wp_.getWorkflowAccessor()
                                    .getProcessDetails(processId);
 
@@ -368,7 +367,7 @@ public class WorkflowAccessorTest
    @Test
    public void testGetProcessHistory()
             throws Exception {
-      final UUID                      processId      = createFirstWorkflowProcess(mainDefinitionId);
+      final UUID                processId      = createFirstWorkflowProcess(mainDefinitionId);
       SortedSet<ProcessHistory> processHistory = wp_.getWorkflowAccessor()
                                                     .getProcessHistory(processId);
 
@@ -657,7 +656,7 @@ public class WorkflowAccessorTest
       Assert.assertEquals(1, roles.size());
 
       final UserRole role = roles.iterator()
-                           .next();
+                                 .next();
 
       Assert.assertEquals(UserRole.REVIEWER, role);
    }

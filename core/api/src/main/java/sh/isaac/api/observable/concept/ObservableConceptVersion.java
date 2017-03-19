@@ -53,7 +53,6 @@ import sh.isaac.api.observable.ObservableVersion;
  */
 public interface ObservableConceptVersion<T extends ObservableConceptVersion<T>>
         extends ObservableVersion, StampedVersion {
-   
    /**
     * Gets the chronology.
     *

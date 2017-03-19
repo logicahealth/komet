@@ -128,7 +128,6 @@ import static sh.isaac.model.observable.ObservableFields.VERSION_LIST_FOR_CHRONI
 @Singleton
 public class IsaacMetadataAuxiliary
         extends IsaacTaxonomy {
-   
    /** The Constant METADATA_SEMANTIC_TAG. */
    public static final String METADATA_SEMANTIC_TAG = "ISAAC";
 

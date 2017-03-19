@@ -70,18 +70,17 @@ import sh.isaac.api.task.OptionalWaitTask;
  */
 public abstract class ComponentBuilder<T extends CommittableComponent>
          implements IdentifiedComponentBuilder<T> {
-   
    /** The additional uuids. */
-   protected final List<UUID>             additionalUuids = new ArrayList<>();
-   
+   protected final List<UUID> additionalUuids = new ArrayList<>();
+
    /** The primordial uuid. */
-   private UUID                           primordialUuid  = null;
-   
+   private UUID primordialUuid = null;
+
    /** The sememe builders. */
-   protected final List<SememeBuilder<?>> sememeBuilders  = new ArrayList<>();
-   
+   protected final List<SememeBuilder<?>> sememeBuilders = new ArrayList<>();
+
    /** The state. */
-   protected State                        state           = State.ACTIVE;
+   protected State state = State.ACTIVE;
 
    //~--- methods -------------------------------------------------------------
 

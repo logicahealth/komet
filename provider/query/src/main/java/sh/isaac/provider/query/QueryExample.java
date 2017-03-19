@@ -62,7 +62,6 @@ import sh.isaac.model.configuration.TaxonomyCoordinates;
  * @author kec
  */
 public class QueryExample {
-   
    /** The q. */
    Query q;
 

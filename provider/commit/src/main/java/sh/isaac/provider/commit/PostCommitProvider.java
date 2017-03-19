@@ -81,15 +81,14 @@ import sh.isaac.api.identity.StampedVersion;
 @RunLevel(value = 1)
 public class PostCommitProvider
          implements PostCommitService, ChronologyChangeListener {
-   
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
    /** The listener id. */
-   private final UUID                                            listenerId         = UUID.randomUUID();
-   
+   private final UUID listenerId = UUID.randomUUID();
+
    /** The change set listeners. */
    ConcurrentSkipListSet<WeakReference<ChangeSetListener>> changeSetListeners = new ConcurrentSkipListSet<>();
 
@@ -144,14 +143,14 @@ public class PostCommitProvider
    public void handleCommit(CommitRecord commitRecord) {
       LOG.debug("change set listeners size: {}", this.changeSetListeners.size());
       this.changeSetListeners.forEach((listenerReference) -> {
-                                    final ChangeSetListener listener = listenerReference.get();
+                                         final ChangeSetListener listener = listenerReference.get();
 
-                                    if (listener == null) {
-                                       this.changeSetListeners.remove(listenerReference);
-                                    } else {
-                                       listener.handlePostCommit(commitRecord);
-                                    }
-                                 });
+                                         if (listener == null) {
+                                            this.changeSetListeners.remove(listenerReference);
+                                         } else {
+                                            listener.handlePostCommit(commitRecord);
+                                         }
+                                      });
    }
 
    /**
@@ -190,6 +189,7 @@ public class PostCommitProvider
     *
     * @return the listener uuid
     */
+
    // ChronologyChangeListener interfaces
    @Override
    public UUID getListenerUuid() {
@@ -204,7 +204,6 @@ public class PostCommitProvider
    private static class ChangeSetListenerReference
            extends WeakReference<ChangeSetListener>
             implements Comparable<ChangeSetListenerReference> {
-      
       /** The listener uuid. */
       UUID listenerUuid;
 

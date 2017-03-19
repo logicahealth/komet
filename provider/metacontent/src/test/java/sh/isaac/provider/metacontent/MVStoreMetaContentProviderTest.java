@@ -60,7 +60,6 @@ import sh.isaac.provider.metacontent.userPrefs.UserPreference;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class MVStoreMetaContentProviderTest {
-   
    /**
     * Test my data.
     *

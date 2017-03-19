@@ -67,8 +67,8 @@ import sh.isaac.provider.workflow.model.contents.ProcessHistory;
 /**
  * Contains methods necessary to start, launch, cancel, or conclude a workflow
  * process
- * 
- * 
+ *
+ *
  * {@link WorkflowContentStore} {@link WorkflowProvider}
  * {@link BPMNInfo}.
  *
@@ -77,7 +77,6 @@ import sh.isaac.provider.workflow.model.contents.ProcessHistory;
 @Service
 @Singleton
 public class WorkflowProcessInitializerConcluder {
-   
    /** The workflow provider. */
    private final WorkflowProvider workflowProvider_;
 
@@ -86,10 +85,11 @@ public class WorkflowProcessInitializerConcluder {
    /**
     * Instantiates a new workflow process initializer concluder.
     */
+
    // for HK2
    private WorkflowProcessInitializerConcluder() {
       this.workflowProvider_ = LookupService.get()
-                                       .getService(WorkflowProvider.class);
+            .getService(WorkflowProvider.class);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -97,7 +97,7 @@ public class WorkflowProcessInitializerConcluder {
    /**
     * Creates a new workflow process instance. In turn, a new entry is added to the ProcessDetails content store. The process status defaults as
     * DEFINED.
-    * 
+    *
     * Used by users when creating a new process
     *
     * @param definitionId The definition for which the process should be based on
@@ -123,43 +123,43 @@ public class WorkflowProcessInitializerConcluder {
 
       // Create Process Details with "DEFINED"
       final ProcessDetail details = new ProcessDetail(definitionId,
-                                                userId,
-                                                new Date().getTime(),
-                                                ProcessStatus.DEFINED,
-                                                name,
-                                                description);
+                                                      userId,
+                                                      new Date().getTime(),
+                                                      ProcessStatus.DEFINED,
+                                                      name,
+                                                      description);
       final UUID processId = this.workflowProvider_.getProcessDetailStore()
-                                        .add(details);
+                                                   .add(details);
 
       // Add Process History with START_STATE-AUTOMATED-EDIT_STATE
       // At some point, need to handle the case where multiple startActions
       // may be defined for single DefinitionId. For now, verify only one and
       // use it
       if (this.workflowProvider_.getBPMNInfo()
-                           .getDefinitionStartActionMap()
-                           .get(definitionId)
-                           .size() != 1) {
+                                .getDefinitionStartActionMap()
+                                .get(definitionId)
+                                .size() != 1) {
          throw new Exception(
              "Currently only able to handle single startAction within a definition. This definition found: " +
              this.workflowProvider_.getBPMNInfo().getDefinitionStartActionMap().get(definitionId).size());
       }
 
       final AvailableAction startAdvancement = this.workflowProvider_.getBPMNInfo()
-                                                          .getDefinitionStartActionMap()
-                                                          .get(definitionId)
-                                                          .iterator()
-                                                          .next();
+                                                                     .getDefinitionStartActionMap()
+                                                                     .get(definitionId)
+                                                                     .iterator()
+                                                                     .next();
       final ProcessHistory advanceEntry = new ProcessHistory(processId,
-                                                       userId,
-                                                       new Date().getTime(),
-                                                       startAdvancement.getInitialState(),
-                                                       startAdvancement.getAction(),
-                                                       startAdvancement.getOutcomeState(),
-                                                       "",
-                                                       1);
+                                                             userId,
+                                                             new Date().getTime(),
+                                                             startAdvancement.getInitialState(),
+                                                             startAdvancement.getAction(),
+                                                             startAdvancement.getOutcomeState(),
+                                                             "",
+                                                             1);
 
       this.workflowProvider_.getProcessHistoryStore()
-                       .add(advanceEntry);
+                            .add(advanceEntry);
       return processId;
    }
 
@@ -186,10 +186,10 @@ public class WorkflowProcessInitializerConcluder {
                                   EditCoordinate editCoordinate)
             throws Exception {
       final ProcessDetail  entry = this.workflowProvider_.getProcessDetailStore()
-                                              .get(processId);
+                                                         .get(processId);
       final ProcessHistory hx    = this.workflowProvider_.getWorkflowAccessor()
-                                              .getProcessHistory(processId)
-                                              .last();
+                                                         .getProcessHistory(processId)
+                                                         .last();
 
       if (entry == null) {
          throw new Exception("Cannot cancel nor conclude a workflow that hasn't been defined yet");
@@ -200,9 +200,9 @@ public class WorkflowProcessInitializerConcluder {
             throw new Exception("Cannot conclude workflow that is in the following state: " + entry.getStatus());
          } else {
             if (!this.workflowProvider_.getBPMNInfo()
-                                  .isConcludedState(hx.getOutcomeState())) {
+                                       .isConcludedState(hx.getOutcomeState())) {
                final DefinitionDetail defEntry = this.workflowProvider_.getDefinitionDetailStore()
-                                                            .get(entry.getDefinitionId());
+                                                                       .get(entry.getDefinitionId());
 
                throw new Exception("Cannot perform Conclude action on the definition: " + defEntry.getName() +
                                    " version: " + defEntry.getVersion() + " when the workflow state is: " +
@@ -222,26 +222,26 @@ public class WorkflowProcessInitializerConcluder {
       }
 
       this.workflowProvider_.getProcessDetailStore()
-                       .put(processId, entry);
+                            .put(processId, entry);
 
       // Add to process's history
       final ProcessHistory advanceEntry = new ProcessHistory(processId,
-                                                       userId,
-                                                       new Date().getTime(),
-                                                       actionToProcess.getInitialState(),
-                                                       actionToProcess.getAction(),
-                                                       actionToProcess.getOutcomeState(),
-                                                       comment,
-                                                       hx.getHistorySequence() + 1);
+                                                             userId,
+                                                             new Date().getTime(),
+                                                             actionToProcess.getInitialState(),
+                                                             actionToProcess.getAction(),
+                                                             actionToProcess.getOutcomeState(),
+                                                             comment,
+                                                             hx.getHistorySequence() + 1);
 
       this.workflowProvider_.getProcessHistoryStore()
-                       .add(advanceEntry);
+                            .add(advanceEntry);
 
       // if a cancel has been requested, revert all changes associated with the workflow
       if (endType.equals(EndWorkflowType.CANCELED)) {
          this.workflowProvider_.getWorkflowUpdater()
-                          .revertChanges(entry.getComponentToInitialEditMap()
-                                .keySet(), processId, editCoordinate);
+                               .revertChanges(entry.getComponentToInitialEditMap()
+                                     .keySet(), processId, editCoordinate);
       }
    }
 
@@ -261,7 +261,7 @@ public class WorkflowProcessInitializerConcluder {
    public void launchProcess(UUID processId)
             throws Exception {
       final ProcessDetail entry = this.workflowProvider_.getProcessDetailStore()
-                                             .get(processId);
+                                                        .get(processId);
 
       if (entry == null) {
          throw new Exception("Cannot launch workflow that hasn't been defined first");
@@ -278,7 +278,7 @@ public class WorkflowProcessInitializerConcluder {
       entry.setStatus(ProcessStatus.LAUNCHED);
       entry.setTimeLaunched(new Date().getTime());
       this.workflowProvider_.getProcessDetailStore()
-                       .put(processId, entry);
+                            .put(processId, entry);
    }
 }
 

@@ -61,7 +61,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeArrayTest {
-   
    /**
     * Test serialization one.
     *
@@ -72,9 +71,9 @@ public class DynamicSememeArrayTest {
    public void testSerializationOne()
             throws PropertyVetoException, IOException {
       final DynamicSememeIntegerImpl[] testDataOne = new DynamicSememeIntegerImpl[] { new DynamicSememeIntegerImpl(5),
-                                                                                new DynamicSememeIntegerImpl(8),
-                                                                                new DynamicSememeIntegerImpl(
-                                                                                   Integer.MAX_VALUE) };
+                                                                                      new DynamicSememeIntegerImpl(8),
+                                                                                      new DynamicSememeIntegerImpl(
+                                                                                         Integer.MAX_VALUE) };
       final DynamicSememeArrayImpl<DynamicSememeIntegerImpl> testOne =
          new DynamicSememeArrayImpl<DynamicSememeIntegerImpl>(testDataOne);
 
@@ -110,7 +109,8 @@ public class DynamicSememeArrayTest {
    public void testSerializationTwo()
             throws PropertyVetoException, IOException {
       final DynamicSememeStringImpl[] testDataTwo = new DynamicSememeStringImpl[] { new DynamicSememeStringImpl("hi"),
-                                                                              new DynamicSememeStringImpl("bye") };
+                                                                                    new DynamicSememeStringImpl(
+                                                                                       "bye") };
       final DynamicSememeArrayImpl<DynamicSememeStringImpl> testTwo =
          new DynamicSememeArrayImpl<DynamicSememeStringImpl>(testDataTwo);
 

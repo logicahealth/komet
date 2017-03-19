@@ -65,59 +65,65 @@ import sh.isaac.api.util.StringUtils;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public abstract class StampedItem {
-   
    /** The Constant statusComparator. */
-   public static final Comparator<StampedItem> statusComparator = (o1, o2) -> Boolean.compare(o2.isActive(), o1.isActive());
-   
+   public static final Comparator<StampedItem> statusComparator = (o1, o2) -> Boolean.compare(o2.isActive(),
+                                                                                              o1.isActive());
+
    /** The Constant timeComparator. */
    public static final Comparator<StampedItem> timeComparator = (o1, o2) -> Long.compare(o1.getTime(), o2.getTime());
-   
+
    /** The Constant authorComparator. */
-   public static final Comparator<StampedItem> authorComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getAuthorProperty()
-       .get(), o2.getAuthorProperty()
-                 .get());
-   
+   public static final Comparator<StampedItem> authorComparator =
+      (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getAuthorProperty()
+                                                         .get(),
+                                                       o2.getAuthorProperty()
+                                                             .get());
+
    /** The Constant moduleComparator. */
-   public static final Comparator<StampedItem> moduleComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getModuleProperty()
-       .get(), o2.getModuleProperty()
-                 .get());
-   
+   public static final Comparator<StampedItem> moduleComparator =
+      (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getModuleProperty()
+                                                         .get(),
+                                                       o2.getModuleProperty()
+                                                             .get());
+
    /** The Constant pathComparator. */
-   public static final Comparator<StampedItem> pathComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getPathProperty()
-       .get(), o2.getPathProperty()
-                 .get());
+   public static final Comparator<StampedItem> pathComparator =
+      (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getPathProperty()
+                                                         .get(),
+                                                       o2.getPathProperty()
+                                                             .get());
 
    //~--- fields --------------------------------------------------------------
 
    /** The lazy load finished. */
-   private transient boolean              lazyLoadFinished_ = false;
-   
+   private transient boolean lazyLoadFinished_ = false;
+
    /** The author SSP. */
-   private transient SimpleStringProperty authorSSP         = new SimpleStringProperty("-");
-   
+   private transient SimpleStringProperty authorSSP = new SimpleStringProperty("-");
+
    /** The module SSP. */
-   private transient SimpleStringProperty moduleSSP         = new SimpleStringProperty("-");;
-   
+   private transient SimpleStringProperty moduleSSP = new SimpleStringProperty("-");;
+
    /** The path SSP. */
-   private transient SimpleStringProperty pathSSP           = new SimpleStringProperty("-");;
-   
+   private transient SimpleStringProperty pathSSP = new SimpleStringProperty("-");;
+
    /** The status SSP. */
-   private transient SimpleStringProperty statusSSP         = new SimpleStringProperty("-");;
-   
+   private transient SimpleStringProperty statusSSP = new SimpleStringProperty("-");;
+
    /** The time SSP. */
-   private transient SimpleStringProperty timeSSP           = new SimpleStringProperty("-");;
-   
+   private transient SimpleStringProperty timeSSP = new SimpleStringProperty("-");;
+
    /** The component version. */
-   private StampedVersion                 componentVersion_;
-   
+   private StampedVersion componentVersion_;
+
    /** The author UUID. */
-   private transient UUID                 authorUUID;
-   
+   private transient UUID authorUUID;
+
    /** The module UUID. */
-   private transient UUID                 moduleUUID;
-   
+   private transient UUID moduleUUID;
+
    /** The path UUID. */
-   private transient UUID                 pathUUID;
+   private transient UUID pathUUID;
 
    //~--- methods -------------------------------------------------------------
 
@@ -138,21 +144,24 @@ public abstract class StampedItem {
    private void lazyLoad() {
       if (!this.lazyLoadFinished_) {
          this.authorUUID = Get.identifierService()
-                         .getUuidPrimordialFromConceptId(this.componentVersion_.getAuthorSequence())
-                         .get();
+                              .getUuidPrimordialFromConceptId(this.componentVersion_.getAuthorSequence())
+                              .get();
          this.moduleUUID = Get.identifierService()
-                         .getUuidPrimordialFromConceptId(this.componentVersion_.getModuleSequence())
-                         .get();
+                              .getUuidPrimordialFromConceptId(this.componentVersion_.getModuleSequence())
+                              .get();
          this.pathUUID = Get.identifierService()
-                       .getUuidPrimordialFromConceptId(this.componentVersion_.getPathSequence())
-                       .get();
+                            .getUuidPrimordialFromConceptId(this.componentVersion_.getPathSequence())
+                            .get();
          Get.workExecutors().getExecutor().execute(() -> {
                         final String authorName = Get.conceptDescriptionText(Get.identifierService()
-                                                                          .getConceptSequenceForUuids(this.authorUUID));
+                                                                                .getConceptSequenceForUuids(
+                                                                                   this.authorUUID));
                         final String moduleName = Get.conceptDescriptionText(Get.identifierService()
-                                                                          .getConceptSequenceForUuids(this.moduleUUID));
+                                                                                .getConceptSequenceForUuids(
+                                                                                   this.moduleUUID));
                         final String pathName = Get.conceptDescriptionText(Get.identifierService()
-                                                                        .getConceptSequenceForUuids(this.pathUUID));
+                                                                              .getConceptSequenceForUuids(
+                                                                                 this.pathUUID));
 
                         Platform.runLater(() -> {
                                              this.authorSSP.set(authorName);
@@ -160,7 +169,8 @@ public abstract class StampedItem {
                                              this.pathSSP.set(pathName);
                                              this.statusSSP.set(this.isActive() ? "Active"
                      : "Inactive");
-                                             this.timeSSP.set(new SimpleDateFormat("MM/dd/yy HH:mm").format(this.getTime()));
+                                             this.timeSSP.set(
+                                                 new SimpleDateFormat("MM/dd/yy HH:mm").format(this.getTime()));
                                           });
                      });
       }

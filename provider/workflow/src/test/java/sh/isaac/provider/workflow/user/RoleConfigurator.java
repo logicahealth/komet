@@ -58,11 +58,10 @@ import sh.isaac.provider.workflow.user.SimpleUserRoleService;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class RoleConfigurator {
-   
-   /**  The Constant firstUserId (for Unit Testing). */
+   /** The Constant firstUserId (for Unit Testing). */
    private static final UUID firstUserId = UUID.randomUUID();
 
-   /**  The Constant secondUserId (for Unit Testing). */
+   /** The Constant secondUserId (for Unit Testing). */
    private static final UUID secondUserId = UUID.randomUUID();
 
    //~--- methods -------------------------------------------------------------
@@ -72,7 +71,7 @@ public class RoleConfigurator {
     */
    public static void configureForTest() {
       final SimpleUserRoleService rolesService = LookupService.get()
-                                                        .getService(SimpleUserRoleService.class);
+                                                              .getService(SimpleUserRoleService.class);
 
       rolesService.addRole(UserRole.EDITOR);
       rolesService.addRole(UserRole.REVIEWER);

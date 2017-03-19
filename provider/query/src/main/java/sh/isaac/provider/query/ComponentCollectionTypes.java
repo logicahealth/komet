@@ -43,16 +43,15 @@ package sh.isaac.provider.query;
  * Created by kec on 10/31/14.
  */
 public enum ComponentCollectionTypes {
-   
    /** The all components. */
    ALL_COMPONENTS,
-   
+
    /** The all concepts. */
    ALL_CONCEPTS,
-   
+
    /** The all sememes. */
    ALL_SEMEMES,
-   
+
    /** The custom set. */
    CUSTOM_SET;
 }

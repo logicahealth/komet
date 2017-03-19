@@ -49,7 +49,6 @@ import sh.isaac.api.ticker.Ticker;
  * Created by kec on 4/9/15.
  */
 public class HeapUseTicker {
-   
    /** The Constant ticker. */
    private static final Ticker ticker = new Ticker();
 

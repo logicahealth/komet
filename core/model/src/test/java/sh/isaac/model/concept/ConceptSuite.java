@@ -87,7 +87,6 @@ import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY
  */
 @HK2("model")
 public class ConceptSuite {
-   
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
@@ -146,18 +145,20 @@ public class ConceptSuite {
       final UUID                  primordialUuid    = UUID.fromString("2b2b14cd-ea97-4bbc-a3e7-6f7f00e6eff1");
       final long                  time              = System.currentTimeMillis();
       final UUID                  authorUuid        = UUID.fromString("e6cb85c8-852a-4990-ae16-f8f3c83340b4");
-      final int                   authorSequence    = idService.getConceptSequence(idService.getNidForUuids(authorUuid));
+      final int                   authorSequence    =
+         idService.getConceptSequence(idService.getNidForUuids(authorUuid));
       final UUID                  moduleUuid        = UUID.fromString("c428399c-3888-4b88-8758-e8618b4562d3");
-      final int                   moduleSequence    = idService.getConceptSequence(idService.getNidForUuids(moduleUuid));
+      final int                   moduleSequence    =
+         idService.getConceptSequence(idService.getNidForUuids(moduleUuid));
       final UUID                  pathUuid          = UUID.fromString("1d067cb2-d0b7-4715-aefb-9e077090779e");
       final int                   pathSequence      = idService.getConceptSequence(idService.getNidForUuids(pathUuid));
       final int                   nid               = Get.identifierService()
-                                                   .getNidForUuids(primordialUuid);
+                                                         .getNidForUuids(primordialUuid);
       final int                   containerSequence = Get.identifierService()
-                                                   .getConceptSequence(nid);
+                                                         .getConceptSequence(nid);
       final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(primordialUuid, nid, containerSequence);
       final int stampSequence = Get.stampService()
-                             .getStampSequence(State.ACTIVE, time, authorSequence, moduleSequence, pathSequence);
+                                   .getStampSequence(State.ACTIVE, time, authorSequence, moduleSequence, pathSequence);
 
       conceptChronology.createMutableVersion(stampSequence);
 
@@ -203,19 +204,19 @@ public class ConceptSuite {
       final ConceptSpecification defaultLanguageForDescriptions          = TermAux.ENGLISH_LANGUAGE;
       final ConceptSpecification defaultDialectAssemblageForDescriptions = TermAux.US_DIALECT_ASSEMBLAGE;
       final int                  statedAssemblageSequence = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getConceptSequence();
-      final int                  inferredAssemblageSequence = TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getConceptSequence();
-      final int                  descriptionLogicProfileSequence = TermAux.EL_PLUS_PLUS_LOGIC_PROFILE.getConceptSequence();
-      final int                  classifierSequence                      = TermAux.SNOROCKET_CLASSIFIER.getConceptSequence();
+      final int inferredAssemblageSequence = TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getConceptSequence();
+      final int descriptionLogicProfileSequence = TermAux.EL_PLUS_PLUS_LOGIC_PROFILE.getConceptSequence();
+      final int                  classifierSequence = TermAux.SNOROCKET_CLASSIFIER.getConceptSequence();
       final LogicCoordinate defaultLogicCoordinate = new LogicCoordinateImpl(statedAssemblageSequence,
-                                                                       inferredAssemblageSequence,
-                                                                       descriptionLogicProfileSequence,
-                                                                       classifierSequence);
+                                                                             inferredAssemblageSequence,
+                                                                             descriptionLogicProfileSequence,
+                                                                             classifierSequence);
       final ConceptBuilderOchreImpl testConceptBuilder = new ConceptBuilderOchreImpl(conceptName,
-                                                                               semanticTag,
-                                                                               null,
-                                                                               defaultLanguageForDescriptions,
-                                                                               defaultDialectAssemblageForDescriptions,
-                                                                               defaultLogicCoordinate);
+                                                                                     semanticTag,
+                                                                                     null,
+                                                                                     defaultLanguageForDescriptions,
+                                                                                     defaultDialectAssemblageForDescriptions,
+                                                                                     defaultLogicCoordinate);
 
       testConceptBuilder.setPrimordialUuid(uuidString);
 
@@ -223,9 +224,9 @@ public class ConceptSuite {
       final int moduleSequence = TermAux.ISAAC_MODULE.getConceptSequence();
       final int pathSequence   = TermAux.DEVELOPMENT_PATH.getConceptSequence();
       final int stampSequence = Get.stampService()
-                             .getStampSequence(State.ACTIVE, time, authorSequence, moduleSequence, pathSequence);
+                                   .getStampSequence(State.ACTIVE, time, authorSequence, moduleSequence, pathSequence);
       final List<ObjectChronology<? extends StampedVersion>> builtObjects = new ArrayList<>();
-      final ConceptChronology                                concept = testConceptBuilder.build(stampSequence, builtObjects);
+      final ConceptChronology concept = testConceptBuilder.build(stampSequence, builtObjects);
 
       for (final Object obj: builtObjects) {
          if (obj instanceof ConceptChronologyImpl) {

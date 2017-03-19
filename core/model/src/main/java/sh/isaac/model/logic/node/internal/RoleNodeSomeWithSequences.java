@@ -65,7 +65,6 @@ import sh.isaac.model.logic.node.external.RoleNodeSomeWithUuids;
  */
 public final class RoleNodeSomeWithSequences
         extends TypedNodeWithSequences {
-   
    /**
     * Instantiates a new role node some with sequences.
     *

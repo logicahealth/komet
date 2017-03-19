@@ -78,26 +78,25 @@ import sh.isaac.api.util.TimeFlushBufferedOutputStream;
 @PerLookup
 public class BinaryDataWriterProvider
          implements DataWriterService {
-   
    /** The Constant BUFFER_SIZE. */
    private static final int BUFFER_SIZE = 1024;
 
    //~--- fields --------------------------------------------------------------
 
    /** The logger. */
-   private final Logger      logger     = LoggerFactory.getLogger(BinaryDataWriterProvider.class);
-   
+   private final Logger logger = LoggerFactory.getLogger(BinaryDataWriterProvider.class);
+
    /** The pause block. */
-   private final Semaphore   pauseBlock = new Semaphore(1);
-   
+   private final Semaphore pauseBlock = new Semaphore(1);
+
    /** The buffer. */
-   ByteArrayDataBuffer buffer     = new ByteArrayDataBuffer(BUFFER_SIZE);
-   
+   ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(BUFFER_SIZE);
+
    /** The data path. */
-   Path                dataPath;
-   
+   Path dataPath;
+
    /** The output. */
-   DataOutputStream    output;
+   DataOutputStream output;
 
    //~--- constructors --------------------------------------------------------
 
@@ -155,18 +154,21 @@ public class BinaryDataWriterProvider
       }
 
       this.dataPath = path;
-      this.output   = new DataOutputStream(new TimeFlushBufferedOutputStream(new FileOutputStream(this.dataPath.toFile(), true)));
+      this.output = new DataOutputStream(new TimeFlushBufferedOutputStream(new FileOutputStream(this.dataPath.toFile(),
+            true)));
       this.buffer.setExternalData(true);
-      this.logger.info("ibdf changeset writer has been configured to write to " + this.dataPath.toAbsolutePath().toString());
+      this.logger.info("ibdf changeset writer has been configured to write to " +
+                       this.dataPath.toAbsolutePath().toString());
 
       if (!Get.configurationService()
               .inDBBuildMode()) {
          // record this file as already being in the database if we are in 'normal' run mode.
          final MetaContentService mcs = LookupService.get()
-                                               .getService(MetaContentService.class);
+                                                     .getService(MetaContentService.class);
 
          if (mcs != null) {
-            final ConcurrentMap<String, Boolean> processedChangesets = mcs.<String, Boolean>openStore("processedChangesets");
+            final ConcurrentMap<String, Boolean> processedChangesets = mcs.<String,
+                                                                          Boolean>openStore("processedChangesets");
 
             processedChangesets.put(path.getFileName()
                                         .toString(), true);
@@ -220,7 +222,7 @@ public class BinaryDataWriterProvider
          this.buffer.clear();
          ochreObject.putExternal(this.buffer);
          this.output.writeByte(ochreObject.getOchreObjectType()
-                                     .getToken());
+                                          .getToken());
          this.output.writeByte(ochreObject.getDataFormatVersion());
          this.output.writeInt(this.buffer.getLimit());
          this.output.write(this.buffer.getData(), 0, this.buffer.getLimit());

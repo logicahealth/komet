@@ -66,7 +66,6 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  */
 public class ConceptSequenceSet
         extends SequenceSet<ConceptSequenceSet> {
-   
    /** The Constant EMPTY. */
    public final static ConceptSequenceSet EMPTY = new ConceptSequenceSet(true);
 

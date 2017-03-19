@@ -45,7 +45,6 @@ package sh.isaac.api.coordinate;
  * @author kec
  */
 public interface EditCoordinate {
-   
    /**
     * Gets the author sequence.
     *

@@ -45,7 +45,6 @@ package sh.isaac.api.util;
  * @author kec
  */
 public class Hashcode {
-   
    /**
     * Compute.
     *
@@ -53,7 +52,7 @@ public class Hashcode {
     * @return the int
     */
    public static int compute(int... parts) {
-      int hash = 0;
+      int       hash = 0;
       final int len  = parts.length;
 
       for (int i = 0; i < len; i++) {

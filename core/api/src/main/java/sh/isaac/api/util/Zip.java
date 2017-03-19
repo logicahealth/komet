@@ -70,21 +70,20 @@ import net.lingala.zip4j.util.Zip4jConstants;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class Zip {
-   
    /** The total work. */
-   private final ReadOnlyDoubleWrapper totalWork    = new ReadOnlyDoubleWrapper();
-   
+   private final ReadOnlyDoubleWrapper totalWork = new ReadOnlyDoubleWrapper();
+
    /** The work complete. */
    private final ReadOnlyDoubleWrapper workComplete = new ReadOnlyDoubleWrapper();
-   
+
    /** The status. */
-   private final ReadOnlyStringWrapper status       = new ReadOnlyStringWrapper();
-   
+   private final ReadOnlyStringWrapper status = new ReadOnlyStringWrapper();
+
    /** The zf. */
-   private final ZipFile               zf;
-   
+   private final ZipFile zf;
+
    /** The zp. */
-   private final ZipParameters         zp;
+   private final ZipParameters zp;
 
    //~--- constructors --------------------------------------------------------
 
@@ -124,15 +123,17 @@ public class Zip {
       }
 
       outputFolder.mkdir();
-      this.zf = new ZipFile(new File(outputFolder, artifactId + "-" + version + classifierTemp + dataTypeTemp + ".zip"));
+      this.zf = new ZipFile(new File(outputFolder,
+                                     artifactId + "-" + version + classifierTemp + dataTypeTemp + ".zip"));
       this.zf.setRunInThread(true);
       this.zp = new ZipParameters();
       this.zp.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_MAXIMUM);
       this.zp.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
       this.zp.setDefaultFolderPath(zipContentCommonRoot.getAbsolutePath());
 
-      final String rootFolder = (createArtifactTopLevelFolder ? (artifactId + "-" + version + classifierTemp + dataTypeTemp)
-            : "");
+      final String rootFolder = (createArtifactTopLevelFolder
+                                 ? (artifactId + "-" + version + classifierTemp + dataTypeTemp)
+                                 : "");
 
       this.zp.setRootFolderInZip(rootFolder);
       this.zp.setIncludeRootFolder(createArtifactTopLevelFolder);
@@ -153,11 +154,11 @@ public class Zip {
       this.zf.addFiles(dataFiles, this.zp);
 
       while (this.zf.getProgressMonitor()
-               .getResult() == ProgressMonitor.RESULT_WORKING) {
+                    .getResult() == ProgressMonitor.RESULT_WORKING) {
          this.totalWork.set(this.zf.getProgressMonitor()
-                         .getTotalWork());
+                                   .getTotalWork());
          this.workComplete.set(this.zf.getProgressMonitor()
-                            .getWorkCompleted());
+                                      .getWorkCompleted());
          this.status.set("Compressing " + this.zf.getProgressMonitor().getFileName());
          Thread.sleep(100);
       }
@@ -167,9 +168,9 @@ public class Zip {
       this.totalWork.set(1);
 
       if (this.zf.getProgressMonitor()
-            .getResult() == ProgressMonitor.RESULT_ERROR) {
+                 .getResult() == ProgressMonitor.RESULT_ERROR) {
          throw this.zf.getProgressMonitor()
-                 .getException();
+                      .getException();
       }
 
       return this.zf.getFile();

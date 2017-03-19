@@ -72,10 +72,9 @@ import java.util.Comparator;
  */
 public class AlphanumComparator
          implements Comparator<String> {
-   
    /** The case sensitive instance. */
    private static AlphanumComparator caseSensitiveInstance_;
-   
+
    /** The case insensitive instance. */
    private static AlphanumComparator caseInsensitiveInstance_;
 
@@ -114,8 +113,8 @@ public class AlphanumComparator
          return 1;
       }
 
-      int thisMarker = 0;
-      int thatMarker = 0;
+      int       thisMarker = 0;
+      int       thatMarker = 0;
       final int s1Length   = s1.length();
       final int s2Length   = s2.length();
 
@@ -138,7 +137,7 @@ public class AlphanumComparator
             // 0 pad the shorter array, so that they have the same length.
             if (thisChunkInt.length > thatChunkInt.length) {
                final int[] temp         = new int[thisChunkInt.length];
-               int   insertOffset = thisChunkInt.length - thatChunkInt.length;
+               int         insertOffset = thisChunkInt.length - thatChunkInt.length;
 
                for (int i = 0; i < thatChunkInt.length; i++) {
                   temp[insertOffset++] = thatChunkInt[i];
@@ -148,7 +147,7 @@ public class AlphanumComparator
             } else {
                if (thisChunkInt.length < thatChunkInt.length) {
                   final int[] temp         = new int[thatChunkInt.length];
-                  int   insertOffset = thatChunkInt.length - thisChunkInt.length;
+                  int         insertOffset = thatChunkInt.length - thisChunkInt.length;
 
                   for (int i = 0; i < thisChunkInt.length; i++) {
                      temp[insertOffset++] = thisChunkInt[i];
@@ -203,6 +202,7 @@ public class AlphanumComparator
     * @param numericChunk the numeric chunk
     * @return the int[]
     */
+
    /*
     * Take in string (which we assume will pass Integer.ParseInt) and return an array of integers.
     * An array is returned so we don't exceed the limits of int.
@@ -211,8 +211,8 @@ public class AlphanumComparator
     */
    private int[] subChunkNumeric(String numericChunk) {
       final int[] result = new int[(int) Math.ceil(numericChunk.length() / 9.0)];
-      int   s      = 0;
-      int   e      = ((9 > numericChunk.length()) ? numericChunk.length()
+      int         s      = 0;
+      int         e      = ((9 > numericChunk.length()) ? numericChunk.length()
             : 9);
 
       for (int i = 0; i < result.length; i++) {
@@ -260,7 +260,7 @@ public class AlphanumComparator
     */
    private String getChunk(String s, int slength, int marker) {
       final StringBuilder chunk = new StringBuilder();
-      char          c     = s.charAt(marker);
+      char                c     = s.charAt(marker);
 
       chunk.append(c);
       marker++;

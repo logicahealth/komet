@@ -49,18 +49,17 @@ import java.util.Locale;
  * The Class DataType.
  */
 public class DataType {
-   
    /** The data size. */
-   private int                 dataSize_ = -1;
-   
+   private int dataSize_ = -1;
+
    /** The scale. */
-   private int                 scale_    = -1;
-   
+   private int scale_ = -1;
+
    /** The type. */
    private SUPPORTED_DATA_TYPE type_;
-   
+
    /** The allows null. */
-   private boolean             allowsNull_;
+   private boolean allowsNull_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -134,19 +133,18 @@ public class DataType {
     * The Enum SUPPORTED_DATA_TYPE.
     */
    public enum SUPPORTED_DATA_TYPE {
-      
       /** The string. */
       STRING,
-      
+
       /** The integer. */
       INTEGER,
-      
+
       /** The long. */
       LONG,
-      
+
       /** The boolean. */
       BOOLEAN,
-      
+
       /** The bigdecimal. */
       BIGDECIMAL;
 

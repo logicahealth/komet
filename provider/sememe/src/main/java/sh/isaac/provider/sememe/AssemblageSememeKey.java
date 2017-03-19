@@ -46,10 +46,9 @@ package sh.isaac.provider.sememe;
  */
 public class AssemblageSememeKey
          implements Comparable<AssemblageSememeKey> {
-   
    /** The assemblage sequence. */
    int assemblageSequence;
-   
+
    /** The sememe sequence. */
    int sememeSequence;
 

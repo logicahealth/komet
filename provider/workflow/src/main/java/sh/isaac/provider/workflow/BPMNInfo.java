@@ -63,25 +63,24 @@ import sh.isaac.provider.workflow.model.contents.ProcessDetail.EndWorkflowType;
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 public class BPMNInfo {
-   
    /** The Constant UNOWNED_PROCESS. */
    public static final UUID UNOWNED_PROCESS = new UUID(0, 0);
 
-   /**  A universal means of expressing a workflow time stamp. */
+   /** A universal means of expressing a workflow time stamp. */
    final static public DateTimeFormatter workflowDateFormatter = DateTimeFormatter.ofPattern("hh:mm:ssa MM/dd/yy");
 
    //~--- fields --------------------------------------------------------------
 
-   /**  A map of available actions per type of ending workflow. */
+   /** A map of available actions per type of ending workflow. */
    private final Map<EndWorkflowType, Set<AvailableAction>> endNodeTypeMap;
 
    /** A map of available actions per definition from which a workflow may be started. */
    private final Map<UUID, Set<AvailableAction>> definitionStartActionMap;
-   
-   /** The definition id. */
-   private final UUID                            definitionId;
 
-   /**  A map of all states per definition from which a process may be edited. */
+   /** The definition id. */
+   private final UUID definitionId;
+
+   /** A map of all states per definition from which a process may be edited. */
    private final Map<UUID, Set<String>> editStatesMap;
 
    //~--- constructors --------------------------------------------------------
@@ -158,7 +157,7 @@ public class BPMNInfo {
     */
    public boolean isEditState(UUID definitionId, String state) {
       return this.editStatesMap.get(definitionId)
-                          .contains(state);
+                               .contains(state);
    }
 
    /**

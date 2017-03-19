@@ -73,10 +73,9 @@ import sh.isaac.provider.workflow.user.RoleConfigurator;
  */
 public class WorkflowUpdaterTest
         extends AbstractWorkflowProviderTestPackage {
-   
    /** The first concept nid. */
-   private static int firstConceptNid  = 0;
-   
+   private static int firstConceptNid = 0;
+
    /** The second concept nid. */
    private static int secondConceptNid = 0;
 
@@ -120,7 +119,7 @@ public class WorkflowUpdaterTest
     */
    public void testAddComponentsToProcess()
             throws Exception {
-      final UUID          processId = createFirstWorkflowProcess(mainDefinitionId);
+      final UUID    processId = createFirstWorkflowProcess(mainDefinitionId);
       ProcessDetail details   = wp_.getProcessDetailStore()
                                    .get(processId);
 
@@ -236,7 +235,7 @@ public class WorkflowUpdaterTest
     */
    public void testRemoveComponentsFromProcess()
             throws Exception {
-      final UUID          processId = createFirstWorkflowProcess(mainDefinitionId);
+      final UUID    processId = createFirstWorkflowProcess(mainDefinitionId);
       ProcessDetail details   = wp_.getProcessDetailStore()
                                    .get(processId);
 

@@ -58,12 +58,11 @@ import org.apache.mahout.math.list.AbstractList;
  */
 public abstract class AbstractUuidList
         extends AbstractList {
-   
    /** The Constant serialVersionUID. */
-   private static final long       serialVersionUID = 1L;
-   
+   private static final long serialVersionUID = 1L;
+
    /** The c. */
-   private static UuidComparatorBI c                = new UuidUnsigned64BitComparator();
+   private static UuidComparatorBI c = new UuidUnsigned64BitComparator();
 
    //~--- fields --------------------------------------------------------------
 
@@ -542,7 +541,7 @@ public abstract class AbstractUuidList
       }
 
       final int limit = other.size() - 1;
-      int j     = 0;
+      int       j     = 0;
 
       for (int i = 0; i < this.size; i++) {
          if (other.indexOfFromTo(getQuick(i), 0, limit) < 0) {
@@ -640,7 +639,7 @@ public abstract class AbstractUuidList
       }
 
       final int limit = other.size() - 1;
-      int j     = 0;
+      int       j     = 0;
 
       for (int i = 0; i < this.size; i++) {
          if (other.indexOfFromTo(getQuick(i), 0, limit) >= 0) {
@@ -659,9 +658,9 @@ public abstract class AbstractUuidList
     */
    @Override
    public void reverse() {
-      long[] tmp;
-      final int    limit = size() / 2;
-      int    j     = size() - 1;
+      long[]    tmp;
+      final int limit = size() / 2;
+      int       j     = size() - 1;
 
       for (int i = 0; i < limit; ) {  // swap
          tmp = getQuick(i);

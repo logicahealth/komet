@@ -54,7 +54,6 @@ import sh.isaac.api.util.PasswordHasher;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class PasswordHashingTest {
-   
    /**
     * Encrypt test four.
     *

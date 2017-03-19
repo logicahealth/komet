@@ -53,7 +53,6 @@ import sh.isaac.api.snapshot.Snapshot;
  * @author kec
  */
 public class Snapshots {
-   
    /**
     * Gets the default solor inferred snapshot.
     *

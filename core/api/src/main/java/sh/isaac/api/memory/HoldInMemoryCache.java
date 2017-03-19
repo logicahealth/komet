@@ -53,20 +53,19 @@ import java.util.concurrent.atomic.AtomicReference;
  * Created by kec on 4/10/15.
  */
 public class HoldInMemoryCache {
-   
    /** The Constant CACHE_SIZE. */
-   private static final int                                              CACHE_SIZE  = 512;
-   
+   private static final int CACHE_SIZE = 512;
+
    /** The Constant GENERATIONS. */
-   private static final int                                              GENERATIONS = 3;
-   
+   private static final int GENERATIONS = 3;
+
    /** The Constant queue. */
-   private static final LinkedBlockingDeque<Set<MemoryManagedReference>> queue       = new LinkedBlockingDeque();
-   
+   private static final LinkedBlockingDeque<Set<MemoryManagedReference>> queue = new LinkedBlockingDeque();
+
    /** The Constant cacheRef. */
    private static final AtomicReference<Set<MemoryManagedReference>> cacheRef =
       new AtomicReference<>(new ConcurrentSkipListSet<>());
-   
+
    /** The Constant cacheCount. */
    private static final AtomicInteger cacheCount = new AtomicInteger();
 

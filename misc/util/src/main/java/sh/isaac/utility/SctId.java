@@ -52,21 +52,21 @@ import org.apache.commons.lang3.StringUtils;
  * - Only positive integer values are permitted.
  * - The minimum permitted value is 100,000 (6 digits)
  * - The maximum permitted value is 999,999,999,999,999,999 (18-digits).
- * 
+ *
  * As a result of rules for the partition-identifier and check-digit, many integers within this range are not valid SCTIDs.
- * 
+ *
  * Extension SCTID (MSD)Extension Item ID (18-11)Namespace ID(10-4)Partition ID(3-2)Check-digit(1)(LSD)
- * 
+ *
  * In java, the SCTID is handled as a long.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  * @see <a href="http://www.snomed.org/tig?t=trg2main_sctid">IHTSDO Technical Implementation Guide - SCT ID</a>
  */
 public class SctId {
-   
    /** The Fn F. */
+
    // parts of the SCTID algorithm
-   private static int[][] FnF_       = {
+   private static int[][] FnF_ = {
       {
          0, 1, 2, 3, 4, 5, 6, 7, 8, 9
       }, {
@@ -87,9 +87,9 @@ public class SctId {
          0, 0, 0, 0, 0, 0, 0, 0, 0, 0
       }
    };
-   
+
    /** The Dihedral. */
-   private static int[][] Dihedral_  = {
+   private static int[][] Dihedral_ = {
       {
          0, 1, 2, 3, 4, 5, 6, 7, 8, 9
       }, {
@@ -112,7 +112,6 @@ public class SctId {
          9, 8, 7, 6, 5, 4, 3, 2, 1, 0
       }
    };
-   
 
    //~--- static initializers -------------------------------------------------
 

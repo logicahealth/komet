@@ -71,7 +71,6 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionActiveLuceneMatch
         extends DescriptionLuceneMatch {
-   
    /**
     * Instantiates a new description active lucene match.
     */
@@ -99,7 +98,7 @@ public class DescriptionActiveLuceneMatch
    @Override
    public final NidSet computeComponents(NidSet incomingComponents) {
       final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                      .get(this.viewCoordinateKey);
+                                                                                            .get(this.viewCoordinateKey);
 
       getResultsCache().and(incomingComponents);
       incomingComponents.stream().forEach((nid) -> {

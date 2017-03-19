@@ -66,7 +66,6 @@ import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
  */
 public final class ConceptNodeWithSequences
         extends AbstractLogicNode {
-   
    /** The concept sequence. */
    int conceptSequence;
 
@@ -188,8 +187,9 @@ public final class ConceptNodeWithSequences
     */
    @Override
    public String toString(String nodeIdSuffix) {
-      return "Concept[" + getNodeIndex() + nodeIdSuffix + "] " + Get.conceptDescriptionText(this.conceptSequence) + " <" +
-             Get.identifierService().getConceptSequence(this.conceptSequence) + ">" + super.toString(nodeIdSuffix);
+      return "Concept[" + getNodeIndex() + nodeIdSuffix + "] " + Get.conceptDescriptionText(this.conceptSequence) +
+             " <" + Get.identifierService().getConceptSequence(this.conceptSequence) + ">" +
+             super.toString(nodeIdSuffix);
    }
 
    /**

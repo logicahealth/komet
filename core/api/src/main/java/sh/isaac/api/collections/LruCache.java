@@ -54,7 +54,6 @@ import java.util.Map;
  */
 public class LruCache<K, V>
         extends LinkedHashMap<K, V> {
-   
    /** The Constant serialVersionUID. */
    private static final long serialVersionUID = -2584554176457193968L;
 

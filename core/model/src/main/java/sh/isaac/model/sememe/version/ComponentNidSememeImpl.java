@@ -63,7 +63,6 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 public class ComponentNidSememeImpl
         extends SememeVersionImpl<ComponentNidSememeImpl>
          implements MutableComponentNidSememe<ComponentNidSememeImpl> {
-   
    /** The component nid. */
    int componentNid = Integer.MAX_VALUE;
 
@@ -119,8 +118,8 @@ public class ComponentNidSememeImpl
 
       case SEMEME:
          final Optional<? extends SememeChronology<? extends SememeVersion<?>>> optionalSememe = Get.sememeService()
-                                                                                              .getOptionalSememe(
-                                                                                                 this.componentNid);
+                                                                                                    .getOptionalSememe(
+                                                                                                       this.componentNid);
 
          if (optionalSememe.isPresent()) {
             sb.append(optionalSememe.get()

@@ -59,7 +59,6 @@ import sh.isaac.api.component.sememe.version.SememeVersion;
  * @param <V> type of SememeVersions provided by this snapshot service.
  */
 public interface SememeSnapshotService<V extends SememeVersion> {
-   
    /**
     * Gets the latest description versions for component.
     *

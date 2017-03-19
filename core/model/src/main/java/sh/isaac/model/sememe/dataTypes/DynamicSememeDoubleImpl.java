@@ -61,7 +61,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 public class DynamicSememeDoubleImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeDouble {
-   
    /** The property. */
    private ObjectProperty<Double> property_;
 
@@ -84,8 +83,8 @@ public class DynamicSememeDoubleImpl
    public DynamicSememeDoubleImpl(double d) {
       super();
       this.data_ = ByteBuffer.allocate(8)
-                        .putDouble(d)
-                        .array();
+                             .putDouble(d)
+                             .array();
    }
 
    /**

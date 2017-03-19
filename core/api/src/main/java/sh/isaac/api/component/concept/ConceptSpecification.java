@@ -53,7 +53,6 @@ import sh.isaac.api.identity.IdentifiedObject;
  */
 public interface ConceptSpecification
         extends IdentifiedObject {
-   
    /** The Constant FIELD_SEPARATOR. */
    public static final String FIELD_SEPARATOR = " | ";
 

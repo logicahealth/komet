@@ -53,6 +53,7 @@ import java.util.List;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.value.ChangeListener;
+
 import javafx.concurrent.Task;
 
 import org.apache.commons.lang3.StringUtils;
@@ -75,7 +76,6 @@ import sh.isaac.pombuilder.converter.SupportedConverterTypes;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class SrcUploadCreator {
-   
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
@@ -189,8 +189,8 @@ public class SrcUploadCreator {
                             uploadType.getLicenseInformation()[0]);  // we only use the first license for source upload
                noticeAppend.append(uploadType.getNoticeInformation()[0]);  // only use the first notice info
 
-               final String tagWithoutRevNumber = pomSwaps.get("#GROUPID#") + "/" + pomSwaps.get("#ARTIFACTID#") + "/" +
-                                            pomSwaps.get("#VERSION#");
+               final String tagWithoutRevNumber = pomSwaps.get("#GROUPID#") + "/" + pomSwaps.get("#ARTIFACTID#") +
+                                                  "/" + pomSwaps.get("#VERSION#");
 
                LOG.debug("Desired tag (withoutRevNumber): {}", tagWithoutRevNumber);
 
@@ -202,8 +202,8 @@ public class SrcUploadCreator {
                             Arrays.toString(existingTags.toArray(new String[existingTags.size()])));
                }
 
-               final int    highestBuildRevision = GitPublish.readHighestRevisionNumber(existingTags, tagWithoutRevNumber);
-               String tag;
+               final int highestBuildRevision = GitPublish.readHighestRevisionNumber(existingTags, tagWithoutRevNumber);
+               String    tag;
 
                // Fix version number
                if (highestBuildRevision == -1) {
@@ -232,12 +232,12 @@ public class SrcUploadCreator {
                LOG.debug("Zipping content");
 
                final Zip z = new Zip(pomSwaps.get("#ARTIFACTID#"),
-                               pomSwaps.get("#VERSION#"),
-                               null,
-                               null,
-                               new File(baseFolder, "target"),
-                               nativeSource,
-                               false);
+                                     pomSwaps.get("#VERSION#"),
+                                     null,
+                                     null,
+                                     new File(baseFolder, "target"),
+                                     nativeSource,
+                                     false);
                final ArrayList<File> toZip = new ArrayList<>();
 
                for (final File f: nativeSource.listFiles()) {
@@ -249,12 +249,15 @@ public class SrcUploadCreator {
                   }
                }
 
-               z.getStatus().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> updateMessage(newValue));
+               z.getStatus()
+                .addListener((ChangeListener<String>) (observable, oldValue, newValue) -> updateMessage(newValue));
                z.getTotalWork()
                 .add(z.getWorkComplete())
-                .addListener((ChangeListener<Number>) (observable, oldValue, newValue) -> updateProgress(z.getWorkComplete()
-				                   .get(), z.getTotalWork()
-				                         .get()));
+                .addListener((ChangeListener<Number>) (observable, oldValue,
+                     newValue) -> updateProgress(z.getWorkComplete()
+                                                  .get(),
+                                                 z.getTotalWork()
+                                                  .get()));
 
                // This blocks till complete
                final File zipFile = z.addFiles(toZip);
@@ -263,16 +266,20 @@ public class SrcUploadCreator {
                updateTitle("Publishing files to the Artifact Repository");
 
                final MavenPublish pm = new MavenPublish(pomSwaps.get("#GROUPID#"),
-                                                  pomSwaps.get("#ARTIFACTID#"),
-                                                  pomSwaps.get("#VERSION#"),
-                                                  new File(baseFolder, "pom.xml"),
-                                                  new File[] { zipFile },
-                                                  artifactRepositoryURL,
-                                                  repositoryUsername,
-                                                  repositoryPassword);
+                                                        pomSwaps.get("#ARTIFACTID#"),
+                                                        pomSwaps.get("#VERSION#"),
+                                                        new File(baseFolder, "pom.xml"),
+                                                        new File[] { zipFile },
+                                                        artifactRepositoryURL,
+                                                        repositoryUsername,
+                                                        repositoryPassword);
 
-               pm.progressProperty().addListener((ChangeListener<Number>) (observable, oldValue, newValue) -> updateProgress(pm.getWorkDone(), pm.getTotalWork()));
-               pm.messageProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> updateMessage(newValue));
+               pm.progressProperty()
+                 .addListener((ChangeListener<Number>) (observable, oldValue,
+                     newValue) -> updateProgress(pm.getWorkDone(),
+                                                 pm.getTotalWork()));
+               pm.messageProperty()
+                 .addListener((ChangeListener<String>) (observable, oldValue, newValue) -> updateMessage(newValue));
                WorkExecutors.get()
                             .getExecutor()
                             .execute(pm);

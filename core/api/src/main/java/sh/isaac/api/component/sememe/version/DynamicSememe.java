@@ -59,7 +59,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDes
  */
 public interface DynamicSememe<T extends DynamicSememe<T>>
         extends SememeVersion<T> {
-   
    /**
     * Return a string representation of the data fields.
     *

@@ -47,7 +47,6 @@ package sh.isaac.api.component.sememe.version;
  */
 public interface MutableDescriptionSememe<V extends MutableDescriptionSememe<V>>
         extends DescriptionSememe<V> {
-   
    /**
     * Sets the case significance concept sequence.
     *

@@ -64,7 +64,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public class LiteralNodeInstant
         extends LiteralNode {
-   
    /** The literal value. */
    Instant literalValue;
 
@@ -153,7 +152,8 @@ public class LiteralNodeInstant
     */
    @Override
    public String toString(String nodeIdSuffix) {
-      return "Instant literal[" + getNodeIndex() + nodeIdSuffix + "]" + this.literalValue + super.toString(nodeIdSuffix);
+      return "Instant literal[" + getNodeIndex() + nodeIdSuffix + "]" + this.literalValue +
+             super.toString(nodeIdSuffix);
    }
 
    /**

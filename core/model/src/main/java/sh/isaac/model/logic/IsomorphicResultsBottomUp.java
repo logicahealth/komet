@@ -73,26 +73,27 @@ public class IsomorphicResultsBottomUp
     * Nodes that are relationship roots in the comparisonExpression.
     */
    private final Map<RelationshipKey, Integer> comparisonRelationshipNodesMap = new TreeMap<>();
-   
+
    /** The comparison deletion roots. */
-   SequenceSet<?>                              comparisonDeletionRoots        = new SequenceSet<>();
-   
+   SequenceSet<?> comparisonDeletionRoots = new SequenceSet<>();
+
    /** The reference addition roots. */
-   SequenceSet<?>                              referenceAdditionRoots         = new SequenceSet<>();
-   
+   SequenceSet<?> referenceAdditionRoots = new SequenceSet<>();
+
    /** The comparison expression. */
-   LogicalExpressionOchreImpl                  comparisonExpression;
-   
+   LogicalExpressionOchreImpl comparisonExpression;
+
    /** The reference expression. */
-   LogicalExpressionOchreImpl                  referenceExpression;
-   
+   LogicalExpressionOchreImpl referenceExpression;
+
    /** The isomorphic expression. */
-   LogicalExpressionOchreImpl                  isomorphicExpression;
-   
+   LogicalExpressionOchreImpl isomorphicExpression;
+
    /** The merged expression. */
-   LogicalExpressionOchreImpl                  mergedExpression;
+   LogicalExpressionOchreImpl mergedExpression;
 
    /** The isomorphic solution. */
+
    /*
     * isomorphicSolution is a mapping from logicNodes in the referenceExpression to logicNodes
     * in the comparisonExpression. The index of the isomorphicSolution is the nodeId
@@ -102,18 +103,18 @@ public class IsomorphicResultsBottomUp
     * comparisonExpression as part of the isomorphicSolution.
     */
    IsomorphicSolution isomorphicSolution;
-   
+
    /** The reference visit data. */
-   TreeNodeVisitData  referenceVisitData;
-   
+   TreeNodeVisitData referenceVisitData;
+
    /** The comparison visit data. */
-   TreeNodeVisitData  comparisonVisitData;
-   
+   TreeNodeVisitData comparisonVisitData;
+
    /** The reference expression to merged node id map. */
-   int[]              referenceExpressionToMergedNodeIdMap;
-   
+   int[] referenceExpressionToMergedNodeIdMap;
+
    /** The comparison expression to reference node id map. */
-   int[]              comparisonExpressionToReferenceNodeIdMap;
+   int[] comparisonExpressionToReferenceNodeIdMap;
 
    //~--- constructors --------------------------------------------------------
 
@@ -213,7 +214,7 @@ public class IsomorphicResultsBottomUp
       }
 
       final HashMap<Integer, HashSet<IsomorphicSolution>> scoreSolutionMap = new HashMap<>();
-      int                                           maxScore         = 0;
+      int                                                 maxScore         = 0;
 
       for (final IsomorphicSolution solution: possibleSolutions) {
          if (solution.getScore() >= maxScore) {
@@ -290,12 +291,12 @@ public class IsomorphicResultsBottomUp
             } else if (i != this.isomorphicSolution.getSolution()[i]) {
                builder.append("c]* ");
                builder.append(this.referenceExpression.getNode(i)
-                                                 .toString("r"));
+                     .toString("r"));
                builder.append("\n");
             } else {
                builder.append("c]  ");
                builder.append(this.referenceExpression.getNode(i)
-                                                 .toString("r"));
+                     .toString("r"));
                builder.append("\n");
             }
          }
@@ -355,7 +356,7 @@ public class IsomorphicResultsBottomUp
                             LogicalExpressionOchreImpl originExpression,
                             int rootToAddParentSequence) {
       final LogicNode[] descendents           = rootToAdd.getDescendents();
-      int         mergedExpressionIndex = this.mergedExpression.getNodeCount();
+      int               mergedExpressionIndex = this.mergedExpression.getNodeCount();
       final int[]       additionSolution      = new int[originExpression.getNodeCount()];
 
       Arrays.fill(additionSolution, -1);
@@ -366,8 +367,8 @@ public class IsomorphicResultsBottomUp
       }
 
       final LogicNode[] addedNodes = this.mergedExpression.addNodes(originExpression,
-                                                              additionSolution,
-                                                              rootToAdd.getNodeIndex());
+                                                                    additionSolution,
+                                                                    rootToAdd.getNodeIndex());
 
       // Need convert rootToAddParentSequence from originExpression nodeId to mergedExpression nodeId.
       this.mergedExpression.getNode(rootToAddParentSequence)
@@ -427,7 +428,8 @@ public class IsomorphicResultsBottomUp
       comparisonNodesNotInSolution.stream().forEach((deletedNode) -> {
                int deletedRoot = deletedNode;
 
-               while (comparisonNodesNotInSolution.contains(this.comparisonVisitData.getPredecessorSequence(deletedRoot))) {
+               while (
+                  comparisonNodesNotInSolution.contains(this.comparisonVisitData.getPredecessorSequence(deletedRoot))) {
                   deletedRoot = this.comparisonVisitData.getPredecessorSequence(deletedRoot);
                }
 
@@ -452,7 +454,7 @@ public class IsomorphicResultsBottomUp
       possibleSolutions.forEach((incomingPossibleSolution) -> {
                                    incomingPossibleNodes.forEach((isomorphicSearchNode) -> {
                   if (this.comparisonExpression.getNode(isomorphicSearchNode.nodeId)
-                                          .equals(this.referenceExpression.getNode(solutionNodeId))) {
+                                               .equals(this.referenceExpression.getNode(solutionNodeId))) {
                      final int[] generatedPossibleSolution = new int[incomingPossibleSolution.getSolution().length];
 
                      System.arraycopy(incomingPossibleSolution.getSolution(),
@@ -463,8 +465,8 @@ public class IsomorphicResultsBottomUp
                      generatedPossibleSolution[solutionNodeId] = isomorphicSearchNode.nodeId;
 
                      final IsomorphicSolution isomorphicSolution = new IsomorphicSolution(generatedPossibleSolution,
-                                                                                    this.referenceVisitData,
-                                                                                    this.comparisonVisitData);
+                                                                                          this.referenceVisitData,
+                                                                                          this.comparisonVisitData);
 
                      if (isomorphicSolution.legal) {
                         outgoingPossibleNodes.add(isomorphicSolution);
@@ -485,6 +487,7 @@ public class IsomorphicResultsBottomUp
     *
     * @return the isomorphic solution
     */
+
    // ? score based on number or leafs included, with higher score for smaller number of intermediate logicNodes.
    private IsomorphicSolution isomorphicAnalysis() {
       final TreeSet<IsomorphicSearchBottomUpNode> comparisonSearchNodeSet = new TreeSet<>();
@@ -521,8 +524,8 @@ public class IsomorphicResultsBottomUp
       // Test for second level matches... Need to do so to make intermediate logicNodes (necessary set/sufficient set)
       // are included in the solution, even if there are no matching leaf logicNodes.
       this.referenceExpression.getRoot().getChildStream().forEach((referenceRootChild) -> {
-                                     this.comparisonExpression.getRoot().getChildStream().forEach((comparisonRootChild) -> {
-                                        // Necessary/sufficient set logicNodes.
+                                          this.comparisonExpression.getRoot().getChildStream().forEach((comparisonRootChild) -> {
+                                             // Necessary/sufficient set logicNodes.
                   if (referenceRootChild.equals(comparisonRootChild)) {
                      seedSolution[referenceRootChild.getNodeIndex()] = comparisonRootChild.getNodeIndex();
                      nodesProcessed.add(referenceRootChild.getNodeIndex());
@@ -542,11 +545,11 @@ public class IsomorphicResultsBottomUp
                                                 });
                   }
                });
-                                  });
+                                       });
       possibleSolutions.add(new IsomorphicSolution(seedSolution, this.referenceVisitData, this.comparisonVisitData));
 
       final Map<Integer, SortedSet<IsomorphicSearchBottomUpNode>> possibleMatches = new TreeMap<>();
-      SequenceSet<?>                                        nodesToTry      = this.referenceVisitData.getLeafNodes();
+      SequenceSet<?>                                              nodesToTry = this.referenceVisitData.getLeafNodes();
 
       while (!nodesToTry.isEmpty()) {
          possibleMatches.clear();
@@ -555,7 +558,7 @@ public class IsomorphicResultsBottomUp
 
          nodesToTry.stream().forEach((referenceNodeId) -> {
                                final int predecessorSequence = this.referenceVisitData.getPredecessorSequence(
-                                                            referenceNodeId);  // only add if the node matches. ?
+                                                                  referenceNodeId);  // only add if the node matches. ?
 
                                if (predecessorSequence >= 0) {
                                   if (!nodesProcessed.contains(predecessorSequence)) {
@@ -672,7 +675,8 @@ public class IsomorphicResultsBottomUp
     */
    @Override
    public final Stream<LogicNode> getAddedRelationshipRoots() {
-      final TreeSet<RelationshipKey> addedRelationshipRoots = new TreeSet<>(this.referenceRelationshipNodesMap.keySet());
+      final TreeSet<RelationshipKey> addedRelationshipRoots =
+         new TreeSet<>(this.referenceRelationshipNodesMap.keySet());
 
       addedRelationshipRoots.removeAll(this.comparisonRelationshipNodesMap.keySet());
       return addedRelationshipRoots.stream()
@@ -689,7 +693,7 @@ public class IsomorphicResultsBottomUp
    @Override
    public Stream<LogicNode> getAdditionalNodeRoots() {
       return this.referenceAdditionRoots.stream()
-                                   .mapToObj((nodeId) -> this.referenceExpression.getNode(nodeId));
+                                        .mapToObj((nodeId) -> this.referenceExpression.getNode(nodeId));
    }
 
    /**
@@ -710,7 +714,7 @@ public class IsomorphicResultsBottomUp
    @Override
    public Stream<LogicNode> getDeletedNodeRoots() {
       return this.comparisonDeletionRoots.stream()
-                                    .mapToObj((nodeId) -> this.comparisonExpression.getNode(nodeId));
+                                         .mapToObj((nodeId) -> this.comparisonExpression.getNode(nodeId));
    }
 
    /**
@@ -720,7 +724,8 @@ public class IsomorphicResultsBottomUp
     */
    @Override
    public final Stream<LogicNode> getDeletedRelationshipRoots() {
-      final TreeSet<RelationshipKey> deletedRelationshipRoots = new TreeSet<>(this.comparisonRelationshipNodesMap.keySet());
+      final TreeSet<RelationshipKey> deletedRelationshipRoots =
+         new TreeSet<>(this.comparisonRelationshipNodesMap.keySet());
 
       deletedRelationshipRoots.removeAll(this.referenceRelationshipNodesMap.keySet());
       return deletedRelationshipRoots.stream()
@@ -766,7 +771,8 @@ public class IsomorphicResultsBottomUp
     */
    @Override
    public Stream<LogicNode> getSharedRelationshipRoots() {
-      final TreeSet<RelationshipKey> sharedRelationshipRoots = new TreeSet<>(this.referenceRelationshipNodesMap.keySet());
+      final TreeSet<RelationshipKey> sharedRelationshipRoots =
+         new TreeSet<>(this.referenceRelationshipNodesMap.keySet());
 
       sharedRelationshipRoots.retainAll(this.comparisonRelationshipNodesMap.keySet());
       return sharedRelationshipRoots.stream()

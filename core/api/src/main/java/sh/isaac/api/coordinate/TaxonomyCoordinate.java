@@ -52,7 +52,6 @@ import java.util.UUID;
  */
 public interface TaxonomyCoordinate
         extends TimeBasedAnalogMaker<TaxonomyCoordinate>, StateBasedAnalogMaker<TaxonomyCoordinate> {
-   
    /**
     * Make analog.
     *

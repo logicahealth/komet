@@ -54,7 +54,6 @@ import sh.isaac.model.ObjectVersionImpl;
 public class ConceptVersionImpl
         extends ObjectVersionImpl<ConceptChronologyImpl, ConceptVersionImpl>
          implements ConceptVersion<ConceptVersionImpl> {
-   
    /**
     * Instantiates a new concept version impl.
     *

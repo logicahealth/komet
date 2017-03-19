@@ -59,10 +59,9 @@ import sh.isaac.api.Get;
  */
 public class SequentialAggregateTask<T>
         extends TimedTask<T> {
-   
    /** The current task. */
-   int       currentTask = 0;
-   
+   int currentTask = 0;
+
    /** The sub tasks. */
    Task<?>[] subTasks;
 
@@ -92,7 +91,8 @@ public class SequentialAggregateTask<T>
 
                                           if (taskId < subTasks.length) {
                                              updateMessage("Executing subtask: " + subTasks[taskId].getTitle() + " [" +
-                                             Integer.toString(this.currentTask + 1) + " of " + subTasks.length + " tasks]");
+                                             Integer.toString(this.currentTask + 1) + " of " + subTasks.length +
+                                             " tasks]");
                                              updateProgress((this.currentTask * 100) + Math.max(0,
                                                    subTasks[taskId].getProgress() * 100),
                                                    subTasks.length * 100);

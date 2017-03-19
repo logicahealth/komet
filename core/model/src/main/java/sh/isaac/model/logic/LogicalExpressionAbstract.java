@@ -46,7 +46,6 @@ package sh.isaac.model.logic;
  */
 public abstract class LogicalExpressionAbstract
         extends LogicalExpressionOchreImpl {
-   
    /**
     * Instantiates a new logical expression abstract.
     */

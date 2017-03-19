@@ -47,7 +47,6 @@ package sh.isaac.api;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface RemoteServiceInfo {
-   
    /**
     * Gets the password.
     *

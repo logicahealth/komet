@@ -84,39 +84,38 @@ import sh.isaac.api.util.HeadlessToolkit;
  */
 @SuppressWarnings("restriction")
 public class LookupService {
-   
    /** The Constant LOG. */
-   private static final Logger            LOG                                = LogManager.getLogger();
-   
+   private static final Logger LOG = LogManager.getLogger();
+
    /** The looker. */
-   private static volatile ServiceLocator looker                             = null;
-   
+   private static volatile ServiceLocator looker = null;
+
    /** The fx platform up. */
-   private static volatile boolean        fxPlatformUp                       = false;
-   
+   private static volatile boolean fxPlatformUp = false;
+
    /** The Constant DATABASE_SERVICES_STARTED_RUNLEVEL. */
-   public static final int                DATABASE_SERVICES_STARTED_RUNLEVEL = 2;
-   
+   public static final int DATABASE_SERVICES_STARTED_RUNLEVEL = 2;
+
    /** The Constant ISAAC_DEPENDENTS_RUNLEVEL. */
-   public static final int                ISAAC_DEPENDENTS_RUNLEVEL          = 5;
-   
+   public static final int ISAAC_DEPENDENTS_RUNLEVEL = 5;
+
    /** The Constant ISAAC_STARTED_RUNLEVEL. */
-   public static final int                ISAAC_STARTED_RUNLEVEL             = 4;
-   
+   public static final int ISAAC_STARTED_RUNLEVEL = 4;
+
    /** The Constant METADATA_STORE_STARTED_RUNLEVEL. */
-   public static final int                METADATA_STORE_STARTED_RUNLEVEL    = -1;
-   
+   public static final int METADATA_STORE_STARTED_RUNLEVEL = -1;
+
    /** The Constant WORKERS_STARTED_RUNLEVEL. */
-   public static final int                WORKERS_STARTED_RUNLEVEL           = -2;
-   
+   public static final int WORKERS_STARTED_RUNLEVEL = -2;
+
    /** The Constant SYSTEM_STOPPED_RUNLEVEL. */
-   public static final int                SYSTEM_STOPPED_RUNLEVEL            = -3;
-   
+   public static final int SYSTEM_STOPPED_RUNLEVEL = -3;
+
    /** The Constant STARTUP_LOCK. */
-   private static final Object            STARTUP_LOCK                       = new Object();
-   
+   private static final Object STARTUP_LOCK = new Object();
+
    /** The discovered validity value. */
-   private static DatabaseValidity        discoveredValidityValue            = null;
+   private static DatabaseValidity discoveredValidityValue = null;
 
    //~--- methods -------------------------------------------------------------
 
@@ -209,25 +208,25 @@ public class LookupService {
       LOG.info("Background starting ISAAC services");
 
       final Thread backgroundLoad = new Thread(() -> {
-                                            try {
-                                               startupIsaac();
-                                               LOG.info("Background start complete - runlevel now " +
-                                               getService(RunLevelController.class).getCurrentRunLevel());
+               try {
+                  startupIsaac();
+                  LOG.info("Background start complete - runlevel now " +
+                           getService(RunLevelController.class).getCurrentRunLevel());
 
-                                               if (callWhenStartComplete != null) {
-                                                  callWhenStartComplete.accept(isIsaacStarted(), null);
-                                               }
-                                            } catch (final Exception e) {
-                                               LOG.warn("Background start failed - runlevel now " +
-                                               getService(RunLevelController.class).getCurrentRunLevel(),
-                                                     e);
+                  if (callWhenStartComplete != null) {
+                     callWhenStartComplete.accept(isIsaacStarted(), null);
+                  }
+               } catch (final Exception e) {
+                  LOG.warn("Background start failed - runlevel now " +
+                           getService(RunLevelController.class).getCurrentRunLevel(),
+                           e);
 
-                                               if (callWhenStartComplete != null) {
-                                                  callWhenStartComplete.accept(false, e);
-                                               }
-                                            }
-                                         },
-                                         "Datastore init thread");
+                  if (callWhenStartComplete != null) {
+                     callWhenStartComplete.accept(false, e);
+                  }
+               }
+            },
+                                               "Datastore init thread");
 
       backgroundLoad.start();
    }
@@ -253,6 +252,7 @@ public class LookupService {
    /**
     * Validate database folder status.
     */
+
    /*
     * Check database directories. Either all must exist or none may exist. Inconsistent state suggests database
     * corruption
@@ -309,15 +309,15 @@ public class LookupService {
                startupFxPlatform();
 
                final ArrayList<String> packagesToSearch = new ArrayList<>(Arrays.asList("sh.isaac",
-                                                                                  "org.ihtsdo",
-                                                                                  "org.glassfish",
-                                                                                  "com.informatics"));
+                                                                                        "org.ihtsdo",
+                                                                                        "org.glassfish",
+                                                                                        "com.informatics"));
                final boolean readInhabitantFiles = Boolean.valueOf(System.getProperty(Constants.READ_INHABITANT_FILES,
-                                                                                "false"));
+                                                                                      "false"));
 
                if (System.getProperty(Constants.EXTRA_PACKAGES_TO_SEARCH) != null) {
                   final String[] extraPackagesToSearch = System.getProperty(Constants.EXTRA_PACKAGES_TO_SEARCH)
-                                                         .split(";");
+                                                               .split(";");
 
                   packagesToSearch.addAll(Arrays.asList(extraPackagesToSearch));
                }

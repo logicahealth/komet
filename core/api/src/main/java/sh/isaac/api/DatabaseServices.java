@@ -57,21 +57,19 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface DatabaseServices {
-   
    /**
     * The Enum DatabaseValidity.
     */
    public enum DatabaseValidity {
-      
       /** The not set. */
       NOT_SET,
-      
+
       /** The missing directory. */
       MISSING_DIRECTORY,
-      
+
       /** The empty directory. */
       EMPTY_DIRECTORY,
-      
+
       /** The populated directory. */
       POPULATED_DIRECTORY
    }
@@ -83,6 +81,7 @@ public interface DatabaseServices {
    /**
     * Clear database validity value.
     */
+
    /*
     * Clear flag indicating that database has had its validity calculated. Will force a real-time investigation second time through
     */
@@ -95,6 +94,7 @@ public interface DatabaseServices {
     *
     * @return the database folder
     */
+
    /*
     * Flag indicating that folder path of the database.
     */
@@ -105,6 +105,7 @@ public interface DatabaseServices {
     *
     * @return the database validity status
     */
+
    /*
     * get database validity status
     */

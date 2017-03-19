@@ -59,21 +59,20 @@ import sh.isaac.api.util.Hashcode;
  * @author kec
  */
 public class UncommittedStamp {
-   
    /** The hash code. */
-   public int   hashCode = Integer.MAX_VALUE;
-   
+   public int hashCode = Integer.MAX_VALUE;
+
    /** The status. */
    public State status;
-   
+
    /** The author sequence. */
-   public int   authorSequence;
-   
+   public int authorSequence;
+
    /** The module sequence. */
-   public int   moduleSequence;
-   
+   public int moduleSequence;
+
    /** The path sequence. */
-   public int   pathSequence;
+   public int pathSequence;
 
    //~--- constructors --------------------------------------------------------
 
@@ -154,7 +153,8 @@ public class UncommittedStamp {
    @Override
    public int hashCode() {
       if (this.hashCode == Integer.MAX_VALUE) {
-         this.hashCode = Hashcode.compute(new int[] { this.status.ordinal(), this.authorSequence, this.pathSequence, this.moduleSequence });
+         this.hashCode = Hashcode.compute(new int[] { this.status.ordinal(), this.authorSequence, this.pathSequence,
+               this.moduleSequence });
       }
 
       return this.hashCode;

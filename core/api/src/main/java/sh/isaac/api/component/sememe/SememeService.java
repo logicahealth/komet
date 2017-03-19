@@ -68,7 +68,6 @@ import sh.isaac.api.coordinate.StampPosition;
 @Contract
 public interface SememeService
         extends DatabaseServices {
-   
    /**
     * Of type.
     *
@@ -81,8 +80,8 @@ public interface SememeService
    /**
     * Write a sememe to the sememe service. Will not overwrite a sememe if one already exists, rather it will
     * merge the written sememe with the provided sememe.
-    * 
-    * 
+    *
+    *
     * The persistence of the concept is dependent on the persistence
     * of the underlying service.
     *

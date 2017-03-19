@@ -82,34 +82,40 @@ import sh.isaac.utility.Frills;
  */
 public class MappingSet
         extends MappingObject {
-   
    /** The Constant LOG. */
-   private static final Logger                LOG            = LoggerFactory.getLogger(MappingSet.class);
-   
+   private static final Logger LOG = LoggerFactory.getLogger(MappingSet.class);
+
    /** The Constant nameComparator. */
-   public static final Comparator<MappingSet> nameComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getName(), o2.getName());
-   
+   public static final Comparator<MappingSet> nameComparator =
+      (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getName(),
+                                                       o2.getName());
+
    /** The Constant purposeComparator. */
-   public static final Comparator<MappingSet> purposeComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getPurpose(), o2.getPurpose());
-   
+   public static final Comparator<MappingSet> purposeComparator =
+      (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getPurpose(),
+                                                       o2.getPurpose());
+
    /** The Constant descriptionComparator. */
-   public static final Comparator<MappingSet> descriptionComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getDescription(), o2.getDescription());
+   public static final Comparator<MappingSet> descriptionComparator =
+      (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getDescription(),
+                                                       o2.getDescription());
 
    //~--- fields --------------------------------------------------------------
 
    /** The name property. */
-   private final SimpleStringProperty nameProperty        = new SimpleStringProperty();
-   
+   private final SimpleStringProperty nameProperty = new SimpleStringProperty();
+
    /** The purpose property. */
-   private final SimpleStringProperty purposeProperty     = new SimpleStringProperty();
-   
+   private final SimpleStringProperty purposeProperty = new SimpleStringProperty();
+
    /** The description property. */
    private final SimpleStringProperty descriptionProperty = new SimpleStringProperty();
-   
+
    /** The inverse name property. */
    private final SimpleStringProperty inverseNameProperty = new SimpleStringProperty();
 
    /** The primordial UUID. */
+
    // private String name, inverseName, description, purpose;
    private UUID primordialUUID;
 
@@ -142,7 +148,7 @@ public class MappingSet
 
       if (mappingConcept.isPresent()) {
          this.primordialUUID = mappingConcept.get()
-                                        .getPrimordialUuid();
+               .getPrimordialUuid();
          readStampDetails(mappingConcept.get());
 
          // setEditorStatusConcept((refex.getData().length > 0 && refex.getData()[0] != null ? ((DynamicSememeUUID) refex.getData()[0]).getDataUUID() : null));
@@ -156,14 +162,13 @@ public class MappingSet
                            // noop... sigh... can't short-circuit in a forEach....
                         } else {
                            @SuppressWarnings({ "rawtypes", "unchecked" })
-						final
-                           Optional<LatestVersion<DescriptionSememe<?>>> latest =
+                           final Optional<LatestVersion<DescriptionSememe<?>>> latest =
                               ((SememeChronology) descriptionC).getLatestVersion(DescriptionSememe.class, stampCoord);
 
                            // TODO handle contradictions
                            if (latest.isPresent()) {
                               final DescriptionSememe<?> ds = latest.get()
-                                                              .value();
+                                                                    .value();
 
                               if (ds.getDescriptionTypeConceptSequence() == MetaData.SYNONYM.getConceptSequence()) {
                                  if (Frills.isDescriptionPreferred(ds.getNid(), null)) {

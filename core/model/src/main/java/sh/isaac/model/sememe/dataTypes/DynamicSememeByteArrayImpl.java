@@ -57,7 +57,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 public class DynamicSememeByteArrayImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeByteArray {
-   
    /** The property. */
    private ObjectProperty<byte[]> property_;
 

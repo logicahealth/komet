@@ -77,21 +77,20 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 public class BinaryDataReaderProvider
         extends TimedTaskWithProgressTracker<Integer>
          implements BinaryDataReaderService, Spliterator<OchreExternalizable> {
-   
    /** The objects. */
-   int             objects  = 0;
-   
+   int objects = 0;
+
    /** The complete. */
-   CountDownLatch  complete = new CountDownLatch(1);
-   
+   CountDownLatch complete = new CountDownLatch(1);
+
    /** The data path. */
-   Path            dataPath;
-   
+   Path dataPath;
+
    /** The input. */
    DataInputStream input;
-   
+
    /** The stream bytes. */
-   int             streamBytes;
+   int streamBytes;
 
    //~--- constructors --------------------------------------------------------
 
@@ -160,7 +159,7 @@ public class BinaryDataReaderProvider
    public boolean tryAdvance(Consumer<? super OchreExternalizable> action) {
       try {
          final int                           startBytes        = this.input.available();
-         final OchreExternalizableObjectType type              = OchreExternalizableObjectType.fromDataStream(this.input);
+         final OchreExternalizableObjectType type = OchreExternalizableObjectType.fromDataStream(this.input);
          final byte                          dataFormatVersion = this.input.readByte();
          final int                           recordSize        = this.input.readInt();
          final byte[]                        objectData        = new byte[recordSize];

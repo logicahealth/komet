@@ -74,54 +74,53 @@ import sh.isaac.api.constants.DynamicSememeConstants;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public enum DynamicSememeDataType {
-   
    /** The nid. */
    NID(101, DynamicSememeNid.class, "Component Nid"),
-   
+
    /** The string. */
    STRING(102, DynamicSememeString.class, "String"),
-   
+
    /** The integer. */
    INTEGER(103, DynamicSememeInteger.class, "Integer"),
-   
+
    /** The boolean. */
    BOOLEAN(104, DynamicSememeBoolean.class, "Boolean"),
-   
+
    /** The long. */
    LONG(105, DynamicSememeLong.class, "Long"),
-   
+
    /** The bytearray. */
    BYTEARRAY(106, DynamicSememeByteArray.class, "Arbitrary Data"),
-   
+
    /** The float. */
    FLOAT(107, DynamicSememeFloat.class, "Float"),
-   
+
    /** The double. */
    DOUBLE(108, DynamicSememeDouble.class, "Double"),
-   
+
    /** The uuid. */
    UUID(109, DynamicSememeUUID.class, "UUID"),
-   
+
    /** The polymorphic. */
    POLYMORPHIC(110, DynamicSememePolymorphic.class, "Unspecified"),
-   
+
    /** The array. */
    ARRAY(111, DynamicSememeArray.class, "Array"),
-   
+
    /** The sequence. */
    SEQUENCE(112, DynamicSememeSequence.class, "Component Sequence"),
-   
+
    /** The unknown. */
    UNKNOWN(Byte.MAX_VALUE, null, "Unknown");
 
    /** The externalized token. */
-   private int                                externalizedToken_;
-   
+   private int externalizedToken_;
+
    /** The data class. */
    private Class<? extends DynamicSememeData> dataClass_;
-   
+
    /** The display name. */
-   private String                             displayName_;
+   private String displayName_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -215,7 +214,7 @@ public enum DynamicSememeDataType {
       }
 
       final String clean = nameOrTokenOrEnumId.toLowerCase(Locale.ENGLISH)
-                                        .trim();
+                                              .trim();
 
       if (StringUtils.isBlank(clean)) {
          return null;

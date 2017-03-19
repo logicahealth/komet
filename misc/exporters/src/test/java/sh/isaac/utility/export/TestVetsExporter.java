@@ -61,7 +61,6 @@ import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY
  * The Class TestVetsExporter.
  */
 public class TestVetsExporter {
-   
    /** The log. */
    private static Logger log = LogManager.getLogger();
 
@@ -105,7 +104,7 @@ public class TestVetsExporter {
             System.getProperty("isaacDatabaseLocation");
 
             // File temp = new File(sysProp);
-            final File   dataStoreLocation = DBLocator.findDBFolder(new File(""));  // temp
+            final File dataStoreLocation = DBLocator.findDBFolder(new File(""));  // temp
 
             if (!dataStoreLocation.exists()) {
                throw new RuntimeException("Couldn't find a data store from the input of '" +

@@ -62,20 +62,19 @@ import java.util.stream.IntStream;
  * @param <E> Type of {@code Object} that are the values of the map.
  */
 public class ConcurrentSequenceObjectMap<E> {
-   
    /** The Constant SEGMENT_SIZE. */
    private static final int SEGMENT_SIZE = 1280;
 
    //~--- fields --------------------------------------------------------------
 
    /** The lock. */
-   ReentrantLock                                 lock           = new ReentrantLock();
-   
+   ReentrantLock lock = new ReentrantLock();
+
    /** The object list list. */
    CopyOnWriteArrayList<AtomicReferenceArray<E>> objectListList = new CopyOnWriteArrayList<>();
-   
+
    /** The max sequence. */
-   AtomicInteger                                 maxSequence    = new AtomicInteger(0);
+   AtomicInteger maxSequence = new AtomicInteger(0);
 
    //~--- constructors --------------------------------------------------------
 
@@ -112,7 +111,7 @@ public class ConcurrentSequenceObjectMap<E> {
       }
 
       return this.objectListList.get(segmentIndex)
-                           .get(indexInSegment) != null;
+                                .get(indexInSegment) != null;
    }
 
    /**
@@ -142,12 +141,12 @@ public class ConcurrentSequenceObjectMap<E> {
       final int indexInSegment = sequence % SEGMENT_SIZE;
 
       if (this.objectListList.get(segmentIndex)
-                        .compareAndSet(indexInSegment, (E) null, value)) {
+                             .compareAndSet(indexInSegment, (E) null, value)) {
          return value;
       }
 
       return this.objectListList.get(segmentIndex)
-                           .get(indexInSegment);
+                                .get(indexInSegment);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -183,7 +182,7 @@ public class ConcurrentSequenceObjectMap<E> {
       final int indexInSegment = sequence % SEGMENT_SIZE;
 
       return this.objectListList.get(segmentIndex)
-                               .get(indexInSegment);
+                                .get(indexInSegment);
    }
 
    /**
@@ -200,7 +199,7 @@ public class ConcurrentSequenceObjectMap<E> {
          final int indexInSegment = i % SEGMENT_SIZE;
 
          if (this.objectListList.get(segmentIndex)
-                           .get(indexInSegment) != null) {
+                                .get(indexInSegment) != null) {
             builder.accept(i);
          }
       }

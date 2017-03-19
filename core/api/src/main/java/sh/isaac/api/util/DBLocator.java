@@ -60,7 +60,6 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DBLocator {
-   
    /** The Constant LOG. */
    private static final Logger LOG = LoggerFactory.getLogger(DBLocator.class);
 
@@ -99,7 +98,7 @@ public class DBLocator {
       if (inputFolder.getParentFile()
                      .isDirectory()) {
          for (final File f: inputFolder.getParentFile()
-                                 .listFiles()) {
+                                       .listFiles()) {
             // If it is a folder with a '.bdb' at the end of the name, then berkeley-db will be in a sub-folder.
             if (f.getName().endsWith(".data") && f.isDirectory()) {
                LOG.info("Data Store Location set to " + f.getAbsolutePath());

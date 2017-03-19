@@ -43,10 +43,9 @@ package sh.isaac.converters.sharedUtils.sql;
  * The Class ColumnDefinition.
  */
 public class ColumnDefinition {
-   
    /** The column name. */
-   private final String   columnName_;
-   
+   private final String columnName_;
+
    /** The data type. */
    private final DataType dataType_;
 

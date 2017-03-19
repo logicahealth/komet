@@ -61,7 +61,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
  * @author darmbrust
  */
 public class NumericUtils {
-   
    /**
     * Compare.
     *
@@ -233,8 +232,9 @@ public class NumericUtils {
     * @return true, if special
     */
    private static boolean isSpecial(final Number x) {
-      final boolean specialDouble = (x instanceof Double) && (Double.isNaN((Double) x) || Double.isInfinite((Double) x));
-      final boolean specialFloat  = (x instanceof Float) && (Float.isNaN((Float) x) || Float.isInfinite((Float) x));
+      final boolean specialDouble = (x instanceof Double) &&
+                                    (Double.isNaN((Double) x) || Double.isInfinite((Double) x));
+      final boolean specialFloat = (x instanceof Float) && (Float.isNaN((Float) x) || Float.isInfinite((Float) x));
 
       return specialDouble || specialFloat;
    }

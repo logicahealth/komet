@@ -88,29 +88,28 @@ import sh.isaac.api.observable.coordinate.ObservableTaxonomyCoordinate;
 @Singleton
 public class DefaultConfigurationService
          implements ConfigurationService {
-   
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
    /** The data store folder path. */
-   private Path              dataStoreFolderPath_       = null;
-   
+   private Path dataStoreFolderPath_ = null;
+
    /** The default coordinate provider. */
    DefaultCoordinateProvider defaultCoordinateProvider_ = new DefaultCoordinateProvider();
-   
+
    /** The init complete. */
-   private volatile boolean  initComplete_              = false;
-   
+   private volatile boolean initComplete_ = false;
+
    /** The bootstrap mode. */
-   private boolean           bootstrapMode              = false;
-   
+   private boolean bootstrapMode = false;
+
    /** The db build mode. */
-   private boolean           dbBuildMode                = false;
-   
+   private boolean dbBuildMode = false;
+
    /** The git config info. */
-   private RemoteServiceInfo gitConfigInfo              = null;
+   private RemoteServiceInfo gitConfigInfo = null;
 
    //~--- constructors --------------------------------------------------------
 

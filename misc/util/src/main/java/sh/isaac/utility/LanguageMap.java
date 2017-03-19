@@ -58,7 +58,6 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class LanguageMap {
-   
    /**
     * Gets the concept for language code.
     *

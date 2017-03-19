@@ -60,7 +60,6 @@ import java.util.stream.IntStream;
  */
 public class ConcurrentSkipListIntegerSet
          implements IntSet {
-   
    /** The set. */
    ConcurrentSkipListSet<Integer> set = new ConcurrentSkipListSet<>();
 
@@ -119,6 +118,7 @@ public class ConcurrentSkipListIntegerSet
     * @param otherSet the other set
     * @return the int set
     */
+
    //
    @Override
    public IntSet and(IntSet otherSet) {
@@ -224,7 +224,7 @@ public class ConcurrentSkipListIntegerSet
    @Override
    public IntStream stream() {
       return this.set.stream()
-                .mapToInt(item -> (int) item);
+                     .mapToInt(item -> (int) item);
    }
 
    /**
@@ -278,9 +278,9 @@ public class ConcurrentSkipListIntegerSet
    @Override
    public PrimitiveIterator.OfInt getReverseIntIterator() {
       return this.set.descendingSet()
-                .stream()
-                .mapToInt(item -> (int) item)
-                .iterator();
+                     .stream()
+                     .mapToInt(item -> (int) item)
+                     .iterator();
    }
 }
 

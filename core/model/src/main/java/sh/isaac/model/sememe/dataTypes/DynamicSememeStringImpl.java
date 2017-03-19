@@ -57,7 +57,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 public class DynamicSememeStringImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeString {
-   
    /** The property. */
    private ObjectProperty<String> property_;
 

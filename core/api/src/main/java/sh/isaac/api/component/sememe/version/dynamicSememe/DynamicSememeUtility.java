@@ -93,7 +93,6 @@ import sh.isaac.api.coordinate.TaxonomyCoordinate;
  */
 @Contract
 public interface DynamicSememeUtility {
-   
    /**
     * This will return the column index configuration that will mark each supplied column that is indexable, for indexing.
     * Returns null, if no columns need indexing.
@@ -167,8 +166,8 @@ public interface DynamicSememeUtility {
       if ((dsud.getReferencedComponentTypeRestriction() != null) &&
             (dsud.getReferencedComponentTypeRestriction() != ObjectChronologyType.UNKNOWN_NID)) {
          final ObjectChronologyType requiredType = dsud.getReferencedComponentTypeRestriction();
-         final ObjectChronologyType foundType    = Get.identifierService()
-                                                .getChronologyTypeForNid(referencedComponentNid);
+         final ObjectChronologyType foundType = Get.identifierService()
+                                                   .getChronologyTypeForNid(referencedComponentNid);
 
          if (requiredType != foundType) {
             throw new IllegalArgumentException("The referenced component must be of type " + requiredType +
@@ -180,8 +179,8 @@ public interface DynamicSememeUtility {
                (dsud.getReferencedComponentTypeSubRestriction() != SememeType.UNKNOWN)) {
             final SememeType requiredSememeType = dsud.getReferencedComponentTypeSubRestriction();
             final SememeType foundSememeType    = Get.sememeService()
-                                               .getSememe(referencedComponentNid)
-                                               .getSememeType();
+                                                     .getSememe(referencedComponentNid)
+                                                     .getSememeType();
 
             if (requiredSememeType != foundSememeType) {
                throw new IllegalArgumentException("The referenced component must be a sememe of type " +
@@ -219,7 +218,7 @@ public interface DynamicSememeUtility {
 
       for (int i = 0; i < dsud.getColumnInfo().length; i++) {
          final DynamicSememeData defaultValue = dsud.getColumnInfo()[i]
-                                              .getDefaultColumnValue();
+                                                    .getDefaultColumnValue();
 
          if ((defaultValue != null) && (data[i] == null)) {
             data[i] = defaultValue;

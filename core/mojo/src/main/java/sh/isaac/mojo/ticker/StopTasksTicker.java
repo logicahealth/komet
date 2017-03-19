@@ -59,7 +59,6 @@ import sh.isaac.api.progress.ActiveTasksTicker;
 )
 public class StopTasksTicker
         extends AbstractMojo {
-   
    /**
     * Execute.
     *

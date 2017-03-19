@@ -58,7 +58,6 @@ import sh.isaac.api.task.SequentialAggregateTask;
  */
 public class AggregateClassifyTask
         extends SequentialAggregateTask<ClassifierResults> {
-   
    /**
     * Instantiates a new aggregate classify task.
     *

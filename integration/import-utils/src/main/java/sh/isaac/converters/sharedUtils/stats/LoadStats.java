@@ -54,39 +54,39 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Daniel Armbrust
  */
 public class LoadStats {
-   
    /** The concepts. */
-   private final AtomicInteger                             concepts_                    = new AtomicInteger();
-   
+   private final AtomicInteger concepts_ = new AtomicInteger();
+
    /** The graphs. */
-   private final AtomicInteger                             graphs_                      = new AtomicInteger();
-   
+   private final AtomicInteger graphs_ = new AtomicInteger();
+
    /** The cloned concepts. */
-   private final AtomicInteger                             clonedConcepts_              = new AtomicInteger();
-   
+   private final AtomicInteger clonedConcepts_ = new AtomicInteger();
+
    /** The skipped properties counter. */
-   private final AtomicInteger                             skippedPropertiesCounter_    = new AtomicInteger();
-   
+   private final AtomicInteger skippedPropertiesCounter_ = new AtomicInteger();
+
    /** The generated preferred term count. */
-   private final AtomicInteger                             generatedPreferredTermCount_ = new AtomicInteger();
-   
+   private final AtomicInteger generatedPreferredTermCount_ = new AtomicInteger();
+
    /** The descriptions. */
-   private final TreeMap<String, Integer>                  descriptions_                = new TreeMap<String, Integer>();
-   
+   private final TreeMap<String, Integer> descriptions_ = new TreeMap<String, Integer>();
+
    /** The refset members. */
-   private final TreeMap<String, Integer>                  refsetMembers_               = new TreeMap<String, Integer>();
-   
+   private final TreeMap<String, Integer> refsetMembers_ = new TreeMap<String, Integer>();
+
    /** The relationships. */
-   private final TreeMap<String, Integer>                  relationships_               = new TreeMap<String, Integer>();
-   
+   private final TreeMap<String, Integer> relationships_ = new TreeMap<String, Integer>();
+
    /** The associations. */
-   private final TreeMap<String, Integer>                  associations_                = new TreeMap<String, Integer>();
-   
+   private final TreeMap<String, Integer> associations_ = new TreeMap<String, Integer>();
+
    /** The annotations. */
-   private final TreeMap<String, TreeMap<String, Integer>> annotations_ = new TreeMap<String, TreeMap<String, Integer>>();
-   
+   private final TreeMap<String, TreeMap<String, Integer>> annotations_ = new TreeMap<String,
+                                                                             TreeMap<String, Integer>>();
+
    /** The sync lock. */
-   private final Object                                    syncLock                     = new Object();
+   private final Object syncLock = new Object();
 
    //~--- methods -------------------------------------------------------------
 

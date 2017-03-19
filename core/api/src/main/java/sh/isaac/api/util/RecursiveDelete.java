@@ -58,7 +58,6 @@ import java.nio.file.attribute.BasicFileAttributes;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class RecursiveDelete {
-   
    /**
     * Delete.
     *

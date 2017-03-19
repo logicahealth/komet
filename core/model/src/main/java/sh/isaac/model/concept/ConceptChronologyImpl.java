@@ -83,16 +83,15 @@ import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
 public class ConceptChronologyImpl
         extends ObjectChronologyImpl<ConceptVersionImpl>
          implements ConceptChronology<ConceptVersionImpl>, OchreExternalizable {
-   
    /** The concept origin relationship list. */
    List<RelationshipAdaptorChronologyImpl> conceptOriginRelationshipList;
-   
+
    /** The concept origin relationship list defalt coordinate. */
    List<RelationshipAdaptorChronologyImpl> conceptOriginRelationshipListDefaltCoordinate;
-   
+
    /** The relationship list with concept as destination. */
    List<RelationshipAdaptorChronologyImpl> relationshipListWithConceptAsDestination;
-   
+
    /** The relationship list with concept as destination list defalt coordinate. */
    List<RelationshipAdaptorChronologyImpl> relationshipListWithConceptAsDestinationListDefaltCoordinate;
 
@@ -173,11 +172,11 @@ public class ConceptChronologyImpl
    @Override
    public ConceptVersionImpl createMutableVersion(State state, EditCoordinate ec) {
       final int stampSequence = Get.stampService()
-                             .getStampSequence(state,
-                                   Long.MAX_VALUE,
-                                   ec.getAuthorSequence(),
-                                   ec.getModuleSequence(),
-                                   ec.getPathSequence());
+                                   .getStampSequence(state,
+                                         Long.MAX_VALUE,
+                                         ec.getAuthorSequence(),
+                                         ec.getModuleSequence(),
+                                         ec.getPathSequence());
       final ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence, nextVersionSequence());
 
       addVersion(newVersion);
@@ -370,9 +369,9 @@ public class ConceptChronologyImpl
       }
 
       final Optional<?> optional = Get.sememeService()
-                                .getSnapshot(LogicGraphSememe.class, stampCoordinate)
-                                .getLatestSememeVersionsForComponentFromAssemblage(getNid(), assemblageSequence)
-                                .findFirst();
+                                      .getSnapshot(LogicGraphSememe.class, stampCoordinate)
+                                      .getLatestSememeVersionsForComponentFromAssemblage(getNid(), assemblageSequence)
+                                      .findFirst();
 
       return (Optional<LatestVersion<LogicGraphSememe<?>>>) optional;
    }
@@ -398,10 +397,10 @@ public class ConceptChronologyImpl
       }
 
       final Optional<SememeChronology<? extends SememeVersion<?>>> definitionChronologyOptional = Get.sememeService()
-                                                                                               .getSememesForComponentFromAssemblage(
-                                                                                                  getNid(),
-                                                                                                        assemblageSequence)
-                                                                                               .findFirst();
+                                                                                                     .getSememesForComponentFromAssemblage(
+                                                                                                        getNid(),
+                                                                                                              assemblageSequence)
+                                                                                                     .findFirst();
 
       if (definitionChronologyOptional.isPresent()) {
          final Collection<LogicGraphSememeImpl> versions =
@@ -548,7 +547,8 @@ public class ConceptChronologyImpl
       if (this.relationshipListWithConceptAsDestination == null) {
          this.relationshipListWithConceptAsDestination = new ArrayList<>();
          Get.logicService().getRelationshipAdaptorsWithConceptAsDestination(this, logicCoordinate).forEach((relAdaptor) -> {
-                        this.relationshipListWithConceptAsDestination.add((RelationshipAdaptorChronologyImpl) relAdaptor);
+                        this.relationshipListWithConceptAsDestination.add(
+                            (RelationshipAdaptorChronologyImpl) relAdaptor);
                      });
       }
 

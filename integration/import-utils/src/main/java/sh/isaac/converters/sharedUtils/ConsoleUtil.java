@@ -54,34 +54,33 @@ import java.nio.file.StandardOpenOption;
 
 /**
  * {@link ConsoleUtil}
- * 
+ *
  * Utility code for writing to the console in a more intelligent way, including detecting running without a real console,
  * and changing the behavior as appropriate.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ConsoleUtil {
-   
    /** The progress line. */
-   private static boolean       progressLine       = false;
-   
+   private static boolean progressLine = false;
+
    /** The prints since return. */
-   private static int           printsSinceReturn  = 0;
-   
+   private static int printsSinceReturn = 0;
+
    /** The progress line used. */
-   private static boolean       progressLineUsed   = false;
-   
+   private static boolean progressLineUsed = false;
+
    /** The console output cache. */
    private static StringBuilder consoleOutputCache = new StringBuilder();
-   
+
    /** The eol. */
-   private static String        eol                = System.getProperty("line.separator");
-   
+   private static String eol = System.getProperty("line.separator");
+
    /** The disable fancy. */
-   public static boolean        disableFancy       = (System.console() == null);
-   
+   public static boolean disableFancy = (System.console() == null);
+
    /** The last status. */
-   private static int           lastStatus;
+   private static int lastStatus;
 
    //~--- methods -------------------------------------------------------------
 
@@ -224,8 +223,8 @@ public class ConsoleUtil {
    public static void writeOutputToFile(Path path)
             throws IOException {
       final BufferedWriter bw = Files.newBufferedWriter(path,
-                                                  Charset.forName("UTF-8"),
-                                                  new OpenOption[] { StandardOpenOption.CREATE });
+                                                        Charset.forName("UTF-8"),
+                                                        new OpenOption[] { StandardOpenOption.CREATE });
 
       bw.append(consoleOutputCache.toString());
       bw.close();

@@ -68,7 +68,6 @@ import sh.isaac.api.sync.SyncFiles;
 @Service(name = "add-commit-and-push-profiles-scm")
 public class AddCommitAndPushProfilesToSCMMojo
         extends ProfilesMojoBase {
-   
    /**
     * Instantiates a new adds the commit and push profiles to SCM mojo.
     *

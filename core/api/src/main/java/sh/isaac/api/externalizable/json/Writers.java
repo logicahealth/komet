@@ -69,7 +69,7 @@ import sh.isaac.api.logic.NodeSemantic;
 
 /**
  * {@link Writers}
- * 
+ *
  * An experimental class that doesn't work yet due to upstream bugs.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
@@ -80,7 +80,6 @@ public class Writers {
     */
    public static class ConceptChronologyJsonWriter
             implements JsonWriter.JsonClassWriterEx {
-      
       /**
        * Write.
        *
@@ -131,7 +130,6 @@ public class Writers {
     */
    public static class SememeChronologyJsonWriter
             implements JsonWriter.JsonClassWriterEx {
-      
       /**
        * Write.
        *
@@ -146,8 +144,7 @@ public class Writers {
       public void write(Object obj, boolean showType, Writer output, Map<String, Object> args)
                throws IOException {
          @SuppressWarnings("unchecked")
-		final
-         SememeChronology<SememeVersion<?>> sc         = (SememeChronology<SememeVersion<?>>) obj;
+         final SememeChronology<SememeVersion<?>> sc         = (SememeChronology<SememeVersion<?>>) obj;
          final JsonWriter                         mainWriter = Support.getWriter(args);
 
          output.write("\"sememeType\":\"");
@@ -190,8 +187,7 @@ public class Writers {
          output.write("\",");
 
          @SuppressWarnings("unchecked")
-		final
-         List<SememeVersion<?>> versions = (List<SememeVersion<?>>) sc.getVersionList();
+         final List<SememeVersion<?>> versions = (List<SememeVersion<?>>) sc.getVersionList();
 
          mainWriter.newLine();
          output.write("\"versions\":[");

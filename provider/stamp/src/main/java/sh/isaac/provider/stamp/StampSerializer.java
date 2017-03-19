@@ -61,17 +61,18 @@ import sh.isaac.api.commit.Stamp;
  */
 public class StampSerializer
          implements DataSerializer<Stamp>, Serializable {
-   
    /** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 1L;
+   private static final long serialVersionUID = 1L;
 
-/**
- * Deserialize.
- *
- * @param in the in
- * @return the stamp
- */
-@Override
+   //~--- methods -------------------------------------------------------------
+
+   /**
+    * Deserialize.
+    *
+    * @param in the in
+    * @return the stamp
+    */
+   @Override
    public Stamp deserialize(DataInput in) {
       try {
          return new Stamp(State.getFromBoolean(in.readBoolean()),

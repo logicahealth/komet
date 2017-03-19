@@ -72,14 +72,13 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionRegexMatch
         extends LeafClause {
-   
    /** The cache. */
    NidSet cache = new NidSet();
-   
+
    /** The regex key. */
    @XmlElement
    String regexKey;
-   
+
    /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
@@ -138,8 +137,8 @@ public class DescriptionRegexMatch
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
-      final String                                      regex = (String) this.enclosingQuery.getLetDeclarations()
-                                                                                 .get(this.regexKey);
+      final String regex = (String) this.enclosingQuery.getLetDeclarations()
+                                                       .get(this.regexKey);
       final ConceptChronology<? extends ConceptVersion> conceptChronology = conceptVersion.getChronology();
 
       conceptChronology.getConceptDescriptionList().forEach((description) -> {

@@ -74,30 +74,29 @@ import sh.isaac.pombuilder.artifacts.Converter;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ConverterOptionParam {
-   
    /** The Constant MAVEN_FILE_TYPE. */
-   public static final String  MAVEN_FILE_TYPE = "options.json";
-   
+   public static final String MAVEN_FILE_TYPE = "options.json";
+
    /** The Constant LOG. */
-   private static final Logger LOG             = LogManager.getLogger();
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
    /** The display name. */
-   private String                               displayName;
-   
+   private String displayName;
+
    /** The internal name. */
-   private String                               internalName;
-   
+   private String internalName;
+
    /** The description. */
-   private String                               description;
-   
+   private String description;
+
    /** The allow no selection. */
-   private boolean                              allowNoSelection;
-   
+   private boolean allowNoSelection;
+
    /** The allow multi select. */
-   private boolean                              allowMultiSelect;
-   
+   private boolean allowMultiSelect;
+
    /** The suggested pick list values. */
    private ConverterOptionParamSuggestedValue[] suggestedPickListValues;
 
@@ -226,13 +225,13 @@ public class ConverterOptionParam {
 
          // First, try to get the pom file to validate the params they sent us.  If this fails, they sent bad info, and we fail.
          final URL pomURL = ArtifactUtilities.makeFullURL(baseMavenUrl,
-                                                    mavenUsername,
-                                                    mavenPassword,
-                                                    artifact.getGroupId(),
-                                                    artifact.getArtifactId(),
-                                                    artifact.getVersion(),
-                                                    artifact.getClassifier(),
-                                                    "pom");
+                                                          mavenUsername,
+                                                          mavenPassword,
+                                                          artifact.getGroupId(),
+                                                          artifact.getArtifactId(),
+                                                          artifact.getVersion(),
+                                                          artifact.getClassifier(),
+                                                          "pom");
          DownloadUnzipTask dut = new DownloadUnzipTask(mavenUsername, mavenPassword, pomURL, false, true, tempFolder);
 
          WorkExecutors.get()
@@ -251,13 +250,13 @@ public class ConverterOptionParam {
          // Now that we know that the credentials / artifact / version are good - see if there is a config file (there may not be)
          try {
             final URL config = ArtifactUtilities.makeFullURL(baseMavenUrl,
-                                                       mavenUsername,
-                                                       mavenPassword,
-                                                       artifact.getGroupId(),
-                                                       artifact.getArtifactId(),
-                                                       artifact.getVersion(),
-                                                       artifact.getClassifier(),
-                                                       MAVEN_FILE_TYPE);
+                                                             mavenUsername,
+                                                             mavenPassword,
+                                                             artifact.getGroupId(),
+                                                             artifact.getArtifactId(),
+                                                             artifact.getVersion(),
+                                                             artifact.getClassifier(),
+                                                             MAVEN_FILE_TYPE);
 
             dut = new DownloadUnzipTask(mavenUsername, mavenPassword, config, false, true, tempFolder);
             WorkExecutors.get()
@@ -352,9 +351,10 @@ public class ConverterOptionParam {
     */
    @Override
    public String toString() {
-      return "ConverterOptionParam [displayName=" + this.displayName + ", internalName=" + this.internalName + ", description=" +
-             this.description + ", allowNoSelection=" + this.allowNoSelection + ", allowMultiSelect=" + this.allowMultiSelect +
-             ", suggestedPickListValues=" + Arrays.toString(this.suggestedPickListValues) + "]";
+      return "ConverterOptionParam [displayName=" + this.displayName + ", internalName=" + this.internalName +
+             ", description=" + this.description + ", allowNoSelection=" + this.allowNoSelection +
+             ", allowMultiSelect=" + this.allowMultiSelect + ", suggestedPickListValues=" +
+             Arrays.toString(this.suggestedPickListValues) + "]";
    }
 
    //~--- get methods ---------------------------------------------------------

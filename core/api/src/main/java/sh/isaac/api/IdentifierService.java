@@ -74,7 +74,6 @@ import sh.isaac.api.coordinate.StampCoordinate;
 @Contract
 public interface IdentifierService
         extends DatabaseServices {
-   
    /** The Constant FIRST_NID. */
    static final int FIRST_NID = Integer.MIN_VALUE + 1;
 

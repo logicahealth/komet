@@ -60,7 +60,6 @@ package sh.isaac.model;
  * @author kec
  */
 public interface WaitFreeComparable {
-   
    /**
     * Gets the write sequence.
     *

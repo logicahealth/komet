@@ -50,7 +50,6 @@ import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
  * The Class TestDBConfiguration.
  */
 public class TestDBConfiguration {
-   
    /**
     * The main method.
     *

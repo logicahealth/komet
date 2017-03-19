@@ -54,7 +54,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
  */
 public interface DynamicSememeDouble
         extends DynamicSememeData {
-   
    /**
     * Gets the data double.
     *

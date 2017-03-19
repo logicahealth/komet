@@ -62,7 +62,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public class LiteralNodeString
         extends LiteralNode {
-   
    /** The literal value. */
    String literalValue;
 

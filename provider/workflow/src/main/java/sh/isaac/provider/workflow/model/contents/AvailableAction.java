@@ -144,8 +144,8 @@ public class AvailableAction
     */
    @Override
    public int hashCode() {
-      return this.definitionId.hashCode() + this.initialState.hashCode() + this.action.hashCode() + this.outcomeState.hashCode() +
-             this.role.hashCode();
+      return this.definitionId.hashCode() + this.initialState.hashCode() + this.action.hashCode() +
+             this.outcomeState.hashCode() + this.role.hashCode();
    }
 
    /**
@@ -155,8 +155,9 @@ public class AvailableAction
     */
    @Override
    public String toString() {
-      return "\n\t\tId: " + this.id + "\n\t\tDefinition Id: " + this.definitionId.toString() + "\n\t\tInitial State: " +
-             this.initialState + "\n\t\tAction: " + this.action + "\n\t\tOutcome State: " + this.outcomeState + "\n\t\tRole: " + this.role;
+      return "\n\t\tId: " + this.id + "\n\t\tDefinition Id: " + this.definitionId.toString() +
+             "\n\t\tInitial State: " + this.initialState + "\n\t\tAction: " + this.action + "\n\t\tOutcome State: " +
+             this.outcomeState + "\n\t\tRole: " + this.role;
    }
 
    /**
@@ -199,7 +200,7 @@ public class AvailableAction
       this.action          = new String(in.getByteArrayField());
       this.outcomeState    = new String(in.getByteArrayField());
       this.role            = UserRole.safeValueOf(in.getInt())
-                                .get();
+                                     .get();
       this.definitionId    = new UUID(this.definitionIdMsb, this.definitionIdLsb);
    }
 

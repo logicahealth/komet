@@ -95,27 +95,26 @@ import sh.isaac.model.logic.node.internal.TypedNodeWithSequences;
  */
 public class LogicalExpressionOchreImpl
          implements LogicalExpression {
-   
    /** The Constant NODE_SEMANTICS. */
    private static final NodeSemantic[] NODE_SEMANTICS = NodeSemantic.values();
-   
+
    /** The Constant MEANINGFUL_NODE_SEMANTICS. */
    private static final EnumSet<NodeSemantic> MEANINGFUL_NODE_SEMANTICS = EnumSet.of(NodeSemantic.CONCEPT,
                                                                                      NodeSemantic.SUBSTITUTION_CONCEPT);
-   
+
    /** The isa nid. */
    protected static int isaNid = 0;
 
    //~--- fields --------------------------------------------------------------
 
    /** The concept sequence. */
-   transient int        conceptSequence = -1;
-   
+   transient int conceptSequence = -1;
+
    /** The logic nodes. */
-   ArrayList<LogicNode> logicNodes      = new ArrayList<>();
-   
+   ArrayList<LogicNode> logicNodes = new ArrayList<>();
+
    /** The root node index. */
-   int                  rootNodeIndex   = -1;
+   int rootNodeIndex = -1;
 
    //~--- constructors --------------------------------------------------------
 
@@ -948,7 +947,7 @@ public class LogicalExpressionOchreImpl
    @Override
    public boolean contains(NodeSemantic semantic) {
       return this.logicNodes.stream()
-                       .anyMatch((node) -> (node.getNodeSemantic() == semantic));
+                            .anyMatch((node) -> (node.getNodeSemantic() == semantic));
    }
 
    /**
@@ -1366,7 +1365,7 @@ public class LogicalExpressionOchreImpl
          }
 
          final HashMap<Set<UUID>, IntArrayList> uuidSetNodeListMap = new HashMap<>();
-         int                              depthToTest        = 0;
+         int                                    depthToTest        = 0;
 
          while ((uuidSetNodeListMap.size() < g1children.length) && (depthToTest < maxDepth - depth)) {
             depthToTest++;
@@ -1447,7 +1446,7 @@ public class LogicalExpressionOchreImpl
 
       for (int index = 0; index < byteArrayArray.length; index++) {
          byteArrayArray[index] = this.logicNodes.get(index)
-                                           .getBytes(dataTarget);
+               .getBytes(dataTarget);
       }
 
       return byteArrayArray;
@@ -1461,7 +1460,7 @@ public class LogicalExpressionOchreImpl
    @Override
    public boolean isMeaningful() {
       return this.logicNodes.stream()
-                       .anyMatch((node) -> (MEANINGFUL_NODE_SEMANTICS.contains(node.getNodeSemantic())));
+                            .anyMatch((node) -> (MEANINGFUL_NODE_SEMANTICS.contains(node.getNodeSemantic())));
    }
 
    /**
@@ -1494,7 +1493,7 @@ public class LogicalExpressionOchreImpl
    @Override
    public Stream<LogicNode> getNodesOfType(NodeSemantic semantic) {
       return this.logicNodes.stream()
-                       .filter((node) -> (node.getNodeSemantic() == semantic));
+                            .filter((node) -> (node.getNodeSemantic() == semantic));
    }
 
    /**

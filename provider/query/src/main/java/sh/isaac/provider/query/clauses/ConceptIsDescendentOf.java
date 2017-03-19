@@ -79,11 +79,10 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIsDescendentOf
         extends LeafClause {
-   
    /** The descendent of spec key. */
    @XmlElement
    String descendentOfSpecKey;
-   
+
    /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
@@ -119,12 +118,12 @@ public class ConceptIsDescendentOf
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                      .get(this.viewCoordinateKey);
+                                                                                            .get(this.viewCoordinateKey);
       final ConceptSpecification descendentOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-                                                                                   .get(this.descendentOfSpecKey);
+                                                                                              .get(this.descendentOfSpecKey);
       final int parentNid = descendentOfSpec.getNid();
       final ConceptSequenceSet descendentOfSequenceSet = Get.taxonomyService()
-                                                      .getChildOfSequenceSet(parentNid, taxonomyCoordinate);
+                                                            .getChildOfSequenceSet(parentNid, taxonomyCoordinate);
 
       descendentOfSequenceSet.remove(parentNid);
       getResultsCache().or(NidSet.of(descendentOfSequenceSet));

@@ -83,18 +83,17 @@ import sh.isaac.api.metacontent.userPrefs.StorableUserPreferences;
 @RunLevel(value = -1)
 public class MVStoreMetaContentProvider
          implements MetaContentService {
-   
    /** The Constant USER_PREFS_STORE. */
    private static final String USER_PREFS_STORE = "_userPrefs_";
 
    //~--- fields --------------------------------------------------------------
 
    /** The log. */
-   private final Logger   LOG = LogManager.getLogger();
-   
+   private final Logger LOG = LogManager.getLogger();
+
    /** The store. */
-   MVStore                store;
-   
+   MVStore store;
+
    /** The user prefs map. */
    MVMap<Integer, byte[]> userPrefsMap;
 
@@ -204,8 +203,8 @@ public class MVStoreMetaContentProvider
    @Override
    public void removeUserPrefs(int userId) {
       this.userPrefsMap.remove((userId > 0) ? userId
-                                       : Get.identifierService()
-                                             .getConceptSequence(userId));
+            : Get.identifierService()
+                 .getConceptSequence(userId));
    }
 
    /**
@@ -228,7 +227,7 @@ public class MVStoreMetaContentProvider
 
       this.LOG.info("MVStoreMetaContent store path: " + dataFile.getAbsolutePath());
       this.store = new MVStore.Builder().fileName(dataFile.getAbsolutePath())
-                                   .open();
+                                        .open();
 
       // store.setVersionsToKeep(0); TODO check group answer
       this.userPrefsMap = this.store.<Integer, byte[]>openMap(USER_PREFS_STORE);
@@ -243,7 +242,7 @@ public class MVStoreMetaContentProvider
       this.LOG.info("Starting MVStoreMetaContent service");
 
       final Optional<Path> path = Get.configurationService()
-                               .getDataStoreFolderPath();
+                                     .getDataStoreFolderPath();
 
       if (!path.isPresent()) {
          throw new RuntimeException(

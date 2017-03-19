@@ -69,16 +69,15 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
  */
 public class ConceptSnapshotImpl
          implements ConceptSnapshot {
-   
    /** The concept chronology. */
-   private final ConceptChronologyImpl             conceptChronology;
-   
+   private final ConceptChronologyImpl conceptChronology;
+
    /** The stamp coordinate. */
-   private final StampCoordinate                   stampCoordinate;
-   
+   private final StampCoordinate stampCoordinate;
+
    /** The language coordinate. */
-   private final LanguageCoordinate                languageCoordinate;
-   
+   private final LanguageCoordinate languageCoordinate;
+
    /** The snapshot version. */
    private final LatestVersion<ConceptVersionImpl> snapshotVersion;
 
@@ -138,7 +137,7 @@ public class ConceptSnapshotImpl
    @Override
    public int getAuthorSequence() {
       return this.snapshotVersion.value()
-                            .getAuthorSequence();
+                                 .getAuthorSequence();
    }
 
    /**
@@ -159,7 +158,7 @@ public class ConceptSnapshotImpl
    @Override
    public CommitStates getCommitState() {
       return this.snapshotVersion.value()
-                            .getCommitState();
+                                 .getCommitState();
    }
 
    /**
@@ -252,7 +251,7 @@ public class ConceptSnapshotImpl
    @Override
    public int getModuleSequence() {
       return this.snapshotVersion.value()
-                            .getModuleSequence();
+                                 .getModuleSequence();
    }
 
    /**
@@ -263,7 +262,7 @@ public class ConceptSnapshotImpl
    @Override
    public int getNid() {
       return this.snapshotVersion.value()
-                            .getNid();
+                                 .getNid();
    }
 
    /**
@@ -274,7 +273,7 @@ public class ConceptSnapshotImpl
    @Override
    public int getPathSequence() {
       return this.snapshotVersion.value()
-                            .getPathSequence();
+                                 .getPathSequence();
    }
 
    /**
@@ -298,7 +297,7 @@ public class ConceptSnapshotImpl
    @Override
    public UUID getPrimordialUuid() {
       return this.snapshotVersion.value()
-                            .getPrimordialUuid();
+                                 .getPrimordialUuid();
    }
 
    /**
@@ -319,7 +318,7 @@ public class ConceptSnapshotImpl
    @Override
    public int getStampSequence() {
       return this.snapshotVersion.value()
-                            .getStampSequence();
+                                 .getStampSequence();
    }
 
    /**
@@ -330,7 +329,7 @@ public class ConceptSnapshotImpl
    @Override
    public State getState() {
       return this.snapshotVersion.value()
-                            .getState();
+                                 .getState();
    }
 
    /**
@@ -341,7 +340,7 @@ public class ConceptSnapshotImpl
    @Override
    public long getTime() {
       return this.snapshotVersion.value()
-                            .getTime();
+                                 .getTime();
    }
 
    /**
@@ -352,7 +351,7 @@ public class ConceptSnapshotImpl
    @Override
    public List<UUID> getUuidList() {
       return this.snapshotVersion.value()
-                            .getUuidList();
+                                 .getUuidList();
    }
 }
 

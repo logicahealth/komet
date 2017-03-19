@@ -73,11 +73,10 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIs
         extends LeafClause {
-   
    /** The concept spec string. */
    @XmlElement
    String conceptSpecString;
-   
+
    /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;

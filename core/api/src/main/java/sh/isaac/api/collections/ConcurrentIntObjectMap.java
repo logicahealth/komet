@@ -62,21 +62,20 @@ import sh.isaac.api.DataSerializer;
  * @param <T> the generic type
  */
 public class ConcurrentIntObjectMap<T> {
-   
    /** The rwl. */
-   private final ReentrantReadWriteLock rwl     = new ReentrantReadWriteLock();
-   
+   private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+
    /** The read. */
-   private final Lock                   read    = this.rwl.readLock();
-   
+   private final Lock read = this.rwl.readLock();
+
    /** The write. */
-   private final Lock                   write   = this.rwl.writeLock();
-   
+   private final Lock write = this.rwl.writeLock();
+
    /** The map. */
-   OpenIntObjectHashMap<byte[]>         map     = new OpenIntObjectHashMap<>();
-   
+   OpenIntObjectHashMap<byte[]> map = new OpenIntObjectHashMap<>();
+
    /** The serializer. */
-   DataSerializer<T>                    serializer;
+   DataSerializer<T> serializer;
 
    //~--- constructors --------------------------------------------------------
 
@@ -116,13 +115,13 @@ public class ConcurrentIntObjectMap<T> {
     */
    public boolean forEachPair(IntObjectProcedure<T> procedure) {
       this.map.forEachPair((int first,
-                       byte[] data) -> {
-                         try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data))) {
-                            return procedure.apply(first, this.serializer.deserialize(dis));
-                         } catch (final IOException e) {
-                            throw new RuntimeException(e);
-                         }
-                      });
+                            byte[] data) -> {
+                              try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data))) {
+                                 return procedure.apply(first, this.serializer.deserialize(dis));
+                              } catch (final IOException e) {
+                                 throw new RuntimeException(e);
+                              }
+                           });
       return true;
    }
 
@@ -136,6 +135,7 @@ public class ConcurrentIntObjectMap<T> {
    public boolean put(int key, T value) {
       try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
          this.serializer.serialize(new DataOutputStream(baos), value);
+
          try {
             this.write.lock();
             return this.map.put(key, baos.toByteArray());

@@ -63,7 +63,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 public class DynamicSememeUUIDImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeUUID {
-   
    /** The property. */
    private ObjectProperty<UUID> property_;
 

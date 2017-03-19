@@ -49,7 +49,6 @@ package sh.isaac.api.component.sememe.version;
  */
 public interface DescriptionSememe<V extends DescriptionSememe<V>>
         extends SememeVersion<V> {
-   
    /**
     * Gets the case significance concept sequence.
     *

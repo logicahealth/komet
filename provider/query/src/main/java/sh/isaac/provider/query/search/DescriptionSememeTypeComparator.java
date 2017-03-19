@@ -61,7 +61,6 @@ import sh.isaac.api.component.sememe.version.DescriptionSememe;
  */
 public class DescriptionSememeTypeComparator
          implements Comparator<DescriptionSememe<?>> {
-   
    /** The Constant LOG. */
    protected static final Logger LOG = LoggerFactory.getLogger(DescriptionSememeTypeComparator.class);
 
@@ -77,13 +76,13 @@ public class DescriptionSememeTypeComparator
    @Override
    public int compare(DescriptionSememe<?> o1, DescriptionSememe<?> o2) {
       final String o1matchingComponentType = Get.conceptService()
-                                          .getOptionalConcept(o1.getDescriptionTypeConceptSequence())
-                                          .get()
-                                          .getConceptDescriptionText();
+                                                .getOptionalConcept(o1.getDescriptionTypeConceptSequence())
+                                                .get()
+                                                .getConceptDescriptionText();
       final String o2matchingComponentType = Get.conceptService()
-                                          .getOptionalConcept(o2.getDescriptionTypeConceptSequence())
-                                          .get()
-                                          .getConceptDescriptionText();
+                                                .getOptionalConcept(o2.getDescriptionTypeConceptSequence())
+                                                .get()
+                                                .getConceptDescriptionText();
 
       return o1matchingComponentType.compareTo(o2matchingComponentType);
    }

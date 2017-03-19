@@ -68,10 +68,10 @@ import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
  * Note the property constructor should take a concept id, and use a
  * language coordinate, and a stamp coordinate to determine the name of
  * the property.
- * 
+ *
  * Should the property name be the primordial UUID of of the concept identifying
  * the property?
- * 
+ *
  * ObservableChronologies are singletons.
  *
  * @author kec
@@ -79,7 +79,6 @@ import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
  */
 public interface ObservableChronology<V extends ObservableVersion>
         extends ChronologyChangeListener {
-   
    /**
     * Commit state property.
     *

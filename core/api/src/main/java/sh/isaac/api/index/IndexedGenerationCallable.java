@@ -58,12 +58,11 @@ import java.util.concurrent.CountDownLatch;
  */
 public class IndexedGenerationCallable
          implements Callable<Long> {
-   
    /** The latch. */
    private final CountDownLatch latch = new CountDownLatch(1);
-   
+
    /** The index generation. */
-   private long           indexGeneration;
+   private long indexGeneration;
 
    //~--- methods -------------------------------------------------------------
 

@@ -78,7 +78,6 @@ import sh.isaac.provider.sync.git.gitblit.GitBlitException.UnknownRequestExcepti
  *
  */
 public class JsonUtils {
-   
    /**
     * Reads a gson object from the specified url.
     *
@@ -127,7 +126,7 @@ public class JsonUtils {
          try (InputStream is = conn.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, ConnectionUtils.CHARSET));) {
             final char[] buffer = new char[4096];
-            int    len    = 0;
+            int          len    = 0;
 
             while ((len = reader.read(buffer)) > -1) {
                json.append(buffer, 0, len);

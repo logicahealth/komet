@@ -65,24 +65,23 @@ import sh.isaac.api.externalizable.OchreExternalizable;
  * @author kec
  */
 public class CommitRecord {
-   
    /** The commit time. */
-   protected Instant            commitTime;
-   
+   protected Instant commitTime;
+
    /** The stamps in commit. */
-   protected StampSequenceSet   stampsInCommit;
-   
+   protected StampSequenceSet stampsInCommit;
+
    /** The stamp aliases. */
-   protected AbstractIntIntMap  stampAliases;
-   
+   protected AbstractIntIntMap stampAliases;
+
    /** The commit comment. */
-   protected String             commitComment;
-   
+   protected String commitComment;
+
    /** The concepts in commit. */
    protected ConceptSequenceSet conceptsInCommit;
-   
+
    /** The sememes in commit. */
-   protected SememeSequenceSet  sememesInCommit;
+   protected SememeSequenceSet sememesInCommit;
 
    //~--- constructors --------------------------------------------------------
 
@@ -124,9 +123,9 @@ public class CommitRecord {
     */
    @Override
    public String toString() {
-      return "CommitRecord{" + "commitTime=" + this.commitTime + ", stampsInCommit=" + this.stampsInCommit + ", stampAliases=" +
-             this.stampAliases + ", commitComment=" + this.commitComment + ", conceptsInCommit=" + this.conceptsInCommit +
-             ", sememesInCommit=" + this.sememesInCommit + '}';
+      return "CommitRecord{" + "commitTime=" + this.commitTime + ", stampsInCommit=" + this.stampsInCommit +
+             ", stampAliases=" + this.stampAliases + ", commitComment=" + this.commitComment + ", conceptsInCommit=" +
+             this.conceptsInCommit + ", sememesInCommit=" + this.sememesInCommit + '}';
    }
 
    //~--- get methods ---------------------------------------------------------

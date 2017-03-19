@@ -88,21 +88,20 @@ import sh.isaac.api.observable.coordinate.ObservableStampPosition;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class StampCoordinateImpl
          implements StampCoordinate {
-   
    /** The stamp precedence. */
-   StampPrecedence    stampPrecedence;
-   
+   StampPrecedence stampPrecedence;
+
    /** The stamp position. */
    @XmlElement(type = StampPositionImpl.class)
-   StampPosition      stampPosition;
-   
+   StampPosition stampPosition;
+
    /** The module sequences. */
    @XmlJavaTypeAdapter(ConceptSequenceSetAdapter.class)
    ConceptSequenceSet moduleSequences;
-   
+
    /** The allowed states. */
    @XmlJavaTypeAdapter(EnumSetAdapter.class)
-   EnumSet<State>     allowedStates;
+   EnumSet<State> allowedStates;
 
    //~--- constructors --------------------------------------------------------
 
@@ -214,9 +213,12 @@ public class StampCoordinateImpl
    @Override
    public StampCoordinateImpl makeAnalog(long stampPositionTime) {
       final StampPosition anotherStampPosition = new StampPositionImpl(stampPositionTime,
-                                                                 this.stampPosition.getStampPathSequence());
+                                                                       this.stampPosition.getStampPathSequence());
 
-      return new StampCoordinateImpl(this.stampPrecedence, anotherStampPosition, this.moduleSequences, this.allowedStates);
+      return new StampCoordinateImpl(this.stampPrecedence,
+                                     anotherStampPosition,
+                                     this.moduleSequences,
+                                     this.allowedStates);
    }
 
    /**
@@ -316,9 +318,9 @@ public class StampCoordinateImpl
    public ArrayChangeListener<ObservableIntegerArray> setModuleSequencesProperty(
            ObjectProperty<ObservableIntegerArray> moduleSequencesProperty) {
       final ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray,
-                                                              boolean sizeChanged,
-                                                              int from,
-                                                              int to) -> {
+                                                                    boolean sizeChanged,
+                                                                    int from,
+                                                                    int to) -> {
                this.moduleSequences = ConceptSequenceSet.of(observableArray.toArray(new int[observableArray.size()]));
             };
 
@@ -394,7 +396,6 @@ public class StampCoordinateImpl
     */
    private static class ConceptSequenceSetAdapter
            extends XmlAdapter<int[], ConceptSequenceSet> {
-      
       /**
        * Marshal.
        *
@@ -402,7 +403,7 @@ public class StampCoordinateImpl
        * @return the int[]
        */
       @Override
-	public int[] marshal(ConceptSequenceSet c) {
+      public int[] marshal(ConceptSequenceSet c) {
          return c.asArray();
       }
 
@@ -426,7 +427,6 @@ public class StampCoordinateImpl
     */
    private static class EnumSetAdapter
            extends XmlAdapter<State[], EnumSet<State>> {
-      
       /**
        * Marshal.
        *
@@ -434,7 +434,7 @@ public class StampCoordinateImpl
        * @return the state[]
        */
       @Override
-	public State[] marshal(EnumSet<State> c) {
+      public State[] marshal(EnumSet<State> c) {
          return c.toArray(new State[c.size()]);
       }
 

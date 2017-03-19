@@ -92,7 +92,6 @@ import sh.isaac.provider.query.clauses.RelRestriction;
    factoryMethod = "createQuery"
 )
 public abstract class Query {
-   
    /** The Constant currentTaxonomyCoordinateKey. */
    public static final String currentTaxonomyCoordinateKey = "Current taxonomy coordinate";
 
@@ -102,21 +101,21 @@ public abstract class Query {
    @XmlElementWrapper(name = "for")
    @XmlElement(name = "component")
    protected List<ComponentCollectionTypes> forCollectionTypes = new ArrayList<>();
-   
+
    /** The custom collection. */
    @XmlElementWrapper(name = "custom-for")
    @XmlElement(name = "uuid")
-   protected Set<UUID>                      customCollection   = new HashSet<>();
-   
+   protected Set<UUID> customCollection = new HashSet<>();
+
    /** The root clause. */
    @XmlElementWrapper(name = "where")
    @XmlElement(name = "clause")
-   protected Clause[]                       rootClause         = new Clause[1];
-   
+   protected Clause[] rootClause = new Clause[1];
+
    /** The return types. */
    @XmlElementWrapper(name = "return")
    @XmlElement(name = "type")
-   private final EnumSet<ReturnTypes>       returnTypes        = EnumSet.of(ReturnTypes.NIDS);
+   private final EnumSet<ReturnTypes> returnTypes = EnumSet.of(ReturnTypes.NIDS);
 
    /**
     * Number of Components output in the returnResultSet method.
@@ -127,13 +126,13 @@ public abstract class Query {
     * The steps required to compute the query clause.
     */
    private final EnumSet<ClauseComputeType> computeTypes = EnumSet.noneOf(ClauseComputeType.class);
-   
+
    /** The premise type. */
-   private PremiseType                      premiseType  = PremiseType.INFERRED;
-   
+   private PremiseType premiseType = PremiseType.INFERRED;
+
    /** The let declarations. */
    @XmlElementWrapper(name = "let")
-   private HashMap<String, Object>          letDeclarations;
+   private HashMap<String, Object> letDeclarations;
 
    /**
     * The concepts, stored as nids in a <code>NidSet</code>, that are
@@ -207,27 +206,26 @@ public abstract class Query {
 
       if (this.computeTypes.contains(ClauseComputeType.ITERATION)) {
          final NidSet conceptsToIterateOver = NidSet.of(Get.identifierService()
-                                                     .getConceptSequencesForConceptNids(possibleComponents));
+                                                           .getConceptSequencesForConceptNids(possibleComponents));
          final ConceptSequenceSet conceptSequences = Get.identifierService()
-                                                  .getConceptSequencesForConceptNids(conceptsToIterateOver);
+                                                        .getConceptSequencesForConceptNids(conceptsToIterateOver);
 
          Get.conceptService()
             .getParallelConceptChronologyStream(conceptSequences)
             .forEach((concept) -> {
-                        concept.createMutableVersion(
-                               concept.getNid());
+                        concept.createMutableVersion(concept.getNid());
+
                         final ConceptChronology cch = concept;
                         final Optional<LatestVersion<ConceptVersion<?>>> latest =
                            cch.getLatestVersion(ConceptVersion.class, this.taxonomyCoordinate.getStampCoordinate());
 
                         // Optional<LatestVersion<ConceptVersion<?>>> latest
                         // = ((ConceptChronology<ConceptVersion<?>>) concept).getLatestVersion(ConceptVersion.class, stampCoordinate);
-
                         if (latest.isPresent()) {
                            this.rootClause[0].getChildren().stream().forEach((c) -> {
-                                                    c.getQueryMatches(latest.get()
-                                                          .value());
-                                                 });
+                        c.getQueryMatches(latest.get()
+                                                .value());
+                     });
                         }
                      });
       }
@@ -484,9 +482,9 @@ public abstract class Query {
 
          case CUSTOM_SET:
             this.customCollection.stream().forEach((uuid) -> {
-                                        this.forSet.add(Get.identifierService()
-                                              .getNidForUuids(uuid));
-                                     });
+                                             this.forSet.add(Get.identifierService()
+                                                   .getNidForUuids(uuid));
+                                          });
             break;
 
          default:
@@ -764,8 +762,8 @@ public abstract class Query {
                this.letDeclarations.put(currentTaxonomyCoordinateKey, this.taxonomyCoordinate);
             } else {
                this.letDeclarations.put(currentTaxonomyCoordinateKey,
-                                   Get.configurationService()
-                                      .getDefaultTaxonomyCoordinate());
+                                        Get.configurationService()
+                                           .getDefaultTaxonomyCoordinate());
             }
          }
 

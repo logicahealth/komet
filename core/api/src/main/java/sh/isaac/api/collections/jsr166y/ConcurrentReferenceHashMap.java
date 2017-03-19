@@ -149,16 +149,16 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ConcurrentReferenceHashMap<K, V>
         extends AbstractMap<K, V>
          implements java.util.concurrent.ConcurrentMap<K, V>, Serializable {
-   
    /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 7249069246763182397L;
 
    /** The Constant DEFAULT_KEY_TYPE. */
+
    /*
     * ---------------- Constants --------------
     */
-   static final ReferenceType DEFAULT_KEY_TYPE   = ReferenceType.WEAK;
-   
+   static final ReferenceType DEFAULT_KEY_TYPE = ReferenceType.WEAK;
+
    /** The Constant DEFAULT_VALUE_TYPE. */
    static final ReferenceType DEFAULT_VALUE_TYPE = ReferenceType.STRONG;
 
@@ -195,11 +195,11 @@ public class ConcurrentReferenceHashMap<K, V>
     */
    static final int RETRIES_BEFORE_LOCK = 2;
 
+   //~--- fields --------------------------------------------------------------
+
    /*
     * ---------------- Fields --------------
     */
-
-   //~--- fields --------------------------------------------------------------
 
    /**
     * Mask value for indexing into segments. The upper bits of a key's hash code are used to choose the
@@ -213,19 +213,19 @@ public class ConcurrentReferenceHashMap<K, V>
    final int segmentShift;
 
    /** The segments, each of which is a specialized hash table. */
-   final Segment<K, V>[]          segments;
-   
+   final Segment<K, V>[] segments;
+
    /** The identity comparisons. */
-   boolean                        identityComparisons;
-   
+   boolean identityComparisons;
+
    /** The key set. */
-   transient Set<K>               keySet;
-   
+   transient Set<K> keySet;
+
    /** The entry set. */
    transient Set<Map.Entry<K, V>> entrySet;
-   
+
    /** The values. */
-   transient Collection<V>        values;
+   transient Collection<V> values;
 
    //~--- constant enums ------------------------------------------------------
 
@@ -249,7 +249,6 @@ public class ConcurrentReferenceHashMap<K, V>
     * An option specifying which Java reference type should be used to refer to a key and/or value.
     */
    public static enum ReferenceType {
-      
       /** Indicates a normal Java strong reference should be used. */
       STRONG,
 
@@ -413,9 +412,9 @@ public class ConcurrentReferenceHashMap<K, V>
          ssize <<= 1;
       }
 
-      this.segmentShift  = 32 - sshift;
-      this.segmentMask   = ssize - 1;
-      this.segments = Segment.newArray(ssize);
+      this.segmentShift = 32 - sshift;
+      this.segmentMask  = ssize - 1;
+      this.segments     = Segment.newArray(ssize);
 
       if (initialCapacity > MAXIMUM_CAPACITY) {
          initialCapacity = MAXIMUM_CAPACITY;
@@ -499,7 +498,7 @@ public class ConcurrentReferenceHashMap<K, V>
 
       // See explanation of modCount use above
       final Segment<K, V>[] segments = this.segments;
-      final int[]                 mc       = new int[segments.length];
+      final int[]           mc       = new int[segments.length];
 
       // Try a few times without locking
       for (int k = 0; k < RETRIES_BEFORE_LOCK; ++k) {
@@ -568,7 +567,7 @@ public class ConcurrentReferenceHashMap<K, V>
     * removes the corresponding mapping from the map, via the {@code Iterator.remove}, {@code Set.remove},
     * {@code removeAll}, {@code retainAll}, and {@code clear} operations. It does not support the
     * {@code add} or {@code addAll} operations.
-    * 
+    *
     * <p>The view's {@code iterator} is a "weakly consistent" iterator that will never throw {@link ConcurrentModificationException},
     * and guarantees to traverse elements as they existed upon construction of the iterator, and may (but is
     * not guaranteed to) reflect any modifications subsequent to construction.
@@ -589,7 +588,7 @@ public class ConcurrentReferenceHashMap<K, V>
     * the corresponding mapping from this map, via the {@code Iterator.remove}, {@code Set.remove},
     * {@code removeAll}, {@code retainAll}, and {@code clear} operations. It does not support the
     * {@code add} or {@code addAll} operations.
-    * 
+    *
     * <p>The view's {@code iterator} is a "weakly consistent" iterator that will never throw {@link ConcurrentModificationException},
     * and guarantees to traverse elements as they existed upon construction of the iterator, and may (but is
     * not guaranteed to) reflect any modifications subsequent to construction.
@@ -760,7 +759,7 @@ public class ConcurrentReferenceHashMap<K, V>
       final Segment<K, V>[] segments = this.segments;
       long                  sum      = 0;
       long                  check    = 0;
-      final int[]                 mc       = new int[segments.length];
+      final int[]           mc       = new int[segments.length];
 
       // Try a few times to get accurate count. On failure due to
       // continuous async changes in table, resort to locking.
@@ -820,7 +819,7 @@ public class ConcurrentReferenceHashMap<K, V>
     * element removal, which removes the corresponding mapping from this map, via the
     * {@code Iterator.remove}, {@code Collection.remove}, {@code removeAll}, {@code retainAll}, and
     * {@code clear} operations. It does not support the {@code add} or {@code addAll} operations.
-    * 
+    *
     * <p>The view's {@code iterator} is a "weakly consistent" iterator that will never throw {@link ConcurrentModificationException},
     * and guarantees to traverse elements as they existed upon construction of the iterator, and may (but is
     * not guaranteed to) reflect any modifications subsequent to construction.
@@ -876,7 +875,7 @@ public class ConcurrentReferenceHashMap<K, V>
     */
    private int hashOf(Object key) {
       return hash(this.identityComparisons ? System.identityHashCode(key)
-                                      : key.hashCode());
+            : key.hashCode());
    }
 
    /**
@@ -973,7 +972,7 @@ public class ConcurrentReferenceHashMap<K, V>
        * the only other methods also susceptible to ABA problems.
        */
       final int[] mc    = new int[segments.length];
-      int   mcsum = 0;
+      int         mcsum = 0;
 
       for (int i = 0; i < segments.length; ++i) {
          if (segments[i].count != 0) {
@@ -1000,7 +999,7 @@ public class ConcurrentReferenceHashMap<K, V>
    /**
     * Returns the value to which the specified key is mapped, or {@code null} if this map contains no mapping
     * for the key.
-    * 
+    *
     * <p>More formally, if this map contains a mapping from a key
     * {@code k} to a value {@code v} such that {@code key.equals(k)}, then this method returns {@code v};
     * otherwise it returns
@@ -1022,11 +1021,11 @@ public class ConcurrentReferenceHashMap<K, V>
    /**
     * The Interface KeyReference.
     */
+
    /*
     * ---------------- Inner Classes --------------
     */
    static interface KeyReference {
-      
       /**
        * Key hash.
        *
@@ -1051,7 +1050,6 @@ public class ConcurrentReferenceHashMap<K, V>
    final class EntryIterator
            extends HashIterator
             implements Iterator<Entry<K, V>> {
-      
       /**
        * Next.
        *
@@ -1071,7 +1069,6 @@ public class ConcurrentReferenceHashMap<K, V>
     */
    final class EntrySet
            extends AbstractSet<Map.Entry<K, V>> {
-      
       /**
        * Clear.
        */
@@ -1152,7 +1149,7 @@ public class ConcurrentReferenceHashMap<K, V>
    /**
     * ConcurrentReferenceHashMap list entry. Note that this is never exported out as a user-visible
     * Map.Entry.
-    * 
+    *
     * Because the value field is volatile, not final, it is legal wrt the Java Memory Model for an
     * unsynchronized reader to see null instead of initial value when read via a data race. Although a
     * reordering leading to this is not likely to ever actually occur, the Segment.readValueUnderLock method
@@ -1163,16 +1160,15 @@ public class ConcurrentReferenceHashMap<K, V>
     * @param <V> the value type
     */
    static final class HashEntry<K, V> {
-      
       /** The key ref. */
-      final Object          keyRef;
-      
+      final Object keyRef;
+
       /** The hash. */
-      final int             hash;
-      
+      final int hash;
+
       /** The value ref. */
-      volatile Object       valueRef;
-      
+      volatile Object valueRef;
+
       /** The next. */
       final HashEntry<K, V> next;
 
@@ -1313,28 +1309,28 @@ public class ConcurrentReferenceHashMap<K, V>
    /**
     * The Class HashIterator.
     */
+
    /*
     * ---------------- Iterator Support --------------
     */
    abstract class HashIterator {
-      
       /** The next segment index. */
-      int               nextSegmentIndex;
-      
+      int nextSegmentIndex;
+
       /** The next table index. */
-      int               nextTableIndex;
-      
+      int nextTableIndex;
+
       /** The current table. */
       HashEntry<K, V>[] currentTable;
-      
+
       /** The next entry. */
-      HashEntry<K, V>   nextEntry;
-      
+      HashEntry<K, V> nextEntry;
+
       /** The last returned. */
-      HashEntry<K, V>   lastReturned;
-      
+      HashEntry<K, V> lastReturned;
+
       /** The current key. */
-      K                 currentKey;  // Strong reference to weak key (prevents gc)
+      K currentKey;  // Strong reference to weak key (prevents gc)
 
       //~--- constructors -----------------------------------------------------
 
@@ -1446,7 +1442,6 @@ public class ConcurrentReferenceHashMap<K, V>
    final class KeyIterator
            extends HashIterator
             implements Iterator<K>, Enumeration<K> {
-      
       /**
        * Next.
        *
@@ -1476,7 +1471,6 @@ public class ConcurrentReferenceHashMap<K, V>
     */
    final class KeySet
            extends AbstractSet<K> {
-      
       /**
        * Clear.
        */
@@ -1551,8 +1545,8 @@ public class ConcurrentReferenceHashMap<K, V>
    static final class Segment<K, V>
            extends ReentrantLock
             implements Serializable {
-      
       /** The Constant serialVersionUID. */
+
       /*
        * Segments maintain a table of entry lists that are ALWAYS kept in a consistent state, so can be read
        * without locking. Next fields of nodes are immutable (final). All list additions are performed at
@@ -1618,15 +1612,15 @@ public class ConcurrentReferenceHashMap<K, V>
        * table is assigned,
        */
       transient volatile ReferenceQueue<Object> refQueue;
-      
+
       /** The key type. */
-      final ReferenceType                       keyType;
-      
+      final ReferenceType keyType;
+
       /** The value type. */
-      final ReferenceType                       valueType;
-      
+      final ReferenceType valueType;
+
       /** The identity comparisons. */
-      final boolean                             identityComparisons;
+      final boolean identityComparisons;
 
       //~--- constructors -----------------------------------------------------
 
@@ -1644,7 +1638,7 @@ public class ConcurrentReferenceHashMap<K, V>
               ReferenceType keyType,
               ReferenceType valueType,
               boolean identityComparisons) {
-         this.loadFactor               = lf;
+         this.loadFactor          = lf;
          this.keyType             = keyType;
          this.valueType           = valueType;
          this.identityComparisons = identityComparisons;
@@ -1708,14 +1702,14 @@ public class ConcurrentReferenceHashMap<K, V>
        * @return true, if successful
        */
       boolean containsValue(Object value) {
-         if (this.count != 0) {                       // read-volatile
+         if (this.count != 0) {                  // read-volatile
             final HashEntry<K, V>[] tab = this.table;
             final int               len = tab.length;
 
             for (int i = 0; i < len; i++) {
                for (HashEntry<K, V> e = tab[i]; e != null; e = e.next) {
                   final Object opaque = e.valueRef;
-                  V      v;
+                  V            v;
 
                   if (opaque == null) {
                      v = readValueUnderLock(e);  // recheck
@@ -1779,7 +1773,7 @@ public class ConcurrentReferenceHashMap<K, V>
             if (c++ > this.threshold) {             // ensure capacity
                final int reduced = rehash();
 
-               if (reduced > 0)                // adjust from possible weak cleanups
+               if (reduced > 0)                     // adjust from possible weak cleanups
                {
                   this.count = (c -= reduced) - 1;  // write-volatile
                }
@@ -1788,7 +1782,7 @@ public class ConcurrentReferenceHashMap<K, V>
             final HashEntry<K, V>[] tab   = this.table;
             final int               index = hash & (tab.length - 1);
             final HashEntry<K, V>   first = tab[index];
-            HashEntry<K, V>   e     = first;
+            HashEntry<K, V>         e     = first;
 
             while ((e != null) && ((e.hash != hash) ||!keyEq(key, e.key()))) {
                e = e.next;
@@ -1806,7 +1800,7 @@ public class ConcurrentReferenceHashMap<K, V>
                oldValue = null;
                ++this.modCount;
                tab[index] = newHashEntry(key, hash, first, value);
-               this.count      = c;                 // write-volatile
+               this.count = c;                      // write-volatile
             }
 
             return oldValue;
@@ -1861,7 +1855,7 @@ public class ConcurrentReferenceHashMap<K, V>
          this.threshold = (int) (newTable.length * this.loadFactor);
 
          final int sizeMask = newTable.length - 1;
-         int reduce   = 0;
+         int       reduce   = 0;
 
          for (int i = 0; i < oldCapacity; i++) {
             // We need to guarantee that any existing reads of old Map can
@@ -1931,11 +1925,11 @@ public class ConcurrentReferenceHashMap<K, V>
                removeStale();
             }
 
-            int               c     = this.count - 1;
+            int                     c     = this.count - 1;
             final HashEntry<K, V>[] tab   = this.table;
             final int               index = hash & (tab.length - 1);
             final HashEntry<K, V>   first = tab[index];
-            HashEntry<K, V>   e     = first;
+            HashEntry<K, V>         e     = first;
 
             // a ref remove operation compares the Reference instance
             while ((e != null) && (key != e.keyRef) && (refRemove || (hash != e.hash) ||!keyEq(key, e.key()))) {
@@ -1969,7 +1963,7 @@ public class ConcurrentReferenceHashMap<K, V>
                   }
 
                   tab[index] = newFirst;
-                  this.count      = c;         // write-volatile
+                  this.count = c;         // write-volatile
                }
             }
 
@@ -2066,7 +2060,7 @@ public class ConcurrentReferenceHashMap<K, V>
        */
       private boolean keyEq(Object src, Object dest) {
          return this.identityComparisons ? src == dest
-                                    : src.equals(dest);
+                                         : src.equals(dest);
       }
 
       //~--- get methods ------------------------------------------------------
@@ -2090,11 +2084,12 @@ public class ConcurrentReferenceHashMap<K, V>
        * @param hash the hash
        * @return the v
        */
+
       /*
        * Specialized implementations of map methods
        */
       V get(Object key, int hash) {
-         if (this.count != 0) {                       // read-volatile
+         if (this.count != 0) {                  // read-volatile
             HashEntry<K, V> e = getFirst(hash);
 
             while (e != null) {
@@ -2136,12 +2131,12 @@ public class ConcurrentReferenceHashMap<K, V>
     * @param <K> the key type
     * @param <V> the value type
     */
+
    /*
     * This class is needed for JDK5 compatibility.
     */
    static class SimpleEntry<K, V>
             implements Entry<K, V>, java.io.Serializable {
-      
       /** The Constant serialVersionUID. */
       private static final long serialVersionUID = -8499721149061103585L;
 
@@ -2149,9 +2144,9 @@ public class ConcurrentReferenceHashMap<K, V>
 
       /** The key. */
       private final K key;
-      
+
       /** The value. */
-      private V       value;
+      private V value;
 
       //~--- constructors -----------------------------------------------------
 
@@ -2203,7 +2198,7 @@ public class ConcurrentReferenceHashMap<K, V>
       @Override
       public int hashCode() {
          return ((this.key == null) ? 0
-                               : this.key.hashCode()) ^ ((this.value == null) ? 0
+                                    : this.key.hashCode()) ^ ((this.value == null) ? 0
                : this.value.hashCode());
       }
 
@@ -2277,7 +2272,6 @@ public class ConcurrentReferenceHashMap<K, V>
    static final class SoftKeyReference<K>
            extends SoftReference<K>
             implements KeyReference {
-      
       /** The hash. */
       final int hash;
 
@@ -2327,12 +2321,11 @@ public class ConcurrentReferenceHashMap<K, V>
    static final class SoftValueReference<V>
            extends SoftReference<V>
             implements KeyReference {
-      
       /** The key ref. */
       final Object keyRef;
-      
+
       /** The hash. */
-      final int    hash;
+      final int hash;
 
       //~--- constructors -----------------------------------------------------
 
@@ -2380,7 +2373,6 @@ public class ConcurrentReferenceHashMap<K, V>
    final class ValueIterator
            extends HashIterator
             implements Iterator<V>, Enumeration<V> {
-      
       /**
        * Next.
        *
@@ -2410,7 +2402,6 @@ public class ConcurrentReferenceHashMap<K, V>
     */
    final class Values
            extends AbstractCollection<V> {
-      
       /**
        * Clear.
        */
@@ -2472,7 +2463,6 @@ public class ConcurrentReferenceHashMap<K, V>
    static final class WeakKeyReference<K>
            extends WeakReference<K>
             implements KeyReference {
-      
       /** The hash. */
       final int hash;
 
@@ -2522,12 +2512,11 @@ public class ConcurrentReferenceHashMap<K, V>
    static final class WeakValueReference<V>
            extends WeakReference<V>
             implements KeyReference {
-      
       /** The key ref. */
       final Object keyRef;
-      
+
       /** The hash. */
-      final int    hash;
+      final int hash;
 
       //~--- constructors -----------------------------------------------------
 
@@ -2574,7 +2563,6 @@ public class ConcurrentReferenceHashMap<K, V>
     */
    final class WriteThroughEntry
            extends SimpleEntry<K, V> {
-      
       /** The Constant serialVersionUID. */
       private static final long serialVersionUID = -7900634345345313646L;
 

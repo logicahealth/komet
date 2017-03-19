@@ -52,7 +52,6 @@ import sh.isaac.api.identity.StampedVersion;
  */
 public interface MutableStampedVersion
         extends StampedVersion {
-   
    /**
     * Sets the author sequence.
     *

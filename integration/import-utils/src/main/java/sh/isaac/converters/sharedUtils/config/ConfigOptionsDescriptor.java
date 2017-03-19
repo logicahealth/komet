@@ -58,7 +58,6 @@ import sh.isaac.pombuilder.converter.ConverterOptionParam;
  */
 @Contract
 public interface ConfigOptionsDescriptor {
-   
    /**
     * Which options are applicable for this converter.
     *

@@ -55,10 +55,9 @@ import sh.isaac.api.externalizable.OchreExternalizableObjectType;
  */
 public class StampAlias
          implements OchreExternalizable {
-   
    /** The stamp sequence. */
    int stampSequence;
-   
+
    /** The stamp alias. */
    int stampAlias;
 
@@ -74,9 +73,9 @@ public class StampAlias
 
       if (version == getDataFormatVersion()) {
          this.stampSequence = StampUniversal.get(in)
-                                       .getStampSequence();
+                                            .getStampSequence();
          this.stampAlias    = StampUniversal.get(in)
-                                       .getStampSequence();
+                                            .getStampSequence();
       } else {
          throw new UnsupportedOperationException("Can't handle version: " + version);
       }

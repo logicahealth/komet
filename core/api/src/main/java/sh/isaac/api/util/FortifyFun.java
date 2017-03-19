@@ -53,7 +53,6 @@ import java.lang.reflect.Method;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class FortifyFun {
-   
    /**
     * This hatchet job is to work around the fact that Fortify won't let us use the setAccessible method, and
     * we can't deploy without fortify being happy.
@@ -67,7 +66,7 @@ public class FortifyFun {
       // o.setAccessible(true);
       try {
          final Method m = o.getClass()
-                     .getMethod("setAccessible", boolean.class);
+                           .getMethod("setAccessible", boolean.class);
 
          m.invoke(o, true);
       } catch (final SecurityException e) {

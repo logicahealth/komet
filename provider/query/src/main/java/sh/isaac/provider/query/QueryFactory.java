@@ -49,7 +49,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Created by kec on 11/4/14.
  */
 public class QueryFactory {
-   
    /**
     * Creates a new Query object.
     *
@@ -67,7 +66,6 @@ public class QueryFactory {
    @XmlRootElement(name = "query")
    public static class QueryFromFactory
            extends Query {
-      
       /**
        * Let.
        */

@@ -67,18 +67,17 @@ import sh.isaac.api.progress.ActiveTasks;
  */
 public class WriteSememeChronicle
         extends Task<Void> {
-   
    /** The sc. */
-   private final SememeChronology                                               sc;
-   
+   private final SememeChronology sc;
+
    /** The write semaphore. */
-   private final Semaphore                                                      writeSemaphore;
-   
+   private final Semaphore writeSemaphore;
+
    /** The change listeners. */
    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
-   
+
    /** The uncommitted tracking. */
-   private final BiConsumer<ObjectChronology, Boolean>                          uncommittedTracking;
+   private final BiConsumer<ObjectChronology, Boolean> uncommittedTracking;
 
    //~--- constructors --------------------------------------------------------
 
@@ -126,14 +125,14 @@ public class WriteSememeChronicle
          updateProgress(1, 2);
          updateMessage("notifying: " + this.sc.getAssemblageSequence());
          this.changeListeners.forEach((listenerRef) -> {
-                                    final ChronologyChangeListener listener = listenerRef.get();
+                                         final ChronologyChangeListener listener = listenerRef.get();
 
-                                    if (listener == null) {
-                                       this.changeListeners.remove(listenerRef);
-                                    } else {
-                                       listener.handleChange(this.sc);
-                                    }
-                                 });
+                                         if (listener == null) {
+                                            this.changeListeners.remove(listenerRef);
+                                         } else {
+                                            listener.handleChange(this.sc);
+                                         }
+                                      });
          updateProgress(2, 2);
          updateMessage("complete: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
          return null;

@@ -52,10 +52,9 @@ import sh.isaac.api.Get;
  */
 public class DestinationOriginRecord
          implements Comparable<DestinationOriginRecord> {
-   
    /** The origin sequence. */
    private final int originSequence;
-   
+
    /** The destination sequence. */
    private final int destinationSequence;
 

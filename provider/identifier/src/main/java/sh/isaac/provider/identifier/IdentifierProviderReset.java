@@ -60,7 +60,6 @@ import sh.isaac.api.OchreCache;
 @Singleton
 public class IdentifierProviderReset
          implements OchreCache {
-   
    /**
     * Reset.
     */

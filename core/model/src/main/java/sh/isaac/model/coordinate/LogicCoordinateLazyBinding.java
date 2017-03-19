@@ -66,22 +66,21 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LogicCoordinateLazyBinding
         extends LogicCoordinateImpl {
-   
    /** The stated assemblage proxy. */
    @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
-   private ConceptSpecification statedAssemblageProxy        = null;
-   
+   private ConceptSpecification statedAssemblageProxy = null;
+
    /** The inferred assemblage proxy. */
    @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
-   private ConceptSpecification inferredAssemblageProxy      = null;
-   
+   private ConceptSpecification inferredAssemblageProxy = null;
+
    /** The description logic profile proxy. */
    @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
    private ConceptSpecification descriptionLogicProfileProxy = null;
-   
+
    /** The classifier proxy. */
    @XmlJavaTypeAdapter(ConceptProxyAdapter.class)
-   private ConceptSpecification classifierProxy              = null;
+   private ConceptSpecification classifierProxy = null;
 
    //~--- constructors --------------------------------------------------------
 
@@ -236,7 +235,6 @@ public class LogicCoordinateLazyBinding
     */
    private static class ConceptProxyAdapter
            extends XmlAdapter<UUID[], ConceptProxy> {
-      
       /**
        * Marshal.
        *
@@ -244,7 +242,7 @@ public class LogicCoordinateLazyBinding
        * @return the UUI d[]
        */
       @Override
-	public UUID[] marshal(ConceptProxy c) {
+      public UUID[] marshal(ConceptProxy c) {
          return c.getUuidList()
                  .toArray(new UUID[c.getUuidList().size()]);
       }

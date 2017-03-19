@@ -122,7 +122,7 @@ public abstract class LeafClause
     * @return the children
     */
    @Override
-public List<Clause> getChildren() {
+   public List<Clause> getChildren() {
       return Collections.emptyList();
    }
 

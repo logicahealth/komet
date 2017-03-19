@@ -57,7 +57,6 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeLongImpl;
  */
 public class NumberUtilities
         extends NumericUtils {
-   
    /**
     * Return the wrapped number, or throw an exception if not parseable as an integer, long, float or double.
     *

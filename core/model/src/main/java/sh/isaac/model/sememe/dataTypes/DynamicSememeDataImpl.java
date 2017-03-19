@@ -63,12 +63,11 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
  */
 public abstract class DynamicSememeDataImpl
          implements DynamicSememeData {
-   
    /** The name provider. */
    private transient Supplier<String> nameProvider_ = null;
-   
+
    /** The data. */
-   protected byte[]                   data_;
+   protected byte[] data_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -115,15 +114,15 @@ public abstract class DynamicSememeDataImpl
             public String get() {
                if (this.nameCache_ == null) {
                   final DynamicSememeUtility ls = LookupService.get()
-                                                         .getService(DynamicSememeUtility.class);
+                                                               .getService(DynamicSememeUtility.class);
 
                   if (ls == null) {
                      throw new RuntimeException(
                          "An implementation of DynamicSememeUtility is not available on the classpath");
                   } else {
                      this.nameCache_ = ls.readDynamicSememeUsageDescription(assemblageSequence)
-                                    .getColumnInfo()[columnNumber]
-                                    .getColumnName();
+                                         .getColumnInfo()[columnNumber]
+                                         .getColumnName();
                   }
                }
 
@@ -265,7 +264,7 @@ public abstract class DynamicSememeDataImpl
     */
    protected String getName() {
       return ((this.nameProvider_ == null) ? "???"
-                                      : this.nameProvider_.get());
+            : this.nameProvider_.get());
    }
 }
 

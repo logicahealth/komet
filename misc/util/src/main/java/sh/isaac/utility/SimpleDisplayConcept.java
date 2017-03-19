@@ -57,7 +57,7 @@ import sh.isaac.api.component.concept.ConceptVersion;
 
 /**
  * {@link SimpleDisplayConcept}
- * 
+ *
  * A very simple concept container, useful for things like ComboBoxes, or lists
  * where we want to display workbench concepts, and still have a link to the underlying
  * concept (via the nid).
@@ -66,16 +66,15 @@ import sh.isaac.api.component.concept.ConceptVersion;
  */
 public class SimpleDisplayConcept
          implements Comparable<SimpleDisplayConcept> {
-   
    /** The uncommitted. */
-   private boolean           uncommitted_ = false;
-   
+   private boolean uncommitted_ = false;
+
    /** The description. */
-   protected String          description_;
-   
+   protected String description_;
+
    /** The nid. */
-   private int               nid_;
-   
+   private int nid_;
+
    /** The custom logic. */
    private Supplier<Boolean> customLogic_;
 
@@ -117,7 +116,7 @@ public class SimpleDisplayConcept
    public SimpleDisplayConcept(ConceptChronology<? extends ConceptVersion<?>> c,
                                Function<ConceptChronology<? extends ConceptVersion<?>>, String> descriptionReader) {
       final Function<ConceptChronology<? extends ConceptVersion<?>>, String> dr = ((descriptionReader == null)
-                                                                             ? (conceptVersion) -> {
+                                                                                   ? (conceptVersion) -> {
                return ((conceptVersion == null) ? ""
                : Frills.getDescription(conceptVersion.getConceptSequence())
                        .get());
@@ -126,7 +125,7 @@ public class SimpleDisplayConcept
 
       this.description_ = dr.apply(c);
       this.nid_         = (c == null) ? 0
-                                 : c.getNid();
+                                      : c.getNid();
       this.customLogic_ = null;
    }
 

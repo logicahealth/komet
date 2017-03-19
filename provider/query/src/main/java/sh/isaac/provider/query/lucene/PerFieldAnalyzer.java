@@ -61,7 +61,6 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
  */
 public class PerFieldAnalyzer
         extends AnalyzerWrapper {
-   
    /** The Constant WHITE_SPACE_FIELD_MARKER. */
    public static final String WHITE_SPACE_FIELD_MARKER = "_wsa";
 
@@ -69,9 +68,9 @@ public class PerFieldAnalyzer
 
    /** The wa. */
    private final WhitespaceAnalyzer wa = new WhitespaceAnalyzer();
-   
+
    /** The sa. */
-   private final StandardAnalyzer   sa = new StandardAnalyzer();
+   private final StandardAnalyzer sa = new StandardAnalyzer();
 
    //~--- constructors --------------------------------------------------------
 
@@ -91,7 +90,8 @@ public class PerFieldAnalyzer
     */
    @Override
    public String toString() {
-      return "PerFieldAnalyzer(default=" + this.sa + ", fields ending with '" + WHITE_SPACE_FIELD_MARKER + "': " + this.wa + ")";
+      return "PerFieldAnalyzer(default=" + this.sa + ", fields ending with '" + WHITE_SPACE_FIELD_MARKER + "': " +
+             this.wa + ")";
    }
 
    /**

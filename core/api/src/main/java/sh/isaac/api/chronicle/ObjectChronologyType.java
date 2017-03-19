@@ -57,13 +57,12 @@ import org.apache.commons.lang3.StringUtils;
  * @author kec
  */
 public enum ObjectChronologyType {
-   
    /** The concept. */
    CONCEPT("Concept"),
-   
+
    /** The sememe. */
    SEMEME("Sememe"),
-   
+
    /** The unknown nid. */
    UNKNOWN_NID("Unknown");
 
@@ -96,7 +95,7 @@ public enum ObjectChronologyType {
       }
 
       final String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH)
-                                 .trim();
+                                       .trim();
 
       if (StringUtils.isBlank(clean)) {
          return null;

@@ -66,13 +66,12 @@ import sh.isaac.model.configuration.LanguageCoordinates;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class AssociationInstance {
-   
    /** The sememe. */
-   private final DynamicSememe<?>          sememe_;
-   
+   private final DynamicSememe<?> sememe_;
+
    /** The stamp coord. */
-   private final StampCoordinate           stampCoord_;
-   
+   private final StampCoordinate stampCoord_;
+
    /** The assn type. */
    private transient AssociationType assnType_;
 
@@ -84,6 +83,7 @@ public class AssociationInstance {
     * @param data the data
     * @param stampCoordinate the stamp coordinate
     */
+
    // TODO Write the code that checks the index states on startup
    private AssociationInstance(DynamicSememe<?> data, StampCoordinate stampCoordinate) {
       this.sememe_     = data;
@@ -135,8 +135,8 @@ public class AssociationInstance {
    public AssociationType getAssociationType() {
       if (this.assnType_ == null) {
          this.assnType_ = AssociationType.read(this.sememe_.getAssemblageSequence(),
-                                          this.stampCoord_,
-                                          LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate());
+               this.stampCoord_,
+               LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate());
       }
 
       return this.assnType_;

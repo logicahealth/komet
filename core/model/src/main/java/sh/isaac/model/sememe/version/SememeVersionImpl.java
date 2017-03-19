@@ -59,7 +59,6 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 public class SememeVersionImpl<V extends SememeVersionImpl<V>>
         extends ObjectVersionImpl<SememeChronologyImpl<V>, V>
          implements MutableSememeVersion<V> {
-   
    /**
     * Instantiates a new sememe version impl.
     *

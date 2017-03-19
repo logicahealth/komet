@@ -71,15 +71,14 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class RefsetContainsKindOfConcept
         extends LeafClause {
-   
    /** The refset spec key. */
    @XmlElement
    String refsetSpecKey;
-   
+
    /** The concept spec key. */
    @XmlElement
    String conceptSpecKey;
-   
+
    /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;

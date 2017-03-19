@@ -80,12 +80,11 @@ import sh.isaac.model.coordinate.StampPositionImpl;
 @RunLevel(value = 2)
 public class PathProvider
          implements PathService {
-   
    /** The Constant LOG. */
-   private static final Logger LOG  = LogManager.getLogger();
-   
+   private static final Logger LOG = LogManager.getLogger();
+
    /** The Constant LOCK. */
-   private static final Lock   LOCK = new ReentrantLock();
+   private static final Lock LOCK = new ReentrantLock();
 
    //~--- fields --------------------------------------------------------------
 
@@ -138,7 +137,7 @@ public class PathProvider
                .getSememesFromAssemblage(TermAux.PATH_ASSEMBLAGE.getConceptSequence())
                .forEach((pathSememe) -> {
                            final int pathSequence = Get.identifierService()
-                                                 .getConceptSequence(pathSememe.getReferencedComponentNid());
+                                                       .getConceptSequence(pathSememe.getReferencedComponentNid());
 
                            this.pathMap.put(pathSequence, new StampPathImpl(pathSequence));
                         });
@@ -220,7 +219,7 @@ public class PathProvider
                 .getSememesForComponentFromAssemblage(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getConceptSequence())
                 .map((pathOrigin) -> {
                         final long time = ((LongSememe) pathOrigin.getVersionList()
-                                                            .get(0)).getLongValue();
+                                                                  .get(0)).getLongValue();
 
                         return new StampPositionImpl(time, Get.identifierService().getConceptSequence(nid));
                      })

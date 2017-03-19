@@ -45,12 +45,11 @@ package sh.isaac.api.coordinate;
  * @author kec
  */
 public enum StampPrecedence {
-   
    /** The time. */
    TIME("time precedence",
         "<html>If two versions are both on a route to the destination, " +
         "the version with the later time has higher precedence."),
-   
+
    /** The path. */
    PATH("path precedence",
         "<html>If two versions are both on route to the destination, " +
@@ -60,7 +59,7 @@ public enum StampPrecedence {
 
    /** The label. */
    private final String label;
-   
+
    /** The description. */
    private final String description;
 

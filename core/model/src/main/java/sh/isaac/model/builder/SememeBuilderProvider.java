@@ -71,7 +71,6 @@ import sh.isaac.api.logic.LogicalExpression;
 @Service
 public class SememeBuilderProvider<C extends SememeChronology<? extends SememeVersion<?>>>
          implements SememeBuilderService<C> {
-   
    /**
     * Gets the component sememe builder.
     *

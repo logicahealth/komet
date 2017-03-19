@@ -78,11 +78,10 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionLuceneMatch
         extends LeafClause {
-   
    /** The lucene match key. */
    @XmlElement
    String luceneMatchKey;
-   
+
    /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
@@ -118,13 +117,13 @@ public class DescriptionLuceneMatch
    @Override
    public final NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       final String luceneMatch = (String) this.enclosingQuery.getLetDeclarations()
-                                                  .get(this.luceneMatchKey);
+                                                             .get(this.luceneMatchKey);
       final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                      .get(this.viewCoordinateKey);
+                                                                                            .get(this.viewCoordinateKey);
       final NidSet               nids               = new NidSet();
       final List<IndexServiceBI> indexers           = LookupService.get()
-                                                             .getAllServices(IndexServiceBI.class);
-      IndexServiceBI       descriptionIndexer = null;
+                                                                   .getAllServices(IndexServiceBI.class);
+      IndexServiceBI             descriptionIndexer = null;
 
       for (final IndexServiceBI li: indexers) {
          if (li.getIndexerName()

@@ -80,44 +80,43 @@ import sh.isaac.api.task.TimedTask;
  */
 public class CommitTask
         extends TimedTask<Optional<CommitRecord>> {
-   
    /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
    /** The concepts to commit. */
-   final ConceptSequenceSet                           conceptsToCommit = new ConceptSequenceSet();
-   
+   final ConceptSequenceSet conceptsToCommit = new ConceptSequenceSet();
+
    /** The concepts to check. */
-   final ConceptSequenceSet                           conceptsToCheck  = new ConceptSequenceSet();
-   
+   final ConceptSequenceSet conceptsToCheck = new ConceptSequenceSet();
+
    /** The sememes to commit. */
-   final SememeSequenceSet                            sememesToCommit  = new SememeSequenceSet();
-   
+   final SememeSequenceSet sememesToCommit = new SememeSequenceSet();
+
    /** The sememes to check. */
-   final SememeSequenceSet                            sememesToCheck   = new SememeSequenceSet();
-   
+   final SememeSequenceSet sememesToCheck = new SememeSequenceSet();
+
    /** The commit comment. */
-   final String                                       commitComment;
-   
+   final String commitComment;
+
    /** The last commit. */
-   final long                                         lastCommit;
-   
+   final long lastCommit;
+
    /** The checkers. */
    private final ConcurrentSkipListSet<ChangeChecker> checkers;
-   
+
    /** The alert collection. */
-   private final ConcurrentSkipListSet<Alert>         alertCollection;
-   
+   private final ConcurrentSkipListSet<Alert> alertCollection;
+
    /** The pending stamps for commit. */
-   private final Map<UncommittedStamp, Integer>       pendingStampsForCommit;
-   
+   private final Map<UncommittedStamp, Integer> pendingStampsForCommit;
+
    /** The commit provider. */
-   private final CommitProvider                       commitProvider;
-   
+   private final CommitProvider commitProvider;
+
    /** The stamp provider. */
-   private final StampService                         stampProvider;
+   private final StampService stampProvider;
 
    //~--- constructors --------------------------------------------------------
 
@@ -188,33 +187,33 @@ public class CommitTask
          // return;
          // }
          this.conceptsToCommit.stream().forEach((conceptSequence) -> {
-                                     final ConceptChronology c = Get.conceptService()
-                                                              .getConcept(conceptSequence);
+                                          final ConceptChronology c = Get.conceptService()
+                                                                         .getConcept(conceptSequence);
 
-                                     if (this.conceptsToCheck.contains(conceptSequence)) {
-                                        this.checkers.stream().forEach((check) -> {
+                                          if (this.conceptsToCheck.contains(conceptSequence)) {
+                                             this.checkers.stream().forEach((check) -> {
                         check.check(c, this.alertCollection, CheckPhase.COMMIT);
                      });
-                                     }
-                                  });
+                                          }
+                                       });
          this.sememesToCommit.stream().forEach((sememeSequence) -> {
-                                    final SememeChronology sc = Get.sememeService()
-                                                             .getSememe(sememeSequence);
+                                         final SememeChronology sc = Get.sememeService()
+                                                                        .getSememe(sememeSequence);
 
-                                    if (this.sememesToCheck.contains(sememeSequence)) {
-                                       this.checkers.stream().forEach((check) -> {
+                                         if (this.sememesToCheck.contains(sememeSequence)) {
+                                            this.checkers.stream().forEach((check) -> {
                         check.check(sc, this.alertCollection, CheckPhase.COMMIT);
                      });
-                                    }
-                                 });
+                                         }
+                                      });
 
          if (this.alertCollection.stream()
-                            .anyMatch((alert) -> (alert.getAlertType() == AlertType.ERROR))) {
+                                 .anyMatch((alert) -> (alert.getAlertType() == AlertType.ERROR))) {
             this.commitProvider.revertCommit(this.conceptsToCommit,
-                                        this.conceptsToCheck,
-                                        this.sememesToCommit,
-                                        this.sememesToCheck,
-                                        this.pendingStampsForCommit);
+                                             this.conceptsToCheck,
+                                             this.sememesToCommit,
+                                             this.sememesToCheck,
+                                             this.pendingStampsForCommit);
             return Optional.empty();
          }
 
@@ -222,19 +221,19 @@ public class CommitTask
          final StampSequenceSet stampSequenceSet = new StampSequenceSet();
 
          this.pendingStampsForCommit.entrySet().stream().forEach((entry) -> {
-                                           final int stampSequence = entry.getValue();
+                  final int stampSequence = entry.getValue();
 
-                                           stampSequenceSet.add(stampSequence);
+                  stampSequenceSet.add(stampSequence);
 
-                                           final UncommittedStamp uncommittedStamp = entry.getKey();
-                                           final Stamp stamp = new Stamp(entry.getKey().status,
-                                                                   commitTime,
-                                                                   uncommittedStamp.authorSequence,
-                                                                   uncommittedStamp.moduleSequence,
-                                                                   uncommittedStamp.pathSequence);
+                  final UncommittedStamp uncommittedStamp = entry.getKey();
+                  final Stamp stamp = new Stamp(entry.getKey().status,
+                                                commitTime,
+                                                uncommittedStamp.authorSequence,
+                                                uncommittedStamp.moduleSequence,
+                                                uncommittedStamp.pathSequence);
 
-                                           this.stampProvider.addStamp(stamp, stampSequence);
-                                        });
+                  this.stampProvider.addStamp(stamp, stampSequence);
+               });
 
          if (this.commitComment != null) {
             stampSequenceSet.stream()
@@ -243,11 +242,13 @@ public class CommitTask
 
          if (!stampSequenceSet.isEmpty()) {
             final CommitRecord commitRecord = new CommitRecord(Instant.ofEpochMilli(commitTime),
-                                                         stampSequenceSet,
-                                                         new OpenIntIntHashMap(),
-                                                         ConceptSequenceSet.of(this.conceptsToCheck).or(this.conceptsToCommit),
-                                                         SememeSequenceSet.of(this.sememesToCheck).or(this.sememesToCommit),
-                                                         this.commitComment);
+                                                               stampSequenceSet,
+                                                               new OpenIntIntHashMap(),
+                                                               ConceptSequenceSet.of(this.conceptsToCheck).or(
+                                                                  this.conceptsToCommit),
+                                                               SememeSequenceSet.of(this.sememesToCheck).or(
+                                                                  this.sememesToCommit),
+                                                               this.commitComment);
 
             this.commitProvider.handleCommitNotification(commitRecord);
             return Optional.of(commitRecord);
@@ -299,15 +300,15 @@ public class CommitTask
                                 Map<UncommittedStamp, Integer> pendingStampsForCommit,
                                 CommitProvider commitProvider) {
       final CommitTask task = new CommitTask(commitComment,
-                                       uncommittedConceptsWithChecksSequenceSet,
-                                       uncommittedConceptsNoChecksSequenceSet,
-                                       uncommittedSememesWithChecksSequenceSet,
-                                       uncommittedSememesNoChecksSequenceSet,
-                                       lastCommit,
-                                       checkers,
-                                       alertCollection,
-                                       pendingStampsForCommit,
-                                       commitProvider);
+                                             uncommittedConceptsWithChecksSequenceSet,
+                                             uncommittedConceptsNoChecksSequenceSet,
+                                             uncommittedSememesWithChecksSequenceSet,
+                                             uncommittedSememesNoChecksSequenceSet,
+                                             lastCommit,
+                                             checkers,
+                                             alertCollection,
+                                             pendingStampsForCommit,
+                                             commitProvider);
 
       Get.activeTasks()
          .add(task);

@@ -76,7 +76,6 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
  */
 public class MappingItemDAO
         extends MappingDAO {
-   
    /**
     * Construct (and save to the DB) a new MappingItem.
     *
@@ -99,19 +98,19 @@ public class MappingItemDAO
          EditCoordinate editCoord)
             throws RuntimeException {
       final SememeBuilder<? extends SememeChronology<?>> sb = Get.sememeBuilderService()
-                                                           .getDynamicSememeBuilder(sourceConcept.getNid(),
-                                                                 Get.identifierService()
-                                                                       .getConceptSequenceForUuids(mappingSetID),
-                                                                 new DynamicSememeData[] {
-                                                                    ((targetConcept == null) ? null
+                                                                 .getDynamicSememeBuilder(sourceConcept.getNid(),
+                                                                       Get.identifierService()
+                                                                             .getConceptSequenceForUuids(mappingSetID),
+                                                                       new DynamicSememeData[] {
+                                                                          ((targetConcept == null) ? null
             : new DynamicSememeUUIDImpl(targetConcept.getPrimordialUuid())), ((qualifierID == null) ? null
             : new DynamicSememeUUIDImpl(qualifierID)), ((editorStatusID == null) ? null
             : new DynamicSememeUUIDImpl(editorStatusID)) });
       final UUID mappingItemUUID = UuidT5Generator.get(IsaacMappingConstants.get().MAPPING_NAMESPACE
-                                                                      .getUUID(),
-                                                 sourceConcept.getPrimordialUuid()
-                                                       .toString() + "|" + mappingSetID.toString() + "|" +
-                                                          ((targetConcept == null) ? ""
+                                                                            .getUUID(),
+                                                       sourceConcept.getPrimordialUuid()
+                                                             .toString() + "|" + mappingSetID.toString() + "|" +
+                                                                ((targetConcept == null) ? ""
             : targetConcept.getPrimordialUuid()
                            .toString()) + "|" + ((qualifierID == null) ? ""
             : qualifierID.toString()));
@@ -125,13 +124,11 @@ public class MappingItemDAO
       sb.setPrimordialUuid(mappingItemUUID);
 
       @SuppressWarnings("rawtypes")
-	final
-      SememeChronology             built = sb.build(editCoord, ChangeCheckerMode.ACTIVE)
-                                             .getNoThrow();
+      final SememeChronology             built = sb.build(editCoord, ChangeCheckerMode.ACTIVE)
+                                                   .getNoThrow();
       @SuppressWarnings("deprecation")
-	final
-      Task<Optional<CommitRecord>> task  = Get.commitService()
-                                              .commit("Added comment");
+      final Task<Optional<CommitRecord>> task  = Get.commitService()
+                                                    .commit("Added comment");
 
       try {
          task.get();
@@ -140,10 +137,10 @@ public class MappingItemDAO
       }
 
       @SuppressWarnings({ "unchecked" })
-	final
-      Optional<LatestVersion<DynamicSememe<?>>> latest = built.getLatestVersion(DynamicSememe.class,
-                                                                                stampCoord.makeAnalog(State.ACTIVE,
-                                                                                      State.INACTIVE));
+      final Optional<LatestVersion<DynamicSememe<?>>> latest = built.getLatestVersion(DynamicSememe.class,
+                                                                                      stampCoord.makeAnalog(
+                                                                                         State.ACTIVE,
+                                                                                               State.INACTIVE));
 
       return new MappingItem(latest.get().value());
    }
@@ -240,9 +237,8 @@ public class MappingItemDAO
          .build(editCoord, ChangeCheckerMode.ACTIVE);
 
       @SuppressWarnings("deprecation")
-	final
-      Task<Optional<CommitRecord>> task = Get.commitService()
-                                             .commit("update mapping item");
+      final Task<Optional<CommitRecord>> task = Get.commitService()
+                                                   .commit("update mapping item");
 
       try {
          task.get();
@@ -268,8 +264,7 @@ public class MappingItemDAO
       Get.sememeService().getSememesFromAssemblage(Get.identifierService()
                                       .getNidForUuids(mappingSetID)).forEach(sememeC -> {
                      @SuppressWarnings({ "unchecked", "rawtypes" })
-					final
-                     Optional<LatestVersion<DynamicSememe<?>>> latest =
+                     final Optional<LatestVersion<DynamicSememe<?>>> latest =
                         ((SememeChronology) sememeC).getLatestVersion(DynamicSememe.class, stampCoord);
 
                      if (latest.isPresent()) {

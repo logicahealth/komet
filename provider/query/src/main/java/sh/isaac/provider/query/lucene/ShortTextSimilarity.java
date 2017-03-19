@@ -52,7 +52,6 @@ import org.apache.lucene.search.similarities.DefaultSimilarity;
  */
 class ShortTextSimilarity
         extends DefaultSimilarity {
-   
    /**
     * Instantiates a new short text similarity.
     */

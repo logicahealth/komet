@@ -62,16 +62,15 @@ import sh.isaac.api.collections.SememeSequenceSet;
 @XmlRootElement(name = "for-set")
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ForSetSpecification {
-   
    /** The for collection types. */
    @XmlElementWrapper(name = "for")
    @XmlElement(name = "component")
    private List<ComponentCollectionTypes> forCollectionTypes = new ArrayList<>();
-   
+
    /** The custom collection. */
    @XmlElementWrapper(name = "custom-for")
    @XmlElement(name = "uuid")
-   private Set<UUID>                      customCollection   = new HashSet<>();
+   private Set<UUID> customCollection = new HashSet<>();
 
    //~--- constructors --------------------------------------------------------
 

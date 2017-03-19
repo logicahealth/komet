@@ -59,7 +59,6 @@ import sh.isaac.api.collections.ConceptSequenceSet;
  */
 public class SimpleHashTree
         extends AbstractHashTree {
-   
    /**
     * Adds the child.
     *

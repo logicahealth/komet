@@ -66,7 +66,6 @@ import sh.isaac.api.relationship.RelationshipVersionAdaptor;
  */
 @Contract
 public interface LogicService {
-   
    /**
     * Gets the classifier service.
     *

@@ -53,7 +53,6 @@ import sh.isaac.model.coordinate.EditCoordinateImpl;
  * Created by kec on 2/16/15.
  */
 public class EditCoordinates {
-   
    /**
     * Gets the classifier solor overlay.
     *
@@ -61,8 +60,8 @@ public class EditCoordinates {
     */
    public static EditCoordinate getClassifierSolorOverlay() {
       final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.IHTSDO_CLASSIFIER),
-                                                             getNid(TermAux.SOLOR_OVERLAY_MODULE),
-                                                             getNid(TermAux.DEVELOPMENT_PATH));
+                                                                   getNid(TermAux.SOLOR_OVERLAY_MODULE),
+                                                                   getNid(TermAux.DEVELOPMENT_PATH));
 
       return editCoordinate;
    }
@@ -74,8 +73,8 @@ public class EditCoordinates {
     */
    public static EditCoordinate getDefaultUserMetadata() {
       final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
-                                                             getNid(TermAux.ISAAC_MODULE),
-                                                             getNid(TermAux.DEVELOPMENT_PATH));
+                                                                   getNid(TermAux.ISAAC_MODULE),
+                                                                   getNid(TermAux.DEVELOPMENT_PATH));
 
       return editCoordinate;
    }
@@ -87,8 +86,8 @@ public class EditCoordinates {
     */
    public static EditCoordinate getDefaultUserSolorOverlay() {
       final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
-                                                             getNid(TermAux.SOLOR_OVERLAY_MODULE),
-                                                             getNid(TermAux.DEVELOPMENT_PATH));
+                                                                   getNid(TermAux.SOLOR_OVERLAY_MODULE),
+                                                                   getNid(TermAux.DEVELOPMENT_PATH));
 
       return editCoordinate;
    }
@@ -100,8 +99,8 @@ public class EditCoordinates {
     */
    public static EditCoordinate getDefaultUserVeteransAdministrationExtension() {
       final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
-                                                             getNid(TermAux.VHA_MODULES),
-                                                             getNid(TermAux.DEVELOPMENT_PATH));
+                                                                   getNid(TermAux.VHA_MODULES),
+                                                                   getNid(TermAux.DEVELOPMENT_PATH));
 
       return editCoordinate;
    }

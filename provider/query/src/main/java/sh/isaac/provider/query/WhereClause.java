@@ -61,15 +61,14 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement(name = "clause")
 @XmlAccessorType(value = XmlAccessType.PROPERTY)
 public class WhereClause {
-   
    /** The let keys. */
-   List<String>      letKeys  = new ArrayList<>();
-   
+   List<String> letKeys = new ArrayList<>();
+
    /** The children. */
    List<WhereClause> children = new ArrayList<>();
-   
+
    /** The semantic. */
-   ClauseSemantic    semantic;
+   ClauseSemantic semantic;
 
    //~--- get methods ---------------------------------------------------------
 

@@ -65,7 +65,6 @@ import sh.isaac.model.logic.node.external.TypedNodeWithUuids;
  */
 public abstract class TypedNodeWithSequences
         extends ConnectorNode {
-   
    /** The type concept sequence. */
    int typeConceptSequence;
 

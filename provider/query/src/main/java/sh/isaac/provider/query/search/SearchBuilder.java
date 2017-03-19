@@ -60,30 +60,29 @@ import sh.isaac.api.util.TaskCompleteCallback;
  * The Class SearchBuilder.
  */
 public class SearchBuilder {
-   
    /** The size limit. */
-   Integer                                                            sizeLimit             = Integer.MAX_VALUE;
-   
+   Integer sizeLimit = Integer.MAX_VALUE;
+
    /** The merge results on concept. */
-   boolean                                                            mergeResultsOnConcept = false;
-   
+   boolean mergeResultsOnConcept = false;
+
    /** The filter. */
-   Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter                = null;
-   
+   Function<List<CompositeSearchResult>, List<CompositeSearchResult>> filter = null;
+
    /** The query. */
-   String                                                             query;
-   
+   String query;
+
    /** The task id. */
-   Integer                                                            taskId;
-   
+   Integer taskId;
+
    /** The prefix search. */
-   boolean                                                            prefixSearch;
-   
+   boolean prefixSearch;
+
    /** The comparator. */
-   Comparator<CompositeSearchResult>                                  comparator;
-   
+   Comparator<CompositeSearchResult> comparator;
+
    /** The callback. */
-   TaskCompleteCallback                                               callback;
+   TaskCompleteCallback callback;
 
    //~--- methods -------------------------------------------------------------
 
@@ -93,6 +92,7 @@ public class SearchBuilder {
     * @param query the query
     * @return the search builder
     */
+
    // Concept search builder factory methods
    public static SearchBuilder conceptDescriptionSearchBuilder(String query) {
       final SearchBuilder search = new SearchBuilder();
@@ -139,6 +139,7 @@ public class SearchBuilder {
     * @param query the query
     * @return the search builder
     */
+
    // Description search builder factory methods
    public static SearchBuilder descriptionSearchBuilder(String query) {
       final SearchBuilder search = new SearchBuilder();

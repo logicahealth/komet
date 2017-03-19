@@ -52,7 +52,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeTypeToClassUtility {
-   
    /**
     * Type to class.
     *

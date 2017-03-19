@@ -61,7 +61,6 @@ import sh.isaac.api.IdentifierService;
  */
 public class SememeSequenceSet
         extends SequenceSet<SememeSequenceSet> {
-   
    /**
     * Instantiates a new sememe sequence set.
     */

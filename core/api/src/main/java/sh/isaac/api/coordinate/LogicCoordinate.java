@@ -45,7 +45,6 @@ package sh.isaac.api.coordinate;
  * Created by kec on 2/16/15.
  */
 public interface LogicCoordinate {
-   
    /**
     * Gets the classifier sequence.
     *

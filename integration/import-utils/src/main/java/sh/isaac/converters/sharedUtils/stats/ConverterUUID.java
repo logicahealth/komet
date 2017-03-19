@@ -71,18 +71,17 @@ import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
  * @author darmbrust
  */
 public class ConverterUUID {
-   
    /** The disable UUID map. */
    public static boolean disableUUIDMap_ = false;  // Some loaders need to disable this due to memory constraints
-   
+
    /** The master UUID map. */
    private static Hashtable<UUID, String> masterUUIDMap_ = new Hashtable<UUID, String>();
-   
+
    /** The namespace. */
-   private static UUID                    namespace_     = null;
-   
+   private static UUID namespace_ = null;
+
    /** The constants. */
-   private static ConceptSpecification[]  constants      = new ConceptSpecification[] {
+   private static ConceptSpecification[] constants = new ConceptSpecification[] {
       MetaData.IS_A, MetaData.SYNONYM, MetaData.FULLY_SPECIFIED_NAME, MetaData.DEFINITION_DESCRIPTION_TYPE,
       MetaData.US_ENGLISH_DIALECT, MetaData.GB_ENGLISH_DIALECT, MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER,
       MetaData.CONVERTED_IBDF_ARTIFACT_VERSION, MetaData.CONVERTER_VERSION, MetaData.SOURCE_ARTIFACT_VERSION,
@@ -133,7 +132,7 @@ public class ConverterUUID {
 
    /**
     * Create a new Type5 UUID using the provided name as the seed in the configured namespace.
-    * 
+    *
     * Throws a runtime exception if the namespace has not been configured.
     *
     * @param name the name
@@ -145,7 +144,7 @@ public class ConverterUUID {
 
    /**
     * Create a new Type5 UUID using the provided name as the seed in the configured namespace.
-    * 
+    *
     * Throws a runtime exception if the namespace has not been configured.
     *
     * @param name the name
@@ -202,7 +201,7 @@ public class ConverterUUID {
 
    /**
     * Create a new Type5 UUID using the provided name as the seed in the configured namespace.
-    * 
+    *
     * Throws a runtime exception if the namespace has not been configured.
     *
     * @param values the values

@@ -64,15 +64,14 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
  */
 public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V extends ObjectVersionImpl>
          implements MutableStampedVersion, IdentifiedStampedVersion {
-   
    /** The chronicle. */
    protected final C chronicle;
-   
+
    /** The stamp sequence. */
-   private int       stampSequence;
-   
+   private int stampSequence;
+
    /** The version sequence. */
-   private short     versionSequence;
+   private short versionSequence;
 
    //~--- constructors --------------------------------------------------------
 

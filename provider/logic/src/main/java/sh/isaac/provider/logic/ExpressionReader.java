@@ -64,10 +64,9 @@ import se.liu.imt.mi.snomedct.expression.tools.SNOMEDCTParserUtil;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ExpressionReader {
-   
    /** The Constant necessarySctid. */
-   private static final String necessarySctid  = "900000000000074008";
-   
+   private static final String necessarySctid = "900000000000074008";
+
    /** The Constant sufficientSctid. */
    private static final String sufficientSctid = "900000000000073002";
 
@@ -110,13 +109,13 @@ public class ExpressionReader {
                           try {
                              final String[] strTokens = line.split("\t");
 
-                 //          34353-3  works
-                 //          43734-3  works
-                 //          25491-2  works
-                 //          39579-8  works
-                 //          if(! strTokens[6].equals("25491-2")) {
-                 //                  continue;
-                 //          }
+                             // 34353-3  works
+                             // 43734-3  works
+                             // 25491-2  works
+                             // 39579-8  works
+                             // if(! strTokens[6].equals("25491-2")) {
+                             // continue;
+                             // }
                              System.out.println("\n\nLOINC EXPRESSION SERVICE> " + lineCount + ". LOINC CODE " +
                              strTokens[6] + " = " + strTokens[7] + "; STATUS = " + strTokens[8] + "\n");
 

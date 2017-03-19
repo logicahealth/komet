@@ -56,7 +56,6 @@ import org.reactfx.Subscription;
  * Created by kec on 4/9/15.
  */
 public class Ticker {
-   
    /** The tick subscription. */
    private Subscription tickSubscription;
 
@@ -71,9 +70,9 @@ public class Ticker {
    public void start(int intervalInSeconds, Consumer consumer) {
       stop();
       this.tickSubscription = EventStreams.ticks(Duration.ofSeconds(intervalInSeconds))
-                                     .subscribe(tick -> {
-               consumer.accept(tick);
-            });
+            .subscribe(tick -> {
+                          consumer.accept(tick);
+                       });
    }
 
    /**

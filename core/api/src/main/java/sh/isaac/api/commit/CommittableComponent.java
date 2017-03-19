@@ -52,7 +52,6 @@ import sh.isaac.api.identity.IdentifiedObject;
  */
 public interface CommittableComponent
         extends IdentifiedObject {
-   
    /**
     * Gets the commit state.
     *

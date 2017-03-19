@@ -54,7 +54,6 @@ import sh.isaac.api.coordinate.EditCoordinate;
  */
 public interface ObservableEditCoordinate
         extends EditCoordinate {
-   
    /**
     * Author sequence property.
     *

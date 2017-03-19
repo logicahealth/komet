@@ -58,14 +58,15 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
  */
 public class NativeIntIntHashMap
         extends OpenIntIntHashMap {
-   
    /** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 1L;
+   private static final long serialVersionUID = 1L;
 
-/**
- * Instantiates a new native int int hash map.
- */
-public NativeIntIntHashMap() {}
+   //~--- constructors --------------------------------------------------------
+
+   /**
+    * Instantiates a new native int int hash map.
+    */
+   public NativeIntIntHashMap() {}
 
    /**
     * Instantiates a new native int int hash map.

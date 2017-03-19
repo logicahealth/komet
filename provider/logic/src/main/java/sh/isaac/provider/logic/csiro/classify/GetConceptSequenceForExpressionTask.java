@@ -77,21 +77,20 @@ import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
  */
 public class GetConceptSequenceForExpressionTask
         extends Task<Integer> {
-   
    /** The expression. */
-   LogicalExpression  expression;
-   
+   LogicalExpression expression;
+
    /** The classifier provider. */
    ClassifierProvider classifierProvider;
-   
+
    /** The stamp coordinate. */
-   StampCoordinate    stampCoordinate;
-   
+   StampCoordinate stampCoordinate;
+
    /** The logic coordinate. */
-   LogicCoordinate    logicCoordinate;
-   
+   LogicCoordinate logicCoordinate;
+
    /** The stated edit coordinate. */
-   EditCoordinate     statedEditCoordinate;
+   EditCoordinate statedEditCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
@@ -128,8 +127,8 @@ public class GetConceptSequenceForExpressionTask
          ClassifierProvider classifierProvider,
          EditCoordinate statedEditCoordinate) {
       final GetConceptSequenceForExpressionTask task = new GetConceptSequenceForExpressionTask(expression,
-                                                                                         classifierProvider,
-                                                                                         statedEditCoordinate);
+                                                                                               classifierProvider,
+                                                                                               statedEditCoordinate);
 
       LookupService.getService(ActiveTasks.class)
                    .get()
@@ -151,8 +150,8 @@ public class GetConceptSequenceForExpressionTask
             throws Exception {
       try {
          final SememeSnapshotService<LogicGraphSememeImpl> sememeSnapshot = Get.sememeService()
-                                                                         .getSnapshot(LogicGraphSememeImpl.class,
-                                                                               this.stampCoordinate);
+                                                                               .getSnapshot(LogicGraphSememeImpl.class,
+                                                                                     this.stampCoordinate);
 
          updateMessage("Searching existing definitions...");
 
@@ -169,7 +168,7 @@ public class GetConceptSequenceForExpressionTask
 
          if (match.isPresent()) {
             final LogicGraphSememeImpl lgs = match.get()
-                                            .value();
+                                                  .value();
 
             return Get.identifierService()
                       .getConceptSequence(lgs.getReferencedComponentNid());
@@ -185,10 +184,10 @@ public class GetConceptSequenceForExpressionTask
          conceptBuilderService.setDefaultLogicCoordinate(this.logicCoordinate);
 
          final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(uuidForNewConcept.toString(),
-                                                                                 "expression",
-                                                                                 this.expression);
+                                                                                       "expression",
+                                                                                       this.expression);
          final ConceptChronology concept = builder.build(this.statedEditCoordinate, ChangeCheckerMode.INACTIVE)
-                                            .get();
+                                                  .get();
 
          updateMessage("Commiting new expression...");
 
@@ -198,7 +197,7 @@ public class GetConceptSequenceForExpressionTask
                .get();
             updateMessage("Classifying new concept...");
             this.classifierProvider.classify()
-                              .get();
+                                   .get();
          } catch (InterruptedException | ExecutionException ex) {
             throw new RuntimeException(ex);
          }

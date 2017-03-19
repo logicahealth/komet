@@ -50,7 +50,6 @@ import java.io.IOException;
  */
 public class GitBlitException
         extends IOException {
-   
    /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 1L;
 
@@ -82,7 +81,6 @@ public class GitBlitException
     */
    public static class ForbiddenException
            extends GitBlitException {
-      
       /** The Constant serialVersionUID. */
       private static final long serialVersionUID = 1L;
 
@@ -105,7 +103,6 @@ public class GitBlitException
     */
    public static class NotAllowedException
            extends GitBlitException {
-      
       /** The Constant serialVersionUID. */
       private static final long serialVersionUID = 1L;
 
@@ -128,7 +125,6 @@ public class GitBlitException
     */
    public static class UnauthorizedException
            extends GitBlitException {
-      
       /** The Constant serialVersionUID. */
       private static final long serialVersionUID = 1L;
 
@@ -151,7 +147,6 @@ public class GitBlitException
     */
    public static class UnknownRequestException
            extends GitBlitException {
-      
       /** The Constant serialVersionUID. */
       private static final long serialVersionUID = 1L;
 

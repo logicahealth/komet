@@ -81,7 +81,6 @@ import sh.isaac.pombuilder.artifacts.SDOSourceContent;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ContentConverterCreator {
-   
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
@@ -121,7 +120,7 @@ public class ContentConverterCreator {
                 gitRepositoryURL);
 
       final File f = Files.createTempDirectory("converter-builder")
-                    .toFile();
+                          .toFile();
 
       try {
          final Pair<SupportedConverterTypes, String> artifactInfo    = getConverterType(sourceContent.getArtifactId());
@@ -163,7 +162,7 @@ public class ContentConverterCreator {
 
          final StringBuilder dependencies       = new StringBuilder();
          final StringBuilder unpackArtifacts    = new StringBuilder();
-         String        unpackDependencies = "";
+         String              unpackDependencies = "";
 
          if (additionalIBDFDependencies.length > 0) {
             unpackDependencies = FileUtil.readFile("converterProjectTemplate/pomSnippits/unpackDependency.xml");
@@ -255,8 +254,8 @@ public class ContentConverterCreator {
                         userOptions.append(optionIndent + "</" + option.getKey().getInternalName() + "s>");
                      } else {
                         final String value = option.getValue()
-                                             .iterator()
-                                             .next();
+                                                   .iterator()
+                                                   .next();
 
                         userOptions.append(optionIndent + "<" + option.getKey().getInternalName() + ">");
 
@@ -283,7 +282,7 @@ public class ContentConverterCreator {
          }
 
          final StringBuilder profiles    = new StringBuilder();
-         String[]      classifiers = new String[] {};
+         String[]            classifiers = new String[] {};
 
          switch (conversionType) {
          case SCT:
@@ -305,7 +304,7 @@ public class ContentConverterCreator {
             temp = temp.replaceAll("#USER_CONFIGURATION_OPTIONS#", userOptions.toString());
             profiles.append(temp);
 
-            String        assemblyInfo     = FileUtil.readFile("converterProjectTemplate/src/assembly/assembly.xml");
+            String              assemblyInfo = FileUtil.readFile("converterProjectTemplate/src/assembly/assembly.xml");
             final StringBuilder assemblySnippits = new StringBuilder();
 
             for (final String classifier2: classifiers) {
@@ -336,8 +335,8 @@ public class ContentConverterCreator {
 
          pomSwaps.put("#PROFILE#", profiles.toString());
 
-         final String tagWithoutRevNumber = "sh.isaac.terminology.converted" + "/" + pomSwaps.get("#ARTIFACTID#") + "/" +
-                                      pomSwaps.get("#VERSION#");
+         final String tagWithoutRevNumber = "sh.isaac.terminology.converted" + "/" + pomSwaps.get("#ARTIFACTID#") +
+                                            "/" + pomSwaps.get("#VERSION#");
 
          LOG.debug("Generated tag (without rev number): '{}'", tagWithoutRevNumber);
 
@@ -349,8 +348,8 @@ public class ContentConverterCreator {
                       Arrays.toString(existingTags.toArray(new String[existingTags.size()])));
          }
 
-         final int    highestBuildRevision = GitPublish.readHighestRevisionNumber(existingTags, tagWithoutRevNumber);
-         String tag;
+         final int highestBuildRevision = GitPublish.readHighestRevisionNumber(existingTags, tagWithoutRevNumber);
+         String    tag;
 
          // Fix version number
          if (highestBuildRevision == -1) {
@@ -442,7 +441,7 @@ public class ContentConverterCreator {
          if (type.getArtifactId()
                  .contains("*")) {
             final String[] temp = type.getArtifactId()
-                                .split("\\*");
+                                      .split("\\*");
 
             if (artifactId.startsWith(temp[0]) && artifactId.endsWith(temp[1])) {
                conversionType  = type;

@@ -71,7 +71,6 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptForComponent
         extends ParentClause {
-   
    /**
     * Instantiates a new concept for component.
     */

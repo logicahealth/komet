@@ -45,7 +45,6 @@ package sh.isaac.api.collections.uuidnidmap;
  * @author kec
  */
 public interface UuidProcedure {
-   
    /**
     * Apply.
     *

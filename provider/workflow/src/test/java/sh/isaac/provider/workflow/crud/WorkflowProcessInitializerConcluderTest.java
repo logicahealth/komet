@@ -82,7 +82,6 @@ import sh.isaac.provider.workflow.user.RoleConfigurator;
  */
 public class WorkflowProcessInitializerConcluderTest
         extends AbstractWorkflowProviderTestPackage {
-   
    /**
     * Before test.
     */
@@ -131,10 +130,10 @@ public class WorkflowProcessInitializerConcluderTest
       }
 
       final UUID processId = wp_.getWorkflowProcessInitializerConcluder()
-                          .createWorkflowProcess(mainDefinitionId,
-                                RoleConfigurator.getFirstTestUser(),
-                                "Main Process Name",
-                                "Main Process Description");
+                                .createWorkflowProcess(mainDefinitionId,
+                                      RoleConfigurator.getFirstTestUser(),
+                                      "Main Process Name",
+                                      "Main Process Description");
 
       Thread.sleep(1);
       addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
@@ -203,10 +202,10 @@ public class WorkflowProcessInitializerConcluderTest
       }
 
       final UUID processId = wp_.getWorkflowProcessInitializerConcluder()
-                          .createWorkflowProcess(mainDefinitionId,
-                                RoleConfigurator.getFirstTestUser(),
-                                "Main Process Name",
-                                "Main Process Description");
+                                .createWorkflowProcess(mainDefinitionId,
+                                      RoleConfigurator.getFirstTestUser(),
+                                      "Main Process Name",
+                                      "Main Process Description");
 
       Thread.sleep(1);
 
@@ -284,10 +283,10 @@ public class WorkflowProcessInitializerConcluderTest
             throws Exception {
       // Initialization
       final UUID processId = wp_.getWorkflowProcessInitializerConcluder()
-                          .createWorkflowProcess(mainDefinitionId,
-                                RoleConfigurator.getFirstTestUser(),
-                                "Main Process Name",
-                                "Main Process Description");
+                                .createWorkflowProcess(mainDefinitionId,
+                                      RoleConfigurator.getFirstTestUser(),
+                                      "Main Process Name",
+                                      "Main Process Description");
 
       addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
 
@@ -324,10 +323,10 @@ public class WorkflowProcessInitializerConcluderTest
       }
 
       final UUID processId = wp_.getWorkflowProcessInitializerConcluder()
-                          .createWorkflowProcess(mainDefinitionId,
-                                RoleConfigurator.getFirstTestUser(),
-                                "Main Process Name",
-                                "Main Process Description");
+                                .createWorkflowProcess(mainDefinitionId,
+                                      RoleConfigurator.getFirstTestUser(),
+                                      "Main Process Name",
+                                      "Main Process Description");
 
       Thread.sleep(1);
       addComponentsToProcess(processId, RoleConfigurator.getFirstTestUserSeq(), State.ACTIVE);
@@ -367,7 +366,7 @@ public class WorkflowProcessInitializerConcluderTest
                               .values());
 
       final ProcessDetail entry = detailEntries.iterator()
-                                         .next();
+                                               .next();
 
       Assert.assertEquals(processId, entry.getId());
       Assert.assertEquals(2, entry.getComponentToInitialEditMap()

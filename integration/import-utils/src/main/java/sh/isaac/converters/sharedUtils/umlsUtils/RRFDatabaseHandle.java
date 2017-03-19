@@ -76,7 +76,6 @@ import sh.isaac.converters.sharedUtils.sql.TerminologyFileReader;
  */
 public class RRFDatabaseHandle
         extends H2DatabaseHandle {
-   
    /**
     * Load data into table.
     *
@@ -121,7 +120,7 @@ public class RRFDatabaseHandle
       }
 
       final ArrayList<String[]> mrFile = new ArrayList<>();
-      BufferedReader      br     = new BufferedReader(new InputStreamReader(MRFILES));
+      BufferedReader            br     = new BufferedReader(new InputStreamReader(MRFILES));
 
       br.lines()
         .map(line -> line.trim())
@@ -164,8 +163,8 @@ public class RRFDatabaseHandle
       final ArrayList<TableDefinition> tables = new ArrayList<>();
 
       for (final String[] table: mrFile) {
-         final String  fileName = table[0];
-         boolean skip     = false;
+         final String fileName = table[0];
+         boolean      skip     = false;
 
          for (final String prefix: prefixSkips) {
             if (fileName.startsWith(prefix)) {

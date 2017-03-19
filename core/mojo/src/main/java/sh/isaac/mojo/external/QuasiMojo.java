@@ -98,15 +98,14 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public abstract class QuasiMojo {
-   
    /** The log. */
-   protected Log    log_ = null;
-   
+   protected Log log_ = null;
+
    /** The project version. */
    protected String projectVersion;
-   
+
    /** The output directory. */
-   protected File   outputDirectory;
+   protected File outputDirectory;
 
    //~--- methods -------------------------------------------------------------
 

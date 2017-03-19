@@ -77,26 +77,25 @@ import sh.isaac.provider.ibdf.diff.BinaryDataDifferProvider;
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 public class BinaryDataDifferTest {
-   
    /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
    /** The terminology input file name. */
-   private final String             TERMINOLOGY_INPUT_FILE_NAME = "vhat-ibdf";
-   
+   private final String TERMINOLOGY_INPUT_FILE_NAME = "vhat-ibdf";
+
    /** The old version. */
-   private final String             OLD_VERSION                 = "4.3-SNAPSHOT";
-   
+   private final String OLD_VERSION = "4.3-SNAPSHOT";
+
    /** The new version. */
-   private final String             NEW_VERSION                 = "4.31-SNAPSHOT";
-   
+   private final String NEW_VERSION = "4.31-SNAPSHOT";
+
    /** The datastore path. */
-   private final File               DATASTORE_PATH              = new File("target/db");
-   
+   private final File DATASTORE_PATH = new File("target/db");
+
    /** The differ provider. */
-   private final BinaryDataDifferProvider differProvider              = new BinaryDataDifferProvider();
+   private final BinaryDataDifferProvider differProvider = new BinaryDataDifferProvider();
 
    //~--- methods -------------------------------------------------------------
 
@@ -152,8 +151,8 @@ public class BinaryDataDifferTest {
       // Output Files
       final String ibdfFileOutputDir      = "target/unitTestOutput/ibdfFileOutputDir/";
       final String analysisFilesOutputDir = "target/unitTestOutput/analysisFilesOutputDir/";
-      final String ouptutIbdfFileName = this.TERMINOLOGY_INPUT_FILE_NAME + "-Diff-" + this.OLD_VERSION + "-to-" + this.NEW_VERSION +
-                                        ".ibdf";
+      final String ouptutIbdfFileName = this.TERMINOLOGY_INPUT_FILE_NAME + "-Diff-" + this.OLD_VERSION + "-to-" +
+                                        this.NEW_VERSION + ".ibdf";
 
       // Others
       final String  importDate          = "2016-09-30";
@@ -165,15 +164,15 @@ public class BinaryDataDifferTest {
       final boolean createAnalysisFiles = true;
 
       this.differProvider.initialize(analysisFilesOutputDir,
-                                ibdfFileOutputDir,
-                                ouptutIbdfFileName,
-                                createAnalysisFiles,
-                                diffOnStatus,
-                                diffOnTimestamp,
-                                diffOnAuthor,
-                                diffOnModule,
-                                diffOnPath,
-                                importDate);
+                                     ibdfFileOutputDir,
+                                     ouptutIbdfFileName,
+                                     createAnalysisFiles,
+                                     diffOnStatus,
+                                     diffOnTimestamp,
+                                     diffOnAuthor,
+                                     diffOnModule,
+                                     diffOnPath,
+                                     importDate);
 
       try {
          final Map<OchreExternalizableObjectType, Set<OchreExternalizable>> oldContentMap =
@@ -182,7 +181,7 @@ public class BinaryDataDifferTest {
             this.differProvider.processVersion(newVersionFile);
          final Map<ChangeType, List<OchreExternalizable>> changedComponents =
             this.differProvider.identifyVersionChanges(oldContentMap,
-                                                  newContentMap);
+                                                       newContentMap);
 
          this.differProvider.generateDiffedIbdfFile(changedComponents);
 

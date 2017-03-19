@@ -56,7 +56,6 @@ import sh.isaac.api.util.AlphanumComparator;
  */
 public class SimpleDisplayConceptComparator
          implements Comparator<SimpleDisplayConcept> {
-   
    /** The ac. */
    private static AlphanumComparator ac = new AlphanumComparator(true);
 

@@ -57,7 +57,6 @@ import sh.isaac.api.tree.TreeNodeVisitData;
  * @author kec
  */
 public interface LogicalExpression {
-   
    /**
     * Contains.
     *

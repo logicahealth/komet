@@ -345,7 +345,7 @@ public enum LanguageCode {
     * @return the string representing the language code and dialect code
     */
    public String getFormatedLanguageCode() {
-      String   result    = "";
+      String         result    = "";
       final String   name      = this.name();
       final String[] nameArray = name.split("_");
 
@@ -377,7 +377,7 @@ public enum LanguageCode {
     * @return the specified LanguageCode
     */
    public static LanguageCode getLangCode(String name) {
-      String   result    = null;
+      String         result    = null;
       final String[] nameArray = name.split("-");
 
       if (nameArray.length == 1) {

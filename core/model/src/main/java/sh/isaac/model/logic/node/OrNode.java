@@ -61,7 +61,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public class OrNode
         extends ConnectorNode {
-   
    /**
     * Instantiates a new or node.
     *

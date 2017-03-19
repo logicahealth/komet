@@ -72,20 +72,19 @@ import sh.isaac.api.task.TimedTask;
  */
 public class GenerateIndexes
         extends TimedTask<Void> {
-   
    /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
    /** The processed. */
-   AtomicLong           processed = new AtomicLong(0);
-   
+   AtomicLong processed = new AtomicLong(0);
+
    /** The indexers. */
    List<IndexServiceBI> indexers;
-   
+
    /** The component count. */
-   long                 componentCount;
+   long componentCount;
 
    //~--- constructors --------------------------------------------------------
 
@@ -100,7 +99,7 @@ public class GenerateIndexes
 
       if ((indexersToReindex == null) || (indexersToReindex.length == 0)) {
          this.indexers = LookupService.get()
-                                 .getAllServices(IndexServiceBI.class);
+                                      .getAllServices(IndexServiceBI.class);
       } else {
          this.indexers = new ArrayList<>();
 
@@ -111,7 +110,7 @@ public class GenerateIndexes
             }
 
             final IndexServiceBI temp = (IndexServiceBI) LookupService.get()
-                                                                .getService(clazz);
+                                                                      .getService(clazz);
 
             if (temp != null) {
                this.indexers.add(temp);
@@ -120,7 +119,7 @@ public class GenerateIndexes
       }
 
       final List<IndexStatusListenerBI> islList = LookupService.get()
-                                                         .getAllServices(IndexStatusListenerBI.class);
+                                                               .getAllServices(IndexStatusListenerBI.class);
 
       for (final IndexServiceBI i: this.indexers) {
          if (islList != null) {
@@ -155,14 +154,15 @@ public class GenerateIndexes
          // by user, or by some other attribute that is attached to the concept.  But there simply isn't much on the concept at present, and I have
          // no use case for indexing the concepts.  The IndexService APIs would need enhancement if we allowed indexing things other than sememes.
          final long sememeCount = (int) Get.identifierService()
-                                     .getSememeSequenceStream()
-                                     .count();
+                                           .getSememeSequenceStream()
+                                           .count();
 
          log.info("Sememes to index: " + sememeCount);
          this.componentCount = sememeCount;
 
-         for (final SememeChronology<?> sememe: (Iterable<SememeChronology<? extends SememeVersion<?>>>) Get.sememeService()
-               .getParallelSememeStream()::iterator) {
+         for (final SememeChronology<?> sememe:
+               (Iterable<SememeChronology<? extends SememeVersion<?>>>) Get.sememeService()
+                     .getParallelSememeStream()::iterator) {
             for (final IndexServiceBI i: this.indexers) {
                try {
                   if (sememe == null) {
@@ -180,7 +180,7 @@ public class GenerateIndexes
          }
 
          final List<IndexStatusListenerBI> islList = LookupService.get()
-                                                            .getAllServices(IndexStatusListenerBI.class);
+                                                                  .getAllServices(IndexStatusListenerBI.class);
 
          for (final IndexServiceBI i: this.indexers) {
             if (islList != null) {

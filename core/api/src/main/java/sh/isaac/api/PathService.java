@@ -61,7 +61,6 @@ import sh.isaac.api.snapshot.calculator.RelativePosition;
  */
 @Contract
 public interface PathService {
-   
    /**
     * Exists.
     *

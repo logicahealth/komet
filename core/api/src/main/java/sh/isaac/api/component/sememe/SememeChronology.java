@@ -57,7 +57,6 @@ import sh.isaac.api.externalizable.OchreExternalizable;
  */
 public interface SememeChronology<V extends SememeVersion>
         extends ObjectChronology<V>, SememeObject {
-   
    /**
     * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
     * add persist the chronicle when changes to the mutable version are complete .

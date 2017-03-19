@@ -67,7 +67,6 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeStringImpl;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeValidatorTypeImplTest {
-   
    /**
     * Test four.
     *

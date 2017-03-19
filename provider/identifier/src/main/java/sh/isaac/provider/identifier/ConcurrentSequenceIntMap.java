@@ -68,20 +68,19 @@ import sh.isaac.api.collections.NidSet;
  * Created by kec on 12/18/14.
  */
 public class ConcurrentSequenceIntMap {
-   
    /** The Constant SEGMENT_SIZE. */
    private static final int SEGMENT_SIZE = 128000;
 
    //~--- fields --------------------------------------------------------------
 
    /** The lock. */
-   ReentrantLock               lock            = new ReentrantLock();
-   
+   ReentrantLock lock = new ReentrantLock();
+
    /** The sequence int list. */
    CopyOnWriteArrayList<int[]> sequenceIntList = new CopyOnWriteArrayList<>();
-   
+
    /** The size. */
-   AtomicInteger               size            = new AtomicInteger(0);
+   AtomicInteger size = new AtomicInteger(0);
 
    //~--- constructors --------------------------------------------------------
 

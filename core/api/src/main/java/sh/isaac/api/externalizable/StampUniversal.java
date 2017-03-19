@@ -67,26 +67,25 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
  * @author kec
  */
 public class StampUniversal {
-   
    /** The status. */
    @XmlAttribute
    public State status;
-   
+
    /** The time. */
    @XmlAttribute
-   public long  time;
-   
+   public long time;
+
    /** The author uuid. */
    @XmlAttribute
-   public UUID  authorUuid;
-   
+   public UUID authorUuid;
+
    /** The module uuid. */
    @XmlAttribute
-   public UUID  moduleUuid;
-   
+   public UUID moduleUuid;
+
    /** The path uuid. */
    @XmlAttribute
-   public UUID  pathUuid;
+   public UUID pathUuid;
 
    //~--- constructors --------------------------------------------------------
 

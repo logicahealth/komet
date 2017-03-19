@@ -43,13 +43,12 @@ package sh.isaac.converters.sharedUtils.propertyTypes;
  * The Class BPT_Relations.
  *
  * @author Daniel Armbrust
- * 
+ *
  * These get represented as native relationships within the OCHRE APIS (meaning the classifier
  * pays attention, etc)
  */
 public class BPT_Relations
         extends BPT_DualParentPropertyType {
-   
    /**
     * Instantiates a new BP T relations.
     *

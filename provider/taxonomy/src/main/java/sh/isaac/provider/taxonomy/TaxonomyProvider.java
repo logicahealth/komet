@@ -123,13 +123,12 @@ import sh.isaac.provider.taxonomy.graph.GraphCollector;
 @RunLevel(value = 1)
 public class TaxonomyProvider
          implements TaxonomyService, ConceptActiveService, ChronologyChangeListener {
-   
    /** The Constant LOG. */
-   private static final Logger LOG                    = LogManager.getLogger();
-   
+   private static final Logger LOG = LogManager.getLogger();
+
    /** The Constant TAXONOMY. */
-   private static final String TAXONOMY               = "taxonomy";
-   
+   private static final String TAXONOMY = "taxonomy";
+
    /** The Constant ORIGIN_DESTINATION_MAP. */
    private static final String ORIGIN_DESTINATION_MAP = "origin-destination.map";
 
@@ -138,33 +137,33 @@ public class TaxonomyProvider
    /** The destination origin record set. */
    private final ConcurrentSkipListSet<DestinationOriginRecord> destinationOriginRecordSet =
       new ConcurrentSkipListSet<>();
-   
+
    /** The load required. */
-   private final AtomicBoolean                  loadRequired                       = new AtomicBoolean();
-   
+   private final AtomicBoolean loadRequired = new AtomicBoolean();
+
    /** The logic coordinate. */
-   private final LogicCoordinate                logicCoordinate = LogicCoordinates.getStandardElProfile();
-   
+   private final LogicCoordinate logicCoordinate = LogicCoordinates.getStandardElProfile();
+
    /** The isa sequence. */
-   private final int                            isaSequence                        = TermAux.IS_A.getConceptSequence();
-   
+   private final int isaSequence = TermAux.IS_A.getConceptSequence();
+
    /** The role group sequence. */
-   private final int                            roleGroupSequence = TermAux.ROLE_GROUP.getConceptSequence();
-   
+   private final int roleGroupSequence = TermAux.ROLE_GROUP.getConceptSequence();
+
    /** The provider uuid. */
-   private final UUID                           providerUuid                       = UUID.randomUUID();
-   
+   private final UUID providerUuid = UUID.randomUUID();
+
    /** The sememe sequences for unhandled changes. */
    private final ConcurrentSkipListSet<Integer> sememeSequencesForUnhandledChanges = new ConcurrentSkipListSet<>();
-   
+
    /** The stamped lock. */
-   private final StampedLock                    stampedLock                        = new StampedLock();
-   
+   private final StampedLock stampedLock = new StampedLock();
+
    /** The database validity. */
-   private DatabaseValidity                     databaseValidity                   = DatabaseValidity.NOT_SET;
-   
+   private DatabaseValidity databaseValidity = DatabaseValidity.NOT_SET;
+
    /** The tree cache. */
-   private final LruCache<Integer, Tree>              treeCache                          = new LruCache<>(5);
+   private final LruCache<Integer, Tree> treeCache = new LruCache<>(5);
 
    /**
     * The {@code taxonomyMap} associates concept sequence keys with a primitive
@@ -172,26 +171,28 @@ public class TaxonomyProvider
     * flags for parent and child concepts.
     */
    private final CasSequenceObjectMap<TaxonomyRecordPrimitive> originDestinationTaxonomyRecordMap;
-   
+
    /** The folder path. */
-   private final Path                                          folderPath;
-   
+   private final Path folderPath;
+
    /** The taxonomy provider folder. */
-   private final Path                                          taxonomyProviderFolder;
-   
+   private final Path taxonomyProviderFolder;
+
    /** The identifier service. */
-   private IdentifierService                                   identifierService;
+   private IdentifierService identifierService;
 
    //~--- constant enums ------------------------------------------------------
 
    /**
     * The Enum AllowedRelTypes.
     */
-   private enum AllowedRelTypes { /** The hierarchical only. */
- HIERARCHICAL_ONLY,
-                                  
-                                  /** The all rels. */
-                                  ALL_RELS; }
+   private enum AllowedRelTypes {
+      /** The hierarchical only. */
+      HIERARCHICAL_ONLY,
+
+      /** The all rels. */
+      ALL_RELS;
+   }
 
    //~--- constructors --------------------------------------------------------
 
@@ -274,7 +275,7 @@ public class TaxonomyProvider
     */
    @Override
    public void updateStatus(ConceptChronology<?> conceptChronology) {
-      final int                     conceptSequence = conceptChronology.getConceptSequence();
+      final int               conceptSequence = conceptChronology.getConceptSequence();
       TaxonomyRecordPrimitive parentTaxonomyRecord;
 
       if (this.originDestinationTaxonomyRecordMap.containsKey(conceptSequence)) {
@@ -301,9 +302,10 @@ public class TaxonomyProvider
     */
    @Override
    public void updateTaxonomy(SememeChronology<LogicGraphSememe<?>> logicGraphChronology) {
-      final int conceptSequence = this.identifierService.getConceptSequence(logicGraphChronology.getReferencedComponentNid());
+      final int conceptSequence =
+         this.identifierService.getConceptSequence(logicGraphChronology.getReferencedComponentNid());
       final Optional<TaxonomyRecordPrimitive> record = this.originDestinationTaxonomyRecordMap.get(conceptSequence);
-      TaxonomyRecordPrimitive           parentTaxonomyRecord;
+      TaxonomyRecordPrimitive                 parentTaxonomyRecord;
 
       if (record.isPresent()) {
          parentTaxonomyRecord = record.get();
@@ -345,7 +347,7 @@ public class TaxonomyProvider
          return true;
       }
 
-      long    stamp         = this.stampedLock.tryOptimisticRead();
+      long          stamp         = this.stampedLock.tryOptimisticRead();
       final boolean wasEverKindOf = recursiveFindAncestor(childId, parentId, new HashSet<>());
 
       if (this.stampedLock.validate(stamp)) {
@@ -561,16 +563,16 @@ public class TaxonomyProvider
          processNewLogicGraph(node.getData(), parentTaxonomyRecord, taxonomyFlags);
       } else {
          final LogicalExpression comparisonExpression = node.getParent()
-                                                      .getData()
-                                                      .getLogicalExpression();
+                                                            .getData()
+                                                            .getLogicalExpression();
          final LogicalExpression referenceExpression  = node.getData()
-                                                      .getLogicalExpression();
+                                                            .getLogicalExpression();
          final IsomorphicResultsBottomUp isomorphicResults = new IsomorphicResultsBottomUp(referenceExpression,
-                                                                                     comparisonExpression);
+                                                                                           comparisonExpression);
 
          isomorphicResults.getAddedRelationshipRoots().forEach((logicalNode) -> {
                                       final int stampSequence = node.getData()
-                                                              .getStampSequence();
+                                                                    .getStampSequence();
 
                                       processRelationshipRoot(logicalNode,
                                             parentTaxonomyRecord,
@@ -580,9 +582,9 @@ public class TaxonomyProvider
                                    });
          isomorphicResults.getDeletedRelationshipRoots().forEach((logicalNode) -> {
                                       final int activeStampSequence = node.getData()
-                                                                    .getStampSequence();
+                                                                          .getStampSequence();
                                       final int stampSequence       = Get.stampService()
-                                                                   .getRetiredStampSequence(activeStampSequence);
+                                                                         .getRetiredStampSequence(activeStampSequence);
 
                                       processRelationshipRoot(logicalNode,
                                             parentTaxonomyRecord,
@@ -619,7 +621,7 @@ public class TaxonomyProvider
       if (record.isPresent()) {
          final TaxonomyRecordUnpacked childTaxonomyRecords = new TaxonomyRecordUnpacked(record.get().getArray());
          final int[] conceptSequencesForType = childTaxonomyRecords.getConceptSequencesForType(this.isaSequence)
-                                                             .toArray();
+                                                                   .toArray();
 
          if (Arrays.stream(conceptSequencesForType)
                    .anyMatch((int parentSequenceOfType) -> parentSequenceOfType == parentSequence)) {
@@ -651,7 +653,7 @@ public class TaxonomyProvider
       if (record.isPresent()) {
          final TaxonomyRecordUnpacked childTaxonomyRecords = new TaxonomyRecordUnpacked(record.get().getArray());
          final int[] activeConceptSequences = childTaxonomyRecords.getConceptSequencesForType(this.isaSequence, tc)
-                                                            .toArray();
+                                                                  .toArray();
 
          if (Arrays.stream(activeConceptSequences)
                    .anyMatch((int activeParentSequence) -> activeParentSequence == parentSequence)) {
@@ -682,7 +684,7 @@ public class TaxonomyProvider
       if (record.isPresent()) {
          final TaxonomyRecordUnpacked childTaxonomyRecords = new TaxonomyRecordUnpacked(record.get().getArray());
          final int[] activeConceptSequences = childTaxonomyRecords.getConceptSequencesForType(this.isaSequence, tc)
-                                                            .toArray();
+                                                                  .toArray();
 
          Arrays.stream(activeConceptSequences).forEach((parent) -> {
                            if (!ancestors.contains(parent)) {
@@ -746,13 +748,13 @@ public class TaxonomyProvider
       try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)))) {
          out.writeInt(this.destinationOriginRecordSet.size());
          this.destinationOriginRecordSet.forEach((rec) -> {
-                                               try {
-                                                  out.writeInt(rec.getDestinationSequence());
-                                                  out.writeInt(rec.getOriginSequence());
-                                               } catch (final IOException ex) {
-                                                  throw new RuntimeException(ex);
-                                               }
-                                            });
+                  try {
+                     out.writeInt(rec.getDestinationSequence());
+                     out.writeInt(rec.getOriginSequence());
+                  } catch (final IOException ex) {
+                     throw new RuntimeException(ex);
+                  }
+               });
       } catch (final IOException e) {
          throw new RuntimeException(e);
       }
@@ -777,7 +779,8 @@ public class TaxonomyProvider
                                 this.isaSequence,
                                 stampSequence,
                                 taxonomyFlags.bits);
-      this.destinationOriginRecordSet.add(new DestinationOriginRecord(conceptNode.getConceptSequence(), originSequence));
+      this.destinationOriginRecordSet.add(new DestinationOriginRecord(conceptNode.getConceptSequence(),
+            originSequence));
    }
 
    /**
@@ -861,7 +864,7 @@ public class TaxonomyProvider
    @Override
    public IntStream getAllCircularRelationshipTypeSequences(int originId, TaxonomyCoordinate tc) {
       final int                originSequence = Get.identifierService()
-                                             .getConceptSequence(originId);
+                                                   .getConceptSequence(originId);
       final ConceptSequenceSet ancestors      = getAncestorOfSequenceSet(originId, tc);
 
       if (tc.getTaxonomyType() != PremiseType.INFERRED) {
@@ -1223,8 +1226,8 @@ public class TaxonomyProvider
       parentId = Get.identifierService()
                     .getConceptSequence(parentId);
 
-      final RelativePositionCalculator        computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
-      final int                               flags    = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
+      final RelativePositionCalculator  computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
+      final int                         flags    = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
       long                              stamp    = this.stampedLock.tryOptimisticRead();
       Optional<TaxonomyRecordPrimitive> record   = this.originDestinationTaxonomyRecordMap.get(childId);
 
@@ -1304,7 +1307,7 @@ public class TaxonomyProvider
     */
    @Override
    public boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate) {
-      long                              stamp                  = this.stampedLock.tryOptimisticRead();
+      long stamp = this.stampedLock.tryOptimisticRead();
       Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional =
          this.originDestinationTaxonomyRecordMap.get(conceptSequence);
 
@@ -1381,7 +1384,7 @@ public class TaxonomyProvider
          return true;
       }
 
-      long    stamp    = this.stampedLock.tryOptimisticRead();
+      long          stamp    = this.stampedLock.tryOptimisticRead();
       final boolean isKindOf = recursiveFindAncestor(childId, parentId, tc);
 
       if (this.stampedLock.validate(stamp)) {
@@ -1412,7 +1415,7 @@ public class TaxonomyProvider
       long stamp = this.stampedLock.tryOptimisticRead();
 
       // TODO Look at performance of getTaxonomyTree...
-      Tree               tree      = getTaxonomyTree(tc);
+      Tree                     tree      = getTaxonomyTree(tc);
       final ConceptSequenceSet kindOfSet = ConceptSequenceSet.of(rootId);
 
       tree.depthFirstProcess(rootId,
@@ -1476,9 +1479,9 @@ public class TaxonomyProvider
       long stamp = this.stampedLock.tryOptimisticRead();
       NavigableSet<DestinationOriginRecord> subSet =
          this.destinationOriginRecordSet.subSet(new DestinationOriginRecord(parentId,
-                                                                       Integer.MIN_VALUE),
-                                           new DestinationOriginRecord(parentId,
-                                                 Integer.MAX_VALUE));
+                                                                            Integer.MIN_VALUE),
+                                                new DestinationOriginRecord(parentId,
+                                                      Integer.MAX_VALUE));
 
       if (this.stampedLock.validate(stamp)) {
          return subSet.stream()
@@ -1699,7 +1702,6 @@ public class TaxonomyProvider
     */
    private class TaxonomySnapshotProvider
             implements TaxonomySnapshotService {
-      
       /** The tc. */
       TaxonomyCoordinate tc;
 

@@ -59,7 +59,6 @@ import sh.isaac.api.coordinate.StampPosition;
  * @param <SV> the generic type
  */
 public interface SememeServiceTyped<SV extends SememeVersion> {
-   
    /**
     * Write sememe.
     *

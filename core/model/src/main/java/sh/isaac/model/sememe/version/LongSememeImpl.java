@@ -55,7 +55,6 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 public class LongSememeImpl
         extends SememeVersionImpl<LongSememeImpl>
          implements MutableLongSememe<LongSememeImpl> {
-   
    /** The long value. */
    long longValue = Long.MAX_VALUE;
 

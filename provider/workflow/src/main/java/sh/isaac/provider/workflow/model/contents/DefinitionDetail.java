@@ -150,8 +150,8 @@ public class DefinitionDetail
     */
    @Override
    public int hashCode() {
-      return this.bpmn2Id.hashCode() + this.name.hashCode() + this.namespace.hashCode() + this.version.hashCode() + this.roles.hashCode() +
-             this.description.hashCode() + new Long(this.importDate).hashCode();
+      return this.bpmn2Id.hashCode() + this.name.hashCode() + this.namespace.hashCode() + this.version.hashCode() +
+             this.roles.hashCode() + this.description.hashCode() + new Long(this.importDate).hashCode();
    }
 
    /**
@@ -170,9 +170,9 @@ public class DefinitionDetail
       final LocalDate date             = LocalDate.ofEpochDay(this.importDate);
       final String    importDateString = BPMNInfo.workflowDateFormatter.format(date);
 
-      return "\n\t\tId: " + this.id + "\n\t\tBPMN2 Id: " + this.bpmn2Id + "\n\t\tName: " + this.name + "\n\t\tNamespace: " +
-             this.namespace + "\n\t\tVersion: " + this.version + "\n\t\tRoles: " + buf.toString() + "\n\t\tDescription: " +
-             this.description + "\n\t\tImport Date: " + importDateString;
+      return "\n\t\tId: " + this.id + "\n\t\tBPMN2 Id: " + this.bpmn2Id + "\n\t\tName: " + this.name +
+             "\n\t\tNamespace: " + this.namespace + "\n\t\tVersion: " + this.version + "\n\t\tRoles: " +
+             buf.toString() + "\n\t\tDescription: " + this.description + "\n\t\tImport Date: " + importDateString;
    }
 
    /**
@@ -217,7 +217,7 @@ public class DefinitionDetail
 
       for (int i = 0; i < colCount; i++) {
          this.roles.add(UserRole.safeValueOf(in.getInt())
-                           .get());
+                                .get());
       }
 
       this.description = new String(in.getByteArrayField());

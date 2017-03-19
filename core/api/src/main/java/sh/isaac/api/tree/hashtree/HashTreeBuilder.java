@@ -61,7 +61,6 @@ import org.apache.mahout.math.map.OpenIntObjectHashMap;
  * @author kec
  */
 public class HashTreeBuilder {
-   
    /** The Constant builderCount. */
    private static final AtomicInteger builderCount = new AtomicInteger();
 
@@ -69,12 +68,12 @@ public class HashTreeBuilder {
 
    /** The child sequence parent sequence stream map. */
    final OpenIntObjectHashMap<IntStream.Builder> childSequence_ParentSequenceStream_Map = new OpenIntObjectHashMap<>();
-   
+
    /** The parent sequence child sequence stream map. */
    final OpenIntObjectHashMap<IntStream.Builder> parentSequence_ChildSequenceStream_Map = new OpenIntObjectHashMap<>();
-   
+
    /** The builder id. */
-   final int                                     builderId;
+   final int builderId;
 
    //~--- constructors --------------------------------------------------------
 
@@ -118,7 +117,8 @@ public class HashTreeBuilder {
       another.childSequence_ParentSequenceStream_Map.forEachPair((int childSequence,
             IntStream.Builder parentsFromAnother) -> {
                if (this.childSequence_ParentSequenceStream_Map.containsKey(childSequence)) {
-                  final IntStream.Builder parentsStream = this.childSequence_ParentSequenceStream_Map.get(childSequence);
+                  final IntStream.Builder parentsStream =
+                     this.childSequence_ParentSequenceStream_Map.get(childSequence);
 
                   parentsFromAnother.build()
                                     .forEach((int c) -> parentsStream.add(c));
@@ -131,7 +131,8 @@ public class HashTreeBuilder {
       another.parentSequence_ChildSequenceStream_Map.forEachPair((int parentSequence,
             IntStream.Builder childrenFromAnother) -> {
                if (this.parentSequence_ChildSequenceStream_Map.containsKey(parentSequence)) {
-                  final IntStream.Builder childrenStream = this.parentSequence_ChildSequenceStream_Map.get(parentSequence);
+                  final IntStream.Builder childrenStream =
+                     this.parentSequence_ChildSequenceStream_Map.get(parentSequence);
 
                   childrenFromAnother.build()
                                      .forEach((int p) -> childrenStream.add(p));
@@ -156,8 +157,8 @@ public class HashTreeBuilder {
       this.childSequence_ParentSequenceStream_Map.forEachPair((int childSequence,
             IntStream.Builder parentSequenceStreamBuilder) -> {
                final int[] parentSequenceArray = parentSequenceStreamBuilder.build()
-                                                                      .distinct()
-                                                                      .toArray();
+                                                                            .distinct()
+                                                                            .toArray();
 
                if (parentSequenceArray.length > 0) {
                   graph.addParents(childSequence, parentSequenceArray);
@@ -168,8 +169,8 @@ public class HashTreeBuilder {
       this.parentSequence_ChildSequenceStream_Map.forEachPair((int parentSequence,
             IntStream.Builder childSequenceStreamBuilder) -> {
                final int[] childSequenceArray = childSequenceStreamBuilder.build()
-                                                                    .distinct()
-                                                                    .toArray();
+                                                                          .distinct()
+                                                                          .toArray();
 
                if (childSequenceArray.length > 0) {
                   graph.addChildren(parentSequence, childSequenceArray);

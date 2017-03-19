@@ -58,12 +58,11 @@ import sh.isaac.converters.sharedUtils.sql.TerminologyFileReader;
  */
 public class UMLSFileReader
          implements TerminologyFileReader {
-   
    /** The reader. */
    private final BufferedReader reader_;
-   
+
    /** The next line. */
-   private List<String>   nextLine_;
+   private List<String> nextLine_;
 
    //~--- constructors --------------------------------------------------------
 

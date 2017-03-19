@@ -55,7 +55,6 @@ import sh.isaac.api.coordinate.StampCoordinate;
  */
 @Contract
 public interface ConceptActiveService {
-   
    /**
     * Update the service with the status values in this ConceptChronology. This method will be
     * called by the concept provider (based on a single service found using lookup)

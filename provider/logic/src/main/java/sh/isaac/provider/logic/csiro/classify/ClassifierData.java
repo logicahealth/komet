@@ -77,44 +77,43 @@ import sh.isaac.provider.logic.csiro.axioms.GraphToAxiomTranslator;
  */
 public class ClassifierData
          implements ChronologyChangeListener {
-   
    /** The Constant log. */
-   private static final Logger                          log                = LogManager.getLogger();
-   
+   private static final Logger log = LogManager.getLogger();
+
    /** The Constant singletonReference. */
    private static final AtomicReference<ClassifierData> singletonReference = new AtomicReference<>();
 
    //~--- fields --------------------------------------------------------------
 
    /** The listener uuid. */
-   private final UUID     listenerUuid                 = UUID.randomUUID();
-   
+   private final UUID listenerUuid = UUID.randomUUID();
+
    /** The incremental allowed. */
-   private boolean        incrementalAllowed           = false;
-   
+   private boolean incrementalAllowed = false;
+
    /** The all graphs to axiom translator. */
-   GraphToAxiomTranslator allGraphsToAxiomTranslator   = new GraphToAxiomTranslator();
-   
+   GraphToAxiomTranslator allGraphsToAxiomTranslator = new GraphToAxiomTranslator();
+
    /** The incremental to axiom translator. */
    GraphToAxiomTranslator incrementalToAxiomTranslator = new GraphToAxiomTranslator();
-   
+
    /** The reasoner. */
-   IReasoner              reasoner                     = new SnorocketReasoner();
-   
+   IReasoner reasoner = new SnorocketReasoner();
+
    /** The loaded concepts. */
-   ConceptSequenceSet     loadedConcepts               = new ConceptSequenceSet();
-   
+   ConceptSequenceSet loadedConcepts = new ConceptSequenceSet();
+
    /** The last classify instant. */
-   Instant                lastClassifyInstant;
-   
+   Instant lastClassifyInstant;
+
    /** The last classify type. */
-   ClassificationType     lastClassifyType;
-   
+   ClassificationType lastClassifyType;
+
    /** The stamp coordinate. */
-   StampCoordinate        stampCoordinate;
-   
+   StampCoordinate stampCoordinate;
+
    /** The logic coordinate. */
-   LogicCoordinate        logicCoordinate;
+   LogicCoordinate logicCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
@@ -194,7 +193,8 @@ public class ClassifierData
                final LatestVersion<LogicGraphSememeImpl> latest = optionalLatest.get();
 
                // get stampCoordinate for last classify.
-               final StampCoordinate stampToCompare = this.stampCoordinate.makeAnalog(this.lastClassifyInstant.toEpochMilli());
+               final StampCoordinate stampToCompare =
+                  this.stampCoordinate.makeAnalog(this.lastClassifyInstant.toEpochMilli());
 
                // See if there is a change in the optionalLatest vs the last classify.
                final Optional<LatestVersion<LogicGraphSememeImpl>> optionalPrevious =
@@ -204,7 +204,7 @@ public class ClassifierData
                if (optionalPrevious.isPresent()) {
                   // See if the change has deletions, if so then incremental is not allowed.
                   final LatestVersion<LogicGraphSememeImpl> previous  = optionalPrevious.get();
-                  boolean                             deletions = false;
+                  boolean                                   deletions = false;
 
                   if (latest.value()
                             .getGraphData().length <= previous.value().getGraphData().length) {
@@ -262,9 +262,10 @@ public class ClassifierData
    @Override
    public String toString() {
       return "ClassifierData{" + "graphToAxiomTranslator=" + this.allGraphsToAxiomTranslator +
-             ",\n incrementalToAxiomTranslator=" + this.incrementalToAxiomTranslator + ",\n reasoner=" + this.reasoner +
-             ",\n lastClassifyInstant=" + this.lastClassifyInstant + ",\n lastClassifyType=" + this.lastClassifyType +
-             ",\n stampCoordinate=" + this.stampCoordinate + ",\n logicCoordinate=" + this.logicCoordinate + '}';
+             ",\n incrementalToAxiomTranslator=" + this.incrementalToAxiomTranslator + ",\n reasoner=" +
+             this.reasoner + ",\n lastClassifyInstant=" + this.lastClassifyInstant + ",\n lastClassifyType=" +
+             this.lastClassifyType + ",\n stampCoordinate=" + this.stampCoordinate + ",\n logicCoordinate=" +
+             this.logicCoordinate + '}';
    }
 
    /**
@@ -290,12 +291,14 @@ public class ClassifierData
          // not returning loaded concepts here, because incremental classification
          // can affect concepts other than what was loaded.
          this.reasoner.getClassifiedOntology().getAffectedNodes().forEach((node) -> {
-                             if (node != null) {  // TODO why does the classifier include null in the affected node set.
-                                node.getEquivalentConcepts()
-                                    .forEach(
-                                        (equalivent) -> affectedConceptSequences.add(Integer.parseInt(equalivent)));
-                             }
-                          });
+                                  if (node !=
+                                      null) {  // TODO why does the classifier include null in the affected node set.
+                                     node.getEquivalentConcepts()
+                                         .forEach(
+                                             (equalivent) -> affectedConceptSequences.add(
+                                                 Integer.parseInt(equalivent)));
+                                  }
+                               });
       } else {
          return this.loadedConcepts;
       }

@@ -52,7 +52,6 @@ import java.util.Comparator;
  */
 public class IntArrayComparator
          implements Comparator<int[]> {
-   
    /**
     * Compare.
     *

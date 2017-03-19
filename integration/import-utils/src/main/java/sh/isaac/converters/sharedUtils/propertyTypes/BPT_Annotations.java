@@ -52,7 +52,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
  */
 public class BPT_Annotations
         extends PropertyType {
-   
    /**
     * Instantiates a new BP T annotations.
     */

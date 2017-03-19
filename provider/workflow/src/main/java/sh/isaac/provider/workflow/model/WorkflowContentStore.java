@@ -62,9 +62,9 @@ import sh.isaac.provider.workflow.model.contents.AbstractStorableWorkflowContent
 /**
  * An generic storage class utilized to store all Workflow Content Store classes.
  * Contains fields and methods shared by all such Content Stores.
- * 
+ *
  * Implements the Map interface, plus a couple of other convenience methods
- * 
+ *
  * {@link AbstractStorableWorkflowContents}
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
@@ -72,8 +72,7 @@ import sh.isaac.provider.workflow.model.contents.AbstractStorableWorkflowContent
  */
 public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
          implements Map<UUID, T> {
-   
-   /**  The Logger made available to each Workflow Content Store class. */
+   /** The Logger made available to each Workflow Content Store class. */
    protected final Logger logger = LogManager.getLogger();
 
    /**
@@ -81,9 +80,9 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
     * Entry type.  This map is backed by the metacontent store.
     */
    private ConcurrentMap<UUID, byte[]> map = null;
-   
+
    /** The deserializer. */
-   private final Function<byte[], T>         deserializer_;
+   private final Function<byte[], T> deserializer_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -180,8 +179,7 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    public boolean equals(Object obj) {
       if (obj instanceof WorkflowContentStore) {
          @SuppressWarnings("unchecked")
-		final
-         WorkflowContentStore<T> other = (WorkflowContentStore<T>) obj;
+         final WorkflowContentStore<T> other = (WorkflowContentStore<T>) obj;
 
          return this.map.equals(other.map);
       } else {
@@ -260,7 +258,7 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    @Override
    public String toString() {
       final StringBuffer buf = new StringBuffer();
-      int          i   = 1;
+      int                i   = 1;
 
       for (final UUID key: keySet()) {
          buf.append("\n\tStored Item #" + i++ + ": " + get(key).toString());
@@ -279,9 +277,9 @@ public class WorkflowContentStore<T extends AbstractStorableWorkflowContents>
    @Override
    public Collection<T> values() {
       return this.map.values()
-                .stream()
-                .map((bytes) -> this.deserializer_.apply(bytes))
-                .collect(Collectors.toList());
+                     .stream()
+                     .map((bytes) -> this.deserializer_.apply(bytes))
+                     .collect(Collectors.toList());
    }
 
    //~--- get methods ---------------------------------------------------------

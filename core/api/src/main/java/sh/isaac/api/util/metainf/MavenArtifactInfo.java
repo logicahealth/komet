@@ -48,13 +48,12 @@ import java.util.List;
 
 /**
  * {@link MavenArtifactInfo}
- * 
+ *
  * This class carries Maven dependency information.
  *
  * @author <a href="mailto:joel.kniaz.list@gmail.com">Joel Kniaz</a>
  */
 public class MavenArtifactInfo {
-   
    /** Database Licenses. */
    public List<MavenLicenseInfo> dbLicenses = new ArrayList<>();
 

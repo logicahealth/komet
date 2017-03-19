@@ -83,8 +83,8 @@ import sh.isaac.provider.workflow.model.contents.ProcessHistory;
 @Singleton
 public class WorkflowProvider
          implements OchreCache {
-   
    /** The bpmn path. */
+
    // This hack is only visible for test hacking at the moment - this will be redone in the future when we handle multiple bpmn files
    public static String BPMN_PATH = "/sh/isaac/provider/workflow/VetzWorkflowV1.0.bpmn2";
 
@@ -124,9 +124,9 @@ public class WorkflowProvider
     * Initialized during reading of WF Definition only and static from then on.
     */
    private UserRoleService userRoleContentStore_;
-   
+
    /** The bpmn info. */
-   private BPMNInfo        bpmnInfo_;
+   private BPMNInfo bpmnInfo_;
 
    //~--- constant enums ------------------------------------------------------
 
@@ -134,16 +134,15 @@ public class WorkflowProvider
     * The Enum WorkflowContentStoreType.
     */
    private enum WorkflowContentStoreType {
-      
       /** The available action. */
       AVAILABLE_ACTION,
-      
+
       /** The definition detail. */
       DEFINITION_DETAIL,
-      
+
       /** The historical workflow. */
       HISTORICAL_WORKFLOW,
-      
+
       /** The process definition. */
       PROCESS_DEFINITION
    }
@@ -153,6 +152,7 @@ public class WorkflowProvider
    /**
     * Instantiates a new workflow provider.
     */
+
    // For HK2 only
    private WorkflowProvider() {
       this.logger.debug("Starting up the Workflow Provider");

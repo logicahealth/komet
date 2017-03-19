@@ -53,7 +53,6 @@ import sh.isaac.model.coordinate.LogicCoordinateLazyBinding;
  * @author kec
  */
 public class LogicCoordinates {
-   
    /**
     * Gets the standard el profile.
     *

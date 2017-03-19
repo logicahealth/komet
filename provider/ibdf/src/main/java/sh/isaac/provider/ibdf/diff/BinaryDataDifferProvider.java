@@ -111,40 +111,42 @@ import sh.isaac.api.externalizable.json.JsonDataWriterService;
 //TODO there are some serious thread-safety issues in this class
 public class BinaryDataDifferProvider
          implements BinaryDataDifferService {
-   
    /** The log. */
-   private final Logger log                = LogManager.getLogger();
-   
+   private final Logger log = LogManager.getLogger();
+
    /** The text input file name. */
-   private final String textInputFileName  = "bothVersions.txt";
-   
+   private final String textInputFileName = "bothVersions.txt";
+
    /** The json output file name. */
    private final String jsonOutputFileName = "allChangedComponents.json";
-   
+
    /** The text output file name. */
    private final String textOutputFileName = "allChangedComponents.txt";
 
    /** The component CS writer. */
+
    // Changeset File Writer
-   private DataWriterService               componentCSWriter = null;
-   
+   private DataWriterService componentCSWriter = null;
+
    /** The skipped items. */
-   HashSet<Integer>                        skippedItems      = new HashSet<>();
-   
+   HashSet<Integer> skippedItems = new HashSet<>();
+
    /** The diff util. */
    private BinaryDataDifferProviderUtility diffUtil;
 
    /** The item count. */
+
    // Stream hack
    private int conceptCount, sememeCount, itemCount;
 
    /** The analysis files output dir. */
+
    // Analysis File Readers/Writers
    private String analysisFilesOutputDir;
-   
+
    /** The ibdf file output dir. */
    private String ibdfFileOutputDir;
-   
+
    /** The changeset file name. */
    private String changesetFileName;
 
@@ -195,8 +197,8 @@ public class BinaryDataDifferProvider
       final List<OchreExternalizable> retiredComponents = new ArrayList<>();
       final List<OchreExternalizable> changedComponents = new ArrayList<>();
       final CommitService             commitService     = Get.commitService();
-      final int                 activeStampSeq    = createStamp(State.ACTIVE);
-      final int                 inactiveStampSeq  = createStamp(State.INACTIVE);
+      final int                       activeStampSeq    = createStamp(State.ACTIVE);
+      final int                       inactiveStampSeq  = createStamp(State.INACTIVE);
 
       // Find existing
       for (final OchreExternalizableObjectType type: OchreExternalizableObjectType.values()) {
@@ -220,9 +222,9 @@ public class BinaryDataDifferProvider
 
                   try {
                      final OchreExternalizable modifiedComponents = this.diffUtil.diff(oldCompChron,
-                                                                            newCompChron,
-                                                                            activeStampSeq,
-                                                                            type);
+                                                                                       newCompChron,
+                                                                                       activeStampSeq,
+                                                                                       type);
 
                      if (modifiedComponents != null) {
                         if (type == OchreExternalizableObjectType.CONCEPT) {
@@ -245,8 +247,8 @@ public class BinaryDataDifferProvider
          for (final OchreExternalizable oldComp: oldContentMap.get(type)) {
             if (!matchedSet.contains(((ObjectChronology<?>) oldComp).getPrimordialUuid())) {
                final OchreExternalizable retiredComp = this.diffUtil.addNewInactiveVersion(oldComp,
-                                                                                oldComp.getOchreObjectType(),
-                                                                                inactiveStampSeq);
+                                                                                           oldComp.getOchreObjectType(),
+                                                                                           inactiveStampSeq);
 
                if (retiredComp != null) {
                   retiredComponents.add(retiredComp);
@@ -257,7 +259,10 @@ public class BinaryDataDifferProvider
          // Add newCons not in newList
          for (final OchreExternalizable newComp: newContentMap.get(type)) {
             if (!matchedSet.contains(((ObjectChronology<?>) newComp).getPrimordialUuid())) {
-               final OchreExternalizable addedComp = this.diffUtil.diff(null, (ObjectChronology<?>) newComp, activeStampSeq, type);
+               final OchreExternalizable addedComp = this.diffUtil.diff(null,
+                                                                        (ObjectChronology<?>) newComp,
+                                                                        activeStampSeq,
+                                                                        type);
 
                if (addedComp != null) {
                   addedComponents.add(addedComp);
@@ -369,8 +374,9 @@ public class BinaryDataDifferProvider
                                     throw new UnsupportedOperationException("Unknown ochre object type: " + object);
                                  }
                               } catch (final Exception e) {
-                                 this.log.error("Failure at " + this.conceptCount + " concepts, " + this.sememeCount + " sememes, ",
-                                           e);
+                                 this.log.error("Failure at " + this.conceptCount + " concepts, " + this.sememeCount +
+                                                " sememes, ",
+                                                e);
 
                                  final Map<String, Object> args = new HashMap<>();
 
@@ -378,7 +384,7 @@ public class BinaryDataDifferProvider
 
                                  final ByteArrayOutputStream baos       = new ByteArrayOutputStream();
                                  final JsonWriter            json       = new JsonWriter(baos, args);
-                                 UUID                  primordial = null;
+                                 UUID                        primordial = null;
 
                                  if (object instanceof ObjectChronology) {
                                     primordial = ((ObjectChronology<?>) object).getPrimordialUuid();
@@ -391,14 +397,14 @@ public class BinaryDataDifferProvider
                               }
 
                               if (this.itemCount % 100 == 0) {
-                                 this.log.info("Read " + this.itemCount + " entries, " + "Loaded " + this.conceptCount +
-                                          " concepts, " + this.sememeCount + " sememes, ");
+                                 this.log.info("Read " + this.itemCount + " entries, " + "Loaded " +
+                                               this.conceptCount + " concepts, " + this.sememeCount + " sememes, ");
                               }
                            }
                         });
       } catch (final Exception ex) {
          this.log.info("Loaded " + this.conceptCount + " concepts, " + this.sememeCount + " sememes, " +
-                  ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
+                       ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
                : ""));
          throw new Exception(ex.getLocalizedMessage(), ex);
       }
@@ -443,13 +449,14 @@ public class BinaryDataDifferProvider
 
          writeChangeSetForVerification();
       } catch (final IOException e) {
-         this.log.error("Failed in creating analysis files (not in processing the content written to the analysis files)");
+         this.log.error(
+             "Failed in creating analysis files (not in processing the content written to the analysis files)");
       }
    }
 
    /**
     * Set up all the boilerplate stuff.
-    * 
+    *
     * Create a stamp in current database... create seq... then when
     * serializing, point it
     *
@@ -500,7 +507,8 @@ public class BinaryDataDifferProvider
             throws IOException {
       int counter = 1;
 
-      try (FileWriter textOutputWriter = new FileWriter(this.analysisFilesOutputDir + "output/" + this.textOutputFileName);
+      try (FileWriter textOutputWriter = new FileWriter(this.analysisFilesOutputDir + "output/" +
+            this.textOutputFileName);
          JsonDataWriterService jsonOutputWriter = new JsonDataWriterService(new File(this.analysisFilesOutputDir +
                "output/" + this.jsonOutputFileName));) {
          for (final ChangeType key: changedComponents.keySet()) {
@@ -522,7 +530,7 @@ public class BinaryDataDifferProvider
                   }
 
                   final String componentToWrite = "# ---- " + key.toString() + " " + componentType + " #" + counter++ +
-                                            "   " + ((ObjectChronology<?>) c).getPrimordialUuid() + " ----";
+                                                  "   " + ((ObjectChronology<?>) c).getPrimordialUuid() + " ----";
 
                   jsonOutputWriter.put(componentToWrite);
                   textOutputWriter.write("\n\n\t\t\t" + componentToWrite);
@@ -556,13 +564,14 @@ public class BinaryDataDifferProvider
       int cc = 0;
       int sc = 0;
       final BinaryDataReaderQueueService reader = Get.binaryDataQueueReader(new File(this.ibdfFileOutputDir +
-                                               this.changesetFileName).toPath());
+                                                     this.changesetFileName).toPath());
       final BlockingQueue<OchreExternalizable> queue = reader.getQueue();
-      Map<String, Object>                args  = new HashMap<>();
+      Map<String, Object>                      args  = new HashMap<>();
 
       args.put(JsonWriter.PRETTY_PRINT, true);
 
-      try (FileOutputStream fos = new FileOutputStream(new File(this.analysisFilesOutputDir + "verificationChanges.json"));
+      try (FileOutputStream fos = new FileOutputStream(new File(this.analysisFilesOutputDir +
+            "verificationChanges.json"));
          JsonWriter verificationWriter = new JsonWriter(fos, args);) {
          while (!queue.isEmpty() ||!reader.isFinished()) {
             final OchreExternalizable object = queue.poll(500, TimeUnit.MILLISECONDS);
@@ -587,7 +596,7 @@ public class BinaryDataDifferProvider
 
                   final ByteArrayOutputStream baos       = new ByteArrayOutputStream();
                   final JsonWriter            json       = new JsonWriter(baos, args);
-                  UUID                  primordial = null;
+                  UUID                        primordial = null;
 
                   if (object instanceof ObjectChronology) {
                      primordial = ((ObjectChronology<?>) object).getPrimordialUuid();
@@ -606,12 +615,12 @@ public class BinaryDataDifferProvider
          }
       } catch (final Exception ex) {
          this.log.info("Loaded " + ic + " items, " + cc + " concepts, " + sc + " sememes, " +
-                  ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
+                       ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
                : ""));
       }
 
       this.log.info("Finished with " + ic + " items, " + cc + " concepts, " + sc + " sememes, " +
-               ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
+                    ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
             : ""));
    }
 
@@ -627,9 +636,10 @@ public class BinaryDataDifferProvider
          String version,
          String jsonInputFileName)
             throws IOException {
-      try (FileWriter textInputWriter = new FileWriter(this.analysisFilesOutputDir + "input/" + this.textInputFileName, true);
-         JsonDataWriterService jsonInputWriter = new JsonDataWriterService(new File(this.analysisFilesOutputDir + "input/" +
-               jsonInputFileName));) {
+      try (FileWriter textInputWriter = new FileWriter(this.analysisFilesOutputDir + "input/" + this.textInputFileName,
+                                                       true);
+         JsonDataWriterService jsonInputWriter = new JsonDataWriterService(new File(this.analysisFilesOutputDir +
+               "input/" + jsonInputFileName));) {
          textInputWriter.write("\n\n\n\n\n\n\t\t\t**** " + version + " LIST ****");
          jsonInputWriter.put("# **** " + version + " LIST ****");
 

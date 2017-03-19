@@ -65,7 +65,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
 //TODO move to CSIRO specific module
 //Create a classifier service...
 public class Classify {
-   
    /**
     * Execute.
     *
@@ -80,9 +79,9 @@ public class Classify {
                               int roleGroupConceptSequence) {
       final Stream<LogicalExpressionOchreImpl> logicGraphStream = null;
       final AxiomCollector axiomCollector = new AxiomCollector(conceptSequences,
-                                                         roleSequences,
-                                                         neverGroupRoleSequences,
-                                                         roleGroupConceptSequence);
+                                                               roleSequences,
+                                                               neverGroupRoleSequences,
+                                                               roleGroupConceptSequence);
 
       if (logicGraphStream != null) {
          final Set<Axiom> axioms = logicGraphStream.collect(axiomCollector);
@@ -92,7 +91,6 @@ public class Classify {
 
          r.loadAxioms(axioms);
          r = r.classify();
-
          r.getClassifiedOntology();
       }
    }

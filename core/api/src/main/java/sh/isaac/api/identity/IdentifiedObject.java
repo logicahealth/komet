@@ -57,7 +57,6 @@ import sh.isaac.api.externalizable.OchreExternalizable;
  * @author kec
  */
 public interface IdentifiedObject {
-   
    /**
     * To user string.
     *

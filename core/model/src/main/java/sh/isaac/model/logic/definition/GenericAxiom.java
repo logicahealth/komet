@@ -77,15 +77,14 @@ public class GenericAxiom
                     Template, Or, BooleanLiteral, FloatLiteral, InstantLiteral, IntegerLiteral, StringLiteral,
                     BooleanSubstitution, ConceptSubstitution, FloatSubstitution, InstantSubstitution,
                     IntegerSubstitution, StringSubstitution {
-   
    /** The builder. */
    private final LogicalExpressionBuilder builder;
-   
+
    /** The index. */
-   private final short                    index;
-   
+   private final short index;
+
    /** The semantic. */
-   private final NodeSemantic             semantic;
+   private final NodeSemantic semantic;
 
    //~--- constructors --------------------------------------------------------
 

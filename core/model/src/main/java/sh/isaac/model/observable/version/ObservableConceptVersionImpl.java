@@ -55,7 +55,6 @@ import sh.isaac.model.concept.ConceptVersionImpl;
 public class ObservableConceptVersionImpl
         extends ObservableVersionImpl<ObservableConceptVersionImpl, ConceptVersionImpl>
          implements ObservableConceptVersion<ObservableConceptVersionImpl> {
-   
    /**
     * Instantiates a new observable concept version impl.
     *

@@ -58,18 +58,17 @@ import org.apache.mahout.math.map.OpenObjectIntHashMap;
  * @param <T> Type of object in map.
  */
 public class ConcurrentObjectIntMap<T> {
-   
    /** The rwl. */
-   private final ReentrantReadWriteLock rwl        = new ReentrantReadWriteLock();
-   
+   private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+
    /** The read. */
-   private final Lock                   read       = this.rwl.readLock();
-   
+   private final Lock read = this.rwl.readLock();
+
    /** The write. */
-   private final Lock                   write      = this.rwl.writeLock();
-   
+   private final Lock write = this.rwl.writeLock();
+
    /** The backing map. */
-   OpenObjectIntHashMap<T>              backingMap = new OpenObjectIntHashMap<>();
+   OpenObjectIntHashMap<T> backingMap = new OpenObjectIntHashMap<>();
 
    //~--- methods -------------------------------------------------------------
 
@@ -97,10 +96,10 @@ public class ConcurrentObjectIntMap<T> {
     */
    public void forEachPair(ObjIntConsumer<T> consumer) {
       this.backingMap.forEachPair((T first,
-                              int second) -> {
-                                consumer.accept(first, second);
-                                return true;
-                             });
+                                   int second) -> {
+                                     consumer.accept(first, second);
+                                     return true;
+                                  });
    }
 
    /**

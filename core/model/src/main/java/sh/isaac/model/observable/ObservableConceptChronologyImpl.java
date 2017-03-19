@@ -77,10 +77,9 @@ import sh.isaac.model.observable.version.ObservableDescriptionImpl;
 public class ObservableConceptChronologyImpl
         extends ObservableChronologyImpl<ObservableConceptVersionImpl, ConceptChronology<ConceptVersionImpl>>
          implements ObservableConceptChronology<ObservableConceptVersionImpl> {
-   
    /** The concept sequence property. */
-   private IntegerProperty                                                          conceptSequenceProperty;
-   
+   private IntegerProperty conceptSequenceProperty;
+
    /** The description list property. */
    private ListProperty<ObservableSememeChronology<ObservableDescriptionSememe<?>>> descriptionListProperty;
 
@@ -113,12 +112,11 @@ public class ObservableConceptChronologyImpl
                   ObservableFields.DESCRIPTION_LIST_FOR_CONCEPT.toExternalString(),
                   observableList);
          this.chronicledObjectLocal.getConceptDescriptionList().stream().forEach((conceptDescriptionChronicle) -> {
-                                          final ObservableSememeChronologyImpl observableConceptDescriptionChronicle =
-                                             new ObservableSememeChronologyImpl(
-                                                conceptDescriptionChronicle);
+                                               final ObservableSememeChronologyImpl observableConceptDescriptionChronicle =
+                                                  new ObservableSememeChronologyImpl(conceptDescriptionChronicle);
 
-                                          observableList.add(observableConceptDescriptionChronicle);
-                                       });
+                                               observableList.add(observableConceptDescriptionChronicle);
+                                            });
       }
 
       return this.descriptionListProperty;
@@ -227,7 +225,7 @@ public class ObservableConceptChronologyImpl
            StampCoordinate stampCoordinate) {
       final Optional<LatestVersion<DescriptionSememe<?>>> optionalFsn =
          this.chronicledObjectLocal.getFullySpecifiedDescription(languageCoordinate,
-                                                            stampCoordinate);
+                                                                 stampCoordinate);
 
       return getSpecifiedDescription(optionalFsn);
    }
@@ -242,8 +240,8 @@ public class ObservableConceptChronologyImpl
       final ObservableList<ObservableConceptVersionImpl> observableList = FXCollections.observableArrayList();
 
       this.chronicledObjectLocal.getVersionList().stream().forEach((conceptVersion) -> {
-                                       observableList.add(new ObservableConceptVersionImpl(conceptVersion, this));
-                                    });
+                                            observableList.add(new ObservableConceptVersionImpl(conceptVersion, this));
+                                         });
       return observableList;
    }
 
@@ -260,7 +258,7 @@ public class ObservableConceptChronologyImpl
            StampCoordinate stampCoordinate) {
       final Optional<LatestVersion<DescriptionSememe<?>>> optionalPreferred =
          this.chronicledObjectLocal.getPreferredDescription(languageCoordinate,
-                                                       stampCoordinate);
+                                                            stampCoordinate);
 
       return getSpecifiedDescription(optionalPreferred);
    }
@@ -278,7 +276,9 @@ public class ObservableConceptChronologyImpl
          final int latestStampSequence = ((DescriptionSememe) latestPreferred.value()).getStampSequence();
          final ObservableSememeChronologyImpl<ObservableDescriptionImpl, SememeChronology<DescriptionSememe>> observableSpecified =
             new ObservableSememeChronologyImpl(((DescriptionSememe) latestPreferred.value()).getChronology());
+
          new LatestVersion<>(ObservableDescriptionSememe.class);
+
          LatestVersion<ObservableDescriptionSememe<?>> latest = null;
 
          for (final ObservableDescriptionSememe<?> descVersion: observableSpecified.getVersionList()) {

@@ -135,7 +135,7 @@ public interface DynamicSememeUsageDescription {
 
    /**
     * Return the {@link ObjectChronologyType} of the restriction on referenced components for this sememe (if any - may return null)
-    * 
+    *
     * If there is a restriction, the nid set for the component type of this sememe must resolve to the matching type.
     *
     * @return the referenced component type restriction
@@ -144,9 +144,9 @@ public interface DynamicSememeUsageDescription {
 
    /**
     * Return the {@link SememeType} of the sub restriction on referenced components for this DynamicSememe (if any - may return null)
-    * 
+    *
     * If there is a restriction, the nid set for the component type of this DynamicSememe must resolve to the matching type.
-    * 
+    *
     * This is only applicable when {@link #getReferencedComponentTypeRestriction()} returns {@link ObjectChronologyType#SEMEME}
     *
     * @return the referenced component type sub restriction

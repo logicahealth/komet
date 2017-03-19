@@ -75,13 +75,12 @@ import sh.isaac.provider.workflow.model.contents.ProcessHistory;
 /**
  * Test both static and user based workflow content as defined in the
  * metacontent-store
- * 
+ *
  * {@link WorkflowContentStore} {@link WorkflowProvider}.
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 public class WorkflowContentStoreTest {
-   
    /**
     * Tear down.
     *
@@ -104,10 +103,10 @@ public class WorkflowContentStoreTest {
    public void testAvailableActionStore()
             throws Exception {
       final AvailableAction createdEntry1 = new AvailableAction(UUID.randomUUID(),
-                                                          "EDIT",
-                                                          "REVIEW",
-                                                          "REVIEW",
-                                                          UserRole.REVIEWER);
+                                                                "EDIT",
+                                                                "REVIEW",
+                                                                "REVIEW",
+                                                                UserRole.REVIEWER);
 
       // New scope to ensure closing store
       WorkflowContentStore<AvailableAction> availableActionStore = LookupService.get()
@@ -132,10 +131,10 @@ public class WorkflowContentStoreTest {
 
       // Add second entry
       final AvailableAction createdEntry2 = new AvailableAction(UUID.randomUUID(),
-                                                          "REVIEW",
-                                                          "APPROVE",
-                                                          "APPROVE",
-                                                          UserRole.APPROVER);
+                                                                "REVIEW",
+                                                                "APPROVE",
+                                                                "APPROVE",
+                                                                UserRole.APPROVER);
       UUID key2 = availableActionStore.add(createdEntry2);
 
       Assert.assertEquals(availableActionStore.size(), 2);
@@ -153,10 +152,10 @@ public class WorkflowContentStoreTest {
 
       // Test update of an entry
       final AvailableAction updatedEntry2 = new AvailableAction(createdEntry2.getDefinitionId(),
-                                                          "REVIEW",
-                                                          "Ready for Approval",
-                                                          "APPROVE",
-                                                          UserRole.APPROVER);
+                                                                "REVIEW",
+                                                                "Ready for Approval",
+                                                                "APPROVE",
+                                                                UserRole.APPROVER);
 
       availableActionStore.put(key2, updatedEntry2);
       Assert.assertEquals(allEntries.size(), 2);
@@ -204,11 +203,11 @@ public class WorkflowContentStoreTest {
 
       final String description = "This is the description for this unit test";
       final DefinitionDetail createdEntry1 = new DefinitionDetail("BPMN2 ID-X",
-                                                            "JUnit BPMN2",
-                                                            "Testing",
-                                                            "1.0",
-                                                            roles1,
-                                                            description);
+                                                                  "JUnit BPMN2",
+                                                                  "Testing",
+                                                                  "1.0",
+                                                                  roles1,
+                                                                  description);
 
       // New scope to ensure closing store
       WorkflowContentStore<DefinitionDetail> definitionDetailStore = LookupService.get()
@@ -238,11 +237,11 @@ public class WorkflowContentStoreTest {
       roles2.add(UserRole.APPROVER);
 
       final DefinitionDetail createdEntry2 = new DefinitionDetail("BPMN2 ID-Y",
-                                                            "JUnit BPMN2",
-                                                            "Testing",
-                                                            "1.0",
-                                                            roles2,
-                                                            description);
+                                                                  "JUnit BPMN2",
+                                                                  "Testing",
+                                                                  "1.0",
+                                                                  roles2,
+                                                                  description);
       UUID key2 = definitionDetailStore.add(createdEntry2);
 
       Assert.assertEquals(definitionDetailStore.size(), 2);
@@ -261,11 +260,11 @@ public class WorkflowContentStoreTest {
 
       // Test update of an entry
       final DefinitionDetail updatedEntry2 = new DefinitionDetail(createdEntry2.getBpmn2Id(),
-                                                            createdEntry2.getName(),
-                                                            createdEntry2.getNamespace(),
-                                                            "2.0",
-                                                            createdEntry2.getRoles(),
-                                                            createdEntry2.getDescription());
+                                                                  createdEntry2.getName(),
+                                                                  createdEntry2.getNamespace(),
+                                                                  "2.0",
+                                                                  createdEntry2.getRoles(),
+                                                                  createdEntry2.getDescription());
 
       definitionDetailStore.put(key2, updatedEntry2);
       Assert.assertEquals(allEntries.size(), 2);
@@ -309,13 +308,13 @@ public class WorkflowContentStoreTest {
    public void testHistoricalWorkflowStore()
             throws Exception {
       final ProcessHistory createdEntry1 = new ProcessHistory(UUID.randomUUID(),
-                                                        UUID.randomUUID(),
-                                                        new Date().getTime(),
-                                                        "Edit",
-                                                        "Review",
-                                                        "Ready for Approval",
-                                                        "No issues found",
-                                                        1);
+                                                              UUID.randomUUID(),
+                                                              new Date().getTime(),
+                                                              "Edit",
+                                                              "Review",
+                                                              "Ready for Approval",
+                                                              "No issues found",
+                                                              1);
       WorkflowContentStore<ProcessHistory> historicalWorkflowStore = LookupService.get()
                                                                                   .getService(WorkflowProvider.class)
                                                                                   .getProcessHistoryStore();
@@ -338,13 +337,13 @@ public class WorkflowContentStoreTest {
 
       // Add second entry
       final ProcessHistory createdEntry2 = new ProcessHistory(UUID.randomUUID(),
-                                                        UUID.randomUUID(),
-                                                        new Date().getTime(),
-                                                        "Commit",
-                                                        "Edit",
-                                                        "Ready for Review",
-                                                        "",
-                                                        1);
+                                                              UUID.randomUUID(),
+                                                              new Date().getTime(),
+                                                              "Commit",
+                                                              "Edit",
+                                                              "Ready for Review",
+                                                              "",
+                                                              1);
       UUID key2 = historicalWorkflowStore.add(createdEntry2);
 
       Assert.assertEquals(historicalWorkflowStore.size(), 2);
@@ -362,13 +361,13 @@ public class WorkflowContentStoreTest {
 
       // Test update of an entry
       final ProcessHistory updatedEntry2 = new ProcessHistory(createdEntry2.getProcessId(),
-                                                        createdEntry2.getUserId(),
-                                                        createdEntry2.getTimeAdvanced(),
-                                                        "Commit",
-                                                        "Edit",
-                                                        "Ready for Review",
-                                                        "Added description I think is missing",
-                                                        2);
+                                                              createdEntry2.getUserId(),
+                                                              createdEntry2.getTimeAdvanced(),
+                                                              "Commit",
+                                                              "Edit",
+                                                              "Ready for Review",
+                                                              "Added description I think is missing",
+                                                              2);
 
       historicalWorkflowStore.put(key2, updatedEntry2);
       Assert.assertEquals(allEntries.size(), 2);
@@ -415,11 +414,11 @@ public class WorkflowContentStoreTest {
       final String name        = "Process Name";
       final String description = "Process Description";
       final ProcessDetail createdEntry1 = new ProcessDetail(UUID.randomUUID(),
-                                                      UUID.randomUUID(),
-                                                      new Date().getTime(),
-                                                      ProcessStatus.DEFINED,
-                                                      name,
-                                                      description);
+                                                            UUID.randomUUID(),
+                                                            new Date().getTime(),
+                                                            ProcessStatus.DEFINED,
+                                                            name,
+                                                            description);
       WorkflowContentStore<ProcessDetail> processInstanceStore = LookupService.get()
                                                                               .getService(WorkflowProvider.class)
                                                                               .getProcessDetailStore();
@@ -443,11 +442,11 @@ public class WorkflowContentStoreTest {
 
       // Add second entry
       final ProcessDetail createdEntry2 = new ProcessDetail(UUID.randomUUID(),
-                                                      UUID.randomUUID(),
-                                                      new Date().getTime(),
-                                                      ProcessStatus.DEFINED,
-                                                      name,
-                                                      description);
+                                                            UUID.randomUUID(),
+                                                            new Date().getTime(),
+                                                            ProcessStatus.DEFINED,
+                                                            name,
+                                                            description);
       UUID key2 = processInstanceStore.add(createdEntry2);
 
       Assert.assertEquals(processInstanceStore.size(), 2);
@@ -465,11 +464,11 @@ public class WorkflowContentStoreTest {
 
       // Test update of an entry
       final ProcessDetail updatedEntry2 = new ProcessDetail(createdEntry2.getDefinitionId(),
-                                                      createdEntry2.getCreatorId(),
-                                                      createdEntry2.getTimeCreated(),
-                                                      ProcessStatus.DEFINED,
-                                                      createdEntry2.getName(),
-                                                      "This is a second Description");
+                                                            createdEntry2.getCreatorId(),
+                                                            createdEntry2.getTimeCreated(),
+                                                            ProcessStatus.DEFINED,
+                                                            createdEntry2.getName(),
+                                                            "This is a second Description");
 
       processInstanceStore.put(key2, updatedEntry2);
       Assert.assertEquals(allEntries.size(), 2);

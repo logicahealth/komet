@@ -70,23 +70,22 @@ import org.apache.logging.log4j.Logger;
  */
 public class WriteCompletionService
          implements Runnable {
-   
    /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
    /** The run. */
-   private boolean                         run = false;
-   
+   private boolean run = false;
+
    /** The write concept completion service thread. */
-   private ExecutorService                 writeConceptCompletionServiceThread;
-   
+   private ExecutorService writeConceptCompletionServiceThread;
+
    /** The conversion service. */
    private ExecutorCompletionService<Void> conversionService;
-   
+
    /** The worker pool. */
-   private ExecutorService                 workerPool;
+   private ExecutorService workerPool;
 
    //~--- methods -------------------------------------------------------------
 
@@ -100,7 +99,7 @@ public class WriteCompletionService
       while (this.run) {
          try {
             this.conversionService.take()
-                             .get();
+                                  .get();
          } catch (final InterruptedException ex) {
             if (this.run) {
                // Only warn if we were not asked to shutdown

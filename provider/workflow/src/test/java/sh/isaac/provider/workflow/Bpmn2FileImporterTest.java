@@ -74,14 +74,13 @@ import sh.isaac.provider.workflow.model.contents.ProcessDetail.EndWorkflowType;
 
 /**
  * Test the Bpmn2FileImporter class
- * 
+ *
  * {@link Bpmn2FileImporter} {@link AbstractWorkflowProviderTestPackage}.
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 public class Bpmn2FileImporterTest
         extends AbstractWorkflowProviderTestPackage {
-   
    /**
     * Before test.
     */
@@ -114,17 +113,17 @@ public class Bpmn2FileImporterTest
    public void testImportBpmn2FileMetadata()
             throws Exception {
       final WorkflowContentStore<DefinitionDetail> createdDefinitionDetailContentStore = LookupService.get()
-                                                                                                .getService(
-                                                                                                   WorkflowProvider.class)
-                                                                                                .getDefinitionDetailStore();
+                                                                                                      .getService(
+                                                                                                         WorkflowProvider.class)
+                                                                                                      .getDefinitionDetailStore();
 
       Assert.assertSame("Expected number of actionOutome records not what expected",
                         createdDefinitionDetailContentStore.size(),
                         1);
 
       final DefinitionDetail entry         = createdDefinitionDetailContentStore.values()
-                                                                          .iterator()
-                                                                          .next();
+                                                                                .iterator()
+                                                                                .next();
       final Set<UserRole>    expectedRoles = new HashSet<>();
 
       expectedRoles.add(UserRole.EDITOR);
@@ -182,37 +181,37 @@ public class Bpmn2FileImporterTest
    public void testStaticBpmnSetNodes()
             throws Exception {
       final WorkflowContentStore<DefinitionDetail> createdDefinitionDetailContentStore = LookupService.get()
-                                                                                                .getService(
-                                                                                                   WorkflowProvider.class)
-                                                                                                .getDefinitionDetailStore();
+                                                                                                      .getService(
+                                                                                                         WorkflowProvider.class)
+                                                                                                      .getDefinitionDetailStore();
       final WorkflowContentStore<AvailableAction> createdAvailableActionContentStore = LookupService.get()
-                                                                                              .getService(
-                                                                                                 WorkflowProvider.class)
-                                                                                              .getAvailableActionStore();
+                                                                                                    .getService(
+                                                                                                       WorkflowProvider.class)
+                                                                                                    .getAvailableActionStore();
 
       Assert.assertSame("Expected number of actionOutome records not what expected",
                         createdAvailableActionContentStore.size(),
                         10);
 
       final DefinitionDetail definitionDetails = createdDefinitionDetailContentStore.values()
-                                                                              .iterator()
-                                                                              .next();
+                                                                                    .iterator()
+                                                                                    .next();
       final List<String> possibleActions = Arrays.asList("Cancel Workflow",
-                                                   "Edit",
-                                                   "QA Fails",
-                                                   "QA Passes",
-                                                   "Approve",
-                                                   "Reject Edit",
-                                                   "Reject Review",
-                                                   "Create Workflow Process");
+                                                         "Edit",
+                                                         "QA Fails",
+                                                         "QA Passes",
+                                                         "Approve",
+                                                         "Reject Edit",
+                                                         "Reject Review",
+                                                         "Create Workflow Process");
       final List<String> possibleStates = Arrays.asList("Assigned",
-                                                  "Canceled During Edit",
-                                                  "Canceled During Review",
-                                                  "Canceled During Approval",
-                                                  "Ready for Edit",
-                                                  "Ready for Approve",
-                                                  "Modeling Review Complete",
-                                                  "Ready for Review");
+                                                        "Canceled During Edit",
+                                                        "Canceled During Review",
+                                                        "Canceled During Approval",
+                                                        "Ready for Edit",
+                                                        "Ready for Approve",
+                                                        "Modeling Review Complete",
+                                                        "Ready for Review");
       final Set<AvailableAction> identifiedCanceledActions  = new HashSet<>();
       final Set<AvailableAction> identifiedConcludedActions = new HashSet<>();
       final Set<AvailableAction> identifiedStartTypeActions = new HashSet<>();
@@ -242,23 +241,23 @@ public class Bpmn2FileImporterTest
       }
 
       final Set<AvailableAction> concludedActions = LookupService.get()
-                                                           .getService(WorkflowProvider.class)
-                                                           .getBPMNInfo()
-                                                           .getEndWorkflowTypeMap()
-                                                           .get(EndWorkflowType.CONCLUDED);
+                                                                 .getService(WorkflowProvider.class)
+                                                                 .getBPMNInfo()
+                                                                 .getEndWorkflowTypeMap()
+                                                                 .get(EndWorkflowType.CONCLUDED);
       final Set<AvailableAction> canceledActions = LookupService.get()
-                                                          .getService(WorkflowProvider.class)
-                                                          .getBPMNInfo()
-                                                          .getEndWorkflowTypeMap()
-                                                          .get(EndWorkflowType.CANCELED);
+                                                                .getService(WorkflowProvider.class)
+                                                                .getBPMNInfo()
+                                                                .getEndWorkflowTypeMap()
+                                                                .get(EndWorkflowType.CANCELED);
 
       Assert.assertEquals(canceledActions, identifiedCanceledActions);
       Assert.assertEquals(concludedActions, identifiedConcludedActions);
 
       final Map<UUID, Set<AvailableAction>> defStartMap = LookupService.get()
-                                                                 .getService(WorkflowProvider.class)
-                                                                 .getBPMNInfo()
-                                                                 .getDefinitionStartActionMap();
+                                                                       .getService(WorkflowProvider.class)
+                                                                       .getBPMNInfo()
+                                                                       .getDefinitionStartActionMap();
 
       Assert.assertEquals(defStartMap.keySet()
                                      .size(), 1);

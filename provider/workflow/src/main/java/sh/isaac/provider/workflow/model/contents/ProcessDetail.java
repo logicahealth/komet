@@ -91,8 +91,8 @@ public class ProcessDetail
    private long timeCanceledOrConcluded = -1L;
 
    /** The workflow process's current "owner". */
-   private UUID            ownerId         = BPMNInfo.UNOWNED_PROCESS;
-   
+   private UUID ownerId = BPMNInfo.UNOWNED_PROCESS;
+
    /** The stamp serializer. */
    private final StampSerializer stampSerializer = new StampSerializer();
 
@@ -138,11 +138,10 @@ public class ProcessDetail
     * The exhaustive list of possible ways an instantiated process may be ended.
     */
    public enum EndWorkflowType {
-      
-      /**  Process is stopped without reaching a completed state. */
+      /** Process is stopped without reaching a completed state. */
       CANCELED,
 
-      /**  Process has been finished by reaching a completed state. */
+      /** Process has been finished by reaching a completed state. */
       CONCLUDED
    }
 
@@ -153,13 +152,13 @@ public class ProcessDetail
       /** Process is being defined and has yet to be launched. */
       DEFINED,
 
-      /**  Process has been launched. */
+      /** Process has been launched. */
       LAUNCHED,
 
-      /**  A previously launched or defined process that has been canceled. */
+      /** A previously launched or defined process that has been canceled. */
       CANCELED,
 
-      /**  A previously launched process that is completed. */
+      /** A previously launched process that is completed. */
       CONCLUDED
    }
 
@@ -261,7 +260,7 @@ public class ProcessDetail
 
       LocalDateTime date = LocalDateTime.from(Instant.ofEpochMilli(this.timeCreated)
                                                      .atZone(ZoneId.systemDefault()));
-      final String        timeCreatedString = BPMNInfo.workflowDateFormatter.format(date);
+      final String  timeCreatedString = BPMNInfo.workflowDateFormatter.format(date);
 
       date = LocalDateTime.from(Instant.ofEpochMilli(this.timeLaunched)
                                        .atZone(ZoneId.systemDefault()));
@@ -274,10 +273,11 @@ public class ProcessDetail
       final String timeCanceledOrConcludedString = BPMNInfo.workflowDateFormatter.format(date);
 
       return "\n\t\tId: " + this.id + "\n\t\tDefinition Id: " + this.definitionId.toString() +
-             "\n\t\tComponents to Sequences Map: " + buf.toString() + "\n\t\tCreator Id: " + this.creatorId.toString() +
-             "\n\t\tTime Created: " + timeCreatedString + "\n\t\tTime Launched: " + timeLaunchedString +
-             "\n\t\tTime Canceled or Concluded: " + timeCanceledOrConcludedString + "\n\t\tStatus: " + this.status +
-             "\n\t\tName: " + this.name + "\n\t\tDescription: " + this.description + "\n\t\tOwner Id: " + this.ownerId.toString();
+             "\n\t\tComponents to Sequences Map: " + buf.toString() + "\n\t\tCreator Id: " +
+             this.creatorId.toString() + "\n\t\tTime Created: " + timeCreatedString + "\n\t\tTime Launched: " +
+             timeLaunchedString + "\n\t\tTime Canceled or Concluded: " + timeCanceledOrConcludedString +
+             "\n\t\tStatus: " + this.status + "\n\t\tName: " + this.name + "\n\t\tDescription: " + this.description +
+             "\n\t\tOwner Id: " + this.ownerId.toString();
    }
 
    /**
@@ -295,7 +295,8 @@ public class ProcessDetail
          out.putNid(componentNid);
 
          try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            this.stampSerializer.serialize(new DataOutputStream(baos), this.componentToIntitialEditMap.get(componentNid));
+            this.stampSerializer.serialize(new DataOutputStream(baos),
+                                           this.componentToIntitialEditMap.get(componentNid));
             out.putByteArrayField(baos.toByteArray());
          } catch (final IOException e) {
             throw new RuntimeException(e);
@@ -308,7 +309,7 @@ public class ProcessDetail
       out.putLong(this.timeLaunched);
       out.putLong(this.timeCanceledOrConcluded);
       out.putByteArrayField(this.status.name()
-                                  .getBytes());
+                                       .getBytes());
       out.putByteArrayField(this.name.getBytes());
       out.putByteArrayField(this.description.getBytes());
       out.putLong(this.ownerIdMsb);

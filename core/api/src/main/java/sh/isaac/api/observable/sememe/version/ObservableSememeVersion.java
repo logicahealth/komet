@@ -55,7 +55,6 @@ import sh.isaac.api.observable.sememe.ObservableSememeChronology;
  */
 public interface ObservableSememeVersion<V extends ObservableSememeVersion<V>>
         extends ObservableVersion, SememeObject {
-   
    /**
     * Gets the chronology.
     *

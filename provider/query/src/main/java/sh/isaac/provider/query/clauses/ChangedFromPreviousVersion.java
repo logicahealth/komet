@@ -140,8 +140,7 @@ public class ChangedFromPreviousVersion
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
       this.enclosingQuery.getLetDeclarations()
-                                                                                     .get(this.previousViewCoordinateKey);
-
+                         .get(this.previousViewCoordinateKey);
       throw new UnsupportedOperationException();
 
       // TODO FIX BACK UP

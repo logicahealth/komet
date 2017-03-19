@@ -55,7 +55,6 @@ import sh.isaac.api.identity.StampedVersion;
  */
 public interface SememeVersion<V extends SememeVersion<V>>
         extends StampedVersion, SememeObject {
-   
    /**
     * Gets the chronology.
     *

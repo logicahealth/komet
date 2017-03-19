@@ -57,10 +57,9 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class OchreExternalizableUnparsed {
-   
    /** The data. */
-   private final ByteArrayDataBuffer   data_;
-   
+   private final ByteArrayDataBuffer data_;
+
    /** The type. */
    OchreExternalizableObjectType type_;
 

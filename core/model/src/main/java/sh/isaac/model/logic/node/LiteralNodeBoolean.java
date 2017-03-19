@@ -62,7 +62,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public class LiteralNodeBoolean
         extends LiteralNode {
-   
    /** The literal value. */
    boolean literalValue;
 
@@ -152,7 +151,8 @@ public class LiteralNodeBoolean
     */
    @Override
    public String toString(String nodeIdSuffix) {
-      return "Boolean literal[" + getNodeIndex() + nodeIdSuffix + "]" + this.literalValue + super.toString(nodeIdSuffix);
+      return "Boolean literal[" + getNodeIndex() + nodeIdSuffix + "]" + this.literalValue +
+             super.toString(nodeIdSuffix);
    }
 
    /**

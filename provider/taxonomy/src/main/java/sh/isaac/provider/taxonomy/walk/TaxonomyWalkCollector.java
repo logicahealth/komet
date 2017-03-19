@@ -71,26 +71,25 @@ import sh.isaac.provider.taxonomy.TaxonomyFlags;
 public class TaxonomyWalkCollector
          implements ObjIntConsumer<TaxonomyWalkAccumulator>,
                     BiConsumer<TaxonomyWalkAccumulator, TaxonomyWalkAccumulator> {
-   
    /** The Constant MAX_PRINT_COUNT. */
    private static final int MAX_PRINT_COUNT = 10;
 
    //~--- fields --------------------------------------------------------------
 
    /** The watch sequences. */
-   final OpenIntHashSet     watchSequences = new OpenIntHashSet();
-   
+   final OpenIntHashSet watchSequences = new OpenIntHashSet();
+
    /** The error count. */
-   int                      errorCount     = 0;
-   
+   int errorCount = 0;
+
    /** The print count. */
-   int                      printCount     = 0;
-   
+   int printCount = 0;
+
    /** The taxonomy coordinate. */
    final TaxonomyCoordinate taxonomyCoordinate;
-   
+
    /** The taxonomy flags. */
-   final int                taxonomyFlags;
+   final int taxonomyFlags;
 
    //~--- constructors --------------------------------------------------------
 
@@ -101,13 +100,13 @@ public class TaxonomyWalkCollector
     */
    public TaxonomyWalkCollector(TaxonomyCoordinate taxonomyCoordinate) {
       this.taxonomyCoordinate = taxonomyCoordinate;
-      this.taxonomyFlags           = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(taxonomyCoordinate);
+      this.taxonomyFlags      = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(taxonomyCoordinate);
 
       final int watchNid = Get.identifierService()
-                        .getNidForUuids(UUID.fromString("df79ab93-4436-35b8-be3f-2a8e5849d732"));
+                              .getNidForUuids(UUID.fromString("df79ab93-4436-35b8-be3f-2a8e5849d732"));
 
       this.watchSequences.add(Get.identifierService()
-                            .getConceptSequence(watchNid));
+                                 .getConceptSequence(watchNid));
    }
 
    //~--- methods -------------------------------------------------------------
@@ -130,12 +129,12 @@ public class TaxonomyWalkCollector
       if (Get.conceptService()
              .isConceptActive(conceptSequence, this.taxonomyCoordinate.getStampCoordinate())) {
          final IntStream parentSequences = Get.taxonomyService()
-                                        .getTaxonomyParentSequences(conceptSequence, this.taxonomyCoordinate);
+                                              .getTaxonomyParentSequences(conceptSequence, this.taxonomyCoordinate);
          final int parentCount = (int) parentSequences.count();
 
          if (parentCount == 0) {
             final ConceptChronology<?> c = Get.conceptService()
-                                        .getConcept(conceptSequence);
+                                              .getConcept(conceptSequence);
 
             if (this.printCount < MAX_PRINT_COUNT) {
                this.printCount++;

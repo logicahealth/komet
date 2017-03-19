@@ -53,7 +53,6 @@ import java.util.UUID;
  * @author kec
  */
 public class UUIDUtil {
-   
    /**
     * Convert.
     *

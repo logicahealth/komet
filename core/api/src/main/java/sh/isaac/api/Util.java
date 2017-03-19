@@ -60,7 +60,6 @@ import sh.isaac.api.progress.ActiveTasks;
  * @author kec
  */
 public class Util {
-   
    /**
     * Adds the to task set and wait till done.
     *

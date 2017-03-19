@@ -71,24 +71,23 @@ import sh.isaac.api.progress.ActiveTasks;
  */
 public class WriteAndCheckSememeChronicle
         extends Task<Void> {
-   
    /** The sc. */
-   private final SememeChronology                                               sc;
-   
+   private final SememeChronology sc;
+
    /** The checkers. */
-   private final ConcurrentSkipListSet<ChangeChecker>                           checkers;
-   
+   private final ConcurrentSkipListSet<ChangeChecker> checkers;
+
    /** The alert collection. */
-   private final ConcurrentSkipListSet<Alert>                                   alertCollection;
-   
+   private final ConcurrentSkipListSet<Alert> alertCollection;
+
    /** The write semaphore. */
-   private final Semaphore                                                      writeSemaphore;
-   
+   private final Semaphore writeSemaphore;
+
    /** The change listeners. */
    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
-   
+
    /** The uncommitted tracking. */
-   private final BiConsumer<ObjectChronology, Boolean>                          uncommittedTracking;
+   private final BiConsumer<ObjectChronology, Boolean> uncommittedTracking;
 
    //~--- constructors --------------------------------------------------------
 
@@ -144,21 +143,21 @@ public class WriteAndCheckSememeChronicle
 
          if (this.sc.getCommitState() == CommitStates.UNCOMMITTED) {
             this.checkers.stream().forEach((check) -> {
-                                check.check(this.sc, this.alertCollection, CheckPhase.ADD_UNCOMMITTED);
-                             });
+                                     check.check(this.sc, this.alertCollection, CheckPhase.ADD_UNCOMMITTED);
+                                  });
          }
 
          updateProgress(2, 3);
          updateMessage("notifying: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
          this.changeListeners.forEach((listenerRef) -> {
-                                    final ChronologyChangeListener listener = listenerRef.get();
+                                         final ChronologyChangeListener listener = listenerRef.get();
 
-                                    if (listener == null) {
-                                       this.changeListeners.remove(listenerRef);
-                                    } else {
-                                       listener.handleChange(this.sc);
-                                    }
-                                 });
+                                         if (listener == null) {
+                                            this.changeListeners.remove(listenerRef);
+                                         } else {
+                                            listener.handleChange(this.sc);
+                                         }
+                                      });
          updateProgress(3, 3);
          updateMessage("completed change: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
          return null;

@@ -56,7 +56,6 @@ import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
  */
 public abstract class BPT_Skip
         extends PropertyType {
-   
    /**
     * Instantiates a new BP T skip.
     *

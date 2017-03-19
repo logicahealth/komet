@@ -47,7 +47,6 @@ package sh.isaac.pombuilder.artifacts;
  */
 public class IBDFFile
         extends Artifact {
-   
    /**
     * Instantiates a new IBDF file.
     *

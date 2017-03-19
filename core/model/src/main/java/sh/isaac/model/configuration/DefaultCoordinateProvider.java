@@ -69,28 +69,27 @@ import sh.isaac.model.observable.coordinate.ObservableTaxonomyCoordinateImpl;
  * @author kec
  */
 public class DefaultCoordinateProvider {
-   
    /** The defaults setup. */
-   AtomicBoolean                defaultsSetup      = new AtomicBoolean();
-   
+   AtomicBoolean defaultsSetup = new AtomicBoolean();
+
    /** The defaults setup latch. */
-   CountDownLatch               defaultsSetupLatch = new CountDownLatch(1);
-   
+   CountDownLatch defaultsSetupLatch = new CountDownLatch(1);
+
    /** The observable edit coordinate. */
-   ObservableEditCoordinate     observableEditCoordinate;
-   
+   ObservableEditCoordinate observableEditCoordinate;
+
    /** The observable language coordinate. */
    ObservableLanguageCoordinate observableLanguageCoordinate;
-   
+
    /** The observable logic coordinate. */
-   ObservableLogicCoordinate    observableLogicCoordinate;
-   
+   ObservableLogicCoordinate observableLogicCoordinate;
+
    /** The observable stamp coordinate. */
-   ObservableStampCoordinate    observableStampCoordinate;
-   
+   ObservableStampCoordinate observableStampCoordinate;
+
    /** The observable stamp position. */
-   ObservableStampPositionImpl  observableStampPosition;
-   
+   ObservableStampPositionImpl observableStampPosition;
+
    /** The observable taxonomy coordinate. */
    ObservableTaxonomyCoordinate observableTaxonomyCoordinate;
 
@@ -102,7 +101,8 @@ public class DefaultCoordinateProvider {
    private void setupDefaults() {
       try {
          if (this.defaultsSetup.compareAndSet(false, true)) {
-            this.observableEditCoordinate = new ObservableEditCoordinateImpl(EditCoordinates.getDefaultUserSolorOverlay());
+            this.observableEditCoordinate =
+               new ObservableEditCoordinateImpl(EditCoordinates.getDefaultUserSolorOverlay());
             this.observableLanguageCoordinate = new ObservableLanguageCoordinateImpl(
                 LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate());
             this.observableLogicCoordinate = new ObservableLogicCoordinateImpl(LogicCoordinates.getStandardElProfile());
@@ -115,7 +115,7 @@ public class DefaultCoordinateProvider {
                       this.observableLanguageCoordinate,
                       this.observableLogicCoordinate));
             this.observableStampCoordinate.stampPositionProperty()
-                                     .setValue(this.observableStampPosition);
+                                          .setValue(this.observableStampPosition);
             this.defaultsSetupLatch.countDown();
          }
 
@@ -135,8 +135,8 @@ public class DefaultCoordinateProvider {
    public void setDefaultClassifier(int conceptId) {
       setupDefaults();
       this.observableLogicCoordinate.classifierSequenceProperty()
-                               .set(Get.identifierService()
-                                       .getConceptSequence(conceptId));
+                                    .set(Get.identifierService()
+                                          .getConceptSequence(conceptId));
    }
 
    /**
@@ -147,8 +147,8 @@ public class DefaultCoordinateProvider {
    public void setDefaultDescriptionLogicProfile(int conceptId) {
       setupDefaults();
       this.observableLogicCoordinate.descriptionLogicProfileSequenceProperty()
-                               .set(Get.identifierService()
-                                       .getConceptSequence(conceptId));
+                                    .set(Get.identifierService()
+                                          .getConceptSequence(conceptId));
    }
 
    /**
@@ -166,12 +166,12 @@ public class DefaultCoordinateProvider {
 
       final ObservableIntegerArray descriptionTypeIntegerArray =
          this.observableLanguageCoordinate.descriptionTypePreferenceListProperty()
-                                     .get();
+                                          .get();
 
       descriptionTypeIntegerArray.clear();
       descriptionTypeIntegerArray.addAll(descriptionTypePreferenceList);
       this.observableLanguageCoordinate.descriptionTypePreferenceListProperty()
-                                  .set(descriptionTypeIntegerArray);
+                                       .set(descriptionTypeIntegerArray);
    }
 
    /**
@@ -189,7 +189,7 @@ public class DefaultCoordinateProvider {
 
       final ObservableIntegerArray dialectAssemblageIntegerArray =
          this.observableLanguageCoordinate.dialectAssemblagePreferenceListProperty()
-                                     .get();
+                                          .get();
 
       dialectAssemblageIntegerArray.clear();
       dialectAssemblageIntegerArray.addAll(dialectAssemblagePreferenceList);
@@ -217,8 +217,8 @@ public class DefaultCoordinateProvider {
    public void setDefaultInferredAssemblage(int conceptId) {
       setupDefaults();
       this.observableLogicCoordinate.inferredAssemblageSequenceProperty()
-                               .set(Get.identifierService()
-                                       .getConceptSequence(conceptId));
+                                    .set(Get.identifierService()
+                                          .getConceptSequence(conceptId));
    }
 
    /**
@@ -229,8 +229,8 @@ public class DefaultCoordinateProvider {
    public void setDefaultLanguage(int conceptId) {
       setupDefaults();
       this.observableLanguageCoordinate.languageConceptSequenceProperty()
-                                  .set(Get.identifierService()
-                                        .getConceptSequence(conceptId));
+                                       .set(Get.identifierService()
+                                             .getConceptSequence(conceptId));
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -265,8 +265,8 @@ public class DefaultCoordinateProvider {
    public void setDefaultModule(int conceptId) {
       setupDefaults();
       this.observableEditCoordinate.moduleSequenceProperty()
-                              .set(Get.identifierService()
-                                      .getConceptSequence(conceptId));
+                                   .set(Get.identifierService()
+                                         .getConceptSequence(conceptId));
    }
 
    /**
@@ -277,11 +277,11 @@ public class DefaultCoordinateProvider {
    public void setDefaultPath(int conceptId) {
       setupDefaults();
       this.observableStampPosition.stampPathSequenceProperty()
-                             .set(Get.identifierService()
-                                     .getConceptSequence(conceptId));
+                                  .set(Get.identifierService()
+                                        .getConceptSequence(conceptId));
       this.observableEditCoordinate.pathSequenceProperty()
-                              .set(Get.identifierService()
-                                      .getConceptSequence(conceptId));
+                                   .set(Get.identifierService()
+                                         .getConceptSequence(conceptId));
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -306,8 +306,8 @@ public class DefaultCoordinateProvider {
    public void setDefaultStatedAssemblage(int conceptId) {
       setupDefaults();
       this.observableLogicCoordinate.statedAssemblageSequenceProperty()
-                               .set(Get.identifierService()
-                                       .getConceptSequence(conceptId));
+                                    .set(Get.identifierService()
+                                          .getConceptSequence(conceptId));
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -332,7 +332,7 @@ public class DefaultCoordinateProvider {
    public void setDefaultTime(long timeInMs) {
       setupDefaults();
       this.observableStampPosition.timeProperty()
-                             .set(timeInMs);
+                                  .set(timeInMs);
    }
 
    /**
@@ -343,8 +343,8 @@ public class DefaultCoordinateProvider {
    public void setDefaultUser(int conceptId) {
       setupDefaults();
       this.observableEditCoordinate.authorSequenceProperty()
-                              .set(Get.identifierService()
-                                      .getConceptSequence(conceptId));
+                                   .set(Get.identifierService()
+                                         .getConceptSequence(conceptId));
    }
 }
 

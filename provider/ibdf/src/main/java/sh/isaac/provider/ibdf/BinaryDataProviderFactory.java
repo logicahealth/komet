@@ -68,7 +68,6 @@ import sh.isaac.api.externalizable.DataWriterService;
 @Singleton
 public class BinaryDataProviderFactory
          implements BinaryDataServiceFactory {
-   
    /**
     * Gets the queue reader.
     *

@@ -69,7 +69,6 @@ import sh.isaac.api.coordinate.StampCoordinate;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public abstract class MappingDAO {
-   
    /** The Constant LOG. */
    protected static final Logger LOG = LoggerFactory.getLogger(MappingDAO.class);
 
@@ -87,14 +86,13 @@ public abstract class MappingDAO {
          StampCoordinate stampCoord)
             throws RuntimeException {
       final SememeChronology<? extends SememeVersion<?>> sc = Get.sememeService()
-                                                           .getSememe(Get.identifierService()
-                                                                 .getSememeSequenceForUuids(refexUUID));
+                                                                 .getSememe(Get.identifierService()
+                                                                       .getSememeSequenceForUuids(refexUUID));
       @SuppressWarnings({ "unchecked", "rawtypes" })
-	final
-      Optional<LatestVersion<DynamicSememe<?>>> latest = ((SememeChronology) sc).getLatestVersion(DynamicSememe.class,
-                                                                                                  stampCoord.makeAnalog(
-                                                                                                     State.ACTIVE,
-                                                                                                           State.INACTIVE));
+      final Optional<LatestVersion<DynamicSememe<?>>> latest =
+         ((SememeChronology) sc).getLatestVersion(DynamicSememe.class,
+                                                  stampCoord.makeAnalog(State.ACTIVE,
+                                                        State.INACTIVE));
 
       return latest.get()
                    .value();
@@ -118,11 +116,11 @@ public abstract class MappingDAO {
          EditCoordinate editCoord)
             throws RuntimeException {
       final ConceptChronology<? extends ConceptVersion<?>> cc = Get.conceptService()
-                                                             .getConcept(conceptUUID);
+                                                                   .getConcept(conceptUUID);
       final Optional<LatestVersion<ConceptVersion>> cv = ((ConceptChronology) cc).getLatestVersion(ConceptVersion.class,
-                                                                                             stampCoord.makeAnalog(
-                                                                                                State.ACTIVE,
-                                                                                                      State.INACTIVE));
+                                                                                                   stampCoord.makeAnalog(
+                                                                                                      State.ACTIVE,
+                                                                                                            State.INACTIVE));
 
       if (cv.isPresent() &&!cv.get().contradictions().isPresent() && (cv.get().value().getState() == state)) {
          LOG.warn("Tried set the status to the value it already has.  Doing nothing");
@@ -156,8 +154,7 @@ public abstract class MappingDAO {
          LOG.warn("Tried set the status to the value it already has.  Doing nothing");
       } else {
          @SuppressWarnings("unchecked")
-		final
-         MutableDynamicSememe<?> mds =
+         final MutableDynamicSememe<?> mds =
             ((SememeChronology<DynamicSememe<?>>) ds.getChronology()).createMutableVersion(MutableDynamicSememe.class,
                                                                                            state,
                                                                                            editCoord);

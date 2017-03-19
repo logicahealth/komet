@@ -52,7 +52,6 @@ import sh.isaac.api.State;
  * @param <T> The type of object to make a time-based analog from.
  */
 public interface StateBasedAnalogMaker<T> {
-   
    /**
     * Make analog.
     *

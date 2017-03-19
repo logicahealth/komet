@@ -68,37 +68,36 @@ import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
  * @author kec
  */
 public enum SememeType {
-   
    /** The member. */
    MEMBER((byte) 0, "Member"),
-   
+
    /** The component nid. */
    COMPONENT_NID((byte) 1, "Component Nid"),
-   
+
    /** The long. */
    LONG((byte) 2, "Long"),
-   
+
    /** The logic graph. */
    LOGIC_GRAPH((byte) 4, "Logic Graph"),
-   
+
    /** The string. */
    STRING((byte) 5, "String"),
-   
+
    /** The dynamic. */
    DYNAMIC((byte) 6, "Dynamic Sememe"),
-   
+
    /** The description. */
    DESCRIPTION((byte) 7, "Description"),
-   
+
    /** The relationship adaptor. */
    RELATIONSHIP_ADAPTOR((byte) 8, "Relationship Adapter"),
-   
+
    /** The unknown. */
    UNKNOWN(Byte.MAX_VALUE, "Unknown");
 
    /** The sememe token. */
-   final byte   sememeToken;
-   
+   final byte sememeToken;
+
    /** The nice name. */
    final String niceName_;
 
@@ -130,7 +129,7 @@ public enum SememeType {
       }
 
       final String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH)
-                                 .trim();
+                                       .trim();
 
       if (StringUtils.isBlank(clean)) {
          return null;

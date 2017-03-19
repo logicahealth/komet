@@ -59,7 +59,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public class AndNode
         extends ConnectorNode {
-   
    /**
     * Instantiates a new and node.
     *

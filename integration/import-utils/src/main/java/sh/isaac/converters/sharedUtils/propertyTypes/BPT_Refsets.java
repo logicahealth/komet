@@ -46,7 +46,6 @@ package sh.isaac.converters.sharedUtils.propertyTypes;
  */
 public class BPT_Refsets
         extends BPT_DualParentPropertyType {
-   
    /**
     * Instantiates a new BP T refsets.
     *

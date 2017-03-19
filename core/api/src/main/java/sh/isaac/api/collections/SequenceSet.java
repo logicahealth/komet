@@ -58,7 +58,6 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  */
 public class SequenceSet<T extends SequenceSet<T>>
         extends AbstractIntSet<T> {
-   
    /**
     * Instantiates a new sequence set.
     */

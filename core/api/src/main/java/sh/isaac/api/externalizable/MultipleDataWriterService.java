@@ -77,26 +77,25 @@ import sh.isaac.api.LookupService;
  */
 public class MultipleDataWriterService
          implements DataWriterService {
-   
    /** The writers. */
-   ArrayList<DataWriterService>   writers_         = new ArrayList<>();
-   
+   ArrayList<DataWriterService> writers_ = new ArrayList<>();
+
    /** The logger. */
-   private final Logger                 logger           = LoggerFactory.getLogger(MultipleDataWriterService.class);
-   
+   private final Logger logger = LoggerFactory.getLogger(MultipleDataWriterService.class);
+
    /** The sdf. */
-   private final SimpleDateFormat sdf              = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-   
+   private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+
    /** The object write count. */
-   private final AtomicInteger          objectWriteCount = new AtomicInteger();
-   
+   private final AtomicInteger objectWriteCount = new AtomicInteger();
+
    /** The rotate after. */
    private final int rotateAfter =
       10000;  // This will cause us to rotate files after ~ 1 MB of IBDF content, in rough testing.
-   
+
    /** The prefix. */
-   private String  prefix;
-   
+   private String prefix;
+
    /** The enable rotate. */
    private final boolean enableRotate;
 
@@ -116,7 +115,7 @@ public class MultipleDataWriterService
       if (jsonPath.isPresent()) {
          // Use HK2 here to make fortify stop false-flagging an open resource error
          final DataWriterService writer = LookupService.get()
-                                                 .getService(DataWriterService.class, "jsonWriter");
+                                                       .getService(DataWriterService.class, "jsonWriter");
 
          if (writer != null) {
             writer.configure(jsonPath.get());
@@ -129,7 +128,7 @@ public class MultipleDataWriterService
 
       if (ibdfPath.isPresent()) {
          final DataWriterService writer = LookupService.get()
-                                                 .getService(DataWriterService.class, "ibdfWriter");
+                                                       .getService(DataWriterService.class, "ibdfWriter");
 
          if (writer != null) {
             writer.configure(ibdfPath.get());
@@ -144,7 +143,7 @@ public class MultipleDataWriterService
    /**
     * This constructor sets up the multipleDataWriter in such a way that is will create date stamped and UUID unique file names, rotating them after
     * a certain number of writes, to prevent them from growing too large.
-    * 
+    *
     * This constructor will also start a mode where we do NOT keep 0 length files - therefore, if we start, and stop, and the last file that was being written
     * to is size 0, the last file will be deleted.
     *
@@ -159,7 +158,7 @@ public class MultipleDataWriterService
                                     Optional<String> jsonExtension,
                                     Optional<String> ibdfExtension)
             throws IOException {
-      this.prefix  = prefix;
+      this.prefix       = prefix;
       this.enableRotate = true;
 
       final String fileNamePrefix = prefix + this.sdf.format(new Date()) + "_" + UUID.randomUUID().toString() + ".";
@@ -167,7 +166,7 @@ public class MultipleDataWriterService
       if (jsonExtension.isPresent()) {
          // Use HK2 here to make fortify stop false-flagging an open resource error
          final DataWriterService writer = LookupService.get()
-                                                 .getService(DataWriterService.class, "jsonWriter");
+                                                       .getService(DataWriterService.class, "jsonWriter");
 
          if (writer != null) {
             writer.configure(folderToWriteInto.resolve(fileNamePrefix + jsonExtension.get()));
@@ -180,7 +179,7 @@ public class MultipleDataWriterService
 
       if (ibdfExtension.isPresent()) {
          final DataWriterService writer = LookupService.get()
-                                                 .getService(DataWriterService.class, "ibdfWriter");
+                                                       .getService(DataWriterService.class, "ibdfWriter");
 
          if (writer != null) {
             writer.configure(folderToWriteInto.resolve(fileNamePrefix + ibdfExtension.get()));

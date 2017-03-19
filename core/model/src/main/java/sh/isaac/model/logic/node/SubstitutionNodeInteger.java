@@ -60,7 +60,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public class SubstitutionNodeInteger
         extends SubstitutionNodeLiteral {
-   
    /**
     * Instantiates a new substitution node integer.
     *

@@ -61,7 +61,6 @@ import sh.isaac.converters.sharedUtils.ConsoleUtil;
  * The Class Relationship.
  */
 public class Relationship {
-   
    /** The preferred name map. */
    private static HashMap<String, String> preferredNameMap = new HashMap<>();
 
@@ -90,33 +89,33 @@ public class Relationship {
 
    /** The name 1 snomed code. */
    private final HashSet<String> name1SnomedCode = new HashSet<String>();
-   
+
    /** The name 2 snomed code. */
    private final HashSet<String> name2SnomedCode = new HashSet<String>();
-   
+
    /** The name 1. */
-   private String          name1;
-   
+   private String name1;
+
    /** The description 1. */
-   private String          description1;
-   
+   private String description1;
+
    /** The name 2. */
-   private String          name2;
-   
+   private String name2;
+
    /** The description 2. */
-   private String          description2;
-   
+   private String description2;
+
    /** The name 1 rel type. */
-   private String          name1RelType;
-   
+   private String name1RelType;
+
    /** The name 2 rel type. */
-   private String          name2RelType;
-   
+   private String name2RelType;
+
    /** The is rela. */
-   private final boolean         isRela_;
-   
+   private final boolean isRela_;
+
    /** The swap. */
-   private Boolean         swap;
+   private Boolean swap;
 
    //~--- constructors --------------------------------------------------------
 
@@ -247,7 +246,7 @@ public class Relationship {
     */
    public String getDescription() {
       return this.swap ? this.description2
-                  : this.description1;
+                       : this.description1;
    }
 
    /**
@@ -257,7 +256,7 @@ public class Relationship {
     */
    public String getFSNName() {
       return this.swap ? this.name2
-                  : this.name1;
+                       : this.name1;
    }
 
    /**
@@ -277,7 +276,7 @@ public class Relationship {
     */
    public String getInverseDescription() {
       return this.swap ? this.description1
-                  : this.description2;
+                       : this.description2;
    }
 
    /**
@@ -287,7 +286,7 @@ public class Relationship {
     */
    public String getInverseFSNName() {
       return this.swap ? this.name1
-                  : this.name2;
+                       : this.name2;
    }
 
    /**
@@ -297,7 +296,7 @@ public class Relationship {
     */
    public Set<String> getInverseRelSnomedCode() {
       return this.swap ? this.name1SnomedCode
-                  : this.name2SnomedCode;
+                       : this.name2SnomedCode;
    }
 
    /**
@@ -307,7 +306,7 @@ public class Relationship {
     */
    public String getInverseRelType() {
       return this.swap ? this.name1RelType
-                  : this.name2RelType;
+                       : this.name2RelType;
    }
 
    /**
@@ -326,7 +325,7 @@ public class Relationship {
     */
    public Set<String> getRelSnomedCode() {
       return this.swap ? this.name2SnomedCode
-                  : this.name1SnomedCode;
+                       : this.name1SnomedCode;
    }
 
    /**
@@ -336,7 +335,7 @@ public class Relationship {
     */
    public String getRelType() {
       return this.swap ? this.name2RelType
-                  : this.name1RelType;
+                       : this.name1RelType;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -371,8 +370,9 @@ public class Relationship {
          this.swap = this.name2.equals("CHD");
       } else {
          // Use the primary assignments above, to figure out the more detailed assignments (where possible)
-         final Statement s  = c.createStatement();
-         final ResultSet rs = s.executeQuery("Select distinct REL from " + tablePrefix + "REL where RELA='" + this.name1 + "'");
+         final Statement s = c.createStatement();
+         final ResultSet rs = s.executeQuery("Select distinct REL from " + tablePrefix + "REL where RELA='" +
+                                 this.name1 + "'");
 
          while (rs.next()) {
             if (rs.getString("REL")
@@ -416,44 +416,46 @@ public class Relationship {
 
          // TODO utilize MRREL DIR column - see if that helps.  Also talk to Brian, see if there is better code for this.
          if (this.swap == null) {
-            if (this.name1.startsWith("inverse_") || this.name2.startsWith("inverse_"))       // inverse_ things as secondary
+            if (this.name1.startsWith("inverse_") || this.name2.startsWith("inverse_"))     // inverse_ things as secondary
             {
                this.swap = this.name1.startsWith("inverse_");
-            } else if (this.name1.startsWith("has_") || this.name2.startsWith("has_"))        // has_ things as primary
+            } else if (this.name1.startsWith("has_") || this.name2.startsWith("has_"))      // has_ things as primary
             {
                this.swap = this.name2.startsWith("has_");
-            } else if (this.name1.startsWith("may_be") || this.name2.startsWith("may_be"))    // may_be X as primary
+            } else if (this.name1.startsWith("may_be") || this.name2.startsWith("may_be"))  // may_be X as primary
             {
                this.swap = this.name2.startsWith("may_be");
-            } else if (this.name1.contains("_from") || this.name2.contains("_from"))          // X_from as primary
+            } else if (this.name1.contains("_from") || this.name2.contains("_from"))        // X_from as primary
             {
                this.swap = this.name2.contains("_from");
-            } else if (this.name1.contains("_by") || this.name2.contains("_by"))              // X_by as primary
+            } else if (this.name1.contains("_by") || this.name2.contains("_by"))            // X_by as primary
             {
                this.swap = this.name2.contains("_by");
-            } else if (this.name1.contains("_in_") || this.name2.contains("_in_"))            // X_in_ as primary
+            } else if (this.name1.contains("_in_") || this.name2.contains("_in_"))          // X_in_ as primary
             {
                this.swap = this.name2.contains("_in_");
-            } else if (this.name1.endsWith("_in") || this.name2.endsWith("_in"))              // X_in as primary
+            } else if (this.name1.endsWith("_in") || this.name2.endsWith("_in"))            // X_in as primary
             {
                this.swap = this.name2.endsWith("_in");
-            } else if (this.name1.contains("_is") || this.name2.contains("_is"))              // X_is as primary
+            } else if (this.name1.contains("_is") || this.name2.contains("_is"))            // X_is as primary
             {
                this.swap = this.name2.contains("_is");
-            } else if (this.name1.startsWith("is_") || this.name2.startsWith("is_"))          // is_ as primary
+            } else if (this.name1.startsWith("is_") || this.name2.startsWith("is_"))        // is_ as primary
             {
                this.swap = this.name2.startsWith("is_");
-            } else if (this.name1.contains("_has") || this.name2.contains("_has"))            // X_has as secondary
+            } else if (this.name1.contains("_has") || this.name2.contains("_has"))          // X_has as secondary
             {
                this.swap = this.name1.contains("_has");
-            } else if (this.name1.equals("larger_than") || this.name2.equals("larger_than"))  // swap smaller_than to primary
-            {
+            } else if (this.name1.equals("larger_than") ||
+                       this.name2.equals("larger_than"))                                    // swap smaller_than to primary
+                       {
                this.swap = this.name1.equals("larger_than");
-            } else if (this.name1.equals("due_to") || this.name2.equals("due_to"))            // due_to as primary, cause_of secondary
-            {
+            } else if (this.name1.equals("due_to") ||
+                       this.name2.equals("due_to"))  // due_to as primary, cause_of secondary
+                       {
                this.swap = this.name2.equals("due_to");
             } else if (this.name1.equals("occurs_after") ||
-                       this.name2.equals("occurs_after"))                                // occurs_after as primary, occurs_before secondary
+                       this.name2.equals("occurs_after"))  // occurs_after as primary, occurs_before secondary
                        {
                this.swap = this.name2.equals("occurs_after");
             }
@@ -461,8 +463,8 @@ public class Relationship {
       }
 
       if (this.swap == null) {
-         ConsoleUtil.println("No rel direction preference specified for " + this.name1 + "/" + this.name2 + " - using " + this.name1 +
-                             " as primary");
+         ConsoleUtil.println("No rel direction preference specified for " + this.name1 + "/" + this.name2 +
+                             " - using " + this.name1 + " as primary");
          this.swap = false;
       }
    }

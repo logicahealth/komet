@@ -56,7 +56,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public abstract class SubstitutionNodeLiteral
         extends SubstitutionNode {
-   
    /**
     * Instantiates a new substitution node literal.
     *

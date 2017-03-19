@@ -64,7 +64,6 @@ import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
  * The Class ChecksumGenerator.
  */
 public class ChecksumGenerator {
-   
    /**
     * Accepts types like "MD5 or SHA1".
     *
@@ -105,8 +104,8 @@ public class ChecksumGenerator {
             try (InputStream is = Files.newInputStream(data.toPath())) {
                final DigestInputStream dis       = new DigestInputStream(is, md);
                final byte[]            buffer    = new byte[8192];
-               long              loopCount = 0;
-               int               read      = 0;
+               long                    loopCount = 0;
+               int                     read      = 0;
 
                while (read != -1) {
                   // update every 10 MB

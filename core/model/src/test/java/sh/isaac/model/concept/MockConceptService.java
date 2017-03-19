@@ -72,12 +72,11 @@ import sh.isaac.api.coordinate.StampCoordinate;
 @Service
 public class MockConceptService
          implements ConceptService {
-   
    /** The concepts map. */
    ConcurrentHashMap<Integer, ConceptChronology<? extends ConceptVersion<?>>> conceptsMap = new ConcurrentHashMap<>();
-   
+
    /** The db id. */
-   UUID                                                                       dbId        = UUID.randomUUID();
+   UUID dbId = UUID.randomUUID();
 
    //~--- methods -------------------------------------------------------------
 
@@ -110,7 +109,7 @@ public class MockConceptService
    @Override
    public ConceptChronology<? extends ConceptVersion<?>> getConcept(int conceptId) {
       return this.conceptsMap.get(Get.identifierService()
-                                .getConceptSequence(conceptId));
+                                     .getConceptSequence(conceptId));
    }
 
    /**
@@ -122,13 +121,13 @@ public class MockConceptService
    @Override
    public ConceptChronology<? extends ConceptVersion<?>> getConcept(UUID... conceptUuids) {
       final int conceptNid      = Get.identifierService()
-                               .getNidForUuids(conceptUuids);
+                                     .getNidForUuids(conceptUuids);
       final int conceptSequence = Get.identifierService()
-                               .getConceptSequence(conceptNid);
+                                     .getConceptSequence(conceptNid);
 
       if (this.conceptsMap.containsKey(conceptSequence)) {
          return this.conceptsMap.get(Get.identifierService()
-                                   .getConceptSequenceForUuids(conceptUuids));
+                                        .getConceptSequenceForUuids(conceptUuids));
       }
 
       final ConceptChronologyImpl concept = new ConceptChronologyImpl(conceptUuids[0], conceptNid, conceptSequence);
@@ -150,7 +149,7 @@ public class MockConceptService
    @Override
    public boolean hasConcept(int conceptId) {
       return this.conceptsMap.containsKey(Get.identifierService()
-                                        .getConceptSequence(conceptId));
+            .getConceptSequence(conceptId));
    }
 
    /**
@@ -173,7 +172,7 @@ public class MockConceptService
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream() {
       return this.conceptsMap.values()
-                        .stream();
+                             .stream();
    }
 
    /**
@@ -206,8 +205,8 @@ public class MockConceptService
    @Override
    public IntStream getConceptKeyParallelStream() {
       return this.conceptsMap.keySet()
-                        .parallelStream()
-                        .mapToInt(i -> i);
+                             .parallelStream()
+                             .mapToInt(i -> i);
    }
 
    /**
@@ -218,8 +217,8 @@ public class MockConceptService
    @Override
    public IntStream getConceptKeyStream() {
       return this.conceptsMap.keySet()
-                        .stream()
-                        .mapToInt(i -> i);
+                             .stream()
+                             .mapToInt(i -> i);
    }
 
    /**
@@ -282,7 +281,7 @@ public class MockConceptService
    @Override
    public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream() {
       return this.conceptsMap.values()
-                        .parallelStream();
+                             .parallelStream();
    }
 
    /**

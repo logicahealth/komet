@@ -93,7 +93,7 @@ import sh.isaac.utility.Frills;
 
 /**
  * Contains methods necessary to perform workflow-based accessing
- * 
+ *
  * {@link WorkflowContentStore} {@link WorkflowProvider}
  * {@link BPMNInfo}.
  *
@@ -102,7 +102,6 @@ import sh.isaac.utility.Frills;
 @Service
 @Singleton
 public class WorkflowAccessor {
-   
    /** The workflow provider. */
    private final WorkflowProvider workflowProvider_;
 
@@ -111,10 +110,11 @@ public class WorkflowAccessor {
    /**
     * Instantiates a new workflow accessor.
     */
+
    // for HK2
    private WorkflowAccessor() {
       this.workflowProvider_ = LookupService.get()
-                                       .getService(WorkflowProvider.class);
+            .getService(WorkflowProvider.class);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -208,8 +208,9 @@ public class WorkflowAccessor {
       final Map<ProcessDetail, SortedSet<ProcessHistory>> processInformation = new HashMap<>();
 
       // Get User Roles
-      final Map<String, Set<AvailableAction>> actionsByInitialState = getUserAvailableActionsByInitialState(definitionId,
-                                                                                                      userId);
+      final Map<String, Set<AvailableAction>> actionsByInitialState =
+         getUserAvailableActionsByInitialState(definitionId,
+                                               userId);
 
       // For each ActiveProcesses, see if its current state is "applicable
       // current state" and if
@@ -287,13 +288,13 @@ public class WorkflowAccessor {
          LanguageCoordinate langCoord)
             throws Exception {
       final ObjectChronologyType oct = Get.identifierService()
-                                    .getChronologyTypeForNid(nid);
+                                          .getChronologyTypeForNid(nid);
 
       if (oct == ObjectChronologyType.CONCEPT) {
          return formatStringConceptInformation(nid, stampCoord, langCoord);
       } else if (oct == ObjectChronologyType.SEMEME) {
          final SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeService()
-                                                                  .getSememe(nid);
+                                                                        .getSememe(nid);
 
          switch (sememe.getSememeType()) {
          case DESCRIPTION:
@@ -309,13 +310,15 @@ public class WorkflowAccessor {
                (LatestVersion<DynamicSememe>) ((SememeChronology) sememe).getLatestVersion(LogicGraphSememe.class,
                                                                                            stampCoord)
                                                                          .get();
-            final int                                            assemblageSeq = dynSem.value()
-                                                                                 .getAssemblageSequence();
+            final int assemblageSeq = dynSem.value()
+                                            .getAssemblageSequence();
+
             Get.conceptService()
-                                                                         .getConcept(assemblageSeq);
-            String                                         target        = null;
-            String                                         value         = null;
-            final DynamicSememeUsageDescription sememeDefinition               = DynamicSememeUsageDescriptionImpl.read(nid);
+               .getConcept(assemblageSeq);
+
+            String                              target           = null;
+            String                              value            = null;
+            final DynamicSememeUsageDescription sememeDefinition = DynamicSememeUsageDescriptionImpl.read(nid);
 
             for (final DynamicSememeColumnInfo info: sememeDefinition.getColumnInfo()) {
                if (info.getColumnDescriptionConcept()
@@ -388,7 +391,7 @@ public class WorkflowAccessor {
     */
    public DefinitionDetail getDefinitionDetails(UUID definitionId) {
       return this.workflowProvider_.getDefinitionDetailStore()
-                              .get(definitionId);
+                                   .get(definitionId);
    }
 
    /**
@@ -428,7 +431,7 @@ public class WorkflowAccessor {
     */
    public ProcessDetail getProcessDetails(UUID processId) {
       return this.workflowProvider_.getProcessDetailStore()
-                              .get(processId);
+                                   .get(processId);
    }
 
    /**
@@ -492,7 +495,7 @@ public class WorkflowAccessor {
    /**
     * Returns the of available actions a user has roles based on the
     * definition's possible initial-states
-    * 
+    *
     * Used to support the getAdvanceableProcessInformation() and
     * getUserPermissibleActionsForProcess().
     *
@@ -506,7 +509,7 @@ public class WorkflowAccessor {
 
       // Get User Roles
       final Set<UserRole> userRoles = this.workflowProvider_.getUserRoleStore()
-                                                 .getUserRoles(userId);
+                                                            .getUserRoles(userId);
 
       // Get Map of available actions (by initialState) that can be executed
       // based on userRoles
@@ -528,7 +531,7 @@ public class WorkflowAccessor {
    /**
     * Identifies the set of Available Actions containing actions which the user
     * may take on a given process
-    * 
+    *
     * Used to determine which actions populate the Transition Workflow picklist.
     *
     * @param processId            The process being examined
@@ -569,7 +572,7 @@ public class WorkflowAccessor {
          return null;
       }
 
-      final long                timeLaunched = proc.getTimeCreated();
+      final long          timeLaunched = proc.getTimeCreated();
       ObjectChronology<?> objChron;
 
       if (Get.identifierService()
@@ -585,14 +588,14 @@ public class WorkflowAccessor {
       }
 
       final OfInt stampSequencesItr = objChron.getVersionStampSequences()
-                                        .iterator();
-      int   stampSeq          = -1;
-      long  stampTime         = 0;
+                                              .iterator();
+      int         stampSeq          = -1;
+      long        stampTime         = 0;
 
       while (stampSequencesItr.hasNext() && (stampTime < timeLaunched)) {
          final int  currentStampSeq  = stampSequencesItr.next();
          final long currentStampTime = Get.stampService()
-                                    .getTimeForStamp(currentStampSeq);
+                                          .getTimeForStamp(currentStampSeq);
 
          if (currentStampTime < timeLaunched) {
             stampTime = currentStampTime;

@@ -68,7 +68,6 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
  * @author Daniel Armbrust
  */
 public abstract class PropertyType {
-   
    /** The src version. */
    protected static int srcVersion_ = 1;
 
@@ -76,21 +75,22 @@ public abstract class PropertyType {
 
    /** The property type UUID. */
    private UUID propertyTypeUUID = null;
-   
+
    /** The create as dynamic refex. */
    private boolean createAsDynamicRefex_ =
       false;  // It could make sense to set this at the individual Property level... but in general, everything of the same type
-   
+
    /** The alt name property map. */
    private Map<String, String> altNamePropertyMap_ = null;
-   
+
    /** The skip list. */
-   protected List<String>      skipList_           = null;
-   
+   protected List<String> skipList_ = null;
+
    /** The property type description. */
-   private final String              propertyTypeDescription_;
+   private final String propertyTypeDescription_;
 
    /** The default data column. */
+
    // will be handled in the same way - relationships are not dynamic sememes, assoications are, for example.
    private final DynamicSememeDataType defaultDataColumn_;  // If the property is specified without further column instructions, and createAsDynamicRefex is true,
 
@@ -147,7 +147,8 @@ public abstract class PropertyType {
       }
 
       if ((this.altNamePropertyMap_ != null) && StringUtils.isNotEmpty(property.getSourcePropertyAltName())) {
-         final String s = this.altNamePropertyMap_.put(property.getSourcePropertyAltName(), property.getSourcePropertyNameFSN());
+         final String s = this.altNamePropertyMap_.put(property.getSourcePropertyAltName(),
+                                                       property.getSourcePropertyNameFSN());
 
          if (s != null) {
             throw new RuntimeException("Alt Indexing Error - duplicate!");

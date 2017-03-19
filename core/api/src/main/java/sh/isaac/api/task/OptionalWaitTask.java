@@ -55,27 +55,26 @@ import javafx.concurrent.Task;
  * {@link OptionalWaitTask}
  * This class wraps a task, where the task doesn't serve the purpose of calculating a value,
  * but rather, is forcing a wait on a background task.
- * 
+ *
  * This allows a caller to wait for the background task, or return the value immediately.
- * 
+ *
  * A use case for this is in the object builders - the object is created and read,
  * but a subtask is issued to write the object to disk.
- * 
+ *
  * Some callers may not care to wait for the write to disk, while others may.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  * @param <T> the generic type
  */
 public class OptionalWaitTask<T> {
-   
    /** The background tasks. */
    private final ArrayList<OptionalWaitTask<?>> backgroundTasks = new ArrayList<>();
-   
+
    /** The primary task. */
-   private final Task<Void>                     primaryTask;
-   
+   private final Task<Void> primaryTask;
+
    /** The value. */
-   private final T                              value;
+   private final T value;
 
    //~--- constructors --------------------------------------------------------
 

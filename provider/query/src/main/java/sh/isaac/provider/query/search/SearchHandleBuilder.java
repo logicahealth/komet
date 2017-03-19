@@ -55,7 +55,6 @@ import sh.isaac.api.util.TaskCompleteCallback;
  * @author <a href="mailto:joel.kniaz@gmail.com">Joel Kniaz</a>
  */
 public class SearchHandleBuilder {
-   
    /**
     * An alternative way of passing in parameters... not really sure why needed.
     * See {@link #descriptionSearch(String, int, boolean, TaskCompleteCallback, Integer, SearchResultsFilter, Comparator, boolean)}

@@ -59,7 +59,6 @@ import sh.isaac.api.DataTarget;
  */
 @Contract
 public interface LogicalExpressionByteArrayConverter {
-   
    /**
     * Convert logic graph form.
     *

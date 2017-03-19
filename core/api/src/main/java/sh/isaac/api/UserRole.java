@@ -54,30 +54,31 @@ public enum UserRole {
    // Do not rearrange. Add new values to end.
 
    /** The automated. */
+
    /*
     * AUTOMATED is used to capture that the system automated the workflow
     * advancement rather than a specific user
     */
    AUTOMATED(UserRoleConstants.AUTOMATED),
-   
+
    /** The super user. */
    SUPER_USER(UserRoleConstants.SUPER_USER),
-   
+
    /** The administrator. */
    ADMINISTRATOR(UserRoleConstants.ADMINISTRATOR),
-   
+
    /** The read only. */
    READ_ONLY(UserRoleConstants.READ_ONLY),
-   
+
    /** The editor. */
    EDITOR(UserRoleConstants.EDITOR),
-   
+
    /** The reviewer. */
    REVIEWER(UserRoleConstants.REVIEWER),
-   
+
    /** The approver. */
    APPROVER(UserRoleConstants.APPROVER),
-   
+
    /** The manager. */
    MANAGER(UserRoleConstants.MANAGER);
 
@@ -136,7 +137,7 @@ public enum UserRole {
     * @return the string
     */
    @Override
-public String toString() {
+   public String toString() {
       return this.text;
    }
 

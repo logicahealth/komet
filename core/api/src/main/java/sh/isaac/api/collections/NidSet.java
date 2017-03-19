@@ -60,7 +60,6 @@ import sh.isaac.api.IdentifierService;
  */
 public class NidSet
         extends AbstractIntSet<NidSet> {
-   
    /**
     * Instantiates a new nid set.
     */

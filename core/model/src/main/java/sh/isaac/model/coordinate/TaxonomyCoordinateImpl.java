@@ -74,27 +74,26 @@ import sh.isaac.api.coordinate.TaxonomyCoordinate;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TaxonomyCoordinateImpl
          implements TaxonomyCoordinate {
-   
    /** The isa concept sequence. */
-   transient int      isaConceptSequence = TermAux.IS_A.getConceptSequence();
-   
+   transient int isaConceptSequence = TermAux.IS_A.getConceptSequence();
+
    /** The taxonomy type. */
-   PremiseType        taxonomyType;
-   
+   PremiseType taxonomyType;
+
    /** The stamp coordinate. */
    @XmlJavaTypeAdapter(AnyTypeAdapter.class)
-   StampCoordinate    stampCoordinate;
-   
+   StampCoordinate stampCoordinate;
+
    /** The language coordinate. */
    @XmlJavaTypeAdapter(AnyTypeAdapter.class)
    LanguageCoordinate languageCoordinate;
-   
+
    /** The logic coordinate. */
    @XmlJavaTypeAdapter(AnyTypeAdapter.class)
-   LogicCoordinate    logicCoordinate;
-   
+   LogicCoordinate logicCoordinate;
+
    /** The uuid. */
-   UUID               uuid;
+   UUID uuid;
 
    //~--- constructors --------------------------------------------------------
 
@@ -196,7 +195,10 @@ public class TaxonomyCoordinateImpl
     */
    @Override
    public TaxonomyCoordinateImpl makeAnalog(PremiseType taxonomyType) {
-      return new TaxonomyCoordinateImpl(taxonomyType, this.stampCoordinate, this.languageCoordinate, this.logicCoordinate);
+      return new TaxonomyCoordinateImpl(taxonomyType,
+                                        this.stampCoordinate,
+                                        this.languageCoordinate,
+                                        this.logicCoordinate);
    }
 
    /**
@@ -220,8 +222,8 @@ public class TaxonomyCoordinateImpl
     */
    @Override
    public String toString() {
-      return "TaxonomyCoordinate{" + this.taxonomyType + ",\n" + this.stampCoordinate + ", \n" + this.languageCoordinate + ", \n" +
-             this.logicCoordinate + ", uuid=" + this.uuid + '}';
+      return "TaxonomyCoordinate{" + this.taxonomyType + ",\n" + this.stampCoordinate + ", \n" +
+             this.languageCoordinate + ", \n" + this.logicCoordinate + ", uuid=" + this.uuid + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -293,7 +295,6 @@ public class TaxonomyCoordinateImpl
     */
    private static class AnyTypeAdapter
            extends XmlAdapter<Object, Object> {
-      
       /**
        * Marshal.
        *
@@ -301,7 +302,7 @@ public class TaxonomyCoordinateImpl
        * @return the object
        */
       @Override
-	public Object marshal(Object v) {
+      public Object marshal(Object v) {
          return v;
       }
 
@@ -312,7 +313,7 @@ public class TaxonomyCoordinateImpl
        * @return the object
        */
       @Override
-	public Object unmarshal(Object v) {
+      public Object unmarshal(Object v) {
          return v;
       }
    }

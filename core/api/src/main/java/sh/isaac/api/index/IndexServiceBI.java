@@ -158,11 +158,11 @@ public interface IndexServiceBI
     * @param prefixSearch if true, utilize a search algorithm that is optimized for prefix searching, such as the searching
     * that would be done to implement a type-ahead style search.  Does not use the Lucene Query parser.  Every term (or token)
     * that is part of the query string will be required to be found in the result.
-    * 
+    *
     * Note, it is useful to NOT trim the text of the query before it is sent in - if the last word of the query has a
     * space character following it, that word will be required as a complete term.  If the last word of the query does not
     * have a space character following it, that word will be required as a prefix match only.
-    * 
+    *
     * For example:
     * The query "family test" will return results that contain 'Family Testudinidae'
     * The query "family test " will not match on  'Testudinidae', so that will be excluded.

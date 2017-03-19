@@ -67,7 +67,6 @@ import sh.isaac.api.progress.ActiveTasks;
 @Singleton
 public class ActiveTasksProvider
          implements ActiveTasks {
-   
    /** The task set. */
    Set<Task<?>> taskSet = ConcurrentHashMap.newKeySet();
 

@@ -61,7 +61,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public class DisjointWithNode
         extends ConnectorNode {
-   
    /**
     * Instantiates a new disjoint with node.
     *

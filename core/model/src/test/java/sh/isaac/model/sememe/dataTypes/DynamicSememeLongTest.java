@@ -59,7 +59,6 @@ import static org.junit.Assert.assertEquals;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeLongTest {
-   
    /**
     * Test serialization.
     *

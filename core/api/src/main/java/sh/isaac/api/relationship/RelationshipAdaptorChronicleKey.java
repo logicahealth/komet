@@ -51,7 +51,6 @@ import sh.isaac.api.coordinate.PremiseType;
  * @author kec
  */
 public interface RelationshipAdaptorChronicleKey {
-   
    /**
     * Gets the destination sequence.
     *

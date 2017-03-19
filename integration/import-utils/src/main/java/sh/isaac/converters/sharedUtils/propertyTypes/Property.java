@@ -64,37 +64,36 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class Property {
-   
    /** The is disabled. */
-   private boolean isDisabled_        = false;
-   
+   private boolean isDisabled_ = false;
+
    /** The is from concept spec. */
    private boolean isFromConceptSpec_ = false;
-   
+
    /** The property sub type. */
    private int propertySubType_ =
       Integer.MAX_VALUE;  // Used for subtypes of descriptions, at the moment - FSN, synonym, etc.
-   
+
    /** The property UUID. */
-   private UUID                      propertyUUID                = null;
-   
+   private UUID propertyUUID = null;
+
    /** The use WB property type instead. */
-   private UUID                      useWBPropertyTypeInstead    = null;  // see comments in setter
-   
+   private UUID useWBPropertyTypeInstead = null;  // see comments in setter
+
    /** The data columns for dynamic refex. */
    private DynamicSememeColumnInfo[] dataColumnsForDynamicRefex_ = null;
-   
+
    /** The source property name FS N. */
-   private final String                    sourcePropertyNameFSN_;
-   
+   private final String sourcePropertyNameFSN_;
+
    /** The source property alt name. */
-   private final String                    sourcePropertyAltName_;
-   
+   private final String sourcePropertyAltName_;
+
    /** The source property definition. */
-   private final String                    sourcePropertyDefinition_;
-   
+   private final String sourcePropertyDefinition_;
+
    /** The owner. */
-   private PropertyType              owner_;
+   private PropertyType owner_;
 
    //~--- constructors --------------------------------------------------------
 

@@ -66,29 +66,28 @@ import sh.isaac.api.task.TimedTask;
  */
 public class UpdateTaxonomyAfterCommitTask
         extends TimedTask<Void> {
-   
    /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
    /** The work done. */
-   int                            workDone  = 0;
-   
+   int workDone = 0;
+
    /** The total work. */
-   int                            totalWork = 0;
-   
+   int totalWork = 0;
+
    /** The taxonomy service. */
-   TaxonomyService                taxonomyService;
-   
+   TaxonomyService taxonomyService;
+
    /** The commit record. */
-   CommitRecord                   commitRecord;
-   
+   CommitRecord commitRecord;
+
    /** The sememe sequences for unhandled changes. */
    ConcurrentSkipListSet<Integer> sememeSequencesForUnhandledChanges;
-   
+
    /** The lock. */
-   StampedLock                    lock;
+   StampedLock lock;
 
    //~--- constructors --------------------------------------------------------
 
@@ -130,22 +129,23 @@ public class UpdateTaxonomyAfterCommitTask
          final AtomicBoolean atLeastOneFailed = new AtomicBoolean(false);
 
          this.sememeSequencesForUnhandledChanges.stream().forEach((sememeSequence) -> {
-                  try {
-                     this.workDone++;
-                     this.updateProgress(this.workDone, this.totalWork);
+                           try {
+                              this.workDone++;
+                              this.updateProgress(this.workDone, this.totalWork);
 
-                     if (this.commitRecord.getSememesInCommit()
-                                     .contains(sememeSequence)) {
-                        this.updateMessage("Updating taxonomy for: " + sememeSequence);
-                        this.taxonomyService.updateTaxonomy((SememeChronology<LogicGraphSememe<?>>) Get.sememeService()
-                              .getSememe(sememeSequence));
-                        this.sememeSequencesForUnhandledChanges.remove(sememeSequence);
-                     }
-                  } catch (final Exception e) {
-                     log.error("Error handling update taxonomy after commit on sememe " + sememeSequence, e);
-                     atLeastOneFailed.set(true);
-                  }
-               });
+                              if (this.commitRecord.getSememesInCommit()
+                                    .contains(sememeSequence)) {
+                                 this.updateMessage("Updating taxonomy for: " + sememeSequence);
+                                 this.taxonomyService.updateTaxonomy(
+                                     (SememeChronology<LogicGraphSememe<?>>) Get.sememeService()
+                                           .getSememe(sememeSequence));
+                                 this.sememeSequencesForUnhandledChanges.remove(sememeSequence);
+                              }
+                           } catch (final Exception e) {
+                              log.error("Error handling update taxonomy after commit on sememe " + sememeSequence, e);
+                              atLeastOneFailed.set(true);
+                           }
+                        });
 
          if (atLeastOneFailed.get()) {
             throw new RuntimeException("There were errors during taxonomy update after commit");
@@ -176,9 +176,9 @@ public class UpdateTaxonomyAfterCommitTask
          ConcurrentSkipListSet<Integer> unhandledChanges,
          StampedLock lock) {
       final UpdateTaxonomyAfterCommitTask task = new UpdateTaxonomyAfterCommitTask(taxonomyService,
-                                                                             commitRecord,
-                                                                             unhandledChanges,
-                                                                             lock);
+                                                                                   commitRecord,
+                                                                                   unhandledChanges,
+                                                                                   lock);
 
       Get.activeTasks()
          .add(task);

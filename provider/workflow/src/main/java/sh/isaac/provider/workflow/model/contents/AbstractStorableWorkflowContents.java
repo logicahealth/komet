@@ -66,18 +66,17 @@ import sh.isaac.model.WaitFreeComparable;
  */
 public abstract class AbstractStorableWorkflowContents
          implements WaitFreeComparable {
-   
-   /**  The Logger made available to each Workflow Content Store Entry class. */
+   /** The Logger made available to each Workflow Content Store Entry class. */
    protected final Logger logger = LogManager.getLogger();
 
    /** As every content store entry is key-value based and as all keys are of type UUID, add in abstract. */
    protected UUID id;
-   
+
    /** The primordial uuid msb. */
-   private long   primordialUuidMsb;
-   
+   private long primordialUuidMsb;
+
    /** The primordial uuid lsb. */
-   private long   primordialUuidLsb;
+   private long primordialUuidLsb;
 
    /**
     * The write sequence is incremented each time data is written, and provides

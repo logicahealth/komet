@@ -115,93 +115,101 @@ import sh.isaac.utility.Frills;
  * The Class VetsExporter.
  */
 public class VetsExporter {
-   
    /** The log. */
-   private final Logger            log               = LogManager.getLogger();
-   
+   private final Logger log = LogManager.getLogger();
+
    /** The designation types. */
-   private final Map<UUID, String> designationTypes  = new HashMap<>();
-   
+   private final Map<UUID, String> designationTypes = new HashMap<>();
+
    /** The property types. */
-   private final Map<UUID, String> propertyTypes     = new HashMap<>();
-   
+   private final Map<UUID, String> propertyTypes = new HashMap<>();
+
    /** The relationship types. */
    private final Map<UUID, String> relationshipTypes = new HashMap<>();
-   
+
    /** The assemblages map. */
-   private final Map<UUID, String> assemblagesMap    = new HashMap<>();
-   
+   private final Map<UUID, String> assemblagesMap = new HashMap<>();
+
    /** The subset map. */
-   private final Map<String, Long> subsetMap         = new HashMap<>();
-   
+   private final Map<String, Long> subsetMap = new HashMap<>();
+
    /** The stamp coordinates. */
-   private StampCoordinate   STAMP_COORDINATES = null;
-   
+   private StampCoordinate STAMP_COORDINATES = null;
+
    /** The ts. */
-   TaxonomyService           ts                = Get.taxonomyService();
+   TaxonomyService ts = Get.taxonomyService();
 
    // TODO: Source all the following hardcoded UUID values from MetaData, once available
    // ConceptChronology: VHAT Attribute Types <261> uuid:8287530a-b6b0-594d-bf46-252e09434f7e
+
    /** The vhat property types UUID. */
    // VHAT Metadata -> "Attribute Types"
    final UUID vhatPropertyTypesUUID = UUID.fromString("8287530a-b6b0-594d-bf46-252e09434f7e");
-   
+
    /** The vhat property types nid. */
-   final int  vhatPropertyTypesNid  = Get.identifierService()
-                                         .getNidForUuids(this.vhatPropertyTypesUUID);
+   final int vhatPropertyTypesNid = Get.identifierService()
+                                       .getNidForUuids(this.vhatPropertyTypesUUID);
 
    // ConceptChronology: Refsets (ISAAC) <325> uuid:fab80263-6dae-523c-b604-c69e450d8c7f
+
    /** The vhat refset types UUID. */
    // VHAT Metadata -> "Refsets"
    final UUID vhatRefsetTypesUUID = UUID.fromString("fab80263-6dae-523c-b604-c69e450d8c7f");
-   
+
    /** The vhat refset types nid. */
-   final int  vhatRefsetTypesNid  = Get.identifierService()
-                                       .getNidForUuids(this.vhatRefsetTypesUUID);
+   final int vhatRefsetTypesNid = Get.identifierService()
+                                     .getNidForUuids(this.vhatRefsetTypesUUID);
 
    /** The code assemblage UUID. */
+
    // conceptChronology: CODE (ISAAC) <77> uuid:803af596-aea8-5184-b8e1-45f801585d17
-   final UUID codeAssemblageUUID       = MetaData.CODE.getPrimordialUuid();
-   
+   final UUID codeAssemblageUUID = MetaData.CODE.getPrimordialUuid();
+
    /** The code assemblage concept seq. */
-   final int  codeAssemblageConceptSeq = Get.identifierService()
-                                            .getConceptSequenceForUuids(this.codeAssemblageUUID);
+   final int codeAssemblageConceptSeq = Get.identifierService()
+                                           .getConceptSequenceForUuids(this.codeAssemblageUUID);
 
    // ConceptChronology: VHAT <1129> uuid:6e60d7fd-3729-5dd3-9ce7-6d97c8f75447
+
    /** The vhat code system UUID. */
    // VHAT CodeSystem
    final UUID vhatCodeSystemUUID = UUID.fromString("6e60d7fd-3729-5dd3-9ce7-6d97c8f75447");
-   
+
    /** The vhat code system nid. */
-   final int  vhatCodeSystemNid  = Get.identifierService()
-                                      .getNidForUuids(this.vhatCodeSystemUUID);
+   final int vhatCodeSystemNid = Get.identifierService()
+                                    .getNidForUuids(this.vhatCodeSystemUUID);
 
    // ConceptChronology: Preferred Name (ISAAC) <257> uuid:a20e5175-6257-516a-a97d-d7f9655916b8
+
    /** The preferred name extended type. */
    // VHAT Description Types -> Preferred Name
    final UUID preferredNameExtendedType = UUID.fromString("a20e5175-6257-516a-a97d-d7f9655916b8");
 
    // ConceptChronology: Association Types (ISAAC) <309> uuid:55f56c52-757a-5db8-bf1e-3ed613711386
+
    /** The vhat association types UUID. */
    // ISAAC Associations => RelationshipType UUID
    final UUID vhatAssociationTypesUUID = UUID.fromString("55f56c52-757a-5db8-bf1e-3ed613711386");
 
    // ConceptChronology: Description Types (ISAAC) <254> uuid:09c43aa9-eaed-5217-bc5f-23cacca4df38
+
    /** The vhat designation types UUID. */
    // ISAAC Descriptions => DesignationType UUID
    final UUID vhatDesignationTypesUUID = UUID.fromString("09c43aa9-eaed-5217-bc5f-23cacca4df38");
 
    /** The vhat all concepts UUID. */
+
    // ConceptChronology: All VHAT Concepts (ISAAC) <365> uuid:f2df3cf5-a426-50f9-a660-081a5ca22c70
    final UUID vhatAllConceptsUUID = UUID.fromString("f2df3cf5-a426-50f9-a660-081a5ca22c70");
 
    /** The missing SDO code systems UUID. */
+
    // ConceptChronology: Missing SDO Code System Concepts <42268> uuid:52460eeb-1388-512d-a5e4-fddd64fe0aee
-   final UUID          missingSDOCodeSystemsUUID = UUID.fromString("52460eeb-1388-512d-a5e4-fddd64fe0aee");
-   
+   final UUID missingSDOCodeSystemsUUID = UUID.fromString("52460eeb-1388-512d-a5e4-fddd64fe0aee");
+
    /** The full export mode. */
-   boolean             fullExportMode            = false;
-   
+   boolean fullExportMode = false;
+
    /** The terminology. */
    private Terminology terminology;
 
@@ -233,9 +241,9 @@ public class VetsExporter {
       // Build Assemblages map
       Get.sememeService().getAssemblageTypes().forEach((assemblageSeqId) -> {
                      this.assemblagesMap.put(Get.conceptSpecification(assemblageSeqId)
-                                           .getPrimordialUuid(),
-                                        Get.conceptSpecification(assemblageSeqId)
-                                           .getConceptDescriptionText());
+                           .getPrimordialUuid(),
+                           Get.conceptSpecification(assemblageSeqId)
+                              .getConceptDescriptionText());
                   });
 
       // XML object
@@ -250,8 +258,8 @@ public class VetsExporter {
       this.terminology.setSubsets(new Terminology.Subsets());
 
       // CodeSystem
-      final Terminology.CodeSystem                       xmlCodeSystem    = new Terminology.CodeSystem();
-      final Terminology.CodeSystem.Version               xmlVersion       = new Terminology.CodeSystem.Version();
+      final Terminology.CodeSystem         xmlCodeSystem = new Terminology.CodeSystem();
+      final Terminology.CodeSystem.Version xmlVersion    = new Terminology.CodeSystem.Version();
       final Terminology.CodeSystem.Version.CodedConcepts xmlCodedConcepts =
          new Terminology.CodeSystem.Version.CodedConcepts();
 
@@ -259,10 +267,10 @@ public class VetsExporter {
       Get.taxonomyService().getAllRelationshipOriginSequences(Get.identifierService()
             .getNidForUuids(this.vhatAssociationTypesUUID)).forEach((conceptId) -> {
                      final ConceptChronology<? extends ConceptVersion<?>> concept = Get.conceptService()
-                                                                                 .getConcept(conceptId);
+                                                                                       .getConcept(conceptId);
 
                      this.relationshipTypes.put(concept.getPrimordialUuid(),
-                                           getPreferredNameDescriptionType(concept.getNid()));
+                           getPreferredNameDescriptionType(concept.getNid()));
                   });
 
       if (fullExportMode) {
@@ -272,8 +280,8 @@ public class VetsExporter {
             xmlType.setKind(KindType.RELATIONSHIP_TYPE);
             xmlType.setName(s);
             this.terminology.getTypes()
-                       .getType()
-                       .add(xmlType);
+                            .getType()
+                            .add(xmlType);
          }
       }
 
@@ -281,9 +289,10 @@ public class VetsExporter {
       Get.taxonomyService().getAllRelationshipOriginSequences(Get.identifierService()
             .getNidForUuids(this.vhatPropertyTypesUUID)).forEach((conceptId) -> {
                      final ConceptChronology<? extends ConceptVersion<?>> concept = Get.conceptService()
-                                                                                 .getConcept(conceptId);
+                                                                                       .getConcept(conceptId);
 
-                     this.propertyTypes.put(concept.getPrimordialUuid(), getPreferredNameDescriptionType(concept.getNid()));
+                     this.propertyTypes.put(concept.getPrimordialUuid(),
+                                            getPreferredNameDescriptionType(concept.getNid()));
                   });
 
       if (fullExportMode) {
@@ -293,8 +302,8 @@ public class VetsExporter {
             xmlType.setKind(KindType.PROPERTY_TYPE);
             xmlType.setName(s);
             this.terminology.getTypes()
-                       .getType()
-                       .add(xmlType);
+                            .getType()
+                            .add(xmlType);
          }
       }
 
@@ -302,10 +311,10 @@ public class VetsExporter {
       Get.taxonomyService().getAllRelationshipOriginSequences(Get.identifierService()
             .getNidForUuids(this.vhatDesignationTypesUUID)).forEach((conceptId) -> {
                      final ConceptChronology<? extends ConceptVersion<?>> concept = Get.conceptService()
-                                                                                 .getConcept(conceptId);
+                                                                                       .getConcept(conceptId);
 
                      this.designationTypes.put(concept.getPrimordialUuid(),
-                                          getPreferredNameDescriptionType(concept.getNid()));
+                           getPreferredNameDescriptionType(concept.getNid()));
                   });
 
       if (fullExportMode) {
@@ -315,8 +324,8 @@ public class VetsExporter {
             xmlType.setKind(KindType.DESIGNATION_TYPE);
             xmlType.setName(s);
             this.terminology.getTypes()
-                       .getType()
-                       .add(xmlType);
+                            .getType()
+                            .add(xmlType);
          }
       }
 
@@ -324,7 +333,7 @@ public class VetsExporter {
       Get.taxonomyService().getAllRelationshipOriginSequences(Get.identifierService()
             .getNidForUuids(this.vhatRefsetTypesUUID)).forEach((tcs) -> {
                      final ConceptChronology<? extends ConceptVersion<?>> concept = Get.conceptService()
-                                                                                 .getConcept(tcs);
+                                                                                       .getConcept(tcs);
 
                      // Excluding these:
                      if (concept.getPrimordialUuid().equals(this.vhatAllConceptsUUID) ||
@@ -348,8 +357,8 @@ public class VetsExporter {
 
                         if (xmlSubset.getAction() != ActionType.NONE) {
                            this.terminology.getSubsets()
-                                      .getSubset()
-                                      .add(xmlSubset);
+                                           .getSubset()
+                                           .add(xmlSubset);
                         }
 
                         this.subsetMap.put(xmlSubset.getName(), xmlSubset.getVUID());
@@ -357,7 +366,7 @@ public class VetsExporter {
                   });
 
       final ConceptChronology<? extends ConceptVersion<?>> vhatConcept = Get.conceptService()
-                                                                      .getConcept(this.vhatCodeSystemNid);
+                                                                            .getConcept(this.vhatCodeSystemNid);
 
       xmlCodeSystem.setAction(ActionType.NONE);
       xmlCodeSystem.setName(getPreferredNameDescriptionType(vhatConcept.getNid()));
@@ -377,9 +386,9 @@ public class VetsExporter {
          final SimpleDateFormat     sdf           = new SimpleDateFormat("yyyy-MM-dd");
          final String               formattedDate = sdf.format(System.currentTimeMillis());
          final XMLGregorianCalendar _xmlEffDate   = DatatypeFactory.newInstance()
-                                                             .newXMLGregorianCalendar(formattedDate);
+                                                                   .newXMLGregorianCalendar(formattedDate);
          final XMLGregorianCalendar _xmlRelDate   = DatatypeFactory.newInstance()
-                                                             .newXMLGregorianCalendar(formattedDate);
+                                                                   .newXMLGregorianCalendar(formattedDate);
 
          xmlVersion.setEffectiveDate(_xmlEffDate);
          xmlVersion.setReleaseDate(_xmlRelDate);
@@ -414,21 +423,19 @@ public class VetsExporter {
 
                                        // Source and Target CodeSystem
                                        @SuppressWarnings({ "unchecked", "rawtypes" })
-									final
-                                       Optional<LatestVersion<? extends DynamicSememe>> mappingSememeVersion =
+                                       final Optional<LatestVersion<? extends DynamicSememe>> mappingSememeVersion =
                                           ((SememeChronology) mappingSememe).getLatestVersion(DynamicSememe.class,
                                                                                               this.STAMP_COORDINATES);
 
                                        if (mappingSememeVersion.isPresent()) {
                                           // Get referenced component for the MapSet values
                                           final ConceptChronology<? extends ConceptVersion<?>> cc = Get.conceptService()
-                                                                                                 .getConcept(
-                                                                                                    mappingSememeVersion.get()
-                                                                                                          .value()
-                                                                                                          .getReferencedComponentNid());
+                                                                                                       .getConcept(
+                                                                                                          mappingSememeVersion.get()
+                                                                                                                .value()
+                                                                                                                .getReferencedComponentNid());
                                           @SuppressWarnings({ "rawtypes", "unchecked" })
-										final
-                                          Optional<LatestVersion<ConceptVersion<?>>> cv =
+                                          final Optional<LatestVersion<ConceptVersion<?>>> cv =
                                              ((ConceptChronology) cc).getLatestVersion(ConceptVersion.class,
                                                                                        this.STAMP_COORDINATES);
 
@@ -442,16 +449,15 @@ public class VetsExporter {
                                                             .getConceptSequence())
                                                 .forEach(mappingStrExt -> {
                               @SuppressWarnings({ "unchecked", "rawtypes" })
-							final
-                              Optional<LatestVersion<? extends DynamicSememe>> mappingStrExtVersion =
+                              final Optional<LatestVersion<? extends DynamicSememe>> mappingStrExtVersion =
                                  ((SememeChronology) mappingStrExt).getLatestVersion(
                                      DynamicSememe.class, this.STAMP_COORDINATES);
 
                               // TODO:DA review
                               if (mappingStrExtVersion.isPresent()) {
                                  final DynamicSememeData dsd[] = mappingStrExtVersion.get()
-                                                                               .value()
-                                                                               .getData();
+                                                                                     .value()
+                                                                                     .getData();
 
                                  if (dsd.length == 2) {
                                     if (dsd[0].getDataObject()
@@ -489,7 +495,8 @@ public class VetsExporter {
                                              final Terminology.CodeSystem.Version.MapSets.MapSet.MapEntries xmlMapEntries =
                                                 new Terminology.CodeSystem.Version.MapSets.MapSet.MapEntries();
 
-                                             for (final Terminology.CodeSystem.Version.MapSets.MapSet.MapEntries.MapEntry me:
+                                             for (
+                                             final Terminology.CodeSystem.Version.MapSets.MapSet.MapEntries.MapEntry me:
                                                 readMapEntryTypes(cv.get()
                                                       .value()
                                                       .getChronology()
@@ -572,7 +579,8 @@ public class VetsExporter {
                            xmlCodedConcept.setVUID(Frills.getVuId(conceptNid, null)
                                  .orElse(null));
                            xmlCodedConcept.setCode(getCodeFromNid(conceptNid));
-                           xmlCodedConcept.setActive(Boolean.valueOf(concept.isLatestVersionActive(this.STAMP_COORDINATES)));
+                           xmlCodedConcept.setActive(
+                               Boolean.valueOf(concept.isLatestVersionActive(this.STAMP_COORDINATES)));
 
                            final Terminology.CodeSystem.Version.CodedConcepts.CodedConcept.Designations xmlDesignations =
                               new Terminology.CodeSystem.Version.CodedConcepts.CodedConcept.Designations();
@@ -669,8 +677,7 @@ public class VetsExporter {
 
       if (sememe.getSememeType() == SememeType.DYNAMIC) {
          @SuppressWarnings({ "unchecked", "rawtypes" })
-		final
-         Optional<LatestVersion<? extends DynamicSememe>> sememeVersion =
+         final Optional<LatestVersion<? extends DynamicSememe>> sememeVersion =
             ((SememeChronology) sememe).getLatestVersion(DynamicSememe.class,
                                                          this.STAMP_COORDINATES);
 
@@ -686,8 +693,8 @@ public class VetsExporter {
                                  .dataToString();
 
             @SuppressWarnings({ "unchecked", "rawtypes" })
-			final
-            List<DynamicSememe<?>> coll = ((SememeChronology) sememe).getVisibleOrderedVersionList(this.STAMP_COORDINATES);
+            final List<DynamicSememe<?>> coll =
+               ((SememeChronology) sememe).getVisibleOrderedVersionList(this.STAMP_COORDINATES);
 
             Collections.reverse(coll);
 
@@ -706,8 +713,7 @@ public class VetsExporter {
          }
       } else if (sememe.getSememeType() == SememeType.STRING) {
          @SuppressWarnings({ "unchecked", "rawtypes" })
-		final
-         Optional<LatestVersion<? extends StringSememe>> sememeVersion =
+         final Optional<LatestVersion<? extends StringSememe>> sememeVersion =
             ((SememeChronology) sememe).getLatestVersion(StringSememe.class,
                                                          this.STAMP_COORDINATES);
 
@@ -717,8 +723,8 @@ public class VetsExporter {
                                     .getString();
 
             @SuppressWarnings({ "unchecked", "rawtypes" })
-			final
-            List<StringSememe<?>> coll = ((SememeChronology) sememe).getVisibleOrderedVersionList(this.STAMP_COORDINATES);
+            final List<StringSememe<?>> coll =
+               ((SememeChronology) sememe).getVisibleOrderedVersionList(this.STAMP_COORDINATES);
 
             Collections.reverse(coll);
 
@@ -795,10 +801,10 @@ public class VetsExporter {
          }
 
          final long vuid = Frills.getVuId(Get.identifierService()
-                                       .getConceptNid(sememe.getAssemblageSequence()),
-                                    this.STAMP_COORDINATES)
-                           .orElse(0L)
-                           .longValue();
+                                             .getConceptNid(sememe.getAssemblageSequence()),
+                                          this.STAMP_COORDINATES)
+                                 .orElse(0L)
+                                 .longValue();
 
          if (vuid > 0) {
             subsetMembership.setVUID(vuid);
@@ -903,12 +909,11 @@ public class VetsExporter {
       Get.sememeService().getSememesFromAssemblage(Get.identifierService()
                                       .getConceptSequence(componentNid)).forEach(sememe -> {
                      @SuppressWarnings({ "unchecked", "rawtypes" })
-					final
-                     Optional<LatestVersion<? extends DynamicSememe>> sememeVersion =
+                     final Optional<LatestVersion<? extends DynamicSememe>> sememeVersion =
                         ((SememeChronology) sememe).getLatestVersion(DynamicSememe.class, this.STAMP_COORDINATES);
 
                      if (sememeVersion.isPresent() && (sememeVersion.get().value().getData() !=
-                         null) && (sememeVersion.get().value().getData().length > 0)) {
+                     null) && (sememeVersion.get().value().getData().length > 0)) {
                         try {
                            final Terminology.CodeSystem.Version.MapSets.MapSet.MapEntries.MapEntry me =
                               new Terminology.CodeSystem.Version.MapSets.MapSet.MapEntries.MapEntry();
@@ -932,25 +937,26 @@ public class VetsExporter {
                            me.setSourceCode(code);
 
                            final boolean isActive = sememeVersion.get()
-                                                           .value()
-                                                           .getState() == State.ACTIVE;
+                                                                 .value()
+                                                                 .getState() == State.ACTIVE;
 
                            me.setActive(isActive);
 
                            final DynamicSememeUtility ls = LookupService.get()
-                                                                  .getService(DynamicSememeUtility.class);
+                                                                        .getService(DynamicSememeUtility.class);
 
                            if (ls == null) {
                               throw new RuntimeException(
                                   "An implementation of DynamicSememeUtility is not available on the classpath");
                            } else {
-                              final DynamicSememeColumnInfo[] dsci = ls.readDynamicSememeUsageDescription(sememeVersion.get()
-                                                                                                                 .value()
-                                                                                                                 .getAssemblageSequence())
-                                                                 .getColumnInfo();
+                              final DynamicSememeColumnInfo[] dsci =
+                                 ls.readDynamicSememeUsageDescription(sememeVersion.get()
+                                                                                   .value()
+                                                                                   .getAssemblageSequence())
+                                   .getColumnInfo();
                               final DynamicSememeData dsd[] = sememeVersion.get()
-                                                                     .value()
-                                                                     .getData();
+                                                                           .value()
+                                                                           .getData();
 
                               for (final DynamicSememeColumnInfo d: dsci) {
                                  final UUID columnUUID = d.getColumnDescriptionConcept();
@@ -1073,8 +1079,8 @@ public class VetsExporter {
    @SuppressWarnings("rawtypes")
    private boolean wasConceptOrNestedValueModifiedInDateRange(ConceptChronology concept, long startDate) {
       @SuppressWarnings("unchecked")
-	final
-      Optional<LatestVersion<ConceptVersion>> cv = concept.getLatestVersion(ConceptVersion.class, this.STAMP_COORDINATES);
+      final Optional<LatestVersion<ConceptVersion>> cv = concept.getLatestVersion(ConceptVersion.class,
+                                                                                  this.STAMP_COORDINATES);
 
       if (cv.isPresent()) {
          if (cv.get()
@@ -1115,9 +1121,10 @@ public class VetsExporter {
     */
    private String getCodeFromNid(int componentNid) {
       final Optional<SememeChronology<? extends SememeVersion<?>>> sc = Get.sememeService()
-                                                                     .getSememesForComponentFromAssemblage(componentNid,
-                                                                           this.codeAssemblageConceptSeq)
-                                                                     .findFirst();
+                                                                           .getSememesForComponentFromAssemblage(
+                                                                              componentNid,
+                                                                                    this.codeAssemblageConceptSeq)
+                                                                           .findFirst();
 
       if (sc.isPresent()) {
          // There was a bug in the older terminology loaders which loaded 'Code' as a static sememe, but marked it as a dynamic sememe.
@@ -1125,8 +1132,7 @@ public class VetsExporter {
          if (sc.get()
                .getSememeType() == SememeType.STRING) {
             @SuppressWarnings({ "unchecked", "rawtypes" })
-			final
-            Optional<LatestVersion<StringSememe<?>>> sv =
+            final Optional<LatestVersion<StringSememe<?>>> sv =
                ((SememeChronology) sc.get()).getLatestVersion(StringSememe.class,
                                                               this.STAMP_COORDINATES);
 
@@ -1139,8 +1145,7 @@ public class VetsExporter {
                       .getSememeType() == SememeType.DYNAMIC)  // this path will become dead code, after the data is fixed.
          {
             @SuppressWarnings({ "unchecked", "rawtypes" })
-			final
-            Optional<LatestVersion<? extends DynamicSememe>> sv =
+            final Optional<LatestVersion<? extends DynamicSememe>> sv =
                ((SememeChronology) sc.get()).getLatestVersion(DynamicSememe.class,
                                                               this.STAMP_COORDINATES);
 
@@ -1181,9 +1186,9 @@ public class VetsExporter {
                      if (sememe.getSememeType() == SememeType.DESCRIPTION) {
                         boolean hasChild = false;
                         @SuppressWarnings({ "unchecked", "rawtypes" })
-						final
-                        Optional<LatestVersion<DescriptionSememe>> descriptionVersion =
-                           ((SememeChronology) sememe).getLatestVersion(DescriptionSememe.class, this.STAMP_COORDINATES);
+                        final Optional<LatestVersion<DescriptionSememe>> descriptionVersion =
+                           ((SememeChronology) sememe).getLatestVersion(DescriptionSememe.class,
+                                                                        this.STAMP_COORDINATES);
 
                         if (descriptionVersion.isPresent()) {
                            final DesignationType d = constructor.get();
@@ -1192,8 +1197,7 @@ public class VetsExporter {
 
                            if (d.getAction() != ActionType.ADD) {
                               @SuppressWarnings({ "unchecked", "rawtypes" })
-							final
-                              List<DescriptionSememe<?>> coll =
+                              final List<DescriptionSememe<?>> coll =
                                  ((SememeChronology) sememe).getVisibleOrderedVersionList(this.STAMP_COORDINATES);
 
                               Collections.reverse(coll);
@@ -1227,14 +1231,16 @@ public class VetsExporter {
                                  .getState() == State.ACTIVE);
 
                            // Get the extended type
-                           final Optional<UUID> descType = Frills.getDescriptionExtendedTypeConcept(this.STAMP_COORDINATES,
-                                                                                              sememe.getNid());
+                           final Optional<UUID> descType =
+                              Frills.getDescriptionExtendedTypeConcept(this.STAMP_COORDINATES,
+                                                                       sememe.getNid());
 
                            if (descType.isPresent()) {
                               d.setTypeName(this.designationTypes.get(descType.get()));
                            } else {
                               this.log.warn("No extended description type present on description " +
-                                       sememe.getPrimordialUuid() + " " + descriptionVersion.get().value().getText());
+                                            sememe.getPrimordialUuid() + " " +
+                                            descriptionVersion.get().value().getText());
                            }
 
                            if (d instanceof
@@ -1251,13 +1257,14 @@ public class VetsExporter {
                                  // skip code and vuid properties - they are handled already
                                              if ((nestedSememe.getAssemblageSequence() !=
                                                   MetaData.VUID.getConceptSequence()) &&
-                                                 (nestedSememe.getAssemblageSequence() != this.codeAssemblageConceptSeq)) {
+                                                 (nestedSememe.getAssemblageSequence() !=
+                                                  this.codeAssemblageConceptSeq)) {
                                                 if (this.ts.wasEverKindOf(nestedSememe.getAssemblageSequence(),
                                                       this.vhatPropertyTypesNid)) {
                                                    final PropertyType property = buildProperty(nestedSememe,
-                                                                                         startDate,
-                                                                                         endDate,
-                                                                                         null);
+                                                                                               startDate,
+                                                                                               endDate,
+                                                                                               null);
 
                                                    if (property != null) {
                                                       xmlDesignationProperties.getProperty()
@@ -1271,8 +1278,8 @@ public class VetsExporter {
                                                          !this.ts.wasEverKindOf(nestedSememe.getAssemblageSequence(),
                                                                IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_SEMEME_TYPE.getNid())) {
                                                    final SubsetMembership sm = buildSubsetMembership(nestedSememe,
-                                                                                               startDate,
-                                                                                               endDate);
+                                                                                                     startDate,
+                                                                                                     endDate);
 
                                                    if (sm != null) {
                                                       xmlSubsetMemberships.getSubsetMembership()
@@ -1320,14 +1327,14 @@ public class VetsExporter {
          .getDescriptionsForComponent(conceptNid)
          .forEach(sememeChronology -> {
                      @SuppressWarnings({ "rawtypes", "unchecked" })
-					final
-                     Optional<LatestVersion<DescriptionSememe<?>>> latestVersion =
+                     final Optional<LatestVersion<DescriptionSememe<?>>> latestVersion =
                         ((SememeChronology) sememeChronology).getLatestVersion(DescriptionSememe.class,
                                                                                this.STAMP_COORDINATES);
 
                      if (latestVersion.isPresent() &&
-                         this.preferredNameExtendedType.equals(Frills.getDescriptionExtendedTypeConcept(this.STAMP_COORDINATES,
-                               sememeChronology.getNid()).orElse(null))) {
+                         this.preferredNameExtendedType.equals(
+                             Frills.getDescriptionExtendedTypeConcept(this.STAMP_COORDINATES,
+                                   sememeChronology.getNid()).orElse(null))) {
                         if (latestVersion.get()
                                          .value()
                                          .getState() == State.ACTIVE) {
@@ -1349,24 +1356,25 @@ public class VetsExporter {
       if (descriptions.size() == 0) {
          // This doesn't happen for concept that represent subsets, for example.
          this.log.debug("Failed to find a description flagged as preferred on concept " +
-                   Get.identifierService().getUuidPrimordialForNid(conceptNid));
+                        Get.identifierService().getUuidPrimordialForNid(conceptNid));
 
          final String description = Frills.getDescription(conceptNid,
-                                                    this.STAMP_COORDINATES,
-                                                    LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate())
-                                    .orElse("ERROR!");
+                                                          this.STAMP_COORDINATES,
+                                                          LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate())
+                                          .orElse("ERROR!");
 
          if (description.equals("ERROR!")) {
             this.log.error("Failed to find any description on concept " +
-                      Get.identifierService().getUuidPrimordialForNid(conceptNid));
+                           Get.identifierService().getUuidPrimordialForNid(conceptNid));
          }
 
          return description;
       }
 
       if (descriptions.size() > 1) {
-         this.log.warn("Found " + descriptions.size() + " descriptions flagged as the 'Preferred' vhat type on concept " +
-                  Get.identifierService().getUuidPrimordialForNid(conceptNid));
+         this.log.warn("Found " + descriptions.size() +
+                       " descriptions flagged as the 'Preferred' vhat type on concept " +
+                       Get.identifierService().getUuidPrimordialForNid(conceptNid));
       }
 
       return descriptions.get(0);
@@ -1387,9 +1395,10 @@ public class VetsExporter {
       final List<Terminology.CodeSystem.Version.CodedConcepts.CodedConcept.Relationships.Relationship> relationships =
          new ArrayList<>();
 
-      for (final AssociationInstance ai: AssociationUtilities.getSourceAssociations(concept.getNid(), this.STAMP_COORDINATES)) {
+      for (final AssociationInstance ai: AssociationUtilities.getSourceAssociations(concept.getNid(),
+            this.STAMP_COORDINATES)) {
          final SememeChronology<?> sc = ai.getData()
-                                    .getChronology();
+                                          .getChronology();
          ActionType action = determineAction(sc, startDate, endDate);
          final Terminology.CodeSystem.Version.CodedConcepts.CodedConcept.Relationships.Relationship xmlRelationship =
             new Terminology.CodeSystem.Version.CodedConcepts.CodedConcept.Relationships.Relationship();
@@ -1407,7 +1416,7 @@ public class VetsExporter {
 
                if ((newTargetCode == null) || newTargetCode.isEmpty()) {
                   this.log.warn("Failed to find new target code for concept " +
-                           ai.getTargetComponent().get().getPrimordialUuid());
+                                ai.getTargetComponent().get().getPrimordialUuid());
                }
             }
 
@@ -1418,8 +1427,8 @@ public class VetsExporter {
             } else if (action != ActionType.ADD) {
                // Get the old target value
                @SuppressWarnings({ "unchecked", "rawtypes" })
-			final
-               List<DynamicSememe<?>> coll = ((SememeChronology) sc).getVisibleOrderedVersionList(this.STAMP_COORDINATES);
+               final List<DynamicSememe<?>> coll =
+                  ((SememeChronology) sc).getVisibleOrderedVersionList(this.STAMP_COORDINATES);
 
                Collections.reverse(coll);
 
@@ -1434,7 +1443,7 @@ public class VetsExporter {
 
                      if ((oldTargetCode == null) || oldTargetCode.isEmpty()) {
                         this.log.error("Failed to find old target code for concept " +
-                                  ai.getTargetComponent().get().getPrimordialUuid());
+                                       ai.getTargetComponent().get().getPrimordialUuid());
                      }
 
                      break;
@@ -1481,9 +1490,9 @@ public class VetsExporter {
                 .getSememesForComponent(nid)
                 .anyMatch(sc -> {
                              @SuppressWarnings({ "unchecked", "rawtypes" })
-							final
-                             Optional<LatestVersion<SememeVersion>> sv =
-                                ((SememeChronology) sc).getLatestVersion(SememeVersion.class, this.STAMP_COORDINATES);
+                             final Optional<LatestVersion<SememeVersion>> sv =
+                                ((SememeChronology) sc).getLatestVersion(SememeVersion.class,
+                                                                         this.STAMP_COORDINATES);
 
                              if (sv.isPresent()) {
                                 if (sv.get()

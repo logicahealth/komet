@@ -90,10 +90,9 @@ import sh.isaac.api.observable.ObservableVersion;
 @Singleton  // Singleton from the perspective of HK2 managed instances
 public class RelativePositionCalculator
          implements OchreCache {
-   
    /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
-   
+
    /** The Constant CALCULATOR_CACHE. */
    private static final ConcurrentHashMap<StampCoordinate, RelativePositionCalculator> CALCULATOR_CACHE =
       new ConcurrentHashMap<>();
@@ -101,8 +100,8 @@ public class RelativePositionCalculator
    //~--- fields --------------------------------------------------------------
 
    /** The error count. */
-   private int     errorCount = 0;
-   
+   private int errorCount = 0;
+
    /** The coordinate. */
    StampCoordinate coordinate;
 
@@ -146,17 +145,17 @@ public class RelativePositionCalculator
          int stampSequence2,
          StampPrecedence precedencePolicy) {
       final long ss1Time           = Get.stampService()
-                                  .getTimeForStamp(stampSequence1);
+                                        .getTimeForStamp(stampSequence1);
       final int  ss1ModuleSequence = Get.stampService()
-                                  .getModuleSequenceForStamp(stampSequence1);
+                                        .getModuleSequenceForStamp(stampSequence1);
       final int  ss1PathSequence   = Get.stampService()
-                                  .getPathSequenceForStamp(stampSequence1);
+                                        .getPathSequenceForStamp(stampSequence1);
       final long ss2Time           = Get.stampService()
-                                  .getTimeForStamp(stampSequence2);
+                                        .getTimeForStamp(stampSequence2);
       final int  ss2ModuleSequence = Get.stampService()
-                                  .getModuleSequenceForStamp(stampSequence2);
+                                        .getModuleSequenceForStamp(stampSequence2);
       final int  ss2PathSequence   = Get.stampService()
-                                  .getPathSequenceForStamp(stampSequence2);
+                                        .getPathSequenceForStamp(stampSequence2);
 
       if (ss1PathSequence == ss2PathSequence) {
          final Segment seg = this.pathSequenceSegmentMap.get(ss1PathSequence);
@@ -306,7 +305,7 @@ public class RelativePositionCalculator
     */
    public boolean onRoute(int stampSequence) {
       final Segment seg = this.pathSequenceSegmentMap.get(Get.stampService()
-                                                            .getPathSequenceForStamp(stampSequence));
+                                                             .getPathSequenceForStamp(stampSequence));
 
       if (seg != null) {
          return seg.containsPosition(Get.stampService()
@@ -393,15 +392,16 @@ public class RelativePositionCalculator
     * @param segmentSequence the segment sequence
     * @param precedingSegments the preceding segments
     */
+
    // recursively called method
    private void addOriginsToPathSequenceSegmentMap(StampPosition destination,
          OpenIntObjectHashMap<Segment> pathNidSegmentMap,
          AtomicInteger segmentSequence,
          RoaringBitmap precedingSegments) {
       final Segment segment = new Segment(segmentSequence.getAndIncrement(),
-                                    destination.getStampPathSequence(),
-                                    destination.getTime(),
-                                    precedingSegments);
+                                          destination.getStampPathSequence(),
+                                          destination.getTime(),
+                                          precedingSegments);
 
       // precedingSegments is cumulative, each recursive call adds another
       precedingSegments.add(segment.segmentSequence);
@@ -493,7 +493,8 @@ public class RelativePositionCalculator
 
       stampsToCompare.stream().forEach((prevStamp) -> {
                                  switch (
-                                    fastRelativePosition(stampSequence, prevStamp, this.coordinate.getStampPrecedence())) {
+                                    fastRelativePosition(
+                                        stampSequence, prevStamp, this.coordinate.getStampPrecedence())) {
                                  case AFTER:
                                     stampsForPosition.remove(prevStamp);
                                     stampsForPosition.add(stampSequence);
@@ -606,13 +607,13 @@ public class RelativePositionCalculator
 // };
 
    /**
- * Checks if latest active.
- *
- * @param stampSequences A stream of stampSequences from which the latest is
- * found, and then tested to determine if the latest is active.
- * @return true if any of the latest stampSequences (may be multiple in the
- * case of a contradiction) are active.
- */
+    * Checks if latest active.
+    *
+    * @param stampSequences A stream of stampSequences from which the latest is
+    * found, and then tested to determine if the latest is active.
+    * @return true if any of the latest stampSequences (may be multiple in the
+    * case of a contradiction) are active.
+    */
    public boolean isLatestActive(IntStream stampSequences) {
       return Arrays.stream(getLatestStampSequencesAsArray(stampSequences))
                    .anyMatch((int stampSequence) -> Get.stampService()
@@ -637,13 +638,13 @@ public class RelativePositionCalculator
     */
    public StampSequenceSet getLatestStampSequencesAsSet(IntStream stampSequenceStream) {
       final StampSequenceSet result = stampSequenceStream.collect(StampSequenceSet::new,
-                                                            new LatestStampAccumulator(),
-                                                            new LatestStampCombiner());
+                                                                  new LatestStampAccumulator(),
+                                                                  new LatestStampCombiner());
 
       return StampSequenceSet.of(result.stream().filter((stampSequence) -> {
                return this.coordinate.getAllowedStates()
-                                .contains(Get.stampService()
-                                      .getStatusForStamp(stampSequence));
+                                     .contains(Get.stampService()
+                                           .getStatusForStamp(stampSequence));
             }));
    }
 
@@ -710,7 +711,7 @@ public class RelativePositionCalculator
                         });
 
       if (this.coordinate.getAllowedStates()
-                    .equals(State.ACTIVE_ONLY_SET)) {
+                         .equals(State.ACTIVE_ONLY_SET)) {
          final HashSet<V> inactiveVersions = new HashSet<>();
 
          latestVersionSet.stream().forEach((version) -> {
@@ -742,7 +743,6 @@ public class RelativePositionCalculator
     */
    private class LatestStampAccumulator
             implements ObjIntConsumer<StampSequenceSet> {
-      
       /**
        * Accept.
        *
@@ -761,7 +761,6 @@ public class RelativePositionCalculator
     */
    private class LatestStampCombiner
             implements BiConsumer<StampSequenceSet, StampSequenceSet> {
-      
       /**
        * Accept.
        *
@@ -803,8 +802,8 @@ public class RelativePositionCalculator
        * The end time of the position of the relative position computer. stamps
        * with times after the end time are not part of the path.
        */
-      long          endTime;
-      
+      long endTime;
+
       /** The preceding segments. */
       RoaringBitmap precedingSegments;
 
@@ -835,9 +834,9 @@ public class RelativePositionCalculator
        */
       @Override
       public String toString() {
-         return "Segment{" + this.segmentSequence + ", pathConcept=" + Get.conceptDescriptionText(this.pathConceptSequence) +
-                "<" + this.pathConceptSequence + ">, endTime=" + Instant.ofEpochMilli(this.endTime) + ", precedingSegments=" +
-                this.precedingSegments + '}';
+         return "Segment{" + this.segmentSequence + ", pathConcept=" +
+                Get.conceptDescriptionText(this.pathConceptSequence) + "<" + this.pathConceptSequence + ">, endTime=" +
+                Instant.ofEpochMilli(this.endTime) + ", precedingSegments=" + this.precedingSegments + '}';
       }
 
       /**

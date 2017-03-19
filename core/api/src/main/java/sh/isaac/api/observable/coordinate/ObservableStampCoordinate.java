@@ -59,7 +59,6 @@ import sh.isaac.api.coordinate.StampPrecedence;
  */
 public interface ObservableStampCoordinate
         extends StampCoordinate {
-   
    /**
     * Allowed states property.
     *

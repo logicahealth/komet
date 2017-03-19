@@ -56,7 +56,6 @@ import sh.isaac.api.tree.Tree;
  * @author kec
  */
 public interface TaxonomySnapshotService {
-   
    /**
     * Gets the all relationship destination sequences.
     *

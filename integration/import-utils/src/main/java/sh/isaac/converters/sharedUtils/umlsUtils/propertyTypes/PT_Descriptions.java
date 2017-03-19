@@ -52,7 +52,6 @@ import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Descriptions;
  */
 public class PT_Descriptions
         extends BPT_Descriptions {
-   
    /**
     * Instantiates a new p T descriptions.
     *

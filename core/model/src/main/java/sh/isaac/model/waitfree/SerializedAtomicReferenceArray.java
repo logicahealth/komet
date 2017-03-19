@@ -62,15 +62,16 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
  */
 public class SerializedAtomicReferenceArray
         extends AtomicReferenceArray<byte[]> {
-   
    /** The Constant serialVersionUID. */
-	private static final long serialVersionUID = 1L;
+   private static final long serialVersionUID = 1L;
 
-/** The isaac serializer. */
-WaitFreeMergeSerializer isaacSerializer;
-   
+   //~--- fields --------------------------------------------------------------
+
+   /** The isaac serializer. */
+   WaitFreeMergeSerializer isaacSerializer;
+
    /** The segment. */
-   int                     segment;
+   int segment;
 
    //~--- constructors --------------------------------------------------------
 

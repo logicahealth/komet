@@ -47,7 +47,6 @@ package sh.isaac.api.component.sememe.version;
  */
 public interface MutableLongSememe<T extends MutableLongSememe<T>>
         extends LongSememe<T> {
-   
    /**
     * Sets the long value.
     *

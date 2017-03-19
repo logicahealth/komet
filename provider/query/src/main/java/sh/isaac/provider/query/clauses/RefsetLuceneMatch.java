@@ -74,11 +74,10 @@ import sh.isaac.provider.query.lucene.indexers.SememeIndexer;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class RefsetLuceneMatch
         extends LeafClause {
-   
    /** The lucene match key. */
    @XmlElement
    String luceneMatchKey;
-   
+
    /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
@@ -114,12 +113,13 @@ public class RefsetLuceneMatch
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       this.enclosingQuery.getLetDeclarations()
-                                                                                      .get(this.viewCoordinateKey);
+                         .get(this.viewCoordinateKey);
       this.enclosingQuery.getLetDeclarations()
-                                                         .get(this.luceneMatchKey);
-      final NidSet        nids        = new NidSet();
-      final SememeIndexer si          = LookupService.get()
-                                               .getService(SememeIndexer.class);
+                         .get(this.luceneMatchKey);
+
+      final NidSet        nids = new NidSet();
+      final SememeIndexer si   = LookupService.get()
+                                              .getService(SememeIndexer.class);
 
       if (si == null) {
          throw new IllegalStateException("sememeIndexer is null");

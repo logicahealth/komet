@@ -46,7 +46,6 @@ package sh.isaac.api.index;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface SearchResult {
-   
    /**
     * Gets the nid.
     *

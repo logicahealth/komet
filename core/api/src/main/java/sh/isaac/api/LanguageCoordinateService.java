@@ -63,7 +63,6 @@ import sh.isaac.api.coordinate.StampCoordinate;
  */
 @Contract
 public interface LanguageCoordinateService {
-   
    /**
     * Case significance to concept sequence.
     *

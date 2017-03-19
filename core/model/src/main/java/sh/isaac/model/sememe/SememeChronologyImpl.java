@@ -80,15 +80,14 @@ import sh.isaac.model.sememe.version.StringSememeImpl;
 public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
         extends ObjectChronologyImpl<V>
          implements SememeChronology<V>, OchreExternalizable {
-   
    /** The sememe type token. */
-   byte sememeTypeToken        = -1;
-   
+   byte sememeTypeToken = -1;
+
    /** The assemblage sequence. */
-   int  assemblageSequence     = -1;
-   
+   int assemblageSequence = -1;
+
    /** The referenced component nid. */
-   int  referencedComponentNid = Integer.MAX_VALUE;
+   int referencedComponentNid = Integer.MAX_VALUE;
 
    //~--- constructors --------------------------------------------------------
 
@@ -149,11 +148,11 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
    @Override
    public <M extends V> M createMutableVersion(Class<M> type, State status, EditCoordinate ec) {
       final int stampSequence = Get.stampService()
-                             .getStampSequence(status,
-                                   Long.MAX_VALUE,
-                                   ec.getAuthorSequence(),
-                                   ec.getModuleSequence(),
-                                   ec.getPathSequence());
+                                   .getStampSequence(status,
+                                         Long.MAX_VALUE,
+                                         ec.getAuthorSequence(),
+                                         ec.getModuleSequence(),
+                                         ec.getPathSequence());
       final M version = createMutableVersionInternal(type, stampSequence, nextVersionSequence());
 
       addVersion(version);
@@ -182,42 +181,40 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
          return new SememeVersionImpl<>(container, stampSequence, versionSequence);
 
       case COMPONENT_NID:
-         return new ComponentNidSememeImpl(
-             (SememeChronologyImpl<ComponentNidSememeImpl>) container,
-             stampSequence,
-             versionSequence,
-             bb);
+         return new ComponentNidSememeImpl((SememeChronologyImpl<ComponentNidSememeImpl>) container,
+                                           stampSequence,
+                                           versionSequence,
+                                           bb);
 
       case LONG:
          return new LongSememeImpl((SememeChronologyImpl<LongSememeImpl>) container,
-               stampSequence,
-               versionSequence,
-               bb);
+                                   stampSequence,
+                                   versionSequence,
+                                   bb);
 
       case LOGIC_GRAPH:
          return new LogicGraphSememeImpl((SememeChronologyImpl<LogicGraphSememeImpl>) container,
-               stampSequence,
-               versionSequence,
-               bb);
+                                         stampSequence,
+                                         versionSequence,
+                                         bb);
 
       case DYNAMIC:
          return new DynamicSememeImpl((SememeChronologyImpl<DynamicSememeImpl>) container,
-               stampSequence,
-               versionSequence,
-               bb);
+                                      stampSequence,
+                                      versionSequence,
+                                      bb);
 
       case STRING:
          return new StringSememeImpl((SememeChronologyImpl<StringSememeImpl>) container,
-               stampSequence,
-               versionSequence,
-               bb);
+                                     stampSequence,
+                                     versionSequence,
+                                     bb);
 
       case DESCRIPTION:
-         return (new DescriptionSememeImpl(
-             (SememeChronologyImpl<DescriptionSememeImpl>) container,
-             stampSequence,
-             versionSequence,
-             bb));
+         return (new DescriptionSememeImpl((SememeChronologyImpl<DescriptionSememeImpl>) container,
+                                           stampSequence,
+                                           versionSequence,
+                                           bb));
 
       default:
          throw new UnsupportedOperationException("Can't handle: " + token);

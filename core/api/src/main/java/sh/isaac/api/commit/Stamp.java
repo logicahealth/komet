@@ -64,24 +64,23 @@ import sh.isaac.api.util.Hashcode;
  */
 public class Stamp
          implements Comparable<Stamp> {
-   
    /** The hash code. */
-   public int          hashCode = Integer.MAX_VALUE;
-   
+   public int hashCode = Integer.MAX_VALUE;
+
    /** The author sequence. */
-   private final int   authorSequence;
-   
+   private final int authorSequence;
+
    /** The path sequence. */
-   private final int   pathSequence;
-   
+   private final int pathSequence;
+
    /** The status. */
    private final State status;
-   
+
    /** The module sequence. */
-   private final int   moduleSequence;
-   
+   private final int moduleSequence;
+
    /** The time. */
-   private final long  time;
+   private final long time;
 
    //~--- constructors --------------------------------------------------------
 
@@ -100,20 +99,20 @@ public class Stamp
       this.moduleSequence = in.readInt();
       this.pathSequence   = in.readInt();
       assert this.time != 0:
-             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " + this.moduleSequence + " p: " +
-             this.pathSequence;
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " +
+             this.moduleSequence + " p: " + this.pathSequence;
       assert this.status != null:
-             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " + this.moduleSequence + " p: " +
-             this.pathSequence;
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " +
+             this.moduleSequence + " p: " + this.pathSequence;
       assert this.pathSequence > 0:
-             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " + this.moduleSequence + " p: " +
-             this.pathSequence;
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " +
+             this.moduleSequence + " p: " + this.pathSequence;
       assert this.moduleSequence > 0:
-             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " + this.moduleSequence + " p: " +
-             this.pathSequence;
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " +
+             this.moduleSequence + " p: " + this.pathSequence;
       assert this.authorSequence > 0:
-             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " + this.moduleSequence + " p: " +
-             this.pathSequence;
+             "s: " + this.status + " t: " + this.time + " a: " + this.authorSequence + " " + " m: " +
+             this.moduleSequence + " p: " + this.pathSequence;
    }
 
    /**
@@ -205,7 +204,8 @@ public class Stamp
    @Override
    public int hashCode() {
       if (this.hashCode == Integer.MAX_VALUE) {
-         this.hashCode = Hashcode.compute(new int[] { this.authorSequence, this.status.ordinal(), this.pathSequence, (int) this.time });
+         this.hashCode = Hashcode.compute(new int[] { this.authorSequence, this.status.ordinal(), this.pathSequence,
+               (int) this.time });
       }
 
       return this.hashCode;
@@ -276,15 +276,15 @@ public class Stamp
     */
    public static Stamp stampFromIntStamp(int stamp) {
       final State status         = Get.stampService()
-                                .getStatusForStamp(stamp);
+                                      .getStatusForStamp(stamp);
       final long  time           = Get.stampService()
-                                .getTimeForStamp(stamp);
+                                      .getTimeForStamp(stamp);
       final int   authorSequence = Get.stampService()
-                                .getAuthorSequenceForStamp(stamp);
+                                      .getAuthorSequenceForStamp(stamp);
       final int   moduleSequence = Get.stampService()
-                                .getModuleSequenceForStamp(stamp);
+                                      .getModuleSequenceForStamp(stamp);
       final int   pathSequence   = Get.stampService()
-                                .getPathSequenceForStamp(stamp);
+                                      .getPathSequenceForStamp(stamp);
 
       return new Stamp(status, time, authorSequence, moduleSequence, pathSequence);
    }

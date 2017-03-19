@@ -82,13 +82,12 @@ import sh.isaac.api.coordinate.StampCoordinate;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LanguageCoordinateImpl
          implements LanguageCoordinate {
-   
    /** The language concept sequence. */
-   int   languageConceptSequence;
-   
+   int languageConceptSequence;
+
    /** The dialect assemblage preference list. */
    int[] dialectAssemblagePreferenceList;
-   
+
    /** The description type preference list. */
    int[] descriptionTypePreferenceList;
 
@@ -180,9 +179,9 @@ public class LanguageCoordinateImpl
     */
    @Override
    public String toString() {
-      return "Language Coordinate{" + Get.conceptDescriptionText(this.languageConceptSequence) + ", dialect preference: " +
-             Get.conceptDescriptionTextList(this.dialectAssemblagePreferenceList) + ", type preference: " +
-             Get.conceptDescriptionTextList(this.descriptionTypePreferenceList) + '}';
+      return "Language Coordinate{" + Get.conceptDescriptionText(this.languageConceptSequence) +
+             ", dialect preference: " + Get.conceptDescriptionTextList(this.dialectAssemblagePreferenceList) +
+             ", type preference: " + Get.conceptDescriptionTextList(this.descriptionTypePreferenceList) + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -223,9 +222,9 @@ public class LanguageCoordinateImpl
    public ArrayChangeListener<ObservableIntegerArray> setDescriptionTypePreferenceListProperty(
            ObjectProperty<ObservableIntegerArray> descriptionTypePreferenceListProperty) {
       final ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray,
-                                                              boolean sizeChanged,
-                                                              int from,
-                                                              int to) -> {
+                                                                    boolean sizeChanged,
+                                                                    int from,
+                                                                    int to) -> {
                this.descriptionTypePreferenceList = observableArray.toArray(this.descriptionTypePreferenceList);
             };
 
@@ -257,9 +256,9 @@ public class LanguageCoordinateImpl
    public ArrayChangeListener<ObservableIntegerArray> setDialectAssemblagePreferenceListProperty(
            ObjectProperty<ObservableIntegerArray> dialectAssemblagePreferenceListProperty) {
       final ArrayChangeListener<ObservableIntegerArray> listener = (ObservableIntegerArray observableArray,
-                                                              boolean sizeChanged,
-                                                              int from,
-                                                              int to) -> {
+                                                                    boolean sizeChanged,
+                                                                    int from,
+                                                                    int to) -> {
                this.dialectAssemblagePreferenceList = observableArray.toArray(this.dialectAssemblagePreferenceList);
             };
 
@@ -309,10 +308,10 @@ public class LanguageCoordinateImpl
     */
    public ChangeListener<Number> setLanguageConceptSequenceProperty(IntegerProperty languageConceptSequenceProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
-                                         Number oldValue,
-                                         Number newValue) -> {
-                                           this.languageConceptSequence = newValue.intValue();
-                                        };
+                                               Number oldValue,
+                                               Number newValue) -> {
+               this.languageConceptSequence = newValue.intValue();
+            };
 
       languageConceptSequenceProperty.addListener(new WeakChangeListener<>(listener));
       return listener;

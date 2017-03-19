@@ -87,28 +87,31 @@ import sh.isaac.mojo.external.QuasiMojo;
  */
 public abstract class ProfilesMojoBase
         extends QuasiMojo {
-   
    /** The Constant PROFILE_SYNC_DISABLE. */
+
    // For disabling Profile Sync entirely
    public static final String PROFILE_SYNC_DISABLE = "profileSyncDisable";
 
    /** The Constant PROFILE_SYNC_NO_PROMPTS. */
+
    // For preventing command line prompts for credentials during automated runs - set this system property to true.
    public static final String PROFILE_SYNC_NO_PROMPTS = "profileSyncNoPrompt";
 
    /** The Constant PROFILE_SYNC_USERNAME_PROPERTY. */
+
    // Allow setting the username via a system property
    public static final String PROFILE_SYNC_USERNAME_PROPERTY = "profileSyncUsername";
 
    /** The Constant PROFILE_SYNC_PWD_PROPERTY. */
+
    // Allow setting the password via a system property
    public static final String PROFILE_SYNC_PWD_PROPERTY = "profileSyncPassword";
-   
+
    /** The username. */
-   private static String      username                  = null;
-   
+   private static String username = null;
+
    /** The pwd. */
-   private static char[]      pwd                       = null;
+   private static char[] pwd = null;
 
    //~--- fields --------------------------------------------------------------
 
@@ -209,41 +212,46 @@ public abstract class ProfilesMojoBase
          // still no password, prompt if allowed
          if ((pwd.length == 0) &&!Boolean.valueOf(System.getProperty(PROFILE_SYNC_NO_PROMPTS))) {
             final Callable<Void> callable = () -> {
-              try {
-                if (!ProfilesMojoBase.this.disableHintGiven) {
-			System.out.println("To disable remote sync during build, add '-D" + PROFILE_SYNC_DISABLE +
-			                   "=true' to your maven command");
-			ProfilesMojoBase.this.disableHintGiven = true;
-                }
+                                               try {
+                                                  if (!ProfilesMojoBase.this.disableHintGiven) {
+                                                     System.out.println(
+                                                     "To disable remote sync during build, add '-D" +
+                                                     PROFILE_SYNC_DISABLE + "=true' to your maven command");
+                                                     ProfilesMojoBase.this.disableHintGiven = true;
+                                                  }
 
-                System.out.println("Enter the " + ProfilesMojoBase.this.changeSetURLType +
-			                " password for the Profiles/Changset remote store: (" + ProfilesMojoBase.this.changeSetURL + "):");
+                                                  System.out.println("Enter the " +
+                                                  ProfilesMojoBase.this.changeSetURLType +
+                                                  " password for the Profiles/Changset remote store: (" +
+                                                  ProfilesMojoBase.this.changeSetURL + "):");
 
-                // Use console if available, for password masking
-                final Console console = System.console();
+                                                  // Use console if available, for password masking
+                                                  final Console console = System.console();
 
-                if (console != null) {
-			pwd = console.readPassword();
-                } else {
-			final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                                                  if (console != null) {
+                                                     pwd = console.readPassword();
+                                                  } else {
+                                                     final BufferedReader br =
+                                                        new BufferedReader(new InputStreamReader(System.in));
 
-			pwd = br.readLine()
-			        .toCharArray();
-                }
-              } catch (final IOException e) {
-                throw new MojoExecutionException("Error reading password from console");
-              }
+                                                     pwd = br.readLine()
+                                                           .toCharArray();
+                                                  }
+                                               } catch (final IOException e) {
+                                                  throw new MojoExecutionException(
+                                                  "Error reading password from console");
+                                               }
 
-              return null;
-            };
+                                               return null;
+                                            };
 
             try {
                Executors.newSingleThreadExecutor(r -> {
-			   final Thread t = new Thread(r, "User Password Prompt Thread");
+                                                    final Thread t = new Thread(r, "User Password Prompt Thread");
 
-			   t.setDaemon(true);
-			   return t;
-			}).submit(callable).get(2, TimeUnit.MINUTES);
+                                                    t.setDaemon(true);
+                                                    return t;
+                                                 }).submit(callable).get(2, TimeUnit.MINUTES);
             } catch (TimeoutException | InterruptedException e) {
                throw new MojoExecutionException("Password not provided within timeout");
             } catch (final ExecutionException ee) {
@@ -323,33 +331,37 @@ public abstract class ProfilesMojoBase
          // still no username, prompt if allowed
          if (StringUtils.isBlank(username) &&!Boolean.valueOf(System.getProperty(PROFILE_SYNC_NO_PROMPTS))) {
             final Callable<Void> callable = () -> {
-              if (!ProfilesMojoBase.this.disableHintGiven) {
-                System.out.println("To disable remote sync during build, add '-D" + PROFILE_SYNC_DISABLE +
-			                "=true' to your maven command");
-                ProfilesMojoBase.this.disableHintGiven = true;
-              }
+                                               if (!ProfilesMojoBase.this.disableHintGiven) {
+                                                  System.out.println("To disable remote sync during build, add '-D" +
+                                                  PROFILE_SYNC_DISABLE + "=true' to your maven command");
+                                                  ProfilesMojoBase.this.disableHintGiven = true;
+                                               }
 
-              try {
-                System.out.println("Enter the " + ProfilesMojoBase.this.changeSetURLType +
-			                " username for the Profiles/Changset remote store (" + ProfilesMojoBase.this.changeSetURL + "):");
+                                               try {
+                                                  System.out.println("Enter the " +
+                                                  ProfilesMojoBase.this.changeSetURLType +
+                                                  " username for the Profiles/Changset remote store (" +
+                                                  ProfilesMojoBase.this.changeSetURL + "):");
 
-                final BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                                                  final BufferedReader br =
+                                                     new BufferedReader(new InputStreamReader(System.in));
 
-                username = br.readLine();
-              } catch (final IOException e) {
-                throw new MojoExecutionException("Error reading username from console");
-              }
+                                                  username = br.readLine();
+                                               } catch (final IOException e) {
+                                                  throw new MojoExecutionException(
+                                                  "Error reading username from console");
+                                               }
 
-              return null;
-            };
+                                               return null;
+                                            };
 
             try {
                Executors.newSingleThreadExecutor(r -> {
-			   final Thread t = new Thread(r, "User Prompt Thread");
+                                                    final Thread t = new Thread(r, "User Prompt Thread");
 
-			   t.setDaemon(true);
-			   return t;
-			}).submit(callable).get(2, TimeUnit.MINUTES);
+                                                    t.setDaemon(true);
+                                                    return t;
+                                                 }).submit(callable).get(2, TimeUnit.MINUTES);
             } catch (TimeoutException | InterruptedException e) {
                throw new MojoExecutionException("Username not provided within timeout");
             } catch (final ExecutionException ee) {

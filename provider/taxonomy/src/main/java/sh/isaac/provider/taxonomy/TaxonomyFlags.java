@@ -65,30 +65,41 @@ import sh.isaac.api.coordinate.TaxonomyCoordinate;
  * @author kec
  */
 public enum TaxonomyFlags {
-   
    /** The stated. */
-   STATED(0x10000000),                 
-                 /** The inferred. */
-                 // 0001 0000
-   INFERRED(0x20000000),               
-               /** The sememe. */
-               // 0010 0000
-   SEMEME(0x40000000),                 
-                 /** The non dl rel. */
-                 // 0100 0000
-   NON_DL_REL(0x08000000),             
-             /** The concept status. */
-             // 0000 1000
-   CONCEPT_STATUS(0x04000000),         
-         /** The reserved future use 1. */
-         // 0000 0100
-   RESERVED_FUTURE_USE_1(0x02000000),  
-  /** The reserved future use 2. */
-  // 0000 0010
+   STATED(0x10000000),
+
+   /** The inferred. */
+
+   // 0001 0000
+   INFERRED(0x20000000),
+
+   /** The sememe. */
+
+   // 0010 0000
+   SEMEME(0x40000000),
+
+   /** The non dl rel. */
+
+   // 0100 0000
+   NON_DL_REL(0x08000000),
+
+   /** The concept status. */
+
+   // 0000 1000
+   CONCEPT_STATUS(0x04000000),
+
+   /** The reserved future use 1. */
+
+   // 0000 0100
+   RESERVED_FUTURE_USE_1(0x02000000),
+
+   /** The reserved future use 2. */
+
+   // 0000 0010
    RESERVED_FUTURE_USE_2(0x01000000);  // 0000 0001
 
    /** The Constant ALL_RELS. */
-  public static final int ALL_RELS = 0;
+   public static final int ALL_RELS = 0;
 
    //~--- fields --------------------------------------------------------------
 

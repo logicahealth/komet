@@ -58,27 +58,26 @@ import java.util.UUID;
  * @author kec
  */
 public class UuidT5Generator {
-   
    /** The Constant encoding. */
-   public static final String encoding                      = "8859_1";
-   
+   public static final String encoding = "8859_1";
+
    /** The Constant PATH_ID_FROM_FS_DESC. */
-   public static final UUID   PATH_ID_FROM_FS_DESC          = UUID.fromString("5a2e7786-3e41-11dc-8314-0800200c9a66");
-   
+   public static final UUID PATH_ID_FROM_FS_DESC = UUID.fromString("5a2e7786-3e41-11dc-8314-0800200c9a66");
+
    /** The Constant REL_GROUP_NAMESPACE. */
-   public static final UUID   REL_GROUP_NAMESPACE           = UUID.fromString("8972fef0-ad53-11df-94e2-0800200c9a66");
-   
+   public static final UUID REL_GROUP_NAMESPACE = UUID.fromString("8972fef0-ad53-11df-94e2-0800200c9a66");
+
    /** The Constant USER_FULLNAME_NAMESPACE. */
-   public static final UUID   USER_FULLNAME_NAMESPACE       = UUID.fromString("cad85220-1ed4-11e1-8bc2-0800200c9a66");
-   
+   public static final UUID USER_FULLNAME_NAMESPACE = UUID.fromString("cad85220-1ed4-11e1-8bc2-0800200c9a66");
+
    /** The Constant TAXONOMY_COORDINATE_NAMESPACE. */
-   public static final UUID   TAXONOMY_COORDINATE_NAMESPACE = UUID.fromString("c58dcdb6-185b-11e5-b60b-1697f925ec7b");
-   
+   public static final UUID TAXONOMY_COORDINATE_NAMESPACE = UUID.fromString("c58dcdb6-185b-11e5-b60b-1697f925ec7b");
+
    /** The Constant REL_ADAPTOR_NAMESPACE. */
-   public static final UUID   REL_ADAPTOR_NAMESPACE         = UUID.fromString("9cb2bf66-1863-11e5-b60b-1697f925ec7");
-   
+   public static final UUID REL_ADAPTOR_NAMESPACE = UUID.fromString("9cb2bf66-1863-11e5-b60b-1697f925ec7");
+
    /** The Constant AUTHOR_TIME_ID. */
-   public static final UUID   AUTHOR_TIME_ID                = UUID.fromString("c6915290-30fc-11e1-b86c-0800200c9a66");
+   public static final UUID AUTHOR_TIME_ID = UUID.fromString("c6915290-30fc-11e1-b86c-0800200c9a66");
 
    //~--- get methods ---------------------------------------------------------
 

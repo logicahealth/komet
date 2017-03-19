@@ -80,23 +80,22 @@ import sh.isaac.utility.Frills;
  * The Class AssociationType.
  */
 public class AssociationType {
-   
    /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
    /** The association sequence. */
-   private final int              associationSequence_;
-   
+   private final int associationSequence_;
+
    /** The association name. */
-   private String           associationName_;
-   
+   private String associationName_;
+
    /** The association inverse name. */
    private Optional<String> associationInverseName_;
-   
+
    /** The description. */
-   private String           description_;
+   private String description_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -135,29 +134,29 @@ public class AssociationType {
          EditCoordinate editCoord) {
       try {
          final EditCoordinate localEditCoord = ((editCoord == null) ? Get.configurationService()
-                                                                   .getDefaultEditCoordinate()
+                                                                         .getDefaultEditCoordinate()
                : editCoord);
 
          // We need to create a new concept - which itself is defining a dynamic sememe - so set that up here.
-         final DynamicSememeUsageDescription rdud = Frills.createNewDynamicSememeUsageDescriptionConcept(associationName,
-                                                                                                   associationName,
-                                                                                                   StringUtils.isBlank(description)
-                                                                                                   ? "Defines the association type " +
-                                                                                                     associationInverseName
+         final DynamicSememeUsageDescription rdud =
+            Frills.createNewDynamicSememeUsageDescriptionConcept(associationName,
+                                                                 associationName,
+                                                                 StringUtils.isBlank(description)
+                                                                 ? "Defines the association type " +
+                                                                   associationInverseName
                : description,
-                                                                                                   new DynamicSememeColumnInfo[] {
-                                                                                                      new DynamicSememeColumnInfo(
-                                                                                                         0,
-                                                                                                               DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(),
-                                                                                                               DynamicSememeDataType.UUID,
-                                                                                                               null,
-                                                                                                               false,
-                                                                                                               true) },
-                                                                                                   DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME
-                                                                                                         .getNid(),
-                                                                                                   referencedComponentRestriction,
-                                                                                                   referencedComponentSubRestriction,
-                                                                                                   editCoord);
+                                                                 new DynamicSememeColumnInfo[] {
+                                                                    new DynamicSememeColumnInfo(0,
+                                                                          DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(),
+                                                                          DynamicSememeDataType.UUID,
+                                                                          null,
+                                                                          false,
+                                                                          true) },
+                                                                 DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME
+                                                                       .getNid(),
+                                                                 referencedComponentRestriction,
+                                                                 referencedComponentSubRestriction,
+                                                                 editCoord);
 
          Get.workExecutors().getExecutor().execute(() -> {
                         try {
@@ -173,13 +172,13 @@ public class AssociationType {
          // Then add the inverse name, if present.
          if (!StringUtils.isBlank(associationInverseName)) {
             final ObjectChronology<?> builtDesc = LookupService.get()
-                                                         .getService(DescriptionBuilderService.class)
-                                                         .getDescriptionBuilder(associationInverseName,
-                                                               rdud.getDynamicSememeUsageDescriptorSequence(),
-                                                               MetaData.SYNONYM,
-                                                               MetaData.ENGLISH_LANGUAGE)
-                                                         .build(localEditCoord, ChangeCheckerMode.ACTIVE)
-                                                         .getNoThrow();
+                                                               .getService(DescriptionBuilderService.class)
+                                                               .getDescriptionBuilder(associationInverseName,
+                                                                     rdud.getDynamicSememeUsageDescriptorSequence(),
+                                                                     MetaData.SYNONYM,
+                                                                     MetaData.ENGLISH_LANGUAGE)
+                                                               .build(localEditCoord, ChangeCheckerMode.ACTIVE)
+                                                               .getNoThrow();
 
             Get.sememeBuilderService()
                .getDynamicSememeBuilder(builtDesc.getNid(),
@@ -224,14 +223,14 @@ public class AssociationType {
     */
    @SuppressWarnings({ "unchecked", "rawtypes" })
    public static AssociationType read(int conceptNidOrSequence, StampCoordinate stamp, LanguageCoordinate language) {
-      final AssociationType    at            = new AssociationType(conceptNidOrSequence);
-      final int                conceptNid    = Get.identifierService()
+      final AssociationType at         = new AssociationType(conceptNidOrSequence);
+      final int             conceptNid = Get.identifierService()
                                             .getConceptNid(at.getAssociationTypeSequenece());
-      final StampCoordinate    localStamp    = ((stamp == null) ? Get.configurationService()
+      final StampCoordinate localStamp = ((stamp == null) ? Get.configurationService()
                                                                .getDefaultStampCoordinate()
             : stamp);
       final LanguageCoordinate localLanguage = ((language == null) ? Get.configurationService()
-                                                                  .getDefaultLanguageCoordinate()
+                                                                        .getDefaultLanguageCoordinate()
             : language);
 
       at.associationName_ = Get.conceptService()

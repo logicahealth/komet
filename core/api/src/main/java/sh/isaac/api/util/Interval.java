@@ -45,12 +45,11 @@ package sh.isaac.api.util;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class Interval {
-   
    /** The right inclusive. */
    private boolean leftInclusive_, rightInclusive_;
-   
+
    /** The right. */
-   private Number  left_, right_;
+   private Number left_, right_;
 
    //~--- constructors --------------------------------------------------------
 

@@ -56,7 +56,6 @@ import sh.isaac.api.memory.MemoryManagementService;
 @Service
 public class MemoryManagementProvider
          implements MemoryManagementService {
-   
    /**
     * Sets the memory configuration.
     *

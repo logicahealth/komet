@@ -92,35 +92,34 @@ import sh.isaac.model.observable.version.ObservableVersionImpl;
  */
 public abstract class ObservableChronologyImpl<OV extends ObservableVersionImpl, C extends ObjectChronology<?>>
          implements ObservableChronology<OV>, ChronologyChangeListener, CommittableComponent {
-   
    /** The Constant ocs. */
    private static final ObservableChronologyService ocs = LookupService.getService(ObservableChronologyService.class);
 
    //~--- fields --------------------------------------------------------------
 
    /** The version list. */
-   private ObservableList<? extends OV>                                                   versionList = null;
-   
+   private ObservableList<? extends OV> versionList = null;
+
    /** The version list property. */
-   private ListProperty<? extends OV>                                                     versionListProperty;
-   
+   private ListProperty<? extends OV> versionListProperty;
+
    /** The nid property. */
-   private IntegerProperty                                                                nidProperty;
-   
+   private IntegerProperty nidProperty;
+
    /** The primordial uuid property. */
-   private ObjectProperty<UUID>                                                           primordialUuidProperty;
-   
+   private ObjectProperty<UUID> primordialUuidProperty;
+
    /** The uuid list property. */
-   private ListProperty<UUID>                                                             uuidListProperty;
-   
+   private ListProperty<UUID> uuidListProperty;
+
    /** The commit state property. */
-   private ObjectProperty<CommitStates>                                                   commitStateProperty;
-   
+   private ObjectProperty<CommitStates> commitStateProperty;
+
    /** The sememe list property. */
    private ListProperty<ObservableSememeChronology<? extends ObservableSememeVersion<?>>> sememeListProperty;
-   
+
    /** The chronicled object local. */
-   protected C                                                                            chronicledObjectLocal;
+   protected C chronicledObjectLocal;
 
    //~--- constructors --------------------------------------------------------
 
@@ -194,12 +193,12 @@ public abstract class ObservableChronologyImpl<OV extends ObservableVersionImpl,
          if (this.sememeListProperty != null) {
             // check to be sure sememe is in list, if not, add it.
             if (this.sememeListProperty.get()
-                                  .stream()
-                                  .noneMatch((element) -> element.getNid() == sc.getNid())) {
+                                       .stream()
+                                       .noneMatch((element) -> element.getNid() == sc.getNid())) {
                this.sememeListProperty.get()
-                                 .add(
-                                 (ObservableSememeChronology<? extends ObservableSememeVersion<?>>) ocs.getObservableSememeChronology(
-                                    sc.getNid()));
+                                      .add(
+                                      (ObservableSememeChronology<? extends ObservableSememeVersion<?>>) ocs.getObservableSememeChronology(
+                                         sc.getNid()));
             }
          }
 
@@ -326,7 +325,7 @@ public abstract class ObservableChronologyImpl<OV extends ObservableVersionImpl,
          final OpenShortObjectHashMap<OV> observableVersionMap = new OpenShortObjectHashMap<>(this.versionList.size());
 
          this.versionList.stream()
-                    .forEach((ov) -> observableVersionMap.put(ov.getVersionSequence(), ov));
+                         .forEach((ov) -> observableVersionMap.put(ov.getVersionSequence(), ov));
          chronicledObjectLocal.getVersionList().stream().forEach((sv) -> {
                                           final OV observableVersion =
                                              observableVersionMap.get(((ObjectVersionImpl) sv).getVersionSequence());

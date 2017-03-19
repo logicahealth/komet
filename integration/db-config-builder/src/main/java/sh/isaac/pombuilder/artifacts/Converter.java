@@ -47,7 +47,6 @@ package sh.isaac.pombuilder.artifacts;
  */
 public class Converter
         extends Artifact {
-   
    /**
     * Instantiates a new converter.
     *

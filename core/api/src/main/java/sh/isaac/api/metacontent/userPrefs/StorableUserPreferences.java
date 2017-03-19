@@ -45,7 +45,6 @@ package sh.isaac.api.metacontent.userPrefs;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface StorableUserPreferences {
-   
    /**
     * Turn the concrete class into a suitable byte[] for storage.
     *

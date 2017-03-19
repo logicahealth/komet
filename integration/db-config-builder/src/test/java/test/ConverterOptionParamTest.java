@@ -61,7 +61,6 @@ import sh.isaac.pombuilder.converter.ConverterOptionParamSuggestedValue;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ConverterOptionParamTest {
-   
    /**
     * Test changeset URL rewrite.
     *
@@ -92,12 +91,12 @@ public class ConverterOptionParamTest {
    public void testJson()
             throws Exception {
       final ConverterOptionParam foo = new ConverterOptionParam("cc",
-                                                          "a",
-                                                          "b",
-                                                          true,
-                                                          true,
-                                                          new ConverterOptionParamSuggestedValue("e", "e1"),
-                                                          new ConverterOptionParamSuggestedValue("f"));
+                                                                "a",
+                                                                "b",
+                                                                true,
+                                                                true,
+                                                                new ConverterOptionParamSuggestedValue("e", "e1"),
+                                                                new ConverterOptionParamSuggestedValue("f"));
 
       Assert.assertEquals("e", foo.getSuggestedPickListValues()[0]
                                   .getValue());
@@ -109,12 +108,12 @@ public class ConverterOptionParamTest {
                                   .getDescription());
 
       final ConverterOptionParam foo2 = new ConverterOptionParam("33",
-                                                           "1",
-                                                           "2",
-                                                           true,
-                                                           false,
-                                                           new ConverterOptionParamSuggestedValue("3", "31"),
-                                                           new ConverterOptionParamSuggestedValue("4", "41"));
+                                                                 "1",
+                                                                 "2",
+                                                                 true,
+                                                                 false,
+                                                                 new ConverterOptionParamSuggestedValue("3", "31"),
+                                                                 new ConverterOptionParamSuggestedValue("4", "41"));
 
       ConverterOptionParam.serialize(new ConverterOptionParam[] { foo, foo2 }, new File("foo.json"));
 

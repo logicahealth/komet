@@ -74,34 +74,33 @@ import sh.isaac.model.observable.ObservableFields;
  */
 public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V extends ObjectVersionImpl<?, ?>>
          implements ObservableVersion, CommittableComponent {
-   
    /** The state property. */
-   ObjectProperty<State>              stateProperty;
-   
+   ObjectProperty<State> stateProperty;
+
    /** The time property. */
-   LongProperty                       timeProperty;
-   
+   LongProperty timeProperty;
+
    /** The author sequence property. */
-   IntegerProperty                    authorSequenceProperty;
-   
+   IntegerProperty authorSequenceProperty;
+
    /** The module sequence property. */
-   IntegerProperty                    moduleSequenceProperty;
-   
+   IntegerProperty moduleSequenceProperty;
+
    /** The path sequence property. */
-   IntegerProperty                    pathSequenceProperty;
-   
+   IntegerProperty pathSequenceProperty;
+
    /** The commit state property. */
-   ObjectProperty<CommitStates>       commitStateProperty;
-   
+   ObjectProperty<CommitStates> commitStateProperty;
+
    /** The commit state binding. */
-   ObjectBinding<CommitStates>        commitStateBinding;
-   
+   ObjectBinding<CommitStates> commitStateBinding;
+
    /** The stamp sequence property. */
-   IntegerProperty                    stampSequenceProperty;
-   
+   IntegerProperty stampSequenceProperty;
+
    /** The stamped version. */
-   protected V                        stampedVersion;
-   
+   protected V stampedVersion;
+
    /** The chronology. */
    protected ObservableChronology<OV> chronology;
 

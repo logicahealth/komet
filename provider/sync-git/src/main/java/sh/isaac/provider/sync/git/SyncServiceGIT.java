@@ -122,7 +122,7 @@ import sh.isaac.api.sync.SyncFiles;
 
 /**
  * {@link SyncServiceGIT}
- * 
+ *
  * A GIT implementation of {@link SyncFiles}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
@@ -131,10 +131,9 @@ import sh.isaac.api.sync.SyncFiles;
 @PerLookup
 public class SyncServiceGIT
          implements SyncFiles {
-   
    /** The log. */
-   private static Logger                  log            = LoggerFactory.getLogger(SyncServiceGIT.class);
-   
+   private static Logger log = LoggerFactory.getLogger(SyncServiceGIT.class);
+
    /** The jsch configured. */
    private static volatile CountDownLatch jschConfigured = new CountDownLatch(1);
 
@@ -142,21 +141,21 @@ public class SyncServiceGIT
 
    /** The note failed merge happened on remote. */
    private final String NOTE_FAILED_MERGE_HAPPENED_ON_REMOTE = "Conflicted merge happened during remote merge";
-   
+
    /** The note failed merge happened on stash. */
-   private final String NOTE_FAILED_MERGE_HAPPENED_ON_STASH  = "Conflicted merge happened during stash merge";
-   
+   private final String NOTE_FAILED_MERGE_HAPPENED_ON_STASH = "Conflicted merge happened during stash merge";
+
    /** The stash marker. */
-   private final String STASH_MARKER                         = ":STASH-";
-   
+   private final String STASH_MARKER = ":STASH-";
+
    /** The local folder. */
-   private File         localFolder                          = null;
-   
+   private File localFolder = null;
+
    /** The read me file content. */
-   private String       readMeFileContent_                   = DEFAULT_README_CONTENT;
-   
+   private String readMeFileContent_ = DEFAULT_README_CONTENT;
+
    /** The git ignore text. */
-   private String       gitIgnoreText_                       = "lastUser.txt\r\n";
+   private String gitIgnoreText_ = "lastUser.txt\r\n";
 
    //~--- constructors --------------------------------------------------------
 
@@ -197,12 +196,12 @@ public class SyncServiceGIT
                               @Override
                               public void log(int level, String message) {
                                  this.logMap.get(level)
-                                       .accept(message);
+                                            .accept(message);
                               }
                               @Override
                               public boolean isEnabled(int level) {
                                  return this.enabledMap.get(level)
-                                                  .getAsBoolean();
+                                       .getAsBoolean();
                               }
                            });
             jschConfigured.countDown();
@@ -259,7 +258,7 @@ public class SyncServiceGIT
 
       try (Git git = getGit()) {
          final Status s = git.status()
-                       .call();
+                             .call();
 
          addFiles(s.getUntracked()
                    .toArray(new String[s.getUntracked().size()]));
@@ -352,22 +351,23 @@ public class SyncServiceGIT
          relinkRemote(remoteAddress, username, password);
          git = new Git(r);
 
-         final CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username, ((password == null) ? new char[] {}
+         final CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username,
+                                                                                ((password == null) ? new char[] {}
                : password));
 
          log.debug("Fetching");
 
          final FetchResult fr = git.fetch()
-                             .setCheckFetchedObjects(true)
-                             .setCredentialsProvider(cp)
-                             .call();
+                                   .setCheckFetchedObjects(true)
+                                   .setCredentialsProvider(cp)
+                                   .call();
 
          log.debug("Fetch messages: {}", fr.getMessages());
 
-         boolean         remoteHasMaster = false;
+         boolean               remoteHasMaster = false;
          final Collection<Ref> refs            = git.lsRemote()
-                                              .setCredentialsProvider(cp)
-                                              .call();
+                                                    .setCredentialsProvider(cp)
+                                                    .call();
 
          for (final Ref ref: refs) {
             if ("refs/heads/master".equals(ref.getName())) {
@@ -382,9 +382,9 @@ public class SyncServiceGIT
             log.debug("Fetching from remote");
 
             final String fetchResult = git.fetch()
-                                    .setCredentialsProvider(cp)
-                                    .call()
-                                    .getMessages();
+                                          .setCredentialsProvider(cp)
+                                          .call()
+                                          .getMessages();
 
             log.debug("Fetch Result: {}", fetchResult);
             log.debug("Resetting to origin/master");
@@ -397,8 +397,8 @@ public class SyncServiceGIT
             log.debug("Checking out missing files from origin/master");
 
             for (final String missing: git.status()
-                                    .call()
-                                    .getMissing()) {
+                                          .call()
+                                          .getMissing()) {
                log.debug("Checkout {}", missing);
                git.checkout()
                   .addPath(missing)
@@ -416,8 +416,8 @@ public class SyncServiceGIT
                   .call();
 
                for (final PushResult pr: git.push()
-                                      .setCredentialsProvider(cp)
-                                      .call()) {
+                                            .setCredentialsProvider(cp)
+                                            .call()) {
                   log.debug("Push Message: {}", pr.getMessages());
                }
             }
@@ -438,8 +438,8 @@ public class SyncServiceGIT
             log.debug("Pushing repository");
 
             for (final PushResult pr: git.push()
-                                   .setCredentialsProvider(cp)
-                                   .call()) {
+                                         .setCredentialsProvider(cp)
+                                         .call()) {
                log.debug("Push Result: {}", pr.getMessages());
             }
          }
@@ -484,24 +484,25 @@ public class SyncServiceGIT
                    IOException,
                    AuthenticationException {
       try (Git git = getGit()) {
-         final CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username, ((password == null) ? new char[] {}
+         final CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username,
+                                                                                ((password == null) ? new char[] {}
                : password));
          final Iterable<PushResult> pr = git.push()
-                                      .setRefSpecs(new RefSpec("refs/tags/" + tagName))
-                                      .setCredentialsProvider(cp)
-                                      .call();
+                                            .setRefSpecs(new RefSpec("refs/tags/" + tagName))
+                                            .setCredentialsProvider(cp)
+                                            .call();
          final StringBuilder failures = new StringBuilder();
 
          pr.forEach(t -> {
-		      log.debug("Push Result Messages: " + t.getMessages());
+                       log.debug("Push Result Messages: " + t.getMessages());
 
-		      if (t.getRemoteUpdate("refs/tags/" + tagName)
-		           .getStatus() != org.eclipse.jgit.transport.RemoteRefUpdate.Status.OK) {
-		         failures.append("Push Failed: " +
-		                         t.getRemoteUpdate("refs/tags/" + tagName).getStatus().name() +
-		                         " reason: " + t.getRemoteUpdate("refs/tags/" + tagName).getMessage());
-		      }
-		   });
+                       if (t.getRemoteUpdate("refs/tags/" + tagName)
+                            .getStatus() != org.eclipse.jgit.transport.RemoteRefUpdate.Status.OK) {
+                          failures.append("Push Failed: " +
+                                          t.getRemoteUpdate("refs/tags/" + tagName).getStatus().name() + " reason: " +
+                                          t.getRemoteUpdate("refs/tags/" + tagName).getMessage());
+                       }
+                    });
 
          if (failures.length() > 0) {
             throw new IOException(failures.toString());
@@ -533,8 +534,9 @@ public class SyncServiceGIT
                    IOException,
                    AuthenticationException {
       try (Git git = getGit()) {
-         final ArrayList<String>   results = new ArrayList<>();
-         final CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username, ((password == null) ? new char[] {}
+         final ArrayList<String> results = new ArrayList<>();
+         final CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username,
+                                                                                ((password == null) ? new char[] {}
                : password));
 
          git.fetch()
@@ -543,7 +545,7 @@ public class SyncServiceGIT
             .call();
 
          for (final Ref x: git.tagList()
-                        .call()) {
+                              .call()) {
             results.add(x.getName());
          }
 
@@ -580,7 +582,7 @@ public class SyncServiceGIT
          log.debug("Configuring remote URL and fetch defaults to {}", remoteAddress);
 
          final StoredConfig sc = git.getRepository()
-                              .getConfig();
+                                    .getConfig();
 
          sc.setString("remote", "origin", "url", remoteAddress);
          sc.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
@@ -642,10 +644,10 @@ public class SyncServiceGIT
 
       try (Git git = getGit()) {
          final List<Note>  notes       = git.notesList()
-                                      .call();
+                                            .call();
          final Set<String> conflicting = git.status()
-                                      .call()
-                                      .getConflicting();
+                                            .call()
+                                            .getConflicting();
 
          if (conflicting.size() == 0) {
             throw new IllegalArgumentException("You do not appear to have any conflicting files");
@@ -668,7 +670,7 @@ public class SyncServiceGIT
                 "The 'note' that is required for tracking state is missing.  This merge failure must be resolved on the command line");
          }
 
-         final String        noteValue = new String(git.getRepository().open(notes.get(0).getData()).getBytes());
+         final String  noteValue = new String(git.getRepository().open(notes.get(0).getData()).getBytes());
          MergeFailType mergeFailType;
 
          if (noteValue.startsWith(this.NOTE_FAILED_MERGE_HAPPENED_ON_REMOTE)) {
@@ -700,11 +702,11 @@ public class SyncServiceGIT
     * @param username the username
     * @return the string
     * @see sh.isaac.api.sync.SyncFiles#substituteURL(java.lang.String, java.lang.String)
-    * 
+    *
     * Turns
     *  ssh://someuser@csfe.aceworkspace.net:29418/... into
     *  ssh://username.toString()@csfe.aceworkspace.net:29418/...
-    * 
+    *
     *  Otherwise, returns URL.
     */
    @Override
@@ -788,11 +790,12 @@ public class SyncServiceGIT
 
          log.debug("Pushing");
 
-         final CredentialsProvider  cp = new UsernamePasswordCredentialsProvider(username, ((password == null) ? new char[] {}
+         final CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username,
+                                                                                ((password == null) ? new char[] {}
                : password));
          final Iterable<PushResult> pr = git.push()
-                                      .setCredentialsProvider(cp)
-                                      .call();
+                                            .setCredentialsProvider(cp)
+                                            .call();
 
          pr.forEach(t -> log.debug("Push Result Messages: " + t.getMessages()));
          log.info("commit and push complete.  Current status: " + statusToString(git.status().call()));
@@ -848,14 +851,15 @@ public class SyncServiceGIT
             throw new MergeFailure(git.status().call().getConflicting(), new HashSet<>());
          }
 
-         final CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username, ((password == null) ? new char[] {}
+         final CredentialsProvider cp = new UsernamePasswordCredentialsProvider(username,
+                                                                                ((password == null) ? new char[] {}
                : password));
 
          log.debug("Fetch Message" + git.fetch().setCredentialsProvider(cp).call().getMessages());
 
          final ObjectId masterIdBeforeMerge = git.getRepository()
-                                           .findRef("master")
-                                           .getObjectId();
+                                                 .findRef("master")
+                                                 .getObjectId();
 
          if (git.getRepository()
                 .exactRef("refs/remotes/origin/master")
@@ -881,9 +885,9 @@ public class SyncServiceGIT
             log.debug("Merging from remotes/origin/master");
 
             final MergeResult mr = git.merge()
-                                .include(git.getRepository()
+                                      .include(git.getRepository()
                                             .exactRef("refs/remotes/origin/master"))
-                                .call();
+                                      .call();
             final AnyObjectId headAfterMergeID = mr.getNewHead();
 
             if (!mr.getMergeStatus()
@@ -899,7 +903,7 @@ public class SyncServiceGIT
                   final HashMap<String, MergeFailOption> resolutions = new HashMap<>();
 
                   for (final String s: mr.getConflicts()
-                                   .keySet()) {
+                                         .keySet()) {
                      resolutions.put(s, mergeFailOption);
                   }
 
@@ -944,8 +948,8 @@ public class SyncServiceGIT
                   final HashMap<String, MergeFailOption> resolutions = new HashMap<>();
 
                   for (final String s: git.status()
-                                    .call()
-                                    .getConflicting()) {
+                                          .call()
+                                          .getConflicting()) {
                      resolutions.put(s, mergeFailOption);
                   }
 
@@ -998,7 +1002,7 @@ public class SyncServiceGIT
             throws IOException, GitAPIException {
       final RevWalk   walk   = new RevWalk(git.getRepository());
       final Ref       head   = git.getRepository()
-                            .exactRef("refs/heads/master");
+                                  .exactRef("refs/heads/master");
       final RevCommit commit = walk.parseCommit(head.getObjectId());
 
       git.notesAdd()
@@ -1082,7 +1086,9 @@ public class SyncServiceGIT
 
          if (!new String(Files.readAllBytes(ignore.toPath())).contains(this.gitIgnoreText_)) {
             log.debug("Appending onto existing .gitignore file");
-            Files.write(ignore.toPath(), new String("\r\n" + this.gitIgnoreText_).getBytes(), StandardOpenOption.APPEND);
+            Files.write(ignore.toPath(),
+                        new String("\r\n" + this.gitIgnoreText_).getBytes(),
+                        StandardOpenOption.APPEND);
             result.add(ignore.getName());
          }
       }
@@ -1151,24 +1157,24 @@ public class SyncServiceGIT
 
          final RevWalk   walk                    = new RevWalk(git.getRepository());
          final Ref       head                    = git.getRepository()
-                                                .exactRef("refs/heads/master");
+                                                      .exactRef("refs/heads/master");
          final RevCommit commitWithPotentialNote = walk.parseCommit(head.getObjectId());
 
          walk.close();
          log.info("resolve merge failures Complete.  Current status: " + statusToString(git.status().call()));
 
          final RevCommit rc = git.commit()
-                           .setMessage("Merging with user specified merge failure resolution for files " +
-                                       resolutions.keySet())
-                           .call();
+                                 .setMessage("Merging with user specified merge failure resolution for files " +
+                                    resolutions.keySet())
+                                 .call();
 
          git.notesRemove()
             .setObjectId(commitWithPotentialNote)
             .call();
 
          final Set<String> filesChangedInCommit = listFilesChangedInCommit(git.getRepository(),
-                                                                     commitWithPotentialNote.getId(),
-                                                                     rc);
+                                                                           commitWithPotentialNote.getId(),
+                                                                           rc);
 
          // When we auto resolve to KEEP_REMOTE - these will have changed - make sure they are in the list.
          // seems like this shouldn't really be necessary - need to look into the listFilesChangedInCommit algorithm closer.

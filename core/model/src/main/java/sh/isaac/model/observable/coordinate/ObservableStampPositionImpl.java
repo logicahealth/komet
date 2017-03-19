@@ -66,15 +66,14 @@ import sh.isaac.model.observable.ObservableFields;
 public class ObservableStampPositionImpl
         extends ObservableCoordinateImpl
          implements ObservableStampPosition {
-   
    /** The stamp position. */
    StampPositionImpl stampPosition;
-   
+
    /** The time property. */
-   LongProperty      timeProperty;
-   
+   LongProperty timeProperty;
+
    /** The stamp path sequence property. */
-   IntegerProperty   stampPathSequenceProperty;
+   IntegerProperty stampPathSequenceProperty;
 
    //~--- constructors --------------------------------------------------------
 

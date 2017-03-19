@@ -47,7 +47,6 @@ package sh.isaac.api.component.sememe.version;
  */
 public interface LongSememe<T extends LongSememe<T>>
         extends SememeVersion<T> {
-   
    /**
     * Gets the long value.
     *

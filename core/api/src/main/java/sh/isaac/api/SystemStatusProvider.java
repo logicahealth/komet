@@ -61,7 +61,6 @@ import sh.isaac.api.SystemStatusService;
 @Service
 public class SystemStatusProvider
          implements SystemStatusService {
-   
    /** The configuration failures. */
    private List<Pair<String, Exception>> configurationFailures = null;
 

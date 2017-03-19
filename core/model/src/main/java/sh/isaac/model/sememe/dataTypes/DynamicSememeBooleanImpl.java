@@ -57,7 +57,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 public class DynamicSememeBooleanImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeBoolean {
-   
    /** The property. */
    private ObjectProperty<Boolean> property_;
 
@@ -71,7 +70,7 @@ public class DynamicSememeBooleanImpl
    public DynamicSememeBooleanImpl(boolean b) {
       super();
       this.data_ = (b ? new byte[] { 1 }
-                 : new byte[] { 0 });
+                      : new byte[] { 0 });
    }
 
    /**
@@ -105,7 +104,7 @@ public class DynamicSememeBooleanImpl
    @Override
    public boolean getDataBoolean() {
       return (this.data_[0] == 1) ? true
-                             : false;
+                                  : false;
    }
 
    /**

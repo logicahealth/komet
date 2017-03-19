@@ -51,7 +51,6 @@ import java.util.concurrent.locks.StampedLock;
  */
 public class ConcurrentUuidToIntHashMap
         extends UuidToIntHashMap {
-   
    /** The Constant serialVersionUID. */
    private static final long serialVersionUID = -6525403154660005459L;
 

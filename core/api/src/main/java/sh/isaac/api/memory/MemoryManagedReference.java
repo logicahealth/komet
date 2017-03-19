@@ -68,50 +68,49 @@ import sh.isaac.api.DataSerializer;
 public class MemoryManagedReference<T extends Object>
         extends SoftReference<T>
          implements Comparable<MemoryManagedReference> {
-   
    /** The Constant objectIdSupplier. */
-   private static final AtomicInteger objectIdSupplier          = new AtomicInteger();
-   
+   private static final AtomicInteger objectIdSupplier = new AtomicInteger();
+
    /** The Constant referenceSequenceSupplier. */
    private static final AtomicInteger referenceSequenceSupplier = new AtomicInteger(Integer.MIN_VALUE + 1);
 
    //~--- fields --------------------------------------------------------------
 
    /** The object id. */
-   private final int                objectId                  = objectIdSupplier.getAndIncrement();
-   
+   private final int objectId = objectIdSupplier.getAndIncrement();
+
    /** The last write to disk sequence. */
-   private int                      lastWriteToDiskSequence   = referenceSequenceSupplier.getAndIncrement();
-   
+   private int lastWriteToDiskSequence = referenceSequenceSupplier.getAndIncrement();
+
    /** The last write to disk time. */
-   private long                     lastWriteToDiskTime       = System.currentTimeMillis();
-   
+   private long lastWriteToDiskTime = System.currentTimeMillis();
+
    /** The last element update sequence. */
-   private int                      lastElementUpdateSequence = Integer.MIN_VALUE;
-   
+   private int lastElementUpdateSequence = Integer.MIN_VALUE;
+
    /** The last element update time. */
-   private long                     lastElementUpdateTime     = System.currentTimeMillis();
-   
+   private long lastElementUpdateTime = System.currentTimeMillis();
+
    /** The last element read time. */
-   private long                     lastElementReadTime       = Long.MIN_VALUE;
-   
+   private long lastElementReadTime = Long.MIN_VALUE;
+
    /** The strong reference for update. */
-   private final AtomicReference<T> strongReferenceForUpdate  = new AtomicReference<>();
-   
+   private final AtomicReference<T> strongReferenceForUpdate = new AtomicReference<>();
+
    /** The strong reference for cache. */
-   private final AtomicReference<T> strongReferenceForCache   = new AtomicReference<>();
-   
+   private final AtomicReference<T> strongReferenceForCache = new AtomicReference<>();
+
    /** The hits. */
-   private final LongAdder          hits                      = new LongAdder();
-   
+   private final LongAdder hits = new LongAdder();
+
    /** The cache count. */
-   private final AtomicInteger      cacheCount                = new AtomicInteger();
-   
+   private final AtomicInteger cacheCount = new AtomicInteger();
+
    /** The disk location. */
-   private final File               diskLocation;
-   
+   private final File diskLocation;
+
    /** The serializer. */
-   private final DataSerializer<T>  serializer;
+   private final DataSerializer<T> serializer;
 
    //~--- constructors --------------------------------------------------------
 
@@ -258,7 +257,7 @@ public class MemoryManagedReference<T extends Object>
          this.lastWriteToDiskSequence = referenceSequenceSupplier.getAndIncrement();
          this.lastWriteToDiskTime     = System.currentTimeMillis();
          this.diskLocation.getParentFile()
-                     .mkdirs();
+                          .mkdirs();
 
          try (DataOutputStream out =
                new DataOutputStream(new BufferedOutputStream(new FileOutputStream(this.diskLocation)))) {

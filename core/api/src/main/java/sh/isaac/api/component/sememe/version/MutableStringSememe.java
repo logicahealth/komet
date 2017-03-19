@@ -47,7 +47,6 @@ package sh.isaac.api.component.sememe.version;
  */
 public interface MutableStringSememe<T extends MutableStringSememe<T>>
         extends MutableSememeVersion<T>, StringSememe<T> {
-   
    /**
     * Sets the string.
     *

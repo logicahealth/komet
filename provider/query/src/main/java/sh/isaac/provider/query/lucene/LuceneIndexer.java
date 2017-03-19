@@ -148,35 +148,37 @@ import sh.isaac.utility.Frills;
 //~--- classes ----------------------------------------------------------------
 
 //See example for help with the Controlled Real-time indexing...
+
 /**
  * The Class LuceneIndexer.
  */
 //http://stackoverflow.com/questions/17993960/lucene-4-4-0-new-controlledrealtimereopenthread-sample-usage?answertab=votes#tab-top
 public abstract class LuceneIndexer
          implements IndexServiceBI {
-   
    /** The Constant DEFAULT_LUCENE_FOLDER. */
-   public static final String           DEFAULT_LUCENE_FOLDER = "lucene";
-   
+   public static final String DEFAULT_LUCENE_FOLDER = "lucene";
+
    /** The Constant log. */
-   private static final Logger          log                   = LogManager.getLogger();
-   
+   private static final Logger log = LogManager.getLogger();
+
    /** The Constant luceneVersion. */
-   public static final Version          luceneVersion         = Version.LUCENE_4_10_3;
-   
+   public static final Version luceneVersion = Version.LUCENE_4_10_3;
+
    /** The Constant unindexedFuture. */
-   private static final UnindexedFuture unindexedFuture       = new UnindexedFuture();
+   private static final UnindexedFuture unindexedFuture = new UnindexedFuture();
 
    // don't need to analyze this - and even though it is an integer, we index it as a string, as that is faster when we are only doing
+
    /** The Constant FIELD_SEMEME_ASSEMBLAGE_SEQUENCE. */
    // exact matches.
    protected static final String FIELD_SEMEME_ASSEMBLAGE_SEQUENCE = "_sememe_type_sequence_" +
                                                                     PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;
 
    /** The Constant FIELD_COMPONENT_NID. */
+
    // this isn't indexed
-   public static final String       FIELD_COMPONENT_NID = "_component_nid_";
-   
+   public static final String FIELD_COMPONENT_NID = "_component_nid_";
+
    /** The Constant FIELD_TYPE_INT_STORED_NOT_INDEXED. */
    protected static final FieldType FIELD_TYPE_INT_STORED_NOT_INDEXED;
 
@@ -194,46 +196,46 @@ public abstract class LuceneIndexer
    //~--- fields --------------------------------------------------------------
 
    /** The index folder. */
-   private File                                                        indexFolder_               = null;
-   
+   private File indexFolder_ = null;
+
    /** The indexed component statistics. */
-   private final HashMap<String, AtomicInteger>                        indexedComponentStatistics = new HashMap<>();
-   
+   private final HashMap<String, AtomicInteger> indexedComponentStatistics = new HashMap<>();
+
    /** The indexed component statistics block. */
-   private final Semaphore indexedComponentStatisticsBlock                                              = new Semaphore(1);
-   
+   private final Semaphore indexedComponentStatisticsBlock = new Semaphore(1);
+
    /** The component nid latch. */
    private final ConcurrentHashMap<Integer, IndexedGenerationCallable> componentNidLatch = new ConcurrentHashMap<>();
-   
+
    /** The enabled. */
-   private boolean                                                     enabled_                   = true;
-   
+   private boolean enabled_ = true;
+
    /** The db build mode. */
-   private Boolean                                                     dbBuildMode                = null;
-   
+   private Boolean dbBuildMode = null;
+
    /** The database validity. */
-   private DatabaseValidity                                            databaseValidity = DatabaseValidity.NOT_SET;
-   
+   private DatabaseValidity databaseValidity = DatabaseValidity.NOT_SET;
+
    /** The change listener ref. */
-   private ChronologyChangeListener                                    changeListenerRef_;
-   
+   private ChronologyChangeListener changeListenerRef_;
+
    /** The lucene writer service. */
-   protected final ExecutorService                                     luceneWriterService;
-   
+   protected final ExecutorService luceneWriterService;
+
    /** The lucene writer future checker service. */
-   protected ExecutorService                                           luceneWriterFutureCheckerService;
-   
+   protected ExecutorService luceneWriterFutureCheckerService;
+
    /** The reopen thread. */
-   private final ControlledRealTimeReopenThread<IndexSearcher>         reopenThread;
-   
+   private final ControlledRealTimeReopenThread<IndexSearcher> reopenThread;
+
    /** The tracking index writer. */
-   private final TrackingIndexWriter                                   trackingIndexWriter;
-   
+   private final TrackingIndexWriter trackingIndexWriter;
+
    /** The searcher manager. */
-   private final ReferenceManager<IndexSearcher>                       searcherManager;
-   
+   private final ReferenceManager<IndexSearcher> searcherManager;
+
    /** The index name. */
-   private final String                                                indexName_;
+   private final String indexName_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -248,12 +250,12 @@ public abstract class LuceneIndexer
       try {
          this.indexName_          = indexName;
          this.luceneWriterService = LookupService.getService(WorkExecutors.class)
-                                            .getIOExecutor();
+               .getIOExecutor();
          this.luceneWriterFutureCheckerService = Executors.newFixedThreadPool(1,
                new NamedThreadFactory(indexName + " Lucene future checker", false));
 
          final Path searchFolder     = LookupService.getService(ConfigurationService.class)
-                                              .getSearchFolderPath();
+                                                    .getSearchFolderPath();
          final File luceneRootFolder = new File(searchFolder.toFile(), DEFAULT_LUCENE_FOLDER);
 
          luceneRootFolder.mkdirs();
@@ -275,7 +277,6 @@ public abstract class LuceneIndexer
          // room on the JDK stack, letting the OS directly manage the caching of the index files - and more importantly, gives us a huge
          // performance boost during any operation that tries to do multi-threaded reads of the index (like the SOLOR rules processing) because
          // the default value of SimpleFSDirectory is a huge bottleneck.
-
          indexDirectory.clearLock("write.lock");
 
          final IndexWriterConfig config = new IndexWriterConfig(luceneVersion, new PerFieldAnalyzer());
@@ -300,7 +301,10 @@ public abstract class LuceneIndexer
          // The index is refreshed every 60sc when nobody is waiting
          // and every 100 millis whenever is someone waiting (see search method)
          // (see http://lucene.apache.org/core/4_3_0/core/org/apache/lucene/search/NRTManagerReopenThread.html)
-         this.reopenThread = new ControlledRealTimeReopenThread<>(this.trackingIndexWriter, this.searcherManager, 60.00, 0.1);
+         this.reopenThread = new ControlledRealTimeReopenThread<>(this.trackingIndexWriter,
+               this.searcherManager,
+               60.00,
+               0.1);
          this.startThread();
 
          // Register for commits:
@@ -310,7 +314,7 @@ public abstract class LuceneIndexer
             public void handleCommit(CommitRecord commitRecord) {
                if (LuceneIndexer.this.dbBuildMode == null) {
                   LuceneIndexer.this.dbBuildMode = Get.configurationService()
-                                   .inDBBuildMode();
+                        .inDBBuildMode();
                }
 
                if (LuceneIndexer.this.dbBuildMode) {
@@ -319,7 +323,7 @@ public abstract class LuceneIndexer
                }
 
                final int size = commitRecord.getSememesInCommit()
-                                      .size();
+                                            .size();
 
                if (size < 100) {
                   log.info("submitting sememes " + commitRecord.getSememesInCommit().toString() + " to indexer " +
@@ -330,7 +334,7 @@ public abstract class LuceneIndexer
 
                commitRecord.getSememesInCommit().stream().forEach(sememeId -> {
                                        final SememeChronology<?> sc = Get.sememeService()
-                                                                   .getSememe(sememeId);
+                                                                         .getSememe(sememeId);
 
                                        index(sc);
                                     });
@@ -401,7 +405,7 @@ public abstract class LuceneIndexer
          this.luceneWriterFutureCheckerService.shutdown();
          this.luceneWriterFutureCheckerService.awaitTermination(15, TimeUnit.MINUTES);
          this.trackingIndexWriter.getIndexWriter()
-                            .close();
+                                 .close();
       } catch (IOException | InterruptedException ex) {
          throw new RuntimeException(ex);
       }
@@ -414,7 +418,7 @@ public abstract class LuceneIndexer
    public final void commitWriter() {
       try {
          this.trackingIndexWriter.getIndexWriter()
-                            .commit();
+                                 .commit();
          this.searcherManager.maybeRefreshBlocking();
       } catch (final IOException ex) {
          throw new RuntimeException(ex);
@@ -428,7 +432,7 @@ public abstract class LuceneIndexer
    public void forceMerge() {
       try {
          this.trackingIndexWriter.getIndexWriter()
-                            .forceMerge(1);
+                                 .forceMerge(1);
          this.searcherManager.maybeRefreshBlocking();
       } catch (final IOException ex) {
          throw new RuntimeException(ex);
@@ -518,7 +522,7 @@ public abstract class LuceneIndexer
    /**
     * A generic query API that handles most common cases.  The cases handled for various component property types
     * are detailed below.
-    * 
+    *
     * NOTE - subclasses of LuceneIndexer may have other query(...) methods that allow for more specific and or complex
     * queries.  Specifically both {@link SememeIndexer} and {@link DescriptionIndexer} have their own
     * query(...) methods which allow for more advanced queries.
@@ -527,11 +531,11 @@ public abstract class LuceneIndexer
     * @param prefixSearch if true, utilize a search algorithm that is optimized for prefix searching, such as the searching
     * that would be done to implement a type-ahead style search.  Does not use the Lucene Query parser.  Every term (or token)
     * that is part of the query string will be required to be found in the result.
-    * 
+    *
     * Note, it is useful to NOT trim the text of the query before it is sent in - if the last word of the query has a
     * space character following it, that word will be required as a complete term.  If the last word of the query does not
     * have a space character following it, that word will be required as a prefix match only.
-    * 
+    *
     * For example:
     * The query "family test" will return results that contain 'Family Testudinidae'
     * The query "family test " will not match on  'Testudinidae', so that will be excluded.
@@ -560,8 +564,8 @@ public abstract class LuceneIndexer
       final HashMap<String, Integer> result = new HashMap<String, Integer>();
 
       this.indexedComponentStatistics.forEach((name, value) -> {
-                                            result.put(name, value.get());
-                                         });
+               result.put(name, value.get());
+            });
       return result;
    }
 
@@ -639,7 +643,7 @@ public abstract class LuceneIndexer
             bq.add(qp1.parse(query), Occur.SHOULD);
 
             final QueryParser qp2 = new QueryParser(field + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
-                                              new PerFieldAnalyzer());
+                                                    new PerFieldAnalyzer());
 
             qp2.setAllowLeadingWildcard(true);
             bq.add(qp2.parse(query), Occur.SHOULD);
@@ -772,10 +776,10 @@ public abstract class LuceneIndexer
 
             // Since the index carries some duplicates by design, which we will remove - get a few extra results up front.
             // so we are more likely to come up with the requested number of results
-            final long    limitWithExtras = sizeLimit + (long) (sizeLimit * 0.25d);
-            final int     adjustedLimit   = ((limitWithExtras > Integer.MAX_VALUE) ? sizeLimit
+            final long limitWithExtras = sizeLimit + (long) (sizeLimit * 0.25d);
+            final int  adjustedLimit   = ((limitWithExtras > Integer.MAX_VALUE) ? sizeLimit
                   : (int) limitWithExtras);
-            TopDocs topDocs;
+            TopDocs    topDocs;
 
             if (filter != null) {
                final TopDocsFilteredCollector tdf = new TopDocsFilteredCollector(adjustedLimit, q, searcher, filter);
@@ -794,8 +798,8 @@ public abstract class LuceneIndexer
 
                final Document doc          = searcher.doc(hit.doc);
                final int      componentNid = doc.getField(FIELD_COMPONENT_NID)
-                                          .numericValue()
-                                          .intValue();
+                                                .numericValue()
+                                                .intValue();
 
                if (includedComponentNids.contains(componentNid)) {
                   continue;
@@ -970,7 +974,6 @@ public abstract class LuceneIndexer
     */
    private class AddDocument
             implements Callable<Long> {
-      
       /** The chronicle. */
       ObjectChronology<?> chronicle = null;
 
@@ -1037,7 +1040,6 @@ public abstract class LuceneIndexer
     */
    private static class FutureChecker
             implements Runnable {
-      
       /** The future. */
       Future<Long> future_;
 
@@ -1073,7 +1075,6 @@ public abstract class LuceneIndexer
     */
    private static class UnindexedFuture
             implements Future<Long> {
-      
       /**
        * Cancel.
        *

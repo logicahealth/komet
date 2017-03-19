@@ -57,24 +57,23 @@ import sh.isaac.api.relationship.RelationshipAdaptorChronicleKey;
  */
 public class RelationshipAdaptorChronicleKeyImpl
          implements RelationshipAdaptorChronicleKey {
-   
    /** The origin sequence. */
-   int         originSequence;
-   
+   int originSequence;
+
    /** The destination sequence. */
-   int         destinationSequence;
-   
+   int destinationSequence;
+
    /** The type sequence. */
-   int         typeSequence;
-   
+   int typeSequence;
+
    /** The group. */
-   int         group;
-   
+   int group;
+
    /** The premise type. */
    PremiseType premiseType;
-   
+
    /** The node sequence. */
-   short       nodeSequence;
+   short nodeSequence;
 
    //~--- constructors --------------------------------------------------------
 
@@ -165,9 +164,9 @@ public class RelationshipAdaptorChronicleKeyImpl
     */
    @Override
    public String toString() {
-      return "RelAdaptorKey{" + "originSequence=" + this.originSequence + ", destinationSequence=" + this.destinationSequence +
-             ", typeSequence=" + this.typeSequence + ", group=" + this.group + ", premiseType=" + this.premiseType +
-             ", nodeSequence=" + this.nodeSequence + '}';
+      return "RelAdaptorKey{" + "originSequence=" + this.originSequence + ", destinationSequence=" +
+             this.destinationSequence + ", typeSequence=" + this.typeSequence + ", group=" + this.group +
+             ", premiseType=" + this.premiseType + ", nodeSequence=" + this.nodeSequence + '}';
    }
 
    //~--- get methods ---------------------------------------------------------

@@ -58,22 +58,21 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  */
 public abstract class MetadataConceptConstant
          implements ConceptSpecification {
-   
    /** The synonyms. */
-   private final List<String> synonyms_    = new ArrayList<>();
-   
+   private final List<String> synonyms_ = new ArrayList<>();
+
    /** The definitions. */
    private final List<String> definitions_ = new ArrayList<>();
-   
+
    /** The parent. */
    private ConceptSpecification parent_ =
       null;  // Optional use - most constants have their parent set by the IsaacMetadataAuxiliary parent/child mechanism
-   
+
    /** The primary name. */
    private final String primaryName_;
-   
+
    /** The uuid. */
-   private final UUID   uuid_;
+   private final UUID uuid_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -164,7 +163,7 @@ public abstract class MetadataConceptConstant
     * @return The nid for the concept.
     */
    @Override
-public int getNid() {
+   public int getNid() {
       return Get.conceptService()
                 .getConcept(getUUID())
                 .getNid();

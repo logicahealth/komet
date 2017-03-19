@@ -67,7 +67,6 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class ComponentsFromSnomedIds
         extends LeafClause {
-   
    /**
     * Instantiates a new components from snomed ids.
     */

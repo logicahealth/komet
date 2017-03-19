@@ -62,40 +62,40 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
  */
 public class DynamicSememeColumnInfo
          implements Comparable<DynamicSememeColumnInfo> {
-   
    /** The column description concept UUI D. */
-   private UUID             columnDescriptionConceptUUID_;
-   
+   private UUID columnDescriptionConceptUUID_;
+
    /** The column name. */
    private transient String columnName_;
-   
+
    /** The column description. */
    private transient String columnDescription_;
-   
+
    /** The index column. */
    private transient Boolean indexColumn_;  // This is not populated by default, nor is it stored.  Typically used to pass data from a constant, rather
 
    /** The column order. */
+
    // than run-time lookup of the index configuration.
-   private int                          columnOrder_;
-   
+   private int columnOrder_;
+
    /** The assemblage concept. */
-   private UUID                         assemblageConcept_;
-   
+   private UUID assemblageConcept_;
+
    /** The column data type. */
-   private DynamicSememeDataType        columnDataType_;
-   
+   private DynamicSememeDataType columnDataType_;
+
    /** The default data. */
-   private DynamicSememeData            defaultData_;
-   
+   private DynamicSememeData defaultData_;
+
    /** The column required. */
-   private boolean                      columnRequired_;
-   
+   private boolean columnRequired_;
+
    /** The validator type. */
    private DynamicSememeValidatorType[] validatorType_;
-   
+
    /** The validator data. */
-   private DynamicSememeData[]          validatorData_;
+   private DynamicSememeData[] validatorData_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -239,6 +239,7 @@ public class DynamicSememeColumnInfo
     * @param o the o
     * @return the int
     */
+
    /*
     * @see java.lang.Comparable#compareTo(java.lang.Object)
     */
@@ -254,11 +255,11 @@ public class DynamicSememeColumnInfo
     */
    @Override
    public String toString() {
-      return "DynamicSememeColumnInfo [columnName_=" + this.columnName_ + ", columnDescription_=" + this.columnDescription_ +
-             ", columnOrder_=" + this.columnOrder_ + ", assemblageConcept_=" + this.assemblageConcept_ + ", columnDataType_=" +
-             this.columnDataType_ + ", defaultData_=" + this.defaultData_ + ", columnRequired_=" + this.columnRequired_ +
-             ", validatorType_=" + Arrays.toString(this.validatorType_) + ", validatorData_=" +
-             Arrays.toString(this.validatorData_) + "]";
+      return "DynamicSememeColumnInfo [columnName_=" + this.columnName_ + ", columnDescription_=" +
+             this.columnDescription_ + ", columnOrder_=" + this.columnOrder_ + ", assemblageConcept_=" +
+             this.assemblageConcept_ + ", columnDataType_=" + this.columnDataType_ + ", defaultData_=" +
+             this.defaultData_ + ", columnRequired_=" + this.columnRequired_ + ", validatorType_=" +
+             Arrays.toString(this.validatorType_) + ", validatorData_=" + Arrays.toString(this.validatorData_) + "]";
    }
 
    /**
@@ -266,7 +267,7 @@ public class DynamicSememeColumnInfo
     */
    private void read() {
       final DynamicSememeColumnUtility util = LookupService.get()
-                                                     .getService(DynamicSememeColumnUtility.class);
+                                                           .getService(DynamicSememeColumnUtility.class);
 
       if (util == null) {
          this.columnName_        = "Unable to locate reader!";
@@ -394,7 +395,7 @@ public class DynamicSememeColumnInfo
     *
     * @return Defined the order in which the data columns will be stored, so that the column name / description can be aligned
     * with the {@link DynamicSememeData} columns in the {@link DynamicSememeVersionBI#getData(int)}.
-    * 
+    *
     * Note, this value is 0 indexed (It doesn't start at 1)
     */
    public int getColumnOrder() {

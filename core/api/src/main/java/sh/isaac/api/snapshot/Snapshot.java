@@ -43,11 +43,10 @@ package sh.isaac.api.snapshot;
 
 import java.util.stream.Stream;
 
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
-
 //~--- non-JDK imports --------------------------------------------------------
 
+//import org.apache.logging.log4j.LogManager;
+//import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.api.chronicle.ObjectChronology;
@@ -68,20 +67,20 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
  * @author kec
  */
 public class Snapshot {
-   
    /** The language coordinate. */
+
    // private static final Logger log = LogManager.getLogger();
-   LanguageCoordinate         languageCoordinate;
-   
+   LanguageCoordinate languageCoordinate;
+
    /** The logic coordinate. */
-   LogicCoordinate            logicCoordinate;
-   
+   LogicCoordinate logicCoordinate;
+
    /** The stamp coordinate. */
-   StampCoordinate            stampCoordinate;
-   
+   StampCoordinate stampCoordinate;
+
    /** The taxonomy coordinate. */
-   TaxonomyCoordinate         taxonomyCoordinate;
-   
+   TaxonomyCoordinate taxonomyCoordinate;
+
    /** The position calculator. */
    RelativePositionCalculator positionCalculator;
 

@@ -62,7 +62,6 @@ import sh.isaac.api.index.SearchResult;
  */
 public class CompositeSearchResultComparator
          implements Comparator<CompositeSearchResult> {
-   
    /** The Constant LOG. */
    protected static final Logger LOG = LoggerFactory.getLogger(CompositeSearchResultComparator.class);
 
@@ -97,11 +96,11 @@ public class CompositeSearchResultComparator
 
       // sort on text
       final int textComparison = ObjectUtils.compare(o1.getContainingConcept()
-                                                 .get()
-                                                 .getConceptDescriptionText(),
-                                               o2.getContainingConcept()
-                                                     .get()
-                                                     .getConceptDescriptionText());
+                                                       .get()
+                                                       .getConceptDescriptionText(),
+                                                     o2.getContainingConcept()
+                                                           .get()
+                                                           .getConceptDescriptionText());
 
       if (textComparison != 0) {
          return textComparison;
@@ -109,13 +108,13 @@ public class CompositeSearchResultComparator
 
       // else same score and FSN and preferred description - sort on type
       final String comp1String = o1.getMatchingComponents()
-                             .iterator()
-                             .next()
-                             .toUserString();
+                                   .iterator()
+                                   .next()
+                                   .toUserString();
       final String comp2String = o2.getMatchingComponents()
-                             .iterator()
-                             .next()
-                             .toUserString();
+                                   .iterator()
+                                   .next()
+                                   .toUserString();
 
       return ObjectUtils.compare(comp1String, comp2String);
    }

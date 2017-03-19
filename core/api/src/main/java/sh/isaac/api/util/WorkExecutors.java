@@ -99,27 +99,26 @@ import sh.isaac.api.LookupService;
 @Service
 @RunLevel(value = -2)
 public class WorkExecutors {
-   
    /** The Constant log. */
-   private static final Logger           log             = LogManager.getLogger();
-   
+   private static final Logger log = LogManager.getLogger();
+
    /** The non HK 2 instance. */
    private volatile static WorkExecutors nonHK2Instance_ = null;
 
    //~--- fields --------------------------------------------------------------
 
    /** The fork join executor. */
-   private ForkJoinPool             forkJoinExecutor_;
-   
+   private ForkJoinPool forkJoinExecutor_;
+
    /** The blocking thread pool executor. */
-   private ThreadPoolExecutor       blockingThreadPoolExecutor_;
-   
+   private ThreadPoolExecutor blockingThreadPoolExecutor_;
+
    /** The thread pool executor. */
-   private ThreadPoolExecutor       threadPoolExecutor_;
-   
+   private ThreadPoolExecutor threadPoolExecutor_;
+
    /** The io thread pool executor. */
-   private ThreadPoolExecutor       ioThreadPoolExecutor_;
-   
+   private ThreadPoolExecutor ioThreadPoolExecutor_;
+
    /** The scheduled executor. */
    private ScheduledExecutorService scheduledExecutor_;
 
@@ -151,18 +150,18 @@ public class WorkExecutors {
       for (int i = 0; i < 24; i++) {
          System.out.println("submit " + i);
          we.getPotentiallyBlockingExecutor().submit(() -> {
-		     final int id = counter.getAndIncrement();
+                      final int id = counter.getAndIncrement();
 
-		     System.out.println(id + " started");
+                      System.out.println(id + " started");
 
-		     try {
-		        Thread.sleep(5000);
-		     } catch (final InterruptedException e) {
-		        e.printStackTrace();
-		     }
+                      try {
+                         Thread.sleep(5000);
+                      } catch (final InterruptedException e) {
+                         e.printStackTrace();
+                      }
 
-		     System.out.println(id + " finished");
-		  });
+                      System.out.println(id + " finished");
+                   });
       }
 
       Thread.sleep(7000);
@@ -171,18 +170,18 @@ public class WorkExecutors {
       for (int i = 24; i < 48; i++) {
          System.out.println("submit " + i);
          we.getExecutor().submit(() -> {
-		     final int id = counter.getAndIncrement();
+                      final int id = counter.getAndIncrement();
 
-		     System.out.println(id + " started");
+                      System.out.println(id + " started");
 
-		     try {
-		        Thread.sleep(5000);
-		     } catch (final InterruptedException e) {
-		        e.printStackTrace();
-		     }
+                      try {
+                         Thread.sleep(5000);
+                      } catch (final InterruptedException e) {
+                         e.printStackTrace();
+                      }
 
-		     System.out.println(id + " finished");
-		  });
+                      System.out.println(id + " finished");
+                   });
       }
 
       while (we.getExecutor()
@@ -208,7 +207,7 @@ public class WorkExecutors {
 
       // The java default ForkJoinPool.commmonPool starts with only 1 thread, on 1 and 2 core systems, which can get us deadlocked pretty easily.
       final int procCount   = Runtime.getRuntime()
-                               .availableProcessors();
+                                     .availableProcessors();
       final int parallelism = ((procCount - 1) < 6 ? 6
             : procCount - 1);  // set between 6 and 1 less than proc count (not less than 6)
 
@@ -259,7 +258,8 @@ public class WorkExecutors {
       // init of secure random can block on many systems that don't have enough entropy occuring.  The DB load process
       // should provide enough entropy to get it initialized, so it doesn't pause things later when someone requests a random UUID.
       getExecutor().execute(() -> UUID.randomUUID());
-      this.scheduledExecutor_ = Executors.newScheduledThreadPool(1, new NamedThreadFactory("ISAAC-Scheduled-Thread", true));
+      this.scheduledExecutor_ = Executors.newScheduledThreadPool(1,
+            new NamedThreadFactory("ISAAC-Scheduled-Thread", true));
       log.debug("WorkExecutors thread pools ready");
    }
 
@@ -329,10 +329,10 @@ public class WorkExecutors {
     * A JVM shutdown listener is registered to handle the thread pool shutdown in this case.
     * It is illegal (and will throw a runtime error) to ask for the static instance of this before
     * starting HK2 and then start HK2 - if HK2 is in use in the system, that should manage the lifecycle.
-    * 
+    *
     * This method is the preferred mechanism to get a handle to the WorkExecutors class in an enviornment where
     * code may be executed both in and out of an HK2 managed instance.
-    * 
+    *
     * If your usage is only run inside an HK2 management environment, then you should prefer the HK2 standard mechanisms
     * such as:
     * {@link Get#workExecutors()} or {@link LookupService#getService(WorkExecutors.class)} (however the end result is the same)

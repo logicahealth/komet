@@ -80,21 +80,20 @@ import sh.isaac.utility.Frills;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class CompositeSearchResult {
-   
    /** The Constant LOG. */
    private static final Logger LOG = LoggerFactory.getLogger(CompositeSearchResult.class);
 
    //~--- fields --------------------------------------------------------------
 
    /** The containing concept. */
-   private Optional<ConceptSnapshot>      containingConcept  = null;
-   
+   private Optional<ConceptSnapshot> containingConcept = null;
+
    /** The matching components. */
    private final Set<ObjectChronology<?>> matchingComponents = new HashSet<>();
-   
+
    /** The matching component nid. */
-   private int                            matchingComponentNid_;
-   
+   private int matchingComponentNid_;
+
    /** The best score. */
    private float bestScore;  // best score, rather than score, as multiple matches may go into a SearchResult
 
@@ -255,7 +254,8 @@ public class CompositeSearchResult {
       if (this.matchingComponentNid_ != 0) {
          try {
             final Optional<? extends ObjectChronology<?>> cc = Get.identifiedObjectService()
-                                                            .getIdentifiedObjectChronology(this.matchingComponentNid_);
+                                                                  .getIdentifiedObjectChronology(
+                                                                     this.matchingComponentNid_);
 
             if (cc.isPresent()) {
                matchingComponentDesc = cc.get()
@@ -303,7 +303,7 @@ public class CompositeSearchResult {
     */
    protected void merge(CompositeSearchResult other) {
       if (this.containingConcept.get()
-                           .getNid() != other.containingConcept.get().getNid()) {
+                                .getNid() != other.containingConcept.get().getNid()) {
          throw new RuntimeException("Unmergeable!");
       }
 
@@ -322,7 +322,7 @@ public class CompositeSearchResult {
     */
    private Optional<ConceptSnapshot> locateContainingConcept(int componentNid) {
       final ObjectChronologyType type = Get.identifierService()
-                                     .getChronologyTypeForNid(componentNid);
+                                           .getChronologyTypeForNid(componentNid);
 
       if (type == ObjectChronologyType.UNKNOWN_NID) {
          return Optional.empty();

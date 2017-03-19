@@ -51,7 +51,6 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
  * @author kec
  */
 public interface Assertion {
-   
    /**
     * Gets the builder.
     *

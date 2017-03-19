@@ -53,15 +53,14 @@ import java.util.List;
  * @param <T> The type of object enclosed by nodes in this graph.
  */
 public class Graph<T> {
-   
    /** The nodes. */
    private final List<Node<T>> nodes = new ArrayList<>();
-   
+
    /** The root. */
-   private Node<T>             root;
-   
+   private Node<T> root;
+
    /** The last added node. */
-   private Node<T>             lastAddedNode;
+   private Node<T> lastAddedNode;
 
    //~--- constructors --------------------------------------------------------
 
@@ -87,7 +86,7 @@ public class Graph<T> {
     * @param rootData the root data
     */
    public final void createRoot(T rootData) {
-      this.root               = new Node<>(rootData, this);
+      this.root          = new Node<>(rootData, this);
       this.lastAddedNode = this.root;
       this.nodes.add(this.lastAddedNode);
    }

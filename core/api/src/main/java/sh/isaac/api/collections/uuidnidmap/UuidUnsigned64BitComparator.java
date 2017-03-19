@@ -46,7 +46,6 @@ package sh.isaac.api.collections.uuidnidmap;
  */
 public class UuidUnsigned64BitComparator
          implements UuidComparatorBI {
-   
    /**
     * This algorithm performs unsigned 64 bit comparison of the msb and lsb of 2 uuids. This method is based
     * on the following routine:

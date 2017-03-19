@@ -53,10 +53,9 @@ import org.apache.commons.lang3.StringUtils;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ConverterOptionParamSuggestedValue {
-   
    /** The value. */
    private String value;
-   
+
    /** The description. */
    private String description;
 

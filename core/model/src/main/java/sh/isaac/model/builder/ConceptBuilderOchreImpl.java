@@ -79,36 +79,35 @@ import sh.isaac.model.concept.ConceptChronologyImpl;
 public class ConceptBuilderOchreImpl
         extends ComponentBuilder<ConceptChronology<?>>
          implements ConceptBuilder {
-   
    /** The description builders. */
-   private final List<DescriptionBuilder<?, ?>> descriptionBuilders         = new ArrayList<>();
-   
+   private final List<DescriptionBuilder<?, ?>> descriptionBuilders = new ArrayList<>();
+
    /** The logical expression builders. */
-   private final List<LogicalExpressionBuilder> logicalExpressionBuilders   = new ArrayList<>();
-   
+   private final List<LogicalExpressionBuilder> logicalExpressionBuilders = new ArrayList<>();
+
    /** The logical expressions. */
-   private final List<LogicalExpression>        logicalExpressions          = new ArrayList<>();
-   
+   private final List<LogicalExpression> logicalExpressions = new ArrayList<>();
+
    /** The fsn description builder. */
-   private transient DescriptionBuilder<?, ?>   fsnDescriptionBuilder       = null;
-   
+   private transient DescriptionBuilder<?, ?> fsnDescriptionBuilder = null;
+
    /** The preferred description builder. */
-   private transient DescriptionBuilder<?, ?>   preferredDescriptionBuilder = null;
-   
+   private transient DescriptionBuilder<?, ?> preferredDescriptionBuilder = null;
+
    /** The concept name. */
-   private final String                         conceptName;
-   
+   private final String conceptName;
+
    /** The semantic tag. */
-   private final String                         semanticTag;
-   
+   private final String semanticTag;
+
    /** The default language for descriptions. */
-   private final ConceptSpecification           defaultLanguageForDescriptions;
-   
+   private final ConceptSpecification defaultLanguageForDescriptions;
+
    /** The default dialect assemblage for descriptions. */
-   private final ConceptSpecification           defaultDialectAssemblageForDescriptions;
-   
+   private final ConceptSpecification defaultDialectAssemblageForDescriptions;
+
    /** The default logic coordinate. */
-   private final LogicCoordinate                defaultLogicCoordinate;
+   private final LogicCoordinate defaultLogicCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
@@ -220,7 +219,7 @@ public class ConceptBuilderOchreImpl
                                   List<ObjectChronology<? extends StampedVersion>> builtObjects)
             throws IllegalStateException {
       final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
-                                                                           .getConcept(getUuids());
+                                                                                 .getConcept(getUuids());
 
       conceptChronology.createMutableVersion(stampCoordinate);
       builtObjects.add(conceptChronology);
@@ -234,8 +233,8 @@ public class ConceptBuilderOchreImpl
       }
 
       this.descriptionBuilders.forEach((builder) -> {
-                                     builder.build(stampCoordinate, builtObjects);
-                                  });
+                                          builder.build(stampCoordinate, builtObjects);
+                                       });
 
       if ((this.defaultLogicCoordinate == null) &&
             ((this.logicalExpressions.size() > 0) || (this.logicalExpressionBuilders.size() > 0))) {
@@ -276,7 +275,7 @@ public class ConceptBuilderOchreImpl
             throws IllegalStateException {
       final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
       final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
-                                                                           .getConcept(getUuids());
+                                                                                 .getConcept(getUuids());
 
       conceptChronology.createMutableVersion(this.state, editCoordinate);
       builtObjects.add(conceptChronology);
@@ -290,8 +289,10 @@ public class ConceptBuilderOchreImpl
       }
 
       this.descriptionBuilders.forEach((builder) -> {
-                                     nestedBuilders.add(builder.build(editCoordinate, changeCheckerMode, builtObjects));
-                                  });
+                                          nestedBuilders.add(builder.build(editCoordinate,
+                                                changeCheckerMode,
+                                                builtObjects));
+                                       });
 
       if ((this.defaultLogicCoordinate == null) &&
             ((this.logicalExpressions.size() > 0) || (this.logicalExpressionBuilders.size() > 0))) {
@@ -373,7 +374,8 @@ public class ConceptBuilderOchreImpl
             descriptionTextBuilder.append(this.conceptName);
 
             if (StringUtils.isNotBlank(this.semanticTag)) {
-               if ((this.conceptName.lastIndexOf('(') > 0) && (this.conceptName.lastIndexOf(')') == this.conceptName.length() - 1)) {
+               if ((this.conceptName.lastIndexOf('(') > 0) &&
+                     (this.conceptName.lastIndexOf(')') == this.conceptName.length() - 1)) {
                   throw new IllegalArgumentException(
                       "A semantic tag was passed, but this fsn description already appears to contain a semantic tag");
                }
@@ -383,7 +385,8 @@ public class ConceptBuilderOchreImpl
                descriptionTextBuilder.append(")");
             }
 
-            if ((this.defaultLanguageForDescriptions == null) || (this.defaultDialectAssemblageForDescriptions == null)) {
+            if ((this.defaultLanguageForDescriptions == null) ||
+                  (this.defaultDialectAssemblageForDescriptions == null)) {
                throw new IllegalStateException("language and dialect are required if a concept name is provided");
             }
 
@@ -408,7 +411,8 @@ public class ConceptBuilderOchreImpl
    public DescriptionBuilder<?, ?> getSynonymPreferredDescriptionBuilder() {
       synchronized (this) {
          if (this.preferredDescriptionBuilder == null) {
-            if ((this.defaultLanguageForDescriptions == null) || (this.defaultDialectAssemblageForDescriptions == null)) {
+            if ((this.defaultLanguageForDescriptions == null) ||
+                  (this.defaultDialectAssemblageForDescriptions == null)) {
                throw new IllegalStateException("language and dialect are required if a concept name is provided");
             }
 
@@ -416,11 +420,12 @@ public class ConceptBuilderOchreImpl
 
             if (StringUtils.isNotBlank(this.semanticTag)) {
                prefName = this.conceptName;
-            } else if ((this.conceptName.lastIndexOf('(') > 0) && (this.conceptName.lastIndexOf(')') == this.conceptName.length())) {
+            } else if ((this.conceptName.lastIndexOf('(') > 0) &&
+                       (this.conceptName.lastIndexOf(')') == this.conceptName.length())) {
                // they didn't provide a stand-alone semantic tag.  If they included a semantic tag in what they provided, strip it.
                // If not, don't create a preferred term, as it would just be identical to the FSN.
                prefName = this.conceptName.substring(0, this.conceptName.lastIndexOf('('))
-                                     .trim();
+                                          .trim();
             }
 
             if (prefName != null) {

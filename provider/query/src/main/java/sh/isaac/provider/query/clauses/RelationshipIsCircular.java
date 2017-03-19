@@ -74,19 +74,18 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class RelationshipIsCircular
         extends LeafClause {
-   
    /** The rel type key. */
    @XmlElement
-   String             relTypeKey;
-   
+   String relTypeKey;
+
    /** The view coordinate key. */
    @XmlElement
-   String             viewCoordinateKey;
-   
+   String viewCoordinateKey;
+
    /** The rel type subsumption key. */
    @XmlElement
-   String             relTypeSubsumptionKey;
-   
+   String relTypeSubsumptionKey;
+
    /** The rel type set. */
    ConceptSequenceSet relTypeSet;
 
@@ -127,11 +126,11 @@ public class RelationshipIsCircular
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
 //    System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
       final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                 .get(this.viewCoordinateKey);
+                                                                                            .get(this.viewCoordinateKey);
       final ConceptSpecification relType = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-                                                                          .get(this.relTypeKey);
-      Boolean              relTypeSubsumption = (Boolean) this.enclosingQuery.getLetDeclarations()
-                                                                        .get(this.relTypeSubsumptionKey);
+                                                                                     .get(this.relTypeKey);
+      Boolean relTypeSubsumption = (Boolean) this.enclosingQuery.getLetDeclarations()
+                                                                .get(this.relTypeSubsumptionKey);
 
       // The default is to set relTypeSubsumption and destinationSubsumption to true.
       if (relTypeSubsumption == null) {
@@ -143,7 +142,7 @@ public class RelationshipIsCircular
 
       if (relTypeSubsumption) {
          this.relTypeSet.or(Get.taxonomyService()
-                          .getKindOfSequenceSet(relType.getConceptSequence(), taxonomyCoordinate));
+                               .getKindOfSequenceSet(relType.getConceptSequence(), taxonomyCoordinate));
       }
 
       return incomingPossibleComponents;

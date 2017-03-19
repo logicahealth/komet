@@ -52,7 +52,6 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class CommitAwareStringProperty
         extends SimpleStringProperty {
-   
    /**
     * Instantiates a new commit aware string property.
     */

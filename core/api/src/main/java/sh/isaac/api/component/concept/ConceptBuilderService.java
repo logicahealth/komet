@@ -55,7 +55,6 @@ import sh.isaac.api.logic.LogicalExpression;
  */
 @Contract
 public interface ConceptBuilderService {
-   
    /**
     * Gets the concept builder.
     *

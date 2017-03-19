@@ -59,7 +59,6 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
  * @author kec
  */
 public class DataBufferTest {
-   
    /**
     * Instantiates a new data buffer test.
     */

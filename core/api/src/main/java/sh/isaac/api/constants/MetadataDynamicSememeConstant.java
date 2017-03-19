@@ -56,18 +56,17 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnIn
  */
 public class MetadataDynamicSememeConstant
         extends MetadataConceptConstant {
-   
    /** The dynamic sememe description. */
-   private final String                    dynamicSememeDescription_;
-   
+   private final String dynamicSememeDescription_;
+
    /** The dynamic sememe columns. */
    private final DynamicSememeColumnInfo[] dynamicSememeColumns_;
-   
+
    /** The referenced component restriction. */
-   private final ObjectChronologyType      referencedComponentRestriction_;
-   
+   private final ObjectChronologyType referencedComponentRestriction_;
+
    /** The referenced component sub restriction. */
-   private final SememeType                referencedComponentSubRestriction_;
+   private final SememeType referencedComponentSubRestriction_;
 
    //~--- constructors --------------------------------------------------------
 

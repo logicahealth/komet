@@ -57,7 +57,6 @@ import javafx.beans.property.ReadOnlyObjectProperty;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface DynamicSememeData {
-   
    /**
     * In some cases, data objects are created without the necessary data to calculate their names.
     * If necessary, the missing information can be set via this method, so that the toString and getDataXXXProperty() methods

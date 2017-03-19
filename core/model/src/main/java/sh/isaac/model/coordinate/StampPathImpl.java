@@ -58,7 +58,6 @@ import sh.isaac.api.coordinate.StampPosition;
  */
 public class StampPathImpl
          implements StampPath {
-   
    /** The path concept sequence. */
    private final int pathConceptSequence;
 

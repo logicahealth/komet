@@ -57,16 +57,15 @@ import sh.isaac.api.tree.TreeNodeVisitData;
  */
 public class IsomorphicSolution
          implements Comparable<IsomorphicSolution> {
-   
    /** The score. */
-   int         score = -1;
-   
+   int score = -1;
+
    /** The legal. */
-   boolean     legal = true;
-   
+   boolean legal = true;
+
    /** The hashcode. */
-   final int   hashcode;
-   
+   final int hashcode;
+
    /** The solution. */
    final int[] solution;
 
@@ -187,10 +186,10 @@ public class IsomorphicSolution
     * @param comparisonTreeVisitData the comparison tree visit data
     */
    final void score(TreeNodeVisitData referenceTreeVisitData, TreeNodeVisitData comparisonTreeVisitData) {
-      final OpenIntHashSet                       parentNodeIds                 = new OpenIntHashSet(this.solution.length);
-      final OpenIntHashSet                       usedNodeIds                   = new OpenIntHashSet(this.solution.length);
+      final OpenIntHashSet                       parentNodeIds = new OpenIntHashSet(this.solution.length);
+      final OpenIntHashSet                       usedNodeIds = new OpenIntHashSet(this.solution.length);
       final OpenIntObjectHashMap<OpenIntHashSet> siblingGroupToNodeSequenceMap = new OpenIntObjectHashMap<>();
-      int                                  sum                           = 0;
+      int                                        sum                           = 0;
 
       // give a bonus point ever time a common parent is used in the solution.
       int bonus = 0;
@@ -207,8 +206,8 @@ public class IsomorphicSolution
                usedNodeIds.add(this.solution[i]);
             }
 
-            final int            referenceParentNodeId = referenceTreeVisitData.getPredecessorSequence(i);
-            final int            siblingGroup          = referenceTreeVisitData.getSiblingGroupForSequence(i);
+            final int      referenceParentNodeId = referenceTreeVisitData.getPredecessorSequence(i);
+            final int      siblingGroup          = referenceTreeVisitData.getSiblingGroupForSequence(i);
             OpenIntHashSet nodesInSiblingGroup   = siblingGroupToNodeSequenceMap.get(siblingGroup);
 
             if (nodesInSiblingGroup == null) {
@@ -233,10 +232,10 @@ public class IsomorphicSolution
       for (final int siblingGroup: siblingGroupToNodeSequenceMap.keys()
             .elements()) {
          final OpenIntHashSet groupMembers           = siblingGroupToNodeSequenceMap.get(siblingGroup);
-         int            comparisonSiblingGroup = -1;
+         int                  comparisonSiblingGroup = -1;
 
          for (final int groupMember: groupMembers.keys()
-                                           .elements()) {
+               .elements()) {
             if (comparisonSiblingGroup == -1) {
                comparisonSiblingGroup = comparisonTreeVisitData.getSiblingGroupForSequence(this.solution[groupMember]);
             } else {

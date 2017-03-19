@@ -69,13 +69,12 @@ import sh.isaac.model.observable.ObservableFields;
 public class ObservableStampPathImpl
         extends ObservableCoordinateImpl
          implements ObservableStampPath {
-   
    /** The stamp path. */
-   StampPathImpl                                stampPath;
-   
+   StampPathImpl stampPath;
+
    /** The path concept sequence property. */
-   ReadOnlyIntegerProperty                      pathConceptSequenceProperty;
-   
+   ReadOnlyIntegerProperty pathConceptSequenceProperty;
+
    /** The path origins property. */
    ReadOnlyListWrapper<ObservableStampPosition> pathOriginsProperty;
 
@@ -173,9 +172,9 @@ public class ObservableStampPathImpl
       }
 
       return this.stampPath.getPathOrigins()
-                      .stream()
-                      .map((origin) -> new ObservableStampPositionImpl(origin))
-                      .collect(Collectors.toList());
+                           .stream()
+                           .map((origin) -> new ObservableStampPositionImpl(origin))
+                           .collect(Collectors.toList());
    }
 }
 

@@ -58,13 +58,12 @@ import sh.isaac.api.coordinate.EditCoordinate;
  */
 public class EditCoordinateImpl
          implements EditCoordinate {
-   
    /** The author sequence. */
    int authorSequence;
-   
+
    /** The module sequence. */
    int moduleSequence;
-   
+
    /** The path sequence. */
    int pathSequence;
 
@@ -144,7 +143,8 @@ public class EditCoordinateImpl
    @Override
    public String toString() {
       return "EditCoordinate{a: " + Get.conceptDescriptionText(this.authorSequence) + ", m: " +
-             Get.conceptDescriptionText(this.moduleSequence) + ", p: " + Get.conceptDescriptionText(this.pathSequence) + '}';
+             Get.conceptDescriptionText(this.moduleSequence) + ", p: " +
+             Get.conceptDescriptionText(this.pathSequence) + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -179,10 +179,10 @@ public class EditCoordinateImpl
     */
    public ChangeListener<Number> setAuthorSequenceProperty(IntegerProperty authorSequenceProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
-                                         Number oldValue,
-                                         Number newValue) -> {
-                                           this.authorSequence = newValue.intValue();
-                                        };
+                                               Number oldValue,
+                                               Number newValue) -> {
+               this.authorSequence = newValue.intValue();
+            };
 
       authorSequenceProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
@@ -220,10 +220,10 @@ public class EditCoordinateImpl
     */
    public ChangeListener<Number> setModuleSequenceProperty(IntegerProperty moduleSequenceProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
-                                         Number oldValue,
-                                         Number newValue) -> {
-                                           this.moduleSequence = newValue.intValue();
-                                        };
+                                               Number oldValue,
+                                               Number newValue) -> {
+               this.moduleSequence = newValue.intValue();
+            };
 
       moduleSequenceProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
@@ -261,10 +261,10 @@ public class EditCoordinateImpl
     */
    public ChangeListener<Number> setPathSequenceProperty(IntegerProperty pathSequenceProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
-                                         Number oldValue,
-                                         Number newValue) -> {
-                                           this.pathSequence = newValue.intValue();
-                                        };
+                                               Number oldValue,
+                                               Number newValue) -> {
+               this.pathSequence = newValue.intValue();
+            };
 
       pathSequenceProperty.addListener(new WeakChangeListener<>(listener));
       return listener;

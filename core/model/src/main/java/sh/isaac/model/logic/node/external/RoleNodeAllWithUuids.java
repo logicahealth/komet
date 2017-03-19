@@ -71,7 +71,6 @@ import sh.isaac.model.logic.node.internal.RoleNodeAllWithSequences;
  */
 public class RoleNodeAllWithUuids
         extends TypedNodeWithUuids {
-   
    /**
     * Instantiates a new role node all with uuids.
     *

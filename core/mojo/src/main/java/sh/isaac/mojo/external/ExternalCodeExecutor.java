@@ -76,32 +76,31 @@ import sh.isaac.api.util.FortifyFun;
 )
 public class ExternalCodeExecutor
         extends AbstractMojo {
-   
    /** The skip execution. */
    @Parameter(
-      required                                 = false,
-      defaultValue                             = "false"
+      required                     = false,
+      defaultValue                 = "false"
    )
-   protected boolean             skipExecution = false;;
-   
+   protected boolean skipExecution = false;;
+
    /** The project version. */
    @Parameter(
-      required                                 = true,
-      defaultValue                             = "${project.version}"
+      required     = true,
+      defaultValue = "${project.version}"
    )
-   protected String              projectVersion;
-   
+   protected String projectVersion;
+
    /** The output directory. */
    @Parameter(
       required     = true,
       defaultValue = "${project.build.directory}"
    )
-   protected File                outputDirectory;
-   
+   protected File outputDirectory;
+
    /** The quasi mojo name. */
    @Parameter(required = true)
-   protected String              quasiMojoName;
-   
+   protected String quasiMojoName;
+
    /** The parameters. */
    @Parameter(required = false)
    protected Map<String, String> parameters;
@@ -140,7 +139,7 @@ public class ExternalCodeExecutor
          if ((this.parameters != null) && (this.parameters.size() > 0)) {
             final Class<?>         myClass = quasiMojo.getClass();
             final Iterator<String> params  = this.parameters.keySet()
-                                                 .iterator();
+                                                            .iterator();
 
             while (params.hasNext()) {
                final String name  = params.next();

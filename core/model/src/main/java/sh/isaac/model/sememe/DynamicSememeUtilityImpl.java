@@ -102,14 +102,13 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
  *
  * Convenience methods related to DynamicSememes.  Implemented as an interface and a singleton to provide
  * lower level code with access to these methods at runtime via HK2.
- * 
+ *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Service
 @Singleton
 public class DynamicSememeUtilityImpl
          implements DynamicSememeUtility {
-   
    /**
     * Configure column index info.
     *

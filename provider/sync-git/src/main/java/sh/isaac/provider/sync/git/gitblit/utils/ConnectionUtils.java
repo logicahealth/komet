@@ -65,7 +65,6 @@ import org.apache.commons.lang3.ArrayUtils;
  *
  */
 public class ConnectionUtils {
-   
    /** The Constant CHARSET. */
    static final String CHARSET;
 
@@ -127,7 +126,7 @@ public class ConnectionUtils {
    private static byte[] toBytes(char[] chars) {
       final CharBuffer charBuffer = CharBuffer.wrap(chars);
       final ByteBuffer byteBuffer = Charset.forName("UTF-8")
-                                     .encode(charBuffer);
+                                           .encode(charBuffer);
       final byte[]     bytes      = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
 
       Arrays.fill(charBuffer.array(), '\u0000');  // clear sensitive data

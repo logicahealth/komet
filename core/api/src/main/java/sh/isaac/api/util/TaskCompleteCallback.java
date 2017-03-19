@@ -46,7 +46,6 @@ package sh.isaac.api.util;
  * @param <T> the generic type
  */
 public interface TaskCompleteCallback<T> {
-   
    /**
     * Called when the task completes.
     *

@@ -65,13 +65,12 @@ import sh.isaac.api.collections.SequenceSet;
  */
 public class HashTreeWithBitSets
         extends AbstractHashTree {
-   
    /** The concept sequences with parents. */
    final ConceptSequenceSet conceptSequencesWithParents;
-   
+
    /** The concept sequences with children. */
    final ConceptSequenceSet conceptSequencesWithChildren;
-   
+
    /** The concept sequences. */
    final ConceptSequenceSet conceptSequences;
 
@@ -126,8 +125,8 @@ public class HashTreeWithBitSets
                               this.conceptSequences.add(sequence);
                            });
          this.maxSequence = Math.max(IntStream.of(childSequenceArray)
-                                         .max()
-                                         .getAsInt(), this.maxSequence);
+               .max()
+               .getAsInt(), this.maxSequence);
          this.conceptSequencesWithChildren.add(parentSequence);
       }
    }
@@ -160,8 +159,8 @@ public class HashTreeWithBitSets
                               this.conceptSequences.add(sequence);
                            });
          this.maxSequence = Math.max(IntStream.of(parentSequenceArray)
-                                         .max()
-                                         .getAsInt(), this.maxSequence);
+               .max()
+               .getAsInt(), this.maxSequence);
          this.conceptSequencesWithParents.add(childSequence);
       }
    }

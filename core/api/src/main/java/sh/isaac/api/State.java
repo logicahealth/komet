@@ -73,20 +73,20 @@ public enum State {
 
    /** The active only set. */
    public static EnumSet<State> ACTIVE_ONLY_SET = EnumSet.of(State.ACTIVE);
-   
+
    /** The any state set. */
-   public static EnumSet<State> ANY_STATE_SET   = EnumSet.allOf(State.class);
+   public static EnumSet<State> ANY_STATE_SET = EnumSet.allOf(State.class);
 
    //~--- fields --------------------------------------------------------------
 
    /** The is active. */
    boolean isActive;
-   
+
    /** The name. */
-   String  name;
-   
+   String name;
+
    /** The abbreviation. */
-   String  abbreviation;
+   String abbreviation;
 
    //~--- constructors --------------------------------------------------------
 
@@ -129,7 +129,7 @@ public enum State {
     * @return the string
     */
    @Override
-public String toString() {
+   public String toString() {
       return this.name;
    }
 

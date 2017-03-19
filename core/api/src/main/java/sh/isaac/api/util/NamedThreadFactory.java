@@ -53,18 +53,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class NamedThreadFactory
          implements ThreadFactory {
-   
    /** The thread group. */
-   private ThreadGroup threadGroup      = null;
-   
+   private ThreadGroup threadGroup = null;
+
    /** The thread name prefix. */
-   private String      threadNamePrefix = null;
-   
+   private String threadNamePrefix = null;
+
    /** The thread priority. */
-   private final int         threadPriority;
-   
+   private final int threadPriority;
+
    /** The daemon. */
-   private final boolean     daemon;
+   private final boolean daemon;
 
    //~--- constructors --------------------------------------------------------
 
@@ -128,7 +127,7 @@ public class NamedThreadFactory
    @Override
    public Thread newThread(Runnable r) {
       final Thread t = (this.threadGroup == null) ? new Thread(r)
-                                       : new Thread(this.threadGroup, r);
+            : new Thread(this.threadGroup, r);
 
       t.setName(((this.threadNamePrefix == null) ? ""
             : this.threadNamePrefix + " ") + t.getId());

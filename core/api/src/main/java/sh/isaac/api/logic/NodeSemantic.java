@@ -54,77 +54,76 @@ import sh.isaac.api.util.UuidT5Generator;
  * Created by kec on 12/6/14.
  */
 public enum NodeSemantic {
-   
    /** The necessary set. */
    NECESSARY_SET(),
-   
+
    /** The sufficient set. */
    SUFFICIENT_SET(),
-   
+
    /** The and. */
    AND(),
-   
+
    /** The or. */
    OR(),
-   
+
    /** The disjoint with. */
    DISJOINT_WITH(),
-   
+
    /** The definition root. */
    DEFINITION_ROOT(),
-   
+
    /** The role all. */
    ROLE_ALL(),
-   
+
    /** The role some. */
    ROLE_SOME(),
-   
+
    /** The concept. */
    CONCEPT(),
-   
+
    /** The feature. */
    FEATURE(),
-   
+
    /** The literal boolean. */
    LITERAL_BOOLEAN(),
-   
+
    /** The literal float. */
    LITERAL_FLOAT(),
-   
+
    /** The literal instant. */
    LITERAL_INSTANT(),
-   
+
    /** The literal integer. */
    LITERAL_INTEGER(),
-   
+
    /** The literal string. */
    LITERAL_STRING(),
-   
+
    /** The template. */
    TEMPLATE(),
-   
+
    /** The substitution concept. */
    SUBSTITUTION_CONCEPT(),
-   
+
    /** The substitution boolean. */
    SUBSTITUTION_BOOLEAN(),
-   
+
    /** The substitution float. */
    SUBSTITUTION_FLOAT(),
-   
+
    /** The substitution instant. */
    SUBSTITUTION_INSTANT(),
-   
+
    /** The substitution integer. */
    SUBSTITUTION_INTEGER(),
-   
+
    /** The substitution string. */
    SUBSTITUTION_STRING()
    ;
 
    /** The concept sequence. */
-   int  conceptSequence = Integer.MIN_VALUE;
-   
+   int conceptSequence = Integer.MIN_VALUE;
+
    /** The semantic uuid. */
    UUID semanticUuid;
 

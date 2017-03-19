@@ -59,7 +59,6 @@ import sh.isaac.api.sync.SyncFiles;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class SyncTesting {
-   
    /**
     * The main method.
     *

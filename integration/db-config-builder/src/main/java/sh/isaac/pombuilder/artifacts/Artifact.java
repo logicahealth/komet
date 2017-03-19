@@ -46,16 +46,15 @@ package sh.isaac.pombuilder.artifacts;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public abstract class Artifact {
-   
    /** The group id. */
    private final String groupId_;
-   
+
    /** The artifact id. */
    private final String artifactId_;
-   
+
    /** The version. */
    private final String version_;
-   
+
    /** The classifier. */
    private final String classifier_;
 
@@ -96,8 +95,8 @@ public abstract class Artifact {
     */
    @Override
    public String toString() {
-      return "Artifact [groupId_=" + this.groupId_ + ", artifactId_=" + this.artifactId_ + ", version_=" + this.version_ +
-             ", classifier_=" + this.classifier_ + "]";
+      return "Artifact [groupId_=" + this.groupId_ + ", artifactId_=" + this.artifactId_ + ", version_=" +
+             this.version_ + ", classifier_=" + this.classifier_ + "]";
    }
 
    //~--- get methods ---------------------------------------------------------

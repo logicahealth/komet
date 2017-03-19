@@ -51,7 +51,6 @@ import java.util.Locale;
  *
  */
 public class StringUtils {
-   
    /**
     * Compare two repository names for proper group sorting.
     *
@@ -91,7 +90,7 @@ public class StringUtils {
     */
    public static String encodeURL(String inStr) {
       final StringBuilder retStr = new StringBuilder();
-      int           i      = 0;
+      int                 i      = 0;
 
       while (i < inStr.length()) {
          if (inStr.charAt(i) == '/') {

@@ -82,7 +82,6 @@ import sh.isaac.api.logic.assertions.substitution.SubstitutionFieldSpecification
  * @author kec
  */
 public interface LogicalExpressionBuilder {
-   
    /**
     * Adds the to root.
     *

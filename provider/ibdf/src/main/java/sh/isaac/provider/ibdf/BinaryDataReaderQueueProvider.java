@@ -80,47 +80,48 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 public class BinaryDataReaderQueueProvider
         extends TimedTaskWithProgressTracker<Integer>
          implements BinaryDataReaderQueueService, Spliterator<OchreExternalizableUnparsed> {
-   
    /** The objects. */
-   int                  objects       = 0;
-   
+   int objects = 0;
+
    /** The notstarted. */
-   int                  NOTSTARTED    = 3;
-   
+   int NOTSTARTED = 3;
+
    /** The running. */
-   int                  RUNNING       = 2;
-   
+   int RUNNING = 2;
+
    /** The donereading. */
-   int                  DONEREADING   = 1;
-   
+   int DONEREADING = 1;
+
    /** The comlete. */
-   int                  COMLETE       = 0;
-   
+   int COMLETE = 0;
+
    /** The complete. */
-   final CountDownLatch complete      = new CountDownLatch(this.NOTSTARTED);
-   
+   final CountDownLatch complete = new CountDownLatch(this.NOTSTARTED);
+
    /** The complete block. */
-   Semaphore            completeBlock = new Semaphore(1);
+   Semaphore completeBlock = new Semaphore(1);
 
    /** The read data. */
+
    // Only one thread doing the reading from disk, give it lots of buffer space
    private final BlockingQueue<OchreExternalizableUnparsed> readData = new ArrayBlockingQueue<>(5000);
 
    /** The parsed data. */
+
    // This buffers from between the time when we deserialize the object, and when we write it back to the DB.
    private final BlockingQueue<OchreExternalizable> parsedData = new ArrayBlockingQueue<>(50);
-   
+
    /** The data path. */
-   Path                                       dataPath;
-   
+   Path dataPath;
+
    /** The input. */
-   DataInputStream                            input;
-   
+   DataInputStream input;
+
    /** The stream bytes. */
-   int                                        streamBytes;
-   
+   int streamBytes;
+
    /** The es. */
-   ExecutorService                            es_;
+   ExecutorService es_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -206,7 +207,7 @@ public class BinaryDataReaderQueueProvider
    public boolean tryAdvance(Consumer<? super OchreExternalizableUnparsed> action) {
       try {
          final int                           startBytes        = this.input.available();
-         final OchreExternalizableObjectType type              = OchreExternalizableObjectType.fromDataStream(this.input);
+         final OchreExternalizableObjectType type = OchreExternalizableObjectType.fromDataStream(this.input);
          final byte                          dataFormatVersion = this.input.readByte();
          final int                           recordSize        = this.input.readInt();
          final byte[]                        objectData        = new byte[recordSize];
@@ -285,29 +286,31 @@ public class BinaryDataReaderQueueProvider
                // These threads handle the parsing of the bytes back into ochre objects, which is kind of slow, as all of the UUIDs have
                // to be resolved back to nids and sequences.  Seems to work best to use about 2/3 of the processors here.
                int threadCount = Math.round(Runtime.getRuntime()
-                                                           .availableProcessors() * (float) 0.667);
+                                                   .availableProcessors() * (float) 0.667);
 
                threadCount = ((threadCount < 2) ? 2
                                                 : threadCount);
-               this.es_         = Executors.newFixedThreadPool(threadCount);
+               this.es_    = Executors.newFixedThreadPool(threadCount);
 
                for (int i = 0; i < threadCount; i++) {
                   this.es_.execute(() -> {
-                                 while ((this.complete.getCount() > this.COMLETE) ||!this.readData.isEmpty()) {
-                                    boolean accepted;
+                                      while ((this.complete.getCount() > this.COMLETE) ||!this.readData.isEmpty()) {
+                                         boolean accepted;
 
-                                    try {
-                                       accepted = this.parsedData.offer(this.readData.take()
-                                             .parse(), 5, TimeUnit.MINUTES);
-                                    } catch (final InterruptedException e) {
-                                       break;
-                                    }
+                                         try {
+                                            accepted = this.parsedData.offer(this.readData.take()
+                                                  .parse(),
+                                                  5,
+                                                  TimeUnit.MINUTES);
+                                         } catch (final InterruptedException e) {
+                                            break;
+                                         }
 
-                                    if (!accepted) {
-                                       throw new RuntimeException("unexpeced queue issues");
-                                    }
-                                 }
-                              });
+                                         if (!accepted) {
+                                            throw new RuntimeException("unexpeced queue issues");
+                                         }
+                                      }
+                                   });
                }
 
                Get.workExecutors().getExecutor().execute(() -> {

@@ -44,10 +44,11 @@ package sh.isaac.api.commit;
  *
  * @author kec
  */
-public enum ChangeCheckerMode { 
- /** The active. */
- ACTIVE,
-                                
-                                /** The inactive. */
-                                INACTIVE }
+public enum ChangeCheckerMode {
+   /** The active. */
+   ACTIVE,
+
+   /** The inactive. */
+   INACTIVE
+}
 

@@ -55,7 +55,6 @@ import sh.isaac.model.waitfree.WaitFreeMergeSerializer;
  */
 public class SememeSerializer
          implements WaitFreeMergeSerializer<SememeChronologyImpl<? extends SememeVersion<?>>> {
-   
    /**
     * Deserialize.
     *

@@ -61,7 +61,6 @@ import sh.isaac.api.metacontent.userPrefs.StorableUserPreferences;
  */
 @Contract
 public interface MetaContentService {
-   
    /**
     * Call prior to JVM exit for safe shutdown.
     */
@@ -71,14 +70,14 @@ public interface MetaContentService {
     * Open or create a new data store.  The type of the key and value must be specified.
     * Not being consistent with the Key/Value types for a particular store name will result in
     * a runtime class cast exception.  For example, this will fail at runtime:
-    * 
+    *
     * <Long,String>openStore("myStore").put(54l, "fred")
     * ...
     * <Long,Integer>openStore("myStore").get(54l)
-    * 
+    *
     *  Data added to the ConcurrentMap is automatically flushed to disk, and is safe after the flush interval, or as long as {@link #close()} is
     *  called prior to JVM exit.  Note that it is typically not the job of the caller of this method to call close on the overall MetaContentService.
-    * 
+    *
     *  Any object can be utilized for the Key and Value - however, for types outside of the basic types, java serialization will be utilized,
     *  which is quite inefficient.  For storing large objects, it is recommended you make your Value a byte[], and handle the serialization
     *  yourself.

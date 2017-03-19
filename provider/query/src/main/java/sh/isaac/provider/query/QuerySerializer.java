@@ -65,7 +65,6 @@ import org.xml.sax.InputSource;
  * Created by kec on 10/30/14.
  */
 public class QuerySerializer {
-   
    /**
     * Marshall.
     *
@@ -80,7 +79,7 @@ public class QuerySerializer {
       q.setup();
 
       final Marshaller marshaller = JaxbForQuery.get()
-                                          .createMarshaller();
+                                                .createMarshaller();
 
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
@@ -109,7 +108,6 @@ public class QuerySerializer {
       final Unmarshaller unmarshaller = ctx.createUnmarshaller();
 
       // Query query = (Query) unmarshaller.unmarshal(xmlData);
-
       // To avoid XXE injection do not use unmarshal methods that process
       // an XML source directly as java.io.File, java.io.Reader or java.io.InputStream.
       // Parse the document with a securely configured parser and use an unmarshal method

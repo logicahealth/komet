@@ -72,7 +72,6 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
  * @author kec
  */
 public class TypeStampTaxonomyRecords {
-   
    /** int (the map key) is a stampSequence TaxonomyFlags (the map value) are the flags associated with the stampSequence;. */
    private final OpenLongHashSet typeStampFlagsSet = new OpenLongHashSet(7);
 
@@ -157,8 +156,9 @@ public class TypeStampTaxonomyRecords {
    public boolean containsConceptSequenceViaType(ConceptSequenceSet typeSequenceSet,
          int flags,
          RelativePositionCalculator computer) {
-      final StampSequenceSet latestStamps = computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeSequenceSet,
-                                                                                                     flags));
+      final StampSequenceSet latestStamps =
+         computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeSequenceSet,
+                                                                        flags));
 
       return !latestStamps.isEmpty();
    }
@@ -189,7 +189,7 @@ public class TypeStampTaxonomyRecords {
     */
    public boolean containsConceptSequenceViaType(int typeSequence, int flags, RelativePositionCalculator computer) {
       final StampSequenceSet latestStamps = computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeSequence,
-                                                                                                     flags));
+                                                                                                           flags));
 
       return !latestStamps.isEmpty();
    }
@@ -319,9 +319,9 @@ public class TypeStampTaxonomyRecords {
       final Stream.Builder<TypeStampTaxonomyRecord> builder = Stream.builder();
 
       this.typeStampFlagsSet.forEachKey((long record) -> {
-                                      builder.accept(new TypeStampTaxonomyRecord(record));
-                                      return true;
-                                   });
+                                           builder.accept(new TypeStampTaxonomyRecord(record));
+                                           return true;
+                                        });
       return builder.build();
    }
 
@@ -335,11 +335,11 @@ public class TypeStampTaxonomyRecords {
       final StringBuilder sb = new StringBuilder();
 
       this.typeStampFlagsSet.forEachKey((long record) -> {
-                                      final TypeStampTaxonomyRecord str = new TypeStampTaxonomyRecord(record);
+                                           final TypeStampTaxonomyRecord str = new TypeStampTaxonomyRecord(record);
 
-                                      sb.append(str.toString());
-                                      return true;
-                                   });
+                                           sb.append(str.toString());
+                                           return true;
+                                        });
       return sb.toString();
    }
 
@@ -367,23 +367,23 @@ public class TypeStampTaxonomyRecords {
       final Builder intStreamBuilder = IntStream.builder();
 
       this.typeStampFlagsSet.forEachKey((long record) -> {
-                                      final int stampAndFlag = (int) (record >>> 32);
+                                           final int stampAndFlag = (int) (record >>> 32);
 
-                                      if (typeSequenceSet.isEmpty()) {  // wildcard
-                                         if ((stampAndFlag & TaxonomyRecordPrimitive.FLAGS_BIT_MASK) == flags) {
-                                            intStreamBuilder.accept(stampAndFlag
-                                            & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK);
-                                         }
-                                      } else if (typeSequenceSet.contains((int) record
-                                      & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK)) {
-                                         if ((stampAndFlag & TaxonomyRecordPrimitive.FLAGS_BIT_MASK) == flags) {
-                                            intStreamBuilder.accept(stampAndFlag
-                                            & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK);
-                                         }
-                                      }
+                                           if (typeSequenceSet.isEmpty()) {  // wildcard
+                                              if ((stampAndFlag & TaxonomyRecordPrimitive.FLAGS_BIT_MASK) == flags) {
+                                                 intStreamBuilder.accept(stampAndFlag
+                                                 & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK);
+                                              }
+                                           } else if (typeSequenceSet.contains((int) record
+                                           & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK)) {
+                                              if ((stampAndFlag & TaxonomyRecordPrimitive.FLAGS_BIT_MASK) == flags) {
+                                                 intStreamBuilder.accept(stampAndFlag
+                                                 & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK);
+                                              }
+                                           }
 
-                                      return true;
-                                   });
+                                           return true;
+                                        });
       return intStreamBuilder.build();
    }
 
@@ -398,22 +398,23 @@ public class TypeStampTaxonomyRecords {
       final Builder intStreamBuilder = IntStream.builder();
 
       this.typeStampFlagsSet.forEachKey((long record) -> {
-                                      final int stampAndFlag = (int) (record >>> 32);
+                                           final int stampAndFlag = (int) (record >>> 32);
 
-                                      if (typeSequence == Integer.MAX_VALUE) {  // wildcard
-                                         if ((stampAndFlag & TaxonomyRecordPrimitive.FLAGS_BIT_MASK) == flags) {
-                                            intStreamBuilder.accept(stampAndFlag
-                                            & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK);
-                                         }
-                                      } else if ((record & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK) == typeSequence) {
-                                         if ((stampAndFlag & TaxonomyRecordPrimitive.FLAGS_BIT_MASK) == flags) {
-                                            intStreamBuilder.accept(stampAndFlag
-                                            & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK);
-                                         }
-                                      }
+                                           if (typeSequence == Integer.MAX_VALUE) {  // wildcard
+                                              if ((stampAndFlag & TaxonomyRecordPrimitive.FLAGS_BIT_MASK) == flags) {
+                                                 intStreamBuilder.accept(stampAndFlag
+                                                 & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK);
+                                              }
+                                           } else if ((record & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK) ==
+                                           typeSequence) {
+                                              if ((stampAndFlag & TaxonomyRecordPrimitive.FLAGS_BIT_MASK) == flags) {
+                                                 intStreamBuilder.accept(stampAndFlag
+                                                 & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK);
+                                              }
+                                           }
 
-                                      return true;
-                                   });
+                                           return true;
+                                        });
       return intStreamBuilder.build();
    }
 
@@ -434,10 +435,9 @@ public class TypeStampTaxonomyRecords {
     */
    private static class AddToArrayProcedure
             implements LongProcedure {
-      
       /** The index. */
       int index;
-      
+
       /** The destination array. */
       int destinationArray[];
 
@@ -478,13 +478,12 @@ public class TypeStampTaxonomyRecords {
     * The Class TypeStampTaxonomyRecord.
     */
    public static class TypeStampTaxonomyRecord {
-      
       /** The type sequence. */
       int typeSequence;
-      
+
       /** The stamp sequence. */
       int stampSequence;
-      
+
       /** The taxonomy flags. */
       int taxonomyFlags;
 

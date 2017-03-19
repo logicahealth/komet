@@ -57,18 +57,17 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 public class DescriptionSememeImpl
         extends SememeVersionImpl<DescriptionSememeImpl>
          implements MutableDescriptionSememe<DescriptionSememeImpl> {
-   
    /** The case significance concept sequence. */
-   protected int    caseSignificanceConceptSequence;
-   
+   protected int caseSignificanceConceptSequence;
+
    /** The language concept sequence. */
-   protected int    languageConceptSequence;
-   
+   protected int languageConceptSequence;
+
    /** The text. */
    protected String text;
-   
+
    /** The description type concept sequence. */
-   protected int    descriptionTypeConceptSequence;
+   protected int descriptionTypeConceptSequence;
 
    //~--- constructors --------------------------------------------------------
 

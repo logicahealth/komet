@@ -110,47 +110,58 @@ import sh.isaac.api.util.NumericUtils;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public enum DynamicSememeValidatorType {
-   
    /** The less than. */
    LESS_THAN("<"),
-   
+
    /** The greater than. */
    GREATER_THAN(">"),
-   
+
    /** The less than or equal. */
    LESS_THAN_OR_EQUAL("<="),
-   
+
    /** The greater than or equal. */
-   GREATER_THAN_OR_EQUAL(">="),   
+   GREATER_THAN_OR_EQUAL(">="),
+
    /** The interval. */
+
    // Standard math stuff
-   INTERVAL("Interval"),          
-          /** The regexp. */
-          // math interval notation - such as [5,10)
-   REGEXP("Regular Expression"),  
-  /** The external. */
-  // http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html
-   EXTERNAL("External"),          
-          /** The is child of. */
-          // see class docs above - implemented by an ExternalValidatorBI
-   IS_CHILD_OF(
-      "Is Child Of"),             
-             /** The is kind of. */
-             // OTF is child of - which only includes immediate (not recursive) children on the 'Is A' relationship.
-   IS_KIND_OF(
-      "Is Kind Of"),  
-  /** The component type. */
-  // OTF kind of - which is child of - but recursive, and self (heart disease is a kind-of heart disease);
-   COMPONENT_TYPE("Component Type Restriction"),  
-  /** The unknown. */
-  // specify which type of nid can be put into a UUID or nid column
+   INTERVAL("Interval"),
+
+   /** The regexp. */
+
+   // math interval notation - such as [5,10)
+   REGEXP("Regular Expression"),
+
+   /** The external. */
+
+   // http://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html
+   EXTERNAL("External"),
+
+   /** The is child of. */
+
+   // see class docs above - implemented by an ExternalValidatorBI
+   IS_CHILD_OF("Is Child Of"),
+
+   /** The is kind of. */
+
+   // OTF is child of - which only includes immediate (not recursive) children on the 'Is A' relationship.
+   IS_KIND_OF("Is Kind Of"),
+
+   /** The component type. */
+
+   // OTF kind of - which is child of - but recursive, and self (heart disease is a kind-of heart disease);
+   COMPONENT_TYPE("Component Type Restriction"),
+
+   /** The unknown. */
+
+   // specify which type of nid can be put into a UUID or nid column
    UNKNOWN(
       "Unknown");  // Not a real validator, only exists to allow GUI convenience, or potentially store other validator data that we don't support in OTF
 
    // but we may need to store / retreive
 
    /** The logger. */
-  private static Logger logger = Logger.getLogger(DynamicSememeValidatorType.class.getName());
+   private static Logger logger = Logger.getLogger(DynamicSememeValidatorType.class.getName());
 
    //~--- fields --------------------------------------------------------------
 
@@ -183,7 +194,7 @@ public enum DynamicSememeValidatorType {
       }
 
       final String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH)
-                                 .trim();
+                                       .trim();
 
       if (StringUtils.isBlank(clean)) {
          return null;
@@ -383,7 +394,7 @@ public enum DynamicSememeValidatorType {
                ((DynamicSememeArray<DynamicSememeString>) validatorDefinitionData).getDataArray();
             final ObjectChronologyType expectedCT = ObjectChronologyType.parse(valData[0].getDataString(), false);
             final ObjectChronologyType component  = Get.identifierService()
-                                                 .getChronologyTypeForNid(nid);
+                                                       .getChronologyTypeForNid(nid);
 
             if (expectedCT == ObjectChronologyType.UNKNOWN_NID) {
                throw new RuntimeException("Couldn't determine validator type from validator data '" + valData + "'");
@@ -396,10 +407,9 @@ public enum DynamicSememeValidatorType {
 
             if ((expectedCT == ObjectChronologyType.SEMEME) && (valData.length == 2)) {
                // they specified a specific sememe type.  Verify.
-               final SememeType                                   st     = SememeType.parse(valData[1].getDataString(),
-                                                                                      false);
+               final SememeType st = SememeType.parse(valData[1].getDataString(), false);
                final SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeService()
-                                                                        .getSememe(nid);
+                                                                              .getSememe(nid);
 
                if (sememe.getSememeType() != st) {
                   throw new RuntimeException("The specified component must be of type " + st.toString() + ", not " +
@@ -416,12 +426,12 @@ public enum DynamicSememeValidatorType {
          }
       } else {
          final Number userDataNumber = NumericUtils.readNumber(userData);
-         Number validatorDefinitionDataNumber;
+         Number       validatorDefinitionDataNumber;
 
          if (this == DynamicSememeValidatorType.INTERVAL) {
             final String   s        = validatorDefinitionData.getDataObject()
-                                                       .toString()
-                                                       .trim();
+                                                             .toString()
+                                                             .trim();
             final Interval interval = new Interval(s);
 
             if (interval.getLeft() != null) {
@@ -469,7 +479,7 @@ public enum DynamicSememeValidatorType {
    /**
     * A convenience wrapper of {@link #passesValidator(DynamicSememeDataBI, DynamicSememeDataBI, ViewCoordinate)} that just returns a string - never
     * throws an error
-    * 
+    *
     * These are all defined from the perspective of the userData - so for passesValidator to return true -
     * userData must be LESS_THAN validatorDefinitionData, for example.
     *

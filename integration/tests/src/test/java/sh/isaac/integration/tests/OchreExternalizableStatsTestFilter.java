@@ -55,16 +55,15 @@ import sh.isaac.api.externalizable.OchreExternalizable;
  */
 public class OchreExternalizableStatsTestFilter
          implements Predicate<OchreExternalizable> {
-   
    /** The concepts. */
-   AtomicInteger concepts      = new AtomicInteger(0);
-   
+   AtomicInteger concepts = new AtomicInteger(0);
+
    /** The sememes. */
-   AtomicInteger sememes       = new AtomicInteger(0);
-   
+   AtomicInteger sememes = new AtomicInteger(0);
+
    /** The stamp aliases. */
-   AtomicInteger stampAliases  = new AtomicInteger(0);
-   
+   AtomicInteger stampAliases = new AtomicInteger(0);
+
    /** The stamp comments. */
    AtomicInteger stampComments = new AtomicInteger(0);
 

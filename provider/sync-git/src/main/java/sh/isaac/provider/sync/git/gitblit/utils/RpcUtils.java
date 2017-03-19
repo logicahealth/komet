@@ -60,7 +60,6 @@ import sh.isaac.provider.sync.git.gitblit.models.RepositoryModel;
  *
  */
 public class RpcUtils {
-   
    /** The Constant RPC_PATH. */
    public static final String RPC_PATH = "/rpc/";
 
@@ -70,31 +69,30 @@ public class RpcUtils {
     * The access permissions available for a repository.
     */
    public static enum AccessPermission {
-      
       /** The none. */
       NONE("N"),
-      
+
       /** The exclude. */
       EXCLUDE("X"),
-      
+
       /** The view. */
       VIEW("V"),
-      
+
       /** The clone. */
       CLONE("R"),
-      
+
       /** The push. */
       PUSH("RW"),
-      
+
       /** The create. */
       CREATE("RWC"),
-      
+
       /** The delete. */
       DELETE("RWD"),
-      
+
       /** The rewind. */
       REWIND("RW+"),
-      
+
       /** The owner. */
       OWNER("RW+");
 
@@ -102,12 +100,12 @@ public class RpcUtils {
       public static final AccessPermission[] NEWPERMISSIONS = {
          EXCLUDE, VIEW, CLONE, PUSH, CREATE, DELETE, REWIND
       };
-      
+
       /** The Constant SSHPERMISSIONS. */
       public static final AccessPermission[] SSHPERMISSIONS = { VIEW, CLONE, PUSH };
-      
+
       /** The legacy. */
-      public static AccessPermission         LEGACY         = REWIND;
+      public static AccessPermission LEGACY = REWIND;
 
       //~--- fields -----------------------------------------------------------
 
@@ -234,16 +232,15 @@ public class RpcUtils {
     * Enumeration representing the four access restriction levels.
     */
    public static enum AccessRestrictionType {
-      
       /** The none. */
       NONE,
-      
+
       /** The push. */
       PUSH,
-      
+
       /** The clone. */
       CLONE,
-      
+
       /** The view. */
       VIEW;
 
@@ -357,10 +354,9 @@ public class RpcUtils {
     * access restricted resource.
     */
    public static enum AuthorizationControl {
-      
       /** The authenticated. */
       AUTHENTICATED,
-      
+
       /** The named. */
       NAMED;
 
@@ -396,13 +392,12 @@ public class RpcUtils {
     * Enumeration representing the federation types.
     */
    public static enum FederationStrategy {
-      
       /** The exclude. */
       EXCLUDE,
-      
+
       /** The federate this. */
       FEDERATE_THIS,
-      
+
       /** The federate origin. */
       FEDERATE_ORIGIN;
 
@@ -459,10 +454,9 @@ public class RpcUtils {
     * a client.
     */
    public static enum RpcRequest {
-      
       /** The create repository. */
       CREATE_REPOSITORY,
-      
+
       /** The list repositories. */
       LIST_REPOSITORIES;
 

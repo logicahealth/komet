@@ -59,10 +59,9 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  */
 public class MavenConceptProxy
          implements ConceptSpecification {
-   
    /** The uuid. */
    protected String uuid;
-   
+
    /** The description. */
    protected String description;
 

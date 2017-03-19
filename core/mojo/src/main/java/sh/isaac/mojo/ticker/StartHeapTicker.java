@@ -60,7 +60,6 @@ import sh.isaac.api.memory.HeapUseTicker;
 )
 public class StartHeapTicker
         extends AbstractMojo {
-   
    /** The interval in seconds. */
    @Parameter
    String intervalInSeconds = "10";

@@ -84,15 +84,14 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
  */
 public class ISAACVisitor
         extends SNOMEDCTExpressionBaseVisitor<Object> {
-   
    /** The logger. */
-   static Logger               logger        = LogManager.getLogger(ISAACVisitor.class);
+   static Logger logger = LogManager.getLogger(ISAACVisitor.class);
 
    //~--- fields --------------------------------------------------------------
 
    /** The default to primitive. */
-   private final boolean                  defaultToPrimitive_;
-   
+   private final boolean defaultToPrimitive_;
+
    /** The def builder. */
    private final LogicalExpressionBuilder defBuilder_;
 
@@ -127,7 +126,7 @@ public class ISAACVisitor
    public ISAACVisitor(LogicalExpressionBuilder defBuilder, ConceptChronology<?> c, boolean defaultToPrimitive) {
       super();
       this.defaultToPrimitive_ = defaultToPrimitive;
-      this.defBuilder_              = defBuilder;
+      this.defBuilder_         = defBuilder;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -149,16 +148,16 @@ public class ISAACVisitor
              .getClass() == SNOMEDCTExpressionParser.ConceptReferenceContext.class) {
          final ConceptChronology<?> property = (ConceptChronology<?>) visitConceptReference(ctx.conceptReference());
          final ConceptChronology<?> value = (ConceptChronology<?>) visitConceptReference(ctx.attributeValue()
-                                                                                      .conceptReference());
+                                                                                            .conceptReference());
 
          role = SomeRole(property, ConceptAssertion(value, this.defBuilder_));
       } else if (ctx.attributeValue()
                     .getChild(0)
                     .getClass() == SNOMEDCTExpressionParser.NestedExpressionContext.class) {
          final ConceptChronology<?> property = (ConceptChronology<?>) visitConceptReference(ctx.conceptReference());
-         final Assertion            result   = (Assertion) visit(ctx.attributeValue()
-                                                              .nestedExpression()
-                                                              .subExpression());
+         final Assertion            result = (Assertion) visit(ctx.attributeValue()
+                                                                  .nestedExpression()
+                                                                  .subExpression());
 
          role = SomeRole(property, result);
       } else {
@@ -256,6 +255,7 @@ public class ISAACVisitor
     * @param ctx the ctx
     * @return the object
     */
+
    // TODO: see more complex processing in OWLVisitor
    @Override
    public Object visitNonGroupedAttributeSet(NonGroupedAttributeSetContext ctx) {

@@ -84,26 +84,26 @@ import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
 @Service
 @RunLevel(value = 5)
 public class ChangesetSyncService {
-   
    /** The Constant LOG. */
-   private static final Logger LOG           = LogManager.getLogger();
-   
+   private static final Logger LOG = LogManager.getLogger();
+
    /** The sync JSON files. */
-   public static boolean       syncJSONFiles = true;  // TODO we can turn this off later
+   public static boolean syncJSONFiles = true;  // TODO we can turn this off later
 
    //~--- fields --------------------------------------------------------------
 
    /** The scheduled check. */
    private ScheduledFuture<?> scheduledCheck;
-   
+
    /** The ssg. */
-   private SyncServiceGIT     ssg;
+   private SyncServiceGIT ssg;
 
    //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new changeset sync service.
     */
+
    // For HK2
    private ChangesetSyncService() {}
 
@@ -115,7 +115,7 @@ public class ChangesetSyncService {
    @PostConstruct
    private void startMe() {
       final Optional<RemoteServiceInfo> gitConfig = Get.configurationService()
-                                                 .getGitConfiguration();
+                                                       .getGitConfiguration();
 
       if (!gitConfig.isPresent() || org.apache.commons.lang3.StringUtils.isBlank(gitConfig.get().getURL())) {
          LOG.info("No git configuration is available - Changeset sync service will not be started.");
@@ -130,16 +130,16 @@ public class ChangesetSyncService {
                                     .getUsername());
 
                         final Set<String> remoteRepos = GitBlitUtils.readRepositories(gitConfig.get()
-                                                                                         .getURL(),
-                                                                                gitConfig.get()
-                                                                                      .getUsername(),
-                                                                                gitConfig.get()
-                                                                                      .getPassword());
+                                                                                               .getURL(),
+                                                                                      gitConfig.get()
+                                                                                            .getUsername(),
+                                                                                      gitConfig.get()
+                                                                                            .getPassword());
 
                         LOG.debug("Read {} repositories", remoteRepos.size());
 
-                        final String changeSetRepo = "db-changesets-" + Get.conceptService().getDataStoreId().toString() +
-                                               ".git";
+                        final String changeSetRepo = "db-changesets-" +
+                                                     Get.conceptService().getDataStoreId().toString() + ".git";
 
                         if (!remoteRepos.contains(changeSetRepo)) {
                            LOG.debug("Creating remote repository {}", changeSetRepo);
@@ -162,16 +162,16 @@ public class ChangesetSyncService {
                   : "*.json");
 
                         final ChangeSetWriterService csw = LookupService.get()
-                                                                  .getService(ChangeSetWriterService.class);
+                                                                        .getService(ChangeSetWriterService.class);
 
                         this.ssg.setRootLocation(csw.getWriteFolder()
-                                               .toFile());
+                              .toFile());
                         csw.pause();
                         LOG.debug("Attempting to link and fetch from remote GIT repository");
 
                         final String targetUrl = GitBlitUtils.adjustBareUrlForGitBlit(gitConfig.get()
-                                                                                         .getURL()) + "r/" +
-                                                                                            changeSetRepo;
+                                                                                               .getURL()) + "r/" +
+                                                                                                  changeSetRepo;
 
                         this.ssg.linkAndFetchFromRemote(targetUrl,
                               gitConfig.get()
@@ -190,12 +190,12 @@ public class ChangesetSyncService {
                         LOG.debug("Committing and Pushing");
 
                         final Set<String> changedFiles = this.ssg.updateCommitAndPush("Synchronizing changesets",
-                                                                           gitConfig.get()
-                                                                                 .getUsername(),
-                                                                           gitConfig.get()
-                                                                                 .getPassword(),
-                                                                           MergeFailOption.FAIL,
-                                                                           (String[]) null);
+                                                                                      gitConfig.get()
+                                                                                            .getUsername(),
+                                                                                      gitConfig.get()
+                                                                                            .getPassword(),
+                                                                                      MergeFailOption.FAIL,
+                                                                                      (String[]) null);
 
                         if (changedFiles.size() != 0) {
                            LOG.debug("Commit pulled {} more files - reading newly arrived files", changedFiles.size());
@@ -208,8 +208,8 @@ public class ChangesetSyncService {
                         LOG.info(
                             "Initial sync with remote repository successful.  Scheduling remote and local checks.");
                         this.scheduledCheck = Get.workExecutors()
-                                            .getScheduledThreadPoolExecutor()
-                                            .scheduleAtFixedRate(() -> syncCheck(), 5, 5, TimeUnit.MINUTES);
+                              .getScheduledThreadPoolExecutor()
+                              .scheduleAtFixedRate(() -> syncCheck(), 5, 5, TimeUnit.MINUTES);
                      } catch (final Exception e) {
                         LOG.error(
                         "Unexpected error initializing remote repository sync.  Automated repository sync will not execute.",
@@ -248,7 +248,7 @@ public class ChangesetSyncService {
       LOG.info("Launching sync check in background thread");
       Get.workExecutors().getExecutor().execute(() -> {
                      final Optional<RemoteServiceInfo> gitConfig = Get.configurationService()
-                                                                .getGitConfiguration();
+                                                                      .getGitConfiguration();
 
                      if (!gitConfig.isPresent()) {
                         LOG.info("No git configuration is available - Changeset sync service cannot execute.");
@@ -264,19 +264,19 @@ public class ChangesetSyncService {
                         LOG.debug("Committing and Syncing");
 
                         final Set<String> changedFiles = this.ssg.updateCommitAndPush("Synchronizing changesets",
-                                                                           gitConfig.get()
-                                                                                 .getUsername(),
-                                                                           gitConfig.get()
-                                                                                 .getPassword(),
-                                                                           MergeFailOption.FAIL,
-                                                                           (String[]) null);
+                                                                                      gitConfig.get()
+                                                                                            .getUsername(),
+                                                                                      gitConfig.get()
+                                                                                            .getPassword(),
+                                                                                      MergeFailOption.FAIL,
+                                                                                      (String[]) null);
 
                         if (changedFiles.size() != 0) {
                            LOG.debug("Commit pulled {} more files - reading newly arrived files", changedFiles.size());
 
                            final int loaded = LookupService.get()
-                                                     .getService(ChangeSetLoadService.class)
-                                                     .readChangesetFiles();
+                                                           .getService(ChangeSetLoadService.class)
+                                                           .readChangesetFiles();
 
                            LOG.debug("Read {} files", loaded);
                         }

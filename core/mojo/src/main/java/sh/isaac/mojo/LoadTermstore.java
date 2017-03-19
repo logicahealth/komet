@@ -116,19 +116,18 @@ import sh.isaac.api.logic.LogicalExpression;
 )
 public class LoadTermstore
         extends AbstractMojo {
-   
    /** The active only. */
    @Parameter(required = false)
-   private boolean                   activeOnly        = false;
-   
+   private boolean activeOnly = false;
+
    /** The sememe types to skip. */
    private final HashSet<SememeType> sememeTypesToSkip = new HashSet<>();
-   
+
    /** The skipped items. */
-   private final HashSet<Integer>    skippedItems      = new HashSet<>();
-   
+   private final HashSet<Integer> skippedItems = new HashSet<>();
+
    /** The skipped any. */
-   private boolean                   skippedAny        = false;
+   private boolean skippedAny = false;
 
    /**
     * The preferred mechanism for specifying ibdf files - provide a folder that contains IBDF files, all found IBDF files in this
@@ -142,9 +141,9 @@ public class LoadTermstore
     */
    @Parameter(required = false)
    private File[] ibdfFiles;
-   
+
    /** The item failure. */
-   private int    conceptCount, sememeCount, stampAliasCount, stampCommentCount, itemCount, itemFailure;
+   private int conceptCount, sememeCount, stampAliasCount, stampCommentCount, itemCount, itemFailure;
 
    //~--- methods -------------------------------------------------------------
 
@@ -163,7 +162,7 @@ public class LoadTermstore
       final int statedSequence = Get.identifierService()
                                     .getConceptSequenceForUuids(
                                         TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getPrimordialUuid());
-      final long loadTime   = System.currentTimeMillis();
+      final long loadTime = System.currentTimeMillis();
 
       // Load IsaacMetadataAuxiliary first, otherwise, we have issues....
       final AtomicBoolean hasMetadata = new AtomicBoolean(false);
@@ -204,20 +203,20 @@ public class LoadTermstore
 
       Arrays.sort(temp,
                   (o1, o2) -> {
-				    if (o1.getName()
-				          .equals("IsaacMetadataAuxiliary.ibdf")) {
-				       hasMetadata.set(true);
-				       return -1;
-				    } else if (o2.getName()
-				                 .equals("IsaacMetadataAuxiliary.ibdf")) {
-				       hasMetadata.set(true);
-				       return 1;
-				    } else {
-				       return ((o1.length() - o2.length()) > 0 ? 1
-				 : ((o1.length() - o2.length()) < 0 ? -1
-				 : 0));
-				    }
-				 });
+                     if (o1.getName()
+                           .equals("IsaacMetadataAuxiliary.ibdf")) {
+                        hasMetadata.set(true);
+                        return -1;
+                     } else if (o2.getName()
+                                  .equals("IsaacMetadataAuxiliary.ibdf")) {
+                        hasMetadata.set(true);
+                        return 1;
+                     } else {
+                        return ((o1.length() - o2.length()) > 0 ? 1
+                  : ((o1.length() - o2.length()) < 0 ? -1
+                  : 0));
+                     }
+                  });
 
       if (!hasMetadata.get()) {
          getLog().warn("No Metadata IBDF file found!  This probably isn't good....");
@@ -264,9 +263,9 @@ public class LoadTermstore
 
                            if (sc.getAssemblageSequence() == statedSequence) {
                               final SememeSequenceSet sequences = Get.sememeService()
-                                                               .getSememeSequencesForComponentFromAssemblage(
-                                                                  sc.getReferencedComponentNid(),
-                                                                        statedSequence);
+                                                                     .getSememeSequencesForComponentFromAssemblage(
+                                                                        sc.getReferencedComponentNid(),
+                                                                              statedSequence);
 
                               if (!sequences.isEmpty()) {
                                  final List<LogicalExpression> listToMerge = new ArrayList<>();
@@ -286,25 +285,26 @@ public class LoadTermstore
                                  }
 
                                  final IsomorphicResults isomorphicResults = listToMerge.get(0)
-                                                                                  .findIsomorphisms(listToMerge.get(1));
+                                                                                        .findIsomorphisms(
+                                                                                           listToMerge.get(1));
 
                                  getLog().info("Isomorphic results: " + isomorphicResults);
 
                                  final SememeChronology existingChronology = Get.sememeService()
-                                                                          .getSememe(sequences.findFirst()
-                                                                                .getAsInt());
+                                                                                .getSememe(sequences.findFirst()
+                                                                                      .getAsInt());
                                  final ConceptProxy moduleProxy = new ConceptProxy("SOLOR overlay module",
-                                                                             "9ecc154c-e490-5cf8-805d-d2865d62aef3");
+                                                                                   "9ecc154c-e490-5cf8-805d-d2865d62aef3");
                                  final ConceptProxy pathProxy = new ConceptProxy("development path",
-                                                                           "1f200ca6-960e-11e5-8994-feff819cdc9f");
+                                                                                 "1f200ca6-960e-11e5-8994-feff819cdc9f");
                                  final ConceptProxy userProxy = new ConceptProxy("user",
-                                                                           "f7495b58-6630-3499-a44e-2052b5fcf06c");
+                                                                                 "f7495b58-6630-3499-a44e-2052b5fcf06c");
                                  final int stampSequence = Get.stampService()
-                                                        .getStampSequence(State.ACTIVE,
-                                                              loadTime,
-                                                              userProxy.getConceptSequence(),
-                                                              moduleProxy.getConceptSequence(),
-                                                              pathProxy.getConceptSequence());
+                                                              .getStampSequence(State.ACTIVE,
+                                                                    loadTime,
+                                                                    userProxy.getConceptSequence(),
+                                                                    moduleProxy.getConceptSequence(),
+                                                                    pathProxy.getConceptSequence());
                                  final MutableLogicGraphSememe newVersion =
                                     (MutableLogicGraphSememe) existingChronology.createMutableVersion(
                                         MutableLogicGraphSememe.class,
@@ -360,8 +360,9 @@ public class LoadTermstore
                      }
                   } catch (final Exception e) {
                      this.itemFailure++;
-                     getLog().error("Failure at " + this.conceptCount + " concepts, " + this.sememeCount + " sememes, " +
-                                    this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComments",
+                     getLog().error("Failure at " + this.conceptCount + " concepts, " + this.sememeCount +
+                                    " sememes, " + this.stampAliasCount + " stampAlias, " + this.stampCommentCount +
+                                    " stampComments",
                                     e);
 
                      final Map<String, Object> args = new HashMap<>();
@@ -370,7 +371,7 @@ public class LoadTermstore
 
                      final ByteArrayOutputStream baos       = new ByteArrayOutputStream();
                      final JsonWriter            json       = new JsonWriter(baos, args);
-                     UUID                  primordial = null;
+                     UUID                        primordial = null;
 
                      if (object instanceof ObjectChronology) {
                         primordial = ((ObjectChronology) object).getPrimordialUuid();
@@ -383,9 +384,9 @@ public class LoadTermstore
                   }
 
                   if (this.itemCount % 50000 == 0) {
-                     getLog().info("Read " + this.itemCount + " entries, " + "Loaded " + this.conceptCount + " concepts, " +
-                                   this.sememeCount + " sememes, " + this.stampAliasCount + " stampAlias, " + this.stampCommentCount +
-                                   " stampComment");
+                     getLog().info("Read " + this.itemCount + " entries, " + "Loaded " + this.conceptCount +
+                                   " concepts, " + this.sememeCount + " sememes, " + this.stampAliasCount +
+                                   " stampAlias, " + this.stampCommentCount + " stampComment");
                   }
                }
             }
@@ -395,11 +396,11 @@ public class LoadTermstore
                this.skippedAny = true;
             }
 
-            getLog().info("Loaded " + this.conceptCount + " concepts, " + this.sememeCount + " sememes, " + this.stampAliasCount +
-                          " stampAlias, " + this.stampCommentCount + " stampComment" +
+            getLog().info("Loaded " + this.conceptCount + " concepts, " + this.sememeCount + " sememes, " +
+                          this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComment" +
                           ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
                   : "") + ((this.itemFailure > 0) ? " Failures " + this.itemFailure
-                                             : "") + " from file " + f.getName());
+                  : "") + " from file " + f.getName());
             this.conceptCount      = 0;
             this.sememeCount       = 0;
             this.stampAliasCount   = 0;
@@ -413,7 +414,7 @@ public class LoadTermstore
             if (ObjectChronologyType.SEMEME.equals(Get.identifierService()
                   .getChronologyTypeForNid(nid))) {
                final SememeChronology sc = Get.sememeService()
-                                        .getSememe(nid);
+                                              .getSememe(nid);
 
                if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {
                   Get.taxonomyService()
@@ -432,8 +433,8 @@ public class LoadTermstore
                .clearUnusedIds();
          }
       } catch (final Exception ex) {
-         getLog().info("Loaded " + this.conceptCount + " concepts, " + this.sememeCount + " sememes, " + this.stampAliasCount +
-                       " stampAlias, " + this.stampCommentCount + " stampComments" +
+         getLog().info("Loaded " + this.conceptCount + " concepts, " + this.sememeCount + " sememes, " +
+                       this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComments" +
                        ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
                : ""));
          throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
@@ -497,7 +498,7 @@ public class LoadTermstore
     */
    private static LogicalExpression getLatestLogicalExpression(SememeChronology sc) {
       final SememeChronology<? extends LogicGraphSememe> lgsc          = sc;
-      LogicGraphSememe                             latestVersion = null;
+      LogicGraphSememe                                   latestVersion = null;
 
       for (final LogicGraphSememe version: lgsc.getVersionList()) {
          if (latestVersion == null) {

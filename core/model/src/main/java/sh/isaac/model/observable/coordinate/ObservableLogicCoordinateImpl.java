@@ -70,25 +70,24 @@ import sh.isaac.model.observable.ObservableFields;
 public class ObservableLogicCoordinateImpl
         extends ObservableCoordinateImpl
          implements ObservableLogicCoordinate {
-   
    /** The logic coordinate. */
    LogicCoordinateImpl logicCoordinate;
-   
+
    /** The stated assemblage sequence property. */
    @XmlTransient
-   IntegerProperty     statedAssemblageSequenceProperty;
-   
+   IntegerProperty statedAssemblageSequenceProperty;
+
    /** The inferred assemblage sequence property. */
    @XmlTransient
-   IntegerProperty     inferredAssemblageSequenceProperty;
-   
+   IntegerProperty inferredAssemblageSequenceProperty;
+
    /** The description logic profile sequence property. */
    @XmlTransient
-   IntegerProperty     descriptionLogicProfileSequenceProperty;
-   
+   IntegerProperty descriptionLogicProfileSequenceProperty;
+
    /** The classifier sequence property. */
    @XmlTransient
-   IntegerProperty     classifierSequenceProperty;
+   IntegerProperty classifierSequenceProperty;
 
    //~--- constructors --------------------------------------------------------
 
@@ -143,7 +142,8 @@ public class ObservableLogicCoordinateImpl
                ObservableFields.DESCRIPTION_LOGIC_PROFILE_SEQUENCE_FOR_LOGIC_COORDINATE.toExternalString(),
                getDescriptionLogicProfileSequence());
          addListenerReference(
-             this.logicCoordinate.setDescriptionLogicProfileSequenceProperty(this.descriptionLogicProfileSequenceProperty));
+             this.logicCoordinate.setDescriptionLogicProfileSequenceProperty(
+                 this.descriptionLogicProfileSequenceProperty));
       }
 
       return this.descriptionLogicProfileSequenceProperty;
@@ -183,7 +183,8 @@ public class ObservableLogicCoordinateImpl
                getInferredAssemblageSequence());
       }
 
-      addListenerReference(this.logicCoordinate.setInferredAssemblageSequenceProperty(this.inferredAssemblageSequenceProperty));
+      addListenerReference(
+          this.logicCoordinate.setInferredAssemblageSequenceProperty(this.inferredAssemblageSequenceProperty));
       return this.inferredAssemblageSequenceProperty;
    }
 
@@ -198,7 +199,8 @@ public class ObservableLogicCoordinateImpl
          this.statedAssemblageSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.STATED_ASSEMBLAGE_SEQUENCE_FOR_LOGIC_COORDINATE.toExternalString(),
                getStatedAssemblageSequence());
-         addListenerReference(this.logicCoordinate.setStatedAssemblageSequenceProperty(this.statedAssemblageSequenceProperty));
+         addListenerReference(
+             this.logicCoordinate.setStatedAssemblageSequenceProperty(this.statedAssemblageSequenceProperty));
       }
 
       return this.statedAssemblageSequenceProperty;

@@ -52,7 +52,6 @@ import javafx.beans.property.SimpleLongProperty;
  */
 public class CommitAwareLongProperty
         extends SimpleLongProperty {
-   
    /**
     * Instantiates a new commit aware long property.
     *

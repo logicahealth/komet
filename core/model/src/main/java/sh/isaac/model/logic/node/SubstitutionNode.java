@@ -59,7 +59,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public abstract class SubstitutionNode
         extends AbstractLogicNode {
-   
    /** The substitution field specification. */
    SubstitutionFieldSpecification substitutionFieldSpecification;
 

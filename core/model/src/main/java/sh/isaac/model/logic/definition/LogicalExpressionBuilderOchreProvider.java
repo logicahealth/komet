@@ -60,7 +60,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
 @Service
 public class LogicalExpressionBuilderOchreProvider
          implements LogicalExpressionBuilderService {
-   
    /**
     * Instantiates a new logical expression builder ochre provider.
     */

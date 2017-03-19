@@ -60,10 +60,9 @@ import sh.isaac.api.ticker.Ticker;
  * Created by kec on 4/9/15.
  */
 public class ActiveTasksTicker {
-   
    /** The Constant log. */
-   private static final Logger log    = LogManager.getLogger();
-   
+   private static final Logger log = LogManager.getLogger();
+
    /** The Constant ticker. */
    private static final Ticker ticker = new Ticker();
 
@@ -78,7 +77,7 @@ public class ActiveTasksTicker {
       ticker.start(intervalInSeconds,
                    (tick) -> {
                       final Set<Task<?>> taskSet = Get.activeTasks()
-                                                .get();
+                                                      .get();
 
                       taskSet.stream().forEach((task) -> {
                                          double percentProgress = task.getProgress() * 100;

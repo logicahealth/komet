@@ -52,8 +52,8 @@ import sh.isaac.api.metacontent.userPrefs.StorableUserPreferences;
  */
 public class UserPreference
          implements StorableUserPreferences {
-   
    /** The sample. */
+
    // TODO finish this class as needed
    private final String sample;
 

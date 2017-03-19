@@ -68,7 +68,6 @@ import org.roaringbitmap.RoaringBitmap;
  */
 public class RoaringIntSet
          implements IntSet {
-   
    /** The rbmp. */
    RoaringBitmap rbmp;
 
@@ -340,7 +339,6 @@ public class RoaringIntSet
     */
    private class BitSetSpliterator
             implements Spliterator.OfInt {
-      
       /** The int iterator. */
       IntIterator intIterator = RoaringIntSet.this.rbmp.getIntIterator();
 
@@ -396,7 +394,6 @@ public class RoaringIntSet
     */
    private static class OfIntWrapper
             implements PrimitiveIterator.OfInt {
-      
       /** The int iterator. */
       IntIterator intIterator;
 
@@ -442,7 +439,6 @@ public class RoaringIntSet
     */
    private class SpliteratorSupplier
             implements Supplier<Spliterator.OfInt> {
-      
       /**
        * Gets the.
        *

@@ -58,7 +58,6 @@ import sh.isaac.api.Get;
  */
 public class OchreExternalizableSpliterator
          implements Spliterator<OchreExternalizable> {
-   
    /** The streams. */
    List<Stream<? extends OchreExternalizable>> streams = new ArrayList<>();
 
@@ -69,13 +68,13 @@ public class OchreExternalizableSpliterator
     */
    public OchreExternalizableSpliterator() {
       this.streams.add(Get.conceptService()
-                     .getConceptChronologyStream());
+                          .getConceptChronologyStream());
       this.streams.add(Get.sememeService()
-                     .getSememeChronologyStream());
+                          .getSememeChronologyStream());
       this.streams.add(Get.commitService()
-                     .getStampAliasStream());
+                          .getStampAliasStream());
       this.streams.add(Get.commitService()
-                     .getStampCommentStream());
+                          .getStampCommentStream());
    }
 
    //~--- methods -------------------------------------------------------------

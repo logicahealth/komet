@@ -74,7 +74,6 @@ import sh.isaac.utility.Frills;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class AssociationUtilities {
-   
    /** The association sequence. */
    private static int associationSequence = Integer.MIN_VALUE;
 
@@ -88,8 +87,9 @@ public class AssociationUtilities {
     */
    protected static int findTargetColumnIndex(int assemblageNidOrSequence) {
       final DynamicSememeUsageDescription rdud = LookupService.get()
-                                                        .getService(DynamicSememeUtilityImpl.class)
-                                                        .readDynamicSememeUsageDescription(assemblageNidOrSequence);
+                                                              .getService(DynamicSememeUtilityImpl.class)
+                                                              .readDynamicSememeUsageDescription(
+                                                                 assemblageNidOrSequence);
 
       for (final DynamicSememeColumnInfo rdci: rdud.getColumnInfo()) {
          if (rdci.getColumnDescriptionConcept()
@@ -113,15 +113,13 @@ public class AssociationUtilities {
     */
    public static Optional<AssociationInstance> getAssociation(int associationNid, StampCoordinate stamp) {
       final StampCoordinate localStamp = (stamp == null) ? Get.configurationService()
-                                                        .getDefaultStampCoordinate()
+                                                              .getDefaultStampCoordinate()
             : stamp;
       @SuppressWarnings("rawtypes")
-	final
-      SememeChronology                          sc     = Get.sememeService()
-                                                            .getSememe(associationNid);
+      final SememeChronology                          sc     = Get.sememeService()
+                                                                  .getSememe(associationNid);
       @SuppressWarnings("unchecked")
-	final
-      Optional<LatestVersion<DynamicSememe<?>>> latest = sc.getLatestVersion(DynamicSememe.class, localStamp);
+      final Optional<LatestVersion<DynamicSememe<?>>> latest = sc.getLatestVersion(DynamicSememe.class, localStamp);
 
       if (latest.isPresent()) {
          return Optional.of(AssociationInstance.read(latest.get()
@@ -181,16 +179,15 @@ public class AssociationUtilities {
     */
    public static List<AssociationInstance> getAssociationsOfType(int associationTypeConceptNid, StampCoordinate stamp) {
       final ArrayList<AssociationInstance> results = new ArrayList<>();
-      final StampCoordinate localStamp             = (stamp == null) ? Get.configurationService()
-                                                                    .getDefaultStampCoordinate()
+      final StampCoordinate localStamp = (stamp == null) ? Get.configurationService()
+                                                              .getDefaultStampCoordinate()
             : stamp;
 
       Get.sememeService()
          .getSememesFromAssemblage(associationTypeConceptNid)
          .forEach(associationC -> {
                      @SuppressWarnings({ "unchecked", "rawtypes" })
-					final
-                     Optional<LatestVersion<DynamicSememe<?>>> latest =
+                     final Optional<LatestVersion<DynamicSememe<?>>> latest =
                         ((SememeChronology) associationC).getLatestVersion(DynamicSememe.class, localStamp);
 
                      if (latest.isPresent()) {
@@ -210,14 +207,13 @@ public class AssociationUtilities {
     */
    public static List<AssociationInstance> getSourceAssociations(int componentNid, StampCoordinate stamp) {
       final ArrayList<AssociationInstance> results = new ArrayList<>();
-      final StampCoordinate localStamp             = (stamp == null) ? Get.configurationService()
-                                                                    .getDefaultStampCoordinate()
+      final StampCoordinate localStamp = (stamp == null) ? Get.configurationService()
+                                                              .getDefaultStampCoordinate()
             : stamp;
 
       Get.sememeService().getSememesForComponentFromAssemblages(componentNid, getAssociationConceptSequences()).forEach(associationC -> {
                      @SuppressWarnings({ "unchecked", "rawtypes" })
-					final
-                     Optional<LatestVersion<DynamicSememe<?>>> latest =
+                     final Optional<LatestVersion<DynamicSememe<?>>> latest =
                         ((SememeChronology) associationC).getLatestVersion(DynamicSememe.class, localStamp);
 
                      if (latest.isPresent()) {
@@ -245,9 +241,9 @@ public class AssociationUtilities {
          throw new RuntimeException("Required index is not available");
       }
 
-      final UUID               uuid             = Get.identifierService()
-                                               .getUuidPrimordialForNid(componentNid)
-                                               .orElse(null);
+      final UUID               uuid = Get.identifierService()
+                                         .getUuidPrimordialForNid(componentNid)
+                                         .orElse(null);
       final ArrayList<Integer> associationTypes = new ArrayList<>();
 
 //    ArrayList<Integer> colIndex = new ArrayList<>();
@@ -259,23 +255,24 @@ public class AssociationUtilities {
 
       try {
          // TODO when issue with colIndex restrictions is fixed, put it back.
-         final List<SearchResult> refexes = indexer.query(new DynamicSememeStringImpl(componentNid + ((uuid == null) ? ""
+         final List<SearchResult> refexes = indexer.query(new DynamicSememeStringImpl(componentNid +
+                                               ((uuid == null) ? ""
                : " OR " + uuid)),
-                                                    false,
-                                                    associationTypes.toArray(new Integer[associationTypes.size()]),
-                                                    null,
-                                                    Integer.MAX_VALUE,
-                                                    null);
+                                                          false,
+                                                          associationTypes.toArray(
+                                                             new Integer[associationTypes.size()]),
+                                                          null,
+                                                          Integer.MAX_VALUE,
+                                                          null);
 
          for (final SearchResult sr: refexes) {
             @SuppressWarnings("rawtypes")
-			final
-            Optional<LatestVersion<DynamicSememe>> latest = Get.sememeService()
-                                                               .getSnapshot(DynamicSememe.class,
-                                                                     (stamp == null) ? Get.configurationService()
-                                                                           .getDefaultStampCoordinate()
+            final Optional<LatestVersion<DynamicSememe>> latest = Get.sememeService()
+                                                                     .getSnapshot(DynamicSememe.class,
+                                                                           (stamp == null) ? Get.configurationService()
+                                                                                 .getDefaultStampCoordinate()
                   : stamp)
-                                                               .getLatestSememeVersion(sr.getNid());
+                                                                     .getLatestSememeVersion(sr.getNid());
 
             if (latest.isPresent()) {
                result.add(AssociationInstance.read(latest.get()

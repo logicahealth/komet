@@ -55,12 +55,11 @@ import sh.isaac.api.externalizable.OchreExternalizableObjectType;
  */
 public class StampComment
          implements OchreExternalizable {
-   
    /** The comment. */
    private String comment;
-   
+
    /** The stamp sequence. */
-   private int    stampSequence;
+   private int stampSequence;
 
    //~--- constructors --------------------------------------------------------
 
@@ -74,7 +73,7 @@ public class StampComment
 
       if (version == getDataFormatVersion()) {
          this.stampSequence = StampUniversal.get(in)
-                                       .getStampSequence();
+                                            .getStampSequence();
          this.comment       = in.readUTF();
       } else {
          throw new UnsupportedOperationException("Can't handle version: " + version);

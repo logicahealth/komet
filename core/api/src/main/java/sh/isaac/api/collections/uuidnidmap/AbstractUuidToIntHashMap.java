@@ -59,7 +59,6 @@ import sh.isaac.api.util.UUIDUtil;
  */
 public abstract class AbstractUuidToIntHashMap
         extends AbstractSet {
-   
    /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 1L;
 
@@ -134,9 +133,9 @@ public abstract class AbstractUuidToIntHashMap
     * such key exists.
     */
    public long[] keyOf(final int value) {
-      final long[] foundKey = new long[2];
-      final boolean      notFound = forEachPair((long[] iterKey,
-                                           int iterValue) -> {
+      final long[]  foundKey = new long[2];
+      final boolean notFound = forEachPair((long[] iterKey,
+                                            int iterValue) -> {
                final boolean found = value == iterValue;
 
                if (found) {
@@ -181,9 +180,9 @@ public abstract class AbstractUuidToIntHashMap
    public void keys(final UuidArrayList list) {
       list.clear();
       forEachKey(key -> {
-	   list.add(key);
-	   return true;
-	});
+                    list.add(key);
+                    return true;
+                 });
    }
 
    /**
@@ -351,9 +350,9 @@ public abstract class AbstractUuidToIntHashMap
    public void values(final IntArrayList list) {
       list.clear();
       forEachKey(key -> {
-	   list.add(get(key));
-	   return true;
-	});
+                    list.add(get(key));
+                    return true;
+                 });
    }
 
    //~--- get methods ---------------------------------------------------------

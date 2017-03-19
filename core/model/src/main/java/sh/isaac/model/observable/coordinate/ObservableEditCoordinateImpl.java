@@ -59,16 +59,15 @@ import sh.isaac.model.observable.ObservableFields;
 public class ObservableEditCoordinateImpl
         extends ObservableCoordinateImpl
          implements ObservableEditCoordinate {
-   
    /** The author sequence property. */
-   private IntegerProperty          authorSequenceProperty = null;
-   
+   private IntegerProperty authorSequenceProperty = null;
+
    /** The module sequence property. */
-   private IntegerProperty          moduleSequenceProperty = null;
-   
+   private IntegerProperty moduleSequenceProperty = null;
+
    /** The path sequence property. */
-   private IntegerProperty          pathSequenceProperty   = null;
-   
+   private IntegerProperty pathSequenceProperty = null;
+
    /** The edit coordinate. */
    private final EditCoordinateImpl editCoordinate;
 

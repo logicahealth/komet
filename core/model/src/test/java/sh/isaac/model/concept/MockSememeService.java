@@ -79,10 +79,9 @@ import sh.isaac.api.coordinate.StampPosition;
 @Rank(value = -50)
 public class MockSememeService
          implements SememeService {
-   
    /** The component sememe map. */
-   ConcurrentHashMap<Integer, SememeSequenceSet> componentSememeMap                   = new ConcurrentHashMap<>();
-   
+   ConcurrentHashMap<Integer, SememeSequenceSet> componentSememeMap = new ConcurrentHashMap<>();
+
    /** The sememe map. */
    ConcurrentHashMap<Integer, SememeChronology<? extends SememeVersion<?>>> sememeMap = new ConcurrentHashMap<>();
 
@@ -118,7 +117,7 @@ public class MockSememeService
    public void writeSememe(SememeChronology<?> sememeChronicle, SememeConstraints... constraints) {
       if (this.componentSememeMap.containsKey(sememeChronicle.getReferencedComponentNid())) {
          this.componentSememeMap.get(sememeChronicle.getReferencedComponentNid())
-                           .add(sememeChronicle.getSememeSequence());
+                                .add(sememeChronicle.getSememeSequence());
       } else {
          final SememeSequenceSet set = SememeSequenceSet.of(sememeChronicle.getSememeSequence());
 
@@ -126,7 +125,7 @@ public class MockSememeService
       }
 
       this.sememeMap.put(sememeChronicle.getSememeSequence(),
-                    (SememeChronology<? extends SememeVersion<?>>) sememeChronicle);
+                         (SememeChronology<? extends SememeVersion<?>>) sememeChronicle);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -169,7 +168,7 @@ public class MockSememeService
     */
    @Override
    public Stream<SememeChronology<? extends DescriptionSememe<?>>> getDescriptionsForComponent(int componentNid) {
-      final SememeSequenceSet                                                set     = this.componentSememeMap.get(componentNid);
+      final SememeSequenceSet set = this.componentSememeMap.get(componentNid);
       final Stream.Builder<SememeChronology<? extends DescriptionSememe<?>>> builder = Stream.builder();
 
       if (set != null) {
@@ -204,7 +203,7 @@ public class MockSememeService
    @Override
    public Stream<SememeChronology<? extends SememeVersion<?>>> getParallelSememeStream() {
       return this.sememeMap.values()
-                      .parallelStream();
+                           .parallelStream();
    }
 
    /**
@@ -216,7 +215,7 @@ public class MockSememeService
    @Override
    public SememeChronology<? extends SememeVersion<?>> getSememe(int sememeId) {
       return this.sememeMap.get(Get.identifierService()
-                              .getSememeSequence(sememeId));
+                                   .getSememeSequence(sememeId));
    }
 
    /**
@@ -228,7 +227,7 @@ public class MockSememeService
    @Override
    public boolean hasSememe(int sememeId) {
       return this.sememeMap.containsKey(Get.identifierService()
-                                      .getSememeSequence(sememeId));
+            .getSememeSequence(sememeId));
    }
 
    /**
@@ -239,7 +238,7 @@ public class MockSememeService
    @Override
    public Stream<SememeChronology<? extends SememeVersion<?>>> getSememeChronologyStream() {
       return this.sememeMap.values()
-                      .stream();
+                           .stream();
    }
 
    /**
@@ -260,8 +259,8 @@ public class MockSememeService
    @Override
    public IntStream getSememeKeyParallelStream() {
       return this.sememeMap.keySet()
-                      .parallelStream()
-                      .mapToInt(i -> i);
+                           .parallelStream()
+                           .mapToInt(i -> i);
    }
 
    /**
@@ -272,8 +271,8 @@ public class MockSememeService
    @Override
    public IntStream getSememeKeyStream() {
       return this.sememeMap.keySet()
-                      .stream()
-                      .mapToInt(i -> i);
+                           .stream()
+                           .mapToInt(i -> i);
    }
 
    /**

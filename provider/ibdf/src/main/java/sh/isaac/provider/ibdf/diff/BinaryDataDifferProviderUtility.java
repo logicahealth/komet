@@ -102,30 +102,29 @@ import sh.isaac.model.sememe.version.StringSememeImpl;
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 public class BinaryDataDifferProviderUtility {
-   
    /** The component change found. */
    static boolean componentChangeFound = false;
-   
+
    /** The new import date. */
-   static long    newImportDate;
+   static long newImportDate;
 
    //~--- fields --------------------------------------------------------------
 
    /** The diff on status. */
-   boolean                         diffOnStatus;
-   
+   boolean diffOnStatus;
+
    /** The diff on timestamp. */
-   boolean                         diffOnTimestamp;
-   
+   boolean diffOnTimestamp;
+
    /** The diff on author. */
-   boolean                         diffOnAuthor;
-   
+   boolean diffOnAuthor;
+
    /** The diff on module. */
-   boolean                         diffOnModule;
-   
+   boolean diffOnModule;
+
    /** The diff on path. */
-   boolean                         diffOnPath;
-   
+   boolean diffOnPath;
+
    /** The sememe builder service. */
    private final SememeBuilderService<?> sememeBuilderService_;
 
@@ -145,11 +144,11 @@ public class BinaryDataDifferProviderUtility {
          Boolean diffOnAuthor,
          Boolean diffOnModule,
          Boolean diffOnPath) {
-      this.diffOnStatus     = diffOnStatus;
-      this.diffOnTimestamp  = diffOnTimestamp;
-      this.diffOnAuthor     = diffOnAuthor;
-      this.diffOnModule     = diffOnModule;
-      this.diffOnPath       = diffOnPath;
+      this.diffOnStatus          = diffOnStatus;
+      this.diffOnTimestamp       = diffOnTimestamp;
+      this.diffOnAuthor          = diffOnAuthor;
+      this.diffOnModule          = diffOnModule;
+      this.diffOnPath            = diffOnPath;
       this.sememeBuilderService_ = Get.sememeBuilderService();
    }
 
@@ -200,7 +199,7 @@ public class BinaryDataDifferProviderUtility {
                                    ObjectChronology<?> newChron,
                                    int stampSeq,
                                    OchreExternalizableObjectType type) {
-      List<StampedVersion> oldVersions = null;
+      List<StampedVersion>       oldVersions = null;
       final List<StampedVersion> newVersions = (List<StampedVersion>) newChron.getVersionList();
 
       if (oldChron == null) {
@@ -278,7 +277,7 @@ public class BinaryDataDifferProviderUtility {
             return newChron;
          } else if (type == OchreExternalizableObjectType.SEMEME) {
             final List<ObjectChronology<? extends StampedVersion>> builtObjects = new ArrayList<>();
-            SememeChronology<?>                              sememe       = null;
+            SememeChronology<?>                                    sememe       = null;
 
             for (final StampedVersion version: newChron.getVersionList()) {
                final SememeBuilder<?> builder = getBuilder((SememeVersion<?>) version);
@@ -387,11 +386,12 @@ public class BinaryDataDifferProviderUtility {
       case DESCRIPTION:
          final DescriptionSememe<?> descSememe = (DescriptionSememe<?>) version;
 
-         builder = this.sememeBuilderService_.getDescriptionSememeBuilder(descSememe.getCaseSignificanceConceptSequence(),
-               descSememe.getLanguageConceptSequence(),
-               descSememe.getDescriptionTypeConceptSequence(),
-               descSememe.getText(),
-               descSememe.getReferencedComponentNid());
+         builder =
+            this.sememeBuilderService_.getDescriptionSememeBuilder(descSememe.getCaseSignificanceConceptSequence(),
+                  descSememe.getLanguageConceptSequence(),
+                  descSememe.getDescriptionTypeConceptSequence(),
+                  descSememe.getText(),
+                  descSememe.getReferencedComponentNid());
          break;
 
       case DYNAMIC:

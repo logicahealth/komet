@@ -65,7 +65,6 @@ import org.roaringbitmap.IntIterator;
  * @author kec
  */
 public interface IntSet {
-   
    /**
     * Adds the.
     *

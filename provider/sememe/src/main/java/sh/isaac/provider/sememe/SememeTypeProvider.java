@@ -63,10 +63,9 @@ import sh.isaac.api.coordinate.StampPosition;
  */
 public class SememeTypeProvider<V extends SememeVersion<?>>
          implements SememeServiceTyped<V> {
-   
    /** The type. */
-   Class<V>      type;
-   
+   Class<V> type;
+
    /** The sememe provider. */
    SememeService sememeProvider;
 

@@ -94,7 +94,6 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
  */
 @HK2("integration")
 public class ImportExportTest {
-   
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
@@ -102,9 +101,9 @@ public class ImportExportTest {
 
    /** The builder provider. */
    LogicalExpressionBuilderOchreProvider builderProvider = new LogicalExpressionBuilderOchreProvider();
-   
+
    /** The import stats. */
-   OchreExternalizableStatsTestFilter    importStats;
+   OchreExternalizableStatsTestFilter importStats;
 
    //~--- methods -------------------------------------------------------------
 
@@ -119,13 +118,13 @@ public class ImportExportTest {
       LOG.info("Classifying");
 
       final StampCoordinate stampCoordinate = Get.coordinateFactory()
-                                           .createDevelopmentLatestStampCoordinate();
+                                                 .createDevelopmentLatestStampCoordinate();
       final LogicCoordinate logicCoordinate = Get.coordinateFactory()
-                                           .createStandardElProfileLogicCoordinate();
+                                                 .createStandardElProfileLogicCoordinate();
       final EditCoordinate  editCoordinate  = Get.coordinateFactory()
-                                           .createClassifierSolorOverlayEditCoordinate();
+                                                 .createClassifierSolorOverlayEditCoordinate();
       final ClassifierService logicService = Get.logicService()
-                                          .getClassifierService(stampCoordinate, logicCoordinate, editCoordinate);
+                                                .getClassifierService(stampCoordinate, logicCoordinate, editCoordinate);
       final Task<ClassifierResults> classifyTask = logicService.classify();
 
       try {
@@ -179,8 +178,8 @@ public class ImportExportTest {
       try {
          final OchreExternalizableStatsTestFilter exportStats = new OchreExternalizableStatsTestFilter();
          final DataWriterService writer = Get.binaryDataWriter(Paths.get("target",
-                                                                   "data",
-                                                                   "IsaacMetadataAuxiliary.export.ibdf"));
+                                                                         "data",
+                                                                         "IsaacMetadataAuxiliary.export.ibdf"));
 
          Get.ochreExternalizableStream()
             .filter(exportStats)
@@ -203,7 +202,8 @@ public class ImportExportTest {
          Assert.assertEquals(exportStats.concepts.get(), this.importStats.concepts.get());
 
          // One new sememe for every concept except the root concept from classification...
-         Assert.assertEquals(exportStats.sememes.get(), this.importStats.sememes.get() + exportStats.concepts.get() - 1);
+         Assert.assertEquals(exportStats.sememes.get(),
+                             this.importStats.sememes.get() + exportStats.concepts.get() - 1);
 
          // One new stamp comment for the classify writeback
          Assert.assertEquals(exportStats.stampComments.get(), this.importStats.stampComments.get() + 1);
@@ -228,8 +228,8 @@ public class ImportExportTest {
          final AtomicInteger                      importCount = new AtomicInteger(0);
          final OchreExternalizableStatsTestFilter exportStats = new OchreExternalizableStatsTestFilter();
          final DataWriterService writer = Get.binaryDataWriter(Paths.get("target",
-                                                                   "data",
-                                                                   "IsaacMetadataAuxiliary.export.ibdf"));
+                                                                         "data",
+                                                                         "IsaacMetadataAuxiliary.export.ibdf"));
 
          Get.ochreExternalizableStream()
             .filter(exportStats)
@@ -242,8 +242,8 @@ public class ImportExportTest {
          Assert.assertEquals(exportStats, this.importStats);
 
          final BinaryDataReaderService reader = Get.binaryDataReader(Paths.get("target",
-                                                                         "data",
-                                                                         "IsaacMetadataAuxiliary.export.ibdf"));
+                                                                               "data",
+                                                                               "IsaacMetadataAuxiliary.export.ibdf"));
          final OchreExternalizableStatsTestFilter importStats   = new OchreExternalizableStatsTestFilter();
          final CommitService                      commitService = Get.commitService();
 
@@ -273,16 +273,16 @@ public class ImportExportTest {
       LOG.info("Testing inferred taxonomy");
 
       final TaxonomyCoordinate taxonomyCoordinate = Get.configurationService()
-                                                 .getDefaultTaxonomyCoordinate()
-                                                 .makeAnalog(PremiseType.INFERRED);
+                                                       .getDefaultTaxonomyCoordinate()
+                                                       .makeAnalog(PremiseType.INFERRED);
       final int[] roots = Get.taxonomyService()
-                       .getRoots(taxonomyCoordinate)
-                       .toArray();
+                             .getRoots(taxonomyCoordinate)
+                             .toArray();
 
       Assert.assertEquals(roots.length, 1);
 
       final Tree          taxonomyTree  = Get.taxonomyService()
-                                       .getTaxonomyTree(taxonomyCoordinate);
+                                             .getTaxonomyTree(taxonomyCoordinate);
       final AtomicInteger taxonomyCount = new AtomicInteger(0);
 
       taxonomyTree.depthFirstProcess(roots[0],
@@ -303,8 +303,8 @@ public class ImportExportTest {
 
       try {
          final BinaryDataReaderService reader = Get.binaryDataReader(Paths.get("target",
-                                                                         "data",
-                                                                         "IsaacMetadataAuxiliary.ibdf"));
+                                                                               "data",
+                                                                               "IsaacMetadataAuxiliary.ibdf"));
          final CommitService commitService = Get.commitService();
 
          this.importStats = new OchreExternalizableStatsTestFilter();
@@ -314,7 +314,7 @@ public class ImportExportTest {
                            commitService.importNoChecks(object);
                         });
          commitService.postProcessImportNoChecks();
-         this.importStats.sememes.incrementAndGet();        // For the commit that the ChangeSetLoadProvider makes on startup
+         this.importStats.sememes.incrementAndGet();  // For the commit that the ChangeSetLoadProvider makes on startup
          this.importStats.stampComments.incrementAndGet();  // For the commit that the ChangeSetLoadProvider makes on startup
          LOG.info("Loaded components: " + this.importStats);
       } catch (final FileNotFoundException e) {
@@ -333,16 +333,16 @@ public class ImportExportTest {
       LOG.info("Testing stated taxonomy");
 
       final TaxonomyCoordinate taxonomyCoordinate = Get.configurationService()
-                                                 .getDefaultTaxonomyCoordinate()
-                                                 .makeAnalog(PremiseType.STATED);
+                                                       .getDefaultTaxonomyCoordinate()
+                                                       .makeAnalog(PremiseType.STATED);
       final int[] roots = Get.taxonomyService()
-                       .getRoots(taxonomyCoordinate)
-                       .toArray();
+                             .getRoots(taxonomyCoordinate)
+                             .toArray();
 
       Assert.assertEquals(roots.length, 1);
 
       final Tree          taxonomyTree  = Get.taxonomyService()
-                                       .getTaxonomyTree(taxonomyCoordinate);
+                                             .getTaxonomyTree(taxonomyCoordinate);
       final AtomicInteger taxonomyCount = new AtomicInteger(0);
 
       taxonomyTree.depthFirstProcess(roots[0],

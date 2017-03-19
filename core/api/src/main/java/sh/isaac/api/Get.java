@@ -114,78 +114,77 @@ import sh.isaac.api.util.WorkExecutors;
 @Singleton
 public class Get
          implements OchreCache {
-   
    /** The Constant LOG. */
-   private static final Logger                    LOG = LogManager.getLogger();
-   
+   private static final Logger LOG = LogManager.getLogger();
+
    /** The active task set. */
-   private static ActiveTasks                     activeTaskSet;
-   
+   private static ActiveTasks activeTaskSet;
+
    /** The configuration service. */
-   private static ConfigurationService            configurationService;
-   
+   private static ConfigurationService configurationService;
+
    /** The commit service. */
-   private static CommitService                   commitService;
-   
+   private static CommitService commitService;
+
    /** The concept active service. */
-   private static ConceptActiveService            conceptActiveService;
-   
+   private static ConceptActiveService conceptActiveService;
+
    /** The concept service. */
-   private static ConceptService                  conceptService;
-   
+   private static ConceptService conceptService;
+
    /** The meta content service. */
-   private static MetaContentService              metaContentService;
-   
+   private static MetaContentService metaContentService;
+
    /** The concept snapshot. */
-   private static ConceptSnapshotService          conceptSnapshot;
-   
+   private static ConceptSnapshotService conceptSnapshot;
+
    /** The identified object service. */
-   private static IdentifiedObjectService         identifiedObjectService;
-   
+   private static IdentifiedObjectService identifiedObjectService;
+
    /** The identifier service. */
-   private static IdentifierService               identifierService;
-   
+   private static IdentifierService identifierService;
+
    /** The language coordinate service. */
-   private static LanguageCoordinateService       languageCoordinateService;
-   
+   private static LanguageCoordinateService languageCoordinateService;
+
    /** The logical expression builder service. */
    private static LogicalExpressionBuilderService logicalExpressionBuilderService;
-   
+
    /** The logic service. */
-   private static LogicService                    logicService;
-   
+   private static LogicService logicService;
+
    /** The binary data differ service. */
-   private static BinaryDataDifferService         binaryDataDifferService;
-   
+   private static BinaryDataDifferService binaryDataDifferService;
+
    /** The path service. */
-   private static PathService                     pathService;
-   
+   private static PathService pathService;
+
    /** The sememe builder service. */
-   private static SememeBuilderService<?>         sememeBuilderService;
-   
+   private static SememeBuilderService<?> sememeBuilderService;
+
    /** The sememe service. */
-   private static SememeService                   sememeService;
-   
+   private static SememeService sememeService;
+
    /** The coordinate factory. */
-   private static CoordinateFactory               coordinateFactory;
-   
+   private static CoordinateFactory coordinateFactory;
+
    /** The taxonomy service. */
-   private static TaxonomyService                 taxonomyService;
-   
+   private static TaxonomyService taxonomyService;
+
    /** The work executors. */
-   private static WorkExecutors                   workExecutors;
-   
+   private static WorkExecutors workExecutors;
+
    /** The concept builder service. */
-   private static ConceptBuilderService           conceptBuilderService;
-   
+   private static ConceptBuilderService conceptBuilderService;
+
    /** The stamp service. */
-   private static StampService                    stampService;
-   
+   private static StampService stampService;
+
    /** The post commit service. */
-   private static PostCommitService               postCommitService;
-   
+   private static PostCommitService postCommitService;
+
    /** The change set writer service. */
-   private static ChangeSetWriterService          changeSetWriterService;
+   private static ChangeSetWriterService changeSetWriterService;
 
    //~--- constructors --------------------------------------------------------
 

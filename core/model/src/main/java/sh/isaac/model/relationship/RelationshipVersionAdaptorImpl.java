@@ -63,15 +63,14 @@ import sh.isaac.api.relationship.RelationshipVersionAdaptor;
  */
 public class RelationshipVersionAdaptorImpl
          implements RelationshipVersionAdaptor<RelationshipVersionAdaptorImpl> {
-   
    /** The relationship adaptor chronicle key. */
    RelationshipAdaptorChronicleKeyImpl relationshipAdaptorChronicleKey;
-   
+
    /** The chronology. */
-   RelationshipAdaptorChronologyImpl   chronology;
-   
+   RelationshipAdaptorChronologyImpl chronology;
+
    /** The stamp sequence. */
-   int                                 stampSequence;
+   int stampSequence;
 
    //~--- constructors --------------------------------------------------------
 

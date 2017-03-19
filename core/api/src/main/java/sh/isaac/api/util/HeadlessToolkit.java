@@ -142,20 +142,19 @@ import com.sun.scenario.effect.Filterable;
 @SuppressWarnings("restriction")
 public class HeadlessToolkit
         extends Toolkit {
-   
    /** The Constant log. */
    private static final Logger log = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
    /** The toolkit running. */
-   private final AtomicBoolean         toolkitRunning = new AtomicBoolean(false);
-   
+   private final AtomicBoolean toolkitRunning = new AtomicBoolean(false);
+
    /** The tasks. */
-   LinkedBlockingQueue<Runnable> tasks          = new LinkedBlockingQueue<>();
-   
+   LinkedBlockingQueue<Runnable> tasks = new LinkedBlockingQueue<>();
+
    /** The context map. */
-   private final Map<Object, Object>   contextMap     = Collections.synchronizedMap(new HashMap<>());
+   private final Map<Object, Object> contextMap = Collections.synchronizedMap(new HashMap<>());
 
    //~--- methods -------------------------------------------------------------
 
@@ -200,7 +199,7 @@ public class HeadlessToolkit
     * @return true, if successful
     */
    @Override
-public boolean canStartNestedEventLoop() {
+   public boolean canStartNestedEventLoop() {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
@@ -639,23 +638,23 @@ public boolean canStartNestedEventLoop() {
          log.info("Starting a stand-in JavaFX Application Thread");
 
          final Thread t = new Thread(() -> {
-                                  final Thread user = Thread.currentThread();
+                                        final Thread user = Thread.currentThread();
 
-                                  user.setName("JavaFX Application Thread");
+                                        user.setName("JavaFX Application Thread");
 
-                                  // Set context class loader to the same as the thread that called startup
-                                  user.setContextClassLoader(user.getContextClassLoader());
-                                  setFxUserThread(user);
+                                        // Set context class loader to the same as the thread that called startup
+                                        user.setContextClassLoader(user.getContextClassLoader());
+                                        setFxUserThread(user);
 
-                                  while (true) {
-                                     try {
-                                        this.tasks.take()
-                                             .run();
-                                     } catch (final Exception e) {
-                                        // don't care
-                                     }
-                                  }
-                               });
+                                        while (true) {
+                                           try {
+                                              this.tasks.take()
+                                                    .run();
+                                           } catch (final Exception e) {
+                                              // don't care
+                                           }
+                                        }
+                                     });
 
          t.setDaemon(true);
          t.start();
@@ -963,7 +962,7 @@ public boolean canStartNestedEventLoop() {
     * @return the screen configuration accessor
     */
    @Override
-public ScreenConfigurationAccessor getScreenConfigurationAccessor() {
+   public ScreenConfigurationAccessor getScreenConfigurationAccessor() {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }

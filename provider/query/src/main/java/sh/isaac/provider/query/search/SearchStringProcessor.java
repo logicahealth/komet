@@ -53,28 +53,28 @@ import java.util.ArrayList;
 
 //TODO this class may not even need to exist, I think it was developed out of a mis-understanding of lucene.  Need to reevaulate as part of the search rewrite.
 public class SearchStringProcessor {
-   
    /** The Constant punctuationRegEx. */
-   public static final String punctuationRegEx       = "!|\"|,|\'s|\'|:|;|\\?|`";
-   
+   public static final String punctuationRegEx = "!|\"|,|\'s|\'|:|;|\\?|`";
+
    /** The Constant symbolsRegEx. */
-   public static final String symbolsRegEx           = "&|#|\\$|\\%|@|\\\\|_|\\|";
-   
+   public static final String symbolsRegEx = "&|#|\\$|\\%|@|\\\\|_|\\|";
+
    /** The Constant operatorsRegEx. */
-   public static final String operatorsRegEx         = "\\+|\\-|\\*|\\/|<|>|=|\\^|~";
-   
+   public static final String operatorsRegEx = "\\+|\\-|\\*|\\/|<|>|=|\\^|~";
+
    /** The Constant parensRegEx. */
-   public static final String parensRegEx            = "\\(|\\)|\\{|\\}|\\[|\\]";
-   
+   public static final String parensRegEx = "\\(|\\)|\\{|\\}|\\[|\\]";
+
    /** The Constant escapedCharactersRegEx. */
    public static final String escapedCharactersRegEx = "\\+|\\-|&|\\||!|\\(|\\)|\\{|\\}|\\[|\\]|\\^|\"|~|\\*|\\?|:|\\/";
 
    /** The Constant nonPrintableRegEx. */
+
    // Note: \xc2\xa0 is non-breaking space
    public static final String nonPrintableRegEx =
       "\\x00|\\x01|\\x02|\\x03|\\x04|\\x05|\\x06|\\x07|\\x08|\\x09|\\x0a|\\x0b|\\x0c|\\x0d|\\x0e|\\x0f|" +
       "\\x10|\\x11|\\x12|\\x13|\\x14|\\x15|\\x16|\\x17|\\x18|\\x19|\\x1a|\\x1b|\\x1c|\\x1d|\\x1e|\\x1f|" + "\\xc2\\xa0";
-   
+
    /** The Constant stopWords. */
    public static final ArrayList<String> stopWords = new ArrayList<String>();
 
@@ -130,8 +130,8 @@ public class SearchStringProcessor {
     */
    public static String removeStopWords(String s) {
       final String[]      words = s.trim()
-                             .toLowerCase()
-                             .split("\\s+");
+                                   .toLowerCase()
+                                   .split("\\s+");
       final StringBuilder sb    = new StringBuilder("");
 
       for (String w: words) {
@@ -155,7 +155,7 @@ public class SearchStringProcessor {
     */
    public static String stripAll(String s) {
       final String allRegEx = punctuationRegEx + "|" + symbolsRegEx + "|" + operatorsRegEx + "|" + parensRegEx + "|" +
-                        nonPrintableRegEx;
+                              nonPrintableRegEx;
 
       return s.replaceAll(allRegEx, " ");
    }

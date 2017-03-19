@@ -67,7 +67,6 @@ import sh.isaac.api.coordinate.PremiseType;
  */
 public interface RelationshipVersionAdaptor<T extends RelationshipVersionAdaptor<T>>
         extends SememeVersion<T> {
-   
    /**
     * Gets the chronicle key.
     *

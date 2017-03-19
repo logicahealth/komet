@@ -67,15 +67,14 @@ import sh.isaac.provider.query.lucene.LuceneIndexer;
  */
 public class TopDocsFilteredCollector
         extends Collector {
-   
    /** The collector. */
    TopScoreDocCollector collector_;
-   
+
    /** The searcher. */
-   IndexSearcher        searcher_;
-   
+   IndexSearcher searcher_;
+
    /** The filter. */
-   Predicate<Integer>   filter_;
+   Predicate<Integer> filter_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -124,8 +123,8 @@ public class TopDocsFilteredCollector
             throws IOException {
       final Document document     = this.searcher_.doc(docId);
       final int      componentNid = document.getField(LuceneIndexer.FIELD_COMPONENT_NID)
-                                      .numericValue()
-                                      .intValue();
+                                            .numericValue()
+                                            .intValue();
 
       if (this.filter_.test(componentNid)) {
          this.collector_.collect(docId);

@@ -54,7 +54,6 @@ import sh.isaac.model.waitfree.WaitFreeMergeSerializer;
  */
 public class ConceptSerializer
          implements WaitFreeMergeSerializer<ConceptChronologyImpl> {
-   
    /**
     * Deserialize.
     *

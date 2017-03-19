@@ -66,29 +66,28 @@ import sh.isaac.model.waitfree.CasSequenceObjectMap;
  */
 public class TaxonomyRecordPrimitive
          implements WaitFreeComparable {
-   
    /** The Constant SEQUENCE_BIT_MASK. */
    public static final int SEQUENCE_BIT_MASK = 0x00FFFFFF;
-   
+
    /** The Constant STAMP_BIT_MASK. */
-   public static final int STAMP_BIT_MASK    = 0x00FFFFFF;
-   
+   public static final int STAMP_BIT_MASK = 0x00FFFFFF;
+
    /** The Constant LENGTH_BIT_MASK. */
-   public static final int LENGTH_BIT_MASK   = 0xFF000000;
-   
+   public static final int LENGTH_BIT_MASK = 0xFF000000;
+
    /** The Constant FLAGS_BIT_MASK. */
-   public static final int FLAGS_BIT_MASK    = 0xFF000000;
+   public static final int FLAGS_BIT_MASK = 0xFF000000;
 
    //~--- fields --------------------------------------------------------------
 
    /** The unpacked. */
    transient TaxonomyRecordUnpacked unpacked = null;
-   
+
    /** The write sequence. */
-   int                              writeSequence;
-   
+   int writeSequence;
+
    /** The taxonomy data. */
-   int[]                            taxonomyData;
+   int[] taxonomyData;
 
    //~--- constructors --------------------------------------------------------
 
@@ -340,7 +339,7 @@ public class TaxonomyRecordPrimitive
     */
    public void setConceptSequenceStampRecordLength(int index, int length) {
       this.taxonomyData[index] = this.taxonomyData[index] & SEQUENCE_BIT_MASK;
-      length              = length << 24;
+      length                   = length << 24;
       this.taxonomyData[index] = this.taxonomyData[index] + length;
    }
 

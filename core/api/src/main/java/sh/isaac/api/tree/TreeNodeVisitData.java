@@ -60,45 +60,44 @@ import sh.isaac.api.collections.SequenceSet;
  * @author kec
  */
 public class TreeNodeVisitData {
-   
    /** The visit started. */
-   private SequenceSet<?>       visitStarted = new SequenceSet<>();
-   
+   private SequenceSet<?> visitStarted = new SequenceSet<>();
+
    /** The visit ended. */
-   private SequenceSet<?>       visitEnded   = new SequenceSet<>();
-   
+   private SequenceSet<?> visitEnded = new SequenceSet<>();
+
    /** The leaf nodes. */
-   private SequenceSet<?>       leafNodes    = new SequenceSet<>();
-   
+   private SequenceSet<?> leafNodes = new SequenceSet<>();
+
    /** The max depth. */
-   private int                  maxDepth     = 0;
-   
+   private int maxDepth = 0;
+
    /** The time. */
-   private int                  time         = 0;
-   
+   private int time = 0;
+
    /** The nodes visited. */
-   private int                  nodesVisited = 0;
-   
+   private int nodesVisited = 0;
+
    /** The distance list. */
    protected final IntArrayList distanceList;
-   
+
    /** The discovery time list. */
    protected final IntArrayList discoveryTimeList;
-   
+
    /** The finish time list. */
    protected final IntArrayList finishTimeList;
-   
+
    /** The predecessor sequence list. */
    protected final IntArrayList predecessorSequenceList;
-   
+
    /** The sibling group sequence list. */
    protected final IntArrayList siblingGroupSequenceList;
-   
+
    /** The concepts referenced at node or above. */
-   private OpenIntHashSet[]     conceptsReferencedAtNodeOrAbove;
-   
+   private OpenIntHashSet[] conceptsReferencedAtNodeOrAbove;
+
    /** The graph size. */
-   private final int            graphSize;
+   private final int graphSize;
 
    //~--- constructors --------------------------------------------------------
 

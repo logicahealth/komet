@@ -46,7 +46,6 @@ package sh.isaac.api.util;
  */
 public class StringUtils
         extends org.apache.commons.lang3.StringUtils {
-   
    /**
     * Null-safe string compare.
     *

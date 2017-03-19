@@ -55,25 +55,23 @@ import org.jvnet.hk2.annotations.Contract;
 
 /**
  * HK2 Service Contract for BinaryDataDifferProvider
- * 
+ *
  * {@link BinaryDataDifferProvider}.
  *
  * @author <a href="mailto:jefron@westcoastinformatics.com">Jesse Efron</a>
  */
 @Contract
 public interface BinaryDataDifferService {
-   
    /**
     * The Enum ChangeType.
     */
    public enum ChangeType {
-      
       /** The new components. */
       NEW_COMPONENTS,
-      
+
       /** The retired components. */
       RETIRED_COMPONENTS,
-      
+
       /** The modified components. */
       MODIFIED_COMPONENTS;
    }

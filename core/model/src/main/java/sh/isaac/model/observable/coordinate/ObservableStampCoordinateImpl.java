@@ -72,21 +72,20 @@ import sh.isaac.model.observable.ObservableFields;
 public class ObservableStampCoordinateImpl
         extends ObservableCoordinateImpl
          implements ObservableStampCoordinate {
-   
    /** The stamp coordinate. */
-   StampCoordinateImpl                     stampCoordinate;
-   
+   StampCoordinateImpl stampCoordinate;
+
    /** The stamp precedence property. */
-   ObjectProperty<StampPrecedence>         stampPrecedenceProperty;
-   
+   ObjectProperty<StampPrecedence> stampPrecedenceProperty;
+
    /** The stamp position property. */
    ObjectProperty<ObservableStampPosition> stampPositionProperty;
-   
+
    /** The module sequences property. */
-   ObjectProperty<ObservableIntegerArray>  moduleSequencesProperty;
-   
+   ObjectProperty<ObservableIntegerArray> moduleSequencesProperty;
+
    /** The allowed states. */
-   SetProperty<State>                      allowedStates;
+   SetProperty<State> allowedStates;
 
    //~--- constructors --------------------------------------------------------
 

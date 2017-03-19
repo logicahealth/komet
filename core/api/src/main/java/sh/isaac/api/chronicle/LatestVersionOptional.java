@@ -56,7 +56,7 @@ import java.util.function.Supplier;
 
 /**
  * TODO implement class that combines latest and optional to reduce API complexity...
- * 
+ *
  * Maybe a bad idea as collections and streams return the other Optional...
  * And if we create a new class, can't take advantage of those features,
  * and Optional is declared final, so we can't subclass.
@@ -73,8 +73,8 @@ public class LatestVersionOptional<V> {
    //~--- fields --------------------------------------------------------------
 
    /** The value. */
-   V                value;
-   
+   V value;
+
    /** The contradictions. */
    Optional<Set<V>> contradictions;
 
@@ -93,7 +93,7 @@ public class LatestVersionOptional<V> {
     * @param latest the latest
     */
    public LatestVersionOptional(V latest) {
-      this.value     = Objects.requireNonNull(latest, "latest version cannot be null");
+      this.value          = Objects.requireNonNull(latest, "latest version cannot be null");
       this.contradictions = Optional.empty();
    }
 
@@ -129,7 +129,7 @@ public class LatestVersionOptional<V> {
          }
 
          this.contradictions.get()
-                       .add(value);
+                            .add(value);
       }
    }
 
@@ -146,8 +146,7 @@ public class LatestVersionOptional<V> {
     */
    public static <V> LatestVersionOptional<V> empty() {
       @SuppressWarnings("unchecked")
-	final
-      LatestVersionOptional<V> t = (LatestVersionOptional<V>) EMPTY;
+      final LatestVersionOptional<V> t = (LatestVersionOptional<V>) EMPTY;
 
       return t;
    }
@@ -198,7 +197,7 @@ public class LatestVersionOptional<V> {
          return this;
       } else {
          return predicate.test(this.value) ? this
-                                      : empty();
+                                           : empty();
       }
    }
 
@@ -270,14 +269,14 @@ public class LatestVersionOptional<V> {
     * following code traverses a stream of file names, selects one that has
     * not yet been processed, and then opens that file, returning an
     * {@code Optional<FileInputStream>}:
-    * 
+    *
     * <pre>{@code
     *     Optional<FileInputStream> fis =
     *         names.stream().filter(name -> !isProcessedYet(name))
     *                       .findFirst()
     *                       .map(name -> new FileInputStream(name));
     * }</pre>
-    * 
+    *
     * Here, {@code findFirst} returns an {@code Optional<String>}, and then
     * {@code map} returns an {@code Optional<FileInputStream>} for the desired
     * file if one exists.
@@ -327,7 +326,7 @@ public class LatestVersionOptional<V> {
     */
    public V orElse(V other) {
       return (this.value != null) ? this.value
-                             : other;
+                                  : other;
    }
 
    /**
@@ -342,7 +341,7 @@ public class LatestVersionOptional<V> {
     */
    public V orElseGet(Supplier<? extends V> other) {
       return (this.value != null) ? this.value
-                             : other.get();
+                                  : other.get();
    }
 
    /**
@@ -382,7 +381,7 @@ public class LatestVersionOptional<V> {
    @Override
    public String toString() {
       return (this.value != null) ? String.format("LatestVersionOptional[%s]", this.value)
-                             : "LatestVersionOptional.empty";
+                                  : "LatestVersionOptional.empty";
    }
 
    //~--- get methods ---------------------------------------------------------

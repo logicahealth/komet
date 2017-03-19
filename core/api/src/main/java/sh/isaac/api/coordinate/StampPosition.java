@@ -52,7 +52,6 @@ import java.time.Instant;
  */
 public interface StampPosition
         extends Comparable<StampPosition> {
-   
    /**
     * Compare to.
     *

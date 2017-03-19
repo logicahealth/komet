@@ -54,7 +54,6 @@ import sh.isaac.api.component.sememe.version.LogicGraphSememe;
  */
 @Contract
 public interface LogicalExpressionBuilderService {
-   
    /**
     * From sememe.
     *

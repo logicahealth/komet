@@ -62,7 +62,6 @@ import sh.isaac.api.LookupService;
 )
 public class Shutdown
         extends AbstractMojo {
-   
    /**
     * Execute.
     *

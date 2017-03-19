@@ -62,7 +62,6 @@ import sh.isaac.api.sync.SyncFiles;
 @Service(name = "get-and-link-profiles-scm")
 public class LinkProfilesToSCMMojo
         extends ProfilesMojoBase {
-   
    /**
     * Instantiates a new link profiles to SCM mojo.
     *

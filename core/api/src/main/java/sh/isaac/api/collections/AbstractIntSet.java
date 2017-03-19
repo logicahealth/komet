@@ -67,20 +67,21 @@ import org.apache.mahout.math.set.OpenIntHashSet;
  * @param <T> the generic type
  */
 public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
-   
    /** The read only. */
    boolean readOnly = false;
-   
+
    /** The int set. */
-   IntSet  intSet;
+   IntSet intSet;
 
    //~--- constant enums ------------------------------------------------------
 
    /**
     * The Enum Concurrency.
     */
-   protected enum Concurrency { /** The thread safe. */
- THREAD_SAFE }
+   protected enum Concurrency {
+      /** The thread safe. */
+      THREAD_SAFE
+   }
 
    ;
 
@@ -99,7 +100,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
     * @param readOnly true if the set is read only.
     */
    protected AbstractIntSet(boolean readOnly) {
-      this.intSet        = new RoaringIntSet();
+      this.intSet   = new RoaringIntSet();
       this.readOnly = readOnly;
    }
 
@@ -320,7 +321,7 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
     */
    @Override
    public int hashCode() {
-      int                     result = 1;
+      int                           result = 1;
       final PrimitiveIterator.OfInt itr    = this.intSet.getIntIterator();
 
       while (itr.hasNext()) {
@@ -546,7 +547,6 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
     */
    private class BitSetSpliterator
             implements Spliterator.OfInt {
-      
       /** The int iterator. */
       PrimitiveIterator.OfInt intIterator = AbstractIntSet.this.intSet.getIntIterator();
 
@@ -602,7 +602,6 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
     */
    private class SpliteratorSupplier
             implements Supplier<Spliterator.OfInt> {
-      
       /**
        * Gets the.
        *

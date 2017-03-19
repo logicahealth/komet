@@ -59,7 +59,6 @@ import sh.isaac.api.Get;
  */
 public class StampSequenceSet
         extends SequenceSet<StampSequenceSet> {
-   
    /**
     * Instantiates a new stamp sequence set.
     */

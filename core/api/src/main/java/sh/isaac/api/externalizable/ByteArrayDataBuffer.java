@@ -66,54 +66,53 @@ import sh.isaac.api.commit.StampService;
  * @author kec
  */
 public class ByteArrayDataBuffer {
-   
    /** The Constant MAX_DATA_SIZE. */
-   private static final int    MAX_DATA_SIZE = Integer.MAX_VALUE - 16;
-   
+   private static final int MAX_DATA_SIZE = Integer.MAX_VALUE - 16;
+
    /** The Constant DEFAULT_SIZE. */
-   private static final int    DEFAULT_SIZE  = 1024;
-   
+   private static final int DEFAULT_SIZE = 1024;
+
    /** The Constant FALSE. */
-   protected static final byte FALSE         = 0;
-   
+   protected static final byte FALSE = 0;
+
    /** The Constant TRUE. */
-   protected static final byte TRUE          = 1;
+   protected static final byte TRUE = 1;
 
    //~--- fields --------------------------------------------------------------
 
    /** The position. */
-   protected int     position                = 0;
-   
+   protected int position = 0;
+
    /** The read only. */
-   protected boolean readOnly                = false;
-   
+   protected boolean readOnly = false;
+
    /** The object data format version. */
-   protected byte    objectDataFormatVersion = 0;
-   
+   protected byte objectDataFormatVersion = 0;
+
    /** The external data. */
-   protected boolean externalData            = false;
+   protected boolean externalData = false;
 
    /**
     * The StampedLock is to ensure the backing array does not grow underneath a
     * concurrent operation. The locks do not prevent concurrent threads from
     * reading or writing to the same fields.
     */
-   protected final StampedLock sl   = new StampedLock();
-   
+   protected final StampedLock sl = new StampedLock();
+
    /** The used. */
-   protected int               used = 0;
-   
+   protected int used = 0;
+
    /** The position start. */
-   protected final int         positionStart;
-   
+   protected final int positionStart;
+
    /** The identifier service. */
    protected IdentifierService identifierService;
-   
+
    /** The stamp service. */
-   protected StampService      stampService;
-   
+   protected StampService stampService;
+
    /** The data. */
-   private byte[]              data;
+   private byte[] data;
 
    //~--- constructors --------------------------------------------------------
 
@@ -308,8 +307,9 @@ public class ByteArrayDataBuffer {
     */
    public void putConceptSequence(int conceptSequence) {
       if (this.externalData) {
-         final UUID uuid = this.identifierService.getUuidPrimordialForNid(this.identifierService.getConceptNid(conceptSequence))
-                                      .get();
+         final UUID uuid =
+            this.identifierService.getUuidPrimordialForNid(this.identifierService.getConceptNid(conceptSequence))
+                                  .get();
 
          putLong(uuid.getMostSignificantBits());
          putLong(uuid.getLeastSignificantBits());
@@ -376,14 +376,14 @@ public class ByteArrayDataBuffer {
       putInt(src.length);
       ensureSpace(this.position + (src.length * 4));
 
-      long lockStamp        = this.sl.tryOptimisticRead();
-      final int  startingPosition = this.position;
+      long      lockStamp        = this.sl.tryOptimisticRead();
+      final int startingPosition = this.position;
 
       putIntArrayIntoData(src);
 
       if (!this.sl.validate(lockStamp)) {
-         lockStamp = this.sl.readLock();
-         this.position  = startingPosition;
+         lockStamp     = this.sl.readLock();
+         this.position = startingPosition;
 
          try {
             putIntArrayIntoData(src);
@@ -461,8 +461,9 @@ public class ByteArrayDataBuffer {
     */
    public void putSememeSequence(int sememeSequence) {
       if (this.externalData) {
-         final UUID uuid = this.identifierService.getUuidPrimordialForNid(this.identifierService.getSememeNid(sememeSequence))
-                                      .get();
+         final UUID uuid =
+            this.identifierService.getUuidPrimordialForNid(this.identifierService.getSememeNid(sememeSequence))
+                                  .get();
 
          putLong(uuid.getMostSignificantBits());
          putLong(uuid.getLeastSignificantBits());
@@ -519,9 +520,9 @@ public class ByteArrayDataBuffer {
     */
    public void putUTF(String str) {
       final int strlen = str.length();
-      int utflen = 0;
-      int c;
-      int count = 0;
+      int       utflen = 0;
+      int       c;
+      int       count = 0;
 
       for (int i = 0; i < strlen; i++) {
          c = str.charAt(i);
@@ -536,7 +537,7 @@ public class ByteArrayDataBuffer {
       }
 
       final byte[] bytearr = new byte[utflen];
-      int    i       = 0;
+      int          i       = 0;
 
       for (; i < strlen; i++) {
          c = str.charAt(i);
@@ -600,9 +601,9 @@ public class ByteArrayDataBuffer {
       final int    utflen  = getInt(position[0]);
       final byte[] bytearr = new byte[utflen];
       final char[] chararr = new char[utflen];
-      int    c, char2, char3;
-      int    count         = 0;
-      int    chararr_count = 0;
+      int          c, char2, char3;
+      int          count         = 0;
+      int          chararr_count = 0;
 
       get(position[0] + 4, bytearr, 0, utflen);
       position[0] = position[0] + 4 + utflen;
@@ -721,9 +722,10 @@ public class ByteArrayDataBuffer {
     */
    @Override
    public String toString() {
-      return "ByteArrayDataBuffer{" + "position=" + this.position + ", positionStart=" + this.positionStart + ", readOnly=" +
-             this.readOnly + ", objectDataFormatVersion=" + this.objectDataFormatVersion + ", externalData=" + this.externalData +
-             ", used=" + this.used + ", data=" + DatatypeConverter.printHexBinary(this.data) + '}';
+      return "ByteArrayDataBuffer{" + "position=" + this.position + ", positionStart=" + this.positionStart +
+             ", readOnly=" + this.readOnly + ", objectDataFormatVersion=" + this.objectDataFormatVersion +
+             ", externalData=" + this.externalData + ", used=" + this.used + ", data=" +
+             DatatypeConverter.printHexBinary(this.data) + '}';
    }
 
    /**
@@ -789,7 +791,7 @@ public class ByteArrayDataBuffer {
          this.data[this.position + 1] = (byte) (anInt >> 16);
          this.data[this.position + 2] = (byte) (anInt >> 8);
          this.data[this.position + 3] = (byte) (anInt);
-         this.position           += 4;
+         this.position                += 4;
       }
    }
 
@@ -857,7 +859,7 @@ public class ByteArrayDataBuffer {
     */
    public byte[] getByteArrayField() {
       final int    length    = getInt();
-      long   lockStamp = this.sl.tryOptimisticRead();
+      long         lockStamp = this.sl.tryOptimisticRead();
       final byte[] results   = new byte[length];
 
       System.arraycopy(this.data, this.position, results, 0, length);
@@ -1063,8 +1065,8 @@ public class ByteArrayDataBuffer {
     */
    public int getInt(int position) {
       long lockStamp = this.sl.tryOptimisticRead();
-      int result = (((this.data[position]) << 24) | ((this.data[position + 1] & 0xff) << 16) | ((this.data[position + 2] & 0xff) << 8)
-                    | ((this.data[position + 3] & 0xff)));
+      int result = (((this.data[position]) << 24) | ((this.data[position + 1] & 0xff) << 16)
+                    | ((this.data[position + 2] & 0xff) << 8) | ((this.data[position + 3] & 0xff)));
 
       if (!this.sl.validate(lockStamp)) {
          lockStamp = this.sl.readLock();
@@ -1088,17 +1090,17 @@ public class ByteArrayDataBuffer {
    public int[] getIntArray() {
       final int[] array            = new int[getInt()];
       final int   startingPosition = this.position;
-      long  lockStamp        = this.sl.tryOptimisticRead();
+      long        lockStamp        = this.sl.tryOptimisticRead();
 
       for (int i = 0; i < array.length; i++) {
-         array[i] = (((this.data[this.position]) << 24) | ((this.data[this.position + 1] & 255) << 16) | ((this.data[this.position + 2] & 255) << 8)
-                     | ((this.data[this.position + 3] & 255)));
+         array[i] = (((this.data[this.position]) << 24) | ((this.data[this.position + 1] & 255) << 16)
+                     | ((this.data[this.position + 2] & 255) << 8) | ((this.data[this.position + 3] & 255)));
          this.position += 4;
       }
 
       if (!this.sl.validate(lockStamp)) {
-         lockStamp = this.sl.readLock();
-         this.position  = startingPosition;
+         lockStamp     = this.sl.readLock();
+         this.position = startingPosition;
 
          try {
             for (int i = 0; i < array.length; i++) {

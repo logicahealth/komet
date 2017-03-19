@@ -70,12 +70,11 @@ import sh.isaac.api.coordinate.StampPosition;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class StampPositionImpl
          implements StampPosition, Comparable<StampPosition> {
-   
    /** The time. */
    long time;
-   
+
    /** The stamp path sequence. */
-   int  stampPathSequence;
+   int stampPathSequence;
 
    //~--- constructors --------------------------------------------------------
 
@@ -211,10 +210,10 @@ public class StampPositionImpl
     */
    public ChangeListener<Number> setStampPathSequenceProperty(IntegerProperty stampPathSequenceProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
-                                         Number oldValue,
-                                         Number newValue) -> {
-                                           this.stampPathSequence = newValue.intValue();
-                                        };
+                                               Number oldValue,
+                                               Number newValue) -> {
+               this.stampPathSequence = newValue.intValue();
+            };
 
       stampPathSequenceProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
@@ -242,10 +241,10 @@ public class StampPositionImpl
     */
    public ChangeListener<Number> setTimeProperty(LongProperty timeProperty) {
       final ChangeListener<Number> listener = (ObservableValue<? extends Number> observable,
-                                         Number oldValue,
-                                         Number newValue) -> {
-                                           this.time = newValue.longValue();
-                                        };
+                                               Number oldValue,
+                                               Number newValue) -> {
+               this.time = newValue.longValue();
+            };
 
       timeProperty.addListener(new WeakChangeListener<>(listener));
       return listener;

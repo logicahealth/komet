@@ -57,7 +57,6 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 public class StringSememeImpl
         extends SememeVersionImpl<StringSememeImpl>
          implements StringSememe<StringSememeImpl>, MutableStringSememe<StringSememeImpl> {
-   
    /** The string. */
    private String string = null;
 

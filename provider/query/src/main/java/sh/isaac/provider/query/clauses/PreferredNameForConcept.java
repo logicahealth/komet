@@ -75,7 +75,6 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class PreferredNameForConcept
         extends ParentClause {
-   
    /**
     * Instantiates a new preferred name for concept.
     */

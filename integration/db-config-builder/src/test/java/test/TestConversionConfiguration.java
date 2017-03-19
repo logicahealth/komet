@@ -61,7 +61,6 @@ import sh.isaac.pombuilder.converter.ConverterOptionParam;
  * The Class TestConversionConfiguration.
  */
 public class TestConversionConfiguration {
-   
    /**
     * The main method.
     *
@@ -83,7 +82,6 @@ public class TestConversionConfiguration {
       // vhat
 //    System.out.println(ContentConverterCreator.createContentConverter(new SDOSourceContent("sh.isaac.terminology.source.vhat", "vhat-src-data", "2016.01.07"), 
 //            "4.1-SNAPSHOT", new SDOSourceContent[0], new IBDFFile[0], null, gitTestURL, gitUsername, gitPassword));
-
       // loinc
 //    System.out.println(ContentConverterCreator.createContentConverter(new SDOSourceContent("sh.isaac.terminology.source.loinc", "loinc-src-data", "2.54"), 
 //            "5.1-SNAPSHOT", new SDOSourceContent[0], new IBDFFile[0], null, gitTestURL, gitUsername, gitPassword));

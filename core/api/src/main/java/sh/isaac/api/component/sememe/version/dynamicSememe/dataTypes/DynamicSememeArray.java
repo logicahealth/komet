@@ -49,7 +49,7 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 
 /**
  * {@link DynamicSememeArray}
- * 
+ *
  * A storage class that allows the creation of a refex column which holds an array of a specific type of {@link DynamicSememeData}
  * items, such as an array of {@link DynamicSememeString}.
  *
@@ -58,7 +58,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
  */
 public interface DynamicSememeArray<T extends DynamicSememeData>
         extends DynamicSememeData {
-   
    /**
     * Gets the data array.
     *

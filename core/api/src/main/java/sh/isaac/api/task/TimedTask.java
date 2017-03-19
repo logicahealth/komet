@@ -68,12 +68,11 @@ import sh.isaac.api.ticker.Ticker;
  */
 public abstract class TimedTask<T>
         extends Task<T> {
-   
    /** The Constant log. */
-   protected static final Logger log                          = LogManager.getLogger();
-   
+   protected static final Logger log = LogManager.getLogger();
+
    /** The progress update interval in secs. */
-   public static int             progressUpdateIntervalInSecs = 2;
+   public static int progressUpdateIntervalInSecs = 2;
 
    /**
     * Seconds per minute.
@@ -93,17 +92,17 @@ public abstract class TimedTask<T>
    //~--- fields --------------------------------------------------------------
 
    /** The update ticker. */
-   private final Ticker   updateTicker = new Ticker();
-   
+   private final Ticker updateTicker = new Ticker();
+
    /** The start time. */
-   private Instant        startTime;
-   
+   private Instant startTime;
+
    /** The end time. */
-   private Instant        endTime;
-   
+   private Instant endTime;
+
    /** The complete message generator. */
    Consumer<TimedTask<T>> completeMessageGenerator;
-   
+
    /** The progress message generator. */
    Consumer<TimedTask<T>> progressMessageGenerator;
 
@@ -150,11 +149,11 @@ public abstract class TimedTask<T>
       }
 
       this.updateTicker.start(progressUpdateIntervalInSecs,
-                         (value) -> {
-                            if (this.progressMessageGenerator != null) {
-                               this.progressMessageGenerator.accept(this);
-                            }
-                         });
+                              (value) -> {
+                                 if (this.progressMessageGenerator != null) {
+                                    this.progressMessageGenerator.accept(this);
+                                 }
+                              });
    }
 
    /**

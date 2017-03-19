@@ -57,7 +57,6 @@ import sh.isaac.api.identity.StampedVersion;
  */
 public interface DescriptionBuilder<T extends ObjectChronology<?>, V extends StampedVersion>
         extends IdentifiedComponentBuilder<T> {
-   
    /**
     * Adds the acceptable in dialect assemblage.
     *

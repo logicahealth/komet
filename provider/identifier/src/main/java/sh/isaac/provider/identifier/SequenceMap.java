@@ -70,27 +70,26 @@ import sh.isaac.api.collections.NativeIntIntHashMap;
  * @author kec
  */
 public class SequenceMap {
-   
    /** The Constant FIRST_SEQUENCE. */
-   public static final int     FIRST_SEQUENCE      = 1;
-   
+   public static final int FIRST_SEQUENCE = 1;
+
    /** The Constant MINIMUM_LOAD_FACTOR. */
    private static final double MINIMUM_LOAD_FACTOR = 0.75;
-   
+
    /** The Constant MAXIMUM_LOAD_FACTOR. */
    private static final double MAXIMUM_LOAD_FACTOR = 0.9;
 
    //~--- fields --------------------------------------------------------------
 
    /** The sl. */
-   StampedLock               sl           = new StampedLock();
-   
+   StampedLock sl = new StampedLock();
+
    /** The next sequence. */
-   int                       nextSequence = FIRST_SEQUENCE;
-   
+   int nextSequence = FIRST_SEQUENCE;
+
    /** The nid sequence map. */
    final NativeIntIntHashMap nidSequenceMap;
-   
+
    /** The sequence nid map. */
    final NativeIntIntHashMap sequenceNidMap;
 
@@ -139,9 +138,9 @@ public class SequenceMap {
     * @return the int
     */
    public int addNidIfMissing(int nid) {
-      long    stamp       = this.sl.tryOptimisticRead();
+      long          stamp       = this.sl.tryOptimisticRead();
       final boolean containsKey = this.nidSequenceMap.containsKey(nid);
-      int     value       = this.nidSequenceMap.get(nid);
+      int           value       = this.nidSequenceMap.get(nid);
 
       if (this.sl.validate(stamp) && containsKey) {
          return value;
@@ -243,15 +242,15 @@ public class SequenceMap {
          output.writeInt(this.nidSequenceMap.size());
          output.writeInt(this.nextSequence);
          this.nidSequenceMap.forEachPair((int nid,
-                                     int sequence) -> {
-                                       try {
-                                          output.writeInt(nid);
-                                          output.writeInt(sequence);
-                                          return true;
-                                       } catch (final IOException ex) {
-                                          throw new RuntimeException(ex);
-                                       }
-                                    });
+                                          int sequence) -> {
+                                            try {
+                                               output.writeInt(nid);
+                                               output.writeInt(sequence);
+                                               return true;
+                                            } catch (final IOException ex) {
+                                               throw new RuntimeException(ex);
+                                            }
+                                         });
       }
    }
 
@@ -264,7 +263,7 @@ public class SequenceMap {
     */
    public IntStream getConceptNidStream() {
       return IntStream.of(this.nidSequenceMap.keys()
-                                        .elements());
+            .elements());
    }
 
    /**
@@ -383,7 +382,7 @@ public class SequenceMap {
     */
    public IntStream getSequenceStream() {
       return IntStream.of(this.sequenceNidMap.keys()
-                                        .elements());
+            .elements());
    }
 
    /**
@@ -393,7 +392,8 @@ public class SequenceMap {
     */
    public int getSize() {
       assert this.nidSequenceMap.size() == this.sequenceNidMap.size():
-             "nidSequenceMap.size() = " + this.nidSequenceMap.size() + " sequenceNidMap.size() = " + this.sequenceNidMap.size();
+             "nidSequenceMap.size() = " + this.nidSequenceMap.size() + " sequenceNidMap.size() = " +
+             this.sequenceNidMap.size();
       return this.sequenceNidMap.size();
    }
 }

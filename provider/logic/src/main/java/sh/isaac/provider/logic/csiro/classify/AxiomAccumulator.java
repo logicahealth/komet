@@ -70,21 +70,20 @@ import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
 //TODO move to CSIRO specific module
 public class AxiomAccumulator
          implements BiConsumer<Set<Axiom>, LogicalExpressionOchreImpl> {
-   
    /** The concept sequences. */
-   BitSet                     conceptSequences;
-   
+   BitSet conceptSequences;
+
    /** The concepts. */
-   Concept[]                  concepts;
-   
+   Concept[] concepts;
+
    /** The roles. */
    OpenIntObjectHashMap<Role> roles;
-   
+
    /** The never group role sequences. */
-   OpenIntHashSet             neverGroupRoleSequences;
-   
+   OpenIntHashSet neverGroupRoleSequences;
+
    /** The role group concept sequence. */
-   int                        roleGroupConceptSequence;
+   int roleGroupConceptSequence;
 
    //~--- constructors --------------------------------------------------------
 

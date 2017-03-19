@@ -63,7 +63,6 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 @Contract
 public interface CoordinateFactory
         extends LanguageCoordinateService {
-   
    /**
     * Creates a new Coordinate object.
     *

@@ -78,18 +78,17 @@ import sh.isaac.api.externalizable.StampComment;
  * @author kec
  */
 public class StampCommentMap {
-   
    /** The rwl. */
-   private final ReentrantReadWriteLock rwl             = new ReentrantReadWriteLock();
-   
+   private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+
    /** The read. */
-   private final Lock                   read            = this.rwl.readLock();
-   
+   private final Lock read = this.rwl.readLock();
+
    /** The write. */
-   private final Lock                   write           = this.rwl.writeLock();
-   
+   private final Lock write = this.rwl.writeLock();
+
    /** The stamp comment map. */
-   OpenIntObjectHashMap<String>         stampCommentMap = new OpenIntObjectHashMap();
+   OpenIntObjectHashMap<String> stampCommentMap = new OpenIntObjectHashMap();
 
    //~--- methods -------------------------------------------------------------
 
@@ -148,15 +147,15 @@ public class StampCommentMap {
       try (DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(mapFile)))) {
          output.writeInt(this.stampCommentMap.size());
          this.stampCommentMap.forEachPair((int nid,
-                                      String comment) -> {
-                                        try {
-                                           output.writeInt(nid);
-                                           output.writeUTF(comment);
-                                           return true;
-                                        } catch (final IOException ex) {
-                                           throw new RuntimeException(ex);
-                                        }
-                                     });
+                                           String comment) -> {
+                                             try {
+                                                output.writeInt(nid);
+                                                output.writeUTF(comment);
+                                                return true;
+                                             } catch (final IOException ex) {
+                                                throw new RuntimeException(ex);
+                                             }
+                                          });
       }
    }
 
@@ -204,7 +203,6 @@ public class StampCommentMap {
     */
    private class StampCommentSpliterator
            extends IndexedStampSequenceSpliterator<StampComment> {
-      
       /**
        * Instantiates a new stamp comment spliterator.
        */
@@ -223,8 +221,9 @@ public class StampCommentMap {
       @Override
       public boolean tryAdvance(Consumer<? super StampComment> action) {
          if (getIterator().hasNext()) {
-            final int          mapIndex     = getIterator().nextInt();
-            final StampComment stampComment = new StampComment(StampCommentMap.this.stampCommentMap.get(mapIndex), mapIndex);
+            final int mapIndex = getIterator().nextInt();
+            final StampComment stampComment = new StampComment(StampCommentMap.this.stampCommentMap.get(mapIndex),
+                                                               mapIndex);
 
             action.accept(stampComment);
             return true;

@@ -55,7 +55,6 @@ import sh.isaac.api.commit.CommittableComponent;
  */
 public class CommitAwareIntegerProperty
         extends SimpleIntegerProperty {
-   
    /**
     * Instantiates a new commit aware integer property.
     *

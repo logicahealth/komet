@@ -50,7 +50,6 @@ package sh.isaac.api.commit;
  * @author kec
  */
 public interface Alert {
-   
    /**
     * Gets the alert text.
     *

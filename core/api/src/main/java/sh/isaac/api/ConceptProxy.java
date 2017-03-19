@@ -61,11 +61,10 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  */
 public class ConceptProxy
          implements ConceptSpecification {
-   
-   /**  Universal identifiers for the concept proxied by the is object. */
+   /** Universal identifiers for the concept proxied by the is object. */
    protected UUID[] uuids;
 
-   /**  A description of the concept proxied by this object. */
+   /** A description of the concept proxied by this object. */
    protected String description;
 
    //~--- constructors --------------------------------------------------------
@@ -82,7 +81,7 @@ public class ConceptProxy
     */
    public ConceptProxy(int conceptSequenceOrNid) {
       final ConceptChronology<?> cc = Get.conceptService()
-                                   .getConcept(conceptSequenceOrNid);
+                                         .getConcept(conceptSequenceOrNid);
 
       this.uuids       = cc.getUuidList()
                            .toArray(new UUID[0]);
@@ -233,7 +232,7 @@ public class ConceptProxy
     * @return the nid
     */
    @Override
-public int getNid() {
+   public int getNid() {
       return Get.identifierService()
                 .getNidForUuids(this.uuids);
    }
@@ -270,7 +269,7 @@ public int getNid() {
     * @return the universal identifiers for the concept proxied by the is object
     */
    @Override
-@XmlTransient
+   @XmlTransient
    public UUID[] getUuids() {
       return this.uuids;
    }
@@ -297,7 +296,7 @@ public int getNid() {
     */
    public String[] getUuidsAsString() {
       final String[] returnVal = new String[this.uuids.length];
-      int      i         = 0;
+      int            i         = 0;
 
       for (final UUID uuid: this.uuids) {
          returnVal[i++] = uuid.toString();

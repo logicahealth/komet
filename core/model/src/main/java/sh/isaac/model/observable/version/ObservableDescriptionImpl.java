@@ -61,16 +61,15 @@ import sh.isaac.model.sememe.version.DescriptionSememeImpl;
 public class ObservableDescriptionImpl
         extends ObservableSememeVersionImpl<ObservableDescriptionImpl>
          implements ObservableDescriptionSememe<ObservableDescriptionImpl> {
-   
    /** The case significance concept sequence property. */
    IntegerProperty caseSignificanceConceptSequenceProperty;
-   
+
    /** The language concept sequence property. */
    IntegerProperty languageConceptSequenceProperty;
-   
+
    /** The text property. */
-   StringProperty  textProperty;
-   
+   StringProperty textProperty;
+
    /** The description type concept sequence property. */
    IntegerProperty descriptionTypeConceptSequenceProperty;
 
@@ -181,7 +180,8 @@ public class ObservableDescriptionImpl
       if (this.caseSignificanceConceptSequenceProperty != null) {
          this.caseSignificanceConceptSequenceProperty.set(caseSignificanceConceptSequence);
       } else {
-         ((DescriptionSememeImpl) this.stampedVersion).setCaseSignificanceConceptSequence(caseSignificanceConceptSequence);
+         ((DescriptionSememeImpl) this.stampedVersion).setCaseSignificanceConceptSequence(
+             caseSignificanceConceptSequence);
       }
    }
 

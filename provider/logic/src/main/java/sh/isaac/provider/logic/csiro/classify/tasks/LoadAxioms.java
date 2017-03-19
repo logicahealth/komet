@@ -58,10 +58,9 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
  */
 public class LoadAxioms
         extends TimedTaskWithProgressTracker<Void> {
-   
    /** The stamp coordinate. */
    StampCoordinate stampCoordinate;
-   
+
    /** The logic coordinate. */
    LogicCoordinate logicCoordinate;
 

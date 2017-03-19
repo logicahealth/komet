@@ -65,7 +65,6 @@ import javafx.collections.ObservableIntegerArray;
  */
 public class WeakArrayChangeListener
          implements WeakListener, ArrayChangeListener<ObservableIntegerArray> {
-   
    /** The ref. */
    private final WeakReference<ArrayChangeListener<ObservableIntegerArray>> ref;
 

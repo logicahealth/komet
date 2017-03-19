@@ -57,7 +57,6 @@ import sh.isaac.api.component.sememe.version.MutableDescriptionSememe;
  */
 @Contract
 public interface DescriptionBuilderService {
-   
    /**
     * Gets the description builder.
     *

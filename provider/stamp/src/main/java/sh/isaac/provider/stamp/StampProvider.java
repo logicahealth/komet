@@ -93,15 +93,14 @@ import sh.isaac.api.task.TimedTask;
 @RunLevel(value = 1)
 public class StampProvider
          implements StampService {
-   
    /** The Constant LOG. */
-   private static final Logger LOG                          = LogManager.getLogger();
-   
+   private static final Logger LOG = LogManager.getLogger();
+
    /** The Constant STAMP_MANAGER_DATA_FILENAME. */
-   private static final String STAMP_MANAGER_DATA_FILENAME  = "stamp-manager.data";
-   
+   private static final String STAMP_MANAGER_DATA_FILENAME = "stamp-manager.data";
+
    /** The Constant DEFAULT_STAMP_MANAGER_FOLDER. */
-   public static final String  DEFAULT_STAMP_MANAGER_FOLDER = "stamp-manager";
+   public static final String DEFAULT_STAMP_MANAGER_FOLDER = "stamp-manager";
 
    /**
     * TODO: persist across restarts.
@@ -112,30 +111,30 @@ public class StampProvider
    //~--- fields --------------------------------------------------------------
 
    /** The stamp lock. */
-   private final ReentrantLock stampLock         = new ReentrantLock();
-   
+   private final ReentrantLock stampLock = new ReentrantLock();
+
    /** The next stamp sequence. */
    private final AtomicInteger nextStampSequence = new AtomicInteger(FIRST_STAMP_SEQUENCE);
 
    /**
     * Persistent map of stamp sequences to a Stamp object.
     */
-   private final ConcurrentObjectIntMap<Stamp> stampMap                     = new ConcurrentObjectIntMap<>();
-   
+   private final ConcurrentObjectIntMap<Stamp> stampMap = new ConcurrentObjectIntMap<>();
+
    /** The load required. */
-   private final AtomicBoolean                       loadRequired                 = new AtomicBoolean();
-   
+   private final AtomicBoolean loadRequired = new AtomicBoolean();
+
    /** The database validity. */
-   private DatabaseValidity                    databaseValidity             = DatabaseValidity.NOT_SET;
-   
+   private DatabaseValidity databaseValidity = DatabaseValidity.NOT_SET;
+
    /** The stamp sequence path sequence map. */
-   ConcurrentHashMap<Integer, Integer>         stampSequencePathSequenceMap = new ConcurrentHashMap();
-   
+   ConcurrentHashMap<Integer, Integer> stampSequencePathSequenceMap = new ConcurrentHashMap();
+
    /** The db folder path. */
-   private final Path                          dbFolderPath;
-   
+   private final Path dbFolderPath;
+
    /** The stamp manager folder. */
-   private final Path                          stampManagerFolder;
+   private final Path stampManagerFolder;
 
    /**
     * Persistent as a result of reading and writing the stampMap.
@@ -152,11 +151,14 @@ public class StampProvider
    public StampProvider()
             throws IOException {
       this.dbFolderPath = LookupService.getService(ConfigurationService.class)
-                                  .getChronicleFolderPath()
-                                  .resolve("stamp-provider");
+                                       .getChronicleFolderPath()
+                                       .resolve("stamp-provider");
       this.loadRequired.set(Files.exists(this.dbFolderPath));
       Files.createDirectories(this.dbFolderPath);
-      this.inverseStampMap    = new ConcurrentSequenceSerializedObjectMap<>(new StampSerializer(), this.dbFolderPath, null, null);
+      this.inverseStampMap = new ConcurrentSequenceSerializedObjectMap<>(new StampSerializer(),
+            this.dbFolderPath,
+            null,
+            null);
       this.stampManagerFolder = this.dbFolderPath.resolve(DEFAULT_STAMP_MANAGER_FOLDER);
 
       if (!Files.exists(this.stampManagerFolder)) {
@@ -193,10 +195,10 @@ public class StampProvider
          // and replace with a canceled stamp.
                if (uncommittedStamp.authorSequence == authorSequence) {
                   final Stamp stamp = new Stamp(uncommittedStamp.status,
-                                          Long.MIN_VALUE,
-                                          uncommittedStamp.authorSequence,
-                                          uncommittedStamp.moduleSequence,
-                                          uncommittedStamp.pathSequence);
+                                                Long.MIN_VALUE,
+                                                uncommittedStamp.authorSequence,
+                                                uncommittedStamp.moduleSequence,
+                                                uncommittedStamp.pathSequence);
 
                   addStamp(stamp, stampSequence);
                   UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.remove(uncommittedStamp);
@@ -357,14 +359,14 @@ public class StampProvider
          out.writeInt(this.nextStampSequence.get());
          out.writeInt(this.stampMap.size());
          this.stampMap.forEachPair((Stamp stamp,
-                               int stampSequence) -> {
-                                 try {
-                                    out.writeInt(stampSequence);
-                                    stamp.write(out);
-                                 } catch (final IOException ex) {
-                                    throw new RuntimeException(ex);
-                                 }
-                              });
+                                    int stampSequence) -> {
+                                      try {
+                                         out.writeInt(stampSequence);
+                                         stamp.write(out);
+                                      } catch (final IOException ex) {
+                                         throw new RuntimeException(ex);
+                                      }
+                                   });
 
          final int size = UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.size();
 
@@ -561,9 +563,9 @@ public class StampProvider
 
       if (s.isPresent()) {
          this.stampSequencePathSequenceMap.put(stampSequence,
-                                          Get.identifierService()
-                                                .getConceptSequence(s.get()
-                                                      .getPathSequence()));
+               Get.identifierService()
+                  .getConceptSequence(s.get()
+                                       .getPathSequence()));
          return this.stampSequencePathSequenceMap.get(stampSequence);
       }
 
@@ -577,7 +579,8 @@ public class StampProvider
     */
    @Override
    synchronized public Map<UncommittedStamp, Integer> getPendingStampsForCommit() {
-      final Map<UncommittedStamp, Integer> pendingStampsForCommit = new HashMap<>(UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP);
+      final Map<UncommittedStamp, Integer> pendingStampsForCommit =
+         new HashMap<>(UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP);
 
       UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.clear();
       return pendingStampsForCommit;
@@ -728,8 +731,8 @@ public class StampProvider
                  .getTime();
       }
 
-      throw new NoSuchElementException("No stampSequence found: " + stampSequence + " map size: " + this.stampMap.size() +
-                                       " inverse map size: " + this.inverseStampMap.getSize());
+      throw new NoSuchElementException("No stampSequence found: " + stampSequence + " map size: " +
+                                       this.stampMap.size() + " inverse map size: " + this.inverseStampMap.getSize());
    }
 
    /**

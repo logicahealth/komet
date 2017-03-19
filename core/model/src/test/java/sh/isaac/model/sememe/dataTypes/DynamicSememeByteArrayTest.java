@@ -61,7 +61,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeByteArrayTest {
-   
    /**
     * Test serialization.
     *
@@ -94,7 +93,7 @@ public class DynamicSememeByteArrayTest {
       assertEquals(value, i.getDataByteArray());
       assertEquals(value, i.getDataObject());
       assertEquals(value, i.getDataObjectProperty()
-                                    .get());
+                           .get());
       assertEquals(i.getDynamicSememeDataType(), DynamicSememeDataType.BYTEARRAY);
    }
 }

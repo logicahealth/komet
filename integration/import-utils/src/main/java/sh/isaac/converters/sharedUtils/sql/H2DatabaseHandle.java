@@ -68,7 +68,6 @@ import sh.isaac.converters.sharedUtils.ConsoleUtil;
  * The Class H2DatabaseHandle.
  */
 public class H2DatabaseHandle {
-   
    /** The connection. */
    protected Connection connection_;
 
@@ -126,7 +125,7 @@ public class H2DatabaseHandle {
             throws SQLException {
       final Statement     s         = this.connection_.createStatement();
       final StringBuilder sql       = new StringBuilder();
-      String        tableName = td.getTableName();
+      String              tableName = td.getTableName();
 
       if (tableName.indexOf('/') > 0) {
          tableName = tableName.substring(tableName.indexOf('/') + 1);
@@ -209,8 +208,8 @@ public class H2DatabaseHandle {
       insert.append(")");
 
       final PreparedStatement ps           = this.connection_.prepareStatement(insert.toString());
-      int               filterColumn = -1;
-      HashSet<String>   sabHashSet   = null;
+      int                     filterColumn = -1;
+      HashSet<String>         sabHashSet   = null;
 
       if ((includeValues != null) && (includeValues.size() > 0) && (includeValuesColumnName != null)) {
          sabHashSet = new HashSet<>(includeValues);
@@ -229,8 +228,8 @@ public class H2DatabaseHandle {
          }
       }
 
-      int             rowCount     = 0;
-      int             sabSkipCount = 0;
+      int                   rowCount     = 0;
+      int                   sabSkipCount = 0;
       final HashSet<String> skippedSabs  = new HashSet<>();
 
       while (data.hasNextRow()) {
@@ -254,7 +253,7 @@ public class H2DatabaseHandle {
 
          for (final String s: cols) {
             final DataType colType = td.getColumns()[psIndex - 1]
-                                 .getDataType();
+                                       .getDataType();
 
             if (colType.isBoolean()) {
                if ((s == null) || (s.length() == 0)) {

@@ -49,12 +49,11 @@ import java.util.LinkedHashMap;
  * The Class TableDefinition.
  */
 public class TableDefinition {
-   
    /** The columns. */
    private final LinkedHashMap<String, ColumnDefinition> columns_ = new LinkedHashMap<>();
-   
+
    /** The table name. */
-   private final String                                  tableName_;
+   private final String tableName_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -76,7 +75,7 @@ public class TableDefinition {
     */
    public void addColumn(ColumnDefinition cd) {
       this.columns_.put(cd.getColumnName()
-                     .toLowerCase(), cd);
+                          .toLowerCase(), cd);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -101,7 +100,7 @@ public class TableDefinition {
     */
    public ColumnDefinition[] getColumns() {
       return this.columns_.values()
-                     .toArray(new ColumnDefinition[this.columns_.size()]);
+                          .toArray(new ColumnDefinition[this.columns_.size()]);
    }
 
    /**

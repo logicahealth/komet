@@ -72,7 +72,6 @@ import sh.isaac.mojo.external.QuasiMojo;
 @Service(name = "full-classification")
 public class FullClassification
         extends QuasiMojo {
-   
    /**
     * Execute.
     *
@@ -83,7 +82,7 @@ public class FullClassification
             throws MojoExecutionException {
       try {
          final LogicService    logicService    = LookupService.getService(LogicService.class);
-         EditCoordinate  editCoordinate  = EditCoordinates.getDefaultUserSolorOverlay();
+         EditCoordinate        editCoordinate  = EditCoordinates.getDefaultUserSolorOverlay();
          final LogicCoordinate logicCoordinate = LogicCoordinates.getStandardElProfile();
 
          editCoordinate = new EditCoordinateImpl(logicCoordinate.getClassifierSequence(),

@@ -51,7 +51,6 @@ import java.util.stream.Stream;
  * @author kec
  */
 public interface IsomorphicResults {
-   
    /**
     * Gets the added relationship roots.
     *
@@ -102,7 +101,7 @@ public interface IsomorphicResults {
    LogicalExpression getIsomorphicExpression();
 
    /**
-    *  
+    *
     *   @return an expression containing a merger of all the nodes in the reference and comparison expression.
     */
    LogicalExpression getMergedExpression();

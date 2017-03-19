@@ -105,23 +105,22 @@ import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 public class DescriptionIndexer
         extends LuceneIndexer
          implements IndexServiceBI {
-   
    /** The Constant setupNidsSemaphore. */
-   private static final Semaphore     setupNidsSemaphore         = new Semaphore(1);
-   
+   private static final Semaphore setupNidsSemaphore = new Semaphore(1);
+
    /** The Constant sequencesSetup. */
-   private static final AtomicBoolean sequencesSetup             = new AtomicBoolean(false);
-   
+   private static final AtomicBoolean sequencesSetup = new AtomicBoolean(false);
+
    /** The Constant FIELD_INDEXED_STRING_VALUE. */
-   private static final String        FIELD_INDEXED_STRING_VALUE = "_string_content_";
+   private static final String FIELD_INDEXED_STRING_VALUE = "_string_content_";
 
    //~--- fields --------------------------------------------------------------
 
    /** The sequence type map. */
    private final HashMap<Integer, String> sequenceTypeMap = new HashMap<>();
-   
+
    /** The desc extended type sequence. */
-   private int                            descExtendedTypeSequence;
+   private int descExtendedTypeSequence;
 
    //~--- constructors --------------------------------------------------------
 
@@ -130,6 +129,7 @@ public class DescriptionIndexer
     *
     * @throws IOException Signals that an I/O exception has occurred.
     */
+
    // for HK2 only
    private DescriptionIndexer()
             throws IOException {
@@ -210,7 +210,7 @@ public class DescriptionIndexer
    /**
     * A generic query API that handles most common cases.  The cases handled for various component property types
     * are detailed below.
-    * 
+    *
     * NOTE - subclasses of LuceneIndexer may have other query(...) methods that allow for more specific and or complex
     * queries.  Specifically both {@link DynamicSememeIndexer} and {@link DescriptionIndexer} have their own
     * query(...) methods which allow for more advanced queries.
@@ -219,11 +219,11 @@ public class DescriptionIndexer
     * @param prefixSearch if true, utilize a search algorithm that is optimized for prefix searching, such as the searching
     * that would be done to implement a type-ahead style search.  Does not use the Lucene Query parser.  Every term (or token)
     * that is part of the query string will be required to be found in the result.
-    * 
+    *
     * Note, it is useful to NOT trim the text of the query before it is sent in - if the last word of the query has a
     * space character following it, that word will be required as a complete term.  If the last word of the query does not
     * have a space character following it, that word will be required as a prefix match only.
-    * 
+    *
     * For example:
     * The query "family test" will return results that contain 'Family Testudinidae'
     * The query "family test " will not match on  'Testudinidae', so that will be excluded.
@@ -251,7 +251,7 @@ public class DescriptionIndexer
    /**
     * A generic query API that handles most common cases.  The cases handled for various component property types
     * are detailed below.
-    * 
+    *
     * NOTE - subclasses of LuceneIndexer may have other query(...) methods that allow for more specific and or complex
     * queries.  Specifically both {@link DynamicSememeIndexer} and {@link DescriptionIndexer} have their own
     * query(...) methods which allow for more advanced queries.
@@ -260,11 +260,11 @@ public class DescriptionIndexer
     * @param prefixSearch if true, utilize a search algorithm that is optimized for prefix searching, such as the searching
     * that would be done to implement a type-ahead style search.  Does not use the Lucene Query parser.  Every term (or token)
     * that is part of the query string will be required to be found in the result.
-    * 
+    *
     * Note, it is useful to NOT trim the text of the query before it is sent in - if the last word of the query has a
     * space character following it, that word will be required as a complete term.  If the last word of the query does not
     * have a space character following it, that word will be required as a prefix match only.
-    * 
+    *
     * For example:
     * The query "family test" will return results that contain 'Family Testudinidae'
     * The query "family test " will not match on  'Testudinidae', so that will be excluded.
@@ -362,11 +362,12 @@ public class DescriptionIndexer
                             sememeChronology.getAssemblageSequence() + "",
                             Field.Store.NO));
 
-      String                lastDescText     = null;
-      String                lastDescType     = null;
+      String                      lastDescText     = null;
+      String                      lastDescType     = null;
       final TreeMap<Long, String> uniqueTextValues = new TreeMap<>();
 
-      for (final DescriptionSememe<? extends DescriptionSememe<?>> descriptionVersion: sememeChronology.getVersionList()) {
+      for (final DescriptionSememe<? extends DescriptionSememe<?>> descriptionVersion:
+            sememeChronology.getVersionList()) {
          final String descType = this.sequenceTypeMap.get(descriptionVersion.getDescriptionTypeConceptSequence());
 
          // No need to index if the text is the same as the previous version.
@@ -392,8 +393,7 @@ public class DescriptionIndexer
       for (final SememeChronology<? extends SememeVersion<?>> sememeChronicle: sememeChronology.getSememeList()) {
          if (sememeChronicle.getSememeType() == SememeType.DYNAMIC) {
             @SuppressWarnings("unchecked")
-			final
-            SememeChronology<DynamicSememe<?>> sememeDynamicChronicle =
+            final SememeChronology<DynamicSememe<?>> sememeDynamicChronicle =
                (SememeChronology<DynamicSememe<?>>) sememeChronicle;
 
             for (final DynamicSememe<?> sememeDynamic: sememeDynamicChronicle.getVersionList()) {
@@ -401,9 +401,9 @@ public class DescriptionIndexer
                if (sememeDynamic.getAssemblageSequence() == this.descExtendedTypeSequence) {
                   // this is a UUID, but we want to treat it as a string anyway
                   final String extendedDescType = sememeDynamic.getData()[0]
-                                                         .getDataObject()
-                                                         .toString();
-                  String value            = null;
+                                                               .getDataObject()
+                                                               .toString();
+                  String       value            = null;
 
                   // Find the text that was active at the time of this refex - timestamp on the refex must not be
                   // greater than the timestamp on the value
@@ -448,9 +448,9 @@ public class DescriptionIndexer
          try {
             if (!sequencesSetup.get()) {
                this.sequenceTypeMap.put(MetaData.FULLY_SPECIFIED_NAME.getConceptSequence(),
-                                   LuceneDescriptionType.FSN.name());
+                                        LuceneDescriptionType.FSN.name());
                this.sequenceTypeMap.put(MetaData.DEFINITION_DESCRIPTION_TYPE.getConceptSequence(),
-                                   LuceneDescriptionType.DEFINITION.name());
+                                        LuceneDescriptionType.DEFINITION.name());
                this.sequenceTypeMap.put(MetaData.SYNONYM.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
                this.descExtendedTypeSequence = DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
                      .getConceptSequence();

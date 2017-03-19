@@ -56,7 +56,6 @@ import sh.isaac.model.sememe.version.SememeVersionImpl;
 public class ObservableSememeVersionImpl<V extends ObservableSememeVersionImpl<V>>
         extends ObservableVersionImpl<V, SememeVersionImpl<?>>
          implements ObservableSememeVersion<V> {
-   
    /**
     * Instantiates a new observable sememe version impl.
     *

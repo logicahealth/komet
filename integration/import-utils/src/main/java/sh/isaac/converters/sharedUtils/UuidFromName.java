@@ -56,7 +56,6 @@ import sh.isaac.api.util.UuidT5Generator;
  * The Class UuidFromName.
  */
 public class UuidFromName {
-   
    /**
     * This is how to get a UUID that the WB expects from a string in a pom....
     *

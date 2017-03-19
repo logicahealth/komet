@@ -64,7 +64,6 @@ import sh.isaac.api.component.sememe.version.SememeVersion;
  */
 public interface ChangeChecker
         extends Comparable<ChangeChecker> {
-   
    /**
     * Check.
     *

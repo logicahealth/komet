@@ -61,7 +61,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public class SufficientSetNode
         extends ConnectorNode {
-   
    /**
     * Instantiates a new sufficient set node.
     *

@@ -76,7 +76,6 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
  */
 public interface ObjectChronology<V extends StampedVersion>
         extends OchreExternalizable, CommittableComponent {
-   
    /**
     * Gets the latest version.
     *
@@ -169,10 +168,10 @@ public interface ObjectChronology<V extends StampedVersion>
    default List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
       final RelativePositionCalculator calc              = RelativePositionCalculator.getCalculator(stampCoordinate);
       final SortedSet<V>               sortedLogicGraphs = new TreeSet<>((V graph1,
-                                                                    V graph2) -> {
+                                                                          V graph2) -> {
                final RelativePosition relativePosition = calc.fastRelativePosition(graph1,
-                                                                             graph2,
-                                                                             stampCoordinate.getStampPrecedence());
+                                                                                   graph2,
+                                                                                   stampCoordinate.getStampPrecedence());
 
                switch (relativePosition) {
                case BEFORE:

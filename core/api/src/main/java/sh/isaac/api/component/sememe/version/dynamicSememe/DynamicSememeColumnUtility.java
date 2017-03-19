@@ -54,7 +54,6 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface DynamicSememeColumnUtility {
-   
    /**
     * A convenience method to read the values that should be used as the name and description for a data
     * column in a dynamic sememe from an existing concept.

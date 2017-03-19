@@ -61,7 +61,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 public class DynamicSememeLongImpl
         extends DynamicSememeDataImpl
          implements DynamicSememeLong {
-   
    /** The property. */
    private ObjectProperty<Long> property_;
 
@@ -84,8 +83,8 @@ public class DynamicSememeLongImpl
    public DynamicSememeLongImpl(long l) {
       super();
       this.data_ = ByteBuffer.allocate(8)
-                        .putLong(l)
-                        .array();
+                             .putLong(l)
+                             .array();
    }
 
    /**

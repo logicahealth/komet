@@ -66,41 +66,40 @@ import sh.isaac.api.DataSerializer;
  * @param <T> the generic type
  */
 public class ConcurrentSequenceSerializedObjectMap<T> {
-   
    /** The Constant storeObjects. */
    private static final boolean storeObjects = false;
-   
+
    /** The Constant SEGMENT_SIZE. */
-   private static final int     SEGMENT_SIZE = 12800;
+   private static final int SEGMENT_SIZE = 12800;
 
    //~--- fields --------------------------------------------------------------
 
    /** The lock. */
-   ReentrantLock                  lock           = new ReentrantLock();
-   
+   ReentrantLock lock = new ReentrantLock();
+
    /** The object byte list. */
-   byte[][][]                     objectByteList = new byte[1][][];
-   
+   byte[][][] objectByteList = new byte[1][][];
+
    /** The object list list. */
    CopyOnWriteArrayList<Object[]> objectListList = new CopyOnWriteArrayList<>();
-   
+
    /** The changed. */
-   boolean[]                      changed        = new boolean[1];
-   
+   boolean[] changed = new boolean[1];
+
    /** The max sequence. */
-   AtomicInteger                  maxSequence    = new AtomicInteger(-1);
-   
+   AtomicInteger maxSequence = new AtomicInteger(-1);
+
    /** The serializer. */
-   DataSerializer<T>              serializer;
-   
+   DataSerializer<T> serializer;
+
    /** The db folder path. */
-   Path                           dbFolderPath;
-   
+   Path dbFolderPath;
+
    /** The folder. */
-   String                         folder;
-   
+   String folder;
+
    /** The suffix. */
-   String                         suffix;
+   String suffix;
 
    //~--- constructors --------------------------------------------------------
 
@@ -116,10 +115,10 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
          Path dbFolderPath,
          String folder,
          String suffix) {
-      this.serializer   = serializer;
-      this.dbFolderPath = dbFolderPath;
-      this.folder       = folder;
-      this.suffix       = suffix;
+      this.serializer        = serializer;
+      this.dbFolderPath      = dbFolderPath;
+      this.folder            = folder;
+      this.suffix            = suffix;
       this.objectByteList[0] = new byte[SEGMENT_SIZE][];
       this.objectListList.add(new Object[SEGMENT_SIZE]);
       this.changed[0] = false;
@@ -273,7 +272,7 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
 
          try {
             while (segmentIndex >= this.objectByteList.length) {
-               this.changed                        = Arrays.copyOf(this.changed, this.objectByteList.length + 1);
+               this.changed                             = Arrays.copyOf(this.changed, this.objectByteList.length + 1);
                this.changed[this.objectByteList.length] = false;
 
                final byte[][][] tempObjByteList = Arrays.copyOf(this.objectByteList, this.objectByteList.length + 1);
@@ -349,7 +348,7 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
     */
    public Stream<T> getParallelStream() {
       final IntStream sequences = IntStream.rangeClosed(0, this.maxSequence.get())
-                                     .parallel();
+                                           .parallel();
 
       return sequences.filter(sequence -> containsKey(sequence))
                       .mapToObj(sequence -> getQuick(sequence));
@@ -363,7 +362,7 @@ public class ConcurrentSequenceSerializedObjectMap<T> {
     */
    public Stream<T> getParallelStream(IntPredicate sequenceFilter) {
       final IntStream sequences = IntStream.rangeClosed(0, this.maxSequence.get())
-                                     .parallel();
+                                           .parallel();
 
       return sequences.filter(sequenceFilter)
                       .filter(sequence -> containsKey(sequence))

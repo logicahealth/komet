@@ -69,24 +69,23 @@ import sh.isaac.model.observable.ObservableFields;
 public class ObservableTaxonomyCoordinateImpl
         extends ObservableCoordinateImpl
          implements ObservableTaxonomyCoordinate {
-   
    /** The taxonomy coordinate. */
-   TaxonomyCoordinateImpl                       taxonomyCoordinate;
-   
+   TaxonomyCoordinateImpl taxonomyCoordinate;
+
    /** The taxonomy type property. */
-   ObjectProperty<PremiseType>                  taxonomyTypeProperty;
-   
+   ObjectProperty<PremiseType> taxonomyTypeProperty;
+
    /** The stamp coordinate property. */
-   ObjectProperty<ObservableStampCoordinate>    stampCoordinateProperty;
-   
+   ObjectProperty<ObservableStampCoordinate> stampCoordinateProperty;
+
    /** The language coordinate property. */
    ObjectProperty<ObservableLanguageCoordinate> languageCoordinateProperty;
-   
+
    /** The logic coordinate property. */
-   ObjectProperty<ObservableLogicCoordinate>    logicCoordinateProperty;
-   
+   ObjectProperty<ObservableLogicCoordinate> logicCoordinateProperty;
+
    /** The uuid property. */
-   ObjectProperty<UUID>                         uuidProperty;
+   ObjectProperty<UUID> uuidProperty;
 
    //~--- constructors --------------------------------------------------------
 

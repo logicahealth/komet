@@ -59,7 +59,6 @@ import sh.isaac.api.identity.StampedVersion;
  */
 @Contract
 public interface IdentifiedObjectService {
-   
    /**
     * Gets the identified object chronology.
     *

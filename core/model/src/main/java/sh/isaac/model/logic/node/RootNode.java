@@ -61,7 +61,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public class RootNode
         extends ConnectorNode {
-   
    /**
     * Instantiates a new root node.
     *

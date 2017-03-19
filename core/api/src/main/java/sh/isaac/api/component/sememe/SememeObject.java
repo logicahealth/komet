@@ -52,7 +52,6 @@ import sh.isaac.api.commit.CommittableComponent;
  */
 public interface SememeObject
         extends CommittableComponent {
-   
    /**
     * Gets the assemblage sequence.
     *

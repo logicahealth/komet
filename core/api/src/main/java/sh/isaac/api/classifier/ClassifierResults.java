@@ -57,15 +57,14 @@ import sh.isaac.api.commit.CommitRecord;
  * @author kec
  */
 public class ClassifierResults {
-   
    /** The affected concepts. */
-   final ConceptSequenceSet      affectedConcepts;
-   
+   final ConceptSequenceSet affectedConcepts;
+
    /** The equivalent sets. */
    final Set<ConceptSequenceSet> equivalentSets;
-   
+
    /** The commit record. */
-   final Optional<CommitRecord>  commitRecord;
+   final Optional<CommitRecord> commitRecord;
 
    //~--- constructors --------------------------------------------------------
 

@@ -63,19 +63,18 @@ import sh.isaac.api.identity.StampedVersion;
  * The Class ComponentReference.
  */
 public class ComponentReference {
-   
    /** The sequence provider. */
-   private final IntSupplier      sequenceProvider_;
-   
+   private final IntSupplier sequenceProvider_;
+
    /** The uuid provider. */
-   private final Supplier<UUID>   uuidProvider_;
-   
+   private final Supplier<UUID> uuidProvider_;
+
    /** The time provider. */
-   private Supplier<Long>   timeProvider_;
-   
+   private Supplier<Long> timeProvider_;
+
    /** The nid provider. */
-   private IntSupplier      nidProvider_;
-   
+   private IntSupplier nidProvider_;
+
    /** The type label supplier. */
    private Supplier<String> typeLabelSupplier_;
 
@@ -92,7 +91,7 @@ public class ComponentReference {
       this.timeProvider_     = () -> null;                                     // a lambda that retuns null time.
       this.sequenceProvider_ = sequenceProvider;
       this.nidProvider_ = () -> Get.identifierService()
-                              .getNidForUuids(this.uuidProvider_.get());  // a lambda that returns a nid
+                                   .getNidForUuids(this.uuidProvider_.get());  // a lambda that returns a nid
    }
 
    /**
@@ -164,8 +163,7 @@ public class ComponentReference {
       cr.nidProvider_  = () -> object.getNid();
       cr.timeProvider_ = () -> {
                             @SuppressWarnings({ "unchecked" })
-							final
-                            Optional<LatestVersion<StampedVersion>> latest =
+                            final Optional<LatestVersion<StampedVersion>> latest =
                                ((ObjectChronology) object).getLatestVersion(StampedVersion.class,
                                                                             IBDFCreationUtility.readBackStamp_);
 
@@ -184,14 +182,13 @@ public class ComponentReference {
     */
    public static ComponentReference fromConcept(ConceptChronology<? extends ConceptVersion<?>> concept) {
       final ComponentReference cr = new ComponentReference(() -> concept.getPrimordialUuid(),
-                                                     () -> concept.getConceptSequence(),
-                                                     () -> "Concept");
+                                                           () -> concept.getConceptSequence(),
+                                                           () -> "Concept");
 
       cr.nidProvider_  = () -> concept.getNid();
       cr.timeProvider_ = () -> {
                             @SuppressWarnings({ "rawtypes", "unchecked" })
-							final
-                            Optional<LatestVersion<StampedVersion>> latest =
+                            final Optional<LatestVersion<StampedVersion>> latest =
                                ((ObjectChronology) concept).getLatestVersion(StampedVersion.class,
                                                                              IBDFCreationUtility.readBackStamp_);
 

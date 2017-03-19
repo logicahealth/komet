@@ -69,21 +69,20 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
 //TODO move to CSIRO specific module
 public class AxiomCollector
          implements Collector<LogicalExpressionOchreImpl, Set<Axiom>, Set<Axiom>> {
-   
    /** The concept sequences. */
-   BitSet                     conceptSequences;
-   
+   BitSet conceptSequences;
+
    /** The concepts. */
-   Concept[]                  concepts;
-   
+   Concept[] concepts;
+
    /** The roles. */
    OpenIntObjectHashMap<Role> roles;
-   
+
    /** The never group role sequences. */
-   OpenIntHashSet             neverGroupRoleSequences;
-   
+   OpenIntHashSet neverGroupRoleSequences;
+
    /** The role group concept sequence. */
-   int                        roleGroupConceptSequence;
+   int roleGroupConceptSequence;
 
    //~--- constructors --------------------------------------------------------
 
@@ -121,7 +120,11 @@ public class AxiomCollector
     */
    @Override
    public BiConsumer<Set<Axiom>, LogicalExpressionOchreImpl> accumulator() {
-      return new AxiomAccumulator(this.concepts, this.conceptSequences, this.roles, this.neverGroupRoleSequences, this.roleGroupConceptSequence);
+      return new AxiomAccumulator(this.concepts,
+                                  this.conceptSequences,
+                                  this.roles,
+                                  this.neverGroupRoleSequences,
+                                  this.roleGroupConceptSequence);
    }
 
    /**

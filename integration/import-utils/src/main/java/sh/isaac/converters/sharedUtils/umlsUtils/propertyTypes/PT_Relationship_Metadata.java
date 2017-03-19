@@ -53,7 +53,6 @@ import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
  */
 public class PT_Relationship_Metadata
         extends PropertyType {
-   
    /**
     * Instantiates a new p T relationship metadata.
     */

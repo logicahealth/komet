@@ -55,24 +55,23 @@ import sh.isaac.api.logic.NodeSemantic;
  */
 public class IsomorphicSearchBottomUpNode
          implements Comparable<IsomorphicSearchBottomUpNode> {
-   
    /** The node semantic. */
-   final NodeSemantic       nodeSemantic;
-   
+   final NodeSemantic nodeSemantic;
+
    /** The concepts referenced at node or above. */
    final ConceptSequenceSet conceptsReferencedAtNodeOrAbove;
-   
+
    /** The concepts referenced at node or above hash. */
-   int                      conceptsReferencedAtNodeOrAboveHash;
-   
+   int conceptsReferencedAtNodeOrAboveHash;
+
    /** The child node id. */
-   final int                childNodeId;
-   
+   final int childNodeId;
+
    /** The node id. */
-   final int                nodeId;
-   
+   final int nodeId;
+
    /** The size. */
-   final int                size;
+   final int size;
 
    //~--- constructors --------------------------------------------------------
 
@@ -181,8 +180,8 @@ public class IsomorphicSearchBottomUpNode
     */
    @Override
    public String toString() {
-      return "BottomUpNode{" + this.nodeSemantic + ", conceptsAtOrAbove=" + this.conceptsReferencedAtNodeOrAbove + ", childId=" +
-             this.childNodeId + ", nodeId=" + this.nodeId + '}';
+      return "BottomUpNode{" + this.nodeSemantic + ", conceptsAtOrAbove=" + this.conceptsReferencedAtNodeOrAbove +
+             ", childId=" + this.childNodeId + ", nodeId=" + this.nodeId + '}';
    }
 }
 

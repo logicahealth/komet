@@ -63,10 +63,9 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
  */
 public class ExtractAxioms
         extends TimedTaskWithProgressTracker<Void> {
-   
    /** The stamp coordinate. */
    StampCoordinate stampCoordinate;
-   
+
    /** The logic coordinate. */
    LogicCoordinate logicCoordinate;
 
@@ -121,14 +120,14 @@ public class ExtractAxioms
          ClassifierData cd,
          AtomicInteger logicGraphMembers) {
       final SememeSnapshotService<LogicGraphSememeImpl> sememeSnapshot = Get.sememeService()
-                                                                      .getSnapshot(LogicGraphSememeImpl.class,
-                                                                            stampCoordinate);
+                                                                            .getSnapshot(LogicGraphSememeImpl.class,
+                                                                                  stampCoordinate);
 
       sememeSnapshot.getLatestSememeVersionsFromAssemblage(logicCoordinate.getStatedAssemblageSequence(), this)
                     .forEach((LatestVersion<LogicGraphSememeImpl> latest) -> {
                                 final LogicGraphSememeImpl lgs = latest.value();
-                                final int conceptSequence      = Get.identifierService()
-                                                              .getConceptSequence(lgs.getReferencedComponentNid());
+                                final int conceptSequence = Get.identifierService()
+                                                               .getConceptSequence(lgs.getReferencedComponentNid());
 
                                 if (Get.conceptService()
                                        .isConceptActive(conceptSequence, stampCoordinate)) {

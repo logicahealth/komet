@@ -61,23 +61,24 @@ import sh.isaac.api.util.StringUtils;
  */
 public class MappingObject
         extends StampedItem {
-   
    /** The Constant editorStatusComparator. */
-   public static final Comparator<MappingObject> editorStatusComparator = (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getEditorStatusName(), o2.getEditorStatusName());
+   public static final Comparator<MappingObject> editorStatusComparator =
+      (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getEditorStatusName(),
+                                                       o2.getEditorStatusName());
 
    //~--- fields --------------------------------------------------------------
 
    /** The editor status concept. */
-   protected UUID                       editorStatusConcept         = null;
-   
+   protected UUID editorStatusConcept = null;
+
    /** The editor status concept nid. */
-   protected int                        editorStatusConceptNid      = 0;
-   
+   protected int editorStatusConceptNid = 0;
+
    /** The editor status concept property. */
    protected final SimpleStringProperty editorStatusConceptProperty = new SimpleStringProperty();
-   
+
    /** The cached values. */
-   protected HashMap<UUID, String>      cachedValues                = new HashMap<>();
+   protected HashMap<UUID, String> cachedValues = new HashMap<>();
 
    //~--- methods -------------------------------------------------------------
 
@@ -99,7 +100,7 @@ public class MappingObject
             property.set("-");
             Get.workExecutors().getExecutor().execute(() -> {
                            final String s = Get.conceptDescriptionText(Get.identifierService()
-                                                                    .getConceptSequenceForUuids(uuid));
+                                                                          .getConceptSequenceForUuids(uuid));
 
                            this.cachedValues.put(uuid, s);
                            Platform.runLater(() -> {

@@ -62,8 +62,8 @@ import javax.management.NotificationEmitter;
  * Created by kec on 4/8/15.
  */
 public class MemoryUtil {
-   
    /** The Constant memorymbean. */
+
    // private static final Logger log = LogManager.getLogger();
    private static final MemoryMXBean memorymbean = ManagementFactory.getMemoryMXBean();
 
@@ -177,7 +177,6 @@ public class MemoryUtil {
     */
    static class MyListener
             implements javax.management.NotificationListener {
-      
       /**
        * Handle notification.
        *
@@ -185,7 +184,7 @@ public class MemoryUtil {
        * @param handback the handback
        */
       @Override
-	public void handleNotification(Notification notif, Object handback) {
+      public void handleNotification(Notification notif, Object handback) {
          // handle notification
          System.out.println(" Memory Notification: " + notif);
       }

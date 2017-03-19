@@ -54,7 +54,6 @@ import javafx.beans.property.StringProperty;
  */
 public interface ObservableDescriptionSememe<V extends ObservableDescriptionSememe<V>>
         extends ObservableSememeVersion<V> {
-   
    /**
     * Case significance concept sequence property.
     *

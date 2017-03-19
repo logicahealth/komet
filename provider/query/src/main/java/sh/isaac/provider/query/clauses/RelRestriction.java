@@ -75,30 +75,29 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class RelRestriction
         extends LeafClause {
-   
    /** The rel type key. */
    @XmlElement
-   String             relTypeKey;
-   
+   String relTypeKey;
+
    /** The destination spec key. */
    @XmlElement
-   String             destinationSpecKey;
-   
+   String destinationSpecKey;
+
    /** The view coordinate key. */
    @XmlElement
-   String             viewCoordinateKey;
-   
+   String viewCoordinateKey;
+
    /** The destination subsumption key. */
    @XmlElement
-   String             destinationSubsumptionKey;
-   
+   String destinationSubsumptionKey;
+
    /** The rel type subsumption key. */
    @XmlElement
-   String             relTypeSubsumptionKey;
-   
+   String relTypeSubsumptionKey;
+
    /** The destination set. */
    ConceptSequenceSet destinationSet;
-   
+
    /** The rel type set. */
    ConceptSequenceSet relTypeSet;
 
@@ -145,15 +144,15 @@ public class RelRestriction
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
 //    System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
       final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                 .get(this.viewCoordinateKey);
+                                                                                            .get(this.viewCoordinateKey);
       final ConceptSpecification destinationSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-                                                                                  .get(this.destinationSpecKey);
+                                                                                             .get(this.destinationSpecKey);
       final ConceptSpecification relType = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-                                                                          .get(this.relTypeKey);
-      Boolean              relTypeSubsumption = (Boolean) this.enclosingQuery.getLetDeclarations()
-                                                                        .get(this.relTypeSubsumptionKey);
+                                                                                     .get(this.relTypeKey);
+      Boolean relTypeSubsumption = (Boolean) this.enclosingQuery.getLetDeclarations()
+                                                                .get(this.relTypeSubsumptionKey);
       Boolean destinationSubsumption = (Boolean) this.enclosingQuery.getLetDeclarations()
-                                                               .get(this.destinationSubsumptionKey);
+                                                                    .get(this.destinationSubsumptionKey);
 
       // The default is to set relTypeSubsumption and destinationSubsumption to true.
       if (relTypeSubsumption == null) {
@@ -169,7 +168,7 @@ public class RelRestriction
 
       if (relTypeSubsumption) {
          this.relTypeSet.or(Get.taxonomyService()
-                          .getKindOfSequenceSet(relType.getConceptSequence(), taxonomyCoordinate));
+                               .getKindOfSequenceSet(relType.getConceptSequence(), taxonomyCoordinate));
       }
 
       this.destinationSet = new ConceptSequenceSet();
@@ -177,7 +176,7 @@ public class RelRestriction
 
       if (destinationSubsumption) {
          this.destinationSet.or(Get.taxonomyService()
-                              .getKindOfSequenceSet(destinationSpec.getConceptSequence(), taxonomyCoordinate));
+                                   .getKindOfSequenceSet(destinationSpec.getConceptSequence(), taxonomyCoordinate));
       }
 
       return incomingPossibleComponents;
@@ -204,7 +203,7 @@ public class RelRestriction
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
       final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                 .get(this.viewCoordinateKey);
+                                                                                            .get(this.viewCoordinateKey);
 
       Get.taxonomyService()
          .getAllRelationshipDestinationSequencesOfType(conceptVersion.getChronology()

@@ -53,7 +53,6 @@ import java.util.Set;
  */
 public class MergeFailure
         extends Exception {
-   
    /** The Constant serialVersionUID. */
    private static final long serialVersionUID = 1L;
 
@@ -61,7 +60,7 @@ public class MergeFailure
 
    /** The files with merge failures. */
    private final Set<String> filesWithMergeFailures_;
-   
+
    /** The files changed during merge attempt. */
    private final Set<String> filesChangedDuringMergeAttempt_;
 

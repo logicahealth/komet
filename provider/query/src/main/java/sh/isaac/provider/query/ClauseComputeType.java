@@ -48,13 +48,12 @@ package sh.isaac.provider.query;
  * @author kec
  */
 public enum ClauseComputeType {
-   
    /** The pre iteration. */
    PRE_ITERATION,
-   
+
    /** The iteration. */
    ITERATION,
-   
+
    /** The post iteration. */
    POST_ITERATION;
 }

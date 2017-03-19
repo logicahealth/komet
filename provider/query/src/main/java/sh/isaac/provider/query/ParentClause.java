@@ -115,7 +115,7 @@ public abstract class ParentClause
     * @return the array of instances of <code>Clause</code> that are children of the ParentClause in the tree used to compute the constructed <code>Query</code>
     */
    @Override
-public List<Clause> getChildren() {
+   public List<Clause> getChildren() {
       return this.children;
    }
 
@@ -155,8 +155,8 @@ public List<Clause> getChildren() {
    @Override
    public final void getQueryMatches(ConceptVersion conceptVersion) {
       this.children.stream().forEach((c) -> {
-                          c.getQueryMatches(conceptVersion);
-                       });
+                               c.getQueryMatches(conceptVersion);
+                            });
    }
 }
 

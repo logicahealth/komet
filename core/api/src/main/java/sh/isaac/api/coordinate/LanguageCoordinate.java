@@ -61,7 +61,6 @@ import sh.isaac.api.component.sememe.version.DescriptionSememe;
  * Created by kec on 2/16/15.
  */
 public interface LanguageCoordinate {
-   
    /**
     * Return the description according to the type and dialect preferences
     * of this {@code LanguageCoordinate}.

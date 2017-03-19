@@ -50,21 +50,20 @@ import java.util.UUID;
  */
 public class ValuePropertyPair
          implements Comparable<ValuePropertyPair> {
-   
    /** The value disabled. */
-   private Boolean  valueDisabled_ = null;  // used for overriding the property default with instance data
-   
+   private Boolean valueDisabled_ = null;  // used for overriding the property default with instance data
+
    /** The time. */
-   protected Long   time_          = null;
-   
+   protected Long time_ = null;
+
    /** The property. */
    private final Property property_;
-   
+
    /** The value. */
-   private final String   value_;
-   
+   private final String value_;
+
    /** The description UUI D. */
-   private UUID     descriptionUUID_;
+   private UUID descriptionUUID_;
 
    //~--- constructors --------------------------------------------------------
 
@@ -104,18 +103,18 @@ public class ValuePropertyPair
    @Override
    public int compareTo(ValuePropertyPair o) {
       int result = this.property_.getPropertyType()
-                            .getClass()
-                            .getName()
-                            .compareTo(o.property_.getPropertyType()
-                                  .getClass()
-                                  .getName());
+                                 .getClass()
+                                 .getName()
+                                 .compareTo(o.property_.getPropertyType()
+                                       .getClass()
+                                       .getName());
 
       if (result == 0) {
          result = this.property_.getPropertySubType() - o.property_.getPropertySubType();
 
          if (result == 0) {
             result = this.property_.getSourcePropertyNameFSN()
-                              .compareTo(o.property_.getSourcePropertyNameFSN());
+                                   .compareTo(o.property_.getSourcePropertyNameFSN());
 
             if (result == 0) {
                result = this.value_.compareTo(o.value_);

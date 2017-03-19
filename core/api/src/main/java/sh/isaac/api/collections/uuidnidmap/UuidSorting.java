@@ -46,10 +46,9 @@ package sh.isaac.api.collections.uuidnidmap;
  */
 public class UuidSorting
         extends Object {
-   
    /** The Constant SMALL. */
-   private static final int SMALL  = 7;
-   
+   private static final int SMALL = 7;
+
    /** The Constant MEDIUM. */
    private static final int MEDIUM = 40;
 
@@ -388,8 +387,8 @@ public class UuidSorting
       }
 
       // Swap partition elements back to middle
-      int s;
-	final int n = off + len;
+      int       s;
+      final int n = off + len;
 
       s = Math.min(a - off, b - a);
       vecswap(x, off, b - s, s);

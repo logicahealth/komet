@@ -72,7 +72,6 @@ import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
  */
 public class ConceptNodeWithUuids
         extends AbstractLogicNode {
-   
    /** The concept uuid. */
    UUID conceptUuid;
 

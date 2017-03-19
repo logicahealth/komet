@@ -55,7 +55,6 @@ import sh.isaac.api.observable.sememe.ObservableSememeChronology;
  */
 @Contract
 public interface ObservableChronologyService {
-   
    /**
     * Gets the observable concept chronology.
     *

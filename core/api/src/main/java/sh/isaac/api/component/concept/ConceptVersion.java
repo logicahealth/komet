@@ -53,7 +53,6 @@ import sh.isaac.api.identity.StampedVersion;
  */
 public interface ConceptVersion<V extends ConceptVersion<V>>
         extends StampedVersion, CommittableComponent {
-   
    /**
     * Gets the chronology.
     *

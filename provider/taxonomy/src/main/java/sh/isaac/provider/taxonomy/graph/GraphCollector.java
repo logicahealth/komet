@@ -74,24 +74,23 @@ import sh.isaac.provider.taxonomy.TaxonomyRecordUnpacked;
  */
 public class GraphCollector
          implements ObjIntConsumer<HashTreeBuilder>, BiConsumer<HashTreeBuilder, HashTreeBuilder> {
-   
    /** The isa concept sequence. */
-   private final int                                   ISA_CONCEPT_SEQUENCE         = TermAux.IS_A.getConceptSequence();
-   
+   private final int ISA_CONCEPT_SEQUENCE = TermAux.IS_A.getConceptSequence();
+
    /** The origin sequence being processed. */
-   int                                                 originSequenceBeingProcessed = -1;
-   
+   int originSequenceBeingProcessed = -1;
+
    /** The watch list. */
-   ConceptSequenceSet                                  watchList                    = new ConceptSequenceSet();
-   
+   ConceptSequenceSet watchList = new ConceptSequenceSet();
+
    /** The taxonomy map. */
    final CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap;
-   
+
    /** The taxonomy coordinate. */
-   final TaxonomyCoordinate                            taxonomyCoordinate;
-   
+   final TaxonomyCoordinate taxonomyCoordinate;
+
    /** The taxonomy flags. */
-   final int                                           taxonomyFlags;
+   final int taxonomyFlags;
 
    //~--- constructors --------------------------------------------------------
 
@@ -104,7 +103,7 @@ public class GraphCollector
    public GraphCollector(CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap, TaxonomyCoordinate viewCoordinate) {
       this.taxonomyMap        = taxonomyMap;
       this.taxonomyCoordinate = viewCoordinate;
-      this.taxonomyFlags           = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(viewCoordinate);
+      this.taxonomyFlags      = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(viewCoordinate);
 
 //    addToWatchList("779ece66-7e95-323e-a261-214caf48c408");
 //    addToWatchList("778a75c9-8264-36aa-9ad6-b9c6e5ee9187");
@@ -143,9 +142,10 @@ public class GraphCollector
          }
 
          final TaxonomyRecordUnpacked taxonomyRecordUnpacked = isaacPrimitiveTaxonomyRecord.get()
-                                                                                     .getTaxonomyRecordUnpacked();
-         final IntStream destinationStream = taxonomyRecordUnpacked.getConceptSequencesForType(this.ISA_CONCEPT_SEQUENCE,
-                                                                                         this.taxonomyCoordinate);
+                                                                                           .getTaxonomyRecordUnpacked();
+         final IntStream destinationStream =
+            taxonomyRecordUnpacked.getConceptSequencesForType(this.ISA_CONCEPT_SEQUENCE,
+                                                              this.taxonomyCoordinate);
 
          destinationStream.forEach((int destinationSequence) -> graphBuilder.add(destinationSequence, originSequence));
       }
@@ -162,7 +162,7 @@ public class GraphCollector
    public final void addToWatchList(String uuid)
             throws RuntimeException {
       this.watchList.add(Get.identifierService()
-                       .getConceptSequenceForUuids(UUID.fromString(uuid)));
+                            .getConceptSequenceForUuids(UUID.fromString(uuid)));
    }
 
    /**

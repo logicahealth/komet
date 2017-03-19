@@ -72,13 +72,12 @@ import sh.isaac.api.util.FortifyFun;
 public abstract class TimedTaskWithProgressTracker<T>
         extends TimedTask<T>
          implements ProgressTracker {
-   
    /** The Constant MH_SET_TOTAL_WORK. */
    static final MethodHandle MH_SET_TOTAL_WORK;
-   
+
    /** The Constant MH_SET_PROGRESS. */
    static final MethodHandle MH_SET_PROGRESS;
-   
+
    /** The Constant MH_SET_WORK_DONE. */
    static final MethodHandle MH_SET_WORK_DONE;
 
@@ -108,16 +107,16 @@ public abstract class TimedTaskWithProgressTracker<T>
    //~--- fields --------------------------------------------------------------
 
    /** The progress ticker. */
-   private final Ticker progressTicker       = new Ticker();
-   
+   private final Ticker progressTicker = new Ticker();
+
    /** The completed units of work. */
-   LongAdder            completedUnitsOfWork = new LongAdder();
-   
+   LongAdder completedUnitsOfWork = new LongAdder();
+
    /** The total work. */
-   AtomicLong           totalWork            = new AtomicLong();
-   
+   AtomicLong totalWork = new AtomicLong();
+
    /** The last total work. */
-   AtomicLong           lastTotalWork        = new AtomicLong();
+   AtomicLong lastTotalWork = new AtomicLong();
 
    //~--- methods -------------------------------------------------------------
 
@@ -168,22 +167,22 @@ public abstract class TimedTaskWithProgressTracker<T>
       final long currentTotalWork = this.totalWork.get();
 
       this.progressTicker.start(progressUpdateIntervalInSecs,
-                           (value) -> {
-                              try {
-                                 if (currentTotalWork > 0) {
-                                    MH_SET_WORK_DONE.invoke(this, this.completedUnitsOfWork.doubleValue());
-                                    MH_SET_PROGRESS.invoke(this,
-                                          this.completedUnitsOfWork.doubleValue() / this.totalWork.doubleValue());
-                                    MH_SET_TOTAL_WORK.invoke(this, this.totalWork.doubleValue());
-                                 } else {
-                                    MH_SET_WORK_DONE.invoke(this, -1d);
-                                    MH_SET_PROGRESS.invoke(this, -1d);
-                                    MH_SET_TOTAL_WORK.invoke(this, -1d);
-                                 }
-                              } catch (final Throwable throwable) {
-                                 throw new RuntimeException(throwable);
-                              }
-                           });
+                                (value) -> {
+                                   try {
+                                      if (currentTotalWork > 0) {
+                                         MH_SET_WORK_DONE.invoke(this, this.completedUnitsOfWork.doubleValue());
+                                         MH_SET_PROGRESS.invoke(this,
+                                               this.completedUnitsOfWork.doubleValue() / this.totalWork.doubleValue());
+                                         MH_SET_TOTAL_WORK.invoke(this, this.totalWork.doubleValue());
+                                      } else {
+                                         MH_SET_WORK_DONE.invoke(this, -1d);
+                                         MH_SET_PROGRESS.invoke(this, -1d);
+                                         MH_SET_TOTAL_WORK.invoke(this, -1d);
+                                      }
+                                   } catch (final Throwable throwable) {
+                                      throw new RuntimeException(throwable);
+                                   }
+                                });
    }
 
    /**

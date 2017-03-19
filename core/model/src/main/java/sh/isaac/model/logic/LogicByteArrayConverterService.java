@@ -62,7 +62,6 @@ import sh.isaac.api.logic.LogicalExpressionByteArrayConverter;
 @Service
 public class LogicByteArrayConverterService
          implements LogicalExpressionByteArrayConverter {
-   
    /**
     * Convert logic graph form.
     *

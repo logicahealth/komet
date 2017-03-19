@@ -57,7 +57,6 @@ import sh.isaac.model.coordinate.TaxonomyCoordinateImpl;
  * @author kec
  */
 public class TaxonomyCoordinates {
-   
    /**
     * Uses the default logic coordinate.
     *

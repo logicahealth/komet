@@ -58,10 +58,9 @@ import java.util.stream.Stream;
  * @param <V> the value type
  */
 public final class LatestVersion<V> {
-   
    /** The value. */
-   V                value;
-   
+   V value;
+
    /** The contradictions. */
    Optional<Set<V>> contradictions;
 
@@ -97,7 +96,7 @@ public final class LatestVersion<V> {
     * @param latest the latest
     */
    public LatestVersion(V latest) {
-      this.value     = Objects.requireNonNull(latest, "latest version cannot be null");
+      this.value          = Objects.requireNonNull(latest, "latest version cannot be null");
       this.contradictions = Optional.empty();
    }
 
@@ -133,7 +132,7 @@ public final class LatestVersion<V> {
          }
 
          this.contradictions.get()
-                       .add(value);
+                            .add(value);
       }
    }
 
@@ -182,8 +181,8 @@ public final class LatestVersion<V> {
 
       if (this.contradictions.isPresent()) {
          this.contradictions.get().forEach((contradiction) -> {
-                                   builder.add(contradiction);
-                                });
+                                        builder.add(contradiction);
+                                     });
       }
 
       return builder.build();

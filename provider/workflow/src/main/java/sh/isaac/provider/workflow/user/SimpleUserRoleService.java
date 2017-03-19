@@ -73,8 +73,7 @@ import sh.isaac.api.UserRoleService;
 @Singleton
 public class SimpleUserRoleService
          implements UserRoleService {
-   
-   /**  The user role map  (for Unit Testing). */
+   /** The user role map  (for Unit Testing). */
    private final Map<UUID, Set<UserRole>> userRoleMap = new HashMap<>();
 
    /** The definition roles. */

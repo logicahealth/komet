@@ -77,12 +77,11 @@ import static sh.isaac.api.util.UuidT5Generator.REL_ADAPTOR_NAMESPACE;
  */
 public class RelationshipAdaptorChronologyImpl
          implements SememeChronology<RelationshipVersionAdaptorImpl> {
-   
    /** The version list. */
    private final ArrayList<RelationshipVersionAdaptorImpl> versionList = new ArrayList<>();
-   
+
    /** The primordial uuid msb. */
-   private final long                                      primordialUuidMsb;
+   private final long primordialUuidMsb;
 
    /** Primordial uuid least significant bits for this component. */
    private final long primordialUuidLsb;
@@ -165,15 +164,15 @@ public class RelationshipAdaptorChronologyImpl
 
       sb.append("[");
       this.versionList.stream().forEach((version) -> {
-                             sb.append(version);
-                             sb.append(",\n ");
-                          });
+                                  sb.append(version);
+                                  sb.append(",\n ");
+                               });
       sb.delete(sb.length() - 4, sb.length() - 1);
       sb.append("]");
 
       final Optional<? extends SememeChronology<? extends SememeVersion<?>>> optionalSememe = Get.sememeService()
-                                                                                           .getOptionalSememe(
-                                                                                              this.referencedComponentNid);
+                                                                                                 .getOptionalSememe(
+                                                                                                    this.referencedComponentNid);
 
       if (optionalSememe.isPresent()) {
          return "RelAdaptor{" + Get.conceptDescriptionText(optionalSememe.get().getAssemblageSequence()) + ": " +
@@ -393,8 +392,8 @@ public class RelationshipAdaptorChronologyImpl
       final IntStream.Builder stampSequences = IntStream.builder();
 
       this.versionList.forEach((version) -> {
-                             stampSequences.accept(version.stampSequence);
-                          });
+                                  stampSequences.accept(version.stampSequence);
+                               });
       return stampSequences.build();
    }
 }

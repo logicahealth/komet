@@ -78,7 +78,6 @@ import sh.isaac.api.LookupService;
  * The Class ArtifactUtilities.
  */
 public class ArtifactUtilities {
-   
    /**
     * The main method.
     *
@@ -96,11 +95,11 @@ public class ArtifactUtilities {
          LookupService.startupWorkExecutors();
 
          final URL release = new URL("http://artifactory.isaac.sh/artifactory/libs-release-local" +
-                               makeMavenRelativePath("aopalliance",
-                                     "aopalliance",
-                                     "1.0",
-                                     null,
-                                     "jar"));
+                                     makeMavenRelativePath("aopalliance",
+                                           "aopalliance",
+                                           "1.0",
+                                           null,
+                                           "jar"));
          Task<File> task = new DownloadUnzipTask(null, null, release, false, true, null);
 
          Get.workExecutors()
@@ -238,8 +237,8 @@ public class ArtifactUtilities {
          String type)
             throws Exception {
       final String temp                   = groupId.replaceAll("\\.", "/");
-      String snapshotVersion        = "";
-      String versionWithoutSnapshot = version;
+      String       snapshotVersion        = "";
+      String       versionWithoutSnapshot = version;
 
       if (version.endsWith("-SNAPSHOT")) {
          versionWithoutSnapshot = version.substring(0, version.lastIndexOf("-SNAPSHOT"));
@@ -262,18 +261,18 @@ public class ArtifactUtilities {
 
          DocumentBuilder builder;
          Document        dDoc  = null;
-         final XPath           xPath = XPathFactory.newInstance()
+         final XPath     xPath = XPathFactory.newInstance()
                                              .newXPath();
 
          builder = domFactory.newDocumentBuilder();
          dDoc    = builder.parse(metadataFile);
 
          final String timestamp = ((Node) xPath.evaluate("/metadata/versioning/snapshot/timestamp",
-                                                   dDoc,
-                                                   XPathConstants.NODE)).getTextContent();
+                                                         dDoc,
+                                                         XPathConstants.NODE)).getTextContent();
          final String buildNumber = ((Node) xPath.evaluate("/metadata/versioning/snapshot/buildNumber",
-                                                     dDoc,
-                                                     XPathConstants.NODE)).getTextContent();
+                                                           dDoc,
+                                                           XPathConstants.NODE)).getTextContent();
 
          snapshotVersion = "-" + timestamp + "-" + buildNumber;
          metadataFile.delete();

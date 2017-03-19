@@ -47,7 +47,6 @@ package sh.isaac.api.component.sememe.version;
  */
 public interface StringSememe<T extends StringSememe<T>>
         extends SememeVersion<T> {
-   
    /**
     * Gets the string.
     *

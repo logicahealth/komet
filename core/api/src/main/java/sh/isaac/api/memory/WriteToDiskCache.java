@@ -50,15 +50,14 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * Created by kec on 4/10/15.
  */
 public class WriteToDiskCache {
-   
    /** The Constant WRITE_INTERVAL_IN_MS. */
-   private static final int                             WRITE_INTERVAL_IN_MS = 15000;
-   
+   private static final int WRITE_INTERVAL_IN_MS = 15000;
+
    /** The cache set. */
-   static ConcurrentSkipListSet<MemoryManagedReference> cacheSet             = new ConcurrentSkipListSet<>();
-   
+   static ConcurrentSkipListSet<MemoryManagedReference> cacheSet = new ConcurrentSkipListSet<>();
+
    /** The Constant writerThread. */
-   static final Thread                                  writerThread;
+   static final Thread writerThread;
 
    //~--- static initializers -------------------------------------------------
 
@@ -99,7 +98,6 @@ public class WriteToDiskCache {
     */
    public static class WriteToDiskRunnable
             implements Runnable {
-      
       /**
        * Run.
        */
@@ -107,7 +105,7 @@ public class WriteToDiskCache {
       public void run() {
          while (true) {
             final Optional<MemoryManagedReference> optionalReference = cacheSet.stream()
-                                                                         .filter((memoryManagedReference) -> {
+                                                                               .filter((memoryManagedReference) -> {
                      if (memoryManagedReference.get() == null) {
                         cacheSet.remove(memoryManagedReference);
                         return false;
@@ -115,7 +113,7 @@ public class WriteToDiskCache {
 
                      return memoryManagedReference.hasUnwrittenUpdate();
                   })
-                                                                         .max((o1, o2) -> {
+                                                                               .max((o1, o2) -> {
                      if (o1.msSinceLastUnwrittenUpdate() > o2.msSinceLastUnwrittenUpdate()) {
                         return 1;
                      }

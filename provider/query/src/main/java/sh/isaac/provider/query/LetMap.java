@@ -55,7 +55,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class LetMap {
-   
    /** The map. */
    private Map<String, Object> map = new HashMap<>();
 

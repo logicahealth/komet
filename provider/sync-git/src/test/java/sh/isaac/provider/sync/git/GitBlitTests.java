@@ -55,7 +55,6 @@ import sh.isaac.provider.sync.git.gitblit.GitBlitUtils;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class GitBlitTests {
-   
    /**
     * The main method.
     *

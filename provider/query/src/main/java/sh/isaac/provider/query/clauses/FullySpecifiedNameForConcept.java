@@ -73,7 +73,6 @@ import sh.isaac.provider.query.WhereClause;
 @XmlAccessorType(value = XmlAccessType.NONE)
 public class FullySpecifiedNameForConcept
         extends ParentClause {
-   
    /**
     * Instantiates a new fully specified name for concept.
     */
@@ -104,7 +103,8 @@ public class FullySpecifiedNameForConcept
       final NidSet             outgoingFullySpecifiedNids = new NidSet();
 
       for (final Clause childClause: getChildren()) {
-         final NidSet             childPossibleComponentNids = childClause.computePossibleComponents(incomingComponents);
+         final NidSet             childPossibleComponentNids =
+            childClause.computePossibleComponents(incomingComponents);
          final ConceptSequenceSet conceptSequenceSet         = ConceptSequenceSet.of(childPossibleComponentNids);
 
          Get.conceptService()

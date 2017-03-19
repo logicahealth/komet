@@ -59,7 +59,6 @@ import sh.isaac.pombuilder.FileUtil;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public enum SupportedConverterTypes {
-   
    /** The loinc. */
    LOINC("loinc-src-data", new String[] {}, new String[] {}, new UploadFileInfo[] {
       // (?i) and (?-i) constructs are not supported in JavaScript (they are in Ruby)
@@ -85,7 +84,7 @@ public enum SupportedConverterTypes {
    }, "loinc-mojo", "loinc-ibdf", "convert-loinc-to-ibdf", "sh.isaac.terminology.source.loinc", "LOINC",
       new String[] { "shared/licenses/loinc.xml" },
       new String[] { "shared/noticeAdditions/loinc-NOTICE-addition.txt" }),
-   
+
    /** The loinc tech preview. */
    LOINC_TECH_PREVIEW("loinc-src-data-tech-preview", new String[] { "loinc-src-data" },
                       new String[] { "rf2-ibdf-sct" }, new UploadFileInfo[] { new UploadFileInfo("",
@@ -101,7 +100,7 @@ public enum SupportedConverterTypes {
                                            "shared/noticeAdditions/loinc-tech-preview-NOTICE-addition.txt",
                                                  "shared/noticeAdditions/loinc-NOTICE-addition.txt",
                                                  "shared/noticeAdditions/rf2-sct-NOTICE-addition.txt" }),
-   
+
    /** The sct. */
    SCT("rf2-src-data-sct", new String[] {}, new String[] {}, new UploadFileInfo[] { new UploadFileInfo("",
          "https://www.nlm.nih.gov/healthit/snomedct/international.html",
@@ -112,7 +111,7 @@ public enum SupportedConverterTypes {
          true) }, "rf2-mojo", "rf2-ibdf-sct", "convert-RF2-to-ibdf", "sh.isaac.terminology.source.rf2", "SnomedCT",
                   new String[] { "shared/licenses/sct.xml" },
                   new String[] { "shared/noticeAdditions/rf2-sct-NOTICE-addition.txt" }),
-   
+
    /** The sct extension. */
    SCT_EXTENSION(
       "rf2-src-data-*-extension", new String[] {}, new String[] { "rf2-ibdf-sct" }, new UploadFileInfo[] { new UploadFileInfo(
@@ -127,7 +126,7 @@ public enum SupportedConverterTypes {
          true) }, "rf2-mojo", "rf2-ibdf-", "convert-RF2-to-ibdf", "sh.isaac.terminology.source.rf2",
                   "SnomedCT Extension", new String[] { "shared/licenses/sct.xml" },
                   new String[] { "shared/noticeAdditions/rf2-sct-NOTICE-addition.txt" }),
-   
+
    /** The vhat. */
    VHAT("vhat-src-data", new String[] {}, new String[] {},
         new UploadFileInfo[] { new UploadFileInfo("VHAT content is typically exported from a VETs system.  ",
@@ -137,7 +136,7 @@ public enum SupportedConverterTypes {
               ".*\\.xml$",
               true) }, "vhat-mojo", "vhat-ibdf", "convert-VHAT-to-ibdf", "sh.isaac.terminology.source.vhat", "VHAT",
                        new String[] { "" }, new String[] { "" }),
-   
+
    /** The rxnorm. */
    RXNORM("rxnorm-src-data", new String[] {}, new String[] { "rf2-ibdf-sct" },
           new UploadFileInfo[] { new UploadFileInfo("",
@@ -155,7 +154,8 @@ public enum SupportedConverterTypes {
 //                                 "The file must be a zip file, which starts with 'rxnorm_full' and ends with .zip", "rxnorm_full.*\\.zip$", true)
 // }, "rxnorm-mojo", "rxnorm-ibdf-solor", "convert-rxnorm-solor-to-ibdf", "sh.isaac.terminology.source.rxnorm", "RxNorm Solor", 
 //                 new String[] {"shared/licenses/rxnorm.xml"}, 
-/** The HL 7 v 3. */
+
+   /** The HL 7 v 3. */
 //                 new String[] {"shared/noticeAdditions/rxnorm-NOTICE-addition.txt"}),
    HL7v3("hl7v3-src-data", new String[] {}, new String[] {}, new UploadFileInfo[] { new UploadFileInfo("",
          "http://gforge.hl7.org/gf/project/design-repos/frs/?action=FrsReleaseBrowse&frs_package_id=30",
@@ -166,7 +166,7 @@ public enum SupportedConverterTypes {
          true) }, "hl7v3-mojo", "hl7v3-ibdf", "convert-hl7v3-to-ibdf", "sh.isaac.terminology.source.hl7v3", "HL7v3",
                   new String[] { "shared/licenses/hl7v3.xml" },
                   new String[] { "shared/noticeAdditions/hl7v3-NOTICE-addition.txt" }),
-   
+
    /** The nucc. */
    NUCC("nucc-src-data", new String[] {}, new String[] {}, new UploadFileInfo[] { new UploadFileInfo("",
          "http://www.nucc.org/index.php/code-sets-mainmenu-41/provider-taxonomy-mainmenu-40/csv-mainmenu-57",
@@ -175,9 +175,11 @@ public enum SupportedConverterTypes {
          ".*\\.csv$",
          true) }, "nucc-mojo", "nucc-ibdf", "convert-NUCC-to-ibdf", "sh.isaac.terminology.source.nucc",
                   "National Uniform Claim Committee", new String[] { "" },  // TODO
-                  new String[] { "" }),                                  
-                                  /** The cvx. */
-                                  // TODO
+                  new String[] { "" }),
+
+   /** The cvx. */
+
+   // TODO
    CVX("cvx-src-data", new String[] {}, new String[] {}, new UploadFileInfo[] { new UploadFileInfo("",
          "https://www2a.cdc.gov/vaccines/iis/iisstandards/vaccines.asp?rpt=cvx",
          "cvx.xml",
@@ -186,9 +188,11 @@ public enum SupportedConverterTypes {
          ".*\\.xml$",
          true) }, "cvx-mojo", "cvx-ibdf", "convert-CVX-to-ibdf", "sh.isaac.terminology.source.cvx",
                   "Current Vaccines Administered", new String[] { "" },  // TODO
-                  new String[] { "" }),                              
-                              /** The mvx. */
-                              // TODO
+                  new String[] { "" }),
+
+   /** The mvx. */
+
+   // TODO
    MVX("mvx-src-data", new String[] {}, new String[] {}, new UploadFileInfo[] { new UploadFileInfo("",
          "https://www2a.cdc.gov/vaccines/iis/iisstandards/vaccines.asp?rpt=mvx",
          "mvx.xml",
@@ -197,53 +201,57 @@ public enum SupportedConverterTypes {
          ".*\\.xml$",
          true) }, "mvx-mojo", "mvx-ibdf", "convert-MVX-to-ibdf", "sh.isaac.terminology.source.mvx",
                   "Manufacturers of Vaccines", new String[] { "" },  // TODO
-                  new String[] { "" }),  
-  /** The cpt. */
-  // TODO
+                  new String[] { "" }),
+
+   /** The cpt. */
+
+   // TODO
    CPT("cpt-src-data", new String[] {}, new String[] {}, new UploadFileInfo[] { new UploadFileInfo("",
-         "File a bug, assign to Dan",    // TODO dan fix... this is a stub for the moment
+         "File a bug, assign to Dan",  // TODO dan fix... this is a stub for the moment
          "TBD",
          "File a bug, assign to Dan",
          ".*$",
          true) }, "cpt-mojo", "cpt-ibdf", "convert-CPT-to-ibdf", "sh.isaac.terminology.source.cpt",
                   "Current Procedural Terminology", new String[] { "" },  // TODO
-                  new String[] { "" })  
-  /** The converter group id. */
-  // TODO
-                  ;
+                  new String[] { "" })
 
-   private final String       converterGroupId_ = "sh.isaac.terminology.converters";
-   
+   /** The converter group id. */
+
+   // TODO
+   ;
+
+   private final String converterGroupId_ = "sh.isaac.terminology.converters";
+
    /** The src artifact id. */
-   private String       srcArtifactId_;
-   
+   private String srcArtifactId_;
+
    /** The artifact src dependencies. */
    private List<String> artifactSrcDependencies_;
-   
+
    /** The artifact IBDF dependencies. */
    private List<String> artifactIBDFDependencies_;
-   
+
    /** The upload file info. */
    private List<UploadFileInfo> uploadFileInfo_;  // If we were really clever, we would pull this from an options file published with the converter itself.
-   
+
    /** The converter artifact id. */
    private String converterArtifactId_;
-   
+
    /** The converter output artifact id. */
    private String converterOutputArtifactId_;
-   
+
    /** The converter mojo name. */
    private String converterMojoName_;  // Must match the value from the mojo - aka - @ Mojo( name = "convert-loinc-to-ibdf", defaultPhase... used as the goal in the pom.
-   
+
    /** The source upload group id. */
-   private String   sourceUploadGroupId_;
-   
+   private String sourceUploadGroupId_;
+
    /** The nice name. */
-   private String   niceName_;
-   
+   private String niceName_;
+
    /** The license information. */
    private String[] licenseInformation;
-   
+
    /** The notice information. */
    private String[] noticeInformation;
 
@@ -264,6 +272,7 @@ public enum SupportedConverterTypes {
     * @param licenseFilePaths the license file paths
     * @param noticeFilePaths the notice file paths
     */
+
    /*
     * unfortunately, that gets tricky, because the user needs to populate these when they are uploading, without necessarily knowing what particular
     * version of the converter will execute against this uploaded content.  So, will hardcode them here for now, and developers will have to manually
@@ -318,7 +327,7 @@ public enum SupportedConverterTypes {
    /**
     * In order to execute a conversion of the specified type, you must also provide dependencies for each of the listed
     * Source artifact identifiers.
-    * 
+    *
     * This is used during SOURCE UPLOAD
     *
     * @return the artifact dependencies
@@ -330,7 +339,7 @@ public enum SupportedConverterTypes {
    /**
     * Note that the artifactID may include a wildcard ('*') for some, such as SCT_EXTENSION - note - this is the pattern
     * for the source artifact upload, not the artifact id related to the converter.
-    * 
+    *
     * This is used during SOURCE UPLOAD
     *
     * @return the artifact id
@@ -378,7 +387,7 @@ public enum SupportedConverterTypes {
    /**
     * In order to execute a conversion of the specified type, you must also provide dependencies for each of the listed
     * IBDF artifact identifiers.
-    * 
+    *
     * This is used during IBDF CONVERSION
     *
     * @return the IBDF dependencies
@@ -425,7 +434,7 @@ public enum SupportedConverterTypes {
 
    /**
     * The information describing the files that an end user must upload into the system to allow the execution of a particular converter.
-    * 
+    *
     * This is used during SOURCE UPLOAD
     *
     * @return the upload file info

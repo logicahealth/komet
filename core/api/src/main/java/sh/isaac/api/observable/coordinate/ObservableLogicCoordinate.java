@@ -54,7 +54,6 @@ import sh.isaac.api.coordinate.LogicCoordinate;
  */
 public interface ObservableLogicCoordinate
         extends LogicCoordinate {
-   
    /**
     * Classifier sequence property.
     *

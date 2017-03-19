@@ -60,7 +60,6 @@ import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
  */
 public interface ObservableSememeChronology<V extends ObservableSememeVersion>
         extends ObservableChronology<V>, SememeObject {
-   
    /**
     * Assemblage sequence property.
     *

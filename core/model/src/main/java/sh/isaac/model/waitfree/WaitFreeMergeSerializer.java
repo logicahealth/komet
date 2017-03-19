@@ -65,7 +65,6 @@ import sh.isaac.model.WaitFreeComparable;
  * @param <T> the generic type
  */
 public interface WaitFreeMergeSerializer<T extends WaitFreeComparable> {
-   
    /**
     * Deserialize.
     *

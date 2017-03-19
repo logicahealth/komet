@@ -53,7 +53,6 @@ import sh.isaac.api.logic.LogicalExpression;
  */
 public interface LogicGraphSememe<T extends LogicGraphSememe<T>>
         extends SememeVersion<T> {
-   
    /**
     * Gets the external graph data.
     *

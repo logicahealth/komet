@@ -43,10 +43,11 @@ package sh.isaac.api;
  * Standard GitFlow paths.
  * @author kec
  */
-public enum StandardPaths { 
- /** The development. */
- DEVELOPMENT,
-                            
-                            /** The master. */
-                            MASTER; }
+public enum StandardPaths {
+   /** The development. */
+   DEVELOPMENT,
+
+   /** The master. */
+   MASTER;
+}
 

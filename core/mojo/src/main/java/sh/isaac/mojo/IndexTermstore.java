@@ -80,7 +80,6 @@ import sh.isaac.api.index.IndexServiceBI;
 )
 public class IndexTermstore
         extends AbstractMojo {
-   
    /**
     * Execute.
     *
@@ -91,7 +90,7 @@ public class IndexTermstore
             throws MojoExecutionException {
       try {
          final List<IndexServiceBI> indexers     = LookupService.get()
-                                                          .getAllServices(IndexServiceBI.class);
+                                                                .getAllServices(IndexServiceBI.class);
          final List<String>         indexerNames = new ArrayList<>();
 
          indexers.stream()

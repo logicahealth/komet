@@ -66,7 +66,6 @@ import org.jvnet.hk2.annotations.Contract;
  */
 @Contract
 public interface SyncFiles {
-   
    /** The Constant DEFAULT_README_CONTENT. */
    public static final String DEFAULT_README_CONTENT =
       "ISAAC Profiles Storage \r" + "=== \r" + "This is a repository for storing ISAAC profiles and changesets.\r" +
@@ -104,7 +103,7 @@ public interface SyncFiles {
     * (typically done during the build sequence) as it doesn't provide any feedback as to what local files changed, during its operations.
     * <pre>
     * Implementers should handle the following cases:
-    * 
+    *
     *  * Remote repository exists, but is empty
     *    o Local folder exists - is not a repository - may or may not contain content.
     *      ==> The expected behavior for this case is that the the local folder will be turned into a repository managed folder,
@@ -117,7 +116,7 @@ public interface SyncFiles {
     *          repository - but any existing content in the local folder that has not been added or committed should not be pushed to the remote server.
     *          For other source control systems, this is likely an impossible state - and they may simply discard the local repository information - and link
     *          to the new location.  Any local content should be preserved, but not committed or added to the remote repository.
-    * 
+    *
     *  * Remote repository exists, and is populated
     *    o Local folder exists - is not a repository - may or may not contain content
     *      ==> The expected behavior for this case is that the server content should be checked out locally - and added to the local folder.  If local files
@@ -149,7 +148,7 @@ public interface SyncFiles {
    /**
     * Fix the URL to the remote service.  This call should only be used when both the local and remote repositories exist, and are a proper pair -
     * but the URL for the remote service needs to be corrected, for whatever reason (for example, the domain name changed)
-    * 
+    *
     * Has no impact on any local files.
     *
     * @param remoteAddress - the URL to the remote server
@@ -180,9 +179,9 @@ public interface SyncFiles {
    /**
     * If {@link #updateCommitAndPush(File, String, String, String, MergeFailOption, String...) or {@link #updateFromRemote(File, String, String, MergeFailOption)}
     * resulted in a MergeFailure exception, this method should be called to specify how to resolve each merge failure.
-    * 
+    *
     * After calling this, you may call {@link #updateCommitAndPush(File, String, String, String, MergeFailOption, String...)} again.
-    * 
+    *
     * Note - some implementations (specifically GIT) may throw another {@link MergeFailure} during this operation - this is a secondary merge failure
     * which will also have to be resolved by the user (by calling this method again) before you can commit and push.
     *
@@ -202,11 +201,11 @@ public interface SyncFiles {
 
    /**
     * An optional method that allows implementations to do an implementation specific substitution on the URL that will be used to connect.
-    * 
+    *
     * For example, in the GIT implementation:
     *  ssh://someuser@csfe.aceworkspace.net:29418/... needs to become:
     *  ssh://<getUsername()>@csfe.aceworkspace.net:29418/...
-    * 
+    *
     * The default implementation simply returns url directly back.
     *
     * @param url the url

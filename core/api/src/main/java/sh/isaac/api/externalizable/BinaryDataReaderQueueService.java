@@ -52,7 +52,6 @@ import java.util.stream.Stream;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public interface BinaryDataReaderQueueService {
-   
    /**
     * Cancel any inprogress processing.
     */

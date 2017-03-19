@@ -68,7 +68,6 @@ import sh.isaac.model.logic.node.external.TemplateNodeWithUuids;
  */
 public final class TemplateNodeWithSequences
         extends AbstractLogicNode {
-   
    /** Sequence of the concept that defines the template. */
    int templateConceptSequence;
 

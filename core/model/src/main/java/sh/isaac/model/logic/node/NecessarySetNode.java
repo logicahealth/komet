@@ -61,7 +61,6 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public class NecessarySetNode
         extends ConnectorNode {
-   
    /**
     * Instantiates a new necessary set node.
     *
