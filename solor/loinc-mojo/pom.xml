@@ -11,7 +11,7 @@
 	<artifactId>loinc-mojo</artifactId>
 	<packaging>maven-plugin</packaging>
 
-	<name>SOLOR LOINC Converter Mojos</name>
+	<name>ISAAC: SOLOR LOINC converter mojo</name>
 
 	<dependencies>
 		<dependency>
