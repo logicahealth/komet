@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<DBTABLES xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:noNamespaceSchemaLocation="../../../../../umlsLoaderUtilities/src/main/resources/DatabaseDefinition.xsd">
+	<!--TABLE name="RXNATOMARCHIVE">
+		<COLUMN name="RXAUI" type="STRING" size="9" allowNull="false" />
+		<COLUMN name="AUI" type="STRING" size="10" />
+		<COLUMN name="STR" type="STRING" size="4000" allowNull="false" />
+		<COLUMN name="ARCHIVE_TIMESTAMP" type="STRING" size="280" allowNull="false" />
+		<COLUMN name="CREATED_TIMESTAMP" type="STRING" size="280" allowNull="false" />
+		<COLUMN name="UPDATED_TIMESTAMP" type="STRING" size="280" allowNull="false" />
+		<COLUMN name="CODE" type="STRING" size="50" />
+		<COLUMN name="IS_BRAND" type="STRING" size="1" />
+		<COLUMN name="LAT" type="STRING" size="3" />
+		<COLUMN name="LAST_RELEASED" type="STRING" size="30" />
+		<COLUMN name="SAUI" type="STRING" size="50" />
+		<COLUMN name="VSAB" type="STRING" size="40" />
+		<COLUMN name="RXCUI" type="STRING" size="8" />
+		<COLUMN name="SAB" type="STRING" size="40" />
+		<COLUMN name="TTY" type="STRING" size="20" />
+		<COLUMN name="MERGED_TO_RXCUI" type="STRING" size="8" />
+	</TABLE-->
+
+	<TABLE name="RXNCONSO">
+		<COLUMN name="RXCUI" type="STRING" size="8" allowNull="false" />
+		<COLUMN name="LAT" type="STRING" size="3" allowNull="false" />
+		<COLUMN name="TS" type="STRING" size="1" />
+		<COLUMN name="LUI" type="STRING" size="10" />
+		<COLUMN name="STT" type="STRING" size="3" />
+		<COLUMN name="SUI" type="STRING" size="10" />
+		<COLUMN name="ISPREF" type="STRING" size="1" />
+		<COLUMN name="RXAUI" type="STRING" size="9" allowNull="false" />
+		<COLUMN name="SAUI" type="STRING" size="50" />
+		<COLUMN name="SCUI" type="STRING" size="50" />
+		<COLUMN name="SDUI" type="STRING" size="50" />
+		<COLUMN name="SAB" type="STRING" size="40" allowNull="false" />
+		<COLUMN name="TTY" type="STRING" size="20" allowNull="false" />
+		<COLUMN name="CODE" type="STRING" size="50" allowNull="false" />
+		<COLUMN name="STR" type="STRING" size="3000" allowNull="false" />
+		<COLUMN name="SRL" type="STRING" size="10" />
+		<COLUMN name="SUPPRESS" type="STRING" size="1" />
+		<COLUMN name="CVF" type="STRING" size="50" />
+	</TABLE>
+
+	<TABLE name="RXNREL">
+		<COLUMN name="RXCUI1" type="STRING" size="8" />
+		<COLUMN name="RXAUI1" type="STRING" size="9" />
+		<COLUMN name="STYPE1" type="STRING" size="50" />
+		<COLUMN name="REL" type="STRING" size="4" />
+		<COLUMN name="RXCUI2" type="STRING" size="8" />
+		<COLUMN name="RXAUI2" type="STRING" size="9" />
+		<COLUMN name="STYPE2" type="STRING" size="50" />
+		<COLUMN name="RELA" type="STRING" size="100" />
+		<COLUMN name="RUI" type="STRING" size="10" />
+		<COLUMN name="SRUI" type="STRING" size="50" />
+		<COLUMN name="SAB" type="STRING" size="40" allowNull="false" />
+		<COLUMN name="SL" type="STRING" size="1000" />
+		<COLUMN name="DIR" type="STRING" size="1" />
+		<COLUMN name="RG" type="STRING" size="10" />
+		<COLUMN name="SUPPRESS" type="STRING" size="1" />
+		<COLUMN name="CVF" type="STRING" size="50" />
+	</TABLE>
+
+	<TABLE name="RXNSAB">
+		<COLUMN name="VCUI" type="STRING" size="8" />
+		<COLUMN name="RCUI" type="STRING" size="8" />
+		<COLUMN name="VSAB" type="STRING" size="40" />
+		<COLUMN name="RSAB" type="STRING" size="40" allowNull="false" />
+		<COLUMN name="SON" type="STRING" size="3000" />
+		<COLUMN name="SF" type="STRING" size="40" />
+		<COLUMN name="SVER" type="STRING" size="20" />
+		<COLUMN name="VSTART" type="STRING" size="10" />
+		<COLUMN name="VEND" type="STRING" size="10" />
+		<COLUMN name="IMETA" type="STRING" size="10" />
+		<COLUMN name="RMETA" type="STRING" size="10" />
+		<COLUMN name="SLC" type="STRING" size="1000" />
+		<COLUMN name="SCC" type="STRING" size="1000" />
+		<COLUMN name="SRL" type="INTEGER" />
+		<COLUMN name="TFR" type="INTEGER" />
+		<COLUMN name="CFR" type="INTEGER" />
+		<COLUMN name="CXTY" type="STRING" size="50" />
+		<COLUMN name="TTYL" type="STRING" size="400" />
+		<COLUMN name="ATNL" type="STRING" size="4000" />
+		<COLUMN name="LAT" type="STRING" size="3" />
+		<COLUMN name="CENC" type="STRING" size="20" />
+		<COLUMN name="CURVER" type="STRING" size="1" />
+		<COLUMN name="SABIN" type="STRING" size="1" />
+		<COLUMN name="SSN" type="STRING" size="3000" />
+		<COLUMN name="SCIT" type="STRING" size="4000" />
+	</TABLE>
+
+	<TABLE name="RXNSAT">
+		<COLUMN name="RXCUI" type="STRING" size="8" />
+		<COLUMN name="LUI" type="STRING" size="10" />
+		<COLUMN name="SUI" type="STRING" size="10" />
+		<COLUMN name="RXAUI" type="STRING" size="9" />
+		<COLUMN name="STYPE" type="STRING" size="50" />
+		<COLUMN name="CODE" type="STRING" size="50" />
+		<COLUMN name="ATUI" type="STRING" size="11" />
+		<COLUMN name="SATUI" type="STRING" size="50" />
+		<COLUMN name="ATN" type="STRING" size="1000" allowNull="false" />
+		<COLUMN name="SAB" type="STRING" size="40" allowNull="false" />
+		<COLUMN name="ATV" type="STRING" size="65000" />
+		<COLUMN name="SUPPRESS" type="STRING" size="1" />
+		<COLUMN name="CVF" type="STRING" size="50" />
+	</TABLE>
+
+	<TABLE name="RXNSTY">
+		<COLUMN name="RXCUI" type="STRING" size="8" allowNull="false" />
+		<COLUMN name="TUI" type="STRING" size="4" />
+		<COLUMN name="STN" type="STRING" size="100" />
+		<COLUMN name="STY" type="STRING" size="50" />
+		<COLUMN name="ATUI" type="STRING" size="11" />
+		<COLUMN name="CVF" type="STRING" size="50" />
+	</TABLE>
+
+	<TABLE name="RXNDOC">
+		<COLUMN name="DOCKEY" type="STRING" size="50" allowNull="false" />
+		<COLUMN name="VALUE" type="STRING" size="1000" />
+		<COLUMN name="TYPE" type="STRING" size="50" allowNull="false" />
+		<COLUMN name="EXPL" type="STRING" size="1000" />
+	</TABLE>
+
+	<!--TABLE name="RXNCUICHANGES">
+		<COLUMN name="RXAUI" type="STRING" size="9" />
+		<COLUMN name="CODE" type="STRING" size="50" />
+		<COLUMN name="SAB" type="STRING" size="40" />
+		<COLUMN name="TTY" type="STRING" size="20" />
+		<COLUMN name="STR" type="STRING" size="3000" />
+		<COLUMN name="OLD_RXCUI" type="STRING" size="8" allowNull="false" />
+		<COLUMN name="NEW_RXCUI" type="STRING" size="8" allowNull="false" />
+	</TABLE-->
+
+	<!-- TABLE name="RXNCUI">
+		<COLUMN name="CUI1" type="STRING" size="8" />
+		<COLUMN name="VER_START" type="STRING" size="20" />
+		<COLUMN name="VER_END" type="STRING" size="20" />
+		<COLUMN name="CARDINALITY" type="STRING" size="8" />
+		<COLUMN name="CUI2" type="STRING" size="8" />
+	</TABLE-->
+</DBTABLES>

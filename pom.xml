@@ -656,6 +656,8 @@
         <module>integration</module>
         <module>misc</module>
         <module>provider</module>
+        <module>komet</module>
+        <module>solor</module>
         
         
         
