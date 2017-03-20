@@ -163,11 +163,11 @@ public class RxNormMojo
    private final HashMap<String, Boolean> mapToIsa =
       new HashMap<>();  // FSN, true or false - true for rel only, false for a rel and association representation
 
-   /** The sct id to UUI D. */
+   /** The sct id to UUID. */
    private final HashMap<Long, UUID> sctIdToUUID =
       new HashMap<>();  // A map of real (found) SCTIDs to their concept UUID
 
-   /** The cui to SCTI D. */
+   /** The cui to SCT ID. */
    private final HashMap<String, Long> cuiToSCTID =
       new HashMap<>();  // Map CUI to SCTID for the real sctIds to UUIDs found above
 
@@ -191,7 +191,7 @@ public class RxNormMojo
    /** The pt UMLS attributes. */
    private PropertyType ptUMLSAttributes;
 
-   /** The pt SA bs. */
+   /** The pt SABs. */
    private PropertyType ptSABs;
 
    /** The pt relationship metadata. */

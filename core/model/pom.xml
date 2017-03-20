@@ -9,7 +9,7 @@
 
     <groupId>sh.isaac.core</groupId>
     <artifactId>model</artifactId>
-    <name>ISAAC: Model</name>
+    <name>ISAAC core: Model</name>
 
     <dependencies>
         <dependency>

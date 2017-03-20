@@ -9,7 +9,7 @@
     <groupId>sh.isaac.provider</groupId>
     <artifactId>taxonomy</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Taxonomy Provider</name>
+    <name>ISAAC provider: Taxonomy</name>
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>

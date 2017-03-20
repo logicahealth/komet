@@ -239,7 +239,7 @@ public class LogicCoordinateLazyBinding
        * Marshal.
        *
        * @param c the c
-       * @return the UUI d[]
+       * @return the UUID[]
        */
       @Override
       public UUID[] marshal(ConceptProxy c) {

@@ -8,7 +8,7 @@
     </parent>
     <artifactId>misc</artifactId>
     <packaging>pom</packaging>
-    <name>ISAAC: misc (MMP)</name>
+    <name>ISAAC misc: (MMP)</name>
     <description>Aggrigator project for miscellaneous ISAAC modules</description>
     <modules>
        <module>exporters</module>

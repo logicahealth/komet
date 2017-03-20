@@ -10,7 +10,7 @@
     <groupId>sh.isaac.core</groupId>
     <artifactId>mojo</artifactId>
     <packaging>maven-plugin</packaging>
-    <name>ISAAC: Mojo</name>
+    <name>ISAAC core: Mojo</name>
 
     <dependencies>
         <dependency>

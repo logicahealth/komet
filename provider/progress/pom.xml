@@ -9,7 +9,7 @@
     <groupId>sh.isaac.provider</groupId>
     <artifactId>progress</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Progress provider</name>
+    <name>ISAAC provider: Progress</name>
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>

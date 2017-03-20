@@ -9,7 +9,7 @@
     <groupId>sh.isaac.provider</groupId>
     <artifactId>path</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Path Provider</name>
+    <name>ISAAC provider: Path</name>
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>

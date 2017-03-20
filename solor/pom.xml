@@ -7,7 +7,7 @@
         <version>4.3-SNAPSHOT</version>
     </parent>
     <artifactId>solor</artifactId>
-    <name>ISAAC: SOLOR (MMP)</name>
+    <name>ISAAC SOLOR: (MMP)</name>
     <description>Aggrigator project for ISAAC's SOLOR modules</description>
     <packaging>pom</packaging>
     <modules>

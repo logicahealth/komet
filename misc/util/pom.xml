@@ -9,7 +9,7 @@
     <groupId>sh.isaac.misc</groupId>
     <artifactId>util</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Util</name>
+    <name>ISAAC misc: Utilities</name>
     
     <description>
         Shared code built on top of the low-level ISAAC APIs that is useful for users of ISAAC, but doesn't rise to the level 

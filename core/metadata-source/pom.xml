@@ -9,7 +9,7 @@
     <groupId>sh.isaac.core</groupId>
     <artifactId>metadata-source</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Metadata source</name>
+    <name>ISAAC core: Metadata source</name>
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>

@@ -9,7 +9,7 @@
     <groupId>sh.isaac.provider</groupId>
     <artifactId>commit</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Commit Provider</name>
+    <name>ISAAC provider: Commit</name>
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>

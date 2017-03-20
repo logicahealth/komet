@@ -11,7 +11,7 @@
 	<artifactId>import-utils</artifactId>
 	<packaging>jar</packaging>
 
-	<name>ISAAC: Import Utilities</name>
+	<name>ISAAC integration: Import utilities</name>
 
 	<dependencies>
 		<dependency>

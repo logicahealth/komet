@@ -10,7 +10,7 @@
 	<groupId>sh.isaac.core</groupId>
 	<artifactId>mapping-constants</artifactId>
 	<packaging>jar</packaging>
-	<name>ISAAC: Mapping Constants</name>
+	<name>ISAAC core: Mapping constants</name>
 
 	<description>
 		The contants that should be build into the core ISAAC database for this module.  

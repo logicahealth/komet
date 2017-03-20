@@ -9,7 +9,7 @@
 
     <groupId>sh.isaac.core</groupId>
     <artifactId>api</artifactId>
-    <name>ISAAC: API</name>
+    <name>ISAAC core: API</name>
 
     <dependencies>
         <dependency>

@@ -9,7 +9,7 @@
     <groupId>sh.isaac.provider</groupId>
     <artifactId>observable</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Observable provider</name>
+    <name>ISAAC provider: Observable</name>
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>

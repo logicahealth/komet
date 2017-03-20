@@ -9,7 +9,7 @@
     <groupId>sh.isaac.provider</groupId>
     <artifactId>logic</artifactId>
     <packaging>jar</packaging>
-   <name>ISAAC: Logic provider</name>
+   <name>ISAAC provider: Logic</name>
     <dependencies>
         <dependency>
             <groupId>sh.isaac.misc</groupId>

@@ -10,7 +10,7 @@
 	<groupId>sh.isaac.core</groupId>
 	<artifactId>metacontent</artifactId>
 	<packaging>jar</packaging>
-	<name>ISAAC: MetaContent Store</name>
+	<name>ISAAC provider: MetaContent</name>
 	
 	<dependencies>
 		<dependency>

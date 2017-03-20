@@ -10,7 +10,7 @@
     <groupId>sh.isaac.core</groupId>
     <artifactId>mapping</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Mapping</name>
+    <name>ISAAC core: Mapping</name>
 
     <dependencies>
         <dependency>

@@ -9,7 +9,7 @@
     <groupId>sh.isaac.misc</groupId>
     <artifactId>exporters</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Exporters</name>
+    <name>ISAAC misc: Exporters</name>
     <properties>
     </properties>
     <dependencies>

@@ -7,7 +7,7 @@
         <version>4.3-SNAPSHOT</version>
     </parent>
     <artifactId>core</artifactId>
-    <name>ISAAC: core (MMP)</name>
+    <name>ISAAC core: (MMP)</name>
     <description>Aggrigator project for core ISAAC modules</description>
     <packaging>pom</packaging>
     <modules>

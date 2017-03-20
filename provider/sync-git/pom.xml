@@ -9,7 +9,7 @@
 	<artifactId>sync-git</artifactId>
 	<packaging>jar</packaging>
 
-	<name>ISAAC: Sync Service - GIT implementation</name>
+	<name>ISAAC provider: Sync - git</name>
 	<description>
 		ISAAC File Sync service, implemented with GIT
 	</description>

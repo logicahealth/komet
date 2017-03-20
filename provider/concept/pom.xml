@@ -9,7 +9,7 @@
     <groupId>sh.isaac.provider</groupId>
     <artifactId>concept</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Concept Provider</name>
+    <name>ISAAC provider: Concept</name>
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>

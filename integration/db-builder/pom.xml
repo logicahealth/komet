@@ -10,7 +10,7 @@
     <groupId>sh.isaac.integration</groupId>
     <artifactId>db-builder</artifactId>
     <packaging>pom</packaging>
-    <name>ISAAC: Database Builder</name>
+    <name>ISAAC integration: Database builder</name>
     
     <properties>
         <!-- this should be overridden by a sub-mojo, if necessary - don't change it here -->

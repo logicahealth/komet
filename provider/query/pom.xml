@@ -9,7 +9,7 @@
     <groupId>sh.isaac.provider</groupId>
     <artifactId>query</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Query provider</name>
+    <name>ISAAC provider: Query</name>
     <properties>
        <org.apache.lucene.version>4.10.3</org.apache.lucene.version>
     </properties>

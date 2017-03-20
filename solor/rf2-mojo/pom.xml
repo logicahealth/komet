@@ -12,7 +12,7 @@
 	
 	<packaging>maven-plugin</packaging>
 
-	<name>ISAAC: SOLOR RF2 converter mojo</name>
+	<name>ISAAC SOLOR: RF2 converter mojo</name>
 
 
 	<dependencies>

@@ -9,7 +9,7 @@
     <groupId>sh.isaac.provider</groupId>
     <artifactId>coordinate</artifactId>
     <packaging>jar</packaging>
-   <name>ISAAC: Coordinate Provider</name>
+   <name>ISAAC provider: Coordinate</name>
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>

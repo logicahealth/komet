@@ -9,7 +9,7 @@
     <groupId>sh.isaac.provider</groupId>
     <artifactId>sememe</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Sememe Provider</name>
+    <name>ISAAC provider: Sememe</name>
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>

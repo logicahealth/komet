@@ -9,7 +9,7 @@
     <groupId>sh.isaac.provider</groupId>
     <artifactId>stamp</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Stamp provider</name>
+    <name>ISAAC provider: Stamp</name>
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>

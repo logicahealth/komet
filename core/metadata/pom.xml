@@ -9,7 +9,7 @@
     <groupId>sh.isaac.core</groupId>
     <artifactId>metadata</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Metadata</name>
+    <name>ISAAC core: Metadata</name>
     
     <description>
         A module that reads various metadata source files, and generates the ISAAC metadata for an instance in multiple formats - java, xml, etc
