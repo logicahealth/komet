@@ -3,13 +3,13 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
         <artifactId>provider</artifactId>
-		<version>4.2</version>
+		<version>4.3</version>
 	</parent>
 	<groupId>sh.isaac.provider</groupId>
 	<artifactId>sync-git</artifactId>
 	<packaging>jar</packaging>
 
-	<name>ISAAC: Sync Service - GIT implementation</name>
+	<name>ISAAC provider: Sync - git</name>
 	<description>
 		ISAAC File Sync service, implemented with GIT
 	</description>

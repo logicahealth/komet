@@ -61,6 +61,7 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
 
 import org.codehaus.plexus.util.FileUtils;
 
+import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -115,7 +116,6 @@ import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
 import sh.isaac.converters.sharedUtils.propertyTypes.ValuePropertyPair;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.converters.sharedUtils.stats.LoadStats;
-import sh.isaac.MetaData;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
@@ -500,10 +500,10 @@ public class IBDFCreationUtility {
 
       @SuppressWarnings("rawtypes")
       final SememeBuilder sb = this.sememeBuilderService.getDynamicSememeBuilder(referencedComponent.getNid(),
-                                                                                  Get.identifierService()
-                                                                                        .getConceptSequenceForUuids(
-                                                                                           refexDynamicTypeUuid),
-                                                                                  values);
+                                                                                 Get.identifierService()
+                                                                                       .getConceptSequenceForUuids(
+                                                                                          refexDynamicTypeUuid),
+                                                                                 values);
 
       if (uuidForCreatedAnnotation == null) {
          final StringBuilder temp = new StringBuilder();
@@ -710,15 +710,15 @@ public class IBDFCreationUtility {
       @SuppressWarnings({ "rawtypes" })
       final SememeBuilder<? extends SememeChronology<? extends DescriptionSememe>> descBuilder =
          this.sememeBuilderService.getDescriptionSememeBuilder(Get.identifierService()
-                                                                   .getConceptSequenceForUuids((caseSignificant == null)
-                                                                      ? MetaData.DESCRIPTION_NOT_CASE_SENSITIVE.getPrimordialUuid()
+                                                                  .getConceptSequenceForUuids((caseSignificant == null)
+                                                                     ? MetaData.DESCRIPTION_NOT_CASE_SENSITIVE.getPrimordialUuid()
             : caseSignificant),
-                                                                Get.identifierService()
-                                                                      .getConceptSequenceForUuids(languageCode),
-                                                                wbDescriptionType.getConceptSpec()
-                                                                      .getConceptSequence(),
-                                                                descriptionValue,
-                                                                concept.getNid());
+                                                               Get.identifierService()
+                                                                     .getConceptSequenceForUuids(languageCode),
+                                                               wbDescriptionType.getConceptSpec()
+                                                                     .getConceptSequence(),
+                                                               descriptionValue,
+                                                               concept.getNid());
 
       descBuilder.setPrimordialUuid(descriptionPrimordialUUID);
 
@@ -987,9 +987,9 @@ public class IBDFCreationUtility {
       final LogicalExpression logicalExpression = leb.build();
       @SuppressWarnings("rawtypes")
       final SememeBuilder sb = this.sememeBuilderService.getLogicalExpressionSememeBuilder(logicalExpression,
-                                                                                            concept.getNid(),
-                                                                                            this.conceptBuilderService.getDefaultLogicCoordinate()
-                                                                                                  .getStatedAssemblageSequence());
+                                                                                           concept.getNid(),
+                                                                                           this.conceptBuilderService.getDefaultLogicCoordinate()
+                                                                                                 .getStatedAssemblageSequence());
 
       sb.setPrimordialUuid((relPrimordialUuid != null) ? relPrimordialUuid
             : ConverterUUID.createNamespaceUUIDFromStrings(concept.getPrimordialUuid()
@@ -1014,8 +1014,7 @@ public class IBDFCreationUtility {
                            sourceRelTypeUUID,
                            DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_RELATIONSHIP_TYPE
                                  .getPrimordialUuid());
-         this.ls.addRelationship(getOriginStringForUuid(isARelUuid) + ":" +
-                                  getOriginStringForUuid(sourceRelTypeUUID));
+         this.ls.addRelationship(getOriginStringForUuid(isARelUuid) + ":" + getOriginStringForUuid(sourceRelTypeUUID));
       } else {
          this.ls.addRelationship(getOriginStringForUuid(isARelUuid));
       }
@@ -1049,6 +1048,24 @@ public class IBDFCreationUtility {
     * Adds the relationship graph.
     *
     * @param concept the concept
+    * @param logicalExpression the logical expression
+    * @param stated the stated
+    * @param time the time
+    * @param module the module
+    * @return the sememe chronology
+    */
+   public SememeChronology<LogicGraphSememe<?>> addRelationshipGraph(ComponentReference concept,
+         LogicalExpression logicalExpression,
+         boolean stated,
+         Long time,
+         UUID module) {
+      return this.addRelationshipGraph(concept, null, logicalExpression, stated, time, module);
+   }
+
+   /**
+    * Adds the relationship graph.
+    *
+    * @param concept the concept
     * @param graphPrimordialUuid the graph primordial uuid
     * @param logicalExpression the logical expression
     * @param stated the stated
@@ -1074,12 +1091,12 @@ public class IBDFCreationUtility {
 
       @SuppressWarnings("rawtypes")
       final SememeBuilder sb = this.sememeBuilderService.getLogicalExpressionSememeBuilder(logicalExpression,
-                                                                                            concept.getNid(),
-                                                                                            stated
-                                                                                            ? this.conceptBuilderService.getDefaultLogicCoordinate()
-                                                                                                  .getStatedAssemblageSequence()
+                                                                                           concept.getNid(),
+                                                                                           stated
+                                                                                           ? this.conceptBuilderService.getDefaultLogicCoordinate()
+                                                                                                 .getStatedAssemblageSequence()
             : this.conceptBuilderService.getDefaultLogicCoordinate()
-                                         .getInferredAssemblageSequence());
+                                        .getInferredAssemblageSequence());
 
       // Build a LogicGraph UUID seed based on concept & logicExpression.getData(EXTERNAL)
       final StringBuilder byteString = new StringBuilder();
@@ -1130,10 +1147,10 @@ public class IBDFCreationUtility {
          State state) {
       @SuppressWarnings("rawtypes")
       final SememeBuilder sb = this.sememeBuilderService.getStringSememeBuilder(annotationValue,
-                                                                                 referencedComponent.getNid(),
-                                                                                 Get.identifierService()
-                                                                                       .getConceptSequenceForUuids(
-                                                                                          refsetUuid));
+                                                                                referencedComponent.getNid(),
+                                                                                Get.identifierService()
+                                                                                      .getConceptSequenceForUuids(
+                                                                                         refsetUuid));
       final StringBuilder temp = new StringBuilder();
 
       temp.append(annotationValue);
@@ -1157,7 +1174,7 @@ public class IBDFCreationUtility {
       this.ls.addAnnotation((referencedComponent.getTypeString()
             .length() > 0) ? referencedComponent.getTypeString()
                            : getOriginStringForUuid(referencedComponent.getPrimordialUuid()),
-                             getOriginStringForUuid(refsetUuid));
+                            getOriginStringForUuid(refsetUuid));
       return sc;
    }
 

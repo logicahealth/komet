@@ -4,11 +4,11 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>provider</artifactId>
-        <version>4.2</version>
+        <version>4.3</version>
     </parent>
     <groupId>sh.isaac.provider</groupId>
     <artifactId>identifier</artifactId>
-    <name>ISAAC: Identifier Provider</name>
+    <name>ISAAC provider: Identifier</name>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>

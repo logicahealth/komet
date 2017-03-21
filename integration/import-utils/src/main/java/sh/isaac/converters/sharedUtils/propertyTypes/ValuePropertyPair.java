@@ -62,7 +62,7 @@ public class ValuePropertyPair
    /** The value. */
    private final String value;
 
-   /** The description UUI D. */
+   /** The description UUID. */
    private UUID descriptionUUID;
 
    //~--- constructors --------------------------------------------------------

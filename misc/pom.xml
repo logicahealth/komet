@@ -4,11 +4,11 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>4.2</version>
+        <version>4.3</version>
     </parent>
     <artifactId>misc</artifactId>
     <packaging>pom</packaging>
-    <name>ISAAC: misc (MMP)</name>
+    <name>ISAAC misc: (MMP)</name>
     <description>Aggrigator project for miscellaneous ISAAC modules</description>
     <modules>
        <module>exporters</module>

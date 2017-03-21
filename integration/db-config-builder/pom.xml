@@ -4,13 +4,13 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
         <artifactId>integration</artifactId>
-		<version>4.2</version>
+		<version>4.3</version>
 	</parent>
 
 	<groupId>sh.isaac.integration</groupId>
 	<artifactId>db-config-builder</artifactId>
 	<packaging>jar</packaging>
-	<name>ISAAC: DB Configuration Builder</name>
+	<name>ISAAC integration: DB configuration builder</name>
 
 	<dependencies>
 		<dependency>

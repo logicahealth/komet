@@ -456,7 +456,7 @@ public class MappingItem
    }
 
    /**
-    * Gets the UUI ds.
+    * Gets the UUIDs.
     *
     * @return the UUIDs of this Mapping Item.  Note that this doesn't uniquely identify a mapping item within the system
     * as changes to the mapping item will retain the same ID - there will now be multiple versions.  They will differ by date.

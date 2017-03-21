@@ -4,12 +4,12 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
         <artifactId>core</artifactId>
-		<version>4.2</version>
+		<version>4.3</version>
 	</parent>
 	<groupId>sh.isaac.core</groupId>
 	<artifactId>log-config</artifactId>
 	<packaging>jar</packaging>
-	<name>ISAAC: Mojo Logging Configuration</name>
+	<name>ISAAC core: Logging configuration</name>
 	
 	<dependencies>
 		<!-- When mojos execute, route all logging through log4j2 -->

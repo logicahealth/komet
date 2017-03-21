@@ -4,12 +4,12 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>misc</artifactId>
-        <version>4.2</version>
+        <version>4.3</version>
     </parent>
     <groupId>sh.isaac.misc</groupId>
     <artifactId>exporters</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Exporters</name>
+    <name>ISAAC misc: Exporters</name>
     <properties>
     </properties>
     <dependencies>

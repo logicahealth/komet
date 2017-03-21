@@ -3,12 +3,12 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
         <artifactId>provider</artifactId>
-		<version>4.2</version>
+		<version>4.3</version>
 	</parent>
 	<groupId>sh.isaac.provider</groupId>
 	<artifactId>workflow</artifactId>
 	<packaging>jar</packaging>
-	<name>ISAAC: Workflow Provider</name>
+	<name>ISAAC provider: Workflow</name>
 	<description>Provides the ISAAC application with modeling workflow capabilities</description>
 	
 	<dependencies>

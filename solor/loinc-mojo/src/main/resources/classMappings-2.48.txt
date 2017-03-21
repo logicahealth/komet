@@ -1,0 +1,562 @@
+#This information was captured from the PDF manual which came with the 2.48 release.  Its a pain to parse out of the PDF.  Hopefully, future releases 
+#will include this information in an easily computable form.
+#
+# Clinical Term Classes
+#
+ART
+Antiretroviral therapy
+BDYCRC.ATOM
+Body circumference atomic
+BDYCRC.MOLEC
+Body circumference molecular
+BDYHGT.ATOM
+Body height atomic
+BDYHGT.MOLEC
+Body height molecular
+BDYSURF.ATOM
+Body surface atomic
+BDYTMP.ATOM
+Body temperature atomic
+BDYTMP.MOLEC
+Body temperature molecular
+BDYTMP.TIMED.MOLEC
+Body temperature timed molecular
+BDYWGT.ATOM
+Body weight atomic
+BDYWGT.MOLEC
+Body weight molecular
+BP.ATOM
+Blood pressure atomic
+BP.CENT.MOLEC
+Blood pressure central molecular
+BP.MOLEC
+Blood pressure molecular
+BP.PSTN.MOLEC
+Blood pressure positional molecular
+BP.TIMED.MOLEC
+Blood pressure timed molecular
+BP.VENOUS.MOLEC
+Blood pressure venous molecular
+CARD.RISK
+Cardiac Risk Scales Framingham
+CARD.US
+Cardiac ultrasound (was US.ECHO)
+CARDIO-PULM
+Cardiopulmonary
+CLIN
+Clinical NEC (not elsewhere classified)
+DENTAL
+Dental
+DEVICES
+Medical devices
+DOC.ADMIN
+Administrative documents
+DOC.ADMIN.LEGAL
+Legal Administrative documents
+DOC.CLINRPT
+Clinical report documentation
+DOC.EPSOS
+Smart Open Services for European Patients (epSOS) documents
+DOC.MISC
+Miscellaneous documentation
+DOC.PUBLICHEALTH
+Public health documentation
+DOC.QUALITY
+Quality documents
+DOC.REF
+Referral documentation
+DOC.REF.CTP
+Clinical trial protocol document
+DOCUMENT.REGULATORY
+Regulatory documentation
+ED
+Emergency (DEEDS)
+EKG.ATOM
+Electrocardiogram atomic
+EKG.IMP
+Electrocardiogram impression
+EKG.MEAS
+Electrocardiogram measures
+ENDO.GI
+Gastrointestinal endoscopy
+EYE
+Eye
+EYE.CONTACT_LENS
+Ophthalmology contact lens
+EYE.GLASSES
+Ophthalmology glasses: Lens manufacturer (LM) & Prescription
+EYE.HETEROPHORIA
+Ophthalmology heterophoria
+EYE.OCT
+Ophthalmology Optical Coherence Tomography (OTC)
+EYE.PX
+Ophthalmology physical findings
+EYE.REFRACTION
+Ophthalmology refraction
+EYE.RETINAL_RX
+Ophthalmology treatments
+EYE.TONOMETRY
+Ophthalmology tonometry
+EYE.US
+Ophthalmology ultrasound
+EYE.VISUAL_FIELD
+Ophthalmology visual field
+FUNCTION
+Functional status (e.g., Glasgow)
+GEN.US
+General ultrasound
+H&P.HX
+History
+H&P.PX
+Physical
+H&P.SURG PROC
+Surgical procedure
+HEMODYN.ATOM
+Hemodynamics anatomic
+HEMODYN.MOLEC
+Hemodynamics molecular
+HRTRATE.ATOM
+Heart rate atomic
+HRTRATE.MOLEC
+Heart rate molecular
+HRTRATE.PSTN.MOLEC
+Heart rate positional molecular
+HRTRATE.TIMED.MOL
+Heart rate timed molecular
+IO.TUBE
+Input/Output of tube
+IO_IN.ATOM
+Input/Output atomic
+IO_IN.MOLEC
+Input/Output molecular
+IO_IN.SUMMARY
+Input/Output summary
+IO_IN.TIMED.MOLEC
+Input/Output timed molecular
+IO_IN_SALTS+CALS
+Input/Output electrolytes and calories
+IO_OUT.ATOM
+Input/Output atomic
+IO_OUT.MOLEC
+Input/Output molecular
+IO_OUT.TIMED.MOLE
+Input/Output timed molecular
+NEMSIS
+National EMS Information System data
+NEONAT
+Neonatal measures
+OB.US
+Obstetric ultrasound
+OBGYN
+Obstetric/Gynecology
+PANEL.ART
+Antiretroviral therapy order set
+PANEL.BDYTMP
+Body temperature order set
+PANEL.BP
+Blood pressure order set
+PANEL.CARDIAC
+Cardiac studies order set
+PANEL.CLIN
+Clinical NEC (not elsewhere classified) set
+PANEL.CV
+Cardiovascular order set
+PANEL.DEVICES
+Medical devices order set
+PANEL.DOC
+Documents panels
+PANEL.DOC.CLINRPT
+Clinical report documentation set
+PANEL.ED
+Emergency (DEEDS) order set
+PANEL.EYE
+Ophthalmology panels
+PANEL.FUNCTION
+Function order set
+PANEL.H&P
+History & Physical order set
+PANEL.IO
+Input/Output order set
+PANEL.NEMSIS
+National EMS Information System data set
+PANEL.NEONAT
+Neonatal measures order set
+PANEL.OB.US
+Obstetrical order set
+PANEL.PATIENT SAFETY
+Patient safety order set
+PANEL.PHENX
+PhenX Panel
+PANEL.PHR
+Public health record order set
+PANEL.PULM
+Pulmonary order set
+PANEL.RAD
+Radiology order set
+PANEL.TUMRRGT
+Tumor registry order set
+PANEL.US.URO
+Urology ultrasound order set
+PANEL.VACCIN
+Vaccination order set
+PANEL.VITALS
+Vital signs order set
+PATIENT SAFETY
+Patient safety
+PHENX
+PhenX
+PUBLICHEALTH
+Public Health
+PULM
+Pulmonary ventilator management
+RAD
+Radiology
+RESP.ATOM
+Respiratory atomic
+RESP.MOLEC
+Respiratory molecular
+RESP.TIMED.MOLEC
+Respiratory timed molecular
+SKNFLD.MOLEC
+Skinfold measurements molecular
+TRAUMA
+Trauma
+TRNSPLNT.ORGAN
+Organ transplant
+TUMRRGT
+Tumor registry (NAACCR)
+US.URO
+Urological ultrasound
+VACCIN
+Vaccinations
+VOLUME.MOLEC
+Volume (specimen) molecular
+#
+# Laboratory term classes
+#
+ABXBACT
+Antibiotic susceptibilities
+ALLERGY
+Response to antigens
+BLDBK
+Blood bank
+CARDIO-PULM
+Cardiopulmonary
+CELLMARK
+Cell surface models
+CHAL
+Challenge tests
+CHALSKIN
+Skin challenge tests
+CHEM
+Chemistry
+COAG
+Coagulation study
+CYTO
+Cytology
+DRUG/TOX
+Drug levels & Toxicology
+DRUGDOSE
+Drug dose (for transmitting doses for pharmacokinetics)
+FERT
+Fertility
+HEM/BC
+Hematology (coagulation) differential count
+H&P.HX.LAB
+History for laboratory studies
+HL7.CYTOGEN
+Clinical cytogenetic report
+HL7.GENETICS
+Clinical genetic report
+HLA
+HLA tissue typing antigens and antibodies
+HNA
+Human neutrophil alloantigens
+HPA
+HPA typing
+LABORDERS
+Laboratory order codes
+MICRO
+Microbiology
+MISC
+Miscellaneous
+MOLPATH
+Molecular pathology
+MOLPATH.DEL
+Gene deletion
+MOLPATH.INV
+Gene inversion
+MOLPATH.MISC
+Gene miscellaneous
+MOLPATH.MUT
+Gene mutation
+MOLPATH.REARRANGE
+Gene rearrangement
+MOLPATH.TRINUC
+Gene trinucleotide repeats
+MOLPATH.TRISOMY
+Gene chromosome trisomy
+MOLPATH.TRNLOC
+Gene translocation
+NR STATS
+Normal range statistics
+PANEL.ABXBACT
+Susceptibility order sets
+PANEL.ALLERGY
+Allergy order set
+PANEL.BLDBK
+Blood bank order set
+PANEL.CELLMARK
+Cell marker order sets
+PANEL.CHAL
+Challenge order set
+PANEL.CHEM
+Chemistry order set
+PANEL.COAG
+Coagulation order set
+PANEL.DRUG/TOX
+Drug level & Toxicology order set
+PANEL.FERT
+Fertility testing order set
+PANEL.HEDIS
+Healthcare Effectiveness Data and Information Set order set
+PANEL.HEM/BC
+Hematology & blood count order set
+PANEL.HL7.CYTOGEN
+HL7 cytogenetics panel
+PANEL.HL7.GENETICS
+HL7 genetics panel
+PANEL.HLA
+HLA order set
+PANEL.HNA
+HNA order set
+PANEL.HPA
+HPA order set
+PANEL.MICRO
+Microbiology order set
+PANEL.MISC
+Miscellaneous order set
+PANEL.MOLPATH
+Molecular pathology order set
+PANEL.OBS
+Obstetrics order set
+PANEL.PATH
+Pathology order set
+PANEL.SERO
+Serology order set
+PANEL.SPEC
+Specimen set
+PANEL.UA
+Urinalysis order set
+PATH
+Pathology
+PATH.PROTOCOLS.BRST
+Pathology protocols - breast
+PATH.PROTOCOLS.GENER
+Pathology protocols - general
+PATH.PROTOCOLS.PROST
+Pathology protocols - prostate
+PATH.PROTOCOLS.SKIN
+Pathology protocols - skin
+SERO
+Serology (antibodies and most antigens except blood bank and infectious agents)
+SPEC
+Specimen characteristics
+UA
+Urinalysis
+#
+# Attachment term classes
+#
+ATTACH
+Attachment
+ATTACH.AMB
+Ambulance attachment
+ATTACH.CARD
+Cardiac attachment
+ATTACH.CLINRPT
+Clinical report attachment
+ATTACH.CPHS
+Children's Preventative Health System attachment
+ATTACH.ED
+Emergency department attachment
+ATTACH.GENERAL
+General attachment
+ATTACH.GI
+Gastrointestinal attachment
+ATTACH.LAB
+Laboratory attachment
+ATTACH.MEDS
+Medication attachment
+ATTACH.MODIFIER
+Modifier attachment
+ATTACH.OBS
+Obstetrics attachment
+ATTACH.PERIODONTAL
+Periodontal attachment
+ATTACH.REHAB
+Rehabilitation attachment
+ATTACH.REHAB.ABUSE
+Alcohol/Substance abuse rehabilitation attachment
+ATTACH.REHAB.CARDIAC
+Cardiac rehabilitation attachment
+ATTACH.REHAB.NURS
+Specialized nursing attachment
+ATTACH.REHAB.OT
+Occupational therapy attachment
+ATTACH.REHAB.PSYCH
+Psychiatric rehabilitation attachment
+ATTACH.REHAB.PT
+Physical rehabilitation attachment
+ATTACH.REHAB.PULM
+Pulmonary rehabilitation attachment
+ATTACH.REHAB.RT
+Respiratory rehabilitation attachment
+ATTACH.REHAB.SOCIAL
+Medical social work attachment
+ATTACH.REHAB.SPEECH
+Speech therapy rehabilitation attachment
+ATTACH.RESP
+Respiratory attachment
+#
+# Survey Term Classes
+#
+PANEL.SURVEY.AAOS
+American Academy of Orthopaedic Surgeons
+PANEL.SURVEY.AHRQ
+Agency for Healthcare Research and Quality (AHRQ) survey set
+PANEL.SURVEY.BIMS
+Brief Interview for Mental Health Status (BIMS) set
+PANEL.SURVEY.CAM
+Confusion Assessment Method (CAM) set
+PANEL.SURVEY.CARE
+Continuity Assessment Record and Evaluation (CARE) set
+PANEL.SURVEY.CDC
+Centers for Disease Control (CDC) set
+PANEL.SURVEY.CMS
+Centers for Medicare & Medicaid Services set
+PANEL.SURVEY.EPDS
+Edinburgh Postnatal Depression Scale set
+PANEL.SURVEY.ESRD
+End Stage Renal Disease (ESRD) facility survey set
+PANEL.SURVEY.GDS
+Geriatric Depression Scale (GDS) set
+PANEL.SURVEY.GNHLTH
+General Healthy survey set
+PANEL.SURVEY.HHCC
+Home Health Care Classification set
+PANEL.SURVEY.HHS
+Department of Health and Humsn Services set
+PANEL.SURVEY.HIV-SSC
+Signs and Symptoms checklist for persons living with HIV set
+PANEL.SURVEY.howRU
+howRU outcomes instrument set
+PANEL.SURVEY.LIV-HIV
+Living with HIV set
+PANEL.SURVEY.MDS
+Minimum Data Set for Nursing Home Resident Assessment and Care Screening set
+PANEL.SURVEY.MFS
+Morse Fall Scale set
+PANEL.SURVEY.MTLHLTH
+Mental Health survey set
+PANEL.SURVEY.NEUR
+Neurological survey set
+PANEL.SURVEY.NEUROQ
+Quality of Life Outcomes in Neurological Disorders (NeuroQol) set
+PANEL.SURVEY.NMMDS
+Nursing Management Minimum Data set
+PANEL.SURVEY.NORTON
+Norton Scale survey set
+PANEL.SURVEY.NSRAS
+Neonatal Skin Risk Assessment Scale survey
+PANEL.SURVEY.OASIS
+Outcome and Assessment Information Survey set
+PANEL.SURVEY.OMAHA
+OMAHA survey set
+PANEL.SURVEY.OPTIMAL
+Outpatient Physical Therapy Improvement in Movement a Assessment Log set
+PANEL.SURVEY.PHQ
+Patient Health Questionnaire set
+PANEL.SURVEY.PROMIS
+Patient Reported Outcomes Measurement System set
+PANEL.SURVEY.QAM
+Quality Audit Marker set
+PANEL.SURVEY.QRDA
+Quality Health Reporting Document Architecture set
+PANEL.SURVEY.RFC
+Residual Functional Capacity set
+PANEL.SURVEY.SAMHSA
+Substance Abuse and Mental Health Services Administration (SAMHSA) set
+PANEL.SURVEY.USSGFHT
+United States Surgeon General Family Health Tool (USSGFHT) set
+PANEL.TIMP
+Test of Infant Motor Performance (TIMP) set
+SURVEY.AAOS
+American Academy of Orthopaedic Surgeons (AAOS) survey
+SURVEY.AHRQ
+Agency for Healthcare Research and Quality (AHRQ) survey
+SURVEY.CARE
+Continuity Assessment Record and Evaluation (CARE) survey
+SURVEY.CDC
+Centers for Disease Control (CDC) survey
+SURVEY.CERNER
+Cerner survey
+SURVEY.CMS
+Centers for Medicare & Medicaid Services (CMS) survey
+SURVEY.EPDS
+Edinburgh Postnatal Depression Scale (EPDS)
+SURVEY.ESRD
+End Stage Renal Disease (ESRD) facility survey
+SURVEY.GDS
+Geriatric Depression Scale (GDS) survey
+SURVEY.GNHLTH
+General Health survey
+SURVEY.HHS
+Department of Health and Human Services (HHS) survey
+SURVEY.howRU
+howRU outcomes instrument survey
+SURVEY.MDS
+Minimum Data Set (MDS) for Nursing Home Resident Assessment and Care Screening survey
+SURVEY.MFS
+Morse Fall Scale (MFS) survey
+SURVEY.MISC
+Miscellaneous survey
+SURVEY.MTLHLTH
+Mental Health survey
+SURVEY.NEURO
+Neurological survey
+SURVEY.NEUROQ
+Quality of Life Outcomes in Neurological Disorders (NeuroQol) survey
+SURVEY.NMMDS
+Nursing Management Minimum Data Survey (NMMDS)
+SURVEY.NORTON
+Norton Scale survey
+SURVEY.NSRAS
+Neonatal Skin Risk Assessment Scale (NSRAS)
+SURVEY.NURSE.HHCC
+Home Health Care Classification (HHCC) survey
+SURVEY.NURSE.HIV-SSC
+Signs and Symptoms Checklist (SSC) for persons living with HIV survey
+SURVEY.NURSE.LIV-HIV
+Living with HIV survey
+SURVEY.NURSE.OMAHA
+OMAHA survey
+SURVEY.NURSE.QAM
+Quality Audit Marker (QAM) survey
+SURVEY.OASIS
+Outcome and Assessment Information Survey (OASIS)
+SURVEY.OPTIMAL
+Outpatient Physical Therapy Improvement in Movement and Assessment Log (OPTIMAL)
+SURVEY.PHQ
+Patient Health Questionnaire (PHQ)
+SURVEY.PROMIS
+Patient Reported Outcomes Measurement System (PROMIS) survey
+SURVEY.QRDA
+Quality Health Reporting Document Architecture (QRDA) survey
+SURVEY.RFC
+Residual Functional Capacity (RFC) survey
+SURVEY.SAMHSA
+Substance Abuse and Mental Health Services Administration (SAMHSA) survey
+SURVEY.USSGFHT
+United States Surgeon General Family Health Tool (USSGFHT) survey
+TIMP
+Test of Infant Motor Performance (TIMP) survey

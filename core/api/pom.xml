@@ -4,12 +4,12 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>core</artifactId>
-        <version>4.2</version>
+        <version>4.3</version>
     </parent>
 
     <groupId>sh.isaac.core</groupId>
     <artifactId>api</artifactId>
-    <name>ISAAC: API</name>
+    <name>ISAAC core: API</name>
 
     <dependencies>
         <dependency>

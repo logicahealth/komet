@@ -4,12 +4,12 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>provider</artifactId>
-        <version>4.2</version>
+        <version>4.3</version>
     </parent>
     <groupId>sh.isaac.provider</groupId>
     <artifactId>observable</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Observable provider</name>
+    <name>ISAAC provider: Observable</name>
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>

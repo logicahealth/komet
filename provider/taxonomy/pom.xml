@@ -4,12 +4,12 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>provider</artifactId>
-        <version>4.2</version>
+        <version>4.3</version>
     </parent>
     <groupId>sh.isaac.provider</groupId>
     <artifactId>taxonomy</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC: Taxonomy Provider</name>
+    <name>ISAAC provider: Taxonomy</name>
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>

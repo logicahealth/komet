@@ -4,12 +4,12 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>4.2</version>
+        <version>4.3</version>
     </parent>
     <artifactId>provider</artifactId>
     <packaging>pom</packaging>
-    <name>ISAAC: provider (MMP)</name>
-    <description>Aggrigator project for provider ISAAC modules</description>
+    <name>ISAAC provider: (MMP)</name>
+    <description>Aggrigator project for provider ISAAC provider modules</description>
     <modules>
         <module>commit</module>
         <module>coordinate</module>

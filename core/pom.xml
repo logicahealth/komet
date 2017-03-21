@@ -4,10 +4,10 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>4.2</version>
+        <version>4.3</version>
     </parent>
     <artifactId>core</artifactId>
-    <name>ISAAC: core (MMP)</name>
+    <name>ISAAC core: (MMP)</name>
     <description>Aggrigator project for core ISAAC modules</description>
     <packaging>pom</packaging>
     <modules>

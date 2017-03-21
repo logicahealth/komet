@@ -4,14 +4,14 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
         <artifactId>integration</artifactId>
-		<version>4.2</version>
+		<version>4.3</version>
 	</parent>
 
 	<groupId>sh.isaac.integration</groupId>
 	<artifactId>import-utils</artifactId>
 	<packaging>jar</packaging>
 
-	<name>ISAAC: Import Utilities</name>
+	<name>ISAAC integration: Import utilities</name>
 
 	<dependencies>
 		<dependency>
