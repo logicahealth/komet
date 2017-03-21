@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>sh.isaac</groupId>
+		<artifactId>solor</artifactId>
+		<version>4.3-SNAPSHOT</version>
+	</parent>
+   <groupId>sh.isaac.solor</groupId>
+   <artifactId>solor-parent</artifactId>
+   <packaging>pom</packaging>
+   <name>ISAAC SOLOR: parent pom</name>
+   <description>SOLOR parent pom for managing common dependencies and other configuration items 
+      for SOLOR projects. SOLOR projects are specific to managing SNOMED, LOINC, and RxNorm content, 
+      and publishing that content using maven dependency management, and ISAAC data structures, processed 
+      using ISAAC libraries.</description>
+   
+   <dependencyManagement>
+      <dependencies>
+         <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>model</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-project-info-reports-plugin</artifactId>
+            <version>${maven-project-info-reports-plugin.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${log4j.version}</version>
+         </dependency>
+      </dependencies>
+   </dependencyManagement>
+
+   <build>
+      <pluginManagement>
+         <plugins>
+            <plugin>
+               <groupId>external.atlassian.jgitflow</groupId>
+               <artifactId>jgitflow-maven-plugin</artifactId>
+               <version>${jgitflow-maven-plugin.version}</version>
+            </plugin>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-resources-plugin</artifactId>
+               <version>${maven-resources-plugin.version}</version>
+            </plugin>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-dependency-plugin</artifactId>
+               <version>${maven-dependency-plugin.version}</version>
+            </plugin>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-source-plugin</artifactId>
+               <version>${maven-source-plugin.version}</version>
+            </plugin>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-deploy-plugin</artifactId>
+               <version>${maven-deploy-plugin.version}</version>
+            </plugin>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-javadoc-plugin</artifactId>
+               <version>${javadoc-plugin.version}</version>
+               <configuration>
+                  <failOnError>false</failOnError>
+               </configuration>
+            </plugin>
+         </plugins>
+      </pluginManagement>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>${maven-compiler-plugin.version}</version>
+            <configuration>
+               <source>${javac.version}</source>
+               <target>${javac.version}</target>
+            </configuration>
+         </plugin>
+
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>${maven-jar-plugin.version}</version>
+         </plugin>
+         <plugin>
+            <groupId>external.atlassian.jgitflow</groupId>
+            <artifactId>jgitflow-maven-plugin</artifactId>
+            <configuration>
+               <configuration>
+                  <username>${git.user}</username>
+                  <password>${git.password}</password>
+                  <enableFeatureVersions>true</enableFeatureVersions>
+               </configuration>
+            </configuration>
+         </plugin>
+
+      </plugins>
+   </build>
+
+   <reporting>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${javadoc-plugin.version}</version>
+            <configuration>
+               <failOnError>false</failOnError>
+            </configuration>
+         </plugin>
+      </plugins>
+   </reporting>
+</project>

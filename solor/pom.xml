@@ -14,5 +14,6 @@
         <module>loinc-mojo</module>
         <module>rf2-mojo</module>
         <module>rxnorm-mojo</module>
+        <module>solor-parent</module>
     </modules>
 </project>
