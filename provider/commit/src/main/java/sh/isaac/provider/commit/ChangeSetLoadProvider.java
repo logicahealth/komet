@@ -50,6 +50,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
@@ -246,7 +247,7 @@ public class ChangeSetLoadProvider
                              .exists()) {
             try {
                changesetsDbId = UUID.fromString(new String(Files.readAllBytes(changesetsIdPath)));
-            } catch (final Exception e) {
+            } catch (final IOException e) {
                LOG.warn("The " + CHANGESETS_ID + " file does not contain a valid UUID!", e);
             }
          }
@@ -261,7 +262,7 @@ public class ChangeSetLoadProvider
                      .toString()
                      .getBytes());
             }
-         } catch (final Exception e) {
+         } catch (final IOException e) {
             LOG.error("Error writing maven artifact identity file", e);
          }
 
@@ -317,7 +318,7 @@ public class ChangeSetLoadProvider
                   .commit("Storing database ID on root concept");
             }
          }
-      } catch (final Exception e) {
+      } catch (final IOException | InterruptedException | RuntimeException | ExecutionException e) {
          LOG.error("Error ", e);
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Change Set Load Provider", e);

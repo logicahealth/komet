@@ -62,6 +62,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import org.glassfish.hk2.api.MultiException;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -274,9 +275,7 @@ public class MetaInfReader {
                                });
          }
 
-         if (!readDbMetadataFromProperties.get()) {
-            LOG.error("Failed to read the metadata about the database from the database package.");
-         } else {
+         if (readDbMetadataFromProperties.get()) {
             // Due to a quirk in how the DB poms are set up, we need to fill in this property
             for (final MavenArtifactInfo dependency: isaacDbDependency.dbDependencies) {
                if ((dependency.version != null) && "${isaac-metadata.version}".equals(dependency.version)) {
@@ -292,12 +291,14 @@ public class MetaInfReader {
                 isaacDbDependency.version,
                 isaacDbDependency.classifier,
                 isaacDbDependency.type);
+         } else {
+            LOG.error("Failed to read the metadata about the database from the database package: \n" + dbMetadata.getAbsolutePath());
          }
 
          return isaacDbDependency;
       } catch (final IOException e) {
          throw e;
-      } catch (final Exception e) {
+      } catch (final MultiException e) {
          throw new IOException(e);
       }
    }
