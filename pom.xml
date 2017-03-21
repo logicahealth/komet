@@ -361,6 +361,11 @@
          <plugins>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-resources-plugin</artifactId>
+               <version>${maven-resources-plugin.version}</version>
+            </plugin>
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-source-plugin</artifactId>
                <version>${maven-source-plugin.version}</version>
                <executions>
@@ -693,6 +698,7 @@
             <inherited>false</inherited>
             <configuration>
                <additionalparam>-Xdoclint:none</additionalparam>
+               <failOnError>false</failOnError>
                <!-- Disabled - not installed on CI server -->
                <!--doclet>ydoc.doclets.YStandard</doclet>
                <docletPath>${yDoc.path}/lib/ydoc.jar:${yDoc.path}/lib/styleed.jar:${yDoc.path}/resources</docletPath>
@@ -927,7 +933,6 @@
                      </execution>
                   </executions>
                </plugin>
-                    
             </plugins>
          </build>
       </profile>
