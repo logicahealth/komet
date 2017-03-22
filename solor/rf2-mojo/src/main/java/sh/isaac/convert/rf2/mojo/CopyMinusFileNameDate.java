@@ -105,8 +105,10 @@ public class CopyMinusFileNameDate
 
       if (hasSubDirectory(this.rf2WithDatesLocation)) {
          try {
-            delete(this.rf2WithDatesLocation);
+            getLog().info("Processing: " + this.rf2WithDatesLocation.getAbsolutePath());
             processDirectory(this.rf2WithDatesLocation, this.outputDirectory);
+            getLog().info("Now deleting: " + this.rf2WithDatesLocation.getAbsolutePath());
+            delete(this.rf2WithDatesLocation);
          } catch (final IOException ex) {
             Logger.getLogger(CopyMinusFileNameDate.class.getName())
                   .log(Level.SEVERE, null, ex);
@@ -171,7 +173,7 @@ public class CopyMinusFileNameDate
     */
    private String filterName(File f) {
       return f.getName()
-              .replaceAll("_[1-3][0-9][0-9][0-9][0-1][0-9][0-3][0-9].txt", ".txt");
+              .replaceAll("_[1-3][0-9][0-9][0-9][0-1][0-9][0-3][0-9].txt", ".txt").replace("_INT.txt", ".txt");
    }
 
    /**

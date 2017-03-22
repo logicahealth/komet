@@ -62,8 +62,7 @@ import sh.isaac.converters.sharedUtils.sql.TerminologyFileReader;
  *
  * {@link RF2FileReader}
  *
- * Reads the CSV formatted release files of LOINC, and the custom release notes file
- * to extract the date and time information.
+ * Reads the CSV formatted release files.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */

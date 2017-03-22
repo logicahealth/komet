@@ -4,12 +4,12 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>solor</artifactId>
-      <version>4.3</version>
+      <version>4.4</version>
    </parent>
    <groupId>sh.isaac.solor</groupId>
    <artifactId>solor-parent</artifactId>
    <packaging>pom</packaging>
-   <name>ISAAC SOLOR: parent pom</name>
+   <name>ISAAC SOLOR: Parent pom</name>
    <description>SOLOR parent pom for managing common dependencies and other configuration items 
       for SOLOR projects. SOLOR projects are specific to managing SNOMED, LOINC, and RxNorm content, 
       and publishing that content using maven dependency management, and ISAAC data structures, processed 
