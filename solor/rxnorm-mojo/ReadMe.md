@@ -1,3 +1,6 @@
 Release Note:
 
-mvn jgitflow:release-start jgitflow:release-finish -DreleaseVersion=4.4 -DdevelopmentVersion=4.5-SNAPSHOT -DaltDeploymentRepository=maestro::default::https://va.maestrodev.com/archiva/repository/va-releases -DdefaultOriginUrl=https://github.com/Apelon-VA/va-term-convert-rxnorm.git
+
+mvn clean deploy -DaltDeploymentRepository=<servername>::default::http://<artifact dns name>/<repo path>
+
+mvn jgitflow:release-start jgitflow:release-finish -DuseReleaseProfile=false -DreleaseVersion=3.0 -DdevelopmentVersion=3.1-SNAPSHOT -DaltDeploymentRepository=<servername>::default::http://<artifact dns name>/<repo path>
