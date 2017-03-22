@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>solor</artifactId>
-      <version>4.5</version>
+      <version>4.6</version>
    </parent>
    <groupId>sh.isaac.solor</groupId>
    <artifactId>solor-parent</artifactId>
@@ -20,7 +20,7 @@
          <dependency>
             <groupId>sh.isaac.core</groupId>
             <artifactId>model</artifactId>
-            <version>${project.version}</version>
+            <version>${project.parent.version}</version>
          </dependency>
       </dependencies>
    </dependencyManagement>
@@ -30,17 +30,17 @@
             <plugin>
                <groupId>sh.isaac.solor</groupId>
                <artifactId>loinc-mojo</artifactId>
-               <version>${project.version}</version>
+               <version>${project.parent.version}</version>
             </plugin>
             <plugin>
                <groupId>sh.isaac.solor</groupId>
                <artifactId>rf2-mojo</artifactId>
-               <version>${project.version}</version>
+               <version>${project.parent.version}</version>
             </plugin>
             <plugin>
                <groupId>sh.isaac.solor</groupId>
                <artifactId>rxnorm-mojo</artifactId>
-               <version>${project.version}</version>
+               <version>${project.parent.version}</version>
             </plugin>
          </plugins>
       </pluginManagement>
