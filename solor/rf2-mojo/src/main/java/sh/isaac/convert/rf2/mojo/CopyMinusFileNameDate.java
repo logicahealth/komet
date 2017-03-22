@@ -173,7 +173,12 @@ public class CopyMinusFileNameDate
     */
    private String filterName(File f) {
       return f.getName()
-              .replaceAll("_[1-3][0-9][0-9][0-9][0-1][0-9][0-3][0-9].txt", ".txt").replace("_INT.txt", ".txt");
+              .replaceAll("_[1-3][0-9][0-9][0-9][0-1][0-9][0-3][0-9].txt", ".txt")
+              .replaceAll("_[1-3][0-9][0-9][0-9][0-1][0-9][0-3][0-9].xlsx", ".xlsx")
+              .replaceAll("_[1-3][0-9][0-9][0-9][0-1][0-9][0-3][0-9].pdf", ".pdf")
+              .replaceAll("_[1-3][0-9][0-9][0-9][0-1][0-9][0-3][0-9].tsv", ".tsv")
+              .replaceAll("_[1-3][0-9][0-9][0-9][0-1][0-9][0-3][0-9].pl", ".pl")
+              .replace("_INT.txt", ".txt");
    }
 
    /**
