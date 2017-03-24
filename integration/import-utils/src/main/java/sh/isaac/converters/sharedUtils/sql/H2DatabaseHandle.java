@@ -145,25 +145,25 @@ public class H2DatabaseHandle {
    }
 
    /**
-    * Load data into table.
+    * Load dataReader into table.
     *
     * @param td the td
-    * @param data the data
+    * @param dataReader the dataReader. Caller is responsible to close the reader. Try with resources is recommended. 
     * @return the int
     * @throws SQLException the SQL exception
     * @throws IOException Signals that an I/O exception has occurred.
     * @returns rowCount loaded
     */
-   public int loadDataIntoTable(TableDefinition td, TerminologyFileReader data)
+   public int loadDataIntoTable(TableDefinition td, TerminologyFileReader dataReader)
             throws SQLException, IOException {
-      return loadDataIntoTable(td, data, null, null);
+      return loadDataIntoTable(td, dataReader, null, null);
    }
 
    /**
-    * Load data into table.
+    * Load dataReader into table.
     *
-    * @param td the td
-    * @param data the data
+    * @param tableDefinition the tableDefinition
+    * @param dataReader the dataReader. Caller is responsible to close the reader. Try with resources is recommended. 
     * @param includeValuesColumnName - (optional) the name of the column to check for an include values filter
     * @param includeValues - (optional) - the values to include.  If this parameter, and the above parameter are specified, only rows which have
     * a column name that matches 'includeValuesColumnName' with a value from the set of 'includeValues" will be loaded.
@@ -171,19 +171,19 @@ public class H2DatabaseHandle {
     * @throws SQLException the SQL exception
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public int loadDataIntoTable(TableDefinition td,
-                                TerminologyFileReader data,
+   public int loadDataIntoTable(TableDefinition tableDefinition,
+                                TerminologyFileReader dataReader,
                                 String includeValuesColumnName,
                                 Collection<String> includeValues)
             throws SQLException,
                    IOException {
-      ConsoleUtil.println("Loading table " + td.getTableName());
+      ConsoleUtil.println("Loading table " + tableDefinition.getTableName());
 
       final StringBuilder insert = new StringBuilder();
 
       insert.append("INSERT INTO ");
 
-      String tableName = td.getTableName();
+      String tableName = tableDefinition.getTableName();
 
       if (tableName.indexOf('/') > 0) {
          tableName = tableName.substring(tableName.indexOf('/') + 1);
@@ -192,7 +192,7 @@ public class H2DatabaseHandle {
       insert.append(tableName);
       insert.append("(");
 
-      for (final ColumnDefinition cd: td.getColumns()) {
+      for (final ColumnDefinition cd: tableDefinition.getColumns()) {
          insert.append(cd.getColumnName());
          insert.append(",");
       }
@@ -200,108 +200,105 @@ public class H2DatabaseHandle {
       insert.setLength(insert.length() - 1);
       insert.append(") VALUES (");
 
-      for (int i = 0; i < td.getColumns().length; i++) {
+      for (ColumnDefinition column : tableDefinition.getColumns()) {
          insert.append("?,");
       }
 
       insert.setLength(insert.length() - 1);
       insert.append(")");
 
-      final PreparedStatement ps           = this.connection.prepareStatement(insert.toString());
-      int                     filterColumn = -1;
-      HashSet<String>         sabHashSet   = null;
-
-      if ((includeValues != null) && (includeValues.size() > 0) && (includeValuesColumnName != null)) {
-         sabHashSet = new HashSet<>(includeValues);
-
-         int pos = 0;
-
-         // Find the skip column in this table, if it has one.
-         for (final ColumnDefinition cd: td.getColumns()) {
-            if (cd.getColumnName()
-                  .equalsIgnoreCase(includeValuesColumnName)) {
-               filterColumn = pos;
-               break;
+      int rowCount;
+      int                     sabSkipCount;
+      final HashSet<String>         skippedSabs;
+      try (PreparedStatement ps = this.connection.prepareStatement(insert.toString())) {
+         int                     filterColumn = -1;
+         HashSet<String>         sabHashSet   = null;
+         if ((includeValues != null) && (includeValues.size() > 0) && (includeValuesColumnName != null)) {
+            sabHashSet = new HashSet<>(includeValues);
+            
+            int pos = 0;
+            
+            // Find the skip column in this table, if it has one.
+            for (final ColumnDefinition cd: tableDefinition.getColumns()) {
+               if (cd.getColumnName()
+                       .equalsIgnoreCase(includeValuesColumnName)) {
+                  filterColumn = pos;
+                  break;
+               }
+               
+               pos++;
             }
-
-            pos++;
+         }  rowCount = 0;
+         sabSkipCount = 0;
+         skippedSabs = new HashSet<>();
+         while (dataReader.hasNextRow()) {
+            final List<String> cols = dataReader.getNextRow();
+            
+            if (cols.size() != tableDefinition.getColumns().length) {
+               throw new RuntimeException("Data length mismatch!");
+            }
+            
+            if ((sabHashSet != null) && (filterColumn >= 0)) {
+               if (!sabHashSet.contains(cols.get(filterColumn))) {
+                  skippedSabs.add(cols.get(filterColumn));
+                  sabSkipCount++;
+                  continue;
+               }
+            }
+            
+            ps.clearParameters();
+            
+            int psIndex = 1;
+            
+            for (final String s: cols) {
+               final DataType colType = tableDefinition.getColumns()[psIndex - 1]
+                       .getDataType();
+               
+               if (colType.isBoolean()) {
+                  if ((s == null) || (s.length() == 0)) {
+                     ps.setNull(psIndex, Types.BOOLEAN);
+                  } else {
+                     ps.setBoolean(psIndex, (s.equalsIgnoreCase("true") || s.equals("1")));
+                  }
+               } else if (colType.isInteger()) {
+                  if ((s == null) || (s.length() == 0)) {
+                     ps.setNull(psIndex, Types.INTEGER);
+                  } else {
+                     ps.setInt(psIndex, Integer.parseInt(s));
+                  }
+               } else if (colType.isLong()) {
+                  if ((s == null) || (s.length() == 0)) {
+                     ps.setNull(psIndex, Types.BIGINT);
+                  } else {
+                     ps.setLong(psIndex, Long.parseLong(s));
+                  }
+               } else if (colType.isString()) {
+                  if ((s == null) || (s.length() == 0)) {
+                     ps.setNull(psIndex, Types.VARCHAR);
+                  } else {
+                     ps.setString(psIndex, s);
+                  }
+               } else if (colType.isBigDecimal()) {
+                  if ((s == null) || (s.length() == 0)) {
+                     ps.setNull(psIndex, Types.DECIMAL);
+                  } else {
+                     ps.setBigDecimal(psIndex, new BigDecimal(s));
+                  }
+               } else {
+                  throw new RuntimeException("Unsupported data type");
+               }
+               
+               psIndex++;
+            }
+            
+            ps.execute();
+            rowCount++;
+            
+            if (rowCount % 10000 == 0) {
+               ConsoleUtil.showProgress();
+            }
          }
       }
-
-      int                   rowCount     = 0;
-      int                   sabSkipCount = 0;
-      final HashSet<String> skippedSabs  = new HashSet<>();
-
-      while (data.hasNextRow()) {
-         final List<String> cols = data.getNextRow();
-
-         if (cols.size() != td.getColumns().length) {
-            throw new RuntimeException("Data length mismatch!");
-         }
-
-         if ((sabHashSet != null) && (filterColumn >= 0)) {
-            if (!sabHashSet.contains(cols.get(filterColumn))) {
-               skippedSabs.add(cols.get(filterColumn));
-               sabSkipCount++;
-               continue;
-            }
-         }
-
-         ps.clearParameters();
-
-         int psIndex = 1;
-
-         for (final String s: cols) {
-            final DataType colType = td.getColumns()[psIndex - 1]
-                                       .getDataType();
-
-            if (colType.isBoolean()) {
-               if ((s == null) || (s.length() == 0)) {
-                  ps.setNull(psIndex, Types.BOOLEAN);
-               } else {
-                  ps.setBoolean(psIndex, (s.equalsIgnoreCase("true") || s.equals("1")));
-               }
-            } else if (colType.isInteger()) {
-               if ((s == null) || (s.length() == 0)) {
-                  ps.setNull(psIndex, Types.INTEGER);
-               } else {
-                  ps.setInt(psIndex, Integer.parseInt(s));
-               }
-            } else if (colType.isLong()) {
-               if ((s == null) || (s.length() == 0)) {
-                  ps.setNull(psIndex, Types.BIGINT);
-               } else {
-                  ps.setLong(psIndex, Long.parseLong(s));
-               }
-            } else if (colType.isString()) {
-               if ((s == null) || (s.length() == 0)) {
-                  ps.setNull(psIndex, Types.VARCHAR);
-               } else {
-                  ps.setString(psIndex, s);
-               }
-            } else if (colType.isBigDecimal()) {
-               if ((s == null) || (s.length() == 0)) {
-                  ps.setNull(psIndex, Types.DECIMAL);
-               } else {
-                  ps.setBigDecimal(psIndex, new BigDecimal(s));
-               }
-            } else {
-               throw new RuntimeException("Unsupported data type");
-            }
-
-            psIndex++;
-         }
-
-         ps.execute();
-         rowCount++;
-
-         if (rowCount % 10000 == 0) {
-            ConsoleUtil.showProgress();
-         }
-      }
-
-      ps.close();
-      data.close();
       ConsoleUtil.println("Loaded " + rowCount + " rows");
 
       if (sabSkipCount > 0) {

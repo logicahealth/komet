@@ -115,7 +115,7 @@ public class Rel
          this.id = UUID.fromString(rs.getString("ID"));
       }
 
-      this.effectiveTime = RF2Mojo.dateParse.parse(rs.getString("EFFECTIVETIME"))
+      this.effectiveTime = RF2Mojo.DATE_PARSER.parse(rs.getString("EFFECTIVETIME"))
             .getTime();
       this.isActive      = rs.getBoolean("ACTIVE");
       this.moduleId      = (td.getColDataType("MODULEID")

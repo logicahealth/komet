@@ -182,7 +182,12 @@ public class IsaacMetadataAuxiliary
 
          masterPath.addUuids(UUID.fromString("2faa9260-8fb2-11db-b606-0800200c9a66"));  // UUID from WB_AUX_PATH
          popParent();
-         createConcept("set operator");
+         createConcept("SNOMED DL concept operator");
+         pushParent(current());
+         createConcept(TermAux.SUFFICIENT_CONCEPT_DEFINITION);
+         createConcept(TermAux.NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION);
+         popParent();
+         createConcept("EL profile set operator");
          pushParent(current());
          createConcept("sufficient set").setPrimordialUuid(NodeSemantic.SUFFICIENT_SET.getSemanticUuid());
          createConcept("necessary set").setPrimordialUuid(NodeSemantic.NECESSARY_SET.getSemanticUuid());
@@ -478,7 +483,7 @@ public class IsaacMetadataAuxiliary
          // Note that we leave this method with the root concept set as parent (on purpose) - we don't call popParent the last time.
          // This way, if createConcept(...) is called again, the new concepts go under root.
          // this nasty oversight took _far_ too long to recognize.
-         // MetaData concepts must have CONSISTENT UUIDs.The default concept builder creates random
+         // MetaData concepts must have CONSISTENT UUIDs. The default concept builder creates random
          // UUIDs for anything that doesn't have a UUID listed here, causing them to be random, which
          // breaks things in interesting ways when we have ibdf files that references the UUIDs from a
          // MetaData file....

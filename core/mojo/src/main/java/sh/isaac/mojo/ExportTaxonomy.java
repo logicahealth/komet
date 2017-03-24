@@ -162,7 +162,6 @@ public class ExportTaxonomy
             FileWriter yamlFile = new FileWriter(new File(metadataDirectory.getAbsolutePath(),
                                                           taxonomy.getClass().getSimpleName() + ".yaml"));) {
             taxonomy.exportYamlBinding(yamlFile, this.bindingPackage, this.bindingClass);
-            taxonomy.exportJaxb(xmlData);
          }
 
          final Path ibdfPath = Paths.get(metadataDirectory.getAbsolutePath(),

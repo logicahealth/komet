@@ -46,7 +46,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -67,13 +66,13 @@ import com.opencsv.CSVReader;
  */
 public class LoincExpressionReader {
    /** The field count. */
-   protected int fieldCount_ = 0;
+   protected int fieldCount = 0;
 
    /** The field map. */
-   protected Hashtable<String, Integer> fieldMap_ = new Hashtable<String, Integer>();
+   protected Hashtable<String, Integer> fieldMap = new Hashtable<String, Integer>();
 
    /** The field map inverse. */
-   protected Hashtable<Integer, String> fieldMapInverse_ = new Hashtable<Integer, String>();
+   protected Hashtable<Integer, String> fieldMapInverse = new Hashtable<Integer, String>();
 
    /** The header. */
    String[] header;
@@ -154,18 +153,18 @@ public class LoincExpressionReader {
       String[] temp = this.reader.readNext();
 
       if (temp != null) {
-         if (this.fieldCount_ == 0) {
-            this.fieldCount_ = temp.length;
+         if (this.fieldCount == 0) {
+            this.fieldCount = temp.length;
 
             int i = 0;
 
             for (final String s: temp) {
-               this.fieldMapInverse_.put(i, s);
-               this.fieldMap_.put(s, i++);
+               this.fieldMapInverse.put(i, s);
+               this.fieldMap.put(s, i++);
             }
-         } else if (temp.length < this.fieldCount_) {
-            temp = Arrays.copyOf(temp, this.fieldCount_);
-         } else if (temp.length > this.fieldCount_) {
+         } else if (temp.length < this.fieldCount) {
+            temp = Arrays.copyOf(temp, this.fieldCount);
+         } else if (temp.length > this.fieldCount) {
             throw new RuntimeException("Data error - to many fields found on line: " + Arrays.toString(temp));
          }
       }
@@ -203,7 +202,7 @@ public class LoincExpressionReader {
     * @return the position for column
     */
    public int getPositionForColumn(String col) {
-      return this.fieldMap_.get(col);
+      return this.fieldMap.get(col);
    }
 }
 

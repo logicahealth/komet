@@ -42,6 +42,10 @@ package sh.isaac.convert.rf2.mojo;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.File;
+import java.io.FileInputStream;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -53,19 +57,15 @@ import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -76,11 +76,11 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LanguageCode;
 import sh.isaac.api.MavenConceptProxy;
 import sh.isaac.api.State;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.logic.LogicalExpression;
@@ -109,7 +109,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * Loader code to convert RxNorm into the workbench.
+ * Loader code to convert RF2 format files into the ISAAC format.
  */
 @Mojo(
    name         = "convert-RF2-to-ibdf",
@@ -117,45 +117,12 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
 )
 public class RF2Mojo
         extends ConverterBaseMojo {
-   // Some constants from SCT
-   // "Part of (attribute)"
-   // TODO get these contstants from metadata directly... ?
-
-   /** The part of. */
-   // TODO Add to or get from IsaacMetadataAuxiliary?
-   public static UUID PART_OF = UUID.fromString("b4c3f6f9-6937-30fd-8412-d0c77f8a7f73");
-
-   /** The laterality. */
-
-   // "Laterality (attribute)"
-   public static UUID LATERALITY = UUID.fromString("26ca4590-bbe5-327c-a40a-ba56dc86996b");
-
-   /** The has active ingredient. */
-
-   // "Has active ingredient (attribute)"
-   public static UUID HAS_ACTIVE_INGREDIENT = UUID.fromString("65bf3b7f-c854-36b5-81c3-4915461020a8");
-
-   /** The has dose form. */
-
-   // "Has dose form (attribute)"
-   public static UUID HAS_DOSE_FORM = UUID.fromString("072e7737-e22e-36b5-89d2-4815f0529c63");
-
-   /** The sufficiently defined. */
-
-   // 900000000000073002  "Sufficiently defined concept definition status (core metadata concept)"
-   public static UUID SUFFICIENTLY_DEFINED = UUID.fromString("6d9cd46e-8a8f-310a-a298-3e55dcf7a986");
-
-   /** The necessary but not sufficient. */
-
-   // 900000000000074008  "Necessary but not sufficient concept definition status (core metadata concept)"
-   public static UUID NECESSARY_BUT_NOT_SUFFICIENT = UUID.fromString("e1a12059-3b01-3296-9532-d10e49d0afc3");
-
-   /** The date parse. */
-   protected static SimpleDateFormat dateParse = new SimpleDateFormat("yyyyMMdd");
+   /** The date format parser. */
+   protected static final SimpleDateFormat DATE_PARSER = new SimpleDateFormat("yyyyMMdd");
 
    //~--- fields --------------------------------------------------------------
 
-   /** The output json. */
+   /** The output json flag. */
    private final boolean outputJson = false;  // Set to true to produce a json dump file
 
    /** The descriptions. */
@@ -167,15 +134,13 @@ public class RF2Mojo
    /** The tables. */
    private final HashMap<String, TableDefinition> tables_ = new HashMap<>();
 
-   // map concept UUID to a treemap that has the time and the status value.
-
-   /** The concept definition status cache. */
-   // Could shrink the size of this if necessary by using con sequence ids....
+   /**
+    * The concept definition status cache. The map is from a concept UUID to a treemap that has the time and the status value.
+    * TODO the time is not sufficient to define time points. You need time, path, and module. Could shrink the size of this if necessary by using con sequence ids.... 
+    */
    private final HashMap<UUID, TreeMap<Long, UUID>> conceptDefinitionStatusCache = new HashMap<>();
 
-   /** The cons with no stated rel. */
-
-   // This cache is to work around a data problem where stated rels are missing from SCT.
+   /** The concepts with no stated relationships. This cache is to work around a data problem where stated rels are missing from SCT. */
    private final HashSet<UUID> consWithNoStatedRel = new HashSet<>();
 
    /** The never role group set. */
@@ -191,22 +156,29 @@ public class RF2Mojo
    /** The db. */
    private H2DatabaseHandle db;
 
-   /** The content name version. */
+   /** The name of content released and the version of the release. */
+   @Parameter(required = true)
    String contentNameVersion;
 
-   /** The time string. */
-   String timeString;
+   /** The release date string. */
+   @Parameter(required = true)
+   String rf2ReleaseDate;
 
    /** The stated relationship. */
    private String CONCEPT, RELATIONSHIP, STATED_RELATIONSHIP;
+   @Parameter(
+      required     = false,
+      defaultValue = "${project.build.directory}/generated-resources/ibdf"
+   )
+   private File   ibdfFolder;
 
    //~--- initializers --------------------------------------------------------
 
    {
-      this.neverRoleGroupSet.add(PART_OF);
-      this.neverRoleGroupSet.add(LATERALITY);
-      this.neverRoleGroupSet.add(HAS_ACTIVE_INGREDIENT);
-      this.neverRoleGroupSet.add(HAS_DOSE_FORM);
+      this.neverRoleGroupSet.add(TermAux.PART_OF.getPrimordialUuid());
+      this.neverRoleGroupSet.add(TermAux.LATERALITY.getPrimordialUuid());
+      this.neverRoleGroupSet.add(TermAux.HAS_ACTIVE_INGREDIENT.getPrimordialUuid());
+      this.neverRoleGroupSet.add(TermAux.HAS_DOSE_FORM.getPrimordialUuid());
    }
 
    //~--- methods -------------------------------------------------------------
@@ -221,11 +193,20 @@ public class RF2Mojo
             throws MojoExecutionException {
       try {
          super.execute();
-         this.inputType = InputType.parse(this.converterOutputArtifactClassifier);
+         this.inputType = InputType.get(this.converterOutputArtifactClassifier);
 
-         final File zipFile = init();
+         final long defaultTime = RF2Mojo.DATE_PARSER.parse(this.rf2ReleaseDate)
+                                                     .getTime();
 
-         loadDatabase(zipFile);
+         super.importUtil = new IBDFCreationUtility(Optional.empty(),
+               Optional.of(this.moduleUUID),
+               this.outputDirectory,
+               this.converterOutputArtifactId,
+               this.converterOutputArtifactVersion,
+               this.converterOutputArtifactClassifier,
+               this.outputJson,
+               defaultTime);
+         loadDatabase(this.inputFileLocation);
 
          final ComponentReference rf2Metadata =
             ComponentReference.fromConcept(super.importUtil.createConcept("RF2 Metadata " + this.contentNameVersion,
@@ -234,7 +215,7 @@ public class RF2Mojo
          super.importUtil.addParent(rf2Metadata, MetaData.SOLOR_CONTENT_METADATA.getPrimordialUuid());
          super.importUtil.loadTerminologyMetadataAttributes(rf2Metadata,
                this.converterSourceArtifactVersion,
-               Optional.ofNullable(this.timeString),
+               Optional.ofNullable(this.rf2ReleaseDate),
                this.converterOutputArtifactVersion,
                Optional.of(this.converterOutputArtifactClassifier),
                this.converterVersion);
@@ -293,21 +274,6 @@ public class RF2Mojo
    }
 
    /**
-    * Clear target files.
-    *
-    * @param contentNameVersion the content name version
-    */
-   private void clearTargetFiles(String contentNameVersion) {
-      new File(this.outputDirectory, this.converterOutputArtifactClassifier + "-RF2UUIDDebugMap.txt").delete();
-      new File(this.outputDirectory, this.converterOutputArtifactClassifier + "-ConsoleOutput.txt").delete();
-      new File(this.outputDirectory,
-               "RF2-" + contentNameVersion + "-" + this.converterOutputArtifactClassifier + ".ibdf").delete();
-
-      // For debug only, normally commented out
-      // new File(outputDirectory, contentNameVersion + ".h2.db").delete();
-   }
-
-   /**
     * Creates the table definition.
     *
     * @param tableName the table name
@@ -352,190 +318,95 @@ public class RF2Mojo
    }
 
    /**
-    * Inits the.
-    *
-    * @return the file
-    * @throws Exception the exception
-    */
-   private File init()
-            throws Exception {
-      File zipFile = null;
-
-      for (final File f: this.inputFileLocation.listFiles()) {
-         if (f.getName()
-              .toLowerCase()
-              .endsWith(".zip")) {
-            if (zipFile != null) {
-               throw new MojoExecutionException("Only expected to find one zip file in the folder " +
-                                                this.inputFileLocation.getCanonicalPath());
-            }
-
-            zipFile = f;
-         }
-      }
-
-      if (zipFile == null) {
-         throw new MojoExecutionException("Did not find a zip file in " + this.inputFileLocation.getCanonicalPath());
-      }
-
-      this.contentNameVersion = zipFile.getName()
-                                        .substring(0, zipFile.getName()
-                                              .length() - 4);
-      ConsoleUtil.println("Converting " + this.contentNameVersion + "-" + this.converterOutputArtifactClassifier);
-
-      final String[]         temp        = this.contentNameVersion.split("_");
-      final SimpleDateFormat sdf         = new SimpleDateFormat("yyyyMMdd");
-      long                   defaultTime = 0;
-
-      for (int i = temp.length - 1; i > 0; i--) {
-         if ((temp[i].length() == 8) && NumberUtils.isDigits(temp[i])) {
-            defaultTime      = sdf.parse(temp[i])
-                                  .getTime();
-            this.timeString = temp[i];
-            break;
-         }
-      }
-
-      if (defaultTime == 0) {
-         throw new MojoExecutionException("Couldn't parse date out of " + this.contentNameVersion);
-      }
-
-      clearTargetFiles(this.contentNameVersion);
-
-      File[]     ibdfFiles  = new File[0];
-      final File ibdfFolder = new File(this.inputFileLocation, "ibdf");
-
-      if (ibdfFolder.isDirectory()) {
-         ibdfFiles = ibdfFolder.listFiles((File pathname) -> {
-                                             return pathname.isFile() &&
-                                                   pathname.getName().toLowerCase().endsWith(".ibdf");
-                                          });
-      }
-
-      super.importUtil = new IBDFCreationUtility(Optional.empty(),
-            Optional.of(this.moduleUUID),
-            this.outputDirectory,
-            this.converterOutputArtifactId,
-            this.converterOutputArtifactVersion,
-            this.converterOutputArtifactClassifier,
-            this.outputJson,
-            defaultTime,
-            Arrays.asList(new SememeType[] { SememeType.DESCRIPTION, SememeType.COMPONENT_NID, SememeType.DYNAMIC,
-                  SememeType.LONG }),
-            true,
-            ibdfFiles);
-      return zipFile;
-   }
-
-   /**
     * Load database.
     *
-    * @param zipFile the zip file
+    * @param contentDirectory the zip file
     * @throws Exception the exception
     */
-   private void loadDatabase(File zipFile)
+   private void loadDatabase(File contentDirectory)
             throws Exception {
       final long time = System.currentTimeMillis();
 
       this.db = new H2DatabaseHandle();
 
-      final File dbFile = new File(this.outputDirectory,
-                                   this.contentNameVersion + "-" + this.converterOutputArtifactClassifier + ".h2.db");
       final boolean createdNew = this.db.createOrOpenDatabase(new File(this.outputDirectory,
-                                                                        this.contentNameVersion + "-" +
-                                                                        this.converterOutputArtifactClassifier));
+                                                                       this.contentNameVersion + "-" +
+                                                                       this.converterOutputArtifactClassifier));
+      int tableCount = 0;
+      final Iterable<Path> pathIterator = Files.walk(contentDirectory.toPath())
+                                               .filter(p -> p.toString().endsWith(".txt") &&
+                                                     p.toString().toUpperCase().contains(
+                                                        this.inputType.name()))::iterator;
 
-      if (!createdNew) {
-         ConsoleUtil.println("Using existing database.  To load from scratch, delete the file '" +
-                             dbFile.getCanonicalPath() + ".*'");
-      }
+      for (final Path path: pathIterator) {
+         // One of the data files we want to load
+         ConsoleUtil.println("Loading " + path);
 
-      int tableCount;
+         String tableName = path.getFileName()
+                                .toString();
 
-      try (ZipFile zf = new ZipFile(zipFile)) {
-         final Enumeration<? extends ZipEntry> zipEntries = zf.entries();
+         tableName = tableName.substring(0, tableName.length() - 4);  // remove ".txt"
+         tableName = tableName.replaceAll("-", "_");                  // hyphens cause sql issues
 
-         tableCount = 0;
+         if (tableName.toLowerCase()
+                      .startsWith("sct2_concept_")) {
+            this.CONCEPT = tableName;
+         } else if (tableName.toLowerCase().startsWith("sct2_description_") ||
+                    tableName.toLowerCase().startsWith("sct2_textdefinition_")) {
+            this.DESCRIPTIONS.add(tableName);
+         } else if (tableName.toLowerCase().startsWith("der2_crefset_") &&
+                    tableName.toLowerCase().contains("language")) {
+            this.LANGUAGES.add(tableName);
+         } else if (tableName.toLowerCase()
+                             .startsWith("sct2_identifier_")) {}
+         else if (tableName.toLowerCase()
+                           .startsWith("sct2_relationship_")) {
+            this.RELATIONSHIP = tableName;
+         } else if (tableName.toLowerCase()
+                             .startsWith("sct2_statedrelationship_")) {
+            this.STATED_RELATIONSHIP = tableName;
+         }
 
-         while (zipEntries.hasMoreElements()) {
-            final ZipEntry ze        = zipEntries.nextElement();
-            final String[] structure = ze.getName()
-                                         .split("\\/");
+         try (RF2FileReader fileReader = new RF2FileReader(new FileInputStream(path.toFile()))) {
+            final TableDefinition td = createTableDefinition(tableName,
+                                                             fileReader.getHeader(),
+                                                             fileReader.peekNextRow());
 
-            if ((structure[0].toUpperCase().equals(this.inputType.name()) ||
-                  ((structure.length > 1) && structure[1].toUpperCase().equals(this.inputType.name())) ||
-                  ((structure.length > 2) && structure[2].toUpperCase().equals(this.inputType.name()))) &&
-                  ze.getName().toLowerCase().endsWith(".txt")) {
-               // One of the data files we want to load
-               ConsoleUtil.println("Loading " + ze.getName());
+            this.tables_.put(tableName, td);
 
-               final RF2FileReader fileReader = new RF2FileReader(zf.getInputStream(ze));
-               String              tableName  = structure[structure.length - 1];
+            if (!createdNew) {
+               // Only need to process this far to read the metadata about the DB
+               continue;
+            }
 
-               tableName = tableName.substring(0, tableName.length() - 4);
-               tableName = tableName.replaceAll("-", "_");  // hyphens cause sql issues
+            this.db.createTable(td);
+            tableCount++;
 
-               if (tableName.toLowerCase()
-                            .startsWith("sct2_concept_")) {
-                  this.CONCEPT = tableName;
-               } else if (tableName.toLowerCase().startsWith("sct2_description_") ||
-                          tableName.toLowerCase().startsWith("sct2_textdefinition_")) {
-                  this.DESCRIPTIONS.add(tableName);
-               } else if (tableName.toLowerCase().startsWith("der2_crefset_") &&
-                          tableName.toLowerCase().contains("language")) {
-                  this.LANGUAGES.add(tableName);
-               } else if (tableName.toLowerCase()
-                                   .startsWith("sct2_identifier_")) {}
-               else if (tableName.toLowerCase()
-                                 .startsWith("sct2_relationship_")) {
-                  this.RELATIONSHIP = tableName;
-               } else if (tableName.toLowerCase()
-                                   .startsWith("sct2_statedrelationship_")) {
-                  this.STATED_RELATIONSHIP = tableName;
-               }
+            final int rowCount = this.db.loadDataIntoTable(td, fileReader);
 
-               final TableDefinition td = createTableDefinition(tableName,
-                                                                fileReader.getHeader(),
-                                                                fileReader.peekNextRow());
+            // don't bother indexing small tables
+            if (rowCount > 10000) {
+               final HashSet<String> colsToIndex = new HashSet<>();
 
-               this.tables_.put(tableName, td);
+               colsToIndex.add("conceptId");
+               colsToIndex.add("referencedComponentId");
+               colsToIndex.add("sourceId");
 
-               if (!createdNew) {
-                  // Only need to process this far to read the metadata about the DB
-                  continue;
-               }
+               for (final String s: fileReader.getHeader()) {
+                  if (colsToIndex.contains(s)) {
+                     try (Statement statement = this.db.getConnection().createStatement()) {
+                        ConsoleUtil.println("Indexing " + tableName + " on " + s);
 
-               this.db.createTable(td);
-               tableCount++;
-
-               final int rowCount = this.db.loadDataIntoTable(td, fileReader);
-
-               fileReader.close();
-
-               // don't bother indexing small tables
-               if (rowCount > 10000) {
-                  final HashSet<String> colsToIndex = new HashSet<>();
-
-                  colsToIndex.add("conceptId");
-                  colsToIndex.add("referencedComponentId");
-                  colsToIndex.add("sourceId");
-
-                  for (final String s: fileReader.getHeader()) {
-                     if (colsToIndex.contains(s)) {
-                        try (Statement statement = this.db.getConnection().createStatement()) {
-                           ConsoleUtil.println("Indexing " + tableName + " on " + s);
-
-                           if (s.equals("referencedComponentId")) {
+                        if (s.equals("referencedComponentId")) {
+                           statement.execute("CREATE INDEX " + tableName + "_" + s + "_index ON " + tableName + " (" +
+                                             s + ", refsetId)");
+                        } else {
+                           if (td.getColDataType("id") != null) {
                               statement.execute("CREATE INDEX " + tableName + "_" + s + "_index ON " + tableName +
-                                                " (" + s + ", refsetId)");
+                                                " (" + s + ", id)");
                            } else {
-                              if (td.getColDataType("id") != null) {
-                                 statement.execute("CREATE INDEX " + tableName + "_" + s + "_index ON " + tableName +
-                                                   " (" + s + ", id)");
-                              } else {
-                                 statement.execute("CREATE INDEX " + tableName + "_" + s + "_index ON " + tableName +
-                                                   " (" + s + ")");
-                              }
+                              statement.execute("CREATE INDEX " + tableName + "_" + s + "_index ON " + tableName +
+                                                " (" + s + ")");
                            }
                         }
                      }
@@ -549,7 +420,7 @@ public class RF2Mojo
                           ((System.currentTimeMillis() - time) / 1000) + " seconds");
 
       if (tableCount == 0) {
-         throw new RuntimeException("Failed to find tables in zip file!");
+         throw new RuntimeException("Failed to find tables in directory: " + contentDirectory.getAbsolutePath());
       }
    }
 
@@ -557,7 +428,7 @@ public class RF2Mojo
     * Transform concepts.
     *
     * @throws SQLException the SQL exception
-    * @throws ParseException the parse exception
+    * @throws ParseException the convert exception
     */
    private void transformConcepts()
             throws SQLException, ParseException {
@@ -566,7 +437,7 @@ public class RF2Mojo
       final TableDefinition td       = this.tables_.get(this.CONCEPT);
       int                   conCount = 0;
       final PreparedStatement ps = this.db.getConnection()
-                                           .prepareStatement("Select * from " + this.CONCEPT + " order by id");
+                                          .prepareStatement("Select * from " + this.CONCEPT + " order by id");
       UUID            lastId = null;
       final ResultSet rs     = ps.executeQuery();
 
@@ -586,8 +457,8 @@ public class RF2Mojo
 
          this.consWithNoStatedRel.add(id);
 
-         final long    time   = dateParse.parse(rs.getString("EFFECTIVETIME"))
-                                         .getTime();
+         final long    time   = DATE_PARSER.parse(rs.getString("EFFECTIVETIME"))
+                                           .getTime();
          final boolean active = rs.getBoolean("ACTIVE");
 
          moduleId = (td.getColDataType("MODULEID")
@@ -607,7 +478,7 @@ public class RF2Mojo
          final UUID oldValue = conDefStatus.put(time, definitionStatusId);
 
          if ((oldValue != null) &&!oldValue.equals(definitionStatusId)) {
-            throw new RuntimeException("Unexpeted - multiple definition status values at the same time: " + sctID +
+            throw new RuntimeException("Unexpected - multiple definition status values at the same time: " + sctID +
                                        " " + id + " " + definitionStatusId);
          }
 
@@ -641,7 +512,7 @@ public class RF2Mojo
     * Transform descriptions.
     *
     * @throws SQLException the SQL exception
-    * @throws ParseException the parse exception
+    * @throws ParseException the convert exception
     * @throws MojoExecutionException the mojo execution exception
     */
    private void transformDescriptions()
@@ -674,11 +545,11 @@ public class RF2Mojo
          int accCount             = 0;
          int noAcceptabilityCount = 0;
          final PreparedStatement ps = this.db.getConnection()
-                                              .prepareStatement("Select * from " + DESCRIPTION +
-                                                 " order by conceptId, id");
+                                             .prepareStatement("Select * from " + DESCRIPTION +
+                                                " order by conceptId, id");
          final PreparedStatement ps2 = this.db.getConnection()
-                                               .prepareStatement("Select * from " + LANGUAGE +
-                                                  " where referencedComponentId = ? ");
+                                              .prepareStatement("Select * from " + LANGUAGE +
+                                                 " where referencedComponentId = ? ");
          UUID            lastId = null;
          final ResultSet descRS = ps.executeQuery();
 
@@ -696,8 +567,8 @@ public class RF2Mojo
                id = UUID.fromString(descRS.getString("ID"));
             }
 
-            final long    time   = dateParse.parse(descRS.getString("EFFECTIVETIME"))
-                                            .getTime();
+            final long    time   = DATE_PARSER.parse(descRS.getString("EFFECTIVETIME"))
+                                              .getTime();
             final boolean active = descRS.getBoolean("ACTIVE");
             final UUID moduleId = (descriptionTable.getColDataType("MODULEID")
                                                    .isLong() ? UuidT3Generator.fromSNOMED(descRS.getLong("MODULEID"))
@@ -718,7 +589,7 @@ public class RF2Mojo
                super.importUtil.addDescription(ComponentReference.fromConcept(conceptId),
                                                id,
                                                term,
-                                               DescriptionType.parse(typeId),
+                                               DescriptionType.convert(typeId),
                                                null,
                                                null,
                                                caseSigId,
@@ -761,8 +632,8 @@ public class RF2Mojo
                foundAcceptability = true;
 
                final UUID    acceptID     = UUID.fromString(langRS.getString("id"));
-               final long    acceptTime   = dateParse.parse(langRS.getString("EFFECTIVETIME"))
-                                                     .getTime();
+               final long    acceptTime   = DATE_PARSER.parse(langRS.getString("EFFECTIVETIME"))
+                                                       .getTime();
                final boolean acceptActive = langRS.getBoolean("ACTIVE");
                final UUID acceptModuleId = (acceptabilityTable.getColDataType("MODULEID")
                                                               .isLong() ? UuidT3Generator.fromSNOMED(
@@ -926,7 +797,6 @@ public class RF2Mojo
                                                      r.moduleId);
 
                   // TODO put on modifier, group
-
                   if ((r.sctID != null) &&!r.id.equals(lastId)) {
                      super.importUtil.addStaticStringAnnotation(ComponentReference.fromChronology(assn,
                            () -> "Association"),
@@ -947,7 +817,15 @@ public class RF2Mojo
          }
 
          if (assertions.size() > 0) {
-            Boolean                   defined      = null;
+            Boolean defined = null;
+
+            /**
+             * conDefStatus is a sorted set of time, definition status uuid. The datastructure is limited in that it is possible
+             * for a component to have one status in a combination of branch and module, and to have another status for
+             * a different combination of branch and module... Sorting just by time may cause alternative status values
+             * at the same time to be overwritten. TODO modify data structures to handle status which may differ by
+             * branch and module.
+             */
             final TreeMap<Long, UUID> conDefStatus = this.conceptDefinitionStatusCache.get(conRels.get(0)
                                                                                                   .getSourceId());
 
@@ -982,11 +860,12 @@ public class RF2Mojo
             } else {
                if (conDefStatus.lastEntry()
                                .getValue()
-                               .equals(SUFFICIENTLY_DEFINED)) {
+                               .equals(TermAux.SUFFICIENT_CONCEPT_DEFINITION.getPrimordialUuid())) {
                   defined = true;
                } else if (conDefStatus.lastEntry()
                                       .getValue()
-                                      .equals(NECESSARY_BUT_NOT_SUFFICIENT)) {
+                                      .equals(
+                                      TermAux.NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION.getPrimordialUuid())) {
                   defined = false;
                } else {
                   throw new RuntimeException("Unexpected concept definition status: " + conDefStatus.lastEntry());
@@ -1064,6 +943,11 @@ public class RF2Mojo
 
    //~--- get methods ---------------------------------------------------------
 
+   @Override
+   protected ConverterUUID.NAMESPACE getNamespace() {
+      return ConverterUUID.NAMESPACE.SNOMED;
+   }
+
    /**
     * This will return batches of relationships, each item the iterator returns will be all of the relationships
     * for a particular source concepts, while each RelBatch within the list will be all versions of a particular relationship.
@@ -1076,7 +960,7 @@ public class RF2Mojo
    private Iterator<ArrayList<RelBatch>> getRelationships(String table, TableDefinition td)
             throws SQLException {
       final PreparedStatement ps = this.db.getConnection()
-                                           .prepareStatement("Select * from " + table + " order by sourceid, id");
+                                          .prepareStatement("Select * from " + table + " order by sourceid, id");
       final ResultSet                     rs   = ps.executeQuery();
       final Iterator<ArrayList<RelBatch>> iter = new Iterator<ArrayList<RelBatch>>() {
          RelBatch            relBatchWorking      = null;

@@ -3,7 +3,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>sh.isaac</groupId>
    <artifactId>isaac</artifactId>
-   <version>4.6</version>
+   <version>4.7</version>
     
    <name>ISAAC: (MMP) InformaticS Architecture ACceleration</name>
     
@@ -638,10 +638,12 @@
             <configuration>
                <pushReleases>true</pushReleases>
                <autoVersionSubmodules>true</autoVersionSubmodules>
-               <scmCommentPrefix>[jgitflow-plugin]</scmCommentPrefix>
+               <scmCommentPrefix>[jgitflow-plugin] </scmCommentPrefix>
                <enableSshAgent>true</enableSshAgent>
                <allowSnapshots>false</allowSnapshots>
                <enableFeatureVersions>true</enableFeatureVersions>
+               <username>${git.user}</username>
+               <password>${git.password}</password>
             </configuration>
          </plugin>
          <plugin>

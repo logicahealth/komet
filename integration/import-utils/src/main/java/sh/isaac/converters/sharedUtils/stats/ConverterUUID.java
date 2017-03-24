@@ -45,6 +45,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -52,12 +53,16 @@ import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.constants.DynamicSememeConstants;
+import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
-import sh.isaac.MetaData;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -69,16 +74,20 @@ import sh.isaac.MetaData;
  * by setting the system property skipUUIDDebug to true - or in maven speak - '-DskipUUIDDebug' on the command line.
  *
  * @author darmbrust
+ * TODO: evaluate the utility of this class. KEC
  */
 public class ConverterUUID {
-   /** The disable UUID map. */
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
+
+   /** The disable UUID map flag. */
    public static boolean disableUUIDMap = false;  // Some loaders need to disable this due to memory constraints
 
    /** The master UUID map. */
    private static Hashtable<UUID, String> masterUUIDMap = new Hashtable<UUID, String>();
 
    /** The namespace. */
-   private static UUID namespace = null;
+   private static NAMESPACE namespace = null;
 
    /** The constants. */
    private static ConceptSpecification[] constants = new ConceptSpecification[] {
@@ -91,6 +100,28 @@ public class ConverterUUID {
       DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION,
       DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME
    };
+
+   //~--- enums ---------------------------------------------------------------
+
+   public enum NAMESPACE {
+      SNOMED,
+      LOINC,
+      RXNORM;
+
+      UUID namespaceUuid;
+
+      //~--- constructors -----------------------------------------------------
+
+      NAMESPACE() {
+         try {
+            this.namespaceUuid = UUID.nameUUIDFromBytes((NAMESPACE.class.getName() +
+                  name()).getBytes(UuidT3Generator.ENCODING_FOR_UUID_GENERATION));
+         } catch (UnsupportedEncodingException ex) {
+            LOG.error(ex.getLocalizedMessage(), ex);
+            throw new RuntimeException(ex);
+         }
+      }
+   }
 
    //~--- methods -------------------------------------------------------------
 
@@ -122,12 +153,12 @@ public class ConverterUUID {
     *
     * @param namespace the namespace
     */
-   public static void configureNamespace(UUID namespace) {
-      if (namespace != null) {
-         ConsoleUtil.println("Reconfiguring Namespace!");
+   public static void configureNamespace(NAMESPACE namespace) {
+      if ((ConverterUUID.namespace != null) &&!ConverterUUID.namespace.equals(namespace)) {
+         throw new RuntimeException("Reconfiguring Namespace not allowed: " + namespace);
       }
 
-      namespace = namespace;
+      ConverterUUID.namespace = namespace;
    }
 
    /**
@@ -140,6 +171,17 @@ public class ConverterUUID {
     */
    public static UUID createNamespaceUUIDFromString(String name) {
       return createNamespaceUUIDFromString(name, false);
+   }
+
+   /**
+    * Create a new Type5 UUID using the provided namespace, and provided name as the seed.
+    *
+    * @param namespace the namespace
+    * @param name the name
+    * @return the uuid
+    */
+   public static UUID createNamespaceUUIDFromString(NAMESPACE namespace, String name) {
+      return createNamespaceUUIDFromString(namespace, name, false);
    }
 
    /**
@@ -163,27 +205,16 @@ public class ConverterUUID {
     *
     * @param namespace the namespace
     * @param name the name
-    * @return the uuid
-    */
-   public static UUID createNamespaceUUIDFromString(UUID namespace, String name) {
-      return createNamespaceUUIDFromString(namespace, name, false);
-   }
-
-   /**
-    * Create a new Type5 UUID using the provided namespace, and provided name as the seed.
-    *
-    * @param namespace the namespace
-    * @param name the name
     * @param skipDupeCheck can be used to bypass the duplicate checking function - useful in cases where you know
     * you are creating the same UUID more than once.  Normally, this method throws a runtime exception
     * if the same UUID is generated more than once.
     * @return the uuid
     */
-   public static UUID createNamespaceUUIDFromString(UUID namespace, String name, boolean skipDupeCheck) {
+   public static UUID createNamespaceUUIDFromString(NAMESPACE namespace, String name, boolean skipDupeCheck) {
       UUID uuid;
 
       try {
-         uuid = UuidT5Generator.get(namespace, name);
+         uuid = UuidT5Generator.get(namespace.namespaceUuid, name);
       } catch (final Exception e) {
          throw new RuntimeException("Unexpected error configuring UUID generator");
       }
@@ -274,7 +305,7 @@ public class ConverterUUID {
     *
     * @return the namespace
     */
-   public static UUID getNamespace() {
+   public static NAMESPACE getNamespace() {
       return namespace;
    }
 

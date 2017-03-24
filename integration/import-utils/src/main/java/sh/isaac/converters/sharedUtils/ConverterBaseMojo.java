@@ -53,6 +53,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import sh.isaac.api.Get;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
+import sh.isaac.converters.sharedUtils.stats.ConverterUUID.NAMESPACE;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -66,7 +67,9 @@ import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
  */
 public abstract class ConverterBaseMojo
         extends AbstractMojo {
-   /** Location to write the output file. */
+   /**
+    * Location to write the output file.
+    */
    @Parameter(
       required     = true,
       defaultValue = "${project.build.directory}"
@@ -74,48 +77,62 @@ public abstract class ConverterBaseMojo
    protected File outputDirectory;
 
    /**
-    * Location of the input source file(s).  May be a file or a directory, depending on the specific loader.
-    * Usually a directory.
+    * Location of the input source file(s). May be a file or a directory, depending on the specific loader. Usually a
+    * directory.
     */
    @Parameter(required = true)
    protected File inputFileLocation;
 
-   /** Output artifactId. */
+   /**
+    * Output artifactId.
+    */
    @Parameter(
       required     = true,
       defaultValue = "${project.artifactId}"
    )
    protected String converterOutputArtifactId;
 
-   /** Loader version number. */
+   /**
+    * Loader version number.
+    */
    @Parameter(
       required     = true,
       defaultValue = "${loader.version}"
    )
    protected String converterVersion;
 
-   /** Converter result version number. */
+   /**
+    * Converter result version number.
+    */
    @Parameter(
       required     = true,
       defaultValue = "${project.version}"
    )
    protected String converterOutputArtifactVersion;
 
-   /** Converter result classifier. */
+   /**
+    * Converter result classifier.
+    */
    @Parameter(
       required     = false,
       defaultValue = "${resultArtifactClassifier}"
    )
    protected String converterOutputArtifactClassifier;
 
-   /** Converter source artifact version. */
+   /**
+    * Converter source artifact version.
+    */
    @Parameter(
       required     = true,
       defaultValue = "${sourceData.version}"
    )
    protected String converterSourceArtifactVersion;
 
-   /** Set '-Dsdp' (skipUUIDDebugPublish) on the command line, to prevent the publishing of the debug UUID map (it will still be created, and written to a file)  At the moment, this param is never used in code - it is just used as a pom trigger (but documented here). */
+   /**
+    * Set '-Dsdp' (skipUUIDDebugPublish) on the command line, to prevent the publishing of the debug UUID map (it will
+    * still be created, and written to a file) At the moment, this param is never used in code - it is just used as a
+    * pom trigger (but documented here).
+    */
    @Parameter(
       required     = false,
       defaultValue = "${sdp}"
@@ -123,8 +140,8 @@ public abstract class ConverterBaseMojo
    private String createDebugUUIDMapSkipPublish;
 
    /**
-    * Set '-DskipUUIDDebug' on the command line, to disable the in memory UUID Debug map entirely (this disables UUID duplicate detection, but
-    * significantly cuts the required RAM overhead to run a loader).
+    * Set '-DskipUUIDDebug' on the command line, to disable the in memory UUID Debug map entirely (this disables UUID
+    * duplicate detection, but significantly cuts the required RAM overhead to run a loader).
     */
    @Parameter(
       required     = false,
@@ -162,7 +179,9 @@ public abstract class ConverterBaseMojo
    @Parameter(required = false)
    protected List<String> relationshipSkipList;
 
-   /** The import util. */
+   /**
+    * The import util.
+    */
    protected IBDFCreationUtility importUtil;
 
    //~--- methods -------------------------------------------------------------
@@ -177,8 +196,9 @@ public abstract class ConverterBaseMojo
             throws MojoExecutionException {
       Get.configurationService()
          .setBootstrapMode();
+      ConverterUUID.configureNamespace(getNamespace());
       ConverterUUID.disableUUIDMap = (((this.createDebugUUIDMap == null) ||
-                                        (this.createDebugUUIDMap.length() == 0)) ? false
+                                       (this.createDebugUUIDMap.length() == 0)) ? false
             : Boolean.parseBoolean(this.createDebugUUIDMap));
 
       if (ConverterUUID.disableUUIDMap) {
@@ -194,18 +214,18 @@ public abstract class ConverterBaseMojo
    }
 
    /**
-    * Supports annotation skip list.
+    * Supports annotation skip list. Note: Individual loaders need to override the unsupported operation methods on the
+    * class, such as this one, if they wish to support the various skiplists.
     *
     * @return true, if successful
     */
-
-   // Individual loaders need to override the methods below, if they wish to support the various skiplists
    protected boolean supportsAnnotationSkipList() {
       throw new UnsupportedOperationException("This loader does not support an annotation skip list");
    }
 
    /**
-    * Supports description skip list.
+    * Supports description skip list. Note: Individual loaders need to override the unsupported operation methods on the
+    * class, such as this one, if they wish to support the various skiplists.
     *
     * @return true, if successful
     */
@@ -214,7 +234,8 @@ public abstract class ConverterBaseMojo
    }
 
    /**
-    * Supports id skip list.
+    * Supports id skip list. Note: Individual loaders need to override the unsupported operation methods on the class,
+    * such as this one, if they wish to support the various skiplists.
     *
     * @return true, if successful
     */
@@ -223,7 +244,8 @@ public abstract class ConverterBaseMojo
    }
 
    /**
-    * Supports refset skip list.
+    * Supports refset skip list. Note: Individual loaders need to override the unsupported operation methods on the
+    * class, such as this one, if they wish to support the various skiplists.
     *
     * @return true, if successful
     */
@@ -232,7 +254,8 @@ public abstract class ConverterBaseMojo
    }
 
    /**
-    * Supports relationship skip list.
+    * Supports relationship skip list. Note: Individual loaders need to override the unsupported operation methods on
+    * the class, such as this one, if they wish to support the various skiplists.
     *
     * @return true, if successful
     */
@@ -272,11 +295,11 @@ public abstract class ConverterBaseMojo
     * @return true, if successful
     */
    private boolean notEmpty(List<String> item) {
-      if ((item != null) && (item.size() > 0)) {
-         return true;
-      }
-
-      return false;
+      return (item != null) && (item.size() > 0);
    }
+
+   //~--- get methods ---------------------------------------------------------
+
+   protected abstract NAMESPACE getNamespace();
 }
 

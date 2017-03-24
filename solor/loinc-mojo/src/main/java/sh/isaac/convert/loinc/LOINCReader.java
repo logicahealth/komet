@@ -42,7 +42,6 @@ package sh.isaac.convert.loinc;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
-
 import java.util.Hashtable;
 
 //~--- classes ----------------------------------------------------------------

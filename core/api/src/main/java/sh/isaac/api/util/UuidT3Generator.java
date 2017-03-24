@@ -58,9 +58,10 @@ import java.util.UUID;
  */
 public class UuidT3Generator {
    /**
-    * The the encoding string.
+    * The the ENCODING_FOR_UUID_GENERATION string. ISO-8859-1 is (according to the standards at least)
+    * the default encoding of documents delivered via HTTP with a MIME type beginning with "text/".
     */
-   public static final String encoding = "8859_1";
+   public static final String ENCODING_FOR_UUID_GENERATION = "8859_1";
 
    //~--- methods -------------------------------------------------------------
 
@@ -94,10 +95,20 @@ public class UuidT3Generator {
       final String name = "org.snomed." + id;
 
       try {
-         return UUID.nameUUIDFromBytes(name.getBytes(encoding));
+         return UUID.nameUUIDFromBytes(name.getBytes(ENCODING_FOR_UUID_GENERATION));
       } catch (final UnsupportedEncodingException e) {
          throw new RuntimeException(e);
       }
+   }
+
+   /**
+    * Simple utility to generate a UUID for a SNOMED id.
+    * @param args not used.
+    */
+   public static void main(String[] args) {
+      String snomedId = "900000000000073002";
+
+      System.out.println("snomedId: " + snomedId + " uuid: " + fromSNOMED(snomedId));
    }
 }
 
