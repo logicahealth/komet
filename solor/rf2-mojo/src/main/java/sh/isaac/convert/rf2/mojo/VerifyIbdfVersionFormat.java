@@ -44,7 +44,6 @@ package sh.isaac.convert.rf2.mojo;
 import org.apache.maven.enforcer.rule.api.EnforcerRule;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleException;
 import org.apache.maven.enforcer.rule.api.EnforcerRuleHelper;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
@@ -93,9 +92,9 @@ public class VerifyIbdfVersionFormat
                 "To follow convention, the version must start with the source data version: " + sourceDataVersion + " found: " +
                 version);
          }
-         if (!version.endsWith(loaderVersion)) {
+         if (!version.contains("-loader-" + loaderVersion)) {
             throw new EnforcerRuleException(
-                "To follow convention, the version must end with the loader version: " + loaderVersion + " found: " +
+                "To follow convention, the version must contain the loader version: " + loaderVersion + " found: " +
                 version);
          }
          
