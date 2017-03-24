@@ -44,7 +44,6 @@
 		<dependency>
 			<groupId>com.opencsv</groupId>
 			<artifactId>opencsv</artifactId>
-			<version>3.3</version>
 			<scope>compile</scope>
 		</dependency>
 		<!-- When mojos execute, route all logging through log4j2 -->

@@ -77,20 +77,20 @@ import sh.isaac.converters.sharedUtils.sql.TerminologyFileReader;
 public class RRFDatabaseHandle
         extends H2DatabaseHandle {
    /**
-    * Load data into table.
+    * Load dataReader into table.
     *
-    * @param td the td
-    * @param data the data
+    * @param tableDefinition the table definition
+    * @param dataReader the data reader. Caller is responsible to close the reader. Try with resources is recommended. 
     * @param SABFilterList the SAB filter list
     * @throws SQLException the SQL exception
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public void loadDataIntoTable(TableDefinition td,
-                                 TerminologyFileReader data,
+   public void loadDataIntoTable(TableDefinition tableDefinition,
+                                 TerminologyFileReader dataReader,
                                  Collection<String> SABFilterList)
             throws SQLException,
                    IOException {
-      loadDataIntoTable(td, data, "SAB", SABFilterList);
+      loadDataIntoTable(tableDefinition, dataReader, "SAB", SABFilterList);
    }
 
    /**

@@ -43,22 +43,22 @@ package sh.isaac.convert.rf2.mojo;
  * The Enum InputType.
  */
 public enum InputType {
-   /** The full. */
+   /** Full RF2 file. */
    FULL,
 
-   /** The snapshot. */
+   /** Snapshot RF2 file. */
    SNAPSHOT,
 
-   /** The delta. */
+   /** Delta RF2 file. */
    DELTA;
 
    /**
-    * Parses the.
+    * Get the InputType that corresponds to the string.
     *
     * @param input the input
-    * @return the input type
+    * @return the InputType
     */
-   public static InputType parse(String input) {
+   public static InputType get(String input) {
       return InputType.valueOf(input.trim()
                                     .toUpperCase());
    }

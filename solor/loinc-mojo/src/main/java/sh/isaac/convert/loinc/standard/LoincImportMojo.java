@@ -68,6 +68,11 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 
+import sh.isaac.MetaData;
+import sh.isaac.api.Get;
+import sh.isaac.api.State;
+import sh.isaac.api.logic.LogicalExpressionBuilder;
+import sh.isaac.api.logic.assertions.ConceptAssertion;
 import sh.isaac.convert.loinc.LOINCReader;
 import sh.isaac.convert.loinc.LoincCsvFileReader;
 import sh.isaac.convert.loinc.NameMap;
@@ -80,12 +85,6 @@ import sh.isaac.convert.loinc.standard.propertyTypes.PT_Relations;
 import sh.isaac.convert.loinc.standard.propertyTypes.PT_SkipAxis;
 import sh.isaac.convert.loinc.standard.propertyTypes.PT_SkipClass;
 import sh.isaac.convert.loinc.standard.propertyTypes.PT_SkipOther;
-
-import sh.isaac.MetaData;
-import sh.isaac.api.Get;
-import sh.isaac.api.State;
-import sh.isaac.api.logic.LogicalExpressionBuilder;
-import sh.isaac.api.logic.assertions.ConceptAssertion;
 import sh.isaac.converters.sharedUtils.ComponentReference;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
@@ -116,7 +115,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 public class LoincImportMojo
         extends ConverterBaseMojo {
    /** The property types. */
-   private final ArrayList<PropertyType> propertyTypes_ = new ArrayList<PropertyType>();
+   private final ArrayList<PropertyType> propertyTypes_ = new ArrayList<>();
 
    /** The map to data. */
    private final HashMap<String, HashMap<String, String>> mapToData = new HashMap<>();
@@ -124,13 +123,13 @@ public class LoincImportMojo
    /** The property to property type. */
 
    // Various caches for performance reasons
-   private final Hashtable<String, PropertyType> propertyToPropertyType_ = new Hashtable<String, PropertyType>();
+   private final Hashtable<String, PropertyType> propertyToPropertyType_ = new Hashtable<>();
 
    /** The sdf. */
    private final SimpleDateFormat sdf_ = new SimpleDateFormat("yyyyMMdd");
 
    /** The concepts. */
-   Hashtable<UUID, ComponentReference> concepts_ = new Hashtable<UUID, ComponentReference>();
+   Hashtable<UUID, ComponentReference> concepts_ = new Hashtable<>();
 
    /** The skipped deleted items. */
    private int skippedDeletedItems = 0;
@@ -191,7 +190,7 @@ public class LoincImportMojo
             } else if (f.getName()
                         .toLowerCase()
                         .equals("loinc.csv")) {
-               loincData            = new LoincCsvFileReader(f, true);
+               loincData           = new LoincCsvFileReader(f, true);
                this.versionTimeMap = ((LoincCsvFileReader) loincData).getTimeVersionMap();
             } else if (f.getName()
                         .toLowerCase()
@@ -253,26 +252,27 @@ public class LoincImportMojo
          }
 
          if (loincData == null) {
-            throw new MojoExecutionException("Could not find the loinc data file in " +
-                                             this.inputFileLocation.getAbsolutePath());
+            throw new MojoExecutionException(
+                "Could not find the loinc data file in " + this.inputFileLocation.getAbsolutePath());
          }
 
          if (loincMultiData == null) {
-            throw new MojoExecutionException("Could not find the multi-axial file in " +
-                                             this.inputFileLocation.getAbsolutePath());
+            throw new MojoExecutionException(
+                "Could not find the multi-axial file in " + this.inputFileLocation.getAbsolutePath());
          }
 
          final SimpleDateFormat dateReader = new SimpleDateFormat("MMMMMMMMMMMMM yyyy");  // Parse things like "June 2014"
          final Date             releaseDate = dateReader.parse(loincData.getReleaseDate());
 
-         this.importUtil = new IBDFCreationUtility(Optional.empty(),
-               Optional.of(MetaData.LOINC_MODULES),
-               this.outputDirectory,
-               this.converterOutputArtifactId,
-               this.converterOutputArtifactVersion,
-               this.converterOutputArtifactClassifier,
-               false,
-               releaseDate.getTime());
+         this.importUtil = new IBDFCreationUtility(
+             Optional.empty(),
+             Optional.of(MetaData.LOINC_MODULES),
+             this.outputDirectory,
+             this.converterOutputArtifactId,
+             this.converterOutputArtifactVersion,
+             this.converterOutputArtifactClassifier,
+             false,
+             releaseDate.getTime());
          this.pt_SkipAxis  = new PT_SkipAxis();
          this.pt_SkipClass = new PT_SkipClass();
 
@@ -346,18 +346,19 @@ public class LoincImportMojo
          ConsoleUtil.println("Loading Metadata");
 
          // Set up a meta-data root concept
-         final ComponentReference metadata =
-            ComponentReference.fromConcept(this.importUtil.createConcept("LOINC Metadata" +
-               IBDFCreationUtility.metadataSemanticTag,
-                                                                         true,
-                                                                         MetaData.SOLOR_CONTENT_METADATA.getPrimordialUuid()));
+         final ComponentReference metadata = ComponentReference.fromConcept(
+                                                 this.importUtil.createConcept(
+                                                       "LOINC Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG,
+                                                             true,
+                                                             MetaData.SOLOR_CONTENT_METADATA.getPrimordialUuid()));
 
-         this.importUtil.loadTerminologyMetadataAttributes(metadata,
-               this.converterSourceArtifactVersion,
-               Optional.of(loincData.getReleaseDate()),
-               this.converterOutputArtifactVersion,
-               Optional.ofNullable(this.converterOutputArtifactClassifier),
-               this.converterVersion);
+         this.importUtil.loadTerminologyMetadataAttributes(
+             metadata,
+             this.converterSourceArtifactVersion,
+             Optional.of(loincData.getReleaseDate()),
+             this.converterOutputArtifactVersion,
+             Optional.ofNullable(this.converterOutputArtifactClassifier),
+             this.converterVersion);
          this.importUtil.loadMetaDataItems(this.propertyTypes_, metadata.getPrimordialUuid());
 
          // Load up the propertyType map for speed, perform basic sanity check
@@ -372,45 +373,52 @@ public class LoincImportMojo
          }
 
          if (sourceOrg != null) {
-            final ComponentReference sourceOrgConcept =
-               ComponentReference.fromConcept(this.importUtil.createConcept("Source Organization",
-                                                                            true,
-                                                                            metadata.getPrimordialUuid()));
+            final ComponentReference sourceOrgConcept = ComponentReference.fromConcept(
+                                                            this.importUtil.createConcept(
+                                                                  "Source Organization",
+                                                                        true,
+                                                                        metadata.getPrimordialUuid()));
             String[] line = sourceOrg.readLine();
 
             while (line != null) {
                // ﻿"COPYRIGHT_ID","NAME","COPYRIGHT","TERMS_OF_USE","URL"
                if (line.length > 0) {
-                  final ComponentReference c = ComponentReference.fromConcept(this.importUtil.createConcept(line[0],
-                                                                                                            false,
-                                                                                                            sourceOrgConcept.getPrimordialUuid()));
+                  final ComponentReference c = ComponentReference.fromConcept(
+                                                   this.importUtil.createConcept(
+                                                         line[0],
+                                                               false,
+                                                               sourceOrgConcept.getPrimordialUuid()));
 
-                  this.importUtil.addDescription(c,
-                                                 line[1],
-                                                 DescriptionType.SYNONYM,
-                                                 true,
-                                                 this.propertyToPropertyType_.get("NAME")
-                                                       .getProperty("NAME")
-                                                       .getUUID(),
-                                                 State.ACTIVE);
-                  this.importUtil.addStringAnnotation(c,
-                        line[2],
-                        this.propertyToPropertyType_.get("COPYRIGHT")
-                                                    .getProperty("COPYRIGHT")
-                                                    .getUUID(),
-                        State.ACTIVE);
-                  this.importUtil.addStringAnnotation(c,
-                        line[3],
-                        this.propertyToPropertyType_.get("TERMS_OF_USE")
-                                                    .getProperty("TERMS_OF_USE")
-                                                    .getUUID(),
-                        State.ACTIVE);
-                  this.importUtil.addStringAnnotation(c,
-                        line[4],
-                        this.propertyToPropertyType_.get("URL")
-                                                    .getProperty("URL")
-                                                    .getUUID(),
-                        State.ACTIVE);
+                  this.importUtil.addDescription(
+                      c,
+                      line[1],
+                      DescriptionType.SYNONYM,
+                      true,
+                      this.propertyToPropertyType_.get("NAME")
+                                                  .getProperty("NAME")
+                                                  .getUUID(),
+                      State.ACTIVE);
+                  this.importUtil.addStringAnnotation(
+                      c,
+                      line[2],
+                      this.propertyToPropertyType_.get("COPYRIGHT")
+                                                  .getProperty("COPYRIGHT")
+                                                  .getUUID(),
+                      State.ACTIVE);
+                  this.importUtil.addStringAnnotation(
+                      c,
+                      line[3],
+                      this.propertyToPropertyType_.get("TERMS_OF_USE")
+                                                  .getProperty("TERMS_OF_USE")
+                                                  .getUUID(),
+                      State.ACTIVE);
+                  this.importUtil.addStringAnnotation(
+                      c,
+                      line[4],
+                      this.propertyToPropertyType_.get("URL")
+                                                  .getProperty("URL")
+                                                  .getUUID(),
+                      State.ACTIVE);
                }
 
                line = sourceOrg.readLine();
@@ -435,56 +443,63 @@ public class LoincImportMojo
          this.importUtil.clearLoadStats();
 
          // Root
-         final ComponentReference rootConcept = ComponentReference.fromConcept(this.importUtil.createConcept("LOINC",
-                                                                                                             true,
-                                                                                                             MetaData.ISAAC_ROOT.getPrimordialUuid()));
+         final ComponentReference rootConcept = ComponentReference.fromConcept(
+                                                    this.importUtil.createConcept(
+                                                          "LOINC",
+                                                                true,
+                                                                MetaData.ISAAC_ROOT.getPrimordialUuid()));
 
-         this.importUtil.addDescription(rootConcept,
-                                        "Logical Observation Identifiers Names and Codes",
-                                        DescriptionType.SYNONYM,
-                                        false,
-                                        null,
-                                        State.ACTIVE);
+         this.importUtil.addDescription(
+             rootConcept,
+             "Logical Observation Identifiers Names and Codes",
+             DescriptionType.SYNONYM,
+             false,
+             null,
+             State.ACTIVE);
          ConsoleUtil.println("Root concept FSN is 'LOINC' and the UUID is " + rootConcept.getPrimordialUuid());
          this.concepts_.put(rootConcept.getPrimordialUuid(), rootConcept);
 
          // Build up the Class metadata
-         final ComponentReference classConcept =
-            ComponentReference.fromConcept(this.importUtil.createConcept(this.pt_SkipClass.getPropertyTypeUUID(),
-                                                                         this.pt_SkipClass.getPropertyTypeDescription(),
-                                                                         true,
-                                                                         rootConcept.getPrimordialUuid()));
+         final ComponentReference classConcept = ComponentReference.fromConcept(
+                                                     this.importUtil.createConcept(
+                                                           this.pt_SkipClass.getPropertyTypeUUID(),
+                                                                 this.pt_SkipClass.getPropertyTypeDescription(),
+                                                                 true,
+                                                                 rootConcept.getPrimordialUuid()));
 
          this.concepts_.put(classConcept.getPrimordialUuid(), classConcept);
 
          for (final String property: this.pt_SkipClass.getPropertyNames()) {
-            final ComponentReference temp =
-               ComponentReference.fromConcept(this.importUtil.createConcept(this.pt_SkipClass.getProperty(property)
-                                                                                              .getUUID(),
-                                                                            property,
-                                                                            true,
-                                                                            classConcept.getPrimordialUuid()));
+            final ComponentReference temp = ComponentReference.fromConcept(
+                                                this.importUtil.createConcept(
+                                                      this.pt_SkipClass.getProperty(property)
+                                                            .getUUID(),
+                                                            property,
+                                                            true,
+                                                            classConcept.getPrimordialUuid()));
 
             this.concepts_.put(temp.getPrimordialUuid(), temp);
             this.importUtil.configureConceptAsAssociation(temp.getPrimordialUuid(), null);
          }
 
          // And the axis metadata
-         final ComponentReference axisConcept =
-            ComponentReference.fromConcept(this.importUtil.createConcept(this.pt_SkipAxis.getPropertyTypeUUID(),
-                                                                         this.pt_SkipAxis.getPropertyTypeDescription(),
-                                                                         true,
-                                                                         rootConcept.getPrimordialUuid()));
+         final ComponentReference axisConcept = ComponentReference.fromConcept(
+                                                    this.importUtil.createConcept(
+                                                          this.pt_SkipAxis.getPropertyTypeUUID(),
+                                                                this.pt_SkipAxis.getPropertyTypeDescription(),
+                                                                true,
+                                                                rootConcept.getPrimordialUuid()));
 
          this.concepts_.put(axisConcept.getPrimordialUuid(), axisConcept);
 
          for (final String property: this.pt_SkipAxis.getPropertyNames()) {
-            final ComponentReference temp =
-               ComponentReference.fromConcept(this.importUtil.createConcept(this.pt_SkipAxis.getProperty(property)
-                                                                                             .getUUID(),
-                                                                            property,
-                                                                            true,
-                                                                            axisConcept.getPrimordialUuid()));
+            final ComponentReference temp = ComponentReference.fromConcept(
+                                                this.importUtil.createConcept(
+                                                      this.pt_SkipAxis.getProperty(property)
+                                                            .getUUID(),
+                                                            property,
+                                                            true,
+                                                            axisConcept.getPrimordialUuid()));
 
             this.concepts_.put(temp.getPrimordialUuid(), temp);
             this.importUtil.configureConceptAsAssociation(temp.getPrimordialUuid(), null);
@@ -559,12 +574,13 @@ public class LoincImportMojo
                }
 
                NecessarySet(And(assertions));
-               this.importUtil.addRelationshipGraph(ComponentReference.fromConcept(source),
-                     null,
-                     leb.build(),
-                     true,
-                     null,
-                     null);
+               this.importUtil.addRelationshipGraph(
+                   ComponentReference.fromConcept(source),
+                   null,
+                   leb.build(),
+                   true,
+                   null,
+                   null);
             }
          }
 
@@ -583,8 +599,9 @@ public class LoincImportMojo
             ConsoleUtil.println("  " + s);
          }
 
-         ConsoleUtil.println("Skipped " + this.skippedDeletedItems +
-                             " Loinc codes because they were flagged as DELETED and they had no desriptions.");
+         ConsoleUtil.println(
+             "Skipped " + this.skippedDeletedItems +
+             " Loinc codes because they were flagged as DELETED and they had no desriptions.");
 
          // this could be removed from final release. Just added to help debug editor problems.
          ConsoleUtil.println("Dumping UUID Debug File");
@@ -696,7 +713,7 @@ public class LoincImportMojo
          HashSet<UUID> parents = this.multiaxialPathsToRoot.get(concept.getPrimordialUuid());
 
          if (parents == null) {
-            parents = new HashSet<UUID>();
+            parents = new HashSet<>();
             this.multiaxialPathsToRoot.put(concept.getPrimordialUuid(), parents);
          }
 
@@ -733,11 +750,16 @@ public class LoincImportMojo
     */
    private State mapStatus(String status)
             throws IOException {
-      if (status.equals("ACTIVE") || status.equals("TRIAL") || status.equals("DISCOURAGED")) {
+      switch (status) {
+      case "ACTIVE":
+      case "TRIAL":
+      case "DISCOURAGED":
          return State.ACTIVE;
-      } else if (status.equals("DEPRECATED")) {
+
+      case "DEPRECATED":
          return State.INACTIVE;
-      } else {
+
+      default:
          ConsoleUtil.printErrorln("No mapping for status: " + status);
          return State.ACTIVE;
       }
@@ -753,7 +775,7 @@ public class LoincImportMojo
    private void processDataLine(String[] fields)
             throws ParseException, IOException {
       Integer index = this.fieldMap.get("VersionLastChanged");  // They changed this in 2.54 release
-      Long    time  = null;
+      Long    time;
 
       if (index != null) {
          time = this.versionTimeMap.get(fields[index]);
@@ -777,10 +799,8 @@ public class LoincImportMojo
 
       final State  status = mapStatus(fields[this.fieldMap.get("STATUS")]);
       final String code   = fields[this.fieldMap.get("LOINC_NUM")];
-      final ComponentReference concept = ComponentReference.fromConcept(this.importUtil.createConcept(buildUUID(code),
-                                                                                                      time,
-                                                                                                      status,
-                                                                                                      null));
+      final ComponentReference concept = ComponentReference.fromConcept(
+                                             this.importUtil.createConcept(buildUUID(code), time, status, null));
       final ArrayList<ValuePropertyPair> descriptions = new ArrayList<>();
 
       for (int fieldIndex = 0; fieldIndex < fields.length; fieldIndex++) {
@@ -788,105 +808,116 @@ public class LoincImportMojo
             final PropertyType pt = this.propertyToPropertyType_.get(this.fieldMapInverse.get(fieldIndex));
 
             if (pt == null) {
-               ConsoleUtil.printErrorln("ERROR: No property type mapping for the property " +
-                                        this.fieldMapInverse.get(fieldIndex) + ":" + fields[fieldIndex]);
+               ConsoleUtil.printErrorln(
+                   "ERROR: No property type mapping for the property " + this.fieldMapInverse.get(
+                       fieldIndex) + ":" + fields[fieldIndex]);
                continue;
             }
 
             final Property p = pt.getProperty(this.fieldMapInverse.get(fieldIndex));
 
             if (pt instanceof PT_Annotations) {
-               if ((p.getSourcePropertyNameFSN().equals("COMMON_TEST_RANK") ||
-                     p.getSourcePropertyNameFSN().equals("COMMON_ORDER_RANK") ||
-                     p.getSourcePropertyNameFSN().equals("COMMON_SI_TEST_RANK")) &&
+               if ((p.getSourcePropertyNameFSN().equals(
+                     "COMMON_TEST_RANK") || p.getSourcePropertyNameFSN().equals(
+                         "COMMON_ORDER_RANK") || p.getSourcePropertyNameFSN().equals("COMMON_SI_TEST_RANK")) &&
                      fields[fieldIndex].equals("0")) {
                   continue;  // Skip attributes of these types when the value is 0
                }
 
-               this.importUtil.addStringAnnotation(concept,
-                     fields[fieldIndex],
-                     p.getUUID(),
-                     (p.isDisabled() ? State.INACTIVE
-                                     : State.ACTIVE));
+               this.importUtil.addStringAnnotation(
+                   concept,
+                   fields[fieldIndex],
+                   p.getUUID(),
+                   (p.isDisabled() ? State.INACTIVE
+                                   : State.ACTIVE));
             } else if (pt instanceof PT_Descriptions) {
                // Gather for later
                descriptions.add(new ValuePropertyPair(fields[fieldIndex], p));
             } else if (pt instanceof PT_SkipAxis) {
                // See if this class object exists yet.
-               final UUID potential =
-                  ConverterUUID.createNamespaceUUIDFromString(this.pt_SkipAxis.getPropertyTypeDescription() + ":" +
-                     this.fieldMapInverse.get(fieldIndex) + ":" + fields[fieldIndex],
-                                                              true);
+               final UUID potential = ConverterUUID.createNamespaceUUIDFromString(
+                                          this.pt_SkipAxis.getPropertyTypeDescription() + ":" +
+                                          this.fieldMapInverse.get(
+                                              fieldIndex) + ":" + fields[fieldIndex],
+                                          true);
                ComponentReference axisConcept = this.concepts_.get(potential);
 
                if (axisConcept == null) {
-                  axisConcept = ComponentReference.fromConcept(this.importUtil.createConcept(potential,
-                        fields[fieldIndex],
-                        true));
-                  this.importUtil.addParent(axisConcept,
-                                            this.pt_SkipAxis.getProperty(this.fieldMapInverse.get(fieldIndex))
-                                                  .getUUID());
+                  axisConcept = ComponentReference.fromConcept(
+                      this.importUtil.createConcept(potential, fields[fieldIndex], true));
+                  this.importUtil.addParent(
+                      axisConcept,
+                      this.pt_SkipAxis.getProperty(this.fieldMapInverse.get(fieldIndex))
+                                      .getUUID());
                   this.concepts_.put(axisConcept.getPrimordialUuid(), axisConcept);
                }
 
-               this.importUtil.addAssociation(concept,
-                                              null,
-                                              axisConcept.getPrimordialUuid(),
-                                              this.pt_SkipAxis.getProperty(this.fieldMapInverse.get(fieldIndex))
-                                                    .getUUID(),
-                                              State.ACTIVE,
-                                              concept.getTime(),
-                                              null);
+               this.importUtil.addAssociation(
+                   concept,
+                   null,
+                   axisConcept.getPrimordialUuid(),
+                   this.pt_SkipAxis.getProperty(this.fieldMapInverse.get(fieldIndex))
+                                   .getUUID(),
+                   State.ACTIVE,
+                   concept.getTime(),
+                   null);
             } else if (pt instanceof PT_SkipClass) {
                // See if this class object exists yet.
-               final UUID potential =
-                  ConverterUUID.createNamespaceUUIDFromString(this.pt_SkipClass.getPropertyTypeDescription() + ":" +
-                     this.fieldMapInverse.get(fieldIndex) + ":" + fields[fieldIndex],
-                                                              true);
+               final UUID potential = ConverterUUID.createNamespaceUUIDFromString(
+                                          this.pt_SkipClass.getPropertyTypeDescription() + ":" +
+                                          this.fieldMapInverse.get(
+                                              fieldIndex) + ":" + fields[fieldIndex],
+                                          true);
                ComponentReference classConcept = this.concepts_.get(potential);
 
                if (classConcept == null) {
-                  classConcept = ComponentReference.fromConcept(this.importUtil.createConcept(potential,
-                        this.classMapping.getMatchValue(fields[fieldIndex]),
-                        true));
+                  classConcept = ComponentReference.fromConcept(
+                      this.importUtil.createConcept(
+                          potential,
+                          this.classMapping.getMatchValue(fields[fieldIndex]),
+                          true));
 
                   if (this.classMapping.hasMatch(fields[fieldIndex])) {
-                     this.importUtil.addStringAnnotation(classConcept,
-                           fields[fieldIndex],
-                           this.propertyToPropertyType_.get("ABBREVIATION")
-                                                       .getProperty("ABBREVIATION")
-                                                       .getUUID(),
-                           State.ACTIVE);
+                     this.importUtil.addStringAnnotation(
+                         classConcept,
+                         fields[fieldIndex],
+                         this.propertyToPropertyType_.get("ABBREVIATION")
+                                                     .getProperty("ABBREVIATION")
+                                                     .getUUID(),
+                         State.ACTIVE);
                   }
 
-                  this.importUtil.addParent(classConcept,
-                                            this.pt_SkipClass.getProperty(this.fieldMapInverse.get(fieldIndex))
-                                                  .getUUID());
+                  this.importUtil.addParent(
+                      classConcept,
+                      this.pt_SkipClass.getProperty(this.fieldMapInverse.get(fieldIndex))
+                                       .getUUID());
                   this.concepts_.put(classConcept.getPrimordialUuid(), classConcept);
                }
 
-               this.importUtil.addAssociation(concept,
-                                              null,
-                                              classConcept.getPrimordialUuid(),
-                                              this.pt_SkipClass.getProperty(this.fieldMapInverse.get(fieldIndex))
-                                                    .getUUID(),
-                                              State.ACTIVE,
-                                              concept.getTime(),
-                                              null);
+               this.importUtil.addAssociation(
+                   concept,
+                   null,
+                   classConcept.getPrimordialUuid(),
+                   this.pt_SkipClass.getProperty(this.fieldMapInverse.get(fieldIndex))
+                                    .getUUID(),
+                   State.ACTIVE,
+                   concept.getTime(),
+                   null);
             } else if (pt instanceof PT_Relations) {
                // This will only ever be is_a
                final UUID parent = buildUUID(fields[fieldIndex]);
 
                this.importUtil.addParent(concept, parent, pt.getProperty(this.fieldMapInverse.get(fieldIndex)), null);
             } else if (pt instanceof PT_Associations) {
-               this.importUtil.addAssociation(concept,
-                                              null,
-                                              buildUUID(fields[fieldIndex]),
-                                              pt.getProperty(this.fieldMapInverse.get(fieldIndex))
-                                                .getUUID(),
-                                              State.ACTIVE,
-                                              concept.getTime(),
-                                              null);
+               this.importUtil.addAssociation(
+                   concept,
+                   null,
+                   buildUUID(fields[fieldIndex]),
+                   pt.getProperty(this.fieldMapInverse.get(fieldIndex))
+                     .getUUID(),
+                   State.ACTIVE,
+                   concept.getTime(),
+                   null);
             } else if (pt instanceof PT_SkipOther) {
                this.importUtil.getLoadStats()
                               .addSkippedProperty();
@@ -900,36 +931,38 @@ public class LoincImportMojo
       final HashMap<String, String> mappings = this.mapToData.get(code);
 
       if (mappings != null) {
-         for (final Entry<String, String> mapping: mappings.entrySet()) {
-            final String target  = mapping.getKey();
-            final String comment = mapping.getValue();
-            final ComponentReference cr = ComponentReference.fromChronology(this.importUtil.addAssociation(concept,
-                                                                                                           null,
-                                                                                                           buildUUID(
-                                                                                                              target),
-                                                                                                           this.propertyToPropertyType_.get(
-                                                                                                              "MAP_TO")
-                                                                                                                 .getProperty(
-                                                                                                                    "MAP_TO")
-                                                                                                                 .getUUID(),
-                                                                                                           State.ACTIVE,
-                                                                                                           concept.getTime(),
-                                                                                                           null),
-                                                                            () -> "Association");
+         mappings.entrySet()
+                 .forEach(
+                     (mapping) -> {
+                        final String target  = mapping.getKey();
+                        final String comment = mapping.getValue();
+                        final ComponentReference cr = ComponentReference.fromChronology(
+                                                          this.importUtil.addAssociation(
+                                                                concept,
+                                                                      null,
+                                                                      buildUUID(target),
+                                                                      this.propertyToPropertyType_.get("MAP_TO")
+                                                                            .getProperty("MAP_TO")
+                                                                            .getUUID(),
+                                                                      State.ACTIVE,
+                                                                      concept.getTime(),
+                                                                      null),
+                                                                () -> "Association");
 
-            if ((comment != null) && (comment.length() > 0)) {
-               this.importUtil.addStringAnnotation(cr,
-                     comment,
-                     this.propertyToPropertyType_.get("COMMENT")
-                                                 .getProperty("COMMENT")
-                                                 .getUUID(),
-                     State.ACTIVE);
-            }
-         }
+                        if ((comment != null) && (comment.length() > 0)) {
+                           this.importUtil.addStringAnnotation(
+                               cr,
+                               comment,
+                               this.propertyToPropertyType_.get("COMMENT")
+                                     .getProperty("COMMENT")
+                                     .getUUID(),
+                               State.ACTIVE);
+                        }
+                     });
       }
 
       // Now add all the descriptions
-      if (descriptions.size() == 0) {
+      if (descriptions.isEmpty()) {
          if ("DEL".equals(fields[this.fieldMap.get("CHNG_TYPE")])) {
             // They put a bunch of these in 2.44... leaving out most of the important info... just makes a mess.  Don't load them.
             this.skippedDeletedItems++;
@@ -981,58 +1014,69 @@ public class LoincImportMojo
          concept = ComponentReference.fromConcept(this.importUtil.createConcept(potential));
 
          if ((sequence != null) && (sequence.length() > 0)) {
-            this.importUtil.addStringAnnotation(concept,
-                  sequence,
-                  this.propertyToPropertyType_.get("SEQUENCE")
-                                              .getProperty("SEQUENCE")
-                                              .getUUID(),
-                  State.ACTIVE);
+            this.importUtil.addStringAnnotation(
+                concept,
+                sequence,
+                this.propertyToPropertyType_.get("SEQUENCE")
+                                            .getProperty("SEQUENCE")
+                                            .getUUID(),
+                State.ACTIVE);
          }
 
          if ((immediateParentString != null) && (immediateParentString.length() > 0)) {
-            this.importUtil.addStringAnnotation(concept,
-                  immediateParentString,
-                  this.propertyToPropertyType_.get("IMMEDIATE_PARENT")
-                                              .getProperty("IMMEDIATE_PARENT")
-                                              .getUUID(),
-                  State.ACTIVE);
+            this.importUtil.addStringAnnotation(
+                concept,
+                immediateParentString,
+                this.propertyToPropertyType_.get("IMMEDIATE_PARENT")
+                                            .getProperty("IMMEDIATE_PARENT")
+                                            .getUUID(),
+                State.ACTIVE);
          }
 
-         final ValuePropertyPair vpp = new ValuePropertyPair(codeText,
-                                                             this.propertyToPropertyType_.get("CODE_TEXT").getProperty(
-                                                                "CODE_TEXT"));
+         final ValuePropertyPair vpp = new ValuePropertyPair(
+                                           codeText,
+                                           this.propertyToPropertyType_.get("CODE_TEXT").getProperty("CODE_TEXT"));
 
          this.importUtil.addDescriptions(concept, Arrays.asList(vpp));  // This will get added as FSN
 
          HashSet<UUID> parents = this.multiaxialPathsToRoot.get(concept.getPrimordialUuid());
 
          if (parents == null) {
-            parents = new HashSet<UUID>();
+            parents = new HashSet<>();
             this.multiaxialPathsToRoot.put(concept.getPrimordialUuid(), parents);
          }
 
          parents.add(immediateParent);
 
-         if ((pathString != null) && (pathString.length() > 0)) {
-            this.importUtil.addStringAnnotation(concept,
-                  pathString,
-                  this.propertyToPropertyType_.get("PATH_TO_ROOT")
-                                              .getProperty("PATH_TO_ROOT")
-                                              .getUUID(),
-                  State.ACTIVE);
+         if (!pathString.isEmpty()) {
+            this.importUtil.addStringAnnotation(
+                concept,
+                pathString,
+                this.propertyToPropertyType_.get("PATH_TO_ROOT")
+                                            .getProperty("PATH_TO_ROOT")
+                                            .getUUID(),
+                State.ACTIVE);
          }
 
-         this.importUtil.addStringAnnotation(concept,
-               code,
-               this.propertyToPropertyType_.get("CODE")
-                                           .getProperty("CODE")
-                                           .getUUID(),
-               State.ACTIVE);
+         this.importUtil.addStringAnnotation(
+             concept,
+             code,
+             this.propertyToPropertyType_.get("CODE")
+                                         .getProperty("CODE")
+                                         .getUUID(),
+             State.ACTIVE);
          this.concepts_.put(concept.getPrimordialUuid(), concept);
       }
 
       // Make sure everything in pathToRoot is linked.
       checkPath(concept, pathToRoot);
+   }
+
+   //~--- get methods ---------------------------------------------------------
+
+   @Override
+   protected ConverterUUID.NAMESPACE getNamespace() {
+      return ConverterUUID.NAMESPACE.LOINC;
    }
 }
 

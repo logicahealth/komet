@@ -80,21 +80,17 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
-import sh.isaac.convert.rxnorm.propertyTypes.PT_Annotations;
-import sh.isaac.convert.rxnorm.propertyTypes.ValuePropertyPairWithSAB;
-import sh.isaac.rxnorm.rrf.RXNCONSO;
-import sh.isaac.rxnorm.rrf.RXNSAT;
-
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import sh.isaac.api.util.UuidT3Generator;
+import sh.isaac.convert.rxnorm.propertyTypes.PT_Annotations;
+import sh.isaac.convert.rxnorm.propertyTypes.ValuePropertyPairWithSAB;
 import sh.isaac.converters.sharedUtils.ComponentReference;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
@@ -121,6 +117,8 @@ import sh.isaac.converters.sharedUtils.umlsUtils.propertyTypes.PT_Relationship_M
 import sh.isaac.converters.sharedUtils.umlsUtils.propertyTypes.PT_SAB_Metadata;
 import sh.isaac.converters.sharedUtils.umlsUtils.rrf.REL;
 import sh.isaac.model.configuration.StampCoordinates;
+import sh.isaac.rxnorm.rrf.RXNCONSO;
+import sh.isaac.rxnorm.rrf.RXNSAT;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -133,126 +131,192 @@ import sh.isaac.model.configuration.StampCoordinates;
 )
 public class RxNormMojo
         extends ConverterBaseMojo {
-   /** The Constant rxNormName. */
+   /**
+    * The Constant rxNormName.
+    */
    public static final String rxNormName = "RxNorm";
 
-   /** The Constant cpcRefsetConceptKey. */
+   /**
+    * The Constant cpcRefsetConceptKey.
+    */
    public static final String cpcRefsetConceptKey = "Current Prescribable Content";
 
    //~--- fields --------------------------------------------------------------
 
-   /** The table prefix. */
+   /**
+    * The table prefix.
+    */
    private final String tablePrefix = "RXN";
 
-   /** The sct sab. */
+   /**
+    * The sct sab.
+    */
    private final String sctSab = "SNOMEDCT_US";
 
-   /** The name to rel. */
+   /**
+    * The name to relationship map.
+    */
    private HashMap<String, Relationship> nameToRel = new HashMap<>();
 
-   /** The semantic types. */
+   /**
+    * The semantic types.
+    */
    private final HashMap<String, UUID> semanticTypes = new HashMap<>();
 
-   /** The loaded rels. */
+   /**
+    * The loaded relationships.
+    */
    private final HashSet<UUID> loadedRels = new HashSet<>();
 
-   /** The skipped rels. */
+   /**
+    * The skipped relationships.
+    */
    private final HashSet<UUID> skippedRels = new HashSet<>();
 
-   /** The map to isa. */
+   /**
+    * The map to isa.
+    */
    private final HashMap<String, Boolean> mapToIsa =
       new HashMap<>();  // FSN, true or false - true for rel only, false for a rel and association representation
 
-   /** The sct id to UUID. */
-   private final HashMap<Long, UUID> sctIdToUUID =
-      new HashMap<>();  // A map of real (found) SCTIDs to their concept UUID
+   /**
+    * The sct id to UUID.
+    */
+   private final HashMap<Long, UUID> sctIdToUUID = new HashMap<>();  // A map of real (found) SCTIDs to their concept UUID
 
-   /** The cui to SCT ID. */
+   /**
+    * The cui to SCT ID.
+    */
    private final HashMap<String, Long> cuiToSCTID =
       new HashMap<>();  // Map CUI to SCTID for the real sctIds to UUIDs found above
 
-   /** The skipped rel for not matching CUI filter. */
+   /**
+    * The skipped rel for not matching CUI filter.
+    */
    private final AtomicInteger skippedRelForNotMatchingCUIFilter = new AtomicInteger();
 
-   /** The date parse. */
+   /**
+    * The date parse.
+    */
 
    // Format to parse 01/28/2010
    private final SimpleDateFormat dateParse = new SimpleDateFormat("MM/dd/yyyy");
 
-   /** The s types. */
+   /**
+    * The s types.
+    */
    private HashMap<String, UUID> sTypes;
 
-   /** The suppress. */
+   /**
+    * The suppress.
+    */
    private HashMap<String, UUID> suppress;
 
-   /** The source restriction levels. */
+   /**
+    * The source restriction levels.
+    */
    private HashMap<String, UUID> sourceRestrictionLevels;
 
-   /** The pt UMLS attributes. */
+   /**
+    * The pt UMLS attributes.
+    */
    private PropertyType ptUMLSAttributes;
 
-   /** The pt SABs. */
+   /**
+    * The pt SABs.
+    */
    private PropertyType ptSABs;
 
-   /** The pt relationship metadata. */
+   /**
+    * The pt relationship metadata.
+    */
    private PropertyType ptRelationshipMetadata;
 
-   /** The pt descriptions. */
+   /**
+    * The pt descriptions.
+    */
    private PropertyType ptDescriptions;  // TODO get SAB types for these, annotate
 
-   /** The pt associations. */
+   /**
+    * The pt associations.
+    */
    private BPT_Associations ptAssociations;  // TODO get SAB types for these, annotate
 
-   /** The pt relationships. */
+   /**
+    * The pt relationships.
+    */
    private BPT_Relations ptRelationships;  // TODO get SAB types for these, annotate
 
-   /** The pt term attributes. */
+   /**
+    * The pt term attributes.
+    */
    private PropertyType ptTermAttributes;  // TODO get SAB types for these, annotate
 
-   /** The pt refsets. */
+   /**
+    * The pt refsets.
+    */
    private PT_Refsets ptRefsets;
 
-   /** The import util. */
+   /**
+    * The import util.
+    */
    private IBDFCreationUtility importUtil;
 
-   /** The db. */
+   /**
+    * The db.
+    */
    private RRFDatabaseHandle db;
 
-   /** The meta data root. */
+   /**
+    * The meta data root.
+    */
    private ComponentReference metaDataRoot;
 
-   /** The abbreviation expansions. */
+   /**
+    * The abbreviation expansions.
+    */
    private HashMap<String, AbbreviationExpansion> abbreviationExpansions;
 
-   /** The all CUI refset concept. */
+   /**
+    * The all CUI refset concept.
+    */
    private ComponentReference allCUIRefsetConcept;
 
-   /** The cpc refset concept. */
+   /**
+    * The cpc refset concept.
+    */
    private ComponentReference cpcRefsetConcept;
 
-   /** The has TTY type. */
+   /**
+    * The has TTY type.
+    */
    private PreparedStatement semanticTypeStatement, descSat, cuiRelStatementForward, cuiRelStatementBackward,
                              satRelStatement, hasTTYType;
 
-   /** The allowed CU is for SA bs. */
+   /**
+    * The allowed CU is for SA bs.
+    */
    private HashSet<String> allowedCUIsForSABs;
 
    /**
-    * An optional list of TTY types which should be included.  If left blank, we create concepts from all CUI's that are in the
-    * SAB RxNorm.  If provided, we only create concepts where the RxCUI has an entry with a TTY that matches one of the TTY's provided here
+    * An optional list of TTY types which should be included. If left blank, we create concepts from all CUI's that are
+    * in the SAB RxNorm. If provided, we only create concepts where the RxCUI has an entry with a TTY that matches one
+    * of the TTY's provided here
     */
    @Parameter(required = false)
    protected List<String> ttyRestriction;
 
    /**
-    * An optional list of SABs which should be included.  We always include the SAB RXNORM.  Use this parameter to specify others to include.
-    * If SNOMEDCT_US is included, then a snomed CT ibdf file must be present - snomed CT is not loaded from RxNorm, but rather, linked to the provided SCT
-    * IBDF file.
+    * An optional list of SABs which should be included. We always include the SAB RXNORM. Use this parameter to specify
+    * others to include. If SNOMEDCT_US is included, then a snomed CT ibdf file must be present - snomed CT is not
+    * loaded from RxNorm, but rather, linked to the provided SCT IBDF file.
     */
    @Parameter(required = false)
    protected List<String> sabsToInclude;
 
-   /** The link snomed C T. */
+   /**
+    * The link snomed CT.
+    */
    private boolean linkSnomedCT;
 
    //~--- methods -------------------------------------------------------------
@@ -270,7 +334,7 @@ public class RxNormMojo
          init();
          this.allCUIRefsetConcept = ComponentReference.fromConcept(
              this.ptRefsets.getProperty(this.ptRefsets.CUI_CONCEPTS.getSourcePropertyNameFSN())
-                            .getUUID());
+                           .getUUID());
          this.cpcRefsetConcept = ComponentReference.fromConcept(this.ptRefsets.getProperty(cpcRefsetConceptKey)
                .getUUID());
          this.semanticTypeStatement = this.db.getConnection()
@@ -278,9 +342,9 @@ public class RxNormMojo
 
          // we always grab the description type NDC if present, even if NDC doesn't come from a SAB we are including.
          this.descSat = this.db.getConnection()
-                                .prepareStatement("select * from RXNSAT where RXCUI = ? and RXAUI = ? and (" +
-                                createSabQueryPart("",
-                                      false) + " or ATN='NDC')");
+                               .prepareStatement("select * from RXNSAT where RXCUI = ? and RXAUI = ? and (" +
+                               createSabQueryPart("",
+                                     false) + " or ATN='NDC')");
 
          // UMLS and RXNORM do different things with rels - UMLS never has null CUI's, while RxNorm always has null CUI's (when AUI is specified)
          // Also need to join back to MRCONSO to make sure that the target concept is one that we will load with the SAB filter in place.
@@ -299,110 +363,73 @@ public class RxNormMojo
                          this.linkSnomedCT) + " and r.RXCUI2 = RXNCONSO.RXCUI and " + createSabQueryPart("RXNCONSO.",
                                this.linkSnomedCT));
 
-         int                 cuiCounter          = 0;
-         final Statement     statement           = this.db.getConnection()
-                                                           .createStatement();
-         final StringBuilder ttyRestrictionQuery = new StringBuilder();
+         int                       cuiCounter = 0;
+         final HashSet<String>     skippedCUIForNotMatchingCUIFilter;
+         final ArrayList<RXNCONSO> conceptData;
 
-         if ((this.ttyRestriction != null) && (this.ttyRestriction.size() > 0)) {
-            ttyRestrictionQuery.append(" and (");
+         try (Statement statement = this.db.getConnection().createStatement()) {
+            final StringBuilder ttyRestrictionQuery = new StringBuilder();
 
-            for (final String s: this.ttyRestriction) {
-               ttyRestrictionQuery.append("TTY = '");
-               ttyRestrictionQuery.append(s);
-               ttyRestrictionQuery.append("' or ");
-            }
+            if ((this.ttyRestriction != null) && (this.ttyRestriction.size() > 0)) {
+               ttyRestrictionQuery.append(" and (");
 
-            ttyRestrictionQuery.setLength(ttyRestrictionQuery.length() - " or ".length());
-            ttyRestrictionQuery.append(")");
-         }
-
-         this.allowedCUIsForSABs = new HashSet<>();
-
-         ResultSet rs = statement.executeQuery("select RXCUI from RXNCONSO where " + createSabQueryPart("",
-                                                                                                        this.linkSnomedCT) + " " +
-                                                                                                           ttyRestrictionQuery);
-
-         while (rs.next()) {
-            this.allowedCUIsForSABs.add(rs.getString("RXCUI"));
-         }
-
-         rs.close();
-
-//       allowedSCTTargets = new HashMap<>();
-//       HashSet<String> bannedSCTTargets = new HashSet<>();
-//       if (sctIDToUUID_ != null)
-//       {
-//               rs = statement.executeQuery("SELECT DISTINCT RXCUI, CODE from RXNCONSO r1 where r1.SAB='" + sctSab_ + "' and not exists "
-//                               +" (select rxcui from RXNCONSO r2 where r1.rxcui = r2.rxcui and r2.sab = 'RXNORM')");
-//               while (rs.next())
-//               {
-//                       String cui = rs.getString("RXCUI");
-//                       long sctid = Long.parseLong(rs.getString("CODE"));
-//                       UUID uuid = sctIDToUUID_.get(sctid);
-//                       if (uuid != null)
-//                       {
-//                               //already have a mapping for this CUI to an SCTID - make sure that it maps to the same UUID
-//                               if (allowedSCTTargets.containsKey(cui) 
-//                                               && allowedSCTTargets.get(cui) != sctid && !uuid.equals(sctIDToUUID_.get(allowedSCTTargets.get(cui))))
-//                               {
-//                                       bannedSCTTargets.add(cui);
-//                                       allowedSCTTargets.remove(cui);
-//                                       ConsoleUtil.println("CUI " + cui + " maps to multiple SCT concepts");
-//                               }
-//                               else if (!bannedSCTTargets.contains(cui))
-//                               {
-//                                       //We know there is one and only one mapping from this RxCUI to a concept (that exists) in the version of SCT we are using.
-//                                       allowedSCTTargets.put(cui, sctid);
-//                               }
-//                       }
-//               }
-//               rs.close();
-//       }
-//       ConsoleUtil.println("Allowing " + allowedSCTTargets.size() + " potential relationships to existing SCT concepts");
-//       ConsoleUtil.println("Not allowing " + bannedSCTTargets.size() + " CUIs to link to SCT concepts because they are mapped to multiple concepts");
-//       
-//       allowedCUIsForRelationships = new HashSet<String>();
-//       allowedCUIsForRelationships.addAll(allowedCUIsForRels);
-//       allowedCUIsForRelationships.addAll(allowedSCTTargets.keySet());
-         rs = statement.executeQuery(
-             "select RXCUI, LAT, RXAUI, SAUI, SCUI, SAB, TTY, CODE, STR, SUPPRESS, CVF from RXNCONSO " + "where " +
-             createSabQueryPart("",
-                                this.linkSnomedCT) + " order by RXCUI");
-
-         final HashSet<String>     skippedCUIForNotMatchingCUIFilter = new HashSet<String>();
-         final ArrayList<RXNCONSO> conceptData                       = new ArrayList<>();
-
-         while (rs.next()) {
-            final RXNCONSO current = new RXNCONSO(rs);
-
-            if (!this.allowedCUIsForSABs.contains(current.rxcui)) {
-               skippedCUIForNotMatchingCUIFilter.add(current.rxcui);
-               continue;
-            }
-
-            if ((conceptData.size() > 0) &&!conceptData.get(0).rxcui.equals(current.rxcui)) {
-               processCUIRows(conceptData);
-
-               if (cuiCounter % 100 == 0) {
-                  ConsoleUtil.showProgress();
+               for (final String s: this.ttyRestriction) {
+                  ttyRestrictionQuery.append("TTY = '");
+                  ttyRestrictionQuery.append(s);
+                  ttyRestrictionQuery.append("' or ");
                }
 
-               cuiCounter++;
-
-               if (cuiCounter % 10000 == 0) {
-                  ConsoleUtil.println("Processed " + cuiCounter + " CUIs creating " +
-                                      this.importUtil.getLoadStats().getConceptCount() + " concepts");
-               }
-
-               conceptData.clear();
+               ttyRestrictionQuery.setLength(ttyRestrictionQuery.length() - " or ".length());
+               ttyRestrictionQuery.append(")");
             }
 
-            conceptData.add(current);
-         }
+            this.allowedCUIsForSABs = new HashSet<>();
 
-         rs.close();
-         statement.close();
+            try (ResultSet rs = statement.executeQuery("select RXCUI from RXNCONSO where " + createSabQueryPart("",
+                                                                                                                this.linkSnomedCT) + " " +
+                                                                                                                ttyRestrictionQuery);) {
+               while (rs.next()) {
+                  this.allowedCUIsForSABs.add(rs.getString("RXCUI"));
+               }
+            }
+
+            try (ResultSet rs =
+                  statement.executeQuery(
+                      "select RXCUI, LAT, RXAUI, SAUI, SCUI, SAB, TTY, CODE, STR, SUPPRESS, CVF from RXNCONSO " +
+                      "where " + createSabQueryPart("",
+                            this.linkSnomedCT) + " order by RXCUI")) {
+               skippedCUIForNotMatchingCUIFilter = new HashSet<>();
+               conceptData                       = new ArrayList<>();
+
+               while (rs.next()) {
+                  final RXNCONSO current = new RXNCONSO(rs);
+
+                  if (!this.allowedCUIsForSABs.contains(current.rxcui)) {
+                     skippedCUIForNotMatchingCUIFilter.add(current.rxcui);
+                     continue;
+                  }
+
+                  if ((conceptData.size() > 0) &&!conceptData.get(0).rxcui.equals(current.rxcui)) {
+                     processCUIRows(conceptData);
+
+                     if (cuiCounter % 100 == 0) {
+                        ConsoleUtil.showProgress();
+                     }
+
+                     cuiCounter++;
+
+                     if (cuiCounter % 10000 == 0) {
+                        ConsoleUtil.println("Processed " + cuiCounter + " CUIs creating " +
+                                            this.importUtil.getLoadStats().getConceptCount() + " concepts");
+                     }
+
+                     conceptData.clear();
+                  }
+
+                  conceptData.add(current);
+               }
+            }
+         }
 
          // process last
          processCUIRows(conceptData);
@@ -542,11 +569,11 @@ public class RxNormMojo
                }
 
                this.importUtil.addUUIDAnnotation(r,
-                                                  genericType.getUUID(),
-                                                  this.ptUMLSAttributes.getProperty(reversed
-                                                  ? "Generic rel type (inverse)"
-                                                  : "Generic rel type")
-                                                        .getUUID());
+                                                 genericType.getUUID(),
+                                                 this.ptUMLSAttributes.getProperty(reversed
+                                                 ? "Generic rel type (inverse)"
+                                                 : "Generic rel type")
+                                                       .getUUID());
             }
 
             if (StringUtils.isNotBlank(relationship.getRui())) {
@@ -554,20 +581,22 @@ public class RxNormMojo
                   this.importUtil.addStringAnnotation(r,
                         relationship.getRui(),
                         this.ptUMLSAttributes.getProperty("RUI")
-                                              .getUUID(),
+                                             .getUUID(),
                         State.ACTIVE);
                   addedRUIs.add(relationship.getRui());
                   this.satRelStatement.clearParameters();
                   this.satRelStatement.setString(1, relationship.getRui());
 
-                  final ResultSet         nestedRels = this.satRelStatement.executeQuery();
-                  final ArrayList<RXNSAT> satData    = new ArrayList<>();
+                  final ArrayList<RXNSAT> satData;
 
-                  while (nestedRels.next()) {
-                     satData.add(new RXNSAT(nestedRels));
+                  try (ResultSet nestedRels = this.satRelStatement.executeQuery()) {
+                     satData = new ArrayList<>();
+
+                     while (nestedRels.next()) {
+                        satData.add(new RXNSAT(nestedRels));
+                     }
                   }
 
-                  nestedRels.close();
                   processSAT(r, satData, null, relationship.getSab(), null);
                }
             }
@@ -576,7 +605,7 @@ public class RxNormMojo
                this.importUtil.addStringAnnotation(r,
                      relationship.getRg(),
                      this.ptUMLSAttributes.getProperty("RG")
-                                           .getUUID(),
+                                          .getUUID(),
                      State.ACTIVE);
             }
 
@@ -584,24 +613,21 @@ public class RxNormMojo
                this.importUtil.addStringAnnotation(r,
                      relationship.getDir(),
                      this.ptUMLSAttributes.getProperty("DIR")
-                                           .getUUID(),
+                                          .getUUID(),
                      State.ACTIVE);
             }
 
             if (StringUtils.isNotBlank(relationship.getSuppress())) {
                this.importUtil.addUUIDAnnotation(r,
-                                                  this.suppress.get(relationship.getSuppress()),
-                                                  this.ptUMLSAttributes.getProperty("SUPPRESS")
-                                                        .getUUID());
+                                                 this.suppress.get(relationship.getSuppress()),
+                                                 this.ptUMLSAttributes.getProperty("SUPPRESS")
+                                                       .getUUID());
             }
 
             if (StringUtils.isNotBlank(relationship.getCvf())) {
                if (relationship.getCvf()
                                .equals("4096")) {
-                  this.importUtil.addRefsetMembership(r,
-                        this.cpcRefsetConcept.getPrimordialUuid(),
-                        State.ACTIVE,
-                        null);
+                  this.importUtil.addRefsetMembership(r, this.cpcRefsetConcept.getPrimordialUuid(), State.ACTIVE, null);
                } else {
                   throw new RuntimeException("Unexpected value in RXNSAT cvf column '" + relationship.getCvf() + "'");
                }
@@ -754,9 +780,7 @@ public class RxNormMojo
 
       this.sabsToInclude = new ArrayList<>();
       this.sabsToInclude.addAll(temp);
-
-      // We need to make queries of an SCT DB for part of this load, pull them in, pre-load.
-      final File[] ibdfFiles = new File(this.inputFileLocation, "ibdf").listFiles((FileFilter) pathname -> {
+      new File(this.inputFileLocation, "ibdf").listFiles((FileFilter) pathname -> {
                if (RxNormMojo.this.linkSnomedCT &&
                    pathname.isFile() &&
                    pathname.getName().toLowerCase().endsWith(".ibdf")) {
@@ -765,7 +789,6 @@ public class RxNormMojo
 
                return false;
             });
-
       this.importUtil = new IBDFCreationUtility(Optional.empty(),
             Optional.of(MetaData.RXNORM_MODULES),
             this.outputDirectory,
@@ -773,13 +796,9 @@ public class RxNormMojo
             this.converterOutputArtifactVersion,
             this.converterOutputArtifactClassifier,
             false,
-            defaultTime,
-            Arrays.asList(new SememeType[] { SememeType.DESCRIPTION, SememeType.COMPONENT_NID,
-            SememeType.LOGIC_GRAPH }),
-            true,
-            ibdfFiles);
+            defaultTime);
       this.metaDataRoot = ComponentReference.fromConcept(this.importUtil.createConcept("RxNorm Metadata" +
-            IBDFCreationUtility.metadataSemanticTag,
+            IBDFCreationUtility.METADATA_SEMANTIC_TAG,
             true,
             MetaData.SOLOR_CONTENT_METADATA.getPrimordialUuid()));
       loadMetaData();
@@ -798,14 +817,14 @@ public class RxNormMojo
 
       this.importUtil.clearLoadStats();
       this.satRelStatement = this.db.getConnection()
-                                      .prepareStatement("select * from " + this.tablePrefix + "SAT where RXAUI" +
-                                      "= ? and STYPE='RUI' and " + createSabQueryPart("",
-                                            this.linkSnomedCT));
+                                    .prepareStatement("select * from " + this.tablePrefix + "SAT where RXAUI" +
+                                    "= ? and STYPE='RUI' and " + createSabQueryPart("",
+                                          this.linkSnomedCT));
       this.hasTTYType = this.db.getConnection()
-                                 .prepareStatement(
-                                     "select count (*) as count from RXNCONSO where rxcui=? and TTY=? and " +
-                                     createSabQueryPart("",
-                                           this.linkSnomedCT));
+                               .prepareStatement(
+                                   "select count (*) as count from RXNCONSO where rxcui=? and TTY=? and " +
+                                   createSabQueryPart("",
+                                         this.linkSnomedCT));
 
       if (this.linkSnomedCT) {
          prepareSCTMaps();
@@ -861,41 +880,40 @@ public class RxNormMojo
                                                 ".RRF' in the zip file");
             }
 
-            this.db.loadDataIntoTable(td,
-                                       new UMLSFileReader(
-                                           new BufferedReader(new InputStreamReader(zf.getInputStream(ze),
-                                                 "UTF-8"))),
-                                       null);
+            try (UMLSFileReader umlsReader =
+                  new UMLSFileReader(new BufferedReader(new InputStreamReader(zf.getInputStream(ze),
+                                                                              "UTF-8")))) {
+               this.db.loadDataIntoTable(td, umlsReader, null);
+            }
          }
 
          zf.close();
 
-         // Build some indexes to support the queries we will run
-         final Statement s = this.db.getConnection()
-                                     .createStatement();
+         try (                                                                   // Build some indexes to support the queries we will run
+               Statement s = this.db.getConnection().createStatement()) {
+            ConsoleUtil.println("Creating indexes");
+            ConsoleUtil.showProgress();
+            s.execute("CREATE INDEX conso_rxcui_index ON RXNCONSO (RXCUI)");
+            ConsoleUtil.showProgress();
+            s.execute("CREATE INDEX conso_rxaui_index ON RXNCONSO (RXAUI)");
+            ConsoleUtil.showProgress();
+            s.execute("CREATE INDEX sat_rxcui_aui_index ON RXNSAT (RXCUI, RXAUI)");
+            ConsoleUtil.showProgress();
+            s.execute("CREATE INDEX sat_aui_index ON RXNSAT (RXAUI)");
+            ConsoleUtil.showProgress();
+            s.execute("CREATE INDEX sty_rxcui_index ON RXNSTY (RXCUI)");
+            ConsoleUtil.showProgress();
+            s.execute("CREATE INDEX sty_tui_index ON RXNSTY (TUI)");
+            ConsoleUtil.showProgress();
+            s.execute("CREATE INDEX rel_rxcui2_index ON RXNREL (RXCUI2, RXAUI2)");
+            ConsoleUtil.showProgress();
+            s.execute("CREATE INDEX rel_rxaui2_index ON RXNREL (RXCUI1, RXAUI1)");
+            ConsoleUtil.showProgress();
+            s.execute("CREATE INDEX rel_rela_rel_index ON RXNREL (RELA, REL)");  // helps with rel metadata
+            ConsoleUtil.showProgress();
+            s.execute("CREATE INDEX rel_sab_index ON RXNREL (SAB)");             // helps with rel metadata
+         }
 
-         ConsoleUtil.println("Creating indexes");
-         ConsoleUtil.showProgress();
-         s.execute("CREATE INDEX conso_rxcui_index ON RXNCONSO (RXCUI)");
-         ConsoleUtil.showProgress();
-         s.execute("CREATE INDEX conso_rxaui_index ON RXNCONSO (RXAUI)");
-         ConsoleUtil.showProgress();
-         s.execute("CREATE INDEX sat_rxcui_aui_index ON RXNSAT (RXCUI, RXAUI)");
-         ConsoleUtil.showProgress();
-         s.execute("CREATE INDEX sat_aui_index ON RXNSAT (RXAUI)");
-         ConsoleUtil.showProgress();
-         s.execute("CREATE INDEX sty_rxcui_index ON RXNSTY (RXCUI)");
-         ConsoleUtil.showProgress();
-         s.execute("CREATE INDEX sty_tui_index ON RXNSTY (TUI)");
-         ConsoleUtil.showProgress();
-         s.execute("CREATE INDEX rel_rxcui2_index ON RXNREL (RXCUI2, RXAUI2)");
-         ConsoleUtil.showProgress();
-         s.execute("CREATE INDEX rel_rxaui2_index ON RXNREL (RXCUI1, RXAUI1)");
-         ConsoleUtil.showProgress();
-         s.execute("CREATE INDEX rel_rela_rel_index ON RXNREL (RELA, REL)");  // helps with rel metadata
-         ConsoleUtil.showProgress();
-         s.execute("CREATE INDEX rel_sab_index ON RXNREL (SAB)");             // helps with rel metadata
-         s.close();
          ConsoleUtil.println("DB Setup complete");
       }
 
@@ -920,7 +938,7 @@ public class RxNormMojo
             sourceMetadata,
             this.ptRelationshipMetadata,
             this.ptUMLSAttributes),
-                                         this.metaDataRoot.getPrimordialUuid());
+                                        this.metaDataRoot.getPrimordialUuid());
 
       // Attributes from MRDoc
       // dynamically add more attributes from *DOC
@@ -930,48 +948,47 @@ public class RxNormMojo
          ;
          this.ptTermAttributes.indexByAltNames();
 
-         final Statement s = this.db.getConnection()
-                                     .createStatement();
-
          // extra logic at the end to keep NDC's from any sab when processing RXNorm
-         final ResultSet rs = s.executeQuery("SELECT VALUE, TYPE, EXPL from " + this.tablePrefix +
-                                 "DOC where DOCKEY = 'ATN' and VALUE in (select distinct ATN from " +
-                                 this.tablePrefix + "SAT" + " where " + createSabQueryPart("",
-                                       false) + " or ATN='NDC')");
+         try (Statement s = this.db.getConnection().createStatement()) {
+            // extra logic at the end to keep NDC's from any sab when processing RXNorm
+            final ResultSet rs = s.executeQuery("SELECT VALUE, TYPE, EXPL from " + this.tablePrefix +
+                                    "DOC where DOCKEY = 'ATN' and VALUE in (select distinct ATN from " +
+                                    this.tablePrefix + "SAT" + " where " + createSabQueryPart("",
+                                          false) + " or ATN='NDC')");
 
-         while (rs.next()) {
-            final String abbreviation = rs.getString("VALUE");
-            final String type         = rs.getString("TYPE");
-            final String expansion    = rs.getString("EXPL");
+            while (rs.next()) {
+               final String abbreviation = rs.getString("VALUE");
+               final String type         = rs.getString("TYPE");
+               final String expansion    = rs.getString("EXPL");
 
-            if (!type.equals("expanded_form")) {
-               throw new RuntimeException("Unexpected type in the attribute data within DOC: '" + type + "'");
+               if (!type.equals("expanded_form")) {
+                  throw new RuntimeException("Unexpected type in the attribute data within DOC: '" + type + "'");
+               }
+
+               String altName     = null;
+               String description = null;
+
+               if (expansion.length() > 30) {
+                  description = expansion;
+               } else {
+                  altName = expansion;
+               }
+
+               final AbbreviationExpansion ae = this.abbreviationExpansions.get(abbreviation);
+
+               if (ae == null) {
+                  ConsoleUtil.printErrorln("No Abbreviation Expansion found for " + abbreviation);
+                  this.ptTermAttributes.addProperty(abbreviation, altName, description);
+               } else {
+                  this.ptTermAttributes.addProperty(ae.getExpansion(), ae.getAbbreviation(), ae.getDescription());
+               }
             }
 
-            String altName     = null;
-            String description = null;
-
-            if (expansion.length() > 30) {
-               description = expansion;
-            } else {
-               altName = expansion;
-            }
-
-            final AbbreviationExpansion ae = this.abbreviationExpansions.get(abbreviation);
-
-            if (ae == null) {
-               ConsoleUtil.printErrorln("No Abbreviation Expansion found for " + abbreviation);
-               this.ptTermAttributes.addProperty(abbreviation, altName, description);
-            } else {
-               this.ptTermAttributes.addProperty(ae.getExpansion(), ae.getAbbreviation(), ae.getDescription());
-            }
+            rs.close();
          }
 
-         rs.close();
-         s.close();
-
          if (this.ptTermAttributes.getProperties()
-                                   .size() > 0) {
+                                  .size() > 0) {
             this.importUtil.loadMetaDataItems(this.ptTermAttributes, this.metaDataRoot.getPrimordialUuid());
          }
       }
@@ -982,121 +999,129 @@ public class RxNormMojo
          this.ptDescriptions = new PT_Descriptions(rxNormName);
          this.ptDescriptions.indexByAltNames();
 
-         final Statement s = this.db.getConnection()
-                                     .createStatement();
-         ResultSet       usedDescTypes;
+         final PreparedStatement ps;
 
-         usedDescTypes = s.executeQuery("select distinct TTY from RXNCONSO WHERE " + createSabQueryPart("", false));
+         try (Statement s = this.db.getConnection().createStatement()) {
+            ResultSet usedDescTypes;
 
-         final PreparedStatement ps = this.db.getConnection()
-                                              .prepareStatement("select TYPE, EXPL from " + this.tablePrefix +
-                                                 "DOC where DOCKEY='TTY' and VALUE=?");
+            usedDescTypes = s.executeQuery("select distinct TTY from RXNCONSO WHERE " + createSabQueryPart("", false));
+            ps = this.db.getConnection()
+                        .prepareStatement("select TYPE, EXPL from " + this.tablePrefix +
+                                          "DOC where DOCKEY='TTY' and VALUE=?");
 
-         while (usedDescTypes.next()) {
-            final String tty = usedDescTypes.getString(1);
+            while (usedDescTypes.next()) {
+               final String tty = usedDescTypes.getString(1);
 
-            ps.setString(1, tty);
+               ps.setString(1, tty);
 
-            final ResultSet       descInfo     = ps.executeQuery();
-            String                expandedForm = null;
-            final HashSet<String> classes      = new HashSet<>();
+               String                expandedForm;
+               final HashSet<String> classes;
 
-            while (descInfo.next()) {
-               final String type = descInfo.getString("TYPE");
-               final String expl = descInfo.getString("EXPL");
+               try (ResultSet descInfo = ps.executeQuery()) {
+                  expandedForm = null;
+                  classes      = new HashSet<>();
 
-               if (type.equals("expanded_form")) {
-                  if (expandedForm != null) {
-                     throw new RuntimeException("Expected name to be null!");
+                  while (descInfo.next()) {
+                     final String type = descInfo.getString("TYPE");
+                     final String expl = descInfo.getString("EXPL");
+
+                     switch (type) {
+                     case "expanded_form":
+                        if (expandedForm != null) {
+                           throw new RuntimeException("Expected name to be null!");
+                        }
+
+                        expandedForm = expl;
+                        break;
+
+                     case "tty_class":
+                        classes.add(expl);
+                        break;
+
+                     default:
+                        throw new RuntimeException("Unexpected type in DOC for '" + tty + "'");
+                     }
                   }
+               }
 
-                  expandedForm = expl;
-               } else if (type.equals("tty_class")) {
-                  classes.add(expl);
+               ps.clearParameters();
+
+               Property                    p  = null;
+               final AbbreviationExpansion ae = this.abbreviationExpansions.get(tty);
+
+               if (ae == null) {
+                  ConsoleUtil.printErrorln("No Abbreviation Expansion found for " + tty);
+                  p = makeDescriptionType(tty, expandedForm, null, classes);
                } else {
-                  throw new RuntimeException("Unexpected type in DOC for '" + tty + "'");
+                  p = makeDescriptionType(ae.getExpansion(), ae.getAbbreviation(), ae.getDescription(), classes);
+               }
+
+               this.ptDescriptions.addProperty(p);
+
+               for (final String tty_class: classes) {
+                  this.importUtil.addStringAnnotation(ComponentReference.fromConcept(p.getUUID()),
+                        tty_class,
+                        this.ptUMLSAttributes.getProperty("tty_class")
+                                             .getUUID(),
+                        State.ACTIVE);
                }
             }
 
-            descInfo.close();
-            ps.clearParameters();
-
-            Property                    p  = null;
-            final AbbreviationExpansion ae = this.abbreviationExpansions.get(tty);
-
-            if (ae == null) {
-               ConsoleUtil.printErrorln("No Abbreviation Expansion found for " + tty);
-               p = makeDescriptionType(tty, expandedForm, null, classes);
-            } else {
-               p = makeDescriptionType(ae.getExpansion(), ae.getAbbreviation(), ae.getDescription(), classes);
-            }
-
-            this.ptDescriptions.addProperty(p);
-
-            for (final String tty_class: classes) {
-               this.importUtil.addStringAnnotation(ComponentReference.fromConcept(p.getUUID()),
-                     tty_class,
-                     this.ptUMLSAttributes.getProperty("tty_class")
-                                           .getUUID(),
-                     State.ACTIVE);
-            }
+            usedDescTypes.close();
          }
 
-         usedDescTypes.close();
-         s.close();
          ps.close();
 
          if (this.ptDescriptions.getProperties()
-                                 .size() > 0) {
+                                .size() > 0) {
             this.importUtil.loadMetaDataItems(this.ptDescriptions, this.metaDataRoot.getPrimordialUuid());
          }
       }
       loadRelationshipMetadata();
 
       // STYPE values
-      this.sTypes = new HashMap<String, UUID>();
+      this.sTypes = new HashMap<>();
       {
          ConsoleUtil.println("Creating STYPE types");
 
-         final Statement s = this.db.getConnection()
-                                     .createStatement();
-         final ResultSet rs = s.executeQuery("SELECT DISTINCT VALUE, TYPE, EXPL FROM " + this.tablePrefix +
-                                 "DOC where DOCKEY like 'STYPE%'");
+         try (Statement s = this.db.getConnection().createStatement()) {
+            final ResultSet rs = s.executeQuery("SELECT DISTINCT VALUE, TYPE, EXPL FROM " + this.tablePrefix +
+                                    "DOC where DOCKEY like 'STYPE%'");
 
-         while (rs.next()) {
-            final String sType = rs.getString("VALUE");
-            final String type  = rs.getString("TYPE");
-            final String name  = rs.getString("EXPL");
+            while (rs.next()) {
+               final String sType = rs.getString("VALUE");
+               final String type  = rs.getString("TYPE");
+               final String name  = rs.getString("EXPL");
 
-            if (!type.equals("expanded_form")) {
-               throw new RuntimeException("Unexpected type in the attribute data within DOC: '" + type + "'");
+               if (!type.equals("expanded_form")) {
+                  throw new RuntimeException("Unexpected type in the attribute data within DOC: '" + type + "'");
+               }
+
+               final ComponentReference c = ComponentReference.fromConcept(
+                                                this.importUtil.createConcept(
+                                                   ConverterUUID.createNamespaceUUIDFromString(
+                                                      this.ptUMLSAttributes.getProperty("STYPE")
+                                                            .getUUID() + ":" + name),
+                                                         name,
+                                                         null,
+                                                         null,
+                                                         sType,
+                                                         this.ptUMLSAttributes.getProperty("STYPE")
+                                                               .getUUID(),
+                                                         null));
+
+               this.sTypes.put(name, c.getPrimordialUuid());
+               this.sTypes.put(sType, c.getPrimordialUuid());
             }
 
-            final ComponentReference c = ComponentReference.fromConcept(
-                                             this.importUtil.createConcept(
-                                                ConverterUUID.createNamespaceUUIDFromString(
-                                                   this.ptUMLSAttributes.getProperty("STYPE")
-                                                         .getUUID() + ":" + name),
-                                                      name,
-                                                      null,
-                                                      null,
-                                                      sType,
-                                                      this.ptUMLSAttributes.getProperty("STYPE")
-                                                            .getUUID(),
-                                                      null));
-
-            this.sTypes.put(name, c.getPrimordialUuid());
-            this.sTypes.put(sType, c.getPrimordialUuid());
+            rs.close();
          }
-
-         rs.close();
-         s.close();
       }
       this.suppress = xDocLoaderHelper("SUPPRESS",
-                                        "Suppress",
-                                        false,
-                                        this.ptUMLSAttributes.getProperty("SUPPRESS")
-                                              .getUUID());
+                                       "Suppress",
+                                       false,
+                                       this.ptUMLSAttributes.getProperty("SUPPRESS")
+                                             .getUUID());
 
       // Not yet loading co-occurrence data yet, so don't need these yet.
       // xDocLoaderHelper("COA", "Attributes of co-occurrence", false);
@@ -1114,110 +1139,111 @@ public class RxNormMojo
       // Handle the languages
       // Not actually doing anythign with these at the moment, we just map to metadata languages.
       {
-         final Statement s = this.db.getConnection()
-                                     .createStatement();
-         final ResultSet rs = s.executeQuery("SELECT * from " + this.tablePrefix +
-                                 "DOC where DOCKEY = 'LAT' and VALUE in (select distinct LAT from " +
-                                 this.tablePrefix + "CONSO where " + createSabQueryPart("",
-                                       false) + ")");
+         try (Statement s = this.db.getConnection().createStatement()) {
+            final ResultSet rs = s.executeQuery("SELECT * from " + this.tablePrefix +
+                                    "DOC where DOCKEY = 'LAT' and VALUE in (select distinct LAT from " +
+                                    this.tablePrefix + "CONSO where " + createSabQueryPart("",
+                                          false) + ")");
 
-         while (rs.next()) {
-            final String abbreviation = rs.getString("VALUE");
-            final String type         = rs.getString("TYPE");
+            while (rs.next()) {
+               final String abbreviation = rs.getString("VALUE");
+               final String type         = rs.getString("TYPE");
 
-            // String expansion = rs.getString("EXPL");
+               // String expansion = rs.getString("EXPL");
+               if (!type.equals("expanded_form")) {
+                  throw new RuntimeException("Unexpected type in the language data within DOC: '" + type + "'");
+               }
 
-            if (!type.equals("expanded_form")) {
-               throw new RuntimeException("Unexpected type in the language data within DOC: '" + type + "'");
-            }
-
-            if (abbreviation.equals("ENG") || abbreviation.equals("SPA")) {
-               // use official ISAAC languages
                if (abbreviation.equals("ENG") || abbreviation.equals("SPA")) {
-                  // We can map these onto metadata types.
-               } else {
-                  throw new RuntimeException("unsupported language");
+                  // use official ISAAC languages
+                  if (abbreviation.equals("ENG") || abbreviation.equals("SPA")) {
+                     // We can map these onto metadata types.
+                  } else {
+                     throw new RuntimeException("unsupported language");
+                  }
                }
             }
-         }
 
-         rs.close();
-         s.close();
+            rs.close();
+         }
       }
 
       // And Source Restriction Levels
       {
          ConsoleUtil.println("Creating Source Restriction Level types");
-         this.sourceRestrictionLevels = new HashMap<String, UUID>();
+         this.sourceRestrictionLevels = new HashMap<>();
 
-         final PreparedStatement ps = this.db.getConnection()
-                                              .prepareStatement("SELECT VALUE, TYPE, EXPL from " + this.tablePrefix +
-                                                 "DOC where DOCKEY=? ORDER BY VALUE");
+         try (PreparedStatement ps = this.db.getConnection().prepareStatement("SELECT VALUE, TYPE, EXPL from " +
+               this.tablePrefix + "DOC where DOCKEY=? ORDER BY VALUE")) {
+            ps.setString(1, "SRL");
 
-         ps.setString(1, "SRL");
+            final ResultSet rs          = ps.executeQuery();
+            String          value       = null;
+            String          description = null;
+            String          uri         = null;
 
-         final ResultSet rs          = ps.executeQuery();
-         String          value       = null;
-         String          description = null;
-         String          uri         = null;
+            // Two entries per SRL, read two rows, create an entry.
+            while (rs.next()) {
+               String type = rs.getString("TYPE");
+               String expl = rs.getString("EXPL");
 
-         // Two entries per SRL, read two rows, create an entry.
-         while (rs.next()) {
-            String type = rs.getString("TYPE");
-            String expl = rs.getString("EXPL");
+               switch (type) {
+               case "expanded_form":
+                  description = expl;
+                  break;
 
-            if (type.equals("expanded_form")) {
-               description = expl;
-            } else if (type.equals("uri")) {
-               uri = expl;
-            } else {
-               throw new RuntimeException("oops");
-            }
+               case "uri":
+                  uri = expl;
+                  break;
 
-            if (value == null) {
-               value = rs.getString("VALUE");
-            } else {
-               if (!value.equals(rs.getString("VALUE"))) {
+               default:
                   throw new RuntimeException("oops");
                }
 
-               if ((description == null) || (uri == null)) {
-                  throw new RuntimeException("oops");
-               }
+               if (value == null) {
+                  value = rs.getString("VALUE");
+               } else {
+                  if (!value.equals(rs.getString("VALUE"))) {
+                     throw new RuntimeException("oops");
+                  }
 
-               final ComponentReference c = ComponentReference.fromConcept(
-                                                this.importUtil.createConcept(
-                                                   ConverterUUID.createNamespaceUUIDFromString(
-                                                      sourceMetadata.getProperty("SRL")
-                                                            .getUUID() + ":" + value),
-                                                         value,
-                                                         null,
-                                                         null,
-                                                         description,
+                  if ((description == null) || (uri == null)) {
+                     throw new RuntimeException("oops");
+                  }
+
+                  final ComponentReference c = ComponentReference.fromConcept(
+                                                   this.importUtil.createConcept(
+                                                      ConverterUUID.createNamespaceUUIDFromString(
                                                          sourceMetadata.getProperty("SRL")
-                                                               .getUUID(),
-                                                         null));
+                                                               .getUUID() + ":" + value),
+                                                            value,
+                                                            null,
+                                                            null,
+                                                            description,
+                                                            sourceMetadata.getProperty("SRL")
+                                                                  .getUUID(),
+                                                            null));
 
-               this.sourceRestrictionLevels.put(value, c.getPrimordialUuid());
-               this.importUtil.addStringAnnotation(c,
-                     uri,
-                     this.ptUMLSAttributes.getProperty("URI")
-                                           .getUUID(),
-                     State.ACTIVE);
-               type  = null;
-               expl  = null;
-               value = null;
+                  this.sourceRestrictionLevels.put(value, c.getPrimordialUuid());
+                  this.importUtil.addStringAnnotation(c,
+                        uri,
+                        this.ptUMLSAttributes.getProperty("URI")
+                                             .getUUID(),
+                        State.ACTIVE);
+                  type  = null;
+                  expl  = null;
+                  value = null;
+               }
             }
-         }
 
-         rs.close();
-         ps.close();
+            rs.close();
+         }
       }
 
       // And Source vocabularies
       final PreparedStatement getSABMetadata = this.db.getConnection()
-                                                       .prepareStatement("Select * from " + this.tablePrefix +
-                                                          "SAB where (VSAB = ? or (RSAB = ? and CURVER='Y' ))");
+                                                      .prepareStatement("Select * from " + this.tablePrefix +
+                                                         "SAB where (VSAB = ? or (RSAB = ? and CURVER='Y' ))");
 
       {
          ConsoleUtil.println("Creating Source Vocabulary types");
@@ -1230,7 +1256,7 @@ public class RxNormMojo
          sabList.addAll(this.sabsToInclude);
 
          Statement s  = this.db.getConnection()
-                                .createStatement();
+                               .createStatement();
          ResultSet rs = s.executeQuery("select distinct SAB from RXNSAT where ATN='NDC'");
 
          while (rs.next()) {
@@ -1242,7 +1268,7 @@ public class RxNormMojo
 
          for (final String currentSab: sabList) {
             s = this.db.getConnection()
-                        .createStatement();
+                       .createStatement();
             rs = s.executeQuery("SELECT SON from " + this.tablePrefix + "SAB WHERE (VSAB='" + currentSab +
                                 "' or (RSAB='" + currentSab + "' and CURVER='Y'))");
 
@@ -1260,43 +1286,46 @@ public class RxNormMojo
                                            (p.getSourcePropertyAltName() == null) ? p.getSourcePropertyNameFSN()
                         : p.getSourcePropertyAltName());
 
-                  final ResultSet rs2 = getSABMetadata.executeQuery();
+                  try (ResultSet rs2 = getSABMetadata.executeQuery()) {
+                     if (rs2.next()) {
+                        for (final Property metadataProperty: sourceMetadata.getProperties()) {
+                           final String columnName = (metadataProperty.getSourcePropertyAltName() == null)
+                                                     ? metadataProperty.getSourcePropertyNameFSN()
+                                                     : metadataProperty.getSourcePropertyAltName();
+                           final String columnValue = rs2.getString(columnName);
 
-                  if (rs2.next())  // should be only one result
-                  {
-                     for (final Property metadataProperty: sourceMetadata.getProperties()) {
-                        final String columnName = (metadataProperty.getSourcePropertyAltName() == null)
-                                                  ? metadataProperty.getSourcePropertyNameFSN()
-                                                  : metadataProperty.getSourcePropertyAltName();
-                        final String columnValue = rs2.getString(columnName);
+                           if (columnValue == null) {
+                              continue;
+                           }
 
-                        if (columnValue == null) {
-                           continue;
-                        }
+                           switch (columnName) {
+                           case "SRL":
+                              this.importUtil.addUUIDAnnotation(cr,
+                                                                this.sourceRestrictionLevels.get(columnValue),
+                                                                metadataProperty.getUUID());
+                              break;
 
-                        if (columnName.equals("SRL")) {
-                           this.importUtil.addUUIDAnnotation(cr,
-                                                              this.sourceRestrictionLevels.get(columnValue),
-                                                              metadataProperty.getUUID());
-                        } else if (columnName.equals("CXTY")) {
-                           this.importUtil.addUUIDAnnotation(cr,
-                                                              contextTypes.get(columnValue),
-                                                              sourceMetadata.getProperty("CXTY")
-                                                                    .getUUID());
-                        } else {
-                           this.importUtil.addStringAnnotation(cr,
-                                 columnValue,
-                                 metadataProperty.getUUID(),
-                                 State.ACTIVE);
+                           case "CXTY":
+                              this.importUtil.addUUIDAnnotation(cr,
+                                                                contextTypes.get(columnValue),
+                                                                sourceMetadata.getProperty("CXTY")
+                                                                      .getUUID());
+                              break;
+
+                           default:
+                              this.importUtil.addStringAnnotation(cr,
+                                    columnValue,
+                                    metadataProperty.getUUID(),
+                                    State.ACTIVE);
+                              break;
+                           }
                         }
                      }
-                  }
 
-                  if (rs2.next()) {
-                     throw new RuntimeException("Too many sabs.  Perhaps you should be using versioned sabs!");
+                     if (rs2.next()) {
+                        throw new RuntimeException("Too many sabs.  Perhaps you should be using versioned sabs!");
+                     }
                   }
-
-                  rs2.close();
                } catch (final SQLException e) {
                   throw new RuntimeException("Error loading *SAB", e);
                }
@@ -1321,42 +1350,41 @@ public class RxNormMojo
       {
          ConsoleUtil.println("Creating semantic types");
 
-         final Statement s  = this.db.getConnection()
-                                      .createStatement();
-         final ResultSet rs = s.executeQuery("SELECT distinct TUI, STN, STY from " + this.tablePrefix + "STY");
+         try (Statement s = this.db.getConnection().createStatement()) {
+            final ResultSet rs = s.executeQuery("SELECT distinct TUI, STN, STY from " + this.tablePrefix + "STY");
 
-         while (rs.next()) {
-            final String tui = rs.getString("TUI");
-            final String stn = rs.getString("STN");
-            final String sty = rs.getString("STY");
-            final ComponentReference c = ComponentReference.fromConcept(
-                                             this.importUtil.createConcept(
-                                                ConverterUUID.createNamespaceUUIDFromString(
-                                                   this.ptUMLSAttributes.getProperty("STY")
-                                                         .getUUID() + ":" + sty),
-                                                      sty,
-                                                      null,
-                                                      null,
-                                                      null,
+            while (rs.next()) {
+               final String tui = rs.getString("TUI");
+               final String stn = rs.getString("STN");
+               final String sty = rs.getString("STY");
+               final ComponentReference c = ComponentReference.fromConcept(
+                                                this.importUtil.createConcept(
+                                                   ConverterUUID.createNamespaceUUIDFromString(
                                                       this.ptUMLSAttributes.getProperty("STY")
-                                                            .getUUID(),
-                                                      null));
+                                                            .getUUID() + ":" + sty),
+                                                         sty,
+                                                         null,
+                                                         null,
+                                                         null,
+                                                         this.ptUMLSAttributes.getProperty("STY")
+                                                               .getUUID(),
+                                                         null));
 
-            this.semanticTypes.put(tui, c.getPrimordialUuid());
-            this.importUtil.addStringAnnotation(c,
-                  tui,
-                  this.ptUMLSAttributes.getProperty("TUI")
-                                        .getUUID(),
-                  State.ACTIVE);
-            this.importUtil.addStringAnnotation(c,
-                  stn,
-                  this.ptUMLSAttributes.getProperty("STN")
-                                        .getUUID(),
-                  State.ACTIVE);
+               this.semanticTypes.put(tui, c.getPrimordialUuid());
+               this.importUtil.addStringAnnotation(c,
+                     tui,
+                     this.ptUMLSAttributes.getProperty("TUI")
+                                          .getUUID(),
+                     State.ACTIVE);
+               this.importUtil.addStringAnnotation(c,
+                     stn,
+                     this.ptUMLSAttributes.getProperty("STN")
+                                          .getUUID(),
+                     State.ACTIVE);
+            }
+
+            rs.close();
          }
-
-         rs.close();
-         s.close();
       }
    }
 
@@ -1377,7 +1405,7 @@ public class RxNormMojo
       this.nameToRel = new HashMap<>();
 
       Statement s = this.db.getConnection()
-                            .createStatement();
+                           .createStatement();
 
       // get the inverses of first, before the expanded forms
       ResultSet rs = s.executeQuery("SELECT DOCKEY, VALUE, TYPE, EXPL FROM " + this.tablePrefix +
@@ -1393,18 +1421,23 @@ public class RxNormMojo
             continue;  // don't need this one
          }
 
-         if (type.equals("snomedct_rela_mapping")) {
+         switch (type) {
+         case "snomedct_rela_mapping":
             ArrayList<String> targetSCTIDs = snomedCTRelaMappings.get(expl);
 
             if (targetSCTIDs == null) {
-               targetSCTIDs = new ArrayList<String>();
+               targetSCTIDs = new ArrayList<>();
                snomedCTRelaMappings.put(expl, targetSCTIDs);
             }
 
             targetSCTIDs.add(value);
-         } else if (type.equals("snomedct_rel_mapping")) {
+            break;
+
+         case "snomedct_rel_mapping":
             snomedCTRelMappings.put(value, expl);
-         } else {
+            break;
+
+         default:
             Relationship rel = this.nameToRel.get(value);
 
             if (rel == null) {
@@ -1425,13 +1458,21 @@ public class RxNormMojo
                }
             }
 
-            if (type.equals("expanded_form")) {
+            switch (type) {
+            case "expanded_form":
                rel.addDescription(value, expl);
-            } else if (type.equals("rela_inverse") || type.equals("rel_inverse")) {
+               break;
+
+            case "rela_inverse":
+            case "rel_inverse":
                rel.addRelInverse(value, expl);
-            } else {
+               break;
+
+            default:
                throw new RuntimeException("Oops");
             }
+
+            break;
          }
       }
 
@@ -1461,13 +1502,13 @@ public class RxNormMojo
          } else {
             for (final String sctid: x.getValue()) {
                this.nameToRel.get(x.getKey())
-                              .addSnomedCode(x.getKey(), sctid);
+                             .addSnomedCode(x.getKey(), sctid);
 
                final String relType = snomedCTRelMappings.remove(sctid);
 
                if (relType != null) {
                   this.nameToRel.get(x.getKey())
-                                 .addRelType(x.getKey(), relType);
+                                .addRelType(x.getKey(), relType);
 
                   // Shouldn't need this, but there are some cases where the metadata is inconsistent - with how it is actually used.
                   actuallyUsedRelsOrRelas.add(relType);
@@ -1491,7 +1532,7 @@ public class RxNormMojo
       ;
       this.ptAssociations.indexByAltNames();
       s = this.db.getConnection()
-                  .createStatement();
+                 .createStatement();
       rs = s.executeQuery("select distinct REL, RELA from " + this.tablePrefix + "REL where " + createSabQueryPart("",
             this.linkSnomedCT));
 
@@ -1558,13 +1599,13 @@ public class RxNormMojo
          // associations already handle inverse names
          if (!(p instanceof PropertyAssociation) && (r.getInverseFSNName() != null)) {
             this.importUtil.addDescription(cr,
-                                            ((r.getInverseAltName() == null) ? r.getInverseFSNName()
+                                           ((r.getInverseAltName() == null) ? r.getInverseFSNName()
                   : r.getInverseAltName()),
-                                            DescriptionType.FSN,
-                                            false,
-                                            this.ptDescriptions.getProperty("Inverse FSN")
-                                                  .getUUID(),
-                                            State.ACTIVE);
+                                           DescriptionType.FSN,
+                                           false,
+                                           this.ptDescriptions.getProperty("Inverse FSN")
+                                                 .getUUID(),
+                                           State.ACTIVE);
          }
 
          if (r.getAltName() != null) {
@@ -1578,74 +1619,74 @@ public class RxNormMojo
 
             // Yes, this looks funny, no its not a copy/paste error.  We swap the FSN and alt names for... it a long story.  42.
             this.importUtil.addDescription(cr,
-                                            descUUID,
-                                            r.getInverseFSNName(),
-                                            DescriptionType.SYNONYM,
-                                            false,
-                                            null,
-                                            null,
-                                            null,
-                                            null,
-                                            this.ptDescriptions.getProperty("Inverse Synonym")
-                                                  .getUUID(),
-                                            State.ACTIVE,
-                                            null);
+                                           descUUID,
+                                           r.getInverseFSNName(),
+                                           DescriptionType.SYNONYM,
+                                           false,
+                                           null,
+                                           null,
+                                           null,
+                                           null,
+                                           this.ptDescriptions.getProperty("Inverse Synonym")
+                                                 .getUUID(),
+                                           State.ACTIVE,
+                                           null);
          }
 
          if (r.getInverseDescription() != null) {
             this.importUtil.addDescription(cr,
-                                            r.getInverseDescription(),
-                                            DescriptionType.DEFINITION,
-                                            true,
-                                            this.ptDescriptions.getProperty("Inverse Description")
-                                                  .getUUID(),
-                                            State.ACTIVE);
+                                           r.getInverseDescription(),
+                                           DescriptionType.DEFINITION,
+                                           true,
+                                           this.ptDescriptions.getProperty("Inverse Description")
+                                                 .getUUID(),
+                                           State.ACTIVE);
          }
 
          if (r.getRelType() != null) {
             final Relationship generalRel = this.nameToRel.get(r.getRelType());
 
             this.importUtil.addUUIDAnnotation(cr,
-                                               (this.mapToIsa.containsKey(generalRel.getFSNName())
+                                              (this.mapToIsa.containsKey(generalRel.getFSNName())
                                                ? this.ptRelationships.getProperty(generalRel.getFSNName())
                                                : this.ptAssociations.getProperty(generalRel.getFSNName())).getUUID(),
-                                               this.ptRelationshipMetadata.getProperty("General Rel Type")
-                                                     .getUUID());
+                                              this.ptRelationshipMetadata.getProperty("General Rel Type")
+                                                    .getUUID());
          }
 
          if (r.getInverseRelType() != null) {
             final Relationship generalRel = this.nameToRel.get(r.getInverseRelType());
 
             this.importUtil.addUUIDAnnotation(cr,
-                                               (this.mapToIsa.containsKey(generalRel.getFSNName())
+                                              (this.mapToIsa.containsKey(generalRel.getFSNName())
                                                ? this.ptRelationships.getProperty(generalRel.getFSNName())
                                                : this.ptAssociations.getProperty(generalRel.getFSNName())).getUUID(),
-                                               this.ptRelationshipMetadata.getProperty("Inverse General Rel Type")
-                                                     .getUUID());
+                                              this.ptRelationshipMetadata.getProperty("Inverse General Rel Type")
+                                                    .getUUID());
          }
 
          for (final String sctCode: r.getRelSnomedCode()) {
             this.importUtil.addUUIDAnnotation(cr,
-                                               UuidT3Generator.fromSNOMED(sctCode),
-                                               this.ptRelationshipMetadata.getProperty("Snomed Code")
-                                                     .getUUID());
+                                              UuidT3Generator.fromSNOMED(sctCode),
+                                              this.ptRelationshipMetadata.getProperty("Snomed Code")
+                                                    .getUUID());
          }
 
          for (final String sctCode: r.getInverseRelSnomedCode()) {
             this.importUtil.addUUIDAnnotation(cr,
-                                               UuidT3Generator.fromSNOMED(sctCode),
-                                               this.ptRelationshipMetadata.getProperty("Inverse Snomed Code")
-                                                     .getUUID());
+                                              UuidT3Generator.fromSNOMED(sctCode),
+                                              this.ptRelationshipMetadata.getProperty("Inverse Snomed Code")
+                                                    .getUUID());
          }
       }
 
       if (this.ptRelationships.getProperties()
-                               .size() > 0) {
+                              .size() > 0) {
          this.importUtil.loadMetaDataItems(this.ptRelationships, this.metaDataRoot.getPrimordialUuid());
       }
 
       if (this.ptAssociations.getProperties()
-                              .size() > 0) {
+                             .size() > 0) {
          this.importUtil.loadMetaDataItems(this.ptAssociations, this.metaDataRoot.getPrimordialUuid());
       }
    }
@@ -1681,52 +1722,87 @@ public class RxNormMojo
          descriptionTypeRanking = BPT_Descriptions.FSN;
       } else if (fsnName.equals("FN")) {
          descriptionTypeRanking = BPT_Descriptions.FSN + 1;
-      }
+      }  // preferred gets applied with others as well, in some cases. Don't want 'preferred' 'obsolete' at the top.
 
-      // preferred gets applied with others as well, in some cases. Don't want 'preferred' 'obsolete' at the top.
       // Just preferred, and we make it the top synonym.
       else if (tty_classes.contains("preferred") && (tty_classes.size() == 1)) {
          // these sub-rankings are somewhat arbitrary at the moment, and in general, unused.  There is an error check up above which
          // will fail the conversion if it tries to rely on these sub-rankings to find a preferred term
          int preferredSubRank;
 
-         if (altName.equals("IN")) {
+         switch (altName) {
+         case "IN":
             preferredSubRank = 1;
-         } else if (altName.equals("MIN")) {
+            break;
+
+         case "MIN":
             preferredSubRank = 2;
-         } else if (altName.equals("PIN")) {
+            break;
+
+         case "PIN":
             preferredSubRank = 3;
-         } else if (altName.equals("SCD")) {
+            break;
+
+         case "SCD":
             preferredSubRank = 4;
-         } else if (altName.equals("BN")) {
+            break;
+
+         case "BN":
             preferredSubRank = 5;
-         } else if (altName.equals("SBD")) {
+            break;
+
+         case "SBD":
             preferredSubRank = 6;
-         } else if (altName.equals("DF")) {
+            break;
+
+         case "DF":
             preferredSubRank = 7;
-         } else if (altName.equals("BPCK")) {
+            break;
+
+         case "BPCK":
             preferredSubRank = 8;
-         } else if (altName.equals("GPCK")) {
+            break;
+
+         case "GPCK":
             preferredSubRank = 10;
-         } else if (altName.equals("DFG")) {
+            break;
+
+         case "DFG":
             preferredSubRank = 11;
-         } else if (altName.equals("PSN")) {
+            break;
+
+         case "PSN":
             preferredSubRank = 12;
-         } else if (altName.equals("SBDC")) {
+            break;
+
+         case "SBDC":
             preferredSubRank = 13;
-         } else if (altName.equals("SCDC")) {
+            break;
+
+         case "SCDC":
             preferredSubRank = 14;
-         } else if (altName.equals("SBDF")) {
+            break;
+
+         case "SBDF":
             preferredSubRank = 15;
-         } else if (altName.equals("SCDF")) {
+            break;
+
+         case "SCDF":
             preferredSubRank = 16;
-         } else if (altName.equals("SBDG")) {
+            break;
+
+         case "SBDG":
             preferredSubRank = 17;
-         } else if (altName.equals("SCDG")) {
+            break;
+
+         case "SCDG":
             preferredSubRank = 18;
-         } else {
+            break;
+
+         default:
             preferredSubRank = 20;
             ConsoleUtil.printErrorln("Unranked preferred TTY type! " + fsnName + " " + altName);
+            break;
          }
 
          descriptionTypeRanking = BPT_Descriptions.SYNONYM + preferredSubRank;
@@ -1783,21 +1859,18 @@ public class RxNormMojo
                   });
       ConsoleUtil.println("Read SCTID -> UUID mappings for " + this.sctIdToUUID.size() + " items");
 
-      final ResultSet rs = this.db.getConnection()
-                                   .createStatement()
-                                   .executeQuery("SELECT DISTINCT RXCUI, CODE from RXNCONSO where SAB='" +
-                                      this.sctSab + "'");
+      try (ResultSet rs = this.db.getConnection().createStatement().executeQuery(
+                              "SELECT DISTINCT RXCUI, CODE from RXNCONSO where SAB='" + this.sctSab + "'")) {
+         while (rs.next()) {
+            final String cui   = rs.getString("RXCUI");
+            final long   sctid = Long.parseLong(rs.getString("CODE"));
 
-      while (rs.next()) {
-         final String cui   = rs.getString("RXCUI");
-         final long   sctid = Long.parseLong(rs.getString("CODE"));
-
-         if (this.sctIdToUUID.containsKey(sctid)) {
-            this.cuiToSCTID.put(cui, sctid);
+            if (this.sctIdToUUID.containsKey(sctid)) {
+               this.cuiToSCTID.put(cui, sctid);
+            }
          }
       }
 
-      rs.close();
       ConsoleUtil.println("Read CUI -> SCTID mappings for " + this.cuiToSCTID.size() + " items");
    }
 
@@ -1814,8 +1887,8 @@ public class RxNormMojo
                    SQLException,
                    PropertyVetoException {
       final String          rxCui      = conceptData.get(0).rxcui;
-      final HashSet<String> uniqueTTYs = new HashSet<String>();
-      final HashSet<String> uniqueSABs = new HashSet<String>();
+      final HashSet<String> uniqueTTYs = new HashSet<>();
+      final HashSet<String> uniqueSABs = new HashSet<>();
 
       // ensure all the same CUI, gather the TTYs involved
       for (final RXNCONSO row: conceptData) {
@@ -1856,7 +1929,7 @@ public class RxNormMojo
          this.importUtil.addStringAnnotation(cuiConcept,
                rxCui,
                this.ptUMLSAttributes.getProperty("RXCUI")
-                                     .getUUID(),
+                                    .getUUID(),
                State.ACTIVE);
 
          final ArrayList<ValuePropertyPairWithSAB> cuiDescriptions = new ArrayList<>();
@@ -1872,37 +1945,40 @@ public class RxNormMojo
             this.descSat.setString(1, rxCui);
             this.descSat.setString(2, atom.rxaui);
 
-            final ResultSet         rs                 = this.descSat.executeQuery();
-            final ArrayList<RXNSAT> satData            = new ArrayList<>();
-            boolean                 disableDescription = false;
-            Long                    descriptionTime    = null;
+            final ArrayList<RXNSAT> satData;
+            boolean                 disableDescription;
+            Long                    descriptionTime;
 
-            while (rs.next()) {
-               final RXNSAT current = new RXNSAT(rs);
+            try (ResultSet rs = this.descSat.executeQuery()) {
+               satData            = new ArrayList<>();
+               disableDescription = false;
+               descriptionTime    = null;
 
-               satData.add(current);
+               while (rs.next()) {
+                  final RXNSAT current = new RXNSAT(rs);
 
-               if ("RXN_OBSOLETED".equals(current.atn)) {
-                  disableDescription = true;
-               }
+                  satData.add(current);
 
-               if ("RXN_ACTIVATED".equals(current.atn)) {
-                  try {
-                     final long time = this.dateParse.parse(current.atv)
-                                                     .getTime();
+                  if ("RXN_OBSOLETED".equals(current.atn)) {
+                     disableDescription = true;
+                  }
 
-                     descriptionTime = time;
+                  if ("RXN_ACTIVATED".equals(current.atn)) {
+                     try {
+                        final long time = this.dateParse.parse(current.atv)
+                                                        .getTime();
 
-                     if (time < conceptTime) {
-                        conceptTime = time;
+                        descriptionTime = time;
+
+                        if (time < conceptTime) {
+                           conceptTime = time;
+                        }
+                     } catch (final ParseException e) {
+                        throw new RuntimeException("Can't parse date?");
                      }
-                  } catch (final ParseException e) {
-                     throw new RuntimeException("Can't parse date?");
                   }
                }
             }
-
-            rs.close();
 
             final ValuePropertyPairWithSAB desc = new ValuePropertyPairWithSAB(atom.str,
                                                                                this.ptDescriptions.getProperty(
@@ -1932,7 +2008,7 @@ public class RxNormMojo
             desc.addUUIDAttribute(this.ptUMLSAttributes.getProperty("SAB")
                   .getUUID(),
                                   this.ptSABs.getProperty(atom.sab)
-                                              .getUUID());
+                                             .getUUID());
 
             if (StringUtils.isNotBlank(atom.code) &&!atom.code.equals("NOCODE")) {
                desc.addStringAttribute(this.ptUMLSAttributes.getProperty("CODE")
@@ -1974,7 +2050,7 @@ public class RxNormMojo
          }
 
          // sanity check on descriptions - make sure we only have one that is of type synonym with the preferred flag
-         final ArrayList<String> items = new ArrayList<String>();
+         final ArrayList<String> items = new ArrayList<>();
 
          for (final ValuePropertyPair vpp: cuiDescriptions) {
             // Numbers come from the rankings down below in makeDescriptionType(...)
@@ -2015,7 +2091,7 @@ public class RxNormMojo
 
          final List<SememeChronology<DescriptionSememe<?>>> addedDescriptions =
             this.importUtil.addDescriptions(cuiConcept,
-                                             cuiDescriptions);
+                                            cuiDescriptions);
 
          if (addedDescriptions.size() != cuiDescriptions.size()) {
             throw new RuntimeException("oops");
@@ -2049,7 +2125,7 @@ public class RxNormMojo
                   itemUUID,
                   umlsCui,
                   this.ptTermAttributes.getProperty("UMLSCUI")
-                                        .getUUID(),
+                                       .getUUID(),
                   State.ACTIVE);
          }
 
@@ -2075,7 +2151,6 @@ public class RxNormMojo
 //                       throw e;
 //               }
 //       }
-
          // add semantic types
          this.semanticTypeStatement.clearParameters();
          this.semanticTypeStatement.setString(1, rxCui);
@@ -2152,7 +2227,7 @@ public class RxNormMojo
          // for some reason, ATUI isn't always provided - don't know why.  must gen differently in those cases...
          UUID       stringAttrUUID;
          final UUID refsetUUID = this.ptTermAttributes.getProperty(rxnsat.atn)
-                                                       .getUUID();
+                                                      .getUUID();
 
          if (rxnsat.atui != null) {
             stringAttrUUID = ConverterUUID.createNamespaceUUIDFromString("ATUI" + rxnsat.atui);
@@ -2169,25 +2244,25 @@ public class RxNormMojo
          // a hack we are doing within the RxNorm load.
          final ComponentReference attribute =
             ComponentReference.fromChronology(this.importUtil.addStringAnnotation(itemToAnnotate,
-                                                                                   stringAttrUUID,
-                                                                                   rxnsat.atv,
-                                                                                   refsetUUID,
-                                                                                   State.ACTIVE),
+                                                                                  stringAttrUUID,
+                                                                                  rxnsat.atv,
+                                                                                  refsetUUID,
+                                                                                  State.ACTIVE),
                                               () -> "Attribute");
 
          if (StringUtils.isNotBlank(rxnsat.atui)) {
             this.importUtil.addStringAnnotation(attribute,
                   rxnsat.atui,
                   this.ptUMLSAttributes.getProperty("ATUI")
-                                        .getUUID(),
+                                       .getUUID(),
                   null);
          }
 
          if (StringUtils.isNotBlank(rxnsat.stype)) {
             this.importUtil.addUUIDAnnotation(attribute,
-                                               this.sTypes.get(rxnsat.stype),
-                                               this.ptUMLSAttributes.getProperty("STYPE")
-                                                     .getUUID());
+                                              this.sTypes.get(rxnsat.stype),
+                                              this.ptUMLSAttributes.getProperty("STYPE")
+                                                    .getUUID());
          }
 
          if (StringUtils.isNotBlank(rxnsat.code) && StringUtils.isNotBlank(itemCode) &&!rxnsat.code.equals(itemCode)) {
@@ -2203,7 +2278,7 @@ public class RxNormMojo
             this.importUtil.addStringAnnotation(attribute,
                   rxnsat.satui,
                   this.ptUMLSAttributes.getProperty("SATUI")
-                                        .getUUID(),
+                                       .getUUID(),
                   State.ACTIVE);
          }
 
@@ -2216,9 +2291,9 @@ public class RxNormMojo
 
          if (StringUtils.isNotBlank(rxnsat.suppress)) {
             this.importUtil.addUUIDAnnotation(attribute,
-                                               this.suppress.get(rxnsat.suppress),
-                                               this.ptUMLSAttributes.getProperty("SUPPRESS")
-                                                     .getUUID());
+                                              this.suppress.get(rxnsat.suppress),
+                                              this.ptUMLSAttributes.getProperty("SUPPRESS")
+                                                    .getUUID());
          }
 
          if (StringUtils.isNotBlank(rxnsat.cvf)) {
@@ -2248,18 +2323,17 @@ public class RxNormMojo
 //       {
          final ComponentReference annotation =
             ComponentReference.fromChronology(this.importUtil.addUUIDAnnotation(concept,
-                                                                                 this.semanticTypes.get(
-                                                                                    rs.getString("TUI")),
-                                                                                 this.ptUMLSAttributes.getProperty(
-                                                                                    "STY")
-                                                                                       .getUUID()),
+                                                                                this.semanticTypes.get(
+                                                                                   rs.getString("TUI")),
+                                                                                this.ptUMLSAttributes.getProperty("STY")
+                                                                                      .getUUID()),
                                               () -> "Sememe Member");
 
          if (rs.getString("ATUI") != null) {
             this.importUtil.addStringAnnotation(annotation,
                   rs.getString("ATUI"),
                   this.ptUMLSAttributes.getProperty("ATUI")
-                                        .getUUID(),
+                                       .getUUID(),
                   State.ACTIVE);
          }
 
@@ -2268,7 +2342,7 @@ public class RxNormMojo
             this.importUtil.addStringAnnotation(annotation,
                   rs.getString("CVF"),
                   this.ptUMLSAttributes.getProperty("CVF")
-                                        .getUUID(),
+                                       .getUUID(),
                   State.ACTIVE);
          }
 
@@ -2362,46 +2436,45 @@ public class RxNormMojo
 
       ConsoleUtil.println("Creating '" + niceName + "' types");
       {
-         final Statement s = this.db.getConnection()
-                                     .createStatement();
-         final ResultSet rs = s.executeQuery("SELECT VALUE, TYPE, EXPL FROM " + this.tablePrefix +
-                                 "DOC where DOCKEY='" + dockey + "'");
+         try (Statement s = this.db.getConnection().createStatement()) {
+            final ResultSet rs = s.executeQuery("SELECT VALUE, TYPE, EXPL FROM " + this.tablePrefix +
+                                    "DOC where DOCKEY='" + dockey + "'");
 
-         while (rs.next()) {
-            final String value = rs.getString("VALUE");
-            final String type  = rs.getString("TYPE");
-            final String name  = rs.getString("EXPL");
+            while (rs.next()) {
+               final String value = rs.getString("VALUE");
+               final String type  = rs.getString("TYPE");
+               final String name  = rs.getString("EXPL");
 
-            if (value == null) {
-               // there is a null entry, don't care about it.
-               continue;
+               if (value == null) {
+                  // there is a null entry, don't care about it.
+                  continue;
+               }
+
+               if (!type.equals("expanded_form")) {
+                  throw new RuntimeException("Unexpected type in the attribute data within DOC: '" + type + "'");
+               }
+
+               final UUID created = this.importUtil.createConcept(ConverterUUID.createNamespaceUUIDFromString(parent +
+                                       ":" + (loadAsDefinition ? value
+                     : name)), (loadAsDefinition ? value
+                                                 : name), null, (loadAsDefinition ? null
+                     : value), (loadAsDefinition ? name
+                                                 : null), parent, null)
+                                                   .getPrimordialUuid();
+
+               result.put((loadAsDefinition ? value
+                                            : name), created);
+
+               if (!loadAsDefinition) {
+                  result.put(value, created);
+               }
             }
 
-            if (!type.equals("expanded_form")) {
-               throw new RuntimeException("Unexpected type in the attribute data within DOC: '" + type + "'");
-            }
-
-            final UUID created = this.importUtil.createConcept(ConverterUUID.createNamespaceUUIDFromString(parent +
-                                    ":" + (loadAsDefinition ? value
-                  : name)), (loadAsDefinition ? value
-                                              : name), null, (loadAsDefinition ? null
-                  : value), (loadAsDefinition ? name
-                                              : null), parent, null)
-                                                 .getPrimordialUuid();
-
-            result.put((loadAsDefinition ? value
-                                         : name), created);
-
-            if (!loadAsDefinition) {
-               result.put(value, created);
-            }
+            rs.close();
          }
-
-         rs.close();
-         s.close();
       }
 
-      if (result.size() == 0) {
+      if (result.isEmpty()) {
          // This can happen, depending on what is included during the metamorphosys run
          ConsoleUtil.println("No entries found for '" + niceName + "' - skipping");
          return null;
@@ -2411,6 +2484,11 @@ public class RxNormMojo
    }
 
    //~--- get methods ---------------------------------------------------------
+
+   @Override
+   protected ConverterUUID.NAMESPACE getNamespace() {
+      return ConverterUUID.NAMESPACE.RXNORM;
+   }
 
    /**
     * Checks if rel primary.
@@ -2422,12 +2500,12 @@ public class RxNormMojo
    private boolean isRelPrimary(String relName, String relaName) {
       if (relaName != null) {
          return this.nameToRel.get(relaName)
-                               .getFSNName()
-                               .equals(relaName);
+                              .getFSNName()
+                              .equals(relaName);
       } else {
          return this.nameToRel.get(relName)
-                               .getFSNName()
-                               .equals(relName);
+                              .getFSNName()
+                              .equals(relName);
       }
    }
 }

@@ -64,8 +64,6 @@ import org.apache.maven.plugin.MojoExecutionException;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.rxnorm.rrf.RXNCONSO;
-
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -88,6 +86,7 @@ import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.task.TimedTask;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
+import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.converters.sharedUtils.umlsUtils.rrf.REL;
 import sh.isaac.model.logic.LogicalExpressionOchreImpl;
 import sh.isaac.model.logic.node.AndNode;
@@ -95,6 +94,7 @@ import sh.isaac.model.logic.node.LiteralNodeFloat;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithSequences;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
+import sh.isaac.rxnorm.rrf.RXNCONSO;
 
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
@@ -619,5 +619,9 @@ public class RxNormLogicGraphsMojo
 //         }
 //         throw new RuntimeException("Can't find assemblage nid with the name " + uniqueName);
 // }
+   @Override
+   protected ConverterUUID.NAMESPACE getNamespace() {
+      return ConverterUUID.NAMESPACE.RXNORM;
+   }
 }
 

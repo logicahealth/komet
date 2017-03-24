@@ -50,14 +50,7 @@ import java.util.List;
 /**
  * The Interface TerminologyFileReader.
  */
-public interface TerminologyFileReader {
-   /**
-    * Close.
-    *
-    * @throws IOException Signals that an I/O exception has occurred.
-    */
-   void close()
-            throws IOException;
+public interface TerminologyFileReader extends AutoCloseable {
 
    //~--- get methods ---------------------------------------------------------
 
