@@ -132,7 +132,7 @@ public interface IndexServiceBI
     *
     * @param query The query to apply.
     * @param sizeLimit The maximum size of the result list.
-    * @return a List of {@code SearchResult</codes> that contains the nid of the
+    * @return a List of {@code SearchResult} that contains the nid of the
     * component that matched, and the score of that match relative to other matches.
     */
    List<SearchResult> query(String query, int sizeLimit);
@@ -146,7 +146,7 @@ public interface IndexServiceBI
     * @param targetGeneration (optional) target generation that must be included in the search
     * or Long.MIN_VALUE if there is no need to wait for a target generation.  Long.MAX_VALUE can be passed in to force this query to wait until
     * any in progress indexing operations are completed - and then use the latest index.  Null behaves the same as Long.MIN_VALUE
-    * @return a List of {@code SearchResult</codes> that contains the nid of the
+    * @return a List of {@code SearchResult} that contains the nid of the
     * component that matched, and the score of that match relative to other matches.
     */
    List<SearchResult> query(String query, Integer[] sememeConceptSequence, int sizeLimit, Long targetGeneration);
