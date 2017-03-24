@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
         <artifactId>integration</artifactId>
-		<version>4.8-SNAPSHOT</version>
+		<version>4.7</version>
 	</parent>
 
 	<groupId>sh.isaac.integration</groupId>
