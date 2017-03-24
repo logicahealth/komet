@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>solor</artifactId>
-      <version>4.7</version>
+      <version>4.8</version>
    </parent>
 	
    <groupId>sh.isaac.solor</groupId>
@@ -19,6 +19,26 @@
          <groupId>org.apache.maven.plugin-tools</groupId>
          <artifactId>maven-plugin-annotations</artifactId>
       </dependency>
+      <dependency>
+         <groupId>org.apache.maven.enforcer</groupId>
+         <artifactId>enforcer-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.maven</groupId>
+         <artifactId>maven-core</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.maven</groupId>
+         <artifactId>maven-artifact</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.maven</groupId>
+         <artifactId>maven-plugin-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.codehaus.plexus</groupId>
+         <artifactId>plexus-container-default</artifactId>
+      </dependency>    
       <dependency>
          <groupId>sh.isaac.integration</groupId>
          <artifactId>import-utils</artifactId>
