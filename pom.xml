@@ -643,6 +643,8 @@
                <enableSshAgent>true</enableSshAgent>
                <allowSnapshots>false</allowSnapshots>
                <enableFeatureVersions>true</enableFeatureVersions>
+               <username>${git.user}</username>
+               <password>${git.password}</password>
             </configuration>
          </plugin>
          <plugin>
