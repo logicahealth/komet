@@ -196,7 +196,7 @@ public class IBDFCreationUtility {
     * @param outputArtifactId - Combined with outputArtifactClassifier and outputArtifactVersion to name the final ibdf file
     * @param outputArtifactVersion - Combined with outputArtifactClassifier and outputArtifactId to name the final ibdf file
     * @param outputArtifactClassifier - optional - Combined with outputArtifactId and outputArtifactVersion to name the final ibdf file
-    * @param outputGson - true to dump out the data in gson format for debug
+    * @param outputJson - true to dump out the data in gson format for debug
     * @param defaultTime - the timestamp to place on created elements, when no other timestamp is specified on the element itself.
     * @throws Exception the exception
     */
@@ -206,7 +206,7 @@ public class IBDFCreationUtility {
                               String outputArtifactId,
                               String outputArtifactVersion,
                               String outputArtifactClassifier,
-                              boolean outputGson,
+                              boolean outputJson,
                               long defaultTime)
             throws Exception {
       UuidIntMapMap.NID_TO_UUID_CACHE_SIZE = 5000000;
@@ -305,11 +305,11 @@ public class IBDFCreationUtility {
 
       // tack the version onto the end of the ibdf file, so that when multiple ibdf files for a single type of content, such as
       // loinc 2.52, loinc 2.54 - we don't have a file name collision during the ibdf build.
-      final String outputName = outputArtifactId + (StringUtils.isBlank(outputArtifactClassifier) ? ""
-            : "-" + outputArtifactClassifier) + "-" + outputArtifactVersion;
+      final String outputName = outputArtifactId + "-" + outputArtifactVersion + (StringUtils.isBlank(outputArtifactClassifier) ? ""
+            : "-" + outputArtifactClassifier);
 
       this.writer = new MultipleDataWriterService(
-          outputGson ? Optional.of(new File(outputDirectory, outputName + ".json").toPath())
+          outputJson ? Optional.of(new File(outputDirectory, outputName + ".json").toPath())
                      : Optional.empty(),
           Optional.of(new File(outputDirectory, outputName + ".ibdf").toPath()));
 
