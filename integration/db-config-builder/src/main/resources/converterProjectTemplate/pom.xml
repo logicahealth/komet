@@ -75,26 +75,6 @@
 #UNPACK_DEPENDENCIES#
 				</executions>
 			</plugin>
-			<plugin>
-				<!-- metadata we want in the output package -->
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version>
-				<executions>
-					<execution>
-						<id>write-pom-properties</id>
-						<phase>validate</phase>
-						<configuration>
-							<target>
-								<echoproperties destfile="${project.build.directory}/pom.properties" />
-							</target>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 	

@@ -64,7 +64,6 @@ public class VerifyIbdfVersionFormat
    @Override
    public void execute(EnforcerRuleHelper helper)
             throws EnforcerRuleException {
-
       try {
          // get the various expressions out of the helper.
          MavenProject project              = (MavenProject) helper.evaluate("${project}");
@@ -77,34 +76,35 @@ public class VerifyIbdfVersionFormat
          String       loaderVersion        = project.getProperties()
                                                     .getProperty("loader.version");
 
-         if (!artifactId.endsWith(ARTIFACT_SUFFIX)) {
-            throw new EnforcerRuleException(
-                "To follow convention, the artifact id must end in: " + ARTIFACT_SUFFIX + " found: " + artifactId);
-         }
+         if (!artifactId.equals("solor-parent")) {
+            if (artifactId.endsWith(ARTIFACT_SUFFIX)) {
+               if (!sourceDataArtifactId.endsWith(SOURCE_DATA_SUFFIX)) {
+                  throw new EnforcerRuleException(
+                      "To follow convention, the source data artifact id must end in: " + SOURCE_DATA_SUFFIX +
+                      " found: " + sourceDataArtifactId);
+               }
 
-         if (!sourceDataArtifactId.endsWith(SOURCE_DATA_SUFFIX)) {
-            throw new EnforcerRuleException(
-                "To follow convention, the source data artifact id must end in: " + SOURCE_DATA_SUFFIX + " found: " +
-                sourceDataArtifactId);
-         }
-         if (!version.startsWith(sourceDataVersion)) {
-            throw new EnforcerRuleException(
-                "To follow convention, the version must start with the source data version: " + sourceDataVersion + " found: " +
-                version);
-         }
-         if (!version.contains("-loader-" + loaderVersion)) {
-            throw new EnforcerRuleException(
-                "To follow convention, the version must contain the loader version: " + loaderVersion + " found: " +
-                version);
-         }
-         
-         String constructedVersionStart = sourceDataVersion + "-loader-" + loaderVersion;
-         if (!version.startsWith(constructedVersionStart)) {
-            throw new EnforcerRuleException(
-                "To follow convention, the version must start with: " + constructedVersionStart + " found: " +
-                version);
-         }
+               if (!version.startsWith(sourceDataVersion)) {
+                  throw new EnforcerRuleException(
+                      "To follow convention, the version must start with the source data version: " +
+                      sourceDataVersion + " found: " + version);
+               }
 
+               if (!version.contains("-loader-" + loaderVersion)) {
+                  throw new EnforcerRuleException(
+                      "To follow convention, the version must contain the loader version: " + loaderVersion +
+                      " found: " + version);
+               }
+
+               String constructedVersionStart = sourceDataVersion + "-loader-" + loaderVersion;
+
+               if (!version.startsWith(constructedVersionStart)) {
+                  throw new EnforcerRuleException(
+                      "To follow convention, the version must start with: " + constructedVersionStart + " found: " +
+                      version);
+               }
+            }
+         }
       } catch (ExpressionEvaluationException e) {
          throw new EnforcerRuleException("Unable to lookup an expression " + e.getLocalizedMessage(), e);
       }
