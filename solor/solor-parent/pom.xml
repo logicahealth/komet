@@ -14,7 +14,15 @@
       for SOLOR projects. SOLOR projects are specific to managing SNOMED, LOINC, and RxNorm content, 
       and publishing that content using maven dependency management, and ISAAC data structures, processed 
       using ISAAC libraries.</description>
-   
+ 	
+   <developers>
+      <developer>
+         <properties>
+            <info>For a listing of developers, clone the project and execute 'git shortlog -sn'</info>
+         </properties>
+      </developer>
+   </developers>
+  
    <dependencyManagement>
       <dependencies>
          <dependency>
@@ -41,8 +49,35 @@
                <groupId>sh.isaac.solor</groupId>
                <artifactId>rxnorm-mojo</artifactId>
                <version>${project.parent.version}</version>
-            </plugin>
+            </plugin>      
          </plugins>
       </pluginManagement>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <dependencies>
+               <dependency>
+                  <groupId>sh.isaac.solor</groupId>
+                  <artifactId>rf2-mojo</artifactId>
+                  <version>${project.parent.version}</version>
+               </dependency>
+            </dependencies>
+            <executions>
+               <execution>
+                  <id>enforce</id>
+                  <phase>initialize</phase>
+                  <configuration>
+                     <rules>
+                        <myCustomRule implementation="sh.isaac.convert.rf2.mojo.VerifyIbdfVersionFormat" />
+                     </rules>
+                  </configuration>
+                  <goals>
+                     <goal>enforce</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>             
+      </plugins>
    </build>
 </project>
