@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
         <artifactId>provider</artifactId>
-		<version>4.15-SNAPSHOT</version>
+		<version>4.16-SNAPSHOT</version>
 	</parent>
 	<groupId>sh.isaac.provider</groupId>
 	<artifactId>sync-git</artifactId>
