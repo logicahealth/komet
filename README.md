@@ -3,15 +3,28 @@ ISAAC
 
 ISAAC Object Chronicle Project
 
-mvn clean deploy -DaltDeploymentRepository=serverId::default::http://artifactory.isaac.sh/artifactory/libs-snapshot
+To deploy, set a profile in your settings.xml with the repository you want to deploy to, 
+patterned after these entries:
+
+      <profile>
+         <id>release-deploy</id>
+         <properties>
+            <altDeploymentRepository>central::default::http://artifactory.isaac.sh/artifactory/libs-release-local</altDeploymentRepository>
+         </properties>
+      </profile>
+      
+      <profile>
+         <id>snapshot-deploy</id>
+         <properties>
+            <altDeploymentRepository>central::default::http://artifactory.isaac.sh/artifactory/libs-snapshot-local</altDeploymentRepository>
+         </properties>
+      </profile>
+
+ 
+
+mvn clean deploy -Psnapshot-deploy
 
 Release Notes
 mvn jgitflow:release-start jgitflow:release-finish -DreleaseVersion=3.08 -DdevelopmentVersion=3.09-SNAPSHOT
 
-To run HP Fortify scan on child projects (assuming Fortify application and license installed)
-        $ mvn -Dmaven.test.skip=true -Dfortify.sca.buildId={PROJECT_NAME} -Dfortify.sca.toplevel.artifactId=isaac-parent com.hpe.security.fortify.maven.plugin:sca-maven-plugin:clean
-        $ mvn -Dmaven.test.skip=true -Dfortify.sca.buildId={PROJECT_NAME} -Dfortify.sca.toplevel.artifactId=isaac-parent com.hpe.security.fortify.maven.plugin:sca-maven-plugin:translate
-        $ mvn -Dmaven.test.skip=true -Dfortify.sca.buildId={PROJECT_NAME} -Dfortify.sca.toplevel.artifactId=isaac-parent com.hpe.security.fortify.maven.plugin:sca-maven-plugin:scan
-
-
-
+mvn jgitflow:release-start jgitflow:release-finish -Prelease-deploy
