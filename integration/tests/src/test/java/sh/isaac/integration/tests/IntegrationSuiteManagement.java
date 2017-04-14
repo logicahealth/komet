@@ -52,8 +52,12 @@ import org.jvnet.testing.hk2testng.HK2;
 
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
+import sh.isaac.MetaData;
+import sh.isaac.api.Get;
 
 import sh.isaac.api.LookupService;
+import sh.isaac.api.component.concept.ConceptSnapshot;
+import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.memory.HeapUseTicker;
 import sh.isaac.api.progress.ActiveTasksTicker;
 

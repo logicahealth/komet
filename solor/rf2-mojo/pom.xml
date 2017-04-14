@@ -70,7 +70,10 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-plugin-plugin</artifactId>
-            <executions>
+              <configuration>
+                <goalPrefix>${project.artifactId}</goalPrefix>
+            </configuration>
+          <executions>
                <execution>
                   <id>mojo-descriptor</id>
                   <goals>

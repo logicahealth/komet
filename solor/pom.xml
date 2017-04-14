@@ -8,7 +8,7 @@
     </parent>
     <artifactId>solor</artifactId>
     <name>ISAAC SOLOR: (MMP)</name>
-    <description>Aggrigator project for ISAAC's SOLOR modules</description>
+    <description>Aggregator project for ISAAC's SOLOR modules</description>
     <packaging>pom</packaging>
     <modules>
         <module>loinc-mojo</module>

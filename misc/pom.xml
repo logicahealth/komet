@@ -9,7 +9,7 @@
     <artifactId>misc</artifactId>
     <packaging>pom</packaging>
     <name>ISAAC misc: (MMP)</name>
-    <description>Aggrigator project for miscellaneous ISAAC modules</description>
+    <description>Aggregator project for miscellaneous ISAAC modules</description>
     <modules>
        <module>exporters</module>
        <module>util</module>

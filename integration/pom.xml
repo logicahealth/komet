@@ -8,7 +8,7 @@
     </parent>
     <artifactId>integration</artifactId>
     <name>ISAAC integration: (MMP)</name>
-    <description>Aggrigator project for integration ISAAC modules</description>
+    <description>Aggregator project for integration ISAAC modules</description>
     <packaging>pom</packaging>
     <modules>
         <module>db-builder</module>

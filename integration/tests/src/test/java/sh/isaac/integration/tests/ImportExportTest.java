@@ -49,6 +49,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -80,6 +81,10 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.MetaData;
+import sh.isaac.api.component.concept.ConceptSnapshot;
+import sh.isaac.api.component.concept.ConceptSnapshotService;
+import sh.isaac.api.component.sememe.SememeChronology;
+import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.model.logic.LogicByteArrayConverterService;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderOchreProvider;
 
@@ -129,7 +134,7 @@ public class ImportExportTest {
       final ClassifierService logicService = Get.logicService()
                                                 .getClassifierService(stampCoordinate, logicCoordinate, editCoordinate);
       final Task<ClassifierResults> classifyTask = logicService.classify();
-
+      
       try {
          final ClassifierResults classifierResults = classifyTask.get();
 

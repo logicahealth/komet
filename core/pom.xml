@@ -8,7 +8,7 @@
     </parent>
     <artifactId>core</artifactId>
     <name>ISAAC core: (MMP)</name>
-    <description>Aggrigator project for core ISAAC modules</description>
+    <description>Aggregator project for core ISAAC modules</description>
     <packaging>pom</packaging>
     <modules>
        <module>api</module>
