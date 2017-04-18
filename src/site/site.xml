@@ -26,7 +26,7 @@
    </custom>
    <body>
       <breadcrumbs>
-         <item name="Informatics Architecture" href="http://informatics-architecture.net"/>        
+         <item name="Informatics Architecture" href="http://informatics-architecture.net/index.html"/>        
          <item name="ISAAC" href="index.html"/>        
       </breadcrumbs>
       <menu ref="parent"/>
