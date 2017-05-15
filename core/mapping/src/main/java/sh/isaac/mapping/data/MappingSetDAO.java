@@ -47,13 +47,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import sh.isaac.MetaData;
 
 import sh.isaac.api.Get;
@@ -100,8 +101,10 @@ import sh.isaac.utility.Frills;
  */
 public class MappingSetDAO
         extends MappingDAO {
-   /** The Constant LOG. */
-   private static final Logger LOG = LoggerFactory.getLogger(MappingSetDAO.class);
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 
@@ -205,7 +208,7 @@ public class MappingSetDAO
          Get.commitService()
             .commit("update mapping item")
             .get();
-      } catch (final Exception e) {
+      } catch (final InterruptedException | ExecutionException e) {
          throw new RuntimeException();
       }
 

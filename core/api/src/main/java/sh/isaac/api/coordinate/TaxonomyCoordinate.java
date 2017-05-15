@@ -41,7 +41,12 @@ package sh.isaac.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.sememe.SememeChronology;
+import sh.isaac.api.component.sememe.version.DescriptionSememe;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -105,5 +110,19 @@ public interface TaxonomyCoordinate
     * @return a UUID that uniquely identifies this taxonomy coordinate.
     */
    UUID getUuid();
+   
+   /**
+    * Return the description according to the type and dialect preferences
+    * of the {@code TaxonomyCoordinate}'s {@code LanguageCoordinate}.
+    *
+    * @param descriptionList descriptions to consider
+    * @return an optional description best matching the {@code LanguageCoordinate}
+    * constraints.
+    */
+   default Optional<LatestVersion<DescriptionSememe<?>>> getDescription(
+           List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList) {
+      return getLanguageCoordinate().getDescription(descriptionList, getStampCoordinate());
+   };
+
 }
 

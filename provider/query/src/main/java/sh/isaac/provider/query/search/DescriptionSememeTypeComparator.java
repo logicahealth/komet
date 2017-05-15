@@ -42,11 +42,10 @@ package sh.isaac.provider.query.search;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Comparator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
@@ -61,8 +60,10 @@ import sh.isaac.api.component.sememe.version.DescriptionSememe;
  */
 public class DescriptionSememeTypeComparator
          implements Comparator<DescriptionSememe<?>> {
-   /** The Constant LOG. */
-   protected static final Logger LOG = LoggerFactory.getLogger(DescriptionSememeTypeComparator.class);
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 

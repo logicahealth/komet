@@ -48,11 +48,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -80,8 +79,10 @@ import sh.isaac.utility.Frills;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class CompositeSearchResult {
-   /** The Constant LOG. */
-   private static final Logger LOG = LoggerFactory.getLogger(CompositeSearchResult.class);
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>build</actionName>
+            <packagings>
+                <packaging>*</packaging>
+            </packagings>
+            <goals>
+                <goal>-e</goal>
+                <goal>install</goal>
+            </goals>
+            <properties>
+                <Env.MAVEN_OPTS>-Xmx12g -Xms12g</Env.MAVEN_OPTS>
+            </properties>
+        </action>
+        <action>
+            <actionName>rebuild</actionName>
+            <packagings>
+                <packaging>*</packaging>
+            </packagings>
+            <goals>
+                <goal>-e</goal>
+                <goal>clean</goal>
+                <goal>install</goal>
+            </goals>
+            <properties>
+                <Env.MAVEN_OPTS>-Xmx12g -Xms12g</Env.MAVEN_OPTS>
+            </properties>
+        </action>
+        <action>
+            <actionName>build-with-dependencies</actionName>
+            <reactor>also-make</reactor>
+            <packagings>
+                <packaging>*</packaging>
+            </packagings>
+            <goals>
+                <goal>-e</goal>
+                <goal>install</goal>
+            </goals>
+            <properties>
+                <Env.MAVEN_OPTS>-Xmx12g -Xms12g</Env.MAVEN_OPTS>
+            </properties>
+        </action>
+        <action>
+            <actionName>test</actionName>
+            <packagings>
+                <packaging>*</packaging>
+            </packagings>
+            <goals>
+                <goal>-e</goal>
+                <goal>test</goal>
+            </goals>
+            <properties>
+                <Env.MAVEN_OPTS>-Xmx12g -Xms12g</Env.MAVEN_OPTS>
+            </properties>
+        </action>
+        <action>
+            <actionName>test.single</actionName>
+            <packagings>
+                <packaging>*</packaging>
+            </packagings>
+            <goals>
+                <goal>-e</goal>
+                <goal>test-compile</goal>
+                <goal>surefire:test</goal>
+            </goals>
+            <properties>
+                <test>${packageClassName}</test>
+                <Env.MAVEN_OPTS>-Xmx12g -Xms12g</Env.MAVEN_OPTS>
+            </properties>
+        </action>
+        <action>
+            <actionName>debug</actionName>
+            <goals>
+                <goal>-e</goal>
+                <goal>clean</goal>
+                <goal>install</goal>
+                
+            </goals>
+            <properties>
+                <jpda.listen>maven</jpda.listen>
+                <Env.MAVEN_OPTS>-ea -Xmx12g -Xms12g</Env.MAVEN_OPTS>
+                
+            </properties>
+        </action>
+        <action>
+            <actionName>debug.test.single</actionName>
+            <packagings>
+                <packaging>*</packaging>
+            </packagings>
+            <goals>
+                <goal>-e</goal>
+                <goal>test-compile</goal>
+                <goal>surefire:test</goal>
+            </goals>
+            <properties>
+                <Env.MAVEN_OPTS>-Xmx12g -Xms12g</Env.MAVEN_OPTS>
+                <test>${packageClassName}</test>
+                <forkMode>once</forkMode>
+                <maven.surefire.debug>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address}</maven.surefire.debug>
+                <jpda.listen>true</jpda.listen>
+            </properties>
+        </action>
+        <action>
+            <actionName>profile</actionName>
+            <properties>
+                <Env.MAVEN_OPTS>-Xmx12g -Xms12g</Env.MAVEN_OPTS>
+            </properties>
+        </action>
+        <action>
+            <actionName>run.single.main</actionName>
+            <packagings>
+                <packaging>*</packaging>
+            </packagings>
+            <goals>
+                <goal>-e</goal>
+                <goal>process-classes</goal>
+                <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
+            </goals>
+            <properties>
+                <exec.args>-classpath %classpath ${packageClassName}</exec.args>
+                <exec.executable>java</exec.executable>
+                <exec.classpathScope>${classPathScope}</exec.classpathScope>
+            </properties>
+        </action>
+        <action>
+            <actionName>CUSTOM-snapshot deploy</actionName>
+            <displayName>snapshot deploy</displayName>
+            <goals>
+                <goal>-e</goal>
+                <goal>clean</goal>
+                <goal>install</goal>
+                <goal>deploy</goal>
+            </goals>
+            <properties>
+                <Env.MAVEN_OPTS>-Xmx12g -Xms12g</Env.MAVEN_OPTS>
+                <altDeploymentRepository>central::default::http://artifactory.informatics.com/artifactory/libs-snapshot-local</altDeploymentRepository>
+            </properties>
+        </action>
+        <action>
+            <actionName>CUSTOM-release deploy</actionName>
+            <displayName>release deploy</displayName>
+            <goals>
+                <goal>-e</goal>
+                <goal>clean</goal>
+                <goal>deploy</goal>
+            </goals>
+            <properties>
+                <Env.MAVEN_OPTS>-Xmx12g -Xms12g</Env.MAVEN_OPTS>
+                <altDeploymentRepository>central::default::http://artifactory.informatics.com/artifactory/libs-release-local</altDeploymentRepository>
+            </properties>
+        </action>
+    </actions>

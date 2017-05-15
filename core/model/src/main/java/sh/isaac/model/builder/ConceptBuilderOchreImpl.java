@@ -205,6 +205,32 @@ public class ConceptBuilderOchreImpl
       this.logicalExpressionBuilders.add(logicalExpressionBuilder);
       return this;
    }
+   /**
+    * Sets the logical expression. This method erases any previous logical expressions. 
+    *
+    * @param logicalExpression the logical expression
+    * @return the concept builder
+    */
+   @Override
+   public ConceptBuilder setLogicalExpression(LogicalExpression logicalExpression) {
+      this.logicalExpressions.clear();
+      this.logicalExpressions.add(logicalExpression);
+      return this;
+   }
+
+   /**
+    * Sets the logical expression builder. This method erases previous logical expression builders. 
+    *
+    * @param logicalExpressionBuilder the logical expression builder
+    * @return the concept builder
+    */
+   @Override
+   public ConceptBuilder setLogicalExpressionBuilder(LogicalExpressionBuilder logicalExpressionBuilder) {
+      this.logicalExpressionBuilders.clear();
+      this.logicalExpressionBuilders.add(logicalExpressionBuilder);
+      return this;
+   }
+
 
    /**
     * Builds the.

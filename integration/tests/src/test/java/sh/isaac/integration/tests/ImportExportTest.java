@@ -287,7 +287,12 @@ public class ImportExportTest {
                              .getRoots(taxonomyCoordinate)
                              .toArray();
 
-      Assert.assertEquals(roots.length, 1);
+      StringBuilder rootsMessage = new StringBuilder();
+      for (int root: roots) {
+         rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
+      }
+      
+      Assert.assertEquals(roots.length, 1, rootsMessage.toString());
 
       final Tree          taxonomyTree  = Get.taxonomyService()
                                              .getTaxonomyTree(taxonomyCoordinate);
@@ -346,8 +351,12 @@ public class ImportExportTest {
       final int[] roots = Get.taxonomyService()
                              .getRoots(taxonomyCoordinate)
                              .toArray();
-
-      Assert.assertEquals(roots.length, 1);
+      StringBuilder rootsMessage = new StringBuilder();
+      for (int root: roots) {
+         rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
+      }
+      
+      Assert.assertEquals(roots.length, 1, rootsMessage.toString());
 
       final Tree          taxonomyTree  = Get.taxonomyService()
                                              .getTaxonomyTree(taxonomyCoordinate);

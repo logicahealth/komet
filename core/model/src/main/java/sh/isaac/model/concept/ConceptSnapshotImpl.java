@@ -127,6 +127,10 @@ public class ConceptSnapshotImpl
       return this.snapshotVersion.toString();
    }
 
+   @Override
+   public String toString() {
+      return this.getDescription().getText();
+   }
    //~--- get methods ---------------------------------------------------------
 
    /**

@@ -326,7 +326,7 @@ public class TermAux {
                                                                                     UUID.fromString(
                                                                                        "1f201e12-960e-11e5-8994-feff819cdc9f"));
 
-   /** ConceptProxy for: "snorocket classifier". IsaacMetadataAuxiliary has "SnoRocket classifier", TermAux has "Snorocket classifier" */
+   /** ConceptProxy for: "Snorocket classifier". IsaacMetadataAuxiliary has "SnoRocket classifier", TermAux has "Snorocket classifier" */
    public static ConceptSpecification SNOROCKET_CLASSIFIER = new ConceptProxy("Snorocket classifier",
                                                                               UUID.fromString(
                                                                                  "1f201fac-960e-11e5-8994-feff819cdc9f"));
@@ -345,6 +345,11 @@ public class TermAux {
    public static ConceptSpecification NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION =
       new ConceptProxy("necessary but not sufficient concept definition",
                        UUID.fromString("e1a12059-3b01-3296-9532-d10e49d0afc3"));
+
+   /** ConceptProxy for: "ISAAC metadata" */
+   public static ConceptSpecification ISAAC_METADATA =
+      new ConceptProxy("ISAAC metadata",
+                       UUID.fromString("7bbd4210-381c-11e7-9598-0800200c9a66"));
 
    //~--- methods -------------------------------------------------------------
 

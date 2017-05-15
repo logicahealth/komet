@@ -55,11 +55,10 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -93,8 +92,10 @@ import sh.isaac.utility.Frills;
 
 //TODO need to rework these APIs to take in path info - so that the path for the search can easily be customized from the search GUI
 public class SearchHandler {
-   /** The Constant LOG. */
-   private static final Logger LOG = LoggerFactory.getLogger(SearchHandler.class);
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
 
    /** The description sememe assemblages cache. */
    private static Integer[] descriptionSememeAssemblagesCache = null;

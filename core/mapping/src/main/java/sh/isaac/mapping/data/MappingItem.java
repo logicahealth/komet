@@ -52,9 +52,8 @@ import java.util.UUID;
 import javafx.application.Platform;
 
 import javafx.beans.property.SimpleStringProperty;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
@@ -74,28 +73,30 @@ import sh.isaac.utility.Frills;
  */
 public class MappingItem
         extends MappingObject {
-   /** The Constant LOG. */
-   private static final Logger LOG = LoggerFactory.getLogger(MappingItem.class);
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
 
    /** The Constant NO_MAP_NAME. */
    private static final String NO_MAP_NAME = "(not mapped)";
 
-   /** The Constant sourceComparator. */
-   public static final Comparator<MappingItem> sourceComparator =
+   /** The Constant SOURCE_COMPARATOR. */
+   public static final Comparator<MappingItem> SOURCE_COMPARATOR =
       (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getSourceConceptProperty()
                                                          .get(),
                                                        o2.getSourceConceptProperty()
                                                              .get());
 
-   /** The Constant targetComparator. */
-   public static final Comparator<MappingItem> targetComparator =
+   /** The Constant TARGET_COMPARATOR. */
+   public static final Comparator<MappingItem> TARGET_COMPARATOR =
       (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getTargetConceptProperty()
                                                          .get(),
                                                        o2.getTargetConceptProperty()
                                                              .get());
 
-   /** The Constant qualifierComparator. */
-   public static final Comparator<MappingItem> qualifierComparator =
+   /** The Constant QUALIFIER_COMPARATOR. */
+   public static final Comparator<MappingItem> QUALIFIER_COMPARATOR =
       (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getQualifierConceptProperty()
                                                          .get(),
                                                        o2.getQualifierConceptProperty()
@@ -190,7 +191,7 @@ public class MappingItem
                         }
 
                         if (comments.size() > 1) {
-                           commentValue.append(" (+" + Integer.toString(comments.size() - 1) + " more)");
+                           commentValue.append(" (+").append(Integer.toString(comments.size() - 1)).append(" more)");
                         }
                      } catch (final IOException e) {
                         LOG.error("Error reading comments!", e);

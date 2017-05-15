@@ -45,6 +45,7 @@ import java.security.InvalidParameterException;
 
 import java.util.Arrays;
 import java.util.UUID;
+import org.apache.logging.log4j.LogManager;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -67,8 +68,6 @@ import java.util.UUID;
  * limitations under the License.
  */
 import org.jvnet.hk2.annotations.Contract;
-
-import org.slf4j.LoggerFactory;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.ObjectChronologyType;
@@ -276,7 +275,7 @@ public interface DynamicSememeUtility {
                         if (rethrow) {
                            throw e;
                         } else {
-                           LoggerFactory.getLogger(DynamicSememeUtility.class)
+                           LogManager.getLogger()
                                         .debug("Couldn't execute validator due to missing coordiantes");
                         }
                      }

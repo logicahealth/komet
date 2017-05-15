@@ -47,11 +47,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import sh.isaac.MetaData;
 
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -69,8 +68,10 @@ import sh.isaac.utility.SimpleDisplayConcept;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class MappingUtils {
-   /** The Constant LOG. */
-   protected static final Logger LOG = LoggerFactory.getLogger(MappingUtils.class);
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
 
    /** The Constant CODE_SYSTEM_CONCEPTS. */
    public static final HashMap<String, ConceptSpecification> CODE_SYSTEM_CONCEPTS = new HashMap<String,
@@ -122,13 +123,12 @@ public class MappingUtils {
             throws IOException {
       final ArrayList<SimpleDisplayConcept> result = new ArrayList<>();
 
-      for (final Integer conSequence:
-            Frills.getAllChildrenOfConcept(IsaacMappingConstants.get().MAPPING_EQUIVALENCE_TYPES
-                  .getSequence(),
-                  true,
-                  false)) {
-         result.add(new SimpleDisplayConcept(conSequence));
-      }
+      Frills.getAllChildrenOfConcept(IsaacMappingConstants.get().MAPPING_EQUIVALENCE_TYPES
+              .getSequence(),
+              true,
+              false).forEach((conSequence) -> {
+                 result.add(new SimpleDisplayConcept(conSequence));
+      });
 
       Collections.sort(result);
       return result;

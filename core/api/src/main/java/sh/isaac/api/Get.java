@@ -49,6 +49,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -721,6 +723,13 @@ public class Get
 
       return workExecutors;
    }
+   public static ThreadPoolExecutor executor() {
+      return workExecutors().getExecutor();
+   }
+   
+   public static ScheduledExecutorService scheduledExecutor() {
+      return workExecutors().getScheduledThreadPoolExecutor();
+   }
 
    //~--- get methods ---------------------------------------------------------
 
@@ -740,6 +749,10 @@ public class Get
       }
 
       return service;
+   }
+   
+   public static <T> T service(Class<T> clazz) {
+      return getService(clazz);
    }
 }
 

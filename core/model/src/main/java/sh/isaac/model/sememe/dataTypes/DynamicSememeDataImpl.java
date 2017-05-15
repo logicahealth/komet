@@ -43,10 +43,9 @@ package sh.isaac.model.sememe.dataTypes;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
+import org.apache.logging.log4j.LogManager;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.slf4j.LoggerFactory;
 
 import sh.isaac.api.LookupService;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
@@ -106,7 +105,7 @@ public abstract class DynamicSememeDataImpl
     * @param columnNumber the column number
     */
    @Override
-   public void configureNameProvider(int assemblageSequence, int columnNumber) {
+   public final void configureNameProvider(int assemblageSequence, int columnNumber) {
       if (this.nameProvider == null) {
          this.nameProvider = new Supplier<String>() {
             private String nameCache = null;
@@ -171,8 +170,7 @@ public abstract class DynamicSememeDataImpl
       case POLYMORPHIC:
       case UNKNOWN:
       default:
-         LoggerFactory.getLogger(DynamicSememeDataImpl.class)
-                      .error("Unexpected case!");
+         LogManager.getLogger().error("Unexpected case!");
          return "--internal error--";
       }
    }
@@ -200,11 +198,7 @@ public abstract class DynamicSememeDataImpl
 
       final DynamicSememeDataImpl other = (DynamicSememeDataImpl) obj;
 
-      if (!Arrays.equals(this.data, other.data)) {
-         return false;
-      }
-
-      return true;
+      return Arrays.equals(this.data, other.data);
    }
 
    /**

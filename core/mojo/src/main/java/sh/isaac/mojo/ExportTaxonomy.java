@@ -117,6 +117,25 @@ public class ExportTaxonomy
 
          final IsaacTaxonomy taxonomy = LookupService.get()
                                                      .getService(IsaacTaxonomy.class);
+
+         // Read in the MetadataConceptConstant constant objects
+         // TODO: this step adds the metadata constant to the last concept on the parent stack... 
+         // WHich is not always what you want, and subject to change if the IsaacTaxonomy class changes. 
+         // Need to modify 
+         for (final ModuleProvidedConstants mpc: LookupService.get()
+               .getAllServices(ModuleProvidedConstants.class)) {
+            getLog().info("Adding metadata constants from " + mpc.getClass().getName());
+
+            int count = 0;
+
+            for (final MetadataConceptConstant mc: mpc.getConstantsToCreate()) {
+               taxonomy.createConcept(mc);
+               count++;
+            }
+
+            getLog().info("Created " + count + " concepts (+ their children)");
+         }
+
          final File          javaDir  = new File(this.buildDirectory, "src/generated");
 
          javaDir.mkdirs();
@@ -139,21 +158,6 @@ public class ExportTaxonomy
 
          try (Writer javaWriter = new BufferedWriter(new FileWriter(bindingFile));) {
             taxonomy.exportJavaBinding(javaWriter, this.bindingPackage, this.bindingClass);
-         }
-
-         // Read in the MetadataConceptConstant constant objects
-         for (final ModuleProvidedConstants mpc: LookupService.get()
-               .getAllServices(ModuleProvidedConstants.class)) {
-            getLog().info("Adding metadata constants from " + mpc.getClass().getName());
-
-            int count = 0;
-
-            for (final MetadataConceptConstant mc: mpc.getConstantsToCreate()) {
-               taxonomy.createConcept(mc);
-               count++;
-            }
-
-            getLog().info("Created " + count + " concepts (+ their children)");
          }
 
          // Now write out the other files, so they have all of the constants.

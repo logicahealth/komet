@@ -29,6 +29,9 @@
          <item name="Informatics Architecture" href="http://informatics-architecture.net/index.html"/>        
          <item name="ISAAC" href="index.html"/>        
       </breadcrumbs>
+      <menu name="Developer resources">
+         <item name="Use of css by JavaFx" href="https://docs.oracle.com/javase/8/javafx/api/javafx/scene/doc-files/cssref.html#intro"/>
+      </menu>
       <menu ref="parent"/>
       <menu ref="modules"/>
       <menu ref="reports"/>

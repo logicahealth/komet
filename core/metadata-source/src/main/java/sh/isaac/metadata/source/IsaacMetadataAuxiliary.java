@@ -60,12 +60,19 @@ import org.glassfish.hk2.api.Rank;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.IsaacTaxonomy;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import sh.isaac.api.constants.DynamicSememeConstants;
 import sh.isaac.api.constants.MetadataDynamicSememeConstant;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.LogicalExpressionBuilder;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.NodeSemantic;
 
 import static sh.isaac.model.observable.ObservableFields.ALLOWED_STATES_FOR_STAMP_COORDINATE;
@@ -148,7 +155,7 @@ public class IsaacMetadataAuxiliary
          createConcept(TermAux.ISAAC_ROOT);
          pushParent(current());
          createConcept("health concept").setPrimordialUuid("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8");
-         createConcept("ISAAC metadata");
+         createConcept(TermAux.ISAAC_METADATA);
          pushParent(current());
          createConcept("module").mergeFromSpec(TermAux.UNSPECIFIED_MODULE);
          pushParent(current());
@@ -479,7 +486,23 @@ public class IsaacMetadataAuxiliary
          createConcept(DESCRIPTION_LIST_FOR_CONCEPT);
          popParent();
          popParent();
+         
+         popParent(); // ISAAC root should still be parent on stack... 
+         createConcept("test concept");
+         pushParent(current());
+         ConceptBuilder parentOneBuilder = createConcept("parent one");
+         pushParent(current());
+         ConceptBuilder multiParentBuilder = createConcept("multi-parent");
+         popParent();
+         ConceptBuilder parentTwoBuilder = createConcept("parent two");
+         
+         
+         
 
+         
+         
+         popParent();
+         
          // Note that we leave this method with the root concept set as parent (on purpose) - we don't call popParent the last time.
          // This way, if createConcept(...) is called again, the new concepts go under root.
          // this nasty oversight took _far_ too long to recognize.
@@ -488,6 +511,16 @@ public class IsaacMetadataAuxiliary
          // breaks things in interesting ways when we have ibdf files that references the UUIDs from a
          // MetaData file....
          generateStableUUIDs();
+
+         final LogicalExpressionBuilderService expressionBuilderService =
+            LookupService.getService(LogicalExpressionBuilderService.class);
+         final LogicalExpressionBuilder defBuilder = expressionBuilderService.getLogicalExpressionBuilder();
+                  NecessarySet(And(ConceptAssertion(parentOneBuilder.getNid(), defBuilder), 
+                          ConceptAssertion(parentTwoBuilder.getNid(), defBuilder)));
+         
+         final LogicalExpression logicalExpression = defBuilder.build();
+         multiParentBuilder.setLogicalExpression(logicalExpression);
+
       } catch (final Exception ex) {
          Logger.getLogger(IsaacMetadataAuxiliary.class.getName())
                .log(Level.SEVERE, null, ex);

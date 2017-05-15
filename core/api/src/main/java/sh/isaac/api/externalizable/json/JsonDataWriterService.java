@@ -57,10 +57,9 @@ import org.glassfish.hk2.api.PerLookup;
 
 import org.jvnet.hk2.annotations.Service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.cedarsoftware.util.io.JsonWriter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
@@ -80,7 +79,7 @@ import sh.isaac.api.util.TimeFlushBufferedOutputStream;
 public class JsonDataWriterService
          implements DataWriterService {
    /** The logger. */
-   private final Logger logger = LoggerFactory.getLogger(JsonDataWriterService.class);
+   private static final Logger LOG = LogManager.getLogger();
 
    /** The pause block. */
    private final Semaphore pauseBlock = new Semaphore(1);
@@ -156,7 +155,7 @@ public class JsonDataWriterService
     * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
-   public void configure(Path path)
+   public final void configure(Path path)
             throws IOException {
       if (this.json != null) {
          throw new IOException("Reconfiguration not supported");
@@ -170,7 +169,7 @@ public class JsonDataWriterService
       this.json    = new JsonWriter(new TimeFlushBufferedOutputStream(this.fos), args);
       this.json.addWriter(ConceptChronology.class, new Writers.ConceptChronologyJsonWriter());
       this.json.addWriter(SememeChronology.class, new Writers.SememeChronologyJsonWriter());
-      this.logger.info("json changeset writer has been configured to write to " +
+      LOG.info("json changeset writer has been configured to write to " +
                        this.dataPath.toAbsolutePath().toString());
    }
 
@@ -197,13 +196,13 @@ public class JsonDataWriterService
    public void pause()
             throws IOException {
       if (this.json == null) {
-         this.logger.warn("already paused!");
+         LOG.warn("already paused!");
          return;
       }
 
       this.pauseBlock.acquireUninterruptibly();
       close();
-      this.logger.debug("json writer paused");
+      LOG.debug("json writer paused");
    }
 
    /**
@@ -245,7 +244,7 @@ public class JsonDataWriterService
    public void resume()
             throws IOException {
       if (this.pauseBlock.availablePermits() == 1) {
-         this.logger.warn("asked to resume, but not paused?");
+         LOG.warn("asked to resume, but not paused?");
          return;
       }
 
@@ -254,7 +253,7 @@ public class JsonDataWriterService
       }
 
       this.pauseBlock.release();
-      this.logger.debug("json writer resumed");
+      LOG.debug("json writer resumed");
    }
 
    //~--- get methods ---------------------------------------------------------

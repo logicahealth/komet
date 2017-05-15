@@ -158,7 +158,7 @@ public class IsaacMappingConstants
    ;
 
    /** The dynamic sememe column mapping sequence. */
-   public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_MAPPING_SEQUENCE = new MetadataConceptConstant("Sequence",
+   public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_MAPPING_SEQUENCE = new MetadataConceptConstant("Mapping sequence",
                                                                                                              UUID.fromString(
                                                                                                                 "83e8e74e-596e-5622-b945-17dbe8e9c05c"),
                                                                                                              "The sequence value attached to the mapping",

@@ -182,7 +182,7 @@ public class ConceptProvider
                         .exists()) {
                try {
                   this.dbId = UUID.fromString(new String(Files.readAllBytes(dbIdPath)));
-               } catch (final Exception e) {
+               } catch (final IOException e) {
                   throw new IllegalStateException("The " + CRADLE_ID_FILE_NAME + " file does not contain a valid UUID!",
                                                   e);
                }

@@ -43,11 +43,10 @@ package sh.isaac.mapping.data;
 
 import java.util.Optional;
 import java.util.UUID;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
@@ -69,8 +68,10 @@ import sh.isaac.api.coordinate.StampCoordinate;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public abstract class MappingDAO {
-   /** The Constant LOG. */
-   protected static final Logger LOG = LoggerFactory.getLogger(MappingDAO.class);
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 

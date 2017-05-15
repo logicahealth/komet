@@ -107,6 +107,8 @@ public class ObservableTaxonomyCoordinateImpl
     */
    @Override
    public ObjectProperty<ObservableLanguageCoordinate> languageCoordinateProperty() {
+      
+      
       if (this.languageCoordinateProperty == null) {
          this.languageCoordinateProperty = new SimpleObjectProperty<>(this,
                ObservableFields.LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE.toExternalString(),

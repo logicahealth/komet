@@ -41,6 +41,7 @@ package sh.isaac.mapping.data;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -50,9 +51,9 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.SimpleStringProperty;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import sh.isaac.MetaData;
 
 import sh.isaac.api.Get;
@@ -79,21 +80,23 @@ import sh.isaac.utility.Frills;
  */
 public class MappingSet
         extends MappingObject {
-   /** The Constant LOG. */
-   private static final Logger LOG = LoggerFactory.getLogger(MappingSet.class);
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
 
-   /** The Constant nameComparator. */
-   public static final Comparator<MappingSet> nameComparator =
+   /** The Constant NAME_COMPARATOR. */
+   public static final Comparator<MappingSet> NAME_COMPARATOR =
       (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getName(),
                                                        o2.getName());
 
-   /** The Constant purposeComparator. */
-   public static final Comparator<MappingSet> purposeComparator =
+   /** The Constant PURPOSE_COMPARATOR. */
+   public static final Comparator<MappingSet> PURPOSE_COMPARATOR =
       (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getPurpose(),
                                                        o2.getPurpose());
 
-   /** The Constant descriptionComparator. */
-   public static final Comparator<MappingSet> descriptionComparator =
+   /** The Constant DESCRIPTION_COMPARATOR. */
+   public static final Comparator<MappingSet> DESCRIPTION_COMPARATOR =
       (o1, o2) -> StringUtils.compareStringsIgnoreCase(o1.getDescription(),
                                                        o2.getDescription());
 
@@ -284,11 +287,11 @@ public class MappingSet
     * @return the mapping items
     */
    public List<MappingItem> getMappingItems(StampCoordinate stampCoord) {
-      List<MappingItem> mappingItems = null;
+      List<MappingItem> mappingItems;
 
       try {
          mappingItems = MappingItemDAO.getMappingItems(this.getPrimordialUUID(), stampCoord);
-      } catch (final Exception e) {
+      } catch (final IOException e) {
          LOG.error("Error retrieving Mapping Items for " + this.getName(), e);
          mappingItems = new ArrayList<>();
       }

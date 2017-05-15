@@ -50,13 +50,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.mahout.math.Arrays;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -70,8 +69,10 @@ import org.slf4j.LoggerFactory;
  */
 public class SearchResultsIntersectionFilter
          implements Function<List<CompositeSearchResult>, List<CompositeSearchResult>> {
-   /** The Constant LOG. */
-   private static final Logger LOG = LoggerFactory.getLogger(SearchResultsIntersectionFilter.class);
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 

@@ -61,11 +61,10 @@ import javafx.concurrent.Task;
 
 import org.apache.commons.lang3.StringUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.progress.ProgressMonitor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -77,7 +76,7 @@ import net.lingala.zip4j.progress.ProgressMonitor;
 public class DownloadUnzipTask
         extends Task<File> {
    /** The log. */
-   private static Logger log = LoggerFactory.getLogger(DownloadUnzipTask.class);
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
@@ -169,7 +168,7 @@ public class DownloadUnzipTask
       String     expectedSha1Value   = null;;
 
       try {
-         log.debug("Attempting to get .sha1 file");
+         LOG.debug("Attempting to get .sha1 file");
 
          final File sha1File = download(new URL(this.url.toString() + ".sha1"));
 
@@ -191,7 +190,7 @@ public class DownloadUnzipTask
          calculatedSha1Value = calculateTask.get();
          sha1File.delete();
       } catch (final Exception e1) {
-         log.debug("Failed to get .sha1 file", e1);
+         LOG.debug("Failed to get .sha1 file", e1);
       }
 
       if ((calculatedSha1Value != null) &&!calculatedSha1Value.equals(expectedSha1Value)) {
@@ -199,12 +198,12 @@ public class DownloadUnzipTask
             throw new RuntimeException("Checksum of downloaded file '" + this.url.toString() +
                                        "' does not match the expected value!");
          } else {
-            log.warn("Checksum of downloaded file '" + this.url.toString() + "' does not match the expected value!");
+            LOG.warn("Checksum of downloaded file '" + this.url.toString() + "' does not match the expected value!");
          }
       }
 
       if (this.cancel) {
-         log.debug("Download cancelled");
+         LOG.debug("Download cancelled");
          throw new Exception("Cancelled!");
       }
 
@@ -222,7 +221,7 @@ public class DownloadUnzipTask
                if (this.cancel) {
                   zipFile.getProgressMonitor()
                          .cancelAllTasks();
-                  log.debug("Download cancelled");
+                  LOG.debug("Download cancelled");
                   throw new Exception("Cancelled!");
                }
 
@@ -239,9 +238,9 @@ public class DownloadUnzipTask
                }
             }
 
-            log.debug("Unzip complete");
+            LOG.debug("Unzip complete");
          } catch (final Exception e) {
-            log.error("error unzipping", e);
+            LOG.error("error unzipping", e);
             throw new Exception("The downloaded file doesn't appear to be a zip file");
          } finally {
             dataFile.delete();
@@ -262,7 +261,7 @@ public class DownloadUnzipTask
     */
    private File download(URL url)
             throws Exception {
-      log.debug("Beginning download from " + url);
+      LOG.debug("Beginning download from " + url);
       updateMessage("Download from " + url);
 
       final HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
@@ -306,10 +305,10 @@ public class DownloadUnzipTask
       }
 
       if (this.cancel) {
-         log.debug("Download cancelled");
+         LOG.debug("Download cancelled");
          throw new Exception("Cancelled!");
       } else {
-         log.debug("Download complete");
+         LOG.debug("Download complete");
       }
 
       return file;
