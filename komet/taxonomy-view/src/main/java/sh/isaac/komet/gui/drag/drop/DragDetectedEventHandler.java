@@ -57,9 +57,6 @@ public class DragDetectedEventHandler implements EventHandler<MouseEvent> {
             Image dragImage = draggableWithImageNode.getDragImage();
             double xOffset = ((dragImage.getWidth()/2) + draggableWithImageNode.getDragViewOffsetX()) - event.getX();
             double yOffset = event.getY() - (dragImage.getHeight()/2);
-            System.out.println("\n\nclick x,y: " + event.getX() + ", " + event.getY());
-            System.out.println("xOffset: " + xOffset);
-            System.out.println("yOffset: " + yOffset + "\n");
             db.setDragView(dragImage, xOffset, yOffset);
          }
 

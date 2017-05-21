@@ -90,7 +90,7 @@ public class Manifold {
       return editCoordinate;
    }
 
-   public SimpleObjectProperty<IdentifiedObject> getFocusedObjectProperty() {
+   public SimpleObjectProperty<IdentifiedObject> focusedObjectProperty() {
       return focusedObject;
    }
 

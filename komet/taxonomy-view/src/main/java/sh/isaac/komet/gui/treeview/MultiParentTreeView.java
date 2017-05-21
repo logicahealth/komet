@@ -33,6 +33,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -120,8 +122,15 @@ public class MultiParentTreeView extends BorderPane {
         this.manifold.set(manifold);
         treeView = new TreeView<>();
         //treeView.setSkin(new MultiParentTreeViewSkin<>(treeView));
+        treeView.getSelectionModel().selectedItemProperty().addListener(
+                (ObservableValue<? extends TreeItem<ConceptChronology<? extends ConceptVersion<?>>>> observable, 
+                 TreeItem<ConceptChronology<? extends ConceptVersion<?>>> oldValue, 
+                 TreeItem<ConceptChronology<? extends ConceptVersion<?>>> newValue) -> {
+           manifold.setFocusedObject(newValue.getValue());
+        });
         
         
+         
         Button descriptionType = new Button();
         descriptionType.setPadding(new Insets(2.0));
         Node displayFsn = Iconography.LONG_TEXT.getIconographic();

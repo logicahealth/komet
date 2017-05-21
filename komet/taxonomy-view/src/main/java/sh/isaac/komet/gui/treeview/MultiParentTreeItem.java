@@ -49,7 +49,7 @@ import sh.isaac.api.util.AlphanumComparator;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  * @see MultiParentTreeCell
  */
-class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends ConceptVersion<?>>> 
+public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends ConceptVersion<?>>> 
         implements MultiParentTreeItemI, Comparable<MultiParentTreeItem> {
 
    /**

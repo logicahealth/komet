@@ -305,49 +305,39 @@ final public class MultiParentTreeCell
 
       dragOffset = 0;
 
-      double minY   = 0;
       double width  = this.getWidth();
       double height = this.getHeight();
 
       if (graphicTilePane != null) {
+         // The height difference and widh difference are to account for possible 
+         // changes in size of an object secondary to a hover (which might cause a 
+         // -fx-effect:  dropshadow... or similar, whicn will create a diference in the 
+         // tile pane height, but not cause a change in getLayoutBounds()...
+         // I don't know if this is a workaround for a bug, or if this is expected
+         // behaviour for some reason...
          double layoutHeight     = graphicTilePane.getLayoutBounds()
                                        .getHeight();
          double heightDifference = graphicTilePane.getBoundsInParent()
                                                   .getHeight() - layoutHeight;
-         double heightAdjustment       = 0;
          if (heightDifference > 0) {
             heightDifference = Math.rint(heightDifference);
-            heightAdjustment       = heightDifference / 2;
-            //System.out.println("heightAdjustment: " + heightAdjustment);
          }
 
          double layoutWidth     = graphicTilePane.getLayoutBounds()
                                        .getWidth();
          double widthDifference = graphicTilePane.getBoundsInParent()
                                                   .getWidth() - layoutWidth;
-         //System.out.println("widthDifference: " + widthDifference);
          double widthAdjustment       = 0;
          if (widthDifference > 0) {
             widthDifference = Math.rint(widthDifference);
             widthAdjustment       = widthDifference / 2;
-            //System.out.println("widthAdjustment: " + widthAdjustment);
          }
 
          dragOffset = graphicTilePane.getBoundsInParent()
                                      .getMinX() + widthAdjustment;
-         minY       = this.getBoundsInParent()
-                          .getMinY() + heightAdjustment;
-//System.out.println("this.width: " + this.getWidth());
-//System.out.println("dragOffset: " + dragOffset);
-//System.out.println("getBoundsInParent(): " + this.getBoundsInParent());
-//System.out.println("getBoundsInLocal(): " + this.getBoundsInLocal());
          width      = this.getWidth() - dragOffset;
-//System.out.println("width: " + width);
-         //height     = layoutHeight;
          height     = this.getLayoutBounds().getHeight();
       }
-      //System.out.println("computed drag offset: " + dragOffset);
-      System.out.println("x, y, width, height: " + (dragOffset -2) + ", " + 0 + ", " +width+ ", " +height);
       
       try {
          snapshotParameters.setTransform(this.getLocalToParentTransform().createInverse());
