@@ -54,7 +54,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.external.RoleNodeSomeWithUuids;
 
@@ -81,7 +81,7 @@ public final class RoleNodeSomeWithSequences
     * @param dataInputStream the data input stream
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public RoleNodeSomeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
+   public RoleNodeSomeWithSequences(LogicalExpressionImpl logicGraphVersion,
                                     DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
@@ -94,7 +94,7 @@ public final class RoleNodeSomeWithSequences
     * @param typeConceptId the type concept id
     * @param child the child
     */
-   public RoleNodeSomeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
+   public RoleNodeSomeWithSequences(LogicalExpressionImpl logicGraphVersion,
                                     int typeConceptId,
                                     AbstractLogicNode child) {
       super(logicGraphVersion, typeConceptId, child);

@@ -51,7 +51,7 @@ import org.apache.mahout.math.list.ShortArrayList;
 
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.logic.LogicNode;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -85,7 +85,7 @@ public abstract class ConnectorNode
     * @param logicGraphVersion the logic graph version
     * @param children the children
     */
-   public ConnectorNode(LogicalExpressionOchreImpl logicGraphVersion, AbstractLogicNode... children) {
+   public ConnectorNode(LogicalExpressionImpl logicGraphVersion, AbstractLogicNode... children) {
       super(logicGraphVersion);
       this.childIndices = new ShortArrayList(children.length);
 
@@ -101,7 +101,7 @@ public abstract class ConnectorNode
     * @param dataInputStream the data input stream
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public ConnectorNode(LogicalExpressionOchreImpl logicGraphVersion,
+   public ConnectorNode(LogicalExpressionImpl logicGraphVersion,
                         DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);

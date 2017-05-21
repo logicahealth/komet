@@ -44,6 +44,7 @@ package sh.isaac.api.coordinate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
@@ -123,6 +124,46 @@ public interface TaxonomyCoordinate
            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList) {
       return getLanguageCoordinate().getDescription(descriptionList, getStampCoordinate());
    };
+   
+      
+   /**
+    * Get the preferred description associated with the {@code conceptId}.
+    * @param conceptId the conceptId to get the text for.
+    * @return preferred description. 
+    */
+   default Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(int conceptId) {
+      return getLanguageCoordinate().getPreferredDescription(conceptId, 
+              getStampCoordinate());
+   }
+   /**
+    * Get the preferred description text associated with the {@code conceptId}.
+    * @param conceptId the conceptId to get the text for.
+    * @return preferred description text. 
+    */
+   default String getPreferredDescriptionText(int conceptId) {
+      return getLanguageCoordinate().getPreferredDescriptionText(conceptId, 
+              getStampCoordinate());
+   }
+   
+   
+   /**
+    * Get the fully-specified description associated with the {@code conceptId}.
+    * @param conceptId the conceptId to get the text for.
+    * @return preferred description.
+    */
+   default Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(int conceptId) {
+      return getLanguageCoordinate().getFullySpecifiedDescription(conceptId, getStampCoordinate());
+   }
+
+  /**
+    * Get the fully-specified description text associated with the {@code conceptId}.
+    * @param conceptId the conceptId to get the text for.
+    * @return preferred description text.
+    */
+   default String getFullySpecifiedDescriptionText(int conceptId) {
+      return getLanguageCoordinate().getFullySpecifiedDescriptionText(conceptId, getStampCoordinate());
+   }
+
 
 }
 

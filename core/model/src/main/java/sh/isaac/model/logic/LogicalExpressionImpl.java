@@ -118,7 +118,7 @@ import sh.isaac.model.logic.node.internal.TypedNodeWithSequences;
  *
  * TODO Standard refset for right identities
  */
-public class LogicalExpressionOchreImpl
+public class LogicalExpressionImpl
          implements LogicalExpression {
    /** The Constant NODE_SEMANTICS. */
    private static final NodeSemantic[] NODE_SEMANTICS = NodeSemantic.values();
@@ -146,7 +146,7 @@ public class LogicalExpressionOchreImpl
    /**
     * Instantiates a new logical expression ochre impl.
     */
-   public LogicalExpressionOchreImpl() {}
+   public LogicalExpressionImpl() {}
 
    /**
     * Instantiates a new logical expression ochre impl.
@@ -154,7 +154,7 @@ public class LogicalExpressionOchreImpl
     * @param nodeDataArray the node data array
     * @param dataSource the data source
     */
-   public LogicalExpressionOchreImpl(byte[][] nodeDataArray, DataSource dataSource) {
+   public LogicalExpressionImpl(byte[][] nodeDataArray, DataSource dataSource) {
       try {
          this.logicNodes = new ArrayList<>(nodeDataArray.length);
 
@@ -332,7 +332,7 @@ public class LogicalExpressionOchreImpl
     * is not added to this logical expression, otherwise the value of the
     * solution element is used for the nodeId in this logical expression.
     */
-   public LogicalExpressionOchreImpl(LogicalExpressionOchreImpl another, int[] solution) {
+   public LogicalExpressionImpl(LogicalExpressionImpl another, int[] solution) {
       addNodesWithMap(another, solution, new int[another.getNodeCount()], another.rootNodeIndex);
       this.logicNodes.trimToSize();
    }
@@ -344,7 +344,7 @@ public class LogicalExpressionOchreImpl
     * @param dataSource the data source
     * @param conceptId Either a nid or sequence of a concept is acceptable.
     */
-   public LogicalExpressionOchreImpl(byte[][] nodeDataArray, DataSource dataSource, int conceptId) {
+   public LogicalExpressionImpl(byte[][] nodeDataArray, DataSource dataSource, int conceptId) {
       this(nodeDataArray, dataSource);
 
       if (conceptId < 0) {
@@ -365,7 +365,7 @@ public class LogicalExpressionOchreImpl
     * solution element is used for the nodeId in this logical expression.
     * @param anotherToThisNodeIdMap contains a mapping from nodeId in another to nodeId in this constructed expression.
     */
-   public LogicalExpressionOchreImpl(LogicalExpressionOchreImpl another, int[] solution, int[] anotherToThisNodeIdMap) {
+   public LogicalExpressionImpl(LogicalExpressionImpl another, int[] solution, int[] anotherToThisNodeIdMap) {
       addNodesWithMap(another, solution, anotherToThisNodeIdMap, another.rootNodeIndex);
       this.logicNodes.trimToSize();
    }
@@ -959,7 +959,7 @@ public class LogicalExpressionOchreImpl
     * calls. Those children LogicNode elements can be retrieved by recursively
     * traversing the children of these returned LogicNode elements.
     */
-   public final LogicNode[] addNodes(LogicalExpressionOchreImpl another, int[] solution, int... oldIds) {
+   public final LogicNode[] addNodes(LogicalExpressionImpl another, int[] solution, int... oldIds) {
       return this.addNodesWithMap(another, solution, null, oldIds);
    }
 
@@ -991,7 +991,7 @@ public class LogicalExpressionOchreImpl
          return false;
       }
 
-      final LogicalExpressionOchreImpl other = (LogicalExpressionOchreImpl) obj;
+      final LogicalExpressionImpl other = (LogicalExpressionImpl) obj;
 
       if (this.logicNodes == other.logicNodes) {
          return true;
@@ -1036,7 +1036,9 @@ public class LogicalExpressionOchreImpl
    }
 
    /**
-    * Process depth first.
+    * Process depth first. The consumer will be presented with the current logic node, and
+    * with graph visit data that provides information about the other nodes that have been encountered. 
+    * To get the current id of the visit, within the consumers {@code accept(LogicNode logicNode, TreeNodeVisitData visitData)} method,  get the node id of the presented logic node. 
     *
     * @param consumer the consumer
     */
@@ -1100,7 +1102,9 @@ public class LogicalExpressionOchreImpl
    }
 
    /**
-    * Depth first visit.
+    * Depth first visit. The consumer will be presented with the current logic node, and
+    * with graph visit data that provides information about the other nodes that have been encountered. 
+    * To get the current id of the visit, get the node id of the presented logic node. 
     *
     * @param consumer the consumer
     * @param logicNode the logic node
@@ -1187,7 +1191,7 @@ public class LogicalExpressionOchreImpl
     * calls. Those children LogicNode elements can be retrieved by recursively
     * traversing the children of these returned LogicNode elements.
     */
-   private LogicNode[] addNodesWithMap(LogicalExpressionOchreImpl another,
+   private LogicNode[] addNodesWithMap(LogicalExpressionImpl another,
          int[] solution,
          int[] anotherToThisNodeIdMap,
          int... oldIds) {

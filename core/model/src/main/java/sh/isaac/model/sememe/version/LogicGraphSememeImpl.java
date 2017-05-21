@@ -52,7 +52,7 @@ import sh.isaac.api.component.sememe.version.MutableLogicGraphSememe;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionByteArrayConverter;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -132,7 +132,7 @@ public class LogicGraphSememeImpl
 
       sb.append(getSememeType().toString());
 
-      final LogicalExpressionOchreImpl lg = new LogicalExpressionOchreImpl(this.graphData,
+      final LogicalExpressionImpl lg = new LogicalExpressionImpl(this.graphData,
                                                                            DataSource.INTERNAL,
                                                                            Get.identifierService().getConceptSequence(
                                                                               getReferencedComponentNid()));
@@ -228,7 +228,7 @@ public class LogicGraphSememeImpl
     */
    @Override
    public LogicalExpression getLogicalExpression() {
-      return new LogicalExpressionOchreImpl(this.graphData, DataSource.INTERNAL, getReferencedComponentNid());
+      return new LogicalExpressionImpl(this.graphData, DataSource.INTERNAL, getReferencedComponentNid());
    }
 
    /**

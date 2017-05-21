@@ -59,7 +59,7 @@ import sh.isaac.api.DataTarget;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.tree.TreeNodeVisitData;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -80,7 +80,7 @@ public abstract class AbstractLogicNode
    protected UUID nodeUuid = null;
 
    /** The logic graph version. */
-   LogicalExpressionOchreImpl logicGraphVersion;
+   LogicalExpressionImpl logicGraphVersion;
 
    //~--- constructors --------------------------------------------------------
 
@@ -99,7 +99,7 @@ public abstract class AbstractLogicNode
     *
     * @param logicGraphVersion the logic graph version
     */
-   public AbstractLogicNode(LogicalExpressionOchreImpl logicGraphVersion) {
+   public AbstractLogicNode(LogicalExpressionImpl logicGraphVersion) {
       this.logicGraphVersion = logicGraphVersion;
       logicGraphVersion.addNode(this);
    }
@@ -111,7 +111,7 @@ public abstract class AbstractLogicNode
     * @param dataInputStream the data input stream
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public AbstractLogicNode(LogicalExpressionOchreImpl logicGraphVersion,
+   public AbstractLogicNode(LogicalExpressionImpl logicGraphVersion,
                             DataInputStream dataInputStream)
             throws IOException {
       this.nodeIndex         = dataInputStream.readShort();

@@ -64,7 +64,7 @@ public class RelationshipKey
     * @param nodeId the node id
     * @param expression the expression
     */
-   public RelationshipKey(int nodeId, LogicalExpressionOchreImpl expression) {
+   public RelationshipKey(int nodeId, LogicalExpressionImpl expression) {
       addNodes(nodeId, expression);
    }
 
@@ -87,7 +87,7 @@ public class RelationshipKey
     * @param nodeId the node id
     * @param expression the expression
     */
-   private void addNodes(int nodeId, LogicalExpressionOchreImpl expression) {
+   private void addNodes(int nodeId, LogicalExpressionImpl expression) {
       final LogicNode logicNode = expression.getNode(nodeId);
 
       expression.getNode(nodeId)

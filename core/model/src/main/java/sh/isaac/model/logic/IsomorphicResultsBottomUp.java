@@ -88,16 +88,16 @@ public class IsomorphicResultsBottomUp
    SequenceSet<?> referenceAdditionRoots = new SequenceSet<>();
 
    /** The comparison expression. */
-   LogicalExpressionOchreImpl comparisonExpression;
+   LogicalExpressionImpl comparisonExpression;
 
    /** The reference expression. */
-   LogicalExpressionOchreImpl referenceExpression;
+   LogicalExpressionImpl referenceExpression;
 
    /** The isomorphic expression. */
-   LogicalExpressionOchreImpl isomorphicExpression;
+   LogicalExpressionImpl isomorphicExpression;
 
    /** The merged expression. */
-   LogicalExpressionOchreImpl mergedExpression;
+   LogicalExpressionImpl mergedExpression;
 
    /** The isomorphic solution. */
 
@@ -132,8 +132,8 @@ public class IsomorphicResultsBottomUp
     * @param comparisonExpression the comparison expression
     */
    public IsomorphicResultsBottomUp(LogicalExpression referenceExpression, LogicalExpression comparisonExpression) {
-      this.referenceExpression  = (LogicalExpressionOchreImpl) referenceExpression;
-      this.comparisonExpression = (LogicalExpressionOchreImpl) comparisonExpression;
+      this.referenceExpression  = (LogicalExpressionImpl) referenceExpression;
+      this.comparisonExpression = (LogicalExpressionImpl) comparisonExpression;
       this.referenceVisitData   = new TreeNodeVisitData(referenceExpression.getNodeCount());
       this.referenceExpression.depthFirstVisit(null, this.referenceExpression.getRoot(), this.referenceVisitData, 0);
       this.comparisonVisitData = new TreeNodeVisitData(comparisonExpression.getNodeCount());
@@ -151,7 +151,7 @@ public class IsomorphicResultsBottomUp
          }
       }
 
-      this.isomorphicExpression = new LogicalExpressionOchreImpl(this.referenceExpression,
+      this.isomorphicExpression = new LogicalExpressionImpl(this.referenceExpression,
             this.isomorphicSolution.solution);
       this.referenceVisitData.getNodeIdsForDepth(3).stream().forEach((nodeId) -> {
                                          this.referenceRelationshipNodesMap.put(
@@ -170,7 +170,7 @@ public class IsomorphicResultsBottomUp
          identityMap[i] = i;
       }
 
-      this.mergedExpression = new LogicalExpressionOchreImpl(this.referenceExpression,
+      this.mergedExpression = new LogicalExpressionImpl(this.referenceExpression,
             identityMap,
             this.referenceExpressionToMergedNodeIdMap);
 
@@ -360,7 +360,7 @@ public class IsomorphicResultsBottomUp
     * @param rootToAddParentSequence the root to add parent sequence
     */
    private void addFragment(LogicNode rootToAdd,
-                            LogicalExpressionOchreImpl originExpression,
+                            LogicalExpressionImpl originExpression,
                             int rootToAddParentSequence) {
       final LogicNode[] descendents           = rootToAdd.getDescendents();
       int               mergedExpressionIndex = this.mergedExpression.getNodeCount();
@@ -709,7 +709,7 @@ public class IsomorphicResultsBottomUp
     * @return the comparison expression
     */
    @Override
-   public LogicalExpressionOchreImpl getComparisonExpression() {
+   public LogicalExpressionImpl getComparisonExpression() {
       return this.comparisonExpression;
    }
 
@@ -767,7 +767,7 @@ public class IsomorphicResultsBottomUp
     * @return the reference expression
     */
    @Override
-   public LogicalExpressionOchreImpl getReferenceExpression() {
+   public LogicalExpressionImpl getReferenceExpression() {
       return this.referenceExpression;
    }
 

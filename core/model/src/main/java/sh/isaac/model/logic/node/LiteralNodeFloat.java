@@ -53,7 +53,7 @@ import sh.isaac.api.DataTarget;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -74,7 +74,7 @@ public class LiteralNodeFloat
     * @param dataInputStream the data input stream
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public LiteralNodeFloat(LogicalExpressionOchreImpl logicGraphVersion,
+   public LiteralNodeFloat(LogicalExpressionImpl logicGraphVersion,
                            DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
@@ -87,7 +87,7 @@ public class LiteralNodeFloat
     * @param logicGraphVersion the logic graph version
     * @param literalValue the literal value
     */
-   public LiteralNodeFloat(LogicalExpressionOchreImpl logicGraphVersion, float literalValue) {
+   public LiteralNodeFloat(LogicalExpressionImpl logicGraphVersion, float literalValue) {
       super(logicGraphVersion);
       this.literalValue = literalValue;
    }

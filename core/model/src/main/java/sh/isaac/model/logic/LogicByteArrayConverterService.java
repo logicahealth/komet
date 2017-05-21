@@ -71,15 +71,15 @@ public class LogicByteArrayConverterService
     */
    @Override
    public byte[][] convertLogicGraphForm(byte[][] logicGraphBytes, DataTarget dataTarget) {
-      LogicalExpressionOchreImpl logicGraph;
+      LogicalExpressionImpl logicGraph;
 
       switch (dataTarget) {
       case EXTERNAL:
-         logicGraph = new LogicalExpressionOchreImpl(logicGraphBytes, DataSource.INTERNAL);
+         logicGraph = new LogicalExpressionImpl(logicGraphBytes, DataSource.INTERNAL);
          break;
 
       case INTERNAL:
-         logicGraph = new LogicalExpressionOchreImpl(logicGraphBytes, DataSource.EXTERNAL);
+         logicGraph = new LogicalExpressionImpl(logicGraphBytes, DataSource.EXTERNAL);
          break;
 
       default:

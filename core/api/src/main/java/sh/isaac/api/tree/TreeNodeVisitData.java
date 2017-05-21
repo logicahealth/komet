@@ -55,7 +55,7 @@ import sh.isaac.api.collections.SequenceSet;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class TreeNodeVisitData.
+ * The Class TreeNodeVisitData. 
  *
  * @author kec
  */
@@ -78,26 +78,47 @@ public class TreeNodeVisitData {
    /** The nodes visited. */
    private int nodesVisited = 0;
 
-   /** The distance list. */
+   /** The distance list. For each node, the distance from the root is tracked in this list, where the node is 
+    represented by the index of the list, and the distance is represented by the value of the list at the index. */
    protected final IntArrayList distanceList;
 
-   /** The discovery time list. */
+   /** The discovery time list. For each node, the discovery time is tracked in this list, where the node is 
+    represented by the index of the list, and the discovery time is represented by the value of the list at the index.*/
    protected final IntArrayList discoveryTimeList;
 
-   /** The finish time list. */
+   /** The finish time list. For each node, the finish time is tracked in this list, where the node is 
+    represented by the index of the list, and the finish time is represented by the value of the list at the index.*/
    protected final IntArrayList finishTimeList;
 
-   /** The predecessor sequence list. */
+   /** The predecessor sequence list. For each node, the identifier of it's predecessor is provided, where the node
+    is represented by the index of the list, and the identifier of the predecessor is represented by the value of the 
+    list at the index. */
    protected final IntArrayList predecessorSequenceList;
 
-   /** The sibling group sequence list. */
+   /** The sibling group sequence list. For each node, the identifier of it's sibling group is provided, where the node
+    is represented by the index of the list, and the sibling group is represented by the value of the 
+    list at the index. */
    protected final IntArrayList siblingGroupSequenceList;
 
-   /** The concepts referenced at node or above. */
+   /** The concepts referenced at node or above. For each node, the set of all it's ancestors is provided, where the node
+    is represented by the index of the list, and where each
+    member of the set is the identifier of the nodes ancestors. */
    private OpenIntHashSet[] conceptsReferencedAtNodeOrAbove;
 
    /** The graph size. */
    private final int graphSize;
+   
+   /** The startSequence for this traversal. */
+   private int startSequence = -1;
+
+   /**
+    * The start sequence for this traversal. If only one root, then this is the 
+    * sequence of the root node. 
+    * @return the start sequence 
+    */
+   public int getStartSequence() {
+      return startSequence;
+   }
 
    //~--- constructors --------------------------------------------------------
 
@@ -138,6 +159,9 @@ public class TreeNodeVisitData {
     * @param depth the depth
     */
    public void startNodeVisit(int nodeSequence, int depth) {
+      if (depth == 0 && startSequence == -1) {
+         startSequence = nodeSequence;
+      }
       setNodeStatus(nodeSequence, NodeStatus.PROCESSING);
       setDiscoveryTime(nodeSequence, this.time++);
       setDistance(nodeSequence, depth);
@@ -422,7 +446,7 @@ public class TreeNodeVisitData {
    }
 
    /**
-    * Gets the predecessor sequence.
+    * Gets the predecessor sequence or -1 if no predecessor.
     *
     * @param sequence the sequence
     * @return the predecessor sequence

@@ -48,7 +48,7 @@ import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -75,7 +75,7 @@ public class LogicalExpressionBuilderOchreProvider
     */
    @Override
    public LogicalExpression fromSememe(LogicGraphSememe<?> sememe) {
-      return new LogicalExpressionOchreImpl(sememe.getGraphData(),
+      return new LogicalExpressionImpl(sememe.getGraphData(),
             DataSource.INTERNAL,
             sememe.getReferencedComponentNid());
    }
