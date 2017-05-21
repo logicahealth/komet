@@ -88,7 +88,7 @@ import sh.isaac.converters.sharedUtils.ConsoleUtil;
 import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.converters.sharedUtils.umlsUtils.rrf.REL;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.LiteralNodeFloat;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
@@ -302,18 +302,18 @@ public class RxNormLogicGraphsMojo
 //                                                                         if (n.getChildren().length == 1 && n.getChildren()[0].getNodeSemantic() == NodeSemantic.AND)
 //                                                                         {
 //                                                                                 FeatureNodeWithSequences feature = new FeatureNodeWithSequences(
-//                                                                                                 (LogicalExpressionOchreImpl)existing, 
+//                                                                                                 (LogicalExpressionImpl)existing, 
 //                                                                                                 IsaacMetadataAuxiliaryBinding.HAS_STRENGTH.getConceptSequence(), 
-//                                                                                                 new LiteralNodeFloat((LogicalExpressionOchreImpl)existing, parsed.getKey().floatValue()));
+//                                                                                                 new LiteralNodeFloat((LogicalExpressionImpl)existing, parsed.getKey().floatValue()));
 //                                                                                 
-//                                                                                 RoleNodeSomeWithSequences unitRole = new RoleNodeSomeWithSequences((LogicalExpressionOchreImpl)existing, 
+//                                                                                 RoleNodeSomeWithSequences unitRole = new RoleNodeSomeWithSequences((LogicalExpressionImpl)existing, 
 //                                                                                                 unitConcept.getConceptSequence(), 
-//                                                                                                 new ConceptNodeWithSequences((LogicalExpressionOchreImpl)existing, 
+//                                                                                                 new ConceptNodeWithSequences((LogicalExpressionImpl)existing, 
 //                                                                                                                 Get.identifierService().getConceptSequenceForUuids(parsed.getValue().getConceptUUID())));
 //                                                                                 
-//                                                                                 AndNode andNode = new AndNode((LogicalExpressionOchreImpl)existing, feature, unitRole);
+//                                                                                 AndNode andNode = new AndNode((LogicalExpressionImpl)existing, feature, unitRole);
 //                                                                                 
-//                                                                                 RoleNodeSomeWithSequences groupingRole = new RoleNodeSomeWithSequences((LogicalExpressionOchreImpl)existing, 
+//                                                                                 RoleNodeSomeWithSequences groupingRole = new RoleNodeSomeWithSequences((LogicalExpressionImpl)existing, 
 //                                                                                                 IsaacMetadataAuxiliaryBinding.ROLE_GROUP.getConceptSequence(), andNode);
 //                                                                                 
 //                                                                                 n.getChildren()[0].addChildren(groupingRole);

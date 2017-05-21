@@ -70,7 +70,7 @@ import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.ConcurrentSequenceObjectMap;
 import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.logic.LogicNode;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.LiteralNodeBoolean;
 import sh.isaac.model.logic.node.LiteralNodeFloat;
@@ -132,7 +132,7 @@ public class GraphToAxiomTranslator {
    public void convertToAxiomsAndAdd(LogicGraphSememe logicGraphSememe) {
       this.loadedConcepts.add(logicGraphSememe.getReferencedComponentNid());
 
-      final LogicalExpressionOchreImpl logicGraph = new LogicalExpressionOchreImpl(logicGraphSememe.getGraphData(),
+      final LogicalExpressionImpl logicGraph = new LogicalExpressionImpl(logicGraphSememe.getGraphData(),
                                                                                    DataSource.INTERNAL);
 
       generateAxioms(logicGraph.getRoot(), logicGraphSememe.getReferencedComponentNid(), logicGraph);
@@ -161,7 +161,7 @@ public class GraphToAxiomTranslator {
     */
    private Optional<Concept> generateAxioms(LogicNode logicNode,
          int conceptNid,
-         LogicalExpressionOchreImpl logicGraph) {
+         LogicalExpressionImpl logicGraph) {
       switch (logicNode.getNodeSemantic()) {
       case AND:
          return processAnd((AndNode) logicNode, conceptNid, logicGraph);
@@ -242,7 +242,7 @@ public class GraphToAxiomTranslator {
     * @param logicGraph the logic graph
     * @return the optional
     */
-   private Optional<Literal> generateLiterals(LogicNode logicNode, Concept c, LogicalExpressionOchreImpl logicGraph) {
+   private Optional<Literal> generateLiterals(LogicNode logicNode, Concept c, LogicalExpressionImpl logicGraph) {
       switch (logicNode.getNodeSemantic()) {
       case LITERAL_BOOLEAN:
          final LiteralNodeBoolean literalNodeBoolean = (LiteralNodeBoolean) logicNode;
@@ -286,7 +286,7 @@ public class GraphToAxiomTranslator {
     * @param logicGraph the logic graph
     * @return the optional
     */
-   private Optional<Concept> processAnd(AndNode andNode, int conceptNid, LogicalExpressionOchreImpl logicGraph) {
+   private Optional<Concept> processAnd(AndNode andNode, int conceptNid, LogicalExpressionImpl logicGraph) {
       final LogicNode[] childrenLogicNodes  = andNode.getChildren();
       final Concept[]   conjunctionConcepts = new Concept[childrenLogicNodes.length];
 
@@ -307,7 +307,7 @@ public class GraphToAxiomTranslator {
     */
    private Optional<Concept> processFeatureNode(FeatureNodeWithSequences featureNode,
          int conceptNid,
-         LogicalExpressionOchreImpl logicGraph) {
+         LogicalExpressionImpl logicGraph) {
       final Feature     theFeature = getFeature(featureNode.getTypeConceptSequence());
       final LogicNode[] children   = featureNode.getChildren();
 
@@ -353,7 +353,7 @@ public class GraphToAxiomTranslator {
     */
    private void processNecessarySet(NecessarySetNode necessarySetNode,
                                     int conceptNid,
-                                    LogicalExpressionOchreImpl logicGraph) {
+                                    LogicalExpressionImpl logicGraph) {
       final LogicNode[] children = necessarySetNode.getChildren();
 
       if (children.length != 1) {
@@ -386,7 +386,7 @@ public class GraphToAxiomTranslator {
     */
    private Optional<Concept> processRoleNodeSome(RoleNodeSomeWithSequences roleNodeSome,
          int conceptNid,
-         LogicalExpressionOchreImpl logicGraph) {
+         LogicalExpressionImpl logicGraph) {
       final Role        theRole  = getRole(roleNodeSome.getTypeConceptSequence());
       final LogicNode[] children = roleNodeSome.getChildren();
 
@@ -415,7 +415,7 @@ public class GraphToAxiomTranslator {
     */
    private void processRoot(LogicNode logicNode,
                             int conceptNid,
-                            LogicalExpressionOchreImpl logicGraph)
+                            LogicalExpressionImpl logicGraph)
             throws IllegalStateException {
       final RootNode rootNode = (RootNode) logicNode;
 
@@ -438,7 +438,7 @@ public class GraphToAxiomTranslator {
     */
    private void processSufficientSet(SufficientSetNode sufficientSetNode,
                                      int conceptNid,
-                                     LogicalExpressionOchreImpl logicGraph) {
+                                     LogicalExpressionImpl logicGraph) {
       final LogicNode[] children = sufficientSetNode.getChildren();
 
       if (children.length != 1) {
