@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.komet.gui.interfaces;
+package sh.komet.gui.interfaces;
 
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;

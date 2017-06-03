@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.komet.gui;
+package sh.komet.gui.contract;
 
 import java.util.UUID;
 import javafx.beans.property.SimpleObjectProperty;

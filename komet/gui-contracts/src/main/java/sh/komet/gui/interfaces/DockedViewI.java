@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.komet.gui.interfaces;
+package sh.komet.gui.interfaces;
 
-import sh.isaac.komet.gui.interfaces.CheckMenuItemI;
+import sh.komet.gui.interfaces.CheckMenuItemI;
 import org.jvnet.hk2.annotations.Contract;
 
 /**

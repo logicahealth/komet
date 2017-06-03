@@ -14,19 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.interfaces;
+package sh.komet.gui.contract;
+
+import javafx.scene.layout.BorderPane;
+import org.jvnet.hk2.annotations.Contract;
 
 /**
  *
  * @author kec
  */
-public interface MultiParentTreeItemI {
-	public boolean isRoot();
-	public boolean isDefined();
-	public boolean isMultiParent();
-	public boolean isSecondaryParentOpened();
-	public int getConceptNid();
-	
-	public int getMultiParentDepth();
-   
+@Contract
+public interface DetailNodeFactory {
+   /**
+    * 
+    * @param manifold the manifold that determines the current coordinates and focus. 
+    * @param parent the detail node will be added to the center pane of the parent. 
+    */
+   void createDetailNode(Manifold manifold, BorderPane parent);
 }

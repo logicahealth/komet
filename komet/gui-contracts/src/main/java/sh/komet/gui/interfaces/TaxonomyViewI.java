@@ -14,9 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.komet.gui.interfaces;
+package sh.komet.gui.interfaces;
 
-import sh.isaac.komet.gui.interfaces.EmbeddableViewI;
+import sh.komet.gui.interfaces.EmbeddableViewI;
 import java.util.UUID;
 import javafx.beans.property.BooleanProperty;
 import org.jvnet.hk2.annotations.Contract;
