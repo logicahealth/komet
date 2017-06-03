@@ -750,9 +750,24 @@ public class Get
 
       return service;
    }
-   
+   /**
+    * Gets the service.
+    *
+    * @param <T> the generic type
+    * @param clazz the clazz
+    * @return the service
+    */
+   private static <T> List<T> getServices(Class<T> clazz) {
+      final List<T> services = LookupService.getServices(clazz);
+
+      return services;
+   }
+
    public static <T> T service(Class<T> clazz) {
       return getService(clazz);
+   }
+   public static <T> List<T> services(Class<T> clazz) {
+      return getServices(clazz);
    }
 }
 
