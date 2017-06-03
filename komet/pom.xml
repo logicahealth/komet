@@ -13,5 +13,8 @@
     <modules>
        <module>taxonomy-view</module>
         <module>iconography</module>
+        <module>drag-tab</module>
+        <module>application</module>
+        <module>gui-contracts</module>
     </modules>
 </project> 
