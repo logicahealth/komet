@@ -18,8 +18,8 @@
  */
 package sh.isaac.komet.gui.treeview;
 
-import sh.isaac.komet.gui.interfaces.MultiParentTreeItemDisplayPolicies;
-import sh.isaac.komet.gui.Manifold;
+import sh.komet.gui.interfaces.MultiParentTreeItemDisplayPolicies;
+import sh.komet.gui.contract.Manifold;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

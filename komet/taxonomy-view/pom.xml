@@ -12,7 +12,7 @@
    <artifactId>taxonomy-view</artifactId>
    <packaging>jar</packaging>
 
-   <name>ISAAC’s KOMET: Taxonomy View</name>
+   <name>ISAAC’s KOMET: Taxonomy view</name>
    <description>
       A Taxonomy GUI implementation for ISAAC's KOMET
    </description>
@@ -35,6 +35,11 @@
       <dependency>
          <groupId>sh.isaac.komet</groupId>
          <artifactId>iconography</artifactId>
+         <version>${project.parent.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>gui-contracts</artifactId>
          <version>${project.parent.version}</version>
       </dependency>
       <dependency>

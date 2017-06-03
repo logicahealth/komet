@@ -82,7 +82,7 @@ import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.komet.gui.KOMET;
-import sh.isaac.komet.gui.interfaces.DraggableWithImage;
+import sh.komet.gui.interfaces.DraggableWithImage;
 import sh.isaac.komet.iconography.Iconography;
 
 //~--- classes ----------------------------------------------------------------

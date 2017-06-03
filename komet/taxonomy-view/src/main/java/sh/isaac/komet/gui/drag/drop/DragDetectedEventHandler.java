@@ -25,7 +25,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import sh.isaac.api.identity.IdentifiedObject;
-import sh.isaac.komet.gui.interfaces.DraggableWithImage;
+import sh.komet.gui.interfaces.DraggableWithImage;
 
 /**
  * {@link DragDetectedEventHandler}

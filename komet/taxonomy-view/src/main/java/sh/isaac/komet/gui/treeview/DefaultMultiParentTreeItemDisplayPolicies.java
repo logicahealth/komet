@@ -19,8 +19,8 @@
 
 package sh.isaac.komet.gui.treeview;
 
-import sh.isaac.komet.gui.interfaces.MultiParentTreeItemDisplayPolicies;
-import sh.isaac.komet.gui.interfaces.MultiParentTreeItemI;
+import sh.komet.gui.interfaces.MultiParentTreeItemDisplayPolicies;
+import sh.komet.gui.interfaces.MultiParentTreeItemI;
 import javafx.scene.Node;
 import sh.isaac.komet.iconography.Iconography;
 
