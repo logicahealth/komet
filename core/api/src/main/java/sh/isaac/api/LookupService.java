@@ -309,7 +309,8 @@ public class LookupService {
             if (looker == null) {
                startupFxPlatform();
 
-               final ArrayList<String> packagesToSearch = new ArrayList<>(Arrays.asList("sh.isaac",
+               final ArrayList<String> packagesToSearch = new ArrayList<>(Arrays.asList("sh",
+                                                                                        "one",
                                                                                         "org.ihtsdo",
                                                                                         "org.glassfish",
                                                                                         "com.informatics"));
