@@ -44,7 +44,6 @@ package sh.isaac.api.coordinate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
@@ -57,7 +56,7 @@ import sh.isaac.api.component.sememe.version.DescriptionSememe;
  * @author kec
  */
 public interface TaxonomyCoordinate
-        extends TimeBasedAnalogMaker<TaxonomyCoordinate>, StateBasedAnalogMaker<TaxonomyCoordinate> {
+        extends StampCoordinateProxy, LanguageCoordinateProxy, LogicCoordinateProxy {
    /**
     * Make analog.
     *
@@ -73,29 +72,6 @@ public interface TaxonomyCoordinate
     * @return the concept sequence that defines the is-a relationship type.
     */
    int getIsaConceptSequence();
-
-   /**
-    * Gets the language coordinate.
-    *
-    * @return a LanguageCoordinate that specifies how to manage the retrieval and display of language.
-    * and dialect information.
-    */
-   LanguageCoordinate getLanguageCoordinate();
-
-   /**
-    * Gets the logic coordinate.
-    *
-    * @return a LogicCoordinate that specifies how to manage the retrieval and display of logic information.
-    */
-   LogicCoordinate getLogicCoordinate();
-
-   /**
-    * Gets the stamp coordinate.
-    *
-    * @return a StampCoordinate that specifies the retrieval and display of
-    * object chronicle versions by indicating the current position on a path, and allowed modules.
-    */
-   StampCoordinate getStampCoordinate();
 
    /**
     * Gets the taxonomy type.
@@ -163,7 +139,6 @@ public interface TaxonomyCoordinate
    default String getFullySpecifiedDescriptionText(int conceptId) {
       return getLanguageCoordinate().getFullySpecifiedDescriptionText(conceptId, getStampCoordinate());
    }
-
 
 }
 

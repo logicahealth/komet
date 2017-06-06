@@ -105,12 +105,12 @@ public class MultiParentTreeView extends BorderPane {
     
     private BooleanProperty displayFSN = new SimpleBooleanProperty();
     
-    SimpleObjectProperty<Manifold> manifold = new SimpleObjectProperty<>();
+    SimpleObjectProperty<Manifold> manifoldProperty = new SimpleObjectProperty<>();
     
     private Tree taxonomyTree = null;
     protected Tree getTaxonomyTree() {
         if (taxonomyTree == null) {
-            taxonomyTree = Get.taxonomyService().getTaxonomyTree(manifold.getValue().getTaxonomyCoordinate());
+            taxonomyTree = Get.taxonomyService().getTaxonomyTree(manifoldProperty.getValue());
         }
         return taxonomyTree;
     }
@@ -119,7 +119,7 @@ public class MultiParentTreeView extends BorderPane {
     public MultiParentTreeView(Manifold manifold) {
         long startTime = System.currentTimeMillis();
         
-        this.manifold.set(manifold);
+        this.manifoldProperty.set(manifold);
         treeView = new TreeView<>();
         //treeView.setSkin(new MultiParentTreeViewSkin<>(treeView));
         treeView.getSelectionModel().selectedItemProperty().addListener(
@@ -156,7 +156,7 @@ public class MultiParentTreeView extends BorderPane {
            }
            @Override
            protected boolean computeValue() {
-              return manifold.getTaxonomyCoordinate().getTaxonomyType() == PremiseType.INFERRED;
+              return manifold.getTaxonomyType() == PremiseType.INFERRED;
            }
         });
          
@@ -168,7 +168,7 @@ public class MultiParentTreeView extends BorderPane {
            }
            @Override
            protected boolean computeValue() {
-              return manifold.getTaxonomyCoordinate().getTaxonomyType() == PremiseType.STATED;
+              return manifold.getTaxonomyType() == PremiseType.STATED;
            }
         });
 

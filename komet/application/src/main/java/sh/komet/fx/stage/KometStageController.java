@@ -44,7 +44,6 @@ package sh.komet.fx.stage;
 import java.net.URL;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
@@ -62,6 +61,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.BorderStroke;
@@ -79,6 +79,7 @@ import sh.isaac.komet.gui.treeview.MultiParentTreeView;
 
 import sh.komet.fx.tabpane.DndTabPaneFactory;
 import sh.komet.fx.tabpane.DndTabPaneFactory.FeedbackType;
+import sh.komet.gui.contract.DetailNode;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.Manifold;
 
@@ -186,13 +187,16 @@ public class KometStageController {
          if (tabPanelCount == 2) {
             for (DetailNodeFactory factory: Get.services(DetailNodeFactory.class)) {
                Tab        tab      = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
+               tab.setTooltip(new Tooltip("A Square"));
                BorderPane graphPane = new BorderPane();
 
                graphPane.setBorder(
                    new Border(
                        new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
-               factory.createDetailNode(manifold, graphPane);
+               DetailNode detailNode = factory.createDetailNode(manifold, graphPane);
+               tab.textProperty().bind(detailNode.getTitle());
+               tab.getTooltip().textProperty().bind(detailNode.getToolTip());
                
                tab.setContent(graphPane);
                tabPane.getTabs()
@@ -235,5 +239,6 @@ public class KometStageController {
 
       return this.manifold;
    }
+   
 }
 

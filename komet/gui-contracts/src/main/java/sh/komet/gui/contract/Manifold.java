@@ -21,8 +21,15 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
+import sh.isaac.api.coordinate.LanguageCoordinateProxy;
+import sh.isaac.api.coordinate.LogicCoordinateProxy;
+import sh.isaac.api.coordinate.StampCoordinateProxy;
+import sh.isaac.api.coordinate.TaxonomyCoordinateProxy;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableTaxonomyCoordinate;
 
 /**
@@ -38,50 +45,51 @@ import sh.isaac.api.observable.coordinate.ObservableTaxonomyCoordinate;
  *
  * @author kec
  */
-public class Manifold {
+public class Manifold implements StampCoordinateProxy, LanguageCoordinateProxy, LogicCoordinateProxy, TaxonomyCoordinateProxy {
 
-   final SimpleStringProperty name;
-   final SimpleObjectProperty<UUID> manifoldUuid;
+   final SimpleStringProperty nameProperty;
+   final SimpleObjectProperty<UUID> manifoldUuidProperty;
    final ObservableTaxonomyCoordinate taxonomyCoordinate;
    final ObservableEditCoordinate editCoordinate;
-   final SimpleObjectProperty<IdentifiedObject> focusedObject;
+   final SimpleObjectProperty<IdentifiedObject> focusedObjectProperty;
 
    public Manifold(String name, UUID manifoldUuid, ObservableTaxonomyCoordinate taxonomyCoordinate, ObservableEditCoordinate editCoordinate) {
       this(name, manifoldUuid, taxonomyCoordinate, editCoordinate, null);
    }
    
   public Manifold(String name, UUID manifoldUuid, ObservableTaxonomyCoordinate taxonomyCoordinate, ObservableEditCoordinate editCoordinate, IdentifiedObject focusedObject) {
-      this.name = new SimpleStringProperty(name);
-      this.manifoldUuid = new SimpleObjectProperty<>(manifoldUuid);
+      this.nameProperty = new SimpleStringProperty(name);
+      this.manifoldUuidProperty = new SimpleObjectProperty<>(manifoldUuid);
       this.taxonomyCoordinate = taxonomyCoordinate;
       this.editCoordinate = editCoordinate;
-      this.focusedObject = new SimpleObjectProperty<>(focusedObject);
+      this.focusedObjectProperty = new SimpleObjectProperty<>(focusedObject);
    }
 
    public SimpleStringProperty getNameProperty() {
-      return name;
+      return nameProperty;
    }
 
    public String getName() {
-      return name.getValue();
+      return nameProperty.getValue();
    }
 
    public void setName(String name) {
-      this.name.setValue(name);
+      this.nameProperty.setValue(name);
    }
 
    public SimpleObjectProperty<UUID> getManifoldUuidProperty() {
-      return manifoldUuid;
+      return manifoldUuidProperty;
    }
 
    public UUID getManifoldUuid() {
-      return manifoldUuid.get();
+      return manifoldUuidProperty.get();
    }
 
    public void setManifoldUuid(UUID manifoldUuid) {
-      this.manifoldUuid.set(manifoldUuid);
+      this.manifoldUuidProperty.set(manifoldUuid);
    }
 
+   @Override
    public ObservableTaxonomyCoordinate getTaxonomyCoordinate() {
       return taxonomyCoordinate;
    }
@@ -91,14 +99,31 @@ public class Manifold {
    }
 
    public SimpleObjectProperty<IdentifiedObject> focusedObjectProperty() {
-      return focusedObject;
+      return focusedObjectProperty;
    }
 
    public void setFocusedObject(IdentifiedObject focusedObject) {
-      this.focusedObject.set(focusedObject);
+      this.focusedObjectProperty.set(focusedObject);
    }
 
    public ConceptSnapshotService getConceptSnapshotService() {
       return Get.conceptService().getSnapshot(taxonomyCoordinate.getStampCoordinate(), taxonomyCoordinate.getLanguageCoordinate());
    }
+
+   @Override
+   public ObservableStampCoordinate getStampCoordinate() {
+      return this.taxonomyCoordinate.getStampCoordinate();
+   }
+
+   @Override
+   public ObservableLanguageCoordinate getLanguageCoordinate() {
+      return this.taxonomyCoordinate.getLanguageCoordinate();
+   }
+
+   @Override
+   public ObservableLogicCoordinate getLogicCoordinate() {
+      return this.taxonomyCoordinate.getLogicCoordinate();
+   }
+   
+   
 }

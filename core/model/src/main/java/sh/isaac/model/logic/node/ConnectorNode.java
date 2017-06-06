@@ -171,8 +171,8 @@ public abstract class ConnectorNode
       this.childIndices.mergeSortFromTo(0,
                                         this.childIndices.size() - 1,
                                         (short o1,
-                                         short o2) -> this.logicGraphVersion.getNode(o1)
-                                               .compareTo(this.logicGraphVersion.getNode(o2)));
+                                         short o2) -> this.logicalExpression.getNode(o1)
+                                               .compareTo(this.logicalExpression.getNode(o2)));
    }
 
    /**
@@ -263,7 +263,7 @@ public abstract class ConnectorNode
       final AbstractLogicNode[] childNodes = new AbstractLogicNode[this.childIndices.size()];
 
       for (int i = 0; i < childNodes.length; i++) {
-         childNodes[i] = (AbstractLogicNode) this.logicGraphVersion.getNode(this.childIndices.get(i));
+         childNodes[i] = (AbstractLogicNode) this.logicalExpression.getNode(this.childIndices.get(i));
       }
 
       return childNodes;

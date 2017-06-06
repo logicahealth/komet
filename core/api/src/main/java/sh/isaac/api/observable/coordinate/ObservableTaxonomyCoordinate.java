@@ -93,5 +93,28 @@ public interface ObservableTaxonomyCoordinate
     * @return the object property
     */
    ObjectProperty<UUID> uuidProperty();
+
+   /**
+    * 
+    * @return an observable coordinate, instead of the simple stamp coordinate
+    */
+   @Override
+   public ObservableStampCoordinate getStampCoordinate();
+
+   /**
+    * 
+    * @return an observable coordinate, instead of the simple language coordinate
+    */
+   @Override
+   public ObservableLanguageCoordinate getLanguageCoordinate();
+
+   /**
+    * 
+    * @return an observable coordinate, instead of the simple logic coordinate
+    */
+   @Override
+   public ObservableLogicCoordinate getLogicCoordinate();
+   
+   
 }
 

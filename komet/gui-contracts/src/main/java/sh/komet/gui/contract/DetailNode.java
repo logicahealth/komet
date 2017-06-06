@@ -16,21 +16,23 @@
  */
 package sh.komet.gui.contract;
 
-import javafx.scene.layout.BorderPane;
-import org.jvnet.hk2.annotations.Contract;
+import javafx.beans.property.ReadOnlyProperty;
 
 /**
- * A factory to enable creation of plug-in libraries to provide fx nodes, that represent a detail view of the 
- * {@code Manifold}'s focused object. 
+ *
  * @author kec
  */
-@Contract
-public interface DetailNodeFactory {
+public interface DetailNode {
    /**
-    * 
-    * @param manifold the manifold that determines the current coordinates and focus. 
-    * @param parent the detail node will be added to the center pane of the parent. 
-    * @return the detail node, after it has been added to the parent. 
+    * A title as might be used to provide a title in a tab for a DetailNode. 
+    * @return the read-only property for the title.  
     */
-   DetailNode createDetailNode(Manifold manifold, BorderPane parent);
+   ReadOnlyProperty<String> getTitle(); 
+   
+   /**
+    * Tool tip text to explain this node in more detail that a title would. 
+    * @return the read-only property for the tool-tip text.
+    */
+   ReadOnlyProperty<String> getToolTip(); 
+   
 }

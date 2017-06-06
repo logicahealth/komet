@@ -49,7 +49,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 import sh.isaac.api.State;
-import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
@@ -253,7 +252,7 @@ public class ObservableTaxonomyCoordinateImpl
     * @return the logic coordinate
     */
    @Override
-   public LogicCoordinate getLogicCoordinate() {
+   public ObservableLogicCoordinate getLogicCoordinate() {
       return logicCoordinateProperty().get();
    }
 

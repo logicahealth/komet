@@ -166,7 +166,7 @@ final public class MultiParentTreeCell
                   }
                }
 
-               ConceptSnapshotService conceptSnapshotService = treeItem.getTreeView().manifold
+               ConceptSnapshotService conceptSnapshotService = treeItem.getTreeView().manifoldProperty
                                                                     .get()
                                                                     .getConceptSnapshotService();
 

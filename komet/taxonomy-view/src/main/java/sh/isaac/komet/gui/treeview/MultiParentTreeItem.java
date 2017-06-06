@@ -270,7 +270,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
    public String toString() {
       try {
          if (this.getValue() != null) {
-            return treeView.manifold.get().getConceptSnapshotService().conceptDescriptionText(this.getValue().getNid());
+            return treeView.manifoldProperty.get().getConceptSnapshotService().conceptDescriptionText(this.getValue().getNid());
          }
          return "root";
       } catch (RuntimeException | Error re) {
