@@ -25,7 +25,11 @@ public class MainApp extends Application {
             
       if (Files.exists(Paths.get("target", "data", "meta-db.data"))) {
          System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/data/meta-db.data");
+      } else if (Files.exists(Paths.get("target", "data", "solor-db.data"))) {
+         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/data/solor-db.data");
       } else if (Files.exists(Paths.get("meta-db.data"))) {
+         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "solor-db.data");
+      } else if (Files.exists(Paths.get("solor-db.data"))) {
          System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "meta-db.data");
       } else {
          throw new UnsupportedOperationException("Can't find data directory... Working dir: " + System.getProperty("user.dir"));

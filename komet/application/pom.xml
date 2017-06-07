@@ -34,18 +34,6 @@
          <version>8.0-r5</version>
       </dependency>
       <dependency>
-         <groupId>sh.isaac.integration</groupId>
-         <artifactId>meta-db</artifactId>
-         <version>${project.parent.version}</version>
-         <type>cradle.zip</type>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.integration</groupId>
-         <artifactId>meta-db</artifactId>
-         <version>${project.parent.version}</version>
-         <type>lucene.zip</type>
-      </dependency>
-      <dependency>
          <groupId>org.apache.logging.log4j</groupId>
          <artifactId>log4j-core</artifactId>
       </dependency>
@@ -155,37 +143,6 @@
    </dependencies>
    <build>
       <plugins>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-               <execution>
-                  <id>extract-test-dependencies</id>
-                  <phase>generate-test-resources</phase>
-                  <goals>
-                     <goal>unpack</goal>
-                  </goals>
-                  <configuration>
-                     <skip>${skipTests}</skip>
-                     <artifactItems>
-                        <artifact>
-                           <groupId>sh.isaac.integration</groupId>
-                           <artifactId>meta-db</artifactId>
-                           <version>${project.parent.version}</version>
-                           <type>cradle.zip</type>
-                        </artifact>
-                        <artifact>
-                           <groupId>sh.isaac.integration</groupId>
-                           <artifactId>meta-db</artifactId>
-                           <version>${project.parent.version}</version>
-                           <type>lucene.zip</type>
-                        </artifact>
-                     </artifactItems>
-                     <outputDirectory>${project.build.directory}/data</outputDirectory>
-                  </configuration>
-               </execution>
-            </executions>
-         </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
@@ -302,10 +259,14 @@
             </plugins>
          </build>
       </profile>
+      
       <profile>
          <id>external-plugins</id>
          <activation>
-            <activeByDefault>false</activeByDefault>
+            <property>
+               <name>plugins</name>
+               <value>true</value>
+            </property>
          </activation>
          <dependencies>
             <dependency>
@@ -315,6 +276,120 @@
                <type>jar</type>
             </dependency>
          </dependencies>
+      </profile>
+      <profile>
+         <id>meta-database</id>
+         <activation>
+            <property>
+               <!-- If no other database is defined, use the meta database. -->
+               <name>!database</name>
+            </property>
+         </activation>
+         <dependencies>
+            <dependency>
+               <groupId>sh.isaac.integration</groupId>
+               <artifactId>meta-db</artifactId>
+               <version>${project.parent.version}</version>
+               <type>cradle.zip</type>
+            </dependency>
+            <dependency>
+               <groupId>sh.isaac.integration</groupId>
+               <artifactId>meta-db</artifactId>
+               <version>${project.parent.version}</version>
+               <type>lucene.zip</type>
+            </dependency>
+         </dependencies>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-dependency-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>extract-test-dependencies</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                           <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                           <artifactItems>
+                              <artifact>
+                                 <groupId>sh.isaac.integration</groupId>
+                                 <artifactId>meta-db</artifactId>
+                                 <version>${project.parent.version}</version>
+                                 <type>cradle.zip</type>
+                              </artifact>
+                              <artifact>
+                                 <groupId>sh.isaac.integration</groupId>
+                                 <artifactId>meta-db</artifactId>
+                                 <version>${project.parent.version}</version>
+                                 <type>lucene.zip</type>
+                              </artifact>
+                           </artifactItems>
+                           <outputDirectory>${project.build.directory}/data</outputDirectory>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>      
+      <profile>
+         <id>solor-database</id>
+         <activation>
+            <property>
+               <name>database</name>
+               <value>solor</value>
+            </property>
+         </activation>
+         <dependencies>
+            <dependency>
+               <groupId>one.solor</groupId>
+               <artifactId>solor-db</artifactId>
+               <version>1.2-SNAPSHOT</version>
+               <type>cradle.zip</type>
+            </dependency>
+            <dependency>
+               <groupId>one.solor</groupId>
+               <artifactId>solor-db</artifactId>
+               <version>1.2-SNAPSHOT</version>
+               <type>lucene.zip</type>
+            </dependency>
+         </dependencies>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-dependency-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>extract-test-dependencies</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                           <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                           <artifactItems>
+                              <artifact>
+                                 <groupId>one.solor</groupId>
+                                 <artifactId>solor-db</artifactId>
+                                 <version>1.2-SNAPSHOT</version>
+                                 <type>lucene.zip</type>
+                              </artifact>
+                              <artifact>
+                                 <groupId>one.solor</groupId>
+                                 <artifactId>solor-db</artifactId>
+                                 <version>1.2-SNAPSHOT</version>
+                                 <type>cradle.zip</type>
+                              </artifact>
+                           </artifactItems>
+                           <outputDirectory>${project.build.directory}/data</outputDirectory>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
       </profile>
    </profiles>
 </project>

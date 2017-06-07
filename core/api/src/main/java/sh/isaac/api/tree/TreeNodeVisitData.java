@@ -133,9 +133,13 @@ public class TreeNodeVisitData {
       this.visitEnded               = new SequenceSet<>();
       this.leafNodes                = new SequenceSet<>();
       this.distanceList             = new IntArrayList(new int[graphSize]);
+      this.distanceList.fillFromToWith(0, graphSize - 1, -1);
       this.discoveryTimeList        = new IntArrayList(new int[graphSize]);
+      this.discoveryTimeList.fillFromToWith(0, graphSize - 1, -1);
       this.finishTimeList           = new IntArrayList(new int[graphSize]);
+      this.finishTimeList.fillFromToWith(0, graphSize - 1, -1);
       this.siblingGroupSequenceList = new IntArrayList(new int[graphSize]);
+      this.siblingGroupSequenceList.fillFromToWith(0, graphSize - 1, -1);
       this.predecessorSequenceList  = new IntArrayList(new int[graphSize]);
       this.predecessorSequenceList.fillFromToWith(0, graphSize - 1, -1);
    }
