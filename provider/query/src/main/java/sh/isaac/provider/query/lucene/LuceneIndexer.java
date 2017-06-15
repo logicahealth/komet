@@ -70,15 +70,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
@@ -119,6 +116,7 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.util.Version;
+import sh.isaac.MetaData;
 
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
@@ -157,14 +155,17 @@ public abstract class LuceneIndexer
    /** The Constant DEFAULT_LUCENE_FOLDER. */
    public static final String DEFAULT_LUCENE_FOLDER = "lucene";
 
-   /** The Constant log. */
-   private static final Logger log = LogManager.getLogger();
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
 
-   /** The Constant luceneVersion. */
-   public static final Version luceneVersion = Version.LUCENE_4_10_3;
+   /** The Constant LUCENE_VERSION. */
+   public static final Version LUCENE_VERSION = Version.LUCENE_4_10_3;
 
-   /** The Constant unindexedFuture. */
-   private static final UnindexedFuture unindexedFuture = new UnindexedFuture();
+   /** The Constant UNINDEXED_FUTURE. */
+   private static final CompletableFuture<Long> UNINDEXED_FUTURE = new CompletableFuture<>();
+   static {
+      UNINDEXED_FUTURE.complete(Long.MIN_VALUE);
+   }
 
    // don't need to analyze this - and even though it is an integer, we index it as a string, as that is faster when we are only doing
 
@@ -262,13 +263,13 @@ public abstract class LuceneIndexer
 
          if (!this.indexFolder.exists()) {
             this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
-            log.info("Index folder missing: " + this.indexFolder.getAbsolutePath());
+            LOG.info("Index folder missing: " + this.indexFolder.getAbsolutePath());
          } else if (this.indexFolder.list().length > 0) {
             this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
          }
 
          this.indexFolder.mkdirs();
-         log.info("Index: " + this.indexFolder.getAbsolutePath());
+         LOG.info("Index: " + this.indexFolder.getAbsolutePath());
 
          final Directory indexDirectory =
             new MMapDirectory(this.indexFolder);  // switch over to MMapDirectory - in theory - this gives us back some
@@ -278,7 +279,7 @@ public abstract class LuceneIndexer
          // the default value of SimpleFSDirectory is a huge bottleneck.
          indexDirectory.clearLock("write.lock");
 
-         final IndexWriterConfig config = new IndexWriterConfig(luceneVersion, new PerFieldAnalyzer());
+         final IndexWriterConfig config = new IndexWriterConfig(LUCENE_VERSION, new PerFieldAnalyzer());
 
          config.setRAMBufferSizeMB(256);
 
@@ -307,7 +308,7 @@ public abstract class LuceneIndexer
          this.startThread();
 
          // Register for commits:
-         log.info("Registering indexer " + getIndexerName() + " for commits");
+         LOG.info("Registering indexer " + getIndexerName() + " for commits");
          this.changeListenerRef = new ChronologyChangeListener() {
             @Override
             public void handleCommit(CommitRecord commitRecord) {
@@ -317,7 +318,7 @@ public abstract class LuceneIndexer
                }
 
                if (LuceneIndexer.this.dbBuildMode) {
-                  log.debug("Ignore commit due to db build mode");
+                  LOG.debug("Ignore commit due to db build mode");
                   return;
                }
 
@@ -325,10 +326,10 @@ public abstract class LuceneIndexer
                                             .size();
 
                if (size < 100) {
-                  log.info("submitting sememes " + commitRecord.getSememesInCommit().toString() + " to indexer " +
+                  LOG.info("submitting sememes " + commitRecord.getSememesInCommit().toString() + " to indexer " +
                            getIndexerName() + " due to commit");
                } else {
-                  log.info("submitting " + size + " sememes to indexer " + getIndexerName() + " due to commit");
+                  LOG.info("submitting " + size + " sememes to indexer " + getIndexerName() + " due to commit");
                }
 
                commitRecord.getSememesInCommit().stream().forEach(sememeId -> {
@@ -353,7 +354,7 @@ public abstract class LuceneIndexer
          };
          Get.commitService()
             .addChangeListener(this.changeListenerRef);
-      } catch (final Exception e) {
+      } catch (final IOException e) {
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure(indexName, e);
          throw e;
@@ -445,7 +446,7 @@ public abstract class LuceneIndexer
     * @return the future
     */
    @Override
-   public final Future<Long> index(ObjectChronology<?> chronicle) {
+   public final CompletableFuture<Long> index(ObjectChronology<?> chronicle) {
       return index((() -> new AddDocument(chronicle)), (() -> indexChronicle(chronicle)), chronicle.getNid());
    }
 
@@ -460,21 +461,21 @@ public abstract class LuceneIndexer
       final HashMap<Integer, ConceptSearchResult> merged = new HashMap<>();
       final List<ConceptSearchResult>             result = new ArrayList<>();
 
-      for (final SearchResult sr: searchResult) {
+      searchResult.forEach((sr) -> {
          final int conSequence = Frills.findConcept(sr.getNid());
 
          if (conSequence < 0) {
-            log.error("Failed to find a concept that references nid " + sr.getNid());
+            LOG.error("Failed to find a concept that references nid " + sr.getNid());
          } else if (merged.containsKey(conSequence)) {
             merged.get(conSequence)
-                  .merge(sr);
+                    .merge(sr);
          } else {
             final ConceptSearchResult csr = new ConceptSearchResult(conSequence, sr.getNid(), sr.getScore());
 
             merged.put(conSequence, csr);
             result.add(csr);
          }
-      }
+      });
 
       return result;
    }
@@ -669,15 +670,17 @@ public abstract class LuceneIndexer
             temp = this.indexedComponentStatistics.get(name);
 
             if (temp == null) {
-               temp = new AtomicInteger(0);
+               temp = new AtomicInteger(1);
                this.indexedComponentStatistics.put(name, temp);
             }
          } finally {
             this.indexedComponentStatisticsBlock.release();
          }
+      } else {
+         temp.incrementAndGet();
       }
 
-      temp.incrementAndGet();
+      
    }
 
    /**
@@ -720,7 +723,7 @@ public abstract class LuceneIndexer
          }
       }
 
-      if (nullSafe.size() > 0) {
+      if (!nullSafe.isEmpty()) {
          final BooleanQuery outerWrap = new BooleanQuery();
 
          outerWrap.add(query, Occur.MUST);
@@ -728,9 +731,9 @@ public abstract class LuceneIndexer
          final BooleanQuery wrap = new BooleanQuery();
 
          // or together the sememeConceptSequences, but require at least one of them to match.
-         for (final int i: nullSafe) {
+         nullSafe.forEach((i) -> {
             wrap.add(new TermQuery(new Term(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, i + "")), Occur.SHOULD);
-         }
+         });
 
          outerWrap.add(wrap, Occur.MUST);
          return outerWrap;
@@ -769,7 +772,7 @@ public abstract class LuceneIndexer
          final IndexSearcher searcher = this.searcherManager.acquire();
 
          try {
-            log.debug("Running query: {}", q.toString());
+            LOG.debug("Running query: {}", q.toString());
 
             // Since the index carries some duplicates by design, which we will remove - get a few extra results up front.
             // so we are more likely to come up with the requested number of results
@@ -791,16 +794,14 @@ public abstract class LuceneIndexer
             final HashSet<Integer>   includedComponentNids = new HashSet<>();
 
             for (final ScoreDoc hit: topDocs.scoreDocs) {
-               log.debug("Hit: {} Score: {}", new Object[] { hit.doc, hit.score });
+               LOG.debug("Hit: {} Score: {}", new Object[] { hit.doc, hit.score });
 
                final Document doc          = searcher.doc(hit.doc);
                final int      componentNid = doc.getField(FIELD_COMPONENT_NID)
                                                 .numericValue()
                                                 .intValue();
 
-               if (includedComponentNids.contains(componentNid)) {
-                  continue;
-               } else {
+               if (!includedComponentNids.contains(componentNid)) {
                   includedComponentNids.add(componentNid);
                   results.add(new ComponentSearchResult(componentNid, hit.score));
 
@@ -810,7 +811,7 @@ public abstract class LuceneIndexer
                }
             }
 
-            log.debug("Returning {} results from query", results.size());
+            LOG.debug("Returning {} results from query", results.size());
             return results;
          } finally {
             this.searcherManager.release(searcher);
@@ -828,7 +829,11 @@ public abstract class LuceneIndexer
     * @param chronicleNid the chronicle nid
     * @return the future
     */
-   private Future<Long> index(Supplier<AddDocument> documentSupplier,
+   //TODO: consistently use CompletableFuture elsewhere...
+   // See: https://tbeernot.wordpress.com/2017/06/05/the-art-of-waiting/
+   // https://stackoverflow.com/questions/30559707/completablefuture-from-callable
+   // http://www.nurkiewicz.com/2013/05/java-8-completablefuture-in-action.html
+   private CompletableFuture<Long> index(Supplier<AddDocument> documentSupplier,
                               BooleanSupplier indexChronicle,
                               int chronicleNid) {
       if (!this.enabled) {
@@ -837,15 +842,13 @@ public abstract class LuceneIndexer
       }
 
       if (indexChronicle.getAsBoolean()) {
-         final Future<Long> future = this.luceneWriterService.submit(documentSupplier.get());
-
-         this.luceneWriterFutureCheckerService.execute(new FutureChecker(future));
-         return future;
+         final CompletableFuture<Long> completableFuture = CompletableFuture.supplyAsync(documentSupplier.get(), luceneWriterService);
+         return completableFuture;
       } else {
          releaseLatch(chronicleNid, Long.MIN_VALUE);
       }
 
-      return unindexedFuture;
+      return UNINDEXED_FUTURE;
    }
 
    /**
@@ -853,7 +856,7 @@ public abstract class LuceneIndexer
     */
    @PostConstruct
    private void startMe() {
-      log.info("Starting " + getIndexerName() + " post-construct");
+      LOG.info("Starting " + getIndexerName() + " post-construct");
    }
 
    /**
@@ -872,7 +875,7 @@ public abstract class LuceneIndexer
     */
    @PreDestroy
    private void stopMe() {
-      log.info("Stopping " + getIndexerName() + " pre-destroy. ");
+      LOG.info("Stopping " + getIndexerName() + " pre-destroy. ");
       commitWriter();
       closeWriter();
    }
@@ -970,7 +973,7 @@ public abstract class LuceneIndexer
     * The Class AddDocument.
     */
    private class AddDocument
-            implements Callable<Long> {
+            implements Supplier<Long> {
       /** The chronicle. */
       ObjectChronology<?> chronicle = null;
 
@@ -987,36 +990,33 @@ public abstract class LuceneIndexer
 
       //~--- methods ----------------------------------------------------------
 
-      /**
-       * Call.
-       *
-       * @return the long
-       * @throws Exception the exception
-       */
       @Override
-      public Long call()
-               throws Exception {
-         final Document doc = new Document();
-
-         doc.add(new IntField(FIELD_COMPONENT_NID,
-                              this.chronicle.getNid(),
-                              LuceneIndexer.FIELD_TYPE_INT_STORED_NOT_INDEXED));
-         addFields(this.chronicle, doc);
-
-         // Note that the addDocument operation could cause duplicate documents to be
-         // added to the index if a new luceneVersion is added after initial index
-         // creation. It does this to avoid the performance penalty of
-         // finding and deleting documents prior to inserting a new one.
-         //
-         // At this point, the number of duplicates should be
-         // small, and we are willing to accept a small number of duplicates
-         // because the new versions are additive (we don't allow deletion of content)
-         // so the search results will be the same. Duplicates can be removed
-         // by regenerating the index.
-         final long indexGeneration = LuceneIndexer.this.trackingIndexWriter.addDocument(doc);
-
-         releaseLatch(getNid(), indexGeneration);
-         return indexGeneration;
+      public Long get() {
+         try {
+            final Document doc = new Document();
+            
+            doc.add(new IntField(FIELD_COMPONENT_NID,
+                    this.chronicle.getNid(),
+                    LuceneIndexer.FIELD_TYPE_INT_STORED_NOT_INDEXED));
+            addFields(this.chronicle, doc);
+            
+            // Note that the addDocument operation could cause duplicate documents to be
+            // added to the index if a new LUCENE_VERSION is added after initial index
+            // creation. It does this to avoid the performance penalty of
+            // finding and deleting documents prior to inserting a new one.
+            //
+            // At this point, the number of duplicates should be
+            // small, and we are willing to accept a small number of duplicates
+            // because the new versions are additive (we don't allow deletion of content)
+            // so the search results will be the same. Duplicates can be removed
+            // by regenerating the index.
+            final long indexGeneration = LuceneIndexer.this.trackingIndexWriter.addDocument(doc);
+            
+            releaseLatch(getNid(), indexGeneration);
+            return indexGeneration;
+         } catch (IOException ex) {
+            throw new RuntimeException(ex);
+         }
       }
 
       //~--- get methods ------------------------------------------------------
@@ -1028,110 +1028,6 @@ public abstract class LuceneIndexer
        */
       public int getNid() {
          return this.chronicle.getNid();
-      }
-   }
-
-
-   /**
-    * Class to ensure that any exceptions associated with indexingFutures are properly logged.
-    */
-   private static class FutureChecker
-            implements Runnable {
-      /** The future. */
-      Future<Long> future;
-
-      //~--- constructors -----------------------------------------------------
-
-      /**
-       * Instantiates a new future checker.
-       *
-       * @param future the future
-       */
-      public FutureChecker(Future<Long> future) {
-         this.future = future;
-      }
-
-      //~--- methods ----------------------------------------------------------
-
-      /**
-       * Run.
-       */
-      @Override
-      public void run() {
-         try {
-            this.future.get();
-         } catch (InterruptedException | ExecutionException ex) {
-            log.fatal("Unexpected error in future checker!", ex);
-         }
-      }
-   }
-
-
-   /**
-    * The Class UnindexedFuture.
-    */
-   private static class UnindexedFuture
-            implements Future<Long> {
-      /**
-       * Cancel.
-       *
-       * @param mayInterruptIfRunning the may interrupt if running
-       * @return true, if successful
-       */
-      @Override
-      public boolean cancel(boolean mayInterruptIfRunning) {
-         return false;
-      }
-
-      //~--- get methods ------------------------------------------------------
-
-      /**
-       * Checks if cancelled.
-       *
-       * @return true, if cancelled
-       */
-      @Override
-      public boolean isCancelled() {
-         return false;
-      }
-
-      /**
-       * Checks if done.
-       *
-       * @return true, if done
-       */
-      @Override
-      public boolean isDone() {
-         return true;
-      }
-
-      /**
-       * Gets the.
-       *
-       * @return the long
-       * @throws InterruptedException the interrupted exception
-       * @throws ExecutionException the execution exception
-       */
-      @Override
-      public Long get()
-               throws InterruptedException, ExecutionException {
-         return Long.MIN_VALUE;
-      }
-
-      /**
-       * Gets the.
-       *
-       * @param timeout the timeout
-       * @param unit the unit
-       * @return the long
-       * @throws InterruptedException the interrupted exception
-       * @throws ExecutionException the execution exception
-       * @throws TimeoutException the timeout exception
-       */
-      @Override
-      public Long get(long timeout, TimeUnit unit)
-               throws InterruptedException, ExecutionException, TimeoutException {
-         return Long.MIN_VALUE;
       }
    }
 }

@@ -46,6 +46,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -116,7 +117,7 @@ public interface IndexServiceBI
     * to make sure that the component's indexing is complete prior to performing
     * a search where the chronicle's results must be included.
     */
-   Future<Long> index(ObjectChronology<?> chronicle);
+   CompletableFuture<Long> index(ObjectChronology<?> chronicle);
 
    /**
     * Locate the concept most closely tied to a search result, and merge them together, maintaining the best score.
