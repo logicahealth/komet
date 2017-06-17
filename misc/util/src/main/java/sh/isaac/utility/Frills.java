@@ -118,7 +118,6 @@ import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.externalizable.OchreExternalizableObjectType;
 import sh.isaac.api.identity.StampedVersion;
-import sh.isaac.api.index.IndexServiceBI;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -149,6 +148,7 @@ import sh.isaac.model.sememe.version.StringSememeImpl;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import sh.isaac.api.index.IndexService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -764,7 +764,7 @@ public class Frills
     */
    public static void refreshIndexes() {
       LookupService.get()
-                   .getAllServiceHandles(IndexServiceBI.class)
+                   .getAllServiceHandles(IndexService.class)
                    .forEach(index -> {
          // Making a query, with long.maxValue, causes the index to refresh itself, and look at the latest updates, if there have been updates.
                                index.getService()
@@ -1119,8 +1119,8 @@ public class Frills
       }
 
       if (SctId.isValidSctId(localIdentifier)) {
-         final IndexServiceBI si = LookupService.get()
-                                                .getService(IndexServiceBI.class, "sememe indexer");
+         final IndexService si = LookupService.get()
+                                                .getService(IndexService.class, "sememe indexer");
 
          if (si != null) {
             // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
@@ -1857,8 +1857,8 @@ public class Frills
     * @return the nid for SCTID
     */
    public static Optional<Integer> getNidForSCTID(long sctID) {
-      final IndexServiceBI si = LookupService.get()
-                                             .getService(IndexServiceBI.class, "sememe indexer");
+      final IndexService si = LookupService.get()
+                                             .getService(IndexService.class, "sememe indexer");
 
       if (si != null) {
          // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
@@ -1888,8 +1888,8 @@ public class Frills
     * @return the nid for VUID
     */
    public static Optional<Integer> getNidForVUID(long vuID) {
-      final IndexServiceBI si = LookupService.get()
-                                             .getService(IndexServiceBI.class, "sememe indexer");
+      final IndexService si = LookupService.get()
+                                             .getService(IndexService.class, "sememe indexer");
 
       if (si != null) {
          // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search

@@ -104,8 +104,8 @@ import sh.isaac.provider.query.clauses.RelRestriction;
    factoryMethod = "createQuery"
 )
 public abstract class Query {
-   /** The Constant currentTaxonomyCoordinateKey. */
-   public static final String currentTaxonomyCoordinateKey = "Current taxonomy coordinate";
+   /** The Constant CURRENT_TAXONOMY_RESULT. */
+   public static final String CURRENT_TAXONOMY_RESULT = "Current taxonomy coordinate";
 
    //~--- fields --------------------------------------------------------------
 
@@ -315,7 +315,7 @@ public abstract class Query {
     * @return the concept is
     */
    protected ConceptIs ConceptIs(String conceptSpecKey) {
-      return new ConceptIs(this, conceptSpecKey, currentTaxonomyCoordinateKey);
+      return new ConceptIs(this, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
    }
 
    /**
@@ -337,7 +337,7 @@ public abstract class Query {
     * @return the concept is child of
     */
    protected ConceptIsChildOf ConceptIsChildOf(String conceptSpecKey) {
-      return new ConceptIsChildOf(this, conceptSpecKey, currentTaxonomyCoordinateKey);
+      return new ConceptIsChildOf(this, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
    }
 
    /**
@@ -359,7 +359,7 @@ public abstract class Query {
     * @return the concept is descendent of
     */
    protected ConceptIsDescendentOf ConceptIsDescendentOf(String conceptSpecKey) {
-      return new ConceptIsDescendentOf(this, conceptSpecKey, currentTaxonomyCoordinateKey);
+      return new ConceptIsDescendentOf(this, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
    }
 
    /**
@@ -382,7 +382,7 @@ public abstract class Query {
     * @return the concept is kind of
     */
    protected ConceptIsKindOf ConceptIsKindOf(String conceptSpecKey) {
-      return new ConceptIsKindOf(this, conceptSpecKey, currentTaxonomyCoordinateKey);
+      return new ConceptIsKindOf(this, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
    }
 
    /**
@@ -404,7 +404,7 @@ public abstract class Query {
     * @return the description active lucene match
     */
    protected DescriptionActiveLuceneMatch DescriptionActiveLuceneMatch(String queryTextKey) {
-      return new DescriptionActiveLuceneMatch(this, queryTextKey, currentTaxonomyCoordinateKey);
+      return new DescriptionActiveLuceneMatch(this, queryTextKey, CURRENT_TAXONOMY_RESULT);
    }
 
    /**
@@ -425,7 +425,7 @@ public abstract class Query {
     * @return the description active regex match
     */
    protected DescriptionActiveRegexMatch DescriptionActiveRegexMatch(String regexKey) {
-      return new DescriptionActiveRegexMatch(this, regexKey, currentTaxonomyCoordinateKey);
+      return new DescriptionActiveRegexMatch(this, regexKey, CURRENT_TAXONOMY_RESULT);
    }
 
    /**
@@ -446,7 +446,7 @@ public abstract class Query {
     * @return the description lucene match
     */
    protected DescriptionLuceneMatch DescriptionLuceneMatch(String queryTextKey) {
-      return new DescriptionLuceneMatch(this, queryTextKey, currentTaxonomyCoordinateKey);
+      return new DescriptionLuceneMatch(this, queryTextKey, CURRENT_TAXONOMY_RESULT);
    }
 
    /**
@@ -456,7 +456,7 @@ public abstract class Query {
     * @return the description regex match
     */
    protected DescriptionRegexMatch DescriptionRegexMatch(String regexKey) {
-      return new DescriptionRegexMatch(this, regexKey, currentTaxonomyCoordinateKey);
+      return new DescriptionRegexMatch(this, regexKey, CURRENT_TAXONOMY_RESULT);
    }
 
    /**
@@ -562,7 +562,7 @@ public abstract class Query {
     * @return the refset contains concept
     */
    protected RefsetContainsConcept RefsetContainsConcept(String refsetSpecKey, String conceptSpecKey) {
-      return new RefsetContainsConcept(this, refsetSpecKey, conceptSpecKey, currentTaxonomyCoordinateKey);
+      return new RefsetContainsConcept(this, refsetSpecKey, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
    }
 
    /**
@@ -587,7 +587,7 @@ public abstract class Query {
     * @return the refset contains kind of concept
     */
    protected RefsetContainsKindOfConcept RefsetContainsKindOfConcept(String refsetSpecKey, String conceptSpecKey) {
-      return new RefsetContainsKindOfConcept(this, refsetSpecKey, conceptSpecKey, currentTaxonomyCoordinateKey);
+      return new RefsetContainsKindOfConcept(this, refsetSpecKey, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
    }
 
    /**
@@ -612,7 +612,7 @@ public abstract class Query {
     * @return the refset contains string
     */
    protected RefsetContainsString RefsetContainsString(String refsetSpecKey, String stringMatchKey) {
-      return new RefsetContainsString(this, refsetSpecKey, stringMatchKey, currentTaxonomyCoordinateKey);
+      return new RefsetContainsString(this, refsetSpecKey, stringMatchKey, CURRENT_TAXONOMY_RESULT);
    }
 
    /**
@@ -636,7 +636,7 @@ public abstract class Query {
     * @return the refset lucene match
     */
    protected RefsetLuceneMatch RefsetLuceneMatch(String queryString) {
-      return new RefsetLuceneMatch(this, queryString, currentTaxonomyCoordinateKey);
+      return new RefsetLuceneMatch(this, queryString, CURRENT_TAXONOMY_RESULT);
    }
 
    /**
@@ -647,7 +647,7 @@ public abstract class Query {
     * @return the rel restriction
     */
    protected RelRestriction RelRestriction(String relTypeKey, String destinationSpecKey) {
-      return new RelRestriction(this, relTypeKey, destinationSpecKey, currentTaxonomyCoordinateKey, null, null);
+      return new RelRestriction(this, relTypeKey, destinationSpecKey, CURRENT_TAXONOMY_RESULT, null, null);
    }
 
    /**
@@ -660,7 +660,7 @@ public abstract class Query {
     */
    protected RelRestriction RelRestriction(String relTypeKey, String destinationSpecKey, String key) {
       if (this.letDeclarations.get(key) instanceof Boolean) {
-         return new RelRestriction(this, relTypeKey, destinationSpecKey, currentTaxonomyCoordinateKey, key, null);
+         return new RelRestriction(this, relTypeKey, destinationSpecKey, CURRENT_TAXONOMY_RESULT, key, null);
       } else {
          return new RelRestriction(this, relTypeKey, destinationSpecKey, key, null, null);
       }
@@ -682,7 +682,7 @@ public abstract class Query {
       return new RelRestriction(this,
                                 relTypeKey,
                                 destinatonSpecKey,
-                                currentTaxonomyCoordinateKey,
+                                CURRENT_TAXONOMY_RESULT,
                                 relTypeSubsumptionKey,
                                 targetSubsumptionKey);
    }
@@ -769,11 +769,11 @@ public abstract class Query {
       if (this.letDeclarations == null) {
          this.letDeclarations = new HashMap<>();
 
-         if (!this.letDeclarations.containsKey(currentTaxonomyCoordinateKey)) {
+         if (!this.letDeclarations.containsKey(CURRENT_TAXONOMY_RESULT)) {
             if (this.taxonomyCoordinate != null) {
-               this.letDeclarations.put(currentTaxonomyCoordinateKey, this.taxonomyCoordinate);
+               this.letDeclarations.put(CURRENT_TAXONOMY_RESULT, this.taxonomyCoordinate);
             } else {
-               this.letDeclarations.put(currentTaxonomyCoordinateKey,
+               this.letDeclarations.put(CURRENT_TAXONOMY_RESULT,
                                         Get.configurationService()
                                            .getDefaultTaxonomyCoordinate());
             }

@@ -69,11 +69,11 @@ public class AssociationInstance {
    /** The sememe. */
    private final DynamicSememe<?> sememe;
 
-   /** The stamp coord. */
-   private final StampCoordinate stampCoord;
+   /** The stamp coordinate. */
+   private final StampCoordinate stampCoordinate;
 
    /** The assn type. */
-   private transient AssociationType assnType;
+   private transient AssociationType associationType;
 
    //~--- constructors --------------------------------------------------------
 
@@ -87,7 +87,7 @@ public class AssociationInstance {
    // TODO Write the code that checks the index states on startup
    private AssociationInstance(DynamicSememe<?> data, StampCoordinate stampCoordinate) {
       this.sememe     = data;
-      this.stampCoord = stampCoordinate;
+      this.stampCoordinate = stampCoordinate;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -133,17 +133,17 @@ public class AssociationInstance {
     * @return the association type
     */
    public AssociationType getAssociationType() {
-      if (this.assnType == null) {
-         this.assnType = AssociationType.read(this.sememe.getAssemblageSequence(),
-               this.stampCoord,
+      if (this.associationType == null) {
+         this.associationType = AssociationType.read(this.sememe.getAssemblageSequence(),
+               this.stampCoordinate,
                LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate());
       }
 
-      return this.assnType;
+      return this.associationType;
    }
 
    /**
-    * Gets the association type sequenece.
+    * Gets the association type sequence.
     *
     * @return the concept sequence of the association type concept (without incurring the overhead of reading the AssoicationType object)
     */

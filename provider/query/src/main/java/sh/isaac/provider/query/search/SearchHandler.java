@@ -44,7 +44,7 @@ package sh.isaac.provider.query.search;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -287,7 +287,7 @@ public class SearchHandler {
                                               comparator,
                                               mergeOnConcepts,
                                               includeOffPathResults);
-                            } catch (final Exception ex) {
+                            } catch (final SearchResultsFilterException ex) {
                                LOG.error("Unexpected error during lucene search", ex);
                                searchHandle.setError(ex);
                             }
@@ -524,7 +524,7 @@ public class SearchHandler {
                                               comparator,
                                               mergeOnConcepts,
                                               includeOffPathResults);
-                            } catch (final Exception ex) {
+                            } catch (final SearchResultsFilterException ex) {
                                LOG.error("Unexpected error during lucene search", ex);
                                searchHandle.setError(ex);
                             }
@@ -685,7 +685,7 @@ public class SearchHandler {
       }
 
       if (mergeOnConcepts) {
-         final Hashtable<Integer, CompositeSearchResult> merged      = new Hashtable<>();
+         final HashMap<Integer, CompositeSearchResult> merged      = new HashMap<>();
          final ArrayList<CompositeSearchResult>          unmergeable = new ArrayList<>();
 
          for (final CompositeSearchResult csr: rawResults) {

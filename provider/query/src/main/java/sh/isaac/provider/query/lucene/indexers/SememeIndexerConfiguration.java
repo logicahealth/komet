@@ -78,11 +78,11 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
 import sh.isaac.api.constants.DynamicSememeConstants;
-import sh.isaac.api.index.IndexStatusListenerBI;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeArrayImpl;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeIntegerImpl;
+import sh.isaac.api.index.IndexStatusListener;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -137,10 +137,10 @@ public class SememeIndexerConfiguration {
                    .getService(SememeIndexerConfiguration.class).readNeeded
                    .incrementAndGet();
 
-      final List<IndexStatusListenerBI> islList = LookupService.get()
-                                                               .getAllServices(IndexStatusListenerBI.class);
+      final List<IndexStatusListener> islList = LookupService.get()
+                                                               .getAllServices(IndexStatusListener.class);
 
-      for (final IndexStatusListenerBI isl: islList) {
+      for (final IndexStatusListener isl: islList) {
          isl.indexConfigurationChanged(LookupService.get()
                .getService(SememeIndexer.class));
       }
@@ -212,10 +212,10 @@ public class SememeIndexerConfiguration {
                    .getService(SememeIndexerConfiguration.class).readNeeded
                    .incrementAndGet();
 
-      final List<IndexStatusListenerBI> islList = LookupService.get()
-                                                               .getAllServices(IndexStatusListenerBI.class);
+      final List<IndexStatusListener> islList = LookupService.get()
+                                                               .getAllServices(IndexStatusListener.class);
 
-      for (final IndexStatusListenerBI isl: islList) {
+      for (final IndexStatusListener isl: islList) {
          isl.indexConfigurationChanged(LookupService.get()
                .getService(SememeIndexer.class));
       }
@@ -283,10 +283,10 @@ public class SememeIndexerConfiguration {
                       .getService(SememeIndexerConfiguration.class).readNeeded
                       .incrementAndGet();
 
-         final List<IndexStatusListenerBI> islList = LookupService.get()
-                                                                  .getAllServices(IndexStatusListenerBI.class);
+         final List<IndexStatusListener> islList = LookupService.get()
+                                                                  .getAllServices(IndexStatusListener.class);
 
-         for (final IndexStatusListenerBI isl: islList) {
+         for (final IndexStatusListener isl: islList) {
             isl.indexConfigurationChanged(LookupService.get()
                   .getService(SememeIndexer.class));
          }

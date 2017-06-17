@@ -80,7 +80,7 @@ public class GenerateIndexes
    AtomicLong processed = new AtomicLong(0);
 
    /** The indexers. */
-   List<IndexServiceBI> indexers;
+   List<IndexService> indexers;
 
    /** The component count. */
    long componentCount;
@@ -98,17 +98,17 @@ public class GenerateIndexes
 
       if ((indexersToReindex == null) || (indexersToReindex.length == 0)) {
          this.indexers = LookupService.get()
-                                      .getAllServices(IndexServiceBI.class);
+                                      .getAllServices(IndexService.class);
       } else {
          this.indexers = new ArrayList<>();
 
          for (final Class<?> clazz: indexersToReindex) {
-            if (!IndexServiceBI.class.isAssignableFrom(clazz)) {
+            if (!IndexService.class.isAssignableFrom(clazz)) {
                throw new RuntimeException(
                    "Invalid Class passed in to the index generator.  Classes must implement IndexService ");
             }
 
-            final IndexServiceBI temp = (IndexServiceBI) LookupService.get()
+            final IndexService temp = (IndexService) LookupService.get()
                                                                       .getService(clazz);
 
             if (temp != null) {
@@ -117,12 +117,12 @@ public class GenerateIndexes
          }
       }
 
-      final List<IndexStatusListenerBI> islList = LookupService.get()
-                                                               .getAllServices(IndexStatusListenerBI.class);
+      final List<IndexStatusListener> islList = LookupService.get()
+                                                               .getAllServices(IndexStatusListener.class);
 
-      for (final IndexServiceBI i: this.indexers) {
+      for (final IndexService i: this.indexers) {
          if (islList != null) {
-            for (final IndexStatusListenerBI isl: islList) {
+            for (final IndexStatusListener isl: islList) {
                isl.reindexBegan(i);
             }
          }
@@ -162,7 +162,7 @@ public class GenerateIndexes
          for (final SememeChronology<?> sememe:
                (Iterable<SememeChronology<? extends SememeVersion<?>>>) Get.sememeService()
                      .getParallelSememeStream()::iterator) {
-            for (final IndexServiceBI i: this.indexers) {
+            for (final IndexService i: this.indexers) {
                try {
                   if (sememe == null) {
                      // noop - this error is already logged elsewhere.  Just skip.
@@ -178,12 +178,12 @@ public class GenerateIndexes
             updateProcessedCount();
          }
 
-         final List<IndexStatusListenerBI> islList = LookupService.get()
-                                                                  .getAllServices(IndexStatusListenerBI.class);
+         final List<IndexStatusListener> islList = LookupService.get()
+                                                                  .getAllServices(IndexStatusListener.class);
 
-         for (final IndexServiceBI i: this.indexers) {
+         for (final IndexService i: this.indexers) {
             if (islList != null) {
-               for (final IndexStatusListenerBI isl: islList) {
+               for (final IndexStatusListener isl: islList) {
                   isl.reindexCompleted(i);
                }
             }
@@ -219,7 +219,7 @@ public class GenerateIndexes
 
          // We were committing too often every 1000 components, it was bad for performance.
          if (processedCount % 100000 == 0) {
-            for (final IndexServiceBI i: this.indexers) {
+            for (final IndexService i: this.indexers) {
                i.commitWriter();
             }
          }

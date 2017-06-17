@@ -67,7 +67,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.index.IndexServiceBI;
+import sh.isaac.api.index.IndexService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -89,15 +89,15 @@ public class IndexTermstore
    public void execute()
             throws MojoExecutionException {
       try {
-         final List<IndexServiceBI> indexers     = LookupService.get()
-                                                                .getAllServices(IndexServiceBI.class);
+         final List<IndexService> indexers     = LookupService.get()
+                                                                .getAllServices(IndexService.class);
          final List<String>         indexerNames = new ArrayList<>();
 
          indexers.stream()
-                 .forEach((IndexServiceBI i) -> indexerNames.add(i.getIndexerName()));
+                 .forEach((IndexService i) -> indexerNames.add(i.getIndexerName()));
          getLog().info("Found indexers: " + indexerNames);
          getLog().info("Starting indexing. ");
-         Get.startIndexTask((Class<? extends IndexServiceBI>[]) null)
+         Get.startIndexTask((Class<? extends IndexService>[]) null)
             .get();
          getLog().info("Finished indexing. ");
       } catch (final Exception ex) {

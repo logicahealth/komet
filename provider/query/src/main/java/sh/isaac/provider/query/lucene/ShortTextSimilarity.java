@@ -41,7 +41,10 @@ package sh.isaac.provider.query.lucene;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.lucene.search.similarities.DefaultSimilarity;
+import org.apache.lucene.index.FieldInvertState;
+import org.apache.lucene.search.similarities.ClassicSimilarity;
+import org.apache.lucene.search.similarities.TFIDFSimilarity;
+import org.apache.lucene.util.BytesRef;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -51,7 +54,7 @@ import org.apache.lucene.search.similarities.DefaultSimilarity;
  * @author kec
  */
 class ShortTextSimilarity
-        extends DefaultSimilarity {
+        extends ClassicSimilarity {
    /**
     * Instantiates a new short text similarity.
     */

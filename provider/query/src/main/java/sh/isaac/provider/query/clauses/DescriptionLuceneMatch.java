@@ -59,13 +59,13 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.identity.StampedVersion;
-import sh.isaac.api.index.IndexServiceBI;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.provider.query.ClauseComputeType;
 import sh.isaac.provider.query.ClauseSemantic;
 import sh.isaac.provider.query.LeafClause;
 import sh.isaac.provider.query.Query;
 import sh.isaac.provider.query.WhereClause;
+import sh.isaac.api.index.IndexService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -121,11 +121,11 @@ public class DescriptionLuceneMatch
       final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
                                                                                             .get(this.viewCoordinateKey);
       final NidSet               nids               = new NidSet();
-      final List<IndexServiceBI> indexers           = LookupService.get()
-                                                                   .getAllServices(IndexServiceBI.class);
-      IndexServiceBI             descriptionIndexer = null;
+      final List<IndexService> indexers           = LookupService.get()
+                                                                   .getAllServices(IndexService.class);
+      IndexService             descriptionIndexer = null;
 
-      for (final IndexServiceBI li: indexers) {
+      for (final IndexService li: indexers) {
          if (li.getIndexerName()
                .equals("descriptions")) {
             descriptionIndexer = li;
@@ -177,7 +177,6 @@ public class DescriptionLuceneMatch
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {

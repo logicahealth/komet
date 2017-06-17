@@ -76,7 +76,6 @@ import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.component.sememe.version.MutableLogicGraphSememe;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.index.IndexServiceBI;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -102,6 +101,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.Feature;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.FloatLiteral;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
+import sh.isaac.api.index.IndexService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -606,7 +606,7 @@ public class RxNormLogicGraphsMojo
 // 
 // private int findAssemblageNid(String uniqueName)
 // {
-//         IndexServiceBI si = LookupService.get().getService(IndexServiceBI.class, "description indexer");
+//         IndexService si = LookupService.get().getService(IndexService.class, "description indexer");
 //         if (si != null)
 //         {
 //                 //force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search

@@ -46,7 +46,7 @@ import org.jvnet.hk2.annotations.Contract;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- * {@link IndexStatusListenerBI}
+ * {@link IndexStatusListener}
  *
  * Any @Service annotated class which implements this interface will get the notifications below, when
  * index events happen.
@@ -54,25 +54,25 @@ import org.jvnet.hk2.annotations.Contract;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 @Contract
-public interface IndexStatusListenerBI {
+public interface IndexStatusListener {
    /**
     * Called when an index configuration change happens that listeners might be interested in.
     * @param indexConfigurationThatChanged - the indexer that had a change
     */
-   public void indexConfigurationChanged(IndexServiceBI indexConfigurationThatChanged);
+   public void indexConfigurationChanged(IndexService indexConfigurationThatChanged);
 
    /**
     * Called when a reindex sequence begins.
     *
     * @param index - the index being recreated
     */
-   public void reindexBegan(IndexServiceBI index);
+   public void reindexBegan(IndexService index);
 
    /**
     * Called when a reindex sequence completes.
     *
     * @param index - the index that was recreated
     */
-   public void reindexCompleted(IndexServiceBI index);
+   public void reindexCompleted(IndexService index);
 }
 

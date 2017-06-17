@@ -47,7 +47,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -69,7 +68,7 @@ import sh.isaac.api.chronicle.ObjectChronology;
  * @author kec
  */
 @Contract
-public interface IndexServiceBI
+public interface IndexService
         extends DatabaseServices {
    /**
     * Clear index, resulting in an empty index. Used prior to the
