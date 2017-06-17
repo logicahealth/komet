@@ -37,17 +37,20 @@
 
 
 
-package sh.isaac.provider.query.associations;
+package sh.isaac.utility.export;
 
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.glassfish.hk2.api.MultiException;
+import sh.isaac.MetaData;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -69,8 +72,6 @@ import sh.isaac.api.constants.DynamicSememeConstants;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.MetaData;
-import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.provider.query.lucene.indexers.SememeIndexerConfiguration;
 import sh.isaac.utility.Frills;
 
@@ -164,7 +165,7 @@ public class AssociationType {
                                rdud.getDynamicSememeUsageDescriptorSequence(),
                                new Integer[] { 0 },
                                true);
-                        } catch (final Exception e) {
+                        } catch (final InterruptedException | RuntimeException | ExecutionException e) {
                            log.error("Unexpected error enabling the index on newly created association!", e);
                         }
                      });
@@ -206,8 +207,8 @@ public class AssociationType {
          // final get is to wait for commit completion
          return read(rdud.getDynamicSememeUsageDescriptorSequence(),
                      stampCoord,
-                     LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate());
-      } catch (final Exception e) {
+                     Get.coordinateFactory().getUsEnglishLanguagePreferredTermCoordinate());
+      } catch (final IllegalStateException | InterruptedException | ExecutionException | MultiException e) {
          log.error("Unexpected error creating association", e);
          throw new RuntimeException(e);
       }

@@ -188,14 +188,15 @@ public class SearchHandler {
                                if (localQuery.length() > 0) {
                                   // If search query is an ID, look up concept and add the result.
                                   if (UUIDUtil.isUUID(localQuery) || NumericUtils.isLong(localQuery)) {
-                                     final Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> temp =
-                                        Frills.getConceptForUnknownIdentifier(localQuery);
-
-                                     if (temp.isPresent()) {
-                                        final CompositeSearchResult gsr = new CompositeSearchResult(temp.get(), 2.0f);
-
-                                        initialSearchResults.add(gsr);
-                                     }
+                                     throw new UnsupportedOperationException("Search for unknown identifier is not implemented.");
+//                                     final Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> temp =
+//                                        Frills.getConceptForUnknownIdentifier(localQuery);
+//
+//                                     if (temp.isPresent()) {
+//                                        final CompositeSearchResult gsr = new CompositeSearchResult(temp.get(), 2.0f);
+//
+//                                        initialSearchResults.add(gsr);
+//                                     }
                                   }
 
                                   LOG.debug("Lucene Search: '" + localQuery + "'");

@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>
-            <artifactId>metadata-source</artifactId>
+            <artifactId>api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
@@ -30,6 +30,11 @@
                 <artifactId>mojo</artifactId>
                 <version>${project.version}</version>
                 <dependencies>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>metadata-source</artifactId>
+            <version>${project.version}</version>
+        </dependency>
                     <dependency>
                         <groupId>sh.isaac.core</groupId>
                         <artifactId>metadata-source</artifactId>

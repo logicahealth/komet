@@ -95,8 +95,8 @@ import sh.isaac.api.index.IndexStatusListener;
 @Service
 @Singleton
 public class SememeIndexerConfiguration {
-   /** The Constant log. */
-   private static final Logger log = LogManager.getLogger();
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
@@ -149,7 +149,7 @@ public class SememeIndexerConfiguration {
                                                                                              .getConcept(
                                                                                                 assemblageNidOrSequence);
 
-      log.info("Configuring index for dynamic sememe assemblage '" + referencedAssemblageConceptC.toUserString() +
+      LOG.info("Configuring index for dynamic sememe assemblage '" + referencedAssemblageConceptC.toUserString() +
                "' on columns " + Arrays.deepToString(columnsToIndex));
 
       DynamicSememeData[] data = null;
@@ -224,7 +224,7 @@ public class SememeIndexerConfiguration {
                                                                                              .getConcept(
                                                                                                 assemblageNidOrSequence);
 
-      log.info("Configuring index for dynamic sememe assemblage '" + referencedAssemblageConceptC.toUserString() +
+      LOG.info("Configuring index for dynamic sememe assemblage '" + referencedAssemblageConceptC.toUserString() +
                "' on columns " + Arrays.deepToString(columnsToIndex));
 
       DynamicSememeData[] data = null;
@@ -274,7 +274,7 @@ public class SememeIndexerConfiguration {
    @SuppressWarnings("unchecked")
    public static void disableIndex(int assemblageConceptSequence)
             throws RuntimeException {
-      log.info("Disabling index for dynamic sememe assemblage concept '" + assemblageConceptSequence + "'");
+      LOG.info("Disabling index for dynamic sememe assemblage concept '" + assemblageConceptSequence + "'");
 
       final DynamicSememe<?> rdv = findCurrentIndexConfigRefex(assemblageConceptSequence);
 
@@ -298,11 +298,11 @@ public class SememeIndexerConfiguration {
             .addUncommitted(rdv.getChronology());
          Get.commitService()
             .commit("Index Config Change");
-         log.info("Index disabled for dynamic sememe assemblage concept '" + assemblageConceptSequence + "'");
+         LOG.info("Index disabled for dynamic sememe assemblage concept '" + assemblageConceptSequence + "'");
          Get.startIndexTask(new Class[] { SememeIndexer.class });
          return;
       } else {
-         log.info("No index configuration was found to disable for dynamic sememe assemblage concept '" +
+         LOG.info("No index configuration was found to disable for dynamic sememe assemblage concept '" +
                   assemblageConceptSequence + "'");
       }
    }
@@ -386,7 +386,7 @@ public class SememeIndexerConfiguration {
             this.readNeededBlock.acquireUninterruptibly();
 
             if (this.readNeeded.get() > 0) {
-               log.debug("Reading Dynamic Sememe Index Configuration");
+               LOG.debug("Reading Dynamic Sememe Index Configuration");
 
                try {
                   final HashMap<Integer, Integer[]> updatedWhatToIndex = new HashMap<>();
@@ -423,7 +423,7 @@ public class SememeIndexerConfiguration {
                                                   finalCols[i] = colsToIndex[i].getDataInteger();
                                                }
                                             } else {
-                                               log.warn(
+                                               LOG.warn(
                                                "The assemblage concept {} was entered for indexing without specifying what columns to index.  Nothing to do!",
                                                assemblageToIndex);
                                             }
@@ -435,7 +435,7 @@ public class SememeIndexerConfiguration {
                   this.whatToIndexSequenceToCol = updatedWhatToIndex;
                   this.readNeeded.decrementAndGet();
                } catch (final Exception e) {
-                  log.error(
+                  LOG.error(
                       "Unexpected error reading Dynamic Sememe Index Configuration - generated index will be incomplete!",
                       e);
                }

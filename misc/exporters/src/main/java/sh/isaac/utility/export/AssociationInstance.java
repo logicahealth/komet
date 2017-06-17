@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.provider.query.associations;
+package sh.isaac.utility.export;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -56,7 +56,6 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUID;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
-import sh.isaac.model.configuration.LanguageCoordinates;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -136,7 +135,7 @@ public class AssociationInstance {
       if (this.associationType == null) {
          this.associationType = AssociationType.read(this.sememe.getAssemblageSequence(),
                this.stampCoordinate,
-               LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate());
+               Get.coordinateFactory().getUsEnglishLanguagePreferredTermCoordinate());
       }
 
       return this.associationType;

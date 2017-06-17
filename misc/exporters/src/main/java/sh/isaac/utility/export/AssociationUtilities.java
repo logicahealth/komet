@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.provider.query.associations;
+package sh.isaac.utility.export;
 
 //~--- JDK imports ------------------------------------------------------------
 

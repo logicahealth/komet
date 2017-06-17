@@ -48,8 +48,6 @@ import java.io.IOException;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.model.configuration.TaxonomyCoordinates;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -69,9 +67,9 @@ public class QueryExample {
     * Instantiates a new query example.
     */
    public QueryExample() {
+      
       this.q =
-         new Query(TaxonomyCoordinates.getInferredTaxonomyCoordinate(StampCoordinates.getDevelopmentLatestActiveOnly(),
-               Get.configurationService().getDefaultLanguageCoordinate())) {
+         new Query(Get.coordinateFactory().createDefaultInferredTaxonomyCoordinate()) {
          @Override
          protected ForSetSpecification ForSetSpecification() {
             return new ForSetSpecification(ComponentCollectionTypes.ALL_CONCEPTS);

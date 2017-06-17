@@ -60,10 +60,6 @@ import sh.isaac.api.component.sememe.version.DescriptionSememe;
  */
 public class DescriptionSememeTypeComparator
          implements Comparator<DescriptionSememe<?>> {
-   /**
-    * The Constant LOG.
-    */
-   private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 

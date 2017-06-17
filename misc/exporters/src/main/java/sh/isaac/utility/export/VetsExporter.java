@@ -106,8 +106,6 @@ import sh.isaac.MetaData;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
-import sh.isaac.provider.query.associations.AssociationInstance;
-import sh.isaac.provider.query.associations.AssociationUtilities;
 import sh.isaac.utility.Frills;
 
 //~--- classes ----------------------------------------------------------------

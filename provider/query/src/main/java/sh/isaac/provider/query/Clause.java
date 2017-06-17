@@ -187,7 +187,6 @@ public abstract class Clause {
     * and return the final results during the computeComponents method.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    public abstract void getQueryMatches(ConceptVersion conceptVersion);
 
