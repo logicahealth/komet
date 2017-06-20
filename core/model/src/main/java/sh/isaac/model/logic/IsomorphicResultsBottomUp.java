@@ -49,6 +49,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -184,15 +185,20 @@ public class IsomorphicResultsBottomUp
             comparisonToMergedMap[this.isomorphicSolution.solution[referenceNodeId]] = referenceNodeId;
          }
       }
+      
+      final boolean debug = true;
 
       // Add the deletions
       getDeletedRelationshipRoots().forEach((deletionRoot) -> {
          // deleted relationships roots come from the comparison expression.
+         int predecessorSequence = this.comparisonVisitData.getPredecessorSequence(deletionRoot.getNodeIndex());
+         int comparisonExpressionToReferenceNodeId = this.comparisonExpressionToReferenceNodeIdMap[predecessorSequence];
+         if (comparisonExpressionToReferenceNodeId >= 0) {
                final int rootToAddParentSequence =
-                  this.referenceExpressionToMergedNodeIdMap[this.comparisonExpressionToReferenceNodeIdMap[this.comparisonVisitData.getPredecessorSequence(deletionRoot.getNodeIndex())]];
-
+               this.referenceExpressionToMergedNodeIdMap[comparisonExpressionToReferenceNodeId];
                addFragment(deletionRoot, this.comparisonExpression, rootToAddParentSequence);
-            });
+            }
+      });
    }
 
    //~--- methods -------------------------------------------------------------
@@ -265,6 +271,16 @@ public class IsomorphicResultsBottomUp
          builder.append("\nIsomorphic expression:\n\n ");
          builder.append(this.isomorphicExpression.toString("i"));
       }
+      
+      if (referenceExpressionToMergedNodeIdMap != null) {
+         builder.append("\nReference Expression To MergedNodeId Map:\n\n ");
+         builder.append(Arrays.stream(referenceExpressionToMergedNodeIdMap).boxed().collect(Collectors.toList()));
+      }
+      if (comparisonExpressionToReferenceNodeIdMap != null) {
+         builder.append("\nComparison Expression To ReferenceNodeId Map:\n\n ");
+         builder.append(Arrays.stream(comparisonExpressionToReferenceNodeIdMap).boxed().collect(Collectors.toList()));
+      }
+
 
       if (this.isomorphicSolution != null) {
          builder.append("\nIsomorphic solution: \n");
