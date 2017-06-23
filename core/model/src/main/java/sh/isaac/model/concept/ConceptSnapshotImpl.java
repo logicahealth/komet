@@ -171,7 +171,7 @@ public class ConceptSnapshotImpl
     * @return the concept description text
     */
    @Override
-   public String getConceptDescriptionText() {
+   public String getFullySpecifiedConceptDescriptionText() {
       return getDescription().getText();
    }
 
@@ -357,5 +357,12 @@ public class ConceptSnapshotImpl
       return this.snapshotVersion.value()
                                  .getUuidList();
    }
+   
+
+   @Override
+   public Optional<String> getPreferedConceptDescriptionText() {
+     return Optional.ofNullable(Get.defaultCoordinate().getPreferredDescriptionText(this.getConceptSequence()));
+   }
+   
 }
 

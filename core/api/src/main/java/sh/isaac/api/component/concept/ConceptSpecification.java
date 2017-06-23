@@ -41,6 +41,7 @@ package sh.isaac.api.component.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.Optional;
 import sh.isaac.api.Get;
 import sh.isaac.api.identity.IdentifiedObject;
 
@@ -54,7 +55,7 @@ import sh.isaac.api.identity.IdentifiedObject;
 public interface ConceptSpecification
         extends IdentifiedObject {
    /** The Constant FIELD_SEPARATOR. */
-   public static final String FIELD_SEPARATOR = " | ";
+   public static final char FIELD_SEPARATOR = 0x25FD;
 
    //~--- methods -------------------------------------------------------------
 
@@ -66,7 +67,11 @@ public interface ConceptSpecification
    default String toExternalString() {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(getConceptDescriptionText());
+      sb.append(getFullySpecifiedConceptDescriptionText());
+      Optional<String> optionalPreferred = getPreferedConceptDescriptionText();
+      if (optionalPreferred.isPresent()) {
+         sb.append(FIELD_SEPARATOR).append(optionalPreferred.get());
+      }
       getUuidList().stream().forEach((uuid) -> {
                                sb.append(FIELD_SEPARATOR)
                                  .append(uuid.toString());
@@ -81,7 +86,14 @@ public interface ConceptSpecification
     *
     * @return a text description for the specified concept.
     */
-   String getConceptDescriptionText();
+   String getFullySpecifiedConceptDescriptionText();
+
+   /**
+    * Gets the preferred concept description text.
+    *
+    * @return a text description for the specified concept.
+    */
+   Optional<String> getPreferedConceptDescriptionText();
 
    /**
     * Gets the concept sequence.

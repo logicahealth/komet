@@ -85,6 +85,7 @@ import sh.isaac.api.component.sememe.SememeService;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.CoordinateFactory;
+import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.externalizable.BinaryDataDifferService;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
@@ -446,6 +447,10 @@ public class Get
       }
 
       return coordinateFactory;
+   }
+   
+   public static TaxonomyCoordinate defaultCoordinate() {
+      return configurationService().getDefaultTaxonomyCoordinate();
    }
 
    /**

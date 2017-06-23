@@ -47,10 +47,12 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
@@ -166,5 +168,11 @@ public class ChangedFromPreviousVersion
                  .add(this.previousViewCoordinateKey);
       return whereClause;
    }
+   
+   @Override
+   public ConceptSpecification getClauseConcept() {
+      return TermAux.CHANGED_FROM_PREVIOUS_VERSION_QUERY_CLAUSE;
+   }
+   
 }
 

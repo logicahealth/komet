@@ -51,7 +51,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.LookupService;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
@@ -69,7 +71,7 @@ import sh.isaac.api.query.WhereClause;
  */
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
-public class RefsetLuceneMatch
+public class AssemblageLuceneMatch
         extends LeafClause {
    /** The lucene match key. */
    @XmlElement
@@ -84,7 +86,7 @@ public class RefsetLuceneMatch
    /**
     * Instantiates a new refset lucene match.
     */
-   protected RefsetLuceneMatch() {}
+   protected AssemblageLuceneMatch() {}
 
    /**
     * Instantiates a new refset lucene match.
@@ -93,7 +95,7 @@ public class RefsetLuceneMatch
     * @param luceneMatchKey the lucene match key
     * @param viewCoordinateKey the view coordinate key
     */
-   public RefsetLuceneMatch(Query enclosingQuery, String luceneMatchKey, String viewCoordinateKey) {
+   public AssemblageLuceneMatch(Query enclosingQuery, String luceneMatchKey, String viewCoordinateKey) {
       super(enclosingQuery);
       this.luceneMatchKey    = luceneMatchKey;
       this.viewCoordinateKey = viewCoordinateKey;
@@ -176,10 +178,16 @@ public class RefsetLuceneMatch
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();
 
-      whereClause.setSemantic(ClauseSemantic.REFSET_LUCENE_MATCH);
+      whereClause.setSemantic(ClauseSemantic.ASSEMBLAGE_LUCENE_MATCH);
       whereClause.getLetKeys()
                  .add(this.luceneMatchKey);
       return whereClause;
    }
+   
+   @Override
+   public ConceptSpecification getClauseConcept() {
+      return TermAux.ASSEMBLAGE_LUCENE_MATCH_QUERY_CLAUSE;
+   }
+   
 }
 

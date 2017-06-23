@@ -266,7 +266,7 @@ public class LoincImportMojo
 
          this.importUtil = new IBDFCreationUtility(
              Optional.empty(),
-             Optional.of(MetaData.LOINC_MODULES),
+             Optional.of(MetaData.LOINC_MODULES_ǁISAACǁ),
              this.outputDirectory,
              this.converterOutputArtifactId,
              this.converterOutputArtifactVersion,
@@ -350,7 +350,7 @@ public class LoincImportMojo
                                                  this.importUtil.createConcept(
                                                        "LOINC Metadata" + IBDFCreationUtility.METADATA_SEMANTIC_TAG,
                                                              true,
-                                                             MetaData.SOLOR_CONTENT_METADATA.getPrimordialUuid()));
+                                                             MetaData.SOLOR_CONTENT_METADATA_ǁISAACǁ.getPrimordialUuid()));
 
          this.importUtil.loadTerminologyMetadataAttributes(
              metadata,
@@ -447,7 +447,7 @@ public class LoincImportMojo
                                                     this.importUtil.createConcept(
                                                           "LOINC",
                                                                 true,
-                                                                MetaData.ISAAC_ROOT.getPrimordialUuid()));
+                                                                MetaData.ISAAC_ROOT_ǁISAACǁ.getPrimordialUuid()));
 
          this.importUtil.addDescription(
              rootConcept,

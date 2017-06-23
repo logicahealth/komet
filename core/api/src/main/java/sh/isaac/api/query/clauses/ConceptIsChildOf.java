@@ -51,6 +51,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -166,5 +167,11 @@ public class ConceptIsChildOf
                  .add(this.viewCoordinateKey);
       return whereClause;
    }
+   
+      @Override
+   public ConceptSpecification getClauseConcept() {
+      return TermAux.CONCEPT_IS_CHILD_OF_QUERY_CLAUSE;
+   }
+
 }
 

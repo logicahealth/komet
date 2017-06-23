@@ -76,7 +76,6 @@ import sh.isaac.api.query.ReturnTypes;
 import sh.isaac.api.query.Where;
 import sh.isaac.api.query.Xor;
 import sh.isaac.api.query.clauses.ChangedFromPreviousVersion;
-import sh.isaac.api.query.clauses.ComponentsFromSnomedIds;
 import sh.isaac.api.query.clauses.ConceptForComponent;
 import sh.isaac.api.query.clauses.ConceptIs;
 import sh.isaac.api.query.clauses.ConceptIsChildOf;
@@ -88,10 +87,10 @@ import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.api.query.clauses.DescriptionRegexMatch;
 import sh.isaac.api.query.clauses.FullySpecifiedNameForConcept;
 import sh.isaac.api.query.clauses.PreferredNameForConcept;
-import sh.isaac.api.query.clauses.RefsetContainsConcept;
-import sh.isaac.api.query.clauses.RefsetContainsKindOfConcept;
-import sh.isaac.api.query.clauses.RefsetContainsString;
-import sh.isaac.api.query.clauses.RefsetLuceneMatch;
+import sh.isaac.api.query.clauses.AssemblageContainsConcept;
+import sh.isaac.api.query.clauses.AssemblageContainsKindOfConcept;
+import sh.isaac.api.query.clauses.AssemblageContainsString;
+import sh.isaac.api.query.clauses.AssemblageLuceneMatch;
 import sh.isaac.api.query.clauses.RelRestriction;
 
 //~--- classes ----------------------------------------------------------------
@@ -147,7 +146,6 @@ public class JaxbForQuery {
                Clause.class,
                ConceptIsKindOf.class,
                ChangedFromPreviousVersion.class,
-               ComponentsFromSnomedIds.class,
                ConceptForComponent.class,
                ConceptIs.class,
                ConceptIsChildOf.class,
@@ -159,10 +157,10 @@ public class JaxbForQuery {
                DescriptionRegexMatch.class,
                FullySpecifiedNameForConcept.class,
                PreferredNameForConcept.class,
-               RefsetContainsConcept.class,
-               RefsetContainsKindOfConcept.class,
-               RefsetContainsString.class,
-               RefsetLuceneMatch.class,
+               AssemblageContainsConcept.class,
+               AssemblageContainsKindOfConcept.class,
+               AssemblageContainsString.class,
+               AssemblageLuceneMatch.class,
                RelRestriction.class);
       }
 

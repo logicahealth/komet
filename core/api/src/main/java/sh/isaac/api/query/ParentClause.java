@@ -78,7 +78,7 @@ public abstract class ParentClause
     */
    @XmlElementWrapper(name = "child-clauses")
    @XmlElement(name = "clause")
-   private List<Clause> children = new ArrayList();;
+   private List<Clause> children = new ArrayList();
 
    //~--- constructors --------------------------------------------------------
 
@@ -130,12 +130,12 @@ public abstract class ParentClause
     *
     * @param children the new array of instances of <code>Clause</code> that are children of the ParentClause in the tree used to compute the constructed <code>Query</code>
     */
-   public void setChildren(List<Clause> children) {
+   public final void setChildren(List<Clause> children) {
       this.children = children;
 
-      for (final Clause child: children) {
+      children.forEach((child) -> {
          child.setParent(this);
-      }
+      });
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -154,7 +154,6 @@ public abstract class ParentClause
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
    public final void getQueryMatches(ConceptVersion conceptVersion) {

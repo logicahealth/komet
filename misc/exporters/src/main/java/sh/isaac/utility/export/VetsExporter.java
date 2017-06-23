@@ -162,7 +162,7 @@ public class VetsExporter {
    /** The code assemblage UUID. */
 
    // conceptChronology: CODE (ISAAC) <77> uuid:803af596-aea8-5184-b8e1-45f801585d17
-   final UUID codeAssemblageUUID = MetaData.CODE.getPrimordialUuid();
+   final UUID codeAssemblageUUID = MetaData.CODE_ǁISAACǁ.getPrimordialUuid();
 
    /** The code assemblage concept seq. */
    final int codeAssemblageConceptSeq = Get.identifierService()
@@ -233,7 +233,7 @@ public class VetsExporter {
    public void export(OutputStream writeTo, long startDate, long endDate, boolean fullExportMode) {
       this.fullExportMode = fullExportMode;
       this.STAMP_COORDINATES = new StampCoordinateImpl(StampPrecedence.PATH,
-            new StampPositionImpl(endDate, MetaData.DEVELOPMENT_PATH.getConceptSequence()),
+            new StampPositionImpl(endDate, MetaData.DEVELOPMENT_PATH_ǁISAACǁ.getConceptSequence()),
             ConceptSequenceSet.EMPTY,
             State.ANY_STATE_SET);
 
@@ -242,7 +242,7 @@ public class VetsExporter {
                      this.assemblagesMap.put(Get.conceptSpecification(assemblageSeqId)
                            .getPrimordialUuid(),
                            Get.conceptSpecification(assemblageSeqId)
-                              .getConceptDescriptionText());
+                              .getFullySpecifiedConceptDescriptionText());
                   });
 
       // XML object
@@ -1054,7 +1054,7 @@ public class VetsExporter {
          .getSememesForComponent(componentNid)
          .forEach((sememe) -> {
          // skip code and vuid properties - they have special handling
-                     if ((sememe.getAssemblageSequence() != MetaData.VUID.getConceptSequence()) &&
+                     if ((sememe.getAssemblageSequence() != MetaData.VUID_ǁISAACǁ.getConceptSequence()) &&
                          (sememe.getAssemblageSequence() != this.codeAssemblageConceptSeq) &&
                          this.ts.wasEverKindOf(sememe.getAssemblageSequence(), this.vhatPropertyTypesNid)) {
                         final PropertyType property = buildProperty(sememe, startDate, endDate, constructor);
@@ -1255,7 +1255,7 @@ public class VetsExporter {
                                  .forEach((nestedSememe) -> {
                                  // skip code and vuid properties - they are handled already
                                              if ((nestedSememe.getAssemblageSequence() !=
-                                                  MetaData.VUID.getConceptSequence()) &&
+                                                  MetaData.VUID_ǁISAACǁ.getConceptSequence()) &&
                                                  (nestedSememe.getAssemblageSequence() !=
                                                   this.codeAssemblageConceptSeq)) {
                                                 if (this.ts.wasEverKindOf(nestedSememe.getAssemblageSequence(),

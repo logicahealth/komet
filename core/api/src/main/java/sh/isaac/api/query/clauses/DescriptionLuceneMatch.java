@@ -54,8 +54,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.identity.StampedVersion;
@@ -197,5 +199,11 @@ public class DescriptionLuceneMatch
                  .add(this.luceneMatchKey);
       return whereClause;
    }
+   
+      @Override
+   public ConceptSpecification getClauseConcept() {
+      return TermAux.DESCRIPTION_LUCENE_MATCH_QUERY_CLAUSE;
+   }
+
 }
 

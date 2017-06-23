@@ -44,6 +44,7 @@ package sh.isaac.api.constants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -141,10 +142,10 @@ public abstract class MetadataConceptConstant
     * This method is identical to {@link #getPrimaryName()}.
     *
     * @return the concept description text
-    * @see sh.isaac.api.component.concept.ConceptSpecification#getConceptDescriptionText()
+    * @see sh.isaac.api.component.concept.ConceptSpecification#getFullySpecifiedConceptDescriptionText()
     */
    @Override
-   public String getConceptDescriptionText() {
+   public String getFullySpecifiedConceptDescriptionText() {
       return this.primaryName;
    }
 
@@ -195,7 +196,7 @@ public abstract class MetadataConceptConstant
     * Gets the primary name.
     *
     * @return The name for this concept, used to construct the FSN and preferred term.
-    * This method is identical to {@link #getConceptDescriptionText()}
+    * This method is identical to {@link #getFullySpecifiedConceptDescriptionText()}
     */
    public String getPrimaryName() {
       return this.primaryName;
@@ -249,6 +250,11 @@ public abstract class MetadataConceptConstant
    @Override
    public List<UUID> getUuidList() {
       return Arrays.asList(new UUID[] { this.uuid });
+   }
+
+   @Override
+   public Optional<String> getPreferedConceptDescriptionText() {
+      return Optional.empty();
    }
 }
 

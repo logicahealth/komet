@@ -49,9 +49,11 @@ import javax.xml.bind.annotation.XmlTransient;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 
 //~--- classes ----------------------------------------------------------------
@@ -175,5 +177,10 @@ public class Not
 
       return whereClause;
    }
+      @Override
+   public ConceptSpecification getClauseConcept() {
+      return TermAux.NOT_QUERY_CLAUSE;
+   }
+
 }
 

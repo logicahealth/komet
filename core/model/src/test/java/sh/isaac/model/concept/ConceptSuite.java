@@ -74,7 +74,7 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.memory.HeapUseTicker;
 import sh.isaac.api.progress.ActiveTasksTicker;
-import sh.isaac.model.builder.ConceptBuilderOchreImpl;
+import sh.isaac.model.builder.ConceptBuilderImpl;
 import sh.isaac.model.coordinate.LogicCoordinateImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 
@@ -187,7 +187,7 @@ public class ConceptSuite {
     * @return the concept chronology
     */
    private ConceptChronology createConcept(ConceptSpecification spec, long time) {
-      return createConcept(spec.getConceptDescriptionText(), spec.getUuids()[0]
+      return createConcept(spec.getFullySpecifiedConceptDescriptionText(), spec.getUuids()[0]
             .toString(), time);
    }
 
@@ -211,7 +211,7 @@ public class ConceptSuite {
                                                                              inferredAssemblageSequence,
                                                                              descriptionLogicProfileSequence,
                                                                              classifierSequence);
-      final ConceptBuilderOchreImpl testConceptBuilder = new ConceptBuilderOchreImpl(conceptName,
+      final ConceptBuilderImpl testConceptBuilder = new ConceptBuilderImpl(conceptName,
                                                                                      semanticTag,
                                                                                      null,
                                                                                      defaultLanguageForDescriptions,

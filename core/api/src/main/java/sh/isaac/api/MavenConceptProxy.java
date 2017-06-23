@@ -43,6 +43,7 @@ package sh.isaac.api;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -85,7 +86,7 @@ public class MavenConceptProxy
     * @return the concept description text
     */
    @Override
-   public String getConceptDescriptionText() {
+   public String getFullySpecifiedConceptDescriptionText() {
       return this.description;
    }
 
@@ -97,6 +98,11 @@ public class MavenConceptProxy
    @Override
    public List<UUID> getUuidList() {
       return Arrays.asList(new UUID[] { UUID.fromString(this.uuid) });
+   }
+
+   @Override
+   public Optional<String> getPreferedConceptDescriptionText() {
+      return Optional.empty();
    }
 }
 

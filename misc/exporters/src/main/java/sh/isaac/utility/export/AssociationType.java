@@ -176,8 +176,8 @@ public class AssociationType {
                                                                .getService(DescriptionBuilderService.class)
                                                                .getDescriptionBuilder(associationInverseName,
                                                                      rdud.getDynamicSememeUsageDescriptorSequence(),
-                                                                     MetaData.SYNONYM,
-                                                                     MetaData.ENGLISH_LANGUAGE)
+                                                                     MetaData.SYNONYM_ǁISAACǁ,
+                                                                     MetaData.ENGLISH_LANGUAGE_ǁISAACǁ)
                                                                .build(localEditCoord, ChangeCheckerMode.ACTIVE)
                                                                .getNoThrow();
 
@@ -240,7 +240,7 @@ public class AssociationType {
 
       // Find the inverse name
       for (final DescriptionSememe<?> desc: Frills.getDescriptionsOfType(conceptNid,
-            MetaData.SYNONYM,
+            MetaData.SYNONYM_ǁISAACǁ,
             localStamp.makeAnalog(State.ACTIVE))) {
          if (Get.sememeService()
                 .getSememesForComponentFromAssemblage(desc.getNid(),
@@ -262,7 +262,7 @@ public class AssociationType {
       // find the description
       for (final DescriptionSememe<?> desc: Frills.getDescriptionsOfType(Get.identifierService()
             .getConceptNid(at.getAssociationTypeSequenece()),
-            MetaData.DEFINITION_DESCRIPTION_TYPE,
+            MetaData.DEFINITION_DESCRIPTION_TYPE_ǁISAACǁ,
             localStamp.makeAnalog(State.ACTIVE))) {
          if (Frills.isDescriptionPreferred(desc.getNid(), localStamp) &&Get.sememeService().getSememesForComponentFromAssemblage(desc.getNid(),
                DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION.getSequence()).anyMatch(

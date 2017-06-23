@@ -75,11 +75,11 @@ public class DescriptionSememeTypeComparator
       final String o1matchingComponentType = Get.conceptService()
                                                 .getOptionalConcept(o1.getDescriptionTypeConceptSequence())
                                                 .get()
-                                                .getConceptDescriptionText();
+                                                .getFullySpecifiedConceptDescriptionText();
       final String o2matchingComponentType = Get.conceptService()
                                                 .getOptionalConcept(o2.getDescriptionTypeConceptSequence())
                                                 .get()
-                                                .getConceptDescriptionText();
+                                                .getFullySpecifiedConceptDescriptionText();
 
       return o1matchingComponentType.compareTo(o2matchingComponentType);
    }

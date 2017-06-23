@@ -77,7 +77,7 @@ public class LanguageMap {
       case EN_TT:
       case EN_US:
       case EN_ZA:
-         return MetaData.ENGLISH_LANGUAGE;
+         return MetaData.ENGLISH_LANGUAGE_ǁISAACǁ;
 
       case ES:
       case ES_AR:
@@ -98,11 +98,11 @@ public class LanguageMap {
       case ES_SV:
       case ES_UY:
       case ES_VE:
-         return MetaData.SPANISH_LANGUAGE;
+         return MetaData.SPANISH_LANGUAGE_ǁISAACǁ;
 
       case DA:
       case DA_DK:
-         return MetaData.DANISH_LANGUAGE;
+         return MetaData.DANISH_LANGUAGE_ǁISAACǁ;
 
       case FR:
       case FR_BE:
@@ -111,22 +111,22 @@ public class LanguageMap {
       case FR_FR:
       case FR_LU:
       case FR_MC:
-         return MetaData.FRENCH_LANGUAGE;
+         return MetaData.FRENCH_LANGUAGE_ǁISAACǁ;
 
       case LT:
       case LT_LT:
-         return MetaData.LITHUANIAN_LANGUAGE;
+         return MetaData.LITHUANIAN_LANGUAGE_ǁISAACǁ;
 
       case NL:
-         return MetaData.DUTCH_LANGUAGE;
+         return MetaData.DUTCH_LANGUAGE_ǁISAACǁ;
 
       case PL:
-         return MetaData.POLISH_LANGUAGE;
+         return MetaData.POLISH_LANGUAGE_ǁISAACǁ;
 
       case SV:
       case SV_FI:
       case SV_SE:
-         return MetaData.SWEDISH_LANGUAGE;
+         return MetaData.SWEDISH_LANGUAGE_ǁISAACǁ;
 
       case ZH:
       case ZH_CHS:
@@ -136,7 +136,7 @@ public class LanguageMap {
       case ZH_MO:
       case ZH_SG:
       case ZH_TW:
-         return MetaData.CHINESE_LANGUAGE;
+         return MetaData.CHINESE_LANGUAGE_ǁISAACǁ;
 
       case ZZ:
       default:

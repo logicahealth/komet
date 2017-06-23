@@ -240,7 +240,7 @@ public class CompositeSearchResult {
       if (this.containingConcept.isPresent()) {
          try {
             containingConceptDesc = this.containingConcept.get()
-                  .getConceptDescriptionText();
+                  .getFullySpecifiedConceptDescriptionText();
          } catch (final Exception e) {
             containingConceptDesc = "{nid=" + this.containingConcept.get().getNid() + "}";
          }

@@ -47,10 +47,12 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import sh.isaac.api.ConceptProxy;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 
 //~--- classes ----------------------------------------------------------------
@@ -116,6 +118,8 @@ public abstract class Clause {
       enclosingQuery.getComputePhases()
                     .addAll(getComputePhases());
    }
+   
+   public abstract ConceptSpecification getClauseConcept();
 
    //~--- methods -------------------------------------------------------------
 

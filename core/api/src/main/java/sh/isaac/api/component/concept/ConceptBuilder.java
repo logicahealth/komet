@@ -134,6 +134,6 @@ public interface ConceptBuilder
     *
     * @return the synonym preferred description builder
     */
-   DescriptionBuilder<?, ?> getSynonymPreferredDescriptionBuilder();
+   DescriptionBuilder<?, ?> getPreferredDescriptionBuilder();
 }
 

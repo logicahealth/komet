@@ -310,7 +310,7 @@ public class ConceptChronologyImpl
     * @return the concept description text
     */
    @Override
-   public String getConceptDescriptionText() {
+   public String getFullySpecifiedConceptDescriptionText() {
       return Get.conceptDescriptionText(getNid());
    }
 
@@ -553,6 +553,11 @@ public class ConceptChronologyImpl
       }
 
       return this.relationshipListWithConceptAsDestination;
+   }
+
+   @Override
+   public Optional<String> getPreferedConceptDescriptionText() {
+     return Optional.ofNullable(Get.defaultCoordinate().getPreferredDescriptionText(this.getConceptSequence()));
    }
 }
 

@@ -177,8 +177,8 @@ public class MappingSetDAO
                                                             .getService(DescriptionBuilderService.class)
                                                             .getDescriptionBuilder(inverseName,
                                                                   rdud.getDynamicSememeUsageDescriptorSequence(),
-                                                                  MetaData.SYNONYM,
-                                                                  MetaData.ENGLISH_LANGUAGE)
+                                                                  MetaData.SYNONYM_ǁISAACǁ,
+                                                                  MetaData.ENGLISH_LANGUAGE_ǁISAACǁ)
                                                             .build(editCoord, ChangeCheckerMode.ACTIVE)
                                                             .getNoThrow();
 
@@ -274,7 +274,7 @@ public class MappingSetDAO
                         final DescriptionSememe<?> ds = latest.get()
                                                               .value();
 
-                        if (ds.getDescriptionTypeConceptSequence() == MetaData.SYNONYM.getConceptSequence()) {
+                        if (ds.getDescriptionTypeConceptSequence() == MetaData.SYNONYM_ǁISAACǁ.getConceptSequence()) {
                            if (Frills.isDescriptionPreferred(ds.getNid(), null)) {
                               if (!ds.getText()
                                      .equals(mappingSet.getName())) {
@@ -318,7 +318,7 @@ public class MappingSetDAO
                               }
                            }
                         } else if (ds.getDescriptionTypeConceptSequence() ==
-                                   MetaData.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
+                                   MetaData.DEFINITION_DESCRIPTION_TYPE_ǁISAACǁ.getConceptSequence()) {
                            if (Frills.isDescriptionPreferred(ds.getNid(), null)) {
                               if (!mappingSet.getDescription()
                                              .equals(ds.getText())) {

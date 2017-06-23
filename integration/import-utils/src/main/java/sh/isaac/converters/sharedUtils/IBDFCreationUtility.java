@@ -219,8 +219,8 @@ public class IBDFCreationUtility {
       LookupService.startupIsaac();
 
       // Initialize after starting up isaac...
-      this.authorSeq          = MetaData.USER.getConceptSequence();
-      this.terminologyPathSeq = MetaData.DEVELOPMENT_PATH.getConceptSequence();
+      this.authorSeq          = MetaData.USER_ǁISAACǁ.getConceptSequence();
+      this.terminologyPathSeq = MetaData.DEVELOPMENT_PATH_ǁISAACǁ.getConceptSequence();
 
       // TODO automate this somehow....
       registerDynamicSememeColumnInfo(
@@ -271,7 +271,7 @@ public class IBDFCreationUtility {
 
       // TODO figure out how to get rid of this copy/paste mess too
       registerDynamicSememeColumnInfo(
-          MetaData.LOINC_NUM.getPrimordialUuid(),
+          MetaData.LOINC_NUM_ǁISAACǁ.getPrimordialUuid(),
           new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(
               0,
               DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getPrimordialUuid(),
@@ -280,8 +280,8 @@ public class IBDFCreationUtility {
               true,
               true) });
       this.conceptBuilderService = Get.conceptBuilderService();
-      this.conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE);
-      this.conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT);
+      this.conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE_ǁISAACǁ);
+      this.conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT_ǁISAACǁ);
       this.conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
       this.expressionBuilderService = Get.logicalExpressionBuilderService();
       this.sememeBuilderService     = Get.sememeBuilderService();
@@ -289,7 +289,7 @@ public class IBDFCreationUtility {
 
       final StampPosition stampPosition = new StampPositionImpl(
                                               Long.MAX_VALUE,
-                                                    MetaData.DEVELOPMENT_PATH.getConceptSequence());
+                                                    MetaData.DEVELOPMENT_PATH_ǁISAACǁ.getConceptSequence());
 
       readBackStamp = new StampCoordinateImpl(
           StampPrecedence.PATH,
@@ -321,7 +321,7 @@ public class IBDFCreationUtility {
              true,
              preExistingModule.isPresent() ? preExistingModule.get()
                    .getPrimordialUuid()
-                                           : MetaData.MODULE.getPrimordialUuid());
+                                           : MetaData.MODULE_ǁISAACǁ.getPrimordialUuid());
       } else {
          this.module = ComponentReference.fromConcept(
              preExistingModule.get()
@@ -357,15 +357,15 @@ public class IBDFCreationUtility {
        * @return the description type
        */
       public static DescriptionType convert(UUID typeUuid) {
-         if (MetaData.FULLY_SPECIFIED_NAME.getPrimordialUuid()
+         if (MetaData.FULLY_SPECIFIED_NAME_ǁISAACǁ.getPrimordialUuid()
                                           .equals(typeUuid)) {
             return FSN;
-         } else if (MetaData.SYNONYM.getPrimordialUuid()
+         } else if (MetaData.SYNONYM_ǁISAACǁ.getPrimordialUuid()
                                     .equals(typeUuid)) {
             return SYNONYM;
          }
 
-         if (MetaData.DEFINITION_DESCRIPTION_TYPE.getPrimordialUuid()
+         if (MetaData.DEFINITION_DESCRIPTION_TYPE_ǁISAACǁ.getPrimordialUuid()
                .equals(typeUuid)) {
             return DEFINITION;
          }
@@ -383,13 +383,13 @@ public class IBDFCreationUtility {
       public ConceptSpecification getConceptSpec() {
          switch (this) {
          case FSN:
-            return MetaData.FULLY_SPECIFIED_NAME;
+            return MetaData.FULLY_SPECIFIED_NAME_ǁISAACǁ;
 
          case SYNONYM:
-            return MetaData.SYNONYM;
+            return MetaData.SYNONYM_ǁISAACǁ;
 
          case DEFINITION:
-            return MetaData.DEFINITION_DESCRIPTION_TYPE;
+            return MetaData.DEFINITION_DESCRIPTION_TYPE_ǁISAACǁ;
 
          default:
             throw new RuntimeException("Unsupported descriptiontype '" + this + "'");
@@ -642,11 +642,11 @@ public class IBDFCreationUtility {
       }
 
       if (dialect == null) {
-         dialect = MetaData.US_ENGLISH_DIALECT.getPrimordialUuid();
+         dialect = MetaData.US_ENGLISH_DIALECT_ǁISAACǁ.getPrimordialUuid();
       }
 
       if (languageCode == null) {
-         languageCode = MetaData.ENGLISH_LANGUAGE.getPrimordialUuid();
+         languageCode = MetaData.ENGLISH_LANGUAGE_ǁISAACǁ.getPrimordialUuid();
       }
 
       if (descriptionPrimordialUUID == null) {
@@ -666,7 +666,7 @@ public class IBDFCreationUtility {
          this.sememeBuilderService.getDescriptionSememeBuilder(
              Get.identifierService()
                 .getConceptSequenceForUuids(
-                    (caseSignificant == null) ? MetaData.DESCRIPTION_NOT_CASE_SENSITIVE.getPrimordialUuid()
+                    (caseSignificant == null) ? MetaData.DESCRIPTION_NOT_CASE_SENSITIVE_ǁISAACǁ.getPrimordialUuid()
             : caseSignificant),
              Get.identifierService()
                 .getConceptSequenceForUuids(
@@ -959,7 +959,7 @@ public class IBDFCreationUtility {
                                             concept.getPrimordialUuid()
                                                   .toString(),
                                                   Arrays.toString(targetUuid),
-                                                  MetaData.IS_A.getPrimordialUuid()
+                                                  MetaData.IS_A_ǁISAACǁ.getPrimordialUuid()
                                                         .toString()));
 
       final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
@@ -980,9 +980,9 @@ public class IBDFCreationUtility {
                                    .getPrimordialUuid());
          this.ls.addRelationship(
              getOriginStringForUuid(
-                 MetaData.IS_A.getPrimordialUuid()) + ":" + getOriginStringForUuid(sourceRelTypeUUID));
+                 MetaData.IS_A_ǁISAACǁ.getPrimordialUuid()) + ":" + getOriginStringForUuid(sourceRelTypeUUID));
       } else {
-         this.ls.addRelationship(getOriginStringForUuid(MetaData.IS_A.getPrimordialUuid()));
+         this.ls.addRelationship(getOriginStringForUuid(MetaData.IS_A_ǁISAACǁ.getPrimordialUuid()));
       }
 
       return sci;
@@ -1309,9 +1309,9 @@ public class IBDFCreationUtility {
                                    .toString(),
                             refexDescription,
                             DescriptionType.DEFINITION.name(),
-                            MetaData.US_ENGLISH_DIALECT.getPrimordialUuid()
+                            MetaData.US_ENGLISH_DIALECT_ǁISAACǁ.getPrimordialUuid()
                                   .toString(),
-                            MetaData.ENGLISH_LANGUAGE.getPrimordialUuid()
+                            MetaData.ENGLISH_LANGUAGE_ǁISAACǁ.getPrimordialUuid()
                                   .toString(),
                             new Boolean("true").toString(),
                             "DynamicSememeMarker");
@@ -1700,17 +1700,17 @@ public class IBDFCreationUtility {
 
          if (pt instanceof BPT_Refsets) {
             secondParent = setupWbPropertyMetadata(
-                MetaData.SOLOR_REFSETS.getPrimordialUuid(),
+                MetaData.SOLOR_REFSETS_ǁISAACǁ.getPrimordialUuid(),
                 (BPT_DualParentPropertyType) pt);
          } else if (pt instanceof BPT_Descriptions) {
             // should only do this once, in case we see a BPT_Descriptions more than once
             secondParent = setupWbPropertyMetadata(
-                MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY.getPrimordialUuid(),
+                MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY_ǁISAACǁ.getPrimordialUuid(),
                 (BPT_DualParentPropertyType) pt);
          } else if (pt instanceof BPT_Relations) {
             // should only do this once, in case we see a BPT_Relations more than once
             secondParent = setupWbPropertyMetadata(
-                MetaData.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY.getPrimordialUuid(),
+                MetaData.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY_ǁISAACǁ.getPrimordialUuid(),
                 (BPT_DualParentPropertyType) pt);
          }
 
@@ -1823,17 +1823,17 @@ public class IBDFCreationUtility {
       addStaticStringAnnotation(
           terminologyMetadataRootConcept,
           converterSourceArtifactVersion,
-          MetaData.SOURCE_ARTIFACT_VERSION.getPrimordialUuid(),
+          MetaData.SOURCE_ARTIFACT_VERSION_ǁISAACǁ.getPrimordialUuid(),
           State.ACTIVE);
       addStaticStringAnnotation(
           terminologyMetadataRootConcept,
           converterOutputArtifactVersion,
-          MetaData.CONVERTED_IBDF_ARTIFACT_VERSION.getPrimordialUuid(),
+          MetaData.CONVERTED_IBDF_ARTIFACT_VERSION_ǁISAACǁ.getPrimordialUuid(),
           State.ACTIVE);
       addStaticStringAnnotation(
           terminologyMetadataRootConcept,
           converterVersion,
-          MetaData.CONVERTER_VERSION.getPrimordialUuid(),
+          MetaData.CONVERTER_VERSION_ǁISAACǁ.getPrimordialUuid(),
           State.ACTIVE);
 
       if (converterOutputArtifactClassifier.isPresent() &&
@@ -1841,7 +1841,7 @@ public class IBDFCreationUtility {
          addStaticStringAnnotation(
              terminologyMetadataRootConcept,
              converterOutputArtifactClassifier.get(),
-             MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER.getPrimordialUuid(),
+             MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER_ǁISAACǁ.getPrimordialUuid(),
              State.ACTIVE);
       }
 
@@ -1849,7 +1849,7 @@ public class IBDFCreationUtility {
          addStaticStringAnnotation(
              terminologyMetadataRootConcept,
              converterSourceReleaseDate.get(),
-             MetaData.SOURCE_RELEASE_DATE.getPrimordialUuid(),
+             MetaData.SOURCE_RELEASE_DATE_ǁISAACǁ.getPrimordialUuid(),
              State.ACTIVE);
       }
    }

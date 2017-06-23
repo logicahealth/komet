@@ -83,10 +83,10 @@ import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.api.query.clauses.DescriptionRegexMatch;
 import sh.isaac.api.query.clauses.FullySpecifiedNameForConcept;
 import sh.isaac.api.query.clauses.PreferredNameForConcept;
-import sh.isaac.api.query.clauses.RefsetContainsConcept;
-import sh.isaac.api.query.clauses.RefsetContainsKindOfConcept;
-import sh.isaac.api.query.clauses.RefsetContainsString;
-import sh.isaac.api.query.clauses.RefsetLuceneMatch;
+import sh.isaac.api.query.clauses.AssemblageContainsConcept;
+import sh.isaac.api.query.clauses.AssemblageContainsKindOfConcept;
+import sh.isaac.api.query.clauses.AssemblageContainsString;
+import sh.isaac.api.query.clauses.AssemblageLuceneMatch;
 import sh.isaac.api.query.clauses.RelRestriction;
 
 //~--- classes ----------------------------------------------------------------
@@ -561,8 +561,8 @@ public abstract class Query {
     * @param conceptSpecKey the concept spec key
     * @return the refset contains concept
     */
-   protected RefsetContainsConcept RefsetContainsConcept(String refsetSpecKey, String conceptSpecKey) {
-      return new RefsetContainsConcept(this, refsetSpecKey, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
+   protected AssemblageContainsConcept RefsetContainsConcept(String refsetSpecKey, String conceptSpecKey) {
+      return new AssemblageContainsConcept(this, refsetSpecKey, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
    }
 
    /**
@@ -573,10 +573,10 @@ public abstract class Query {
     * @param viewCoordinateKey the view coordinate key
     * @return the refset contains concept
     */
-   protected RefsetContainsConcept RefsetContainsConcept(String refsetSpecKey,
+   protected AssemblageContainsConcept RefsetContainsConcept(String refsetSpecKey,
          String conceptSpecKey,
          String viewCoordinateKey) {
-      return new RefsetContainsConcept(this, refsetSpecKey, conceptSpecKey, viewCoordinateKey);
+      return new AssemblageContainsConcept(this, refsetSpecKey, conceptSpecKey, viewCoordinateKey);
    }
 
    /**
@@ -586,8 +586,8 @@ public abstract class Query {
     * @param conceptSpecKey the concept spec key
     * @return the refset contains kind of concept
     */
-   protected RefsetContainsKindOfConcept RefsetContainsKindOfConcept(String refsetSpecKey, String conceptSpecKey) {
-      return new RefsetContainsKindOfConcept(this, refsetSpecKey, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
+   protected AssemblageContainsKindOfConcept RefsetContainsKindOfConcept(String refsetSpecKey, String conceptSpecKey) {
+      return new AssemblageContainsKindOfConcept(this, refsetSpecKey, conceptSpecKey, CURRENT_TAXONOMY_RESULT);
    }
 
    /**
@@ -598,10 +598,10 @@ public abstract class Query {
     * @param viewCoordinateKey the view coordinate key
     * @return the refset contains kind of concept
     */
-   protected RefsetContainsKindOfConcept RefsetContainsKindOfConcept(String refsetSpecKey,
+   protected AssemblageContainsKindOfConcept RefsetContainsKindOfConcept(String refsetSpecKey,
          String conceptSpecKey,
          String viewCoordinateKey) {
-      return new RefsetContainsKindOfConcept(this, refsetSpecKey, conceptSpecKey, viewCoordinateKey);
+      return new AssemblageContainsKindOfConcept(this, refsetSpecKey, conceptSpecKey, viewCoordinateKey);
    }
 
    /**
@@ -611,8 +611,8 @@ public abstract class Query {
     * @param stringMatchKey the string match key
     * @return the refset contains string
     */
-   protected RefsetContainsString RefsetContainsString(String refsetSpecKey, String stringMatchKey) {
-      return new RefsetContainsString(this, refsetSpecKey, stringMatchKey, CURRENT_TAXONOMY_RESULT);
+   protected AssemblageContainsString RefsetContainsString(String refsetSpecKey, String stringMatchKey) {
+      return new AssemblageContainsString(this, refsetSpecKey, stringMatchKey, CURRENT_TAXONOMY_RESULT);
    }
 
    /**
@@ -623,10 +623,10 @@ public abstract class Query {
     * @param viewCoordinateKey the view coordinate key
     * @return the refset contains string
     */
-   protected RefsetContainsString RefsetContainsString(String refsetSpecKey,
+   protected AssemblageContainsString RefsetContainsString(String refsetSpecKey,
          String stringMatchKey,
          String viewCoordinateKey) {
-      return new RefsetContainsString(this, refsetSpecKey, stringMatchKey, viewCoordinateKey);
+      return new AssemblageContainsString(this, refsetSpecKey, stringMatchKey, viewCoordinateKey);
    }
 
    /**
@@ -635,8 +635,8 @@ public abstract class Query {
     * @param queryString the query string
     * @return the refset lucene match
     */
-   protected RefsetLuceneMatch RefsetLuceneMatch(String queryString) {
-      return new RefsetLuceneMatch(this, queryString, CURRENT_TAXONOMY_RESULT);
+   protected AssemblageLuceneMatch RefsetLuceneMatch(String queryString) {
+      return new AssemblageLuceneMatch(this, queryString, CURRENT_TAXONOMY_RESULT);
    }
 
    /**

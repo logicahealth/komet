@@ -16,5 +16,6 @@
         <module>drag-tab</module>
         <module>application</module>
         <module>gui-contracts</module>
+        <module>search-view</module>
     </modules>
 </project> 

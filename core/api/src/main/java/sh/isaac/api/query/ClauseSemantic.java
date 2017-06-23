@@ -100,9 +100,9 @@ public enum ClauseSemantic {
    CONCEPT_IS_KIND_OF,
 
    /**
-    * Test to see if a component is a member of a refset.
+    * Test to see if a component is a member of an ASSEMBLAGE.
     */
-   COMPONENT_IS_MEMBER_OF_REFSET,
+   ASSEMBLAGE_CONTAINS_COMPONENT,
 
    /**
     * Test to see if an active description on a concept matches a Lucene query
@@ -139,9 +139,9 @@ public enum ClauseSemantic {
    PREFERRED_NAME_FOR_CONCEPT,
 
    /**
-    * Test to see if a refset string member matches a Lucene query criterion.
+    * Test to see if an assemblage string member matches a Lucene query criterion.
     */
-   REFSET_LUCENE_MATCH,
+   ASSEMBLAGE_LUCENE_MATCH,
 
    /**
     * Test to see if a relationship has a restriction that is a kind of the concept from which
@@ -161,19 +161,19 @@ public enum ClauseSemantic {
    REL_RESTRICTION,
 
    /**
-    * Test to see if a refset contains a specified concept.
+    * Test to see if an assemblage contains a specified concept.
     */
-   REFSET_CONTAINS_CONCEPT,
+   ASSEMBLAGE_CONTAINS_CONCEPT,
 
    /**
-    * Test to see if a refset contains a kind of specified concept.
+    * Test to see if an assemblage contains a kind of specified concept.
     */
-   REFSET_CONTAINS_KIND_OF_CONCEPT,
+   ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT,
 
    /**
-    * Test to see if a refset contains a member that matches the specified
+    * Test to see if an assemblage contains a member that matches the specified
     * string.
     */
-   REFSET_CONTAINS_STRING,
+   ASSEMBLAGE_CONTAINS_STRING,
 }
 

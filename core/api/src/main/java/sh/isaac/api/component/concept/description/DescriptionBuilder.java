@@ -72,5 +72,17 @@ public interface DescriptionBuilder<T extends ObjectChronology<?>, V extends Sta
     * @return the description builder
     */
    DescriptionBuilder<?, ?> addPreferredInDialectAssemblage(ConceptSpecification dialectAssemblage);
+   
+   /**
+    * 
+    * @return the description text assigned to this builder. 
+    */
+   String getDescriptionText();
+
+   /**
+    * 
+    * @param descriptionText the description text for this builder.
+    */
+   void setDescriptionText(String descriptionText);
 }
 

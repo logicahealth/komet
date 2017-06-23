@@ -67,13 +67,13 @@ import sh.isaac.model.sememe.version.DescriptionSememeImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class DescriptionBuilderOchreImpl.
+ * The Class DescriptionBuilderImpl.
  *
  * @author kec
  * @param <T> the generic type
  * @param <V> the value type
  */
-public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extends DescriptionSememeImpl>
+public class DescriptionBuilderImpl<T extends SememeChronology<V>, V extends DescriptionSememeImpl>
         extends ComponentBuilder<T>
          implements DescriptionBuilder<T, V> {
    /** The preferred in dialect assemblages. */
@@ -86,7 +86,7 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
    private int conceptSequence = Integer.MAX_VALUE;
 
    /** The description text. */
-   private final String descriptionText;
+   private String descriptionText;
 
    /** The description type. */
    private final ConceptSpecification descriptionType;
@@ -100,14 +100,14 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new description builder ochre impl.
+    * Instantiates a new description builder.
     *
     * @param descriptionText the description text
     * @param conceptBuilder the concept builder
     * @param descriptionType the description type
     * @param languageForDescription the language for description
     */
-   public DescriptionBuilderOchreImpl(String descriptionText,
+   public DescriptionBuilderImpl(String descriptionText,
                                       ConceptBuilder conceptBuilder,
                                       ConceptSpecification descriptionType,
                                       ConceptSpecification languageForDescription) {
@@ -125,7 +125,7 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
     * @param descriptionType the description type
     * @param languageForDescription the language for description
     */
-   public DescriptionBuilderOchreImpl(String descriptionText,
+   public DescriptionBuilderImpl(String descriptionText,
                                       int conceptSequence,
                                       ConceptSpecification descriptionType,
                                       ConceptSpecification languageForDescription) {
@@ -276,5 +276,17 @@ public class DescriptionBuilderOchreImpl<T extends SememeChronology<V>, V extend
             builtObjects)));
       return new OptionalWaitTask<>(null, (T) newDescription.getNoWait(), nestedBuilders);
    }
+   
+   @Override
+   public String getDescriptionText() {
+      return descriptionText;
+   }
+
+   @Override
+   public void setDescriptionText(String descriptionText) {
+      this.descriptionText = descriptionText;
+   }
+   
+   
 }
 

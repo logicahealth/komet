@@ -170,7 +170,7 @@ public class MappingSet
                               final DescriptionSememe<?> ds = latest.get()
                                                                     .value();
 
-                              if (ds.getDescriptionTypeConceptSequence() == MetaData.SYNONYM.getConceptSequence()) {
+                              if (ds.getDescriptionTypeConceptSequence() == MetaData.SYNONYM_ǁISAACǁ.getConceptSequence()) {
                                  if (Frills.isDescriptionPreferred(ds.getNid(), null)) {
                                     setName(ds.getText());
                                  } else
@@ -188,7 +188,7 @@ public class MappingSet
                                     }
                                  }
                               } else if (ds.getDescriptionTypeConceptSequence() ==
-                                         MetaData.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
+                                         MetaData.DEFINITION_DESCRIPTION_TYPE_ǁISAACǁ.getConceptSequence()) {
                                  if (Frills.isDescriptionPreferred(ds.getNid(), null)) {
                                     setDescription(ds.getText());
                                  }

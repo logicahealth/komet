@@ -129,6 +129,12 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.komet</groupId>
+         <artifactId>search-view</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
          <artifactId>drag-tab</artifactId>
          <version>${project.parent.version}</version>
          <type>jar</type>

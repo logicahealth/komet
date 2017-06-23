@@ -51,6 +51,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -242,5 +243,11 @@ public class RelRestriction
 //    System.out.println("Where clause size: " + whereClause.getLetKeys().size());
       return whereClause;
    }
+   
+   @Override
+   public ConceptSpecification getClauseConcept() {
+      return TermAux.REL_RESTRICTION_QUERY_CLAUSE;
+   }
+   
 }
 

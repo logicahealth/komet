@@ -790,7 +790,7 @@ public class RxNormMojo
                return false;
             });
       this.importUtil = new IBDFCreationUtility(Optional.empty(),
-            Optional.of(MetaData.RXNORM_MODULES),
+            Optional.of(MetaData.RXNORM_MODULES_ǁISAACǁ),
             this.outputDirectory,
             this.converterOutputArtifactId,
             this.converterOutputArtifactVersion,
@@ -800,7 +800,7 @@ public class RxNormMojo
       this.metaDataRoot = ComponentReference.fromConcept(this.importUtil.createConcept("RxNorm Metadata" +
             IBDFCreationUtility.METADATA_SEMANTIC_TAG,
             true,
-            MetaData.SOLOR_CONTENT_METADATA.getPrimordialUuid()));
+            MetaData.SOLOR_CONTENT_METADATA_ǁISAACǁ.getPrimordialUuid()));
       loadMetaData();
       this.importUtil.loadTerminologyMetadataAttributes(this.metaDataRoot,
             this.converterSourceArtifactVersion,
@@ -1580,7 +1580,7 @@ public class RxNormMojo
          {
             p = new Property(((r.getAltName() == null) ? r.getFSNName()
                   : r.getAltName()), ((r.getAltName() == null) ? null
-                  : r.getFSNName()), r.getDescription(), MetaData.IS_A.getPrimordialUuid());  // map to isA
+                  : r.getFSNName()), r.getDescription(), MetaData.IS_A_ǁISAACǁ.getPrimordialUuid());  // map to isA
             this.ptRelationships.addProperty(
                 p);  // conveniently, the only thing we will treat as relationships are things mapped to isa.
          }
@@ -1839,7 +1839,7 @@ public class RxNormMojo
    private void prepareSCTMaps()
             throws SQLException {
       Get.sememeService()
-         .getSememeSequencesFromAssemblage(MetaData.SCTID.getConceptSequence())
+         .getSememeSequencesFromAssemblage(MetaData.SCTID_ǁISAACǁ.getConceptSequence())
          .stream()
          .forEach(sememe -> {
                      @SuppressWarnings({ "unchecked", "rawtypes" })

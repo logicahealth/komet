@@ -487,6 +487,39 @@ public class IsaacMetadataAuxiliary
          popParent();
          popParent();
          
+         createConcept("query clauses");
+         pushParent(current());
+         createConcept(TermAux.AND_QUERY_CLAUSE);
+
+   createConcept(TermAux.NOT_QUERY_CLAUSE);
+   createConcept(TermAux.AND_NOT_QUERY_CLAUSE);
+   createConcept(TermAux.OR_QUERY_CLAUSE);
+   createConcept(TermAux.XOR_QUERY_CLAUSE);
+   createConcept(TermAux.CHANGED_FROM_PREVIOUS_VERSION_QUERY_CLAUSE);
+   createConcept(TermAux.CONCEPT_IS_QUERY_CLAUSE);
+   createConcept(TermAux.CONCEPT_IS_KIND_OF_QUERY_CLAUSE);
+   createConcept(TermAux.DESCRIPTION_LUCENE_MATCH_QUERY_CLAUSE);
+   createConcept(TermAux.PREFERRED_NAME_FOR_CONCEPT_QUERY_CLAUSE);
+   createConcept(TermAux.RELATIONSHIP_IS_CIRCULAR_QUERY_CLAUSE);
+   createConcept(TermAux.CONCEPT_IS_CHILD_OF_QUERY_CLAUSE);
+   createConcept(TermAux.DESCRIPTION_ACTIVE_LUCENE_MATCH_QUERY_CLAUSE);
+   createConcept(TermAux.DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE);
+   createConcept(TermAux.CONCEPT_FOR_COMPONENT_QUERY_CLAUSE);
+   createConcept(TermAux.CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE);
+   createConcept(TermAux.DESCRIPTION_ACTIVE_REGEX_MATCH_QUERY_CLAUSE);
+   createConcept(TermAux.FULLY_SPECIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE);
+   
+   createConcept(TermAux.ASSEMBLAGE_CONTAINS_STRING_QUERY_CLAUSE);
+   createConcept(TermAux.ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE);
+   createConcept(TermAux.ASSEMBLAGE_CONTAINS_COMPONENT_QUERY_CLAUSE);
+   createConcept(TermAux.ASSEMBLAGE_LUCENE_MATCH_QUERY_CLAUSE);
+   createConcept(TermAux.ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT_QUERY_CLAUSE);
+   createConcept(TermAux.REL_RESTRICTION_QUERY_CLAUSE);
+   createConcept(TermAux.REL_TYPE_QUERY_CLAUSE);
+
+         popParent();
+         
+         
          popParent(); // ISAAC root should still be parent on stack... 
          createConcept("test concept");
          pushParent(current());

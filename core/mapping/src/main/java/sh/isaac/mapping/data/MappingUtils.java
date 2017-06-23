@@ -80,11 +80,11 @@ public class MappingUtils {
    //~--- static initializers -------------------------------------------------
 
    static {
-      CODE_SYSTEM_CONCEPTS.put("SNOMED CT", MetaData.SNOMED_CT_CORE_MODULES);
-      CODE_SYSTEM_CONCEPTS.put("SNOMED CT US Extension", MetaData.US_EXTENSION_MODULES);
-      CODE_SYSTEM_CONCEPTS.put("LOINC", MetaData.LOINC_MODULES);
-      CODE_SYSTEM_CONCEPTS.put("RxNorm", MetaData.RXNORM_MODULES);
-      CODE_SYSTEM_CONCEPTS.put("VHAT", MetaData.VHA_MODULES);
+      CODE_SYSTEM_CONCEPTS.put("SNOMED CT", MetaData.SNOMED_CT_CORE_MODULES_ǁISAACǁ);
+      CODE_SYSTEM_CONCEPTS.put("SNOMED CT US Extension", MetaData.US_EXTENSION_MODULES_ǁISAACǁ);
+      CODE_SYSTEM_CONCEPTS.put("LOINC", MetaData.LOINC_MODULES_ǁISAACǁ);
+      CODE_SYSTEM_CONCEPTS.put("RxNorm", MetaData.RXNORM_MODULES_ǁISAACǁ);
+      CODE_SYSTEM_CONCEPTS.put("VHAT", MetaData.VHA_MODULES_ǁISAACǁ);
    }
 
    //~--- get methods ---------------------------------------------------------

@@ -81,6 +81,8 @@ import sh.komet.fx.tabpane.DndTabPaneFactory;
 import sh.komet.fx.tabpane.DndTabPaneFactory.FeedbackType;
 import sh.komet.gui.contract.DetailNode;
 import sh.komet.gui.contract.DetailNodeFactory;
+import sh.komet.gui.contract.ExplorationNode;
+import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.contract.Manifold;
 
 //~--- classes ----------------------------------------------------------------
@@ -199,6 +201,26 @@ public class KometStageController {
                tab.getTooltip().textProperty().bind(detailNode.getToolTip());
                
                tab.setContent(graphPane);
+               tabPane.getTabs()
+                      .add(tab);
+            }
+         }
+
+         if (tabPanelCount == 3) {
+            for (ExplorationNodeFactory factory: Get.services(ExplorationNodeFactory.class)) {
+               Tab        tab      = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
+               tab.setTooltip(new Tooltip("Search view"));
+               BorderPane searchPane = new BorderPane();
+
+               searchPane.setBorder(
+                   new Border(
+                       new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+
+               ExplorationNode explorationNode = factory.createExplorationNode(manifold, searchPane);
+               explorationNode.setParent(searchPane);
+               tab.getTooltip().textProperty().bind(explorationNode.getToolTip());
+               
+               tab.setContent(searchPane);
                tabPane.getTabs()
                       .add(tab);
             }

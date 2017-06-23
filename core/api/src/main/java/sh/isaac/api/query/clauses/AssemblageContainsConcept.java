@@ -47,10 +47,12 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
@@ -69,7 +71,7 @@ import sh.isaac.api.query.WhereClause;
  */
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
-public class RefsetContainsConcept
+public class AssemblageContainsConcept
         extends LeafClause {
    /** The cache. */
    NidSet cache;
@@ -91,7 +93,7 @@ public class RefsetContainsConcept
    /**
     * Instantiates a new refset contains concept.
     */
-   protected RefsetContainsConcept() {}
+   protected AssemblageContainsConcept() {}
 
    /**
     * Instantiates a new refset contains concept.
@@ -101,7 +103,7 @@ public class RefsetContainsConcept
     * @param conceptSpecKey the concept spec key
     * @param viewCoordinateKey the view coordinate key
     */
-   public RefsetContainsConcept(Query enclosingQuery,
+   public AssemblageContainsConcept(Query enclosingQuery,
                                 String refsetSpecKey,
                                 String conceptSpecKey,
                                 String viewCoordinateKey) {
@@ -156,7 +158,6 @@ public class RefsetContainsConcept
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
@@ -172,7 +173,7 @@ public class RefsetContainsConcept
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();
 
-      whereClause.setSemantic(ClauseSemantic.REFSET_CONTAINS_CONCEPT);
+      whereClause.setSemantic(ClauseSemantic.ASSEMBLAGE_CONTAINS_CONCEPT);
       whereClause.getLetKeys()
                  .add(this.refsetSpecKey);
       whereClause.getLetKeys()
@@ -181,5 +182,11 @@ public class RefsetContainsConcept
                  .add(this.viewCoordinateKey);
       return whereClause;
    }
+   
+      @Override
+   public ConceptSpecification getClauseConcept() {
+      return TermAux.ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE;
+   }
+
 }
 

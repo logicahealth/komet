@@ -46,11 +46,13 @@ import java.util.EnumSet;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
@@ -158,5 +160,11 @@ public class ConceptForComponent
 
       return whereClause;
    }
+   
+      @Override
+   public ConceptSpecification getClauseConcept() {
+      return TermAux.CONCEPT_FOR_COMPONENT_QUERY_CLAUSE;
+   }
+
 }
 

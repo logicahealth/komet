@@ -44,10 +44,12 @@ package sh.isaac.api.query;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -132,5 +134,11 @@ public class Xor
 
       return whereClause;
    }
+   
+      @Override
+   public ConceptSpecification getClauseConcept() {
+      return TermAux.XOR_QUERY_CLAUSE;
+   }
+
 }
 

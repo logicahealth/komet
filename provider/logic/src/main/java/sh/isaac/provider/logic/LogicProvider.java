@@ -141,7 +141,7 @@ public class LogicProvider
          PremiseType premiseType) {
       final int destinationSequence = Get.identifierService()
                                          .getConceptSequence(destinationNode.getConceptSequence());
-      final int typeSequence = MetaData.IS_A.getConceptSequence();
+      final int typeSequence = MetaData.IS_A_ǁISAACǁ.getConceptSequence();
       final int group        = 0;
       final RelationshipAdaptorChronicleKeyImpl key = new RelationshipAdaptorChronicleKeyImpl(originSequence,
                                                                                               destinationSequence,
@@ -170,7 +170,7 @@ public class LogicProvider
          int roleGroup) {
       final Stream.Builder<RelationshipVersionAdaptorImpl> roleStream = Stream.builder();
 
-      if (someNode.getTypeConceptSequence() == MetaData.ROLE_GROUP.getConceptSequence()) {
+      if (someNode.getTypeConceptSequence() == MetaData.ROLE_GROUP_ǁISAACǁ.getConceptSequence()) {
          final AndNode andNode = (AndNode) someNode.getOnlyChild();
 
          andNode.getChildStream().forEach((roleGroupSomeNode) -> {
@@ -196,7 +196,7 @@ public class LogicProvider
             destinationSequence = Get.identifierService()
                                      .getConceptSequence(restrictionNode.getConceptSequence());
          } else {
-            destinationSequence = MetaData.ANONYMOUS_CONCEPT.getConceptSequence();
+            destinationSequence = MetaData.ANONYMOUS_CONCEPT_ǁISAACǁ.getConceptSequence();
          }
 
          final int typeSequence = Get.identifierService()

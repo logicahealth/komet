@@ -47,15 +47,12 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.NidSet;
-
-/**
- *
- * @author dylangrald
- */
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
@@ -66,48 +63,50 @@ import sh.isaac.api.query.WhereClause;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * .
+ * <code>LeafClause</code> that returns the nid of the input refset if a kind of
+ * the input concept is a member of the refset and returns an empty set if a
+ * kind of the input concept is not a member of the refset.
  *
  * @author dylangrald
  */
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
-public class RefsetContainsString
+public class AssemblageContainsKindOfConcept
         extends LeafClause {
-   /** The query text. */
+   /** The refset spec key. */
    @XmlElement
-   String queryText;
+   String refsetSpecKey;
+
+   /** The concept spec key. */
+   @XmlElement
+   String conceptSpecKey;
 
    /** The view coordinate key. */
    @XmlElement
    String viewCoordinateKey;
 
-   /** The cache. */
-   NidSet cache;
-
-   /** The refset spec key. */
-   @XmlElement
-   String refsetSpecKey;
-
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new refset contains string.
+    * Instantiates a new refset contains kind of concept.
     */
-   protected RefsetContainsString() {}
+   protected AssemblageContainsKindOfConcept() {}
 
    /**
-    * Instantiates a new refset contains string.
+    * Instantiates a new refset contains kind of concept.
     *
     * @param enclosingQuery the enclosing query
     * @param refsetSpecKey the refset spec key
-    * @param queryText the query text
+    * @param conceptSpecKey the concept spec key
     * @param viewCoordinateKey the view coordinate key
     */
-   public RefsetContainsString(Query enclosingQuery, String refsetSpecKey, String queryText, String viewCoordinateKey) {
+   public AssemblageContainsKindOfConcept(Query enclosingQuery,
+                                      String refsetSpecKey,
+                                      String conceptSpecKey,
+                                      String viewCoordinateKey) {
       super(enclosingQuery);
       this.refsetSpecKey     = refsetSpecKey;
-      this.queryText         = queryText;
+      this.conceptSpecKey    = conceptSpecKey;
       this.viewCoordinateKey = viewCoordinateKey;
    }
 
@@ -126,23 +125,16 @@ public class RefsetContainsString
       // TODO FIX BACK UP
 //    TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations().get(viewCoordinateKey);
 //    ConceptSpec refsetSpec = (ConceptSpec) this.enclosingQuery.getLetDeclarations().get(refsetSpecKey);
+//    ConceptSpec conceptSpec = (ConceptSpec) this.enclosingQuery.getLetDeclarations().get(conceptSpecKey);
 //
+//
+//    int parentNid = conceptSpec.getNid();
+//    NidSet kindOfSet = Ts.get().isKindOfSet(parentNid, viewCoordinate);
 //    int refsetNid = refsetSpec.getNid();
 //    ConceptVersionBI conceptVersion = Ts.get().getConceptVersion(viewCoordinate, refsetNid);
-//
 //    for (RefexVersionBI<?> rm : conceptVersion.getCurrentRefsetMembers(viewCoordinate)) {
-//        switch (rm.getRefexType()) {
-//            case CID_STR:
-//            case CID_CID_CID_STRING:
-//            case CID_CID_STR:
-//            case STR:
-//                RefexStringVersionBI rsv = (RefexStringVersionBI) rm;
-//                if (rsv.getString1().toLowerCase().contains(queryText.toLowerCase())) {
-//                    getResultsCache().add(refsetNid);
-//                }
-//            default:
-//            //do nothing
-//
+//        if (kindOfSet.contains(rm.getReferencedComponentNid())) {
+//            getResultsCache().add(refsetNid);
 //        }
 //    }
 //
@@ -165,10 +157,11 @@ public class RefsetContainsString
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
-   public void getQueryMatches(ConceptVersion conceptVersion) {}
+   public void getQueryMatches(ConceptVersion conceptVersion) {
+      // Nothing to do here
+   }
 
    /**
     * Gets the where clause.
@@ -179,14 +172,20 @@ public class RefsetContainsString
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();
 
-      whereClause.setSemantic(ClauseSemantic.REFSET_CONTAINS_STRING);
+      whereClause.setSemantic(ClauseSemantic.ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT);
       whereClause.getLetKeys()
                  .add(this.refsetSpecKey);
       whereClause.getLetKeys()
-                 .add(this.queryText);
+                 .add(this.conceptSpecKey);
       whereClause.getLetKeys()
                  .add(this.viewCoordinateKey);
       return whereClause;
    }
+   
+   @Override
+   public ConceptSpecification getClauseConcept() {
+      return TermAux.ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT_QUERY_CLAUSE;
+   }
+   
 }
 

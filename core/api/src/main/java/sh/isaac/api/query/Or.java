@@ -42,10 +42,12 @@ package sh.isaac.api.query;
 //~--- JDK imports ------------------------------------------------------------
 
 import javax.xml.bind.annotation.XmlRootElement;
+import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -126,5 +128,10 @@ public class Or
                             });
       return whereClause;
    }
+      @Override
+   public ConceptSpecification getClauseConcept() {
+      return TermAux.OR_QUERY_CLAUSE;
+   }
+
 }
 

@@ -729,11 +729,11 @@ public class SearchHandler {
    private static Integer[] getDescriptionSememeAssemblages() {
       if (descriptionSememeAssemblagesCache == null) {
          final Set<Integer> descSememes =
-            Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_ASSEMBLAGE.getConceptSequence(),
+            Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_ASSEMBLAGE_ǁISAACǁ.getConceptSequence(),
                                            true,
                                            false);
 
-         descSememes.add(MetaData.DESCRIPTION_ASSEMBLAGE.getConceptSequence());
+         descSememes.add(MetaData.DESCRIPTION_ASSEMBLAGE_ǁISAACǁ.getConceptSequence());
          descriptionSememeAssemblagesCache = descSememes.toArray(new Integer[descSememes.size()]);
       }
 

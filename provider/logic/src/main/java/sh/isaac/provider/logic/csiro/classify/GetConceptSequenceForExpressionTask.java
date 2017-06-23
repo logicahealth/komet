@@ -179,8 +179,8 @@ public class GetConceptSequenceForExpressionTask
          final UUID                  uuidForNewConcept     = UUID.randomUUID();
          final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
-         conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE);
-         conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT);
+         conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE_ǁISAACǁ);
+         conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT_ǁISAACǁ);
          conceptBuilderService.setDefaultLogicCoordinate(this.logicCoordinate);
 
          final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(uuidForNewConcept.toString(),

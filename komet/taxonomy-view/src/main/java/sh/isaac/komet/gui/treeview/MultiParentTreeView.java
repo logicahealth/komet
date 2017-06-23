@@ -33,7 +33,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -294,7 +293,7 @@ public class MultiParentTreeView extends BorderPane {
     }
 
     public void init() {
-        init(MetaData.ISAAC_ROOT.getPrimordialUuid());
+        init(MetaData.ISAAC_ROOT_ǁISAACǁ.getPrimordialUuid());
     }
 
     private synchronized void init(final UUID rootConcept) {

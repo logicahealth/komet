@@ -47,6 +47,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -130,7 +131,6 @@ public class ConceptIs
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
@@ -153,5 +153,11 @@ public class ConceptIs
                  .add(this.viewCoordinateKey);
       return whereClause;
    }
+   
+      @Override
+   public ConceptSpecification getClauseConcept() {
+      return TermAux.CONCEPT_IS_QUERY_CLAUSE;
+   }
+
 }
 
