@@ -91,7 +91,7 @@ public class ConceptIsDescendentOf
    /**
     * Instantiates a new concept is descendent of.
     */
-   protected ConceptIsDescendentOf() {}
+   public ConceptIsDescendentOf() {}
 
    /**
     * Instantiates a new concept is descendent of.

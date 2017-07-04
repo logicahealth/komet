@@ -62,7 +62,7 @@ public class Or
    /**
     * Default no arg constructor for Jaxb.
     */
-   protected Or() {
+   public Or() {
       super();
    }
 
@@ -131,6 +131,11 @@ public class Or
       @Override
    public ConceptSpecification getClauseConcept() {
       return TermAux.OR_QUERY_CLAUSE;
+   }
+
+   @Override
+   public Clause[] getAllowedSubstutitionClauses() {
+      return getParentClauses();
    }
 
 }

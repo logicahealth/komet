@@ -95,7 +95,7 @@ public class RelationshipIsCircular
    /**
     * Instantiates a new relationship is circular.
     */
-   protected RelationshipIsCircular() {}
+   public RelationshipIsCircular() {}
 
    /**
     * Instantiates a new relationship is circular.

@@ -136,5 +136,17 @@ public abstract class LeafClause
    public NidSet getResultsCache() {
       return this.resultsCache;
    }
+   
+      @Override
+   public Clause[] getAllowedChildClauses() {
+      return new Clause[0];
+   }
+
+   @Override
+   public Clause[] getAllowedSubstutitionClauses() {
+      return getAllClauses();
+   }
+   
+   
 }
 

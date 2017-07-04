@@ -22,6 +22,7 @@ import javafx.css.CssMetaData;
 import javafx.css.Styleable;
 import javafx.css.StyleableProperty;
 import javafx.css.StyleablePropertyFactory;
+import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -45,10 +46,16 @@ public class SvgIconographic extends Label {
       super();
       setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
       myHeightProperty().addListener((ObservableValue<? extends Double> observable, Double oldValue, Double newValue) -> {
-         ((ImageView) getGraphic()).setFitHeight(newValue);
+         Node graphic = getGraphic();
+         if (graphic != null) {
+            ((ImageView) graphic).setFitHeight(newValue);
+         }
       });
       myWidthProperty().addListener((ObservableValue<? extends Double> observable, Double oldValue, Double newValue) -> {
-         ((ImageView) getGraphic()).setFitWidth(newValue);
+         Node graphic = getGraphic();
+         if (graphic != null) {
+            ((ImageView) graphic).setFitWidth(newValue);
+         }
       });
    }
 

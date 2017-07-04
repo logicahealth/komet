@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
 
@@ -112,6 +113,15 @@ public interface TaxonomyCoordinate
               getStampCoordinate());
    }
    /**
+    * Get the preferred description associated with the {@code conceptId}.
+    * @param conceptSpec the {@code ConceptSpecification} to get the text for.
+    * @return preferred description. 
+    */
+   default Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(ConceptSpecification conceptSpec) {
+      return getLanguageCoordinate().getPreferredDescription(conceptSpec.getConceptSequence(), 
+              getStampCoordinate());
+   }
+   /**
     * Get the preferred description text associated with the {@code conceptId}.
     * @param conceptId the conceptId to get the text for.
     * @return preferred description text. 
@@ -121,6 +131,15 @@ public interface TaxonomyCoordinate
               getStampCoordinate());
    }
    
+   /**
+    * Get the preferred description text associated with the {@code ConceptSpecification}.
+    * @param conceptSpec the {@code ConceptSpecification} to get the text for.
+    * @return preferred description text. 
+    */
+   default String getPreferredDescriptionText(ConceptSpecification conceptSpec) {
+      return getLanguageCoordinate().getPreferredDescriptionText(conceptSpec.getConceptSequence(), 
+              getStampCoordinate());
+   }
    
    /**
     * Get the fully-specified description associated with the {@code conceptId}.
@@ -131,6 +150,15 @@ public interface TaxonomyCoordinate
       return getLanguageCoordinate().getFullySpecifiedDescription(conceptId, getStampCoordinate());
    }
 
+   /**
+    * Get the fully-specified description associated with the {@code conceptId}.
+    * @param conceptSpec the {@code ConceptSpecification} to get the text for.
+    * @return preferred description.
+    */
+   default Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(ConceptSpecification conceptSpec) {
+      return getLanguageCoordinate().getFullySpecifiedDescription(conceptSpec.getConceptSequence(), getStampCoordinate());
+   }
+
   /**
     * Get the fully-specified description text associated with the {@code conceptId}.
     * @param conceptId the conceptId to get the text for.
@@ -138,6 +166,16 @@ public interface TaxonomyCoordinate
     */
    default String getFullySpecifiedDescriptionText(int conceptId) {
       return getLanguageCoordinate().getFullySpecifiedDescriptionText(conceptId, getStampCoordinate());
+   }
+
+
+  /**
+    * Get the fully-specified description text associated with the {@code conceptId}.
+    * @param conceptSpec the {@code ConceptSpecification} to get the text for.
+    * @return preferred description text.
+    */
+   default String getFullySpecifiedDescriptionText(ConceptSpecification conceptSpec) {
+      return getLanguageCoordinate().getFullySpecifiedDescriptionText(conceptSpec.getConceptSequence(), getStampCoordinate());
    }
 
 }

@@ -1,0 +1,55 @@
+/*
+Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the 
+         US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+/* 
+    Created on : Jul 4, 2017, 12:37:24 PM
+    Author     : kec
+*/
+
+.button {
+    -fx-font-weight: bold;
+}
+
+.topContainer {
+    -fx-background-color: white;
+    
+}
+
+.vanityBox {
+    -fx-background-color: white;
+    -fx-graphic: url(/images/vanityBox.png);
+    /*
+    -fx-border-color:coral;
+    -fx-border-style:solid;
+    -fx-border-width:1 2 3 4;
+    -fx-border-color: red blue green yellow; */
+    -fx-label-padding: 0 0 0 30; /* top, right, bottom, and left edges */
+    -fx-padding:-8 0 0 0;
+    -fx-graphic-text-gap:0;
+    /* -fx-rotate:30; */
+    -fx-scale-x:0.8;
+    -fx-scale-y:0.8;
+    -fx-scale-z:0.8;
+}
+
+.tree-cell > .tree-disclosure-node > .arrow,
+.tree-table-row-cell > .tree-disclosure-node > .arrow {
+    -fx-background-color: red;
+    -fx-padding: 0.333333em 0.229em 0.333333em 0.229em; /* 4 */
+    -fx-shape: "M 0 -3.5 L 4 0 L 0 3.5 z";
+}
+
+

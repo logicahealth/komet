@@ -161,5 +161,12 @@ public abstract class ParentClause
                                c.getQueryMatches(conceptVersion);
                             });
    }
+   
+
+   @Override
+   public Clause[] getAllowedChildClauses() {
+      return getAllClauses();     
+   }
+   
 }
 

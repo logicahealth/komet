@@ -107,7 +107,7 @@ public class RelRestriction
    /**
     * Instantiates a new rel restriction.
     */
-   protected RelRestriction() {}
+   public RelRestriction() {}
 
    /**
     * Instantiates a new rel restriction.

@@ -87,7 +87,7 @@ public class ConceptIsKindOf
    /**
     * Instantiates a new concept is kind of.
     */
-   protected ConceptIsKindOf() {
+   public ConceptIsKindOf() {
       super();
    }
 

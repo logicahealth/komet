@@ -50,7 +50,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -86,7 +85,7 @@ public class AssemblageLuceneMatch
    /**
     * Instantiates a new refset lucene match.
     */
-   protected AssemblageLuceneMatch() {}
+   public AssemblageLuceneMatch() {}
 
    /**
     * Instantiates a new refset lucene match.

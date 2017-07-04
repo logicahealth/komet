@@ -7,14 +7,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-<BorderPane fx:id="topBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="761.0" prefWidth="931.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.fx.stage.KometStageController">
-   <top>
-      <ToolBar fx:id="topToolBar" prefHeight="28.0" prefWidth="877.0" BorderPane.alignment="CENTER">
-         <items>
-            <Button mnemonicParsing="false" text="Button" />
-         </items>      
-      </ToolBar>
-   </top>
+<BorderPane fx:id="topBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="875.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.fx.stage.KometStageController">
    <bottom>
       <HBox fx:id="bottomBorderBox" prefHeight="0.0" prefWidth="866.0" BorderPane.alignment="CENTER">
          <children>
@@ -23,12 +16,20 @@
       </HBox>
    </bottom>
    <center>
-      <SplitPane dividerPositions="0.2163616792249731, 0.7588805166846071" BorderPane.alignment="CENTER">
+      <SplitPane dividerPositions="0.2503576537911302, 0.7503576537911302" BorderPane.alignment="CENTER">
          <items>
             <HBox fx:id="leftBorderBox" prefHeight="100.0" prefWidth="200.0" />
-            <HBox fx:id="editorLeftPane" minWidth="0.0" prefHeight="685.0" prefWidth="0.0" />
+            <HBox fx:id="editorLeftPane" minWidth="0.0" prefHeight="706.0" prefWidth="496.0" />
             <HBox fx:id="rightBorderBox" prefHeight="100.0" prefWidth="200.0" />
          </items>
       </SplitPane>
    </center>
+   <top>
+      <HBox maxHeight="-Infinity" minHeight="-Infinity" prefHeight="44.0" prefWidth="931.0" styleClass="topContainer" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="vanityBox" alignment="TOP_LEFT" focusTraversable="false" onAction="#handleRefreshUserCss" styleClass="vanityBox" HBox.hgrow="NEVER" />
+            <ToolBar fx:id="topToolBar" prefHeight="40.0" prefWidth="731.0" styleClass="topContainer" HBox.hgrow="ALWAYS" />
+         </children>
+      </HBox>
+   </top>
 </BorderPane>

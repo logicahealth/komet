@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import sh.isaac.api.LookupService;
 import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
 import sh.isaac.komet.iconography.Iconography;
+import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 
 public class MainApp extends Application {
 // TODO add TaskProgressView
@@ -35,15 +36,37 @@ public class MainApp extends Application {
          throw new UnsupportedOperationException("Can't find data directory... Working dir: " + System.getProperty("user.dir"));
       }
 
+      if (Files.exists(Paths.get("target", "data", "user.css"))) {
+         System.setProperty(USER_CSS_LOCATION_PROPERTY, Paths.get("target", "data", "user.css").toUri().toURL().toString());
+         
+      } else if (Files.exists(Paths.get("user.css"))) {
+         System.setProperty(USER_CSS_LOCATION_PROPERTY, Paths.get("user.css").toUri().toURL().toString());
+      } else {
+         throw new UnsupportedOperationException("Can't find user.css file... Working dir: " + System.getProperty("user.dir"));
+      }
+
       LookupService.startupIsaac();
       Parent root = FXMLLoader.load(getClass().getResource("/fxml/KometStageScene.fxml"));
 
       Scene scene = new Scene(root);
       //GraphController.setSceneForControllers(scene);
-      scene.getStylesheets().add("/styles/Styles.css");
+      scene.getStylesheets().add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
       scene.getStylesheets().add(Iconography.getStyleSheetStringUrl());
 
-      stage.setTitle("ISAAC's KOMET");
+      // SNAPSHOT
+      // Chronology
+      // Reflector
+      // 
+      // Logic, Language, Dialect, Chronology, 
+      // LILAC Reflector (LOGIC, 
+      // COLLD Reflector: Chronology of Logic, Language, and Dialect : COLLAD
+      // COLLDAE Chronology of Logic, Langugage, Dialect, and Extension
+      
+      // CHILLDE
+      
+      // Knowledge, Language, Dialect, Chronology
+      // KOLDAC
+      stage.setTitle("KOMET Reflector");
       stage.setScene(scene);
       stage.show();
       

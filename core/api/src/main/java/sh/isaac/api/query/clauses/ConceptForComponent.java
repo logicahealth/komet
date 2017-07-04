@@ -75,7 +75,7 @@ public class ConceptForComponent
    /**
     * Instantiates a new concept for component.
     */
-   protected ConceptForComponent() {}
+   public ConceptForComponent() {}
 
    /**
     * Instantiates a new concept for component.
@@ -165,6 +165,13 @@ public class ConceptForComponent
    public ConceptSpecification getClauseConcept() {
       return TermAux.CONCEPT_FOR_COMPONENT_QUERY_CLAUSE;
    }
+
+   @Override
+   public Clause[] getAllowedSubstutitionClauses() {
+      return new Clause[] {new ConceptForComponent(), new FullySpecifiedNameForConcept(), new PreferredNameForConcept()};
+   }
+   
+   
 
 }
 

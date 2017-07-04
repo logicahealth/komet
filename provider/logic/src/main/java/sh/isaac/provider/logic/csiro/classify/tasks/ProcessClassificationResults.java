@@ -66,7 +66,6 @@ import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeService;
 import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.component.sememe.version.MutableLogicGraphSememe;
 import sh.isaac.api.coordinate.LogicCoordinate;
@@ -82,6 +81,7 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import sh.isaac.api.AssemblageService;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -195,7 +195,7 @@ public class ProcessClassificationResults
    private void testForProperSetSize(SememeSequenceSet inferredSememeSequences,
            int conceptSequence,
            SememeSequenceSet statedSememeSequences,
-           SememeService sememeService)
+           AssemblageService sememeService)
            throws IllegalStateException {
       if (inferredSememeSequences.size() > 1) {
          classificationDuplicateCount++;
@@ -244,7 +244,7 @@ public class ProcessClassificationResults
     * @return the optional
     */
    private Optional<CommitRecord> writeBackInferred(Ontology inferredAxioms, ConceptSequenceSet affectedConcepts) {
-      final SememeService sememeService = Get.sememeService();
+      final AssemblageService sememeService = Get.sememeService();
       final IdentifierService idService = Get.identifierService();
       final AtomicInteger sufficientSets = new AtomicInteger();
       final LogicalExpressionBuilderService logicalExpressionBuilderService = Get.logicalExpressionBuilderService();

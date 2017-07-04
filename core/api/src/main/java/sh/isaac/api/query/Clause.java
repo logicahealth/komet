@@ -47,13 +47,30 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import sh.isaac.api.ConceptProxy;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.query.clauses.AssemblageContainsConcept;
+import sh.isaac.api.query.clauses.AssemblageContainsKindOfConcept;
+import sh.isaac.api.query.clauses.AssemblageContainsString;
+import sh.isaac.api.query.clauses.AssemblageLuceneMatch;
+import sh.isaac.api.query.clauses.ChangedFromPreviousVersion;
+import sh.isaac.api.query.clauses.ConceptForComponent;
+import sh.isaac.api.query.clauses.ConceptIs;
+import sh.isaac.api.query.clauses.ConceptIsChildOf;
+import sh.isaac.api.query.clauses.ConceptIsDescendentOf;
+import sh.isaac.api.query.clauses.ConceptIsKindOf;
+import sh.isaac.api.query.clauses.DescriptionActiveLuceneMatch;
+import sh.isaac.api.query.clauses.DescriptionActiveRegexMatch;
+import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
+import sh.isaac.api.query.clauses.DescriptionRegexMatch;
+import sh.isaac.api.query.clauses.FullySpecifiedNameForConcept;
+import sh.isaac.api.query.clauses.PreferredNameForConcept;
+import sh.isaac.api.query.clauses.RelRestriction;
+import sh.isaac.api.query.clauses.RelationshipIsCircular;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -87,6 +104,10 @@ public abstract class Clause {
 
    /** The Constant POST_ITERATION. */
    protected static final EnumSet<ClauseComputeType> POST_ITERATION = EnumSet.of(ClauseComputeType.POST_ITERATION);
+
+   private static Clause Or() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
 
    //~--- fields --------------------------------------------------------------
 
@@ -201,5 +222,45 @@ public abstract class Clause {
     * @return the where clause of the query
     */
    public abstract WhereClause getWhereClause();
+   
+   public static Clause getRootClause() {
+      return new Or();
+   }
+   
+   /**
+    * 
+    * @return new instances of the allowed children clauses that can substitute (in an allowed nesting sense, not in an 
+    * equivalent semantics sense) for this clause in a query specification. 
+    */
+   public abstract Clause[] getAllowedChildClauses();
+   
+   /**
+    * 
+    * @return new instances of the all query clauses. 
+    */
+   public static Clause[] getAllClauses() {
+      return new Clause[] { new And(), new AndNot(), new Not(), new Or(), new Xor(), 
+         new AssemblageContainsConcept(), new AssemblageContainsKindOfConcept(),
+         new AssemblageContainsString(), new AssemblageLuceneMatch(),
+         new ChangedFromPreviousVersion(), new ConceptForComponent(),
+         new ConceptIs(), new ConceptIsChildOf(), new ConceptIsDescendentOf(),
+         new ConceptIsKindOf(), new DescriptionActiveLuceneMatch(),
+         new DescriptionActiveRegexMatch(), new DescriptionLuceneMatch(),
+         new DescriptionRegexMatch(), new FullySpecifiedNameForConcept(),
+         new PreferredNameForConcept(), new RelRestriction(), new RelationshipIsCircular()
+      };
+   }
+   
+   /**
+    * 
+    * @return new instances of the allowed clauses that can substitute (in an allowed nesting sense, not in an 
+    * equivalent semantics sense) for this clause in a query specification. 
+    */
+   public abstract Clause[] getAllowedSubstutitionClauses();
+
+   protected static Clause[] getParentClauses() {
+      return new Clause[] {new And(), new AndNot(), new Not(), new Or(), new Xor()};
+   }
+
 }
 

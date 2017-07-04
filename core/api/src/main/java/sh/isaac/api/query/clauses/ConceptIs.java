@@ -85,7 +85,7 @@ public class ConceptIs
    /**
     * Instantiates a new concept is.
     */
-   protected ConceptIs() {}
+   public ConceptIs() {}
 
    /**
     * Instantiates a new concept is.

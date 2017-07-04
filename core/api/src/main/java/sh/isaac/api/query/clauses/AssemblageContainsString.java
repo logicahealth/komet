@@ -96,7 +96,7 @@ public class AssemblageContainsString
    /**
     * Instantiates a new refset contains string.
     */
-   protected AssemblageContainsString() {}
+   public AssemblageContainsString() {}
 
    /**
     * Instantiates a new refset contains string.

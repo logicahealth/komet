@@ -52,13 +52,13 @@ import sh.isaac.api.ProgressTracker;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.collections.StampSequenceSet;
-import sh.isaac.api.component.sememe.SememeService;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.sememe.SememeChronologyImpl;
+import sh.isaac.api.AssemblageService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -77,7 +77,7 @@ public class SememeSnapshotProvider<V extends SememeVersion<?>>
    StampCoordinate stampCoordinate;
 
    /** The sememe provider. */
-   SememeService sememeProvider;
+   AssemblageService sememeProvider;
 
    /** The calculator. */
    RelativePositionCalculator calculator;
@@ -91,7 +91,7 @@ public class SememeSnapshotProvider<V extends SememeVersion<?>>
     * @param stampCoordinate the stamp coordinate
     * @param sememeProvider the sememe provider
     */
-   public SememeSnapshotProvider(Class<V> versionType, StampCoordinate stampCoordinate, SememeService sememeProvider) {
+   public SememeSnapshotProvider(Class<V> versionType, StampCoordinate stampCoordinate, AssemblageService sememeProvider) {
       this.versionType     = versionType;
       this.stampCoordinate = stampCoordinate;
       this.sememeProvider  = sememeProvider;

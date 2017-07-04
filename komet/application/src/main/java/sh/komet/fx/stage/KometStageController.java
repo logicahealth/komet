@@ -52,8 +52,10 @@ import java.util.UUID;
 import javafx.application.Platform;
 
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Label;
@@ -74,6 +76,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 
 import sh.isaac.api.Get;
+import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.komet.gui.treeview.MultiParentTreeView;
 
@@ -116,6 +119,8 @@ public class KometStageController {
    private ToolBar                              editToolBar;                      // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="statusMessage"
    private Label                                statusMessage;                    // Value injected by FXMLLoader
+   @FXML                                                                          // fx:id="vanityBox"
+   private Button                                vanityBox;                        // Value injected by FXMLLoader
    Manifold                                     manifold;
 
    //~--- methods -------------------------------------------------------------
@@ -143,12 +148,17 @@ public class KometStageController {
              "fx:id=\"rightBorderBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
       assert statusMessage != null:
              "fx:id=\"statusMessage\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+      assert vanityBox != null: "fx:id=\"vanityBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
       leftBorderBox.getChildren()
                    .add(createWrappedTabPane());
       editorLeftPane.getChildren()
                     .add(createWrappedTabPane());
       rightBorderBox.getChildren()
                     .add(createWrappedTabPane());
+      //Image vanityBoxImage = new Image(getClass().getResourceAsStream("/images/vanityBox.png"));
+      //ImageView vanityBoxView = new ImageView(vanityBoxImage);
+      //vanityBoxView.setPreserveRatio(true);
+      //vanityBox.setGraphic(vanityBoxView);
       Platform.runLater(
           () -> {
              treeViewList.forEach(treeView -> treeView.init());
@@ -188,8 +198,10 @@ public class KometStageController {
       } else {
          if (tabPanelCount == 2) {
             for (DetailNodeFactory factory: Get.services(DetailNodeFactory.class)) {
-               Tab        tab      = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
+               Tab tab = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
+
                tab.setTooltip(new Tooltip("A Square"));
+
                BorderPane graphPane = new BorderPane();
 
                graphPane.setBorder(
@@ -197,9 +209,12 @@ public class KometStageController {
                        new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
                DetailNode detailNode = factory.createDetailNode(manifold, graphPane);
-               tab.textProperty().bind(detailNode.getTitle());
-               tab.getTooltip().textProperty().bind(detailNode.getToolTip());
-               
+
+               tab.textProperty()
+                  .bind(detailNode.getTitle());
+               tab.getTooltip()
+                  .textProperty()
+                  .bind(detailNode.getToolTip());
                tab.setContent(graphPane);
                tabPane.getTabs()
                       .add(tab);
@@ -208,8 +223,10 @@ public class KometStageController {
 
          if (tabPanelCount == 3) {
             for (ExplorationNodeFactory factory: Get.services(ExplorationNodeFactory.class)) {
-               Tab        tab      = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
+               Tab tab = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
+
                tab.setTooltip(new Tooltip("Search view"));
+
                BorderPane searchPane = new BorderPane();
 
                searchPane.setBorder(
@@ -217,9 +234,11 @@ public class KometStageController {
                        new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
                ExplorationNode explorationNode = factory.createExplorationNode(manifold, searchPane);
+
                explorationNode.setParent(searchPane);
-               tab.getTooltip().textProperty().bind(explorationNode.getToolTip());
-               
+               tab.getTooltip()
+                  .textProperty()
+                  .bind(explorationNode.getToolTip());
                tab.setContent(searchPane);
                tabPane.getTabs()
                       .add(tab);
@@ -262,5 +281,15 @@ public class KometStageController {
       return this.manifold;
    }
    
+   /**
+    * When the button action event is triggered, refresh the user CSS file. 
+    * @param event the action event. 
+    */
+   @FXML
+    public void handleRefreshUserCss(ActionEvent event) {
+       vanityBox.getScene().getStylesheets().remove(System.getProperty(USER_CSS_LOCATION_PROPERTY));
+       vanityBox.getScene().getStylesheets().add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
+       System.out.println("Updated css: " + System.getProperty(USER_CSS_LOCATION_PROPERTY));
+    }
 }
 

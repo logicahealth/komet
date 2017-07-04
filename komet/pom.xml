@@ -17,5 +17,6 @@
         <module>application</module>
         <module>gui-contracts</module>
         <module>search-view</module>
+        <module>css</module>
     </modules>
 </project> 

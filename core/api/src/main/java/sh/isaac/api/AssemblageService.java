@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.api.component.sememe;
+package sh.isaac.api;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -50,9 +50,12 @@ import java.util.stream.Stream;
 
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.SememeSequenceSet;
+import sh.isaac.api.component.sememe.SememeChronology;
+import sh.isaac.api.component.sememe.SememeConstraints;
+import sh.isaac.api.component.sememe.SememeServiceTyped;
+import sh.isaac.api.component.sememe.SememeSnapshotService;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -61,12 +64,12 @@ import sh.isaac.api.coordinate.StampPosition;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- * The Interface SememeService.
+ * The Interface AssemblageService.
  *
  * @author kec
  */
 @Contract
-public interface SememeService
+public interface AssemblageService
         extends DatabaseServices {
    /**
     * Of type.

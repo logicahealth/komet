@@ -86,7 +86,6 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeConstraints;
-import sh.isaac.api.component.sememe.SememeService;
 import sh.isaac.api.component.sememe.SememeServiceTyped;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
 import sh.isaac.api.component.sememe.SememeType;
@@ -96,6 +95,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
+import sh.isaac.api.AssemblageService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -108,7 +108,7 @@ import sh.isaac.model.waitfree.CasSequenceObjectMap;
 @RunLevel(value = 0)
 @Rank(value = 10)
 public class SememeProvider
-         implements SememeService {
+         implements AssemblageService {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
@@ -160,7 +160,7 @@ public class SememeProvider
          Files.createDirectories(this.sememePath);
          LOG.info("Setting up sememe provider at " + this.sememePath.toAbsolutePath().toString());
          this.sememeMap = new CasSequenceObjectMap<>(new SememeSerializer(), this.sememePath, "seg.", ".sememe.map");
-      } catch (final Exception e) {
+      } catch (final IOException e) {
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Cradle Commit Manager", e);
          throw e;
@@ -308,7 +308,7 @@ public class SememeProvider
 
          LOG.info("Inferred logic graphs: " + inferedGraphSequences.size());
          LOG.info("Finished SememeProvider load.");
-      } catch (final Exception e) {
+      } catch (final IOException e) {
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Cradle Commit Manager", e);
          throw new RuntimeException(e);
@@ -408,11 +408,7 @@ public class SememeProvider
                                  final Optional<? extends SememeChronology<?>> sememe =
                                     getOptionalSememe(sememeSequence);
 
-                                 if (sememe.isPresent() && (sememe.get().getSememeType() == SememeType.DESCRIPTION)) {
-                                    return true;
-                                 }
-
-                                 return false;
+                                 return sememe.isPresent() && (sememe.get().getSememeType() == SememeType.DESCRIPTION);
                               })
                       .mapToObj(mapper);
    }

@@ -74,7 +74,7 @@ public class DescriptionActiveLuceneMatch
    /**
     * Instantiates a new description active lucene match.
     */
-   protected DescriptionActiveLuceneMatch() {}
+   public DescriptionActiveLuceneMatch() {}
 
    /**
     * Instantiates a new description active lucene match.

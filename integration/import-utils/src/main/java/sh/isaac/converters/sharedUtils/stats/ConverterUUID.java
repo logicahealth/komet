@@ -282,7 +282,7 @@ public class ConverterUUID {
    }
 
    /**
-    * In some scenarios, it isn't desireable to cache every creation string - allow the removal in these cases.
+    * In some scenarios, it isn't desirable to cache every creation string - allow the removal in these cases.
     *
     * @param uuid the uuid
     */

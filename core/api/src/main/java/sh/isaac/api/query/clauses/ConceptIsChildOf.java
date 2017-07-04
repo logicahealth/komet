@@ -91,7 +91,7 @@ public class ConceptIsChildOf
    /**
     * Instantiates a new concept is child of.
     */
-   protected ConceptIsChildOf() {}
+   public ConceptIsChildOf() {}
 
    /**
     * Instantiates a new concept is child of.

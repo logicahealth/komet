@@ -20,9 +20,15 @@
 
    <organization>
       <!-- Used as the 'Vendor' for JNLP generation -->
-      <name>Your Organisation</name>
+      <name>ISAAC's KOMET Collaborators</name>
    </organization>
    <dependencies>
+      <dependency>
+         <groupId>${project.groupId}</groupId>
+         <artifactId>css</artifactId>
+         <version>${project.version}</version>
+         <type>zip</type>
+      </dependency>
       <dependency>
          <groupId>org.jfxtras</groupId>
          <artifactId>jfxtras-controls</artifactId>
@@ -82,7 +88,7 @@
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
-         <artifactId>sememe</artifactId>
+         <artifactId>assemblage</artifactId>
          <version>${project.parent.version}</version>
       </dependency>
       <dependency>
@@ -151,6 +157,30 @@
       <plugins>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>extract-dependencies</id>
+                  <phase>process-resources</phase>
+                  <goals>
+                     <goal>unpack</goal>
+                  </goals>
+                  <configuration>
+                     <artifactItems>
+                        <artifact>
+                           <groupId>${project.groupId}</groupId>
+                           <artifactId>css</artifactId>
+                           <version>${project.version}</version>
+                           <type>zip</type>
+                        </artifact>
+                     </artifactItems>
+                     <outputDirectory>${project.build.directory}/data</outputDirectory>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <forkCount>1</forkCount>
@@ -202,9 +232,9 @@
                <detail>true</detail>
                <skipNativeVersionNumberSanitizing>true</skipNativeVersionNumberSanitizing>   
                <bundleArguments>              
-                  <icon.ico>src/main/resources/icons/KOMET.ico</icon.ico>
-                  <icon.png>src/main/resources/icons/KOMET.png</icon.png>
-                  <icon.icns>src/main/resources/icons/KOMET.icns</icon.icns>
+                  <icon.ico>${project.basedir}/src/main/resources/icons/KOMET.ico</icon.ico>
+                  <icon.png>${project.basedir}/src/main/resources/icons/KOMET.png</icon.png>
+                  <icon.icns>${project.basedir}/src/main/resources/icons/KOMET.icns</icon.icns>
                </bundleArguments>
             </configuration>
             <executions>
@@ -312,8 +342,8 @@
                   <artifactId>maven-dependency-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>extract-test-dependencies</id>
-                        <phase>generate-test-resources</phase>
+                        <id>extract-metadb-dependencies</id>
+                        <phase>process-resources</phase>
                         <goals>
                            <goal>unpack</goal>
                         </goals>
@@ -369,8 +399,8 @@
                   <artifactId>maven-dependency-plugin</artifactId>
                   <executions>
                      <execution>
-                        <id>extract-test-dependencies</id>
-                        <phase>generate-test-resources</phase>
+                        <id>extract-solor-dependencies</id>
+                        <phase>process-resources</phase>
                         <goals>
                            <goal>unpack</goal>
                         </goals>

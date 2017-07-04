@@ -90,7 +90,7 @@ public class ChangedFromPreviousVersion
    /**
     * Instantiates a new changed from previous version.
     */
-   protected ChangedFromPreviousVersion() {}
+   public ChangedFromPreviousVersion() {}
 
    /**
     * Creates an instance of a ChangedFromPreviousVersion <code>Clause</code>

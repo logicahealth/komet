@@ -90,7 +90,7 @@ public class DescriptionRegexMatch
    /**
     * Instantiates a new description regex match.
     */
-   protected DescriptionRegexMatch() {}
+   public DescriptionRegexMatch() {}
 
    /**
     * Instantiates a new description regex match.

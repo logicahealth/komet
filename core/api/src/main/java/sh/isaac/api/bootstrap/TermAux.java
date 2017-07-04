@@ -352,10 +352,10 @@ public class TermAux {
                        UUID.fromString("7bbd4210-381c-11e7-9598-0800200c9a66"));
    
    
-   public static ConceptSpecification AND_QUERY_CLAUSE = new ConceptProxy("and (query clause)", "and", UUID.fromString("d9c1e360-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification AND_QUERY_CLAUSE = new ConceptProxy("and (query clause)", "ALL child conditions are satisfied [AND]", UUID.fromString("d9c1e360-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification NOT_QUERY_CLAUSE = new ConceptProxy("not (query clause)", "not", UUID.fromString("d9c1ea9a-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification AND_NOT_QUERY_CLAUSE = new ConceptProxy("and not (query clause)", "and not", UUID.fromString("d9c1ec02-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification OR_QUERY_CLAUSE = new ConceptProxy("or (query clause)", "or", UUID.fromString("d9c1f24c-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification OR_QUERY_CLAUSE = new ConceptProxy("or (query clause)", "ANY child condition is satisfied [OR]", UUID.fromString("d9c1f24c-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification XOR_QUERY_CLAUSE = new ConceptProxy("xor (query clause)", "xor", UUID.fromString("d9c1f42c-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification CHANGED_FROM_PREVIOUS_VERSION_QUERY_CLAUSE = new ConceptProxy("changed from previous version (query clause)", "changed from previous version", UUID.fromString("d9c1f530-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification CONCEPT_IS_QUERY_CLAUSE = new ConceptProxy("concept is (query clause)", "concept is", UUID.fromString("d9c1f602-579e-11e7-907b-a6006ad3dba0"));

@@ -80,7 +80,7 @@ public class PreferredNameForConcept
    /**
     * Instantiates a new preferred name for concept.
     */
-   protected PreferredNameForConcept() {}
+   public PreferredNameForConcept() {}
 
    /**
     * Instantiates a new preferred name for concept.
@@ -167,6 +167,10 @@ public class PreferredNameForConcept
    @Override
    public ConceptSpecification getClauseConcept() {
       return TermAux.PREFERRED_NAME_FOR_CONCEPT_QUERY_CLAUSE;
+   }
+   @Override
+   public Clause[] getAllowedSubstutitionClauses() {
+      return new Clause[] {new ConceptForComponent(), new FullySpecifiedNameForConcept(), new PreferredNameForConcept()};
    }
    
 }

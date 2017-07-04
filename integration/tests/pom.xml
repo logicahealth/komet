@@ -58,7 +58,7 @@
         </dependency>
         <dependency>
             <groupId>sh.isaac.provider</groupId>
-            <artifactId>sememe</artifactId>
+            <artifactId>assemblage</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>

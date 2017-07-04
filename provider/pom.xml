@@ -17,7 +17,6 @@
         <module>metacontent</module>
         <module>path</module>
         <module>progress</module>
-        <module>sememe</module>
         <module>sync-git</module>
         <module>workflow</module>
         <module>concept</module>
@@ -27,5 +26,6 @@
         <module>query</module>
         <module>stamp</module>
         <module>taxonomy</module>
+        <module>assemblage</module>
     </modules>
 </project>

@@ -190,3 +190,10 @@ limitations under the License.
    -icons-color: #4f80d9;
 
 }
+
+.vanity-box {
+   -fx-graphic: url("/sh/isaac/komet/iconography/isaacs_komet.svg");
+   -my-height: 40;
+   -my-width: 160;
+   
+}

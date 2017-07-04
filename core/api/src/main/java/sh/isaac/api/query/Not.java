@@ -81,7 +81,7 @@ public class Not
    /**
     * Default no arg constructor for Jaxb.
     */
-   protected Not() {
+   public Not() {
       super();
    }
 
@@ -180,6 +180,11 @@ public class Not
       @Override
    public ConceptSpecification getClauseConcept() {
       return TermAux.NOT_QUERY_CLAUSE;
+   }
+
+   @Override
+   public Clause[] getAllowedSubstutitionClauses() {
+      return getParentClauses();
    }
 
 }

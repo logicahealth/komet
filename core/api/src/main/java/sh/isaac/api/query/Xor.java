@@ -66,7 +66,7 @@ public class Xor
    /**
     * Default no arg constructor for Jaxb.
     */
-   protected Xor() {
+   public Xor() {
       super();
    }
 
@@ -138,6 +138,11 @@ public class Xor
       @Override
    public ConceptSpecification getClauseConcept() {
       return TermAux.XOR_QUERY_CLAUSE;
+   }
+
+   @Override
+   public Clause[] getAllowedSubstutitionClauses() {
+      return getParentClauses();
    }
 
 }

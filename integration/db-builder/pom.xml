@@ -60,7 +60,7 @@
                         </dependency>
                         <dependency>
                             <groupId>sh.isaac.provider</groupId>
-                            <artifactId>sememe</artifactId>
+                            <artifactId>assemblage</artifactId>
                             <version>${project.parent.version}</version>
                         </dependency>
                         <dependency>

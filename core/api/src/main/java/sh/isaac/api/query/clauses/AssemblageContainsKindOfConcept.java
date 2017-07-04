@@ -90,7 +90,7 @@ public class AssemblageContainsKindOfConcept
    /**
     * Instantiates a new refset contains kind of concept.
     */
-   protected AssemblageContainsKindOfConcept() {}
+   public AssemblageContainsKindOfConcept() {}
 
    /**
     * Instantiates a new refset contains kind of concept.

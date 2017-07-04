@@ -78,7 +78,7 @@ public class FullySpecifiedNameForConcept
    /**
     * Instantiates a new fully specified name for concept.
     */
-   protected FullySpecifiedNameForConcept() {}
+   public FullySpecifiedNameForConcept() {}
 
    /**
     * Instantiates a new fully specified name for concept.
@@ -161,6 +161,10 @@ public class FullySpecifiedNameForConcept
       @Override
    public ConceptSpecification getClauseConcept() {
       return TermAux.FULLY_SPECIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE;
+   }
+   @Override
+   public Clause[] getAllowedSubstutitionClauses() {
+      return new Clause[] {new ConceptForComponent(), new FullySpecifiedNameForConcept(), new PreferredNameForConcept()};
    }
 
 }

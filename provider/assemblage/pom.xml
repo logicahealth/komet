@@ -7,9 +7,9 @@
         <version>4.17-SNAPSHOT</version>
     </parent>
     <groupId>sh.isaac.provider</groupId>
-    <artifactId>sememe</artifactId>
+    <artifactId>assemblage</artifactId>
     <packaging>jar</packaging>
-    <name>ISAAC provider: Sememe</name>
+    <name>ISAAC provider: Assemblage</name>
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>

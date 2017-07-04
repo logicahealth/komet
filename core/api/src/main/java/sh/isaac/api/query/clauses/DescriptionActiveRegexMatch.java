@@ -69,7 +69,7 @@ public class DescriptionActiveRegexMatch
    /**
     * Instantiates a new description active regex match.
     */
-   protected DescriptionActiveRegexMatch() {}
+   public DescriptionActiveRegexMatch() {}
 
    /**
     * Instantiates a new description active regex match.

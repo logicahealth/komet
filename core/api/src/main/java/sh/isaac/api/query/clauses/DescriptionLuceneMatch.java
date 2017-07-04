@@ -93,7 +93,7 @@ public class DescriptionLuceneMatch
    /**
     * Instantiates a new description lucene match.
     */
-   protected DescriptionLuceneMatch() {}
+   public DescriptionLuceneMatch() {}
 
    /**
     * Instantiates a new description lucene match.

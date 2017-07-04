@@ -62,7 +62,7 @@ public class AndNot
    /**
     * Default no arg constructor for Jaxb.
     */
-   protected AndNot() {
+   public AndNot() {
       super();
    }
 
@@ -131,6 +131,11 @@ public class AndNot
       @Override
    public ConceptSpecification getClauseConcept() {
       return TermAux.AND_NOT_QUERY_CLAUSE;
+   }
+
+   @Override
+   public Clause[] getAllowedSubstutitionClauses() {
+      return getParentClauses();
    }
 
 }

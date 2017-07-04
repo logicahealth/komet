@@ -81,7 +81,6 @@ import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeService;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.CoordinateFactory;
@@ -166,7 +165,7 @@ public class Get
    private static SememeBuilderService<?> sememeBuilderService;
 
    /** The sememe service. */
-   private static SememeService sememeService;
+   private static AssemblageService sememeService;
 
    /** The coordinate factory. */
    private static CoordinateFactory coordinateFactory;
@@ -630,9 +629,9 @@ public class Get
     *
     * @return the sememe service
     */
-   public static SememeService sememeService() {
+   public static AssemblageService sememeService() {
       if (sememeService == null) {
-         sememeService = getService(SememeService.class);
+         sememeService = getService(AssemblageService.class);
       }
 
       return sememeService;
@@ -645,7 +644,7 @@ public class Get
     */
    public static boolean sememeServiceAvailable() {
       if (sememeService == null) {
-         sememeService = LookupService.getService(SememeService.class);
+         sememeService = LookupService.getService(AssemblageService.class);
       }
 
       return sememeService != null;

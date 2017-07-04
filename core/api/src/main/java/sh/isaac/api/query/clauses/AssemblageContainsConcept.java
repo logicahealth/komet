@@ -93,7 +93,7 @@ public class AssemblageContainsConcept
    /**
     * Instantiates a new refset contains concept.
     */
-   protected AssemblageContainsConcept() {}
+   public AssemblageContainsConcept() {}
 
    /**
     * Instantiates a new refset contains concept.

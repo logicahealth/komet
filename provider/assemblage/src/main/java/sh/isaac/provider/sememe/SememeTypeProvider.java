@@ -48,10 +48,10 @@ import java.util.stream.Stream;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeService;
 import sh.isaac.api.component.sememe.SememeServiceTyped;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampPosition;
+import sh.isaac.api.AssemblageService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -67,7 +67,7 @@ public class SememeTypeProvider<V extends SememeVersion<?>>
    Class<V> type;
 
    /** The sememe provider. */
-   SememeService sememeProvider;
+   AssemblageService sememeProvider;
 
    //~--- constructors --------------------------------------------------------
 
@@ -77,7 +77,7 @@ public class SememeTypeProvider<V extends SememeVersion<?>>
     * @param type the type
     * @param sememeProvider the sememe provider
     */
-   public SememeTypeProvider(Class<V> type, SememeService sememeProvider) {
+   public SememeTypeProvider(Class<V> type, AssemblageService sememeProvider) {
       this.type           = type;
       this.sememeProvider = sememeProvider;
    }

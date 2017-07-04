@@ -46,6 +46,7 @@ public enum Iconography {
    INFERRED_VIEW(SVG, "inferred-view"),
    SHORT_TEXT(MATERIAL_DESIGNS_ICON, "short-text"),
    LONG_TEXT(MATERIAL_DESIGNS_ICON, "long-text"),
+   VANITY_BOX(SVG, "vanity-box"),
    ;
 
    String cssClass;
