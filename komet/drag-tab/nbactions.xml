@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>CUSTOM-clean install site</actionName>
+            <displayName>clean install site</displayName>
+            <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+                <goal>site-deploy</goal>
+                <goal>-DskipTests=true</goal>
+            </goals>
+        </action>
+    </actions>
