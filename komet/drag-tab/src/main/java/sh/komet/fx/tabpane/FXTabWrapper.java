@@ -56,18 +56,23 @@ public class FXTabWrapper implements GenericTab {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		if (this == obj) {
+                   return true;
+                }
+		if (obj == null) {
+                   return false;
+                }
+		if (getClass() != obj.getClass()) {
+                   return false;
+                }
 		FXTabWrapper other = (FXTabWrapper) obj;
 		if (this.t == null) {
-			if (other.t != null)
-				return false;
-		} else if (!this.t.equals(other.t))
-			return false;
+			if (other.t != null) {
+                           return false;
+                        }
+		} else if (!this.t.equals(other.t)) {
+                   return false;
+                }
 		return true;
 	}
 

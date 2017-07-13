@@ -489,7 +489,9 @@ public class IsaacMetadataAuxiliary
          
          createConcept("query clauses");
          pushParent(current());
-         createConcept(TermAux.AND_QUERY_CLAUSE);
+   createConcept(TermAux.ACTIVE_QUERY_CLAUSE);
+   createConcept(TermAux.INACTIVE_QUERY_CLAUSE);
+   createConcept(TermAux.AND_QUERY_CLAUSE);
 
    createConcept(TermAux.NOT_QUERY_CLAUSE);
    createConcept(TermAux.AND_NOT_QUERY_CLAUSE);
@@ -502,11 +504,9 @@ public class IsaacMetadataAuxiliary
    createConcept(TermAux.PREFERRED_NAME_FOR_CONCEPT_QUERY_CLAUSE);
    createConcept(TermAux.RELATIONSHIP_IS_CIRCULAR_QUERY_CLAUSE);
    createConcept(TermAux.CONCEPT_IS_CHILD_OF_QUERY_CLAUSE);
-   createConcept(TermAux.DESCRIPTION_ACTIVE_LUCENE_MATCH_QUERY_CLAUSE);
    createConcept(TermAux.DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE);
    createConcept(TermAux.CONCEPT_FOR_COMPONENT_QUERY_CLAUSE);
    createConcept(TermAux.CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE);
-   createConcept(TermAux.DESCRIPTION_ACTIVE_REGEX_MATCH_QUERY_CLAUSE);
    createConcept(TermAux.FULLY_SPECIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE);
    
    createConcept(TermAux.ASSEMBLAGE_CONTAINS_STRING_QUERY_CLAUSE);

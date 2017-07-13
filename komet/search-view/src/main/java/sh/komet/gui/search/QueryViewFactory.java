@@ -16,6 +16,8 @@
  */
 package sh.komet.gui.search;
 
+import java.io.IOException;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.BorderPane;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
@@ -29,13 +31,20 @@ import sh.komet.gui.contract.Manifold;
  */
 @Service(name = "Exploratory Search Provider")
 @RunLevel(value = 1)
-public class SearchViewFactory implements ExplorationNodeFactory {
+public class QueryViewFactory implements ExplorationNodeFactory {
 
    @Override
    public ExplorationNode createExplorationNode(Manifold manifold, BorderPane parent) {
-      SearchView searchView = new SearchView(manifold);
-      searchView.setParent(parent);
-      return searchView;
+      try {
+         FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/Query.fxml"));
+         loader.load();
+         QueryController queryController = loader.getController();
+         queryController.setManifold(manifold);
+         queryController.setParent(parent);
+         return queryController;
+      } catch (IOException ex) {
+         throw new RuntimeException(ex);
+      }
    }
    
 }
