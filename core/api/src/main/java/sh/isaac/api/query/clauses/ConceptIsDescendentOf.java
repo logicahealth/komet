@@ -56,12 +56,12 @@ import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -116,13 +116,13 @@ public class ConceptIsDescendentOf
     */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+      final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
                                                                                             .get(this.viewCoordinateKey);
       final ConceptSpecification descendentOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
                                                                                               .get(this.descendentOfSpecKey);
       final int parentNid = descendentOfSpec.getNid();
       final ConceptSequenceSet descendentOfSequenceSet = Get.taxonomyService()
-                                                            .getChildOfSequenceSet(parentNid, taxonomyCoordinate);
+                                                            .getChildOfSequenceSet(parentNid, manifoldCoordinate);
 
       descendentOfSequenceSet.remove(parentNid);
       getResultsCache().or(NidSet.of(descendentOfSequenceSet));

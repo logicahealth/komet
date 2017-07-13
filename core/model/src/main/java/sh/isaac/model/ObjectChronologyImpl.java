@@ -836,7 +836,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
    @Override
    public boolean isLatestVersionActive(StampCoordinate coordinate) {
       final RelativePositionCalculator calc =
-         RelativePositionCalculator.getCalculator(coordinate.makeAnalog(State.ACTIVE,
+         RelativePositionCalculator.getCalculator(coordinate.makeCoordinateAnalog(State.ACTIVE,
                                                                         State.INACTIVE,
                                                                         State.CANCELED,
                                                                         State.PRIMORDIAL));

@@ -49,7 +49,7 @@ import java.util.Set;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.IdentifiedStampedVersion;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
-import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 
@@ -62,7 +62,7 @@ import sh.isaac.api.identity.StampedVersion;
  * @author kec
  */
 public interface ConceptSnapshot
-        extends IdentifiedStampedVersion, ConceptSpecification {
+        extends IdentifiedStampedVersion, ConceptSpecification, ManifoldCoordinate {
    /**
     * A test for validating that a concept contains an active description. Used
     * to validate concept proxies or concept specs at runtime.
@@ -106,14 +106,6 @@ public interface ConceptSnapshot
    Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription();
 
    /**
-    * Gets the language coordinate.
-    *
-    * @return the {@code LanguageCoordinate} that defines the latest
-    * version used by this snapshot.
-    */
-   LanguageCoordinate getLanguageCoordinate();
-
-   /**
     * Gets the preferred description.
     *
     * @return The preferred description for this concept. Optional in case
@@ -121,13 +113,5 @@ public interface ConceptSnapshot
     * {@code LanguageCoordinate} of this snapshot.
     */
    Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription();
-
-   /**
-    * Gets the stamp coordinate.
-    *
-    * @return the {@code StampCoordinate} that defines the latest
-    * version used by this snapshot.
-    */
-   StampCoordinate getStampCoordinate();
 }
 

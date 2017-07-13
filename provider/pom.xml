@@ -27,5 +27,6 @@
         <module>stamp</module>
         <module>taxonomy</module>
         <module>assemblage</module>
+        <module>drools</module>
     </modules>
 </project>

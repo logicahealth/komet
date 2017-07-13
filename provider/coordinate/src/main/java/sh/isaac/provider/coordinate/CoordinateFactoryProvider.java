@@ -73,14 +73,14 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPrecedence;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.model.configuration.TaxonomyCoordinates;
+import sh.isaac.model.configuration.ManifoldCoordinates;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -142,8 +142,8 @@ public class CoordinateFactoryProvider
     * @return the taxonomy coordinate
     */
    @Override
-   public TaxonomyCoordinate createDefaultInferredTaxonomyCoordinate() {
-      return createInferredTaxonomyCoordinate(createDevelopmentLatestActiveOnlyStampCoordinate(),
+   public ManifoldCoordinate createDefaultInferredManifoldCoordinate() {
+      return createInferredManifoldCoordinate(createDevelopmentLatestActiveOnlyStampCoordinate(),
             getUsEnglishLanguageFullySpecifiedNameCoordinate(),
             createStandardElProfileLogicCoordinate());
    }
@@ -154,8 +154,8 @@ public class CoordinateFactoryProvider
     * @return the taxonomy coordinate
     */
    @Override
-   public TaxonomyCoordinate createDefaultStatedTaxonomyCoordinate() {
-      return createStatedTaxonomyCoordinate(createDevelopmentLatestActiveOnlyStampCoordinate(),
+   public ManifoldCoordinate createDefaultStatedManifoldCoordinate() {
+      return createStatedManifoldCoordinate(createDevelopmentLatestActiveOnlyStampCoordinate(),
             getUsEnglishLanguageFullySpecifiedNameCoordinate(),
             createStandardElProfileLogicCoordinate());
    }
@@ -219,10 +219,10 @@ public class CoordinateFactoryProvider
     * @return the taxonomy coordinate
     */
    @Override
-   public TaxonomyCoordinate createInferredTaxonomyCoordinate(StampCoordinate stampCoordinate,
+   public ManifoldCoordinate createInferredManifoldCoordinate(StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate,
          LogicCoordinate logicCoordinate) {
-      return TaxonomyCoordinates.getInferredTaxonomyCoordinate(stampCoordinate, languageCoordinate, logicCoordinate);
+      return ManifoldCoordinates.getInferredManifoldCoordinate(stampCoordinate, languageCoordinate, logicCoordinate);
    }
 
    /**
@@ -348,10 +348,10 @@ public class CoordinateFactoryProvider
     * @return the taxonomy coordinate
     */
    @Override
-   public TaxonomyCoordinate createStatedTaxonomyCoordinate(StampCoordinate stampCoordinate,
+   public ManifoldCoordinate createStatedManifoldCoordinate(StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate,
          LogicCoordinate logicCoordinate) {
-      return TaxonomyCoordinates.getStatedTaxonomyCoordinate(stampCoordinate, languageCoordinate, logicCoordinate);
+      return ManifoldCoordinates.getStatedManifoldCoordinate(stampCoordinate, languageCoordinate, logicCoordinate);
    }
 
    /**

@@ -46,7 +46,7 @@ import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -77,7 +77,7 @@ public interface DynamicSememeExternalValidator {
    public boolean validate(DynamicSememeData userData,
                            DynamicSememeArray<DynamicSememeString> validatorDefinitionData,
                            StampCoordinate sc,
-                           TaxonomyCoordinate tc)
+                           ManifoldCoordinate tc)
             throws RuntimeException;
 
    /**

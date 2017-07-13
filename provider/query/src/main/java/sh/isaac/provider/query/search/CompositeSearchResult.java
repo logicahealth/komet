@@ -66,7 +66,6 @@ import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
-import sh.isaac.utility.Frills;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -147,7 +146,7 @@ public class CompositeSearchResult {
 
       if (results != null) {
          for (final CompositeSearchResult result: results) {
-            if (result.getContainingConcept() == null) {
+            if (!result.getContainingConcept().isPresent()) {
                nullResults.add(result);
             }
          }
@@ -325,16 +324,21 @@ public class CompositeSearchResult {
       final ObjectChronologyType type = Get.identifierService()
                                            .getChronologyTypeForNid(componentNid);
 
-      if (type == ObjectChronologyType.UNKNOWN_NID) {
-         return Optional.empty();
-      } else if (type == ObjectChronologyType.CONCEPT) {
-         return Frills.getConceptSnapshot(componentNid, null, null);
-      } else if (type == ObjectChronologyType.SEMEME) {
-         return locateContainingConcept(Get.sememeService()
-                                           .getSememe(componentNid)
-                                           .getReferencedComponentNid());
-      } else {
+      if (null == type) {
          throw new RuntimeException("oops");
+      } else {
+         switch (type) {
+            case UNKNOWN_NID:
+               return Optional.empty();
+            case CONCEPT:
+               return Optional.ofNullable(Get.defaultConceptSnapshotService().getConceptSnapshot(componentNid));
+            case SEMEME:
+               return locateContainingConcept(Get.sememeService()
+                       .getSememe(componentNid)
+                       .getReferencedComponentNid());
+            default:
+               throw new RuntimeException("oops");
+         }
       }
    }
 
@@ -395,7 +399,7 @@ public class CompositeSearchResult {
    public List<String> getMatchingStrings(Optional<StampCoordinate> stampCoord) {
       final ArrayList<String> strings = new ArrayList<>();
 
-      if (this.matchingComponents.size() == 0) {
+      if (this.matchingComponents.isEmpty()) {
          if (!this.containingConcept.isPresent()) {
             strings.add("Match to NID (not on path):" + this.matchingComponentNid);
          } else {

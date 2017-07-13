@@ -59,7 +59,6 @@ import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.query.ClauseComputeType;
@@ -68,6 +67,7 @@ import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.index.IndexService;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -120,7 +120,7 @@ public class DescriptionLuceneMatch
    public final NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
       final String luceneMatch = (String) this.enclosingQuery.getLetDeclarations()
                                                              .get(this.luceneMatchKey);
-      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+      final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
                                                                                             .get(this.viewCoordinateKey);
       final NidSet               nids               = new NidSet();
       final List<IndexService> indexers           = LookupService.get()
@@ -152,7 +152,7 @@ public class DescriptionLuceneMatch
 
                       if (chronology.isPresent()) {
                          if (!chronology.get()
-                                        .isLatestVersionActive(taxonomyCoordinate.getStampCoordinate())) {
+                                        .isLatestVersionActive(manifoldCoordinate.getStampCoordinate())) {
                             getResultsCache().remove(nid);
                          }
                       } else {

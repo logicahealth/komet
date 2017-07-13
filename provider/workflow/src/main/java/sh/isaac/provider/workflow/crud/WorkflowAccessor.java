@@ -139,13 +139,7 @@ public class WorkflowAccessor {
     */
    private String formatStringConceptInformation(int nid, StampCoordinate stampCoord, LanguageCoordinate langCoord) {
       // Concept: <Concept FSN>
-      return String.format("Concept: %s",
-                           Frills.getConceptSnapshot(nid, stampCoord, langCoord)
-                                 .get()
-                                 .getFullySpecifiedDescription()
-                                 .get()
-                                 .value()
-                                 .getText());
+      throw new UnsupportedOperationException();
    }
 
    /**

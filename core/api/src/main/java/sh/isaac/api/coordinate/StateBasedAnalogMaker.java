@@ -58,6 +58,6 @@ public interface StateBasedAnalogMaker<T> {
     * @param state the allowed states for the resulting analog
     * @return a new {@code <T>} with the specified allowed states.
     */
-   T makeAnalog(State... state);
+   T makeCoordinateAnalog(State... state);
 }
 

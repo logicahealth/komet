@@ -57,7 +57,7 @@ import sh.isaac.model.coordinate.LogicCoordinateImpl;
 import sh.isaac.model.coordinate.LogicCoordinateLazyBinding;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
-import sh.isaac.model.coordinate.TaxonomyCoordinateImpl;
+import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
 import sh.isaac.api.query.And;
@@ -121,7 +121,7 @@ public class JaxbForQuery {
                LanguageCoordinateImpl.class,
                StampCoordinateImpl.class,
                StampPositionImpl.class,
-               TaxonomyCoordinateImpl.class,
+               ManifoldCoordinateImpl.class,
                LogicCoordinateImpl.class,
                LogicCoordinateLazyBinding.class,
                ObservableLogicCoordinateImpl.class,

@@ -69,7 +69,7 @@ public class QueryExample {
    public QueryExample() {
       
       this.q =
-         new Query(Get.coordinateFactory().createDefaultInferredTaxonomyCoordinate()) {
+         new Query(Get.coordinateFactory().createDefaultInferredManifoldCoordinate()) {
          @Override
          protected ForSetSpecification ForSetSpecification() {
             return new ForSetSpecification(ComponentCollectionTypes.ALL_CONCEPTS);

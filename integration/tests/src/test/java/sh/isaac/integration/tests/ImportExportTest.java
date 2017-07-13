@@ -72,7 +72,6 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.OchreExternalizableObjectType;
@@ -94,6 +93,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.Feature;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.FloatLiteral;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -280,11 +280,11 @@ public class ImportExportTest {
    public void testInferredTaxonomy() {
       LOG.info("Testing inferred taxonomy");
 
-      final TaxonomyCoordinate taxonomyCoordinate = Get.configurationService()
-                                                       .getDefaultTaxonomyCoordinate()
-                                                       .makeAnalog(PremiseType.INFERRED);
+      final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
+                                                       .getDefaultManifoldCoordinate()
+                                                       .makeCoordinateAnalog(PremiseType.INFERRED);
       final int[] roots = Get.taxonomyService()
-                             .getRoots(taxonomyCoordinate)
+                             .getRoots(manifoldCoordinate)
                              .toArray();
 
       StringBuilder rootsMessage = new StringBuilder();
@@ -295,7 +295,7 @@ public class ImportExportTest {
       Assert.assertEquals(roots.length, 1, rootsMessage.toString());
 
       final Tree          taxonomyTree  = Get.taxonomyService()
-                                             .getTaxonomyTree(taxonomyCoordinate);
+                                             .getTaxonomyTree(manifoldCoordinate);
       final AtomicInteger taxonomyCount = new AtomicInteger(0);
 
       taxonomyTree.depthFirstProcess(roots[0],
@@ -345,11 +345,11 @@ public class ImportExportTest {
    public void testStatedTaxonomy() {
       LOG.info("Testing stated taxonomy");
 
-      final TaxonomyCoordinate taxonomyCoordinate = Get.configurationService()
-                                                       .getDefaultTaxonomyCoordinate()
-                                                       .makeAnalog(PremiseType.STATED);
+      final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
+                                                       .getDefaultManifoldCoordinate()
+                                                       .makeCoordinateAnalog(PremiseType.STATED);
       final int[] roots = Get.taxonomyService()
-                             .getRoots(taxonomyCoordinate)
+                             .getRoots(manifoldCoordinate)
                              .toArray();
       StringBuilder rootsMessage = new StringBuilder();
       for (int root: roots) {
@@ -359,7 +359,7 @@ public class ImportExportTest {
       Assert.assertEquals(roots.length, 1, rootsMessage.toString());
 
       final Tree          taxonomyTree  = Get.taxonomyService()
-                                             .getTaxonomyTree(taxonomyCoordinate);
+                                             .getTaxonomyTree(manifoldCoordinate);
       final AtomicInteger taxonomyCount = new AtomicInteger(0);
 
       taxonomyTree.depthFirstProcess(roots[0],

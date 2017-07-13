@@ -55,7 +55,7 @@ import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
-import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
@@ -203,10 +203,9 @@ public interface ConceptService
    /**
     * Gets the snapshot.
     *
-    * @param stampCoordinate the stamp coordinate
-    * @param languageCoordinate the language coordinate
-    * @return the snapshot
+    * @param manifoldCoordinate the stamp coordinate
+    * @return the sh.isaac.api.component.concept.ConceptSnapshotService
     */
-   ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate);
+   ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate);
 }
 

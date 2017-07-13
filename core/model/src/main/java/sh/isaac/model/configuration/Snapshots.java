@@ -65,7 +65,7 @@ public class Snapshots {
       return new Snapshot(language,
                           LogicCoordinates.getStandardElProfile(),
                           stampCoordinate,
-                          TaxonomyCoordinates.getInferredTaxonomyCoordinate(stampCoordinate, language));
+                          ManifoldCoordinates.getInferredManifoldCoordinate(stampCoordinate, language));
    }
 
    /**
@@ -80,7 +80,7 @@ public class Snapshots {
       return new Snapshot(language,
                           LogicCoordinates.getStandardElProfile(),
                           stampCoordinate,
-                          TaxonomyCoordinates.getStatedTaxonomyCoordinate(stampCoordinate, language));
+                          ManifoldCoordinates.getStatedManifoldCoordinate(stampCoordinate, language));
    }
 }
 

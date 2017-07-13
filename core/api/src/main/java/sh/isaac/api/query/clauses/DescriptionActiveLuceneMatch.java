@@ -53,12 +53,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -97,7 +97,7 @@ public class DescriptionActiveLuceneMatch
     */
    @Override
    public final NidSet computeComponents(NidSet incomingComponents) {
-      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+      final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
                                                                                             .get(this.viewCoordinateKey);
 
       getResultsCache().and(incomingComponents);
@@ -108,7 +108,7 @@ public class DescriptionActiveLuceneMatch
 
                                     if (chronology.isPresent()) {
                                        if (!chronology.get()
-                                             .isLatestVersionActive(taxonomyCoordinate.getStampCoordinate())) {
+                                             .isLatestVersionActive(manifoldCoordinate.getStampCoordinate())) {
                                           getResultsCache().remove(nid);
                                        }
                                     } else {

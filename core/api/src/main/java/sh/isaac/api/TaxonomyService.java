@@ -50,8 +50,8 @@ import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.LogicGraphSememe;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.tree.Tree;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -76,7 +76,7 @@ public interface TaxonomyService
 
    /**
     * Method to determine if a concept was ever a kind of another, without
-    * knowing a TaxonomyCoordinate.
+ knowing a ManifoldCoordinate.
     *
     * @param childId a concept sequence or nid for the child concept
     * @param parentId a concept sequence or nid for the parent concept
@@ -95,7 +95,7 @@ public interface TaxonomyService
     * relationships, or {@code IntStream.empty()} if there are no such
     * relationships.
     */
-   IntStream getAllCircularRelationshipOriginSequences(TaxonomyCoordinate tc);
+   IntStream getAllCircularRelationshipOriginSequences(ManifoldCoordinate tc);
 
    /**
     * Gets the all circular relationship type sequences.
@@ -108,7 +108,7 @@ public interface TaxonomyService
     * circular, or {@code IntStream.empty()} if there are no such
     * relationships.
     */
-   IntStream getAllCircularRelationshipTypeSequences(int originId, TaxonomyCoordinate tc);
+   IntStream getAllCircularRelationshipTypeSequences(int originId, ManifoldCoordinate tc);
 
    /**
     * Gets the all relationship destination sequences.
@@ -127,7 +127,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the all relationship destination sequences
     */
-   IntStream getAllRelationshipDestinationSequences(int originId, TaxonomyCoordinate tc);
+   IntStream getAllRelationshipDestinationSequences(int originId, ManifoldCoordinate tc);
 
    /**
     * Gets the all relationship destination sequences not of type.
@@ -142,7 +142,7 @@ public interface TaxonomyService
     */
    IntStream getAllRelationshipDestinationSequencesNotOfType(int originId,
          ConceptSequenceSet typeSequenceSet,
-         TaxonomyCoordinate tc);
+         ManifoldCoordinate tc);
 
    /**
     * Gets the all relationship destination sequences of type.
@@ -167,7 +167,7 @@ public interface TaxonomyService
     */
    IntStream getAllRelationshipDestinationSequencesOfType(int originId,
          ConceptSequenceSet typeSequenceSet,
-         TaxonomyCoordinate tc);
+         ManifoldCoordinate tc);
 
    /**
     * Gets the all relationship origin sequences.
@@ -184,7 +184,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the all relationship origin sequences
     */
-   IntStream getAllRelationshipOriginSequences(int destinationId, TaxonomyCoordinate tc);
+   IntStream getAllRelationshipOriginSequences(int destinationId, ManifoldCoordinate tc);
 
    /**
     * Gets the all relationship origin sequences of type.
@@ -205,7 +205,7 @@ public interface TaxonomyService
     */
    IntStream getAllRelationshipOriginSequencesOfType(int destinationId,
          ConceptSequenceSet typeSequenceSet,
-         TaxonomyCoordinate tc);
+         ManifoldCoordinate tc);
 
    /**
     * Gets the all types for relationship.
@@ -217,7 +217,7 @@ public interface TaxonomyService
     * @return concept sequences of all relationship types between the origin
     * and destination that meet the taxonomy coordinate criterion.
     */
-   IntStream getAllTypesForRelationship(int originId, int destinationId, TaxonomyCoordinate tc);
+   IntStream getAllTypesForRelationship(int originId, int destinationId, ManifoldCoordinate tc);
 
    /**
     * Gets the ancestor of sequence set.
@@ -226,7 +226,7 @@ public interface TaxonomyService
     * @param tc coordinate used to compute the taxonomy
     * @return the ancestor concept sequences for the childId concept.
     */
-   ConceptSequenceSet getAncestorOfSequenceSet(int childId, TaxonomyCoordinate tc);
+   ConceptSequenceSet getAncestorOfSequenceSet(int childId, ManifoldCoordinate tc);
 
    /**
     * Checks if child of.
@@ -236,9 +236,9 @@ public interface TaxonomyService
     * @param tc coordinate used to compute the taxonomy
     * @return true if the childId concept is a direct descendant of the
     * parentId concept according to the constraints of the
-    * {@code TaxonomyCoordinate}
+    * {@code ManifoldCoordinate}
     */
-   boolean isChildOf(int childId, int parentId, TaxonomyCoordinate tc);
+   boolean isChildOf(int childId, int parentId, ManifoldCoordinate tc);
 
    /**
     * Gets the child of sequence set.
@@ -247,7 +247,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the child of sequence set
     */
-   ConceptSequenceSet getChildOfSequenceSet(int parentId, TaxonomyCoordinate tc);
+   ConceptSequenceSet getChildOfSequenceSet(int parentId, ManifoldCoordinate tc);
 
    /**
     * Checks if kind of.
@@ -256,9 +256,9 @@ public interface TaxonomyService
     * @param ancestorId a concept sequence or nid for the ancestor concept
     * @param tc coordinate used to compute the taxonomy
     * @return true if the childId concept is a kind of the ancestorId concept
-    * according to the constraints of the {@code TaxonomyCoordinate}
+    * according to the constraints of the {@code ManifoldCoordinate}
     */
-   boolean isKindOf(int childId, int ancestorId, TaxonomyCoordinate tc);
+   boolean isKindOf(int childId, int ancestorId, ManifoldCoordinate tc);
 
    /**
     * Gets the kind of sequence set.
@@ -267,7 +267,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the kind of sequence set
     */
-   ConceptSequenceSet getKindOfSequenceSet(int rootId, TaxonomyCoordinate tc);
+   ConceptSequenceSet getKindOfSequenceSet(int rootId, ManifoldCoordinate tc);
 
    /**
     * Gets the roots.
@@ -275,7 +275,7 @@ public interface TaxonomyService
     * @param sc the sc
     * @return the roots
     */
-   IntStream getRoots(TaxonomyCoordinate sc);
+   IntStream getRoots(ManifoldCoordinate sc);
 
    /**
     * Gets the snapshot.
@@ -283,7 +283,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the snapshot
     */
-   TaxonomySnapshotService getSnapshot(TaxonomyCoordinate tc);
+   TaxonomySnapshotService getSnapshot(ManifoldCoordinate tc);
 
    /**
     * Gets the taxonomy child sequences.
@@ -300,7 +300,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the taxonomy child sequences
     */
-   IntStream getTaxonomyChildSequences(int parentId, TaxonomyCoordinate tc);
+   IntStream getTaxonomyChildSequences(int parentId, ManifoldCoordinate tc);
 
    /**
     * Gets the taxonomy parent sequences.
@@ -317,7 +317,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the taxonomy parent sequences
     */
-   IntStream getTaxonomyParentSequences(int childId, TaxonomyCoordinate tc);
+   IntStream getTaxonomyParentSequences(int childId, ManifoldCoordinate tc);
 
    /**
     * Gets the taxonomy tree.
@@ -325,6 +325,6 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the taxonomy tree
     */
-   Tree getTaxonomyTree(TaxonomyCoordinate tc);
+   Tree getTaxonomyTree(ManifoldCoordinate tc);
 }
 

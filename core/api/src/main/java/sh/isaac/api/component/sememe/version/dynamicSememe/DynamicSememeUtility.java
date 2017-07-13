@@ -76,7 +76,7 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUID;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -151,7 +151,7 @@ public interface DynamicSememeUtility {
     * @param data the data
     * @param referencedComponentNid the referenced component nid
     * @param stampCoordinate - optional - column specific validators may be skipped if this is not provided
-    * @param taxonomyCoordinate - optional - column specific validators may be skipped if this is not provided
+    * @param manifoldCoordinate - optional - column specific validators may be skipped if this is not provided
     * @throws IllegalArgumentException the illegal argument exception
     * @throws InvalidParameterException - if anything fails validation
     */
@@ -159,7 +159,7 @@ public interface DynamicSememeUtility {
                                 DynamicSememeData[] data,
                                 int referencedComponentNid,
                                 StampCoordinate stampCoordinate,
-                                TaxonomyCoordinate taxonomyCoordinate)
+                                ManifoldCoordinate manifoldCoordinate)
             throws IllegalArgumentException {
       // Make sure the referenced component meets the ref component restrictions, if any are present.
       if ((dsud.getReferencedComponentTypeRestriction() != null) &&
@@ -263,7 +263,7 @@ public interface DynamicSememeUtility {
                                  .passesValidator(data[dataColumn],
                                                   dsci.getValidatorData()[i],
                                                   stampCoordinate,
-                                                  taxonomyCoordinate)) {
+                                                  manifoldCoordinate)) {
                            rethrow = true;
                            throw new IllegalArgumentException(
                                "The supplied data for column " + dataColumn +

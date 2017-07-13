@@ -84,7 +84,6 @@ import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.CoordinateFactory;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.externalizable.BinaryDataDifferService;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
@@ -99,6 +98,7 @@ import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.api.index.IndexService;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -324,7 +324,7 @@ public class Get
     */
    public static String conceptDescriptionText(int conceptId) {
       final Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional =
-         conceptSnapshot().getDescriptionOptional(conceptId);
+         defaultConceptSnapshotService().getDescriptionOptional(conceptId);
 
       if (descriptionOptional.isPresent()) {
          return descriptionOptional.get()
@@ -400,12 +400,10 @@ public class Get
     * {@code StampCoordinate} and {@code LanguageCoordinate} provided by the
     * configuration service.
     */
-   public static ConceptSnapshotService conceptSnapshot() {
+   public static ConceptSnapshotService defaultConceptSnapshotService() {
       if (conceptSnapshot == null) {
          conceptSnapshot = getService(ConceptService.class).getSnapshot(Get.configurationService()
-               .getDefaultStampCoordinate(),
-               Get.configurationService()
-                  .getDefaultLanguageCoordinate());
+               .getDefaultManifoldCoordinate());
       }
 
       return conceptSnapshot;
@@ -434,6 +432,14 @@ public class Get
 
       return configurationService;
    }
+   
+   /**
+    * 
+    * @return the default manifold coordinate from the configuration service. 
+    */
+   public static ManifoldCoordinate defaultCoordinate() {
+      return configurationService().getDefaultManifoldCoordinate();
+   }
 
    /**
     * Coordinate factory.
@@ -446,10 +452,6 @@ public class Get
       }
 
       return coordinateFactory;
-   }
-   
-   public static TaxonomyCoordinate defaultCoordinate() {
-      return configurationService().getDefaultTaxonomyCoordinate();
    }
 
    /**

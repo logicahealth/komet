@@ -53,9 +53,9 @@ import java.util.stream.IntStream;
 
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.model.WaitFreeComparable;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -153,7 +153,7 @@ public class TaxonomyRecordPrimitive
     */
    public boolean containsSequenceViaType(int conceptSequence,
          ConceptSequenceSet typeSequenceSet,
-         TaxonomyCoordinate tc) {
+         ManifoldCoordinate tc) {
       return getTaxonomyRecordUnpacked().containsConceptSequenceViaType(conceptSequence, typeSequenceSet, tc);
    }
 
@@ -165,7 +165,7 @@ public class TaxonomyRecordPrimitive
     * @param tc the tc
     * @return true, if successful
     */
-   public boolean containsSequenceViaType(int conceptSequence, int typeSequence, TaxonomyCoordinate tc) {
+   public boolean containsSequenceViaType(int conceptSequence, int typeSequence, ManifoldCoordinate tc) {
       return getTaxonomyRecordUnpacked().containsConceptSequenceViaType(conceptSequence, typeSequence, tc);
    }
 
@@ -180,7 +180,7 @@ public class TaxonomyRecordPrimitive
     */
    public boolean containsSequenceViaType(int conceptSequence,
          ConceptSequenceSet typeSequenceSet,
-         TaxonomyCoordinate tc,
+         ManifoldCoordinate tc,
          int flags) {
       return getTaxonomyRecordUnpacked().containsConceptSequenceViaType(conceptSequence, typeSequenceSet, tc, flags);
    }
@@ -194,7 +194,7 @@ public class TaxonomyRecordPrimitive
     * @param flags the flags
     * @return true, if successful
     */
-   public boolean containsSequenceViaType(int conceptSequence, int typeSequence, TaxonomyCoordinate tc, int flags) {
+   public boolean containsSequenceViaType(int conceptSequence, int typeSequence, ManifoldCoordinate tc, int flags) {
       return getTaxonomyRecordUnpacked().containsConceptSequenceViaType(conceptSequence, typeSequence, tc, flags);
    }
 
@@ -361,7 +361,7 @@ public class TaxonomyRecordPrimitive
     * @param tc the tc
     * @return the destination sequences not of type
     */
-   public IntStream getDestinationSequencesNotOfType(ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate tc) {
+   public IntStream getDestinationSequencesNotOfType(ConceptSequenceSet typeSequenceSet, ManifoldCoordinate tc) {
       return getTaxonomyRecordUnpacked().getDestinationConceptSequencesNotOfType(typeSequenceSet, tc);
    }
 
@@ -382,7 +382,7 @@ public class TaxonomyRecordPrimitive
     * @param tc the tc
     * @return the destination sequences of type
     */
-   public IntStream getDestinationSequencesOfType(ConceptSequenceSet typeSequenceSet, TaxonomyCoordinate tc) {
+   public IntStream getDestinationSequencesOfType(ConceptSequenceSet typeSequenceSet, ManifoldCoordinate tc) {
       return getTaxonomyRecordUnpacked().getDestinationConceptSequencesOfType(typeSequenceSet, tc);
    }
 
@@ -399,7 +399,7 @@ public class TaxonomyRecordPrimitive
    public static Optional<TaxonomyRecordPrimitive> getIfActiveViaType(int conceptSequence,
          int typeSequence,
          CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap,
-         TaxonomyCoordinate vp,
+         ManifoldCoordinate vp,
          int flags) {
       final Optional<TaxonomyRecordPrimitive> optionalRecord = taxonomyMap.get(conceptSequence);
 
@@ -424,7 +424,7 @@ public class TaxonomyRecordPrimitive
     */
    public static Optional<TaxonomyRecordPrimitive> getIfConceptActive(int conceptSequence,
          CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap,
-         TaxonomyCoordinate vp) {
+         ManifoldCoordinate vp) {
       final Optional<TaxonomyRecordPrimitive> optionalRecord = taxonomyMap.get(conceptSequence);
 
       if (optionalRecord.isPresent()) {
@@ -453,7 +453,7 @@ public class TaxonomyRecordPrimitive
     * @param tc the tc
     * @return the parent sequences
     */
-   public IntStream getParentSequences(TaxonomyCoordinate tc) {
+   public IntStream getParentSequences(ManifoldCoordinate tc) {
       return getTaxonomyRecordUnpacked().getConceptSequencesForType(tc.getIsaConceptSequence(), tc);
    }
 
@@ -531,7 +531,7 @@ public class TaxonomyRecordPrimitive
     * @param tc the tc
     * @return the types for relationship
     */
-   public IntStream getTypesForRelationship(int destinationId, TaxonomyCoordinate tc) {
+   public IntStream getTypesForRelationship(int destinationId, ManifoldCoordinate tc) {
       return getTaxonomyRecordUnpacked().getTypesForRelationship(destinationId, tc);
    }
 

@@ -42,6 +42,7 @@ package sh.isaac.api.progress;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Set;
+import javafx.collections.ObservableSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -79,6 +80,6 @@ public interface ActiveTasks {
     *
     * @return the set
     */
-   Set<Task<?>> get();
+   ObservableSet<Task<?>> get();
 }
 

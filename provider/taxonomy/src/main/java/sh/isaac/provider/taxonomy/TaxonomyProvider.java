@@ -99,7 +99,6 @@ import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.dag.Node;
 import sh.isaac.api.identity.StampedVersion;
@@ -116,6 +115,7 @@ import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
 import sh.isaac.provider.taxonomy.graph.GraphCollector;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -405,7 +405,7 @@ public class TaxonomyProvider
    private IntStream filterOriginSequences(IntStream origins,
          int parentSequence,
          ConceptSequenceSet typeSequenceSet,
-         TaxonomyCoordinate tc) {
+         ManifoldCoordinate tc) {
       return origins.filter((originSequence) -> {
                                final Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional =
                                   this.originDestinationTaxonomyRecordMap.get(originSequence);
@@ -464,7 +464,7 @@ public class TaxonomyProvider
    private IntStream filterOriginSequences(IntStream origins,
          int parentSequence,
          int typeSequence,
-         TaxonomyCoordinate tc,
+         ManifoldCoordinate tc,
          AllowedRelTypes allowedRelTypes) {
       return origins.filter((originSequence) -> {
                                final Optional<TaxonomyRecordPrimitive> taxonomyRecordOptional =
@@ -650,7 +650,7 @@ public class TaxonomyProvider
     * @param tc the tc
     * @return true, if successful
     */
-   private boolean recursiveFindAncestor(int childSequence, int parentSequence, TaxonomyCoordinate tc) {
+   private boolean recursiveFindAncestor(int childSequence, int parentSequence, ManifoldCoordinate tc) {
       // currently unpacking from array to object.
       // TODO operate directly on array if unpacking is a performance bottleneck.
       final Optional<TaxonomyRecordPrimitive> record = this.originDestinationTaxonomyRecordMap.get(childSequence);
@@ -681,7 +681,7 @@ public class TaxonomyProvider
     * @param ancestors the ancestors
     * @param tc the tc
     */
-   private void recursiveFindAncestors(int childSequence, ConceptSequenceSet ancestors, TaxonomyCoordinate tc) {
+   private void recursiveFindAncestors(int childSequence, ConceptSequenceSet ancestors, ManifoldCoordinate tc) {
       // currently unpacking from array to object.
       // TODO operate directly on array if unpacking is a performance bottleneck.
       final Optional<TaxonomyRecordPrimitive> record = this.originDestinationTaxonomyRecordMap.get(childSequence);
@@ -843,7 +843,7 @@ public class TaxonomyProvider
     * @return the all circular relationship origin sequences
     */
    @Override
-   public IntStream getAllCircularRelationshipOriginSequences(TaxonomyCoordinate tc) {
+   public IntStream getAllCircularRelationshipOriginSequences(ManifoldCoordinate tc) {
       final ConceptService  conceptService  = Get.conceptService();
       final StampCoordinate stampCoordinate = tc.getStampCoordinate();
 
@@ -867,13 +867,13 @@ public class TaxonomyProvider
     * @return the all circular relationship type sequences
     */
    @Override
-   public IntStream getAllCircularRelationshipTypeSequences(int originId, TaxonomyCoordinate tc) {
+   public IntStream getAllCircularRelationshipTypeSequences(int originId, ManifoldCoordinate tc) {
       final int                originSequence = Get.identifierService()
                                                    .getConceptSequence(originId);
       final ConceptSequenceSet ancestors      = getAncestorOfSequenceSet(originId, tc);
 
       if (tc.getTaxonomyType() != PremiseType.INFERRED) {
-         ancestors.or(getAncestorOfSequenceSet(originId, tc.makeAnalog(PremiseType.INFERRED)));
+         ancestors.or(getAncestorOfSequenceSet(originId, tc.makeCoordinateAnalog(PremiseType.INFERRED)));
       }
 
       final ConceptSequenceSet excludedTypes       = ConceptSequenceSet.of(this.isaSequence);
@@ -935,7 +935,7 @@ public class TaxonomyProvider
     * @return the all relationship destination sequences
     */
    @Override
-   public IntStream getAllRelationshipDestinationSequences(int originId, TaxonomyCoordinate tc) {
+   public IntStream getAllRelationshipDestinationSequences(int originId, ManifoldCoordinate tc) {
       // lock handled by called method
       return getAllRelationshipDestinationSequencesOfType(originId, new ConceptSequenceSet(), tc);
    }
@@ -951,7 +951,7 @@ public class TaxonomyProvider
    @Override
    public IntStream getAllRelationshipDestinationSequencesNotOfType(int originId,
          ConceptSequenceSet typeSequenceSet,
-         TaxonomyCoordinate tc) {
+         ManifoldCoordinate tc) {
       originId = Get.identifierService()
                     .getConceptSequence(originId);
 
@@ -1034,7 +1034,7 @@ public class TaxonomyProvider
    @Override
    public IntStream getAllRelationshipDestinationSequencesOfType(int originId,
          ConceptSequenceSet typeSequenceSet,
-         TaxonomyCoordinate tc) {
+         ManifoldCoordinate tc) {
       originId = Get.identifierService()
                     .getConceptSequence(originId);
 
@@ -1086,7 +1086,7 @@ public class TaxonomyProvider
     * @return the all relationship origin sequences
     */
    @Override
-   public IntStream getAllRelationshipOriginSequences(int destination, TaxonomyCoordinate tc) {
+   public IntStream getAllRelationshipOriginSequences(int destination, ManifoldCoordinate tc) {
       // Set of all concept sequences that point to the parent.
       // lock handled by getOriginSequenceStream
       final IntStream origins = getOriginSequenceStream(destination);
@@ -1136,7 +1136,7 @@ public class TaxonomyProvider
    @Override
    public IntStream getAllRelationshipOriginSequencesOfType(int destinationId,
          ConceptSequenceSet typeSequenceSet,
-         TaxonomyCoordinate tc) {
+         ManifoldCoordinate tc) {
       destinationId = Get.identifierService()
                          .getConceptSequence(destinationId);
 
@@ -1168,7 +1168,7 @@ public class TaxonomyProvider
     * @return the all types for relationship
     */
    @Override
-   public IntStream getAllTypesForRelationship(int originId, int destinationId, TaxonomyCoordinate tc) {
+   public IntStream getAllTypesForRelationship(int originId, int destinationId, ManifoldCoordinate tc) {
       originId = Get.identifierService()
                     .getConceptSequence(originId);
 
@@ -1208,7 +1208,7 @@ public class TaxonomyProvider
     * @return the ancestor of sequence set
     */
    @Override
-   public ConceptSequenceSet getAncestorOfSequenceSet(int childId, TaxonomyCoordinate tc) {
+   public ConceptSequenceSet getAncestorOfSequenceSet(int childId, ManifoldCoordinate tc) {
       final ConceptSequenceSet ancestors = new ConceptSequenceSet();
 
       recursiveFindAncestors(Get.identifierService()
@@ -1225,14 +1225,14 @@ public class TaxonomyProvider
     * @return true, if child of
     */
    @Override
-   public boolean isChildOf(int childId, int parentId, TaxonomyCoordinate tc) {
+   public boolean isChildOf(int childId, int parentId, ManifoldCoordinate tc) {
       childId  = Get.identifierService()
                     .getConceptSequence(childId);
       parentId = Get.identifierService()
                     .getConceptSequence(parentId);
 
       final RelativePositionCalculator  computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
-      final int                         flags    = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
+      final int                         flags    = TaxonomyFlags.getFlagsFromManifoldCoordinate(tc);
       long                              stamp    = this.stampedLock.tryOptimisticRead();
       Optional<TaxonomyRecordPrimitive> record   = this.originDestinationTaxonomyRecordMap.get(childId);
 
@@ -1291,7 +1291,7 @@ public class TaxonomyProvider
     * @return the child of sequence set
     */
    @Override
-   public ConceptSequenceSet getChildOfSequenceSet(int parentId, TaxonomyCoordinate tc) {
+   public ConceptSequenceSet getChildOfSequenceSet(int parentId, ManifoldCoordinate tc) {
       // Set of all concept sequences that point to the parent.
       // lock handled by getOriginSequenceStream
       final IntStream origins = getOriginSequenceStream(parentId);
@@ -1379,7 +1379,7 @@ public class TaxonomyProvider
     * @return true, if kind of
     */
    @Override
-   public boolean isKindOf(int childId, int parentId, TaxonomyCoordinate tc) {
+   public boolean isKindOf(int childId, int parentId, ManifoldCoordinate tc) {
       childId  = Get.identifierService()
                     .getConceptSequence(childId);
       parentId = Get.identifierService()
@@ -1413,7 +1413,7 @@ public class TaxonomyProvider
     * @return the kind of sequence set
     */
    @Override
-   public ConceptSequenceSet getKindOfSequenceSet(int rootId, TaxonomyCoordinate tc) {
+   public ConceptSequenceSet getKindOfSequenceSet(int rootId, ManifoldCoordinate tc) {
       rootId = Get.identifierService()
                   .getConceptSequence(rootId);
 
@@ -1512,7 +1512,7 @@ public class TaxonomyProvider
     * @return the roots
     */
    @Override
-   public IntStream getRoots(TaxonomyCoordinate tc) {
+   public IntStream getRoots(ManifoldCoordinate tc) {
       long stamp = this.stampedLock.tryOptimisticRead();
       Tree tree  = getTaxonomyTree(tc);
 
@@ -1536,7 +1536,7 @@ public class TaxonomyProvider
     * @return the snapshot
     */
    @Override
-   public TaxonomySnapshotService getSnapshot(TaxonomyCoordinate tc) {
+   public TaxonomySnapshotService getSnapshot(ManifoldCoordinate tc) {
       return new TaxonomySnapshotProvider(tc);
    }
 
@@ -1563,7 +1563,7 @@ public class TaxonomyProvider
     * @return the taxonomy child sequences
     */
    @Override
-   public IntStream getTaxonomyChildSequences(int parentId, TaxonomyCoordinate tc) {
+   public IntStream getTaxonomyChildSequences(int parentId, ManifoldCoordinate tc) {
       // Set of all concept sequences that point to the parent.
       // lock handled by getOriginSequenceStream
       final IntStream origins = getOriginSequenceStream(parentId);
@@ -1622,7 +1622,7 @@ public class TaxonomyProvider
     * @return the taxonomy parent sequences
     */
    @Override
-   public IntStream getTaxonomyParentSequences(int childId, TaxonomyCoordinate tc) {
+   public IntStream getTaxonomyParentSequences(int childId, ManifoldCoordinate tc) {
       childId = Get.identifierService()
                    .getConceptSequence(childId);
 
@@ -1663,7 +1663,7 @@ public class TaxonomyProvider
     * @return the taxonomy tree
     */
    @Override
-   public Tree getTaxonomyTree(TaxonomyCoordinate tc) {
+   public Tree getTaxonomyTree(ManifoldCoordinate tc) {
       // TODO determine if the returned tree is thread safe for multiple accesses in parallel, if not, may need a pool of these.
       Tree temp = this.treeCache.get(tc.hashCode());
 
@@ -1708,7 +1708,7 @@ public class TaxonomyProvider
    private class TaxonomySnapshotProvider
             implements TaxonomySnapshotService {
       /** The tc. */
-      TaxonomyCoordinate tc;
+      ManifoldCoordinate tc;
 
       //~--- constructors -----------------------------------------------------
 
@@ -1717,7 +1717,7 @@ public class TaxonomyProvider
        *
        * @param tc the tc
        */
-      public TaxonomySnapshotProvider(TaxonomyCoordinate tc) {
+      public TaxonomySnapshotProvider(ManifoldCoordinate tc) {
          this.tc = tc;
       }
 

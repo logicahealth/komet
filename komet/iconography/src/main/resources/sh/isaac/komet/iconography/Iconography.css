@@ -197,3 +197,21 @@ limitations under the License.
    -my-width: 160;
    
 }
+
+
+.set-and {
+   -fx-graphic: url("/sh/isaac/komet/iconography/and.svg");
+   -my-height: 18;
+   -my-width: 26;
+    -icons-color: #4f80d9;
+  
+}
+
+.set-or {
+   -fx-graphic: url("/sh/isaac/komet/iconography/or.svg");
+   -my-height: 50;
+   -my-width: 25;
+   -icons-color: #FF4E08;
+   -fx-rotate:90; 
+   
+}

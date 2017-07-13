@@ -60,7 +60,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.tree.hashtree.HashTreeBuilder;
 import sh.isaac.api.tree.hashtree.HashTreeWithBitSets;
 import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.model.configuration.TaxonomyCoordinates;
+import sh.isaac.model.configuration.ManifoldCoordinates;
 import sh.isaac.provider.logic.csiro.classify.tasks.AggregateClassifyTask;
 import sh.isaac.provider.taxonomy.TaxonomyProvider;
 import sh.isaac.provider.taxonomy.graph.GraphCollector;
@@ -141,7 +141,7 @@ public class ClassifierProvider
                                                  .getParallelConceptSequenceStream();
       final GraphCollector collector =
          new GraphCollector(((TaxonomyProvider) Get.taxonomyService()).getOriginDestinationTaxonomyRecords(),
-                            TaxonomyCoordinates.getInferredTaxonomyCoordinate(
+                            ManifoldCoordinates.getInferredManifoldCoordinate(
                                 StampCoordinates.getDevelopmentLatestActiveOnly(),
                                 Get.configurationService().getDefaultLanguageCoordinate()));
       final HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(HashTreeBuilder::new,
@@ -162,7 +162,7 @@ public class ClassifierProvider
                                                  .getParallelConceptSequenceStream();
       final GraphCollector collector =
          new GraphCollector(((TaxonomyProvider) Get.taxonomyService()).getOriginDestinationTaxonomyRecords(),
-                            TaxonomyCoordinates.getStatedTaxonomyCoordinate(
+                            ManifoldCoordinates.getStatedManifoldCoordinate(
                                 StampCoordinates.getDevelopmentLatestActiveOnly(),
                                 Get.configurationService().getDefaultLanguageCoordinate()));
       final HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(HashTreeBuilder::new,

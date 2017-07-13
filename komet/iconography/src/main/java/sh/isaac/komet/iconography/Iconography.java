@@ -47,6 +47,9 @@ public enum Iconography {
    SHORT_TEXT(MATERIAL_DESIGNS_ICON, "short-text"),
    LONG_TEXT(MATERIAL_DESIGNS_ICON, "long-text"),
    VANITY_BOX(SVG, "vanity-box"),
+   SET_AND(SVG, "set-and"),
+   SET_OR(SVG, "set-or"),
+   RUN(MATERIAL_DESIGNS_ICON, "run"),
    ;
 
    String cssClass;

@@ -298,12 +298,11 @@ public class MockConceptService
    /**
     * Gets the snapshot.
     *
-    * @param stampCoordinate the stamp coordinate
-    * @param languageCoordinate the language coordinate
-    * @return the snapshot
+    * @param manifoldCoordinate the stamp coordinate
+    * @return the sh.isaac.api.component.concept.ConceptSnapshotService
     */
    @Override
-   public ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
+   public ConceptSnapshotService getSnapshot(sh.isaac.api.coordinate.ManifoldCoordinate manifoldCoordinate) {
       throw new UnsupportedOperationException();
    }
 }

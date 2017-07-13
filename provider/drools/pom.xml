@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+      <groupId>sh.isaac</groupId>
+      <artifactId>provider</artifactId>
+      <version>4.17-SNAPSHOT</version>
+   </parent>
+   <groupId>sh.isaac.provider</groupId>
+   <artifactId>drools</artifactId>
+   <packaging>jar</packaging>
+   <name>ISAAC provider: Drools</name>
+   <properties>
+      <drools.version>7.0.0.Final</drools.version>
+   </properties>
+   <dependencyManagement>
+      <dependencies>
+         <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-bom</artifactId>
+            <type>pom</type>
+            <version>${drools.version}</version>
+            <scope>import</scope>
+         </dependency>
+      </dependencies>
+   </dependencyManagement>
+   <dependencies>
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>model</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.kie</groupId>
+         <artifactId>kie-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.drools</groupId>
+         <artifactId>drools-compiler</artifactId>
+         <scope>runtime</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.drools</groupId>
+         <artifactId>drools-core</artifactId>
+      </dependency>
+   </dependencies>
+</project>

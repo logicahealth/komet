@@ -151,7 +151,7 @@ public class MultiParentTreeView extends BorderPane {
         
         taxonomyInferred.visibleProperty().bind(new BooleanBinding() {
            {
-              super.bind(manifold.getTaxonomyCoordinate().premiseTypeProperty());
+              super.bind(manifold.getManifoldCoordinate().premiseTypeProperty());
            }
            @Override
            protected boolean computeValue() {
@@ -163,7 +163,7 @@ public class MultiParentTreeView extends BorderPane {
         Node taxonomyStated = Iconography.STATED_VIEW.getIconographic();
         taxonomyStated.visibleProperty().bind(new BooleanBinding() {
            {
-              super.bind(manifold.getTaxonomyCoordinate().premiseTypeProperty());
+              super.bind(manifold.getManifoldCoordinate().premiseTypeProperty());
            }
            @Override
            protected boolean computeValue() {
@@ -174,7 +174,7 @@ public class MultiParentTreeView extends BorderPane {
         Tooltip.install(taxonomyStated, new Tooltip("Displaying the Stated view- click to display the Inferred view"));
         taxonomyViewMode.setGraphic(new StackPane(taxonomyInferred, taxonomyStated));
         taxonomyViewMode.setOnAction((ActionEvent event) -> {
-           ObjectProperty<PremiseType> premiseProperty = manifold.getTaxonomyCoordinate().premiseTypeProperty();
+           ObjectProperty<PremiseType> premiseProperty = manifold.getManifoldCoordinate().premiseTypeProperty();
            premiseProperty.set(premiseProperty.get().next());
         });
         toolBar.getItems().add(taxonomyViewMode);

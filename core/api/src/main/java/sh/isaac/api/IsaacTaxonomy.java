@@ -370,7 +370,6 @@ public class IsaacTaxonomy {
          final String preferredName = concept.getFullySpecifiedDescriptionBuilder().getDescriptionText();
          String constantName = preferredName.toUpperCase();
 
-
          constantName = constantName.replace("(", "\u01C1");
          constantName = constantName.replace(")", "\u01C1");
          constantName = constantName.replace(" ", "_");
@@ -404,10 +403,11 @@ public class IsaacTaxonomy {
    /**
     * Creates the concept.
     *
-    * @param specification the specification
+    * @param specification the concept specification
     * @return the concept builder
     */
    protected final ConceptBuilder createConcept(ConceptSpecification specification) {
+      //ConceptProxy specification = (ConceptProxy) spec;
       final ConceptBuilder builder = createConcept(specification.getFullySpecifiedConceptDescriptionText());
 
       builder.setPrimordialUuid(specification.getUuidList()
@@ -420,9 +420,17 @@ public class IsaacTaxonomy {
                          .size())
                  .toArray(new UUID[0]));
       }
-      Optional<String> preferredDescription = specification.getPreferedConceptDescriptionText();
-      if (preferredDescription.isPresent()) {
-         builder.getPreferredDescriptionBuilder().setDescriptionText(preferredDescription.get());
+
+      if (specification instanceof ConceptProxy) {
+         Optional<String> preferredDescription = ((ConceptProxy) specification).getPreferedConceptDescriptionTextNoLookup();
+         if (preferredDescription.isPresent()) {
+            builder.getPreferredDescriptionBuilder().setDescriptionText(preferredDescription.get());
+         }
+      } else {
+         Optional<String> preferredDescription = specification.getPreferedConceptDescriptionText();
+         if (preferredDescription.isPresent()) {
+            builder.getPreferredDescriptionBuilder().setDescriptionText(preferredDescription.get());
+         }
       }
 
       return builder;

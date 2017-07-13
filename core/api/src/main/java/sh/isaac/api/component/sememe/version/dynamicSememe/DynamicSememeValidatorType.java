@@ -68,9 +68,9 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUID;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.util.Interval;
 import sh.isaac.api.util.NumericUtils;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- enums ------------------------------------------------------------------
 
@@ -267,7 +267,7 @@ public enum DynamicSememeValidatorType {
    public boolean passesValidator(DynamicSememeData userData,
                                   DynamicSememeData validatorDefinitionData,
                                   StampCoordinate sc,
-                                  TaxonomyCoordinate tc)
+                                  ManifoldCoordinate tc)
             throws IllegalArgumentException {
       if (validatorDefinitionData == null) {
          throw new RuntimeException("The validator definition data is required");
@@ -499,7 +499,7 @@ public enum DynamicSememeValidatorType {
    public String passesValidatorStringReturn(DynamicSememeData userData,
          DynamicSememeData validatorDefinitionData,
          StampCoordinate sc,
-         TaxonomyCoordinate tc) {
+         ManifoldCoordinate tc) {
       try {
          if (passesValidator(userData, validatorDefinitionData, sc, tc)) {
             return "";

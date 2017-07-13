@@ -55,13 +55,13 @@ public interface StampCoordinateProxy extends StampCoordinate {
    }
 
    @Override
-   public default StampCoordinate makeAnalog(long stampPositionTime) {
-      return getStampCoordinate().makeAnalog(stampPositionTime);
+   public default StampCoordinate makeCoordinateAnalog(long stampPositionTime) {
+      return getStampCoordinate().makeCoordinateAnalog(stampPositionTime);
    }
 
    @Override
-   public default StampCoordinate makeAnalog(State... state) {
-      return getStampCoordinate().makeAnalog(state);
+   public default StampCoordinate makeCoordinateAnalog(State... state) {
+      return getStampCoordinate().makeCoordinateAnalog(state);
    }
    
    

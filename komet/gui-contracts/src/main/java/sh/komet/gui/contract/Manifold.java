@@ -24,13 +24,13 @@ import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.coordinate.LanguageCoordinateProxy;
 import sh.isaac.api.coordinate.LogicCoordinateProxy;
 import sh.isaac.api.coordinate.StampCoordinateProxy;
-import sh.isaac.api.coordinate.TaxonomyCoordinateProxy;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableTaxonomyCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateProxy;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 
 /**
  * Manifold: Uniting various features, in this case an object that contains a set of coordinates and selections that
@@ -45,22 +45,22 @@ import sh.isaac.api.observable.coordinate.ObservableTaxonomyCoordinate;
  *
  * @author kec
  */
-public class Manifold implements StampCoordinateProxy, LanguageCoordinateProxy, LogicCoordinateProxy, TaxonomyCoordinateProxy {
+public class Manifold implements StampCoordinateProxy, LanguageCoordinateProxy, LogicCoordinateProxy, ManifoldCoordinateProxy {
 
    final SimpleStringProperty nameProperty;
    final SimpleObjectProperty<UUID> manifoldUuidProperty;
-   final ObservableTaxonomyCoordinate taxonomyCoordinate;
+   final ObservableManifoldCoordinate observableManifoldCoordinate;
    final ObservableEditCoordinate editCoordinate;
    final SimpleObjectProperty<IdentifiedObject> focusedObjectProperty;
 
-   public Manifold(String name, UUID manifoldUuid, ObservableTaxonomyCoordinate taxonomyCoordinate, ObservableEditCoordinate editCoordinate) {
-      this(name, manifoldUuid, taxonomyCoordinate, editCoordinate, null);
+   public Manifold(String name, UUID manifoldUuid, ObservableManifoldCoordinate observableManifoldCoordinate, ObservableEditCoordinate editCoordinate) {
+      this(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, null);
    }
    
-  public Manifold(String name, UUID manifoldUuid, ObservableTaxonomyCoordinate taxonomyCoordinate, ObservableEditCoordinate editCoordinate, IdentifiedObject focusedObject) {
+  public Manifold(String name, UUID manifoldUuid, ObservableManifoldCoordinate observableManifoldCoordinate, ObservableEditCoordinate editCoordinate, IdentifiedObject focusedObject) {
       this.nameProperty = new SimpleStringProperty(name);
       this.manifoldUuidProperty = new SimpleObjectProperty<>(manifoldUuid);
-      this.taxonomyCoordinate = taxonomyCoordinate;
+      this.observableManifoldCoordinate = observableManifoldCoordinate;
       this.editCoordinate = editCoordinate;
       this.focusedObjectProperty = new SimpleObjectProperty<>(focusedObject);
    }
@@ -90,8 +90,8 @@ public class Manifold implements StampCoordinateProxy, LanguageCoordinateProxy, 
    }
 
    @Override
-   public ObservableTaxonomyCoordinate getTaxonomyCoordinate() {
-      return taxonomyCoordinate;
+   public ObservableManifoldCoordinate getManifoldCoordinate() {
+      return observableManifoldCoordinate;
    }
 
    public ObservableEditCoordinate getEditCoordinate() {
@@ -107,22 +107,22 @@ public class Manifold implements StampCoordinateProxy, LanguageCoordinateProxy, 
    }
 
    public ConceptSnapshotService getConceptSnapshotService() {
-      return Get.conceptService().getSnapshot(taxonomyCoordinate.getStampCoordinate(), taxonomyCoordinate.getLanguageCoordinate());
+      return Get.conceptService().getSnapshot(observableManifoldCoordinate);
    }
 
    @Override
    public ObservableStampCoordinate getStampCoordinate() {
-      return this.taxonomyCoordinate.getStampCoordinate();
+      return this.observableManifoldCoordinate.getStampCoordinate();
    }
 
    @Override
    public ObservableLanguageCoordinate getLanguageCoordinate() {
-      return this.taxonomyCoordinate.getLanguageCoordinate();
+      return this.observableManifoldCoordinate.getLanguageCoordinate();
    }
 
    @Override
    public ObservableLogicCoordinate getLogicCoordinate() {
-      return this.taxonomyCoordinate.getLogicCoordinate();
+      return this.observableManifoldCoordinate.getLogicCoordinate();
    }
    
    

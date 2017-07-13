@@ -126,7 +126,7 @@ public class AssemblageContainsString
       throw new UnsupportedOperationException();
 
       // TODO FIX BACK UP
-//    TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations().get(viewCoordinateKey);
+//    ManifoldCoordinate manifoldCoordinate = (manifoldCoordinate) this.enclosingQuery.getLetDeclarations().get(viewCoordinateKey);
 //    ConceptSpec refsetSpec = (ConceptSpec) this.enclosingQuery.getLetDeclarations().get(refsetSpecKey);
 //
 //    int refsetNid = refsetSpec.getNid();

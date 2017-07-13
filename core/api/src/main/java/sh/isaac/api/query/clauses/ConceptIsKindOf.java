@@ -55,12 +55,12 @@ import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -114,7 +114,7 @@ public class ConceptIsKindOf
     */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      final TaxonomyCoordinate tc = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+      final ManifoldCoordinate tc = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
                                                                             .get(this.viewCoordinateKey);
       final ConceptSpecification kindOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
                                                                                         .get(this.kindOfSpecKey);

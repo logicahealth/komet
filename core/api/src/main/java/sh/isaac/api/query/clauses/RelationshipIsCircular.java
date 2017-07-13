@@ -56,12 +56,12 @@ import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -126,7 +126,7 @@ public class RelationshipIsCircular
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
 //    System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
-      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+      final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
                                                                                             .get(this.viewCoordinateKey);
       final ConceptSpecification relType = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
                                                                                      .get(this.relTypeKey);
@@ -143,7 +143,7 @@ public class RelationshipIsCircular
 
       if (relTypeSubsumption) {
          this.relTypeSet.or(Get.taxonomyService()
-                               .getKindOfSequenceSet(relType.getConceptSequence(), taxonomyCoordinate));
+                               .getKindOfSequenceSet(relType.getConceptSequence(), manifoldCoordinate));
       }
 
       return incomingPossibleComponents;
@@ -172,7 +172,7 @@ public class RelationshipIsCircular
       throw new UnsupportedOperationException();
 
       /*
-       * TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) enclosingQuery.getLetDeclarations().get(viewCoordinateKey);
+       * ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) enclosingQuery.getLetDeclarations().get(viewCoordinateKey);
        * Get.taxonomyService().getAllRelationshipDestinationSequencesOfType(
        *       conceptVersion.getChronology().getConceptSequence(), relTypeSet, viewCoordinate)
        *       .forEach((destinationSequence) -> {

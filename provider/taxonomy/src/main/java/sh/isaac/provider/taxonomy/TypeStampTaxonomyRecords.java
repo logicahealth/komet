@@ -60,8 +60,8 @@ import org.apache.mahout.math.set.OpenLongHashSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.StampSequenceSet;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -172,9 +172,9 @@ public class TypeStampTaxonomyRecords {
     * @return true, if successful
     */
    public boolean containsConceptSequenceViaType(ConceptSequenceSet typeSequenceSet,
-         TaxonomyCoordinate tc,
+         ManifoldCoordinate tc,
          RelativePositionCalculator computer) {
-      final int flags = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
+      final int flags = TaxonomyFlags.getFlagsFromManifoldCoordinate(tc);
 
       return containsConceptSequenceViaType(typeSequenceSet, flags, computer);
    }
@@ -203,9 +203,9 @@ public class TypeStampTaxonomyRecords {
     * @return true, if successful
     */
    public boolean containsConceptSequenceViaType(int typeSequence,
-         TaxonomyCoordinate tc,
+         ManifoldCoordinate tc,
          RelativePositionCalculator computer) {
-      final int flags = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
+      final int flags = TaxonomyFlags.getFlagsFromManifoldCoordinate(tc);
 
       return containsConceptSequenceViaType(typeSequence, flags, computer);
    }

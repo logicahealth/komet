@@ -70,7 +70,6 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.query.clauses.ChangedFromPreviousVersion;
 import sh.isaac.api.query.clauses.ConceptForComponent;
 import sh.isaac.api.query.clauses.ConceptIs;
@@ -88,6 +87,7 @@ import sh.isaac.api.query.clauses.AssemblageContainsKindOfConcept;
 import sh.isaac.api.query.clauses.AssemblageContainsString;
 import sh.isaac.api.query.clauses.AssemblageLuceneMatch;
 import sh.isaac.api.query.clauses.RelRestriction;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -153,9 +153,9 @@ public abstract class Query {
    private NidSet forSet;
 
    /**
-    * The <code>TaxonomyCoordinate</code> used in the query.
+    * The <code>ManifoldCoordinate</code> used in the query.
     */
-   private TaxonomyCoordinate taxonomyCoordinate;
+   private ManifoldCoordinate manifoldCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
@@ -171,10 +171,10 @@ public abstract class Query {
     * Constructor for <code>Query</code>. If a <code>ViewCoordinate</code> is
     * not specified, the default is the Snomed inferred latest.
     *
-    * @param taxonomyCoordinate the taxonomy coordinate
+    * @param manifoldCoordinate the taxonomy coordinate
     */
-   public Query(TaxonomyCoordinate taxonomyCoordinate) {
-      this.taxonomyCoordinate = taxonomyCoordinate;
+   public Query(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -229,7 +229,7 @@ public abstract class Query {
 
                         final ConceptChronology cch = concept;
                         final Optional<LatestVersion<ConceptVersion<?>>> latest =
-                           cch.getLatestVersion(ConceptVersion.class, this.taxonomyCoordinate.getStampCoordinate());
+                           cch.getLatestVersion(ConceptVersion.class, this.manifoldCoordinate);
 
                         // Optional<LatestVersion<ConceptVersion<?>>> latest
                         // = ((ConceptChronology<ConceptVersion<?>>) concept).getLatestVersion(ConceptVersion.class, stampCoordinate);
@@ -757,7 +757,7 @@ public abstract class Query {
     * @return the language coordinate
     */
    public LanguageCoordinate getLanguageCoordinate() {
-      return this.taxonomyCoordinate.getLanguageCoordinate();
+      return this.manifoldCoordinate;
    }
 
    /**
@@ -770,12 +770,12 @@ public abstract class Query {
          this.letDeclarations = new HashMap<>();
 
          if (!this.letDeclarations.containsKey(CURRENT_TAXONOMY_RESULT)) {
-            if (this.taxonomyCoordinate != null) {
-               this.letDeclarations.put(CURRENT_TAXONOMY_RESULT, this.taxonomyCoordinate);
+            if (this.manifoldCoordinate != null) {
+               this.letDeclarations.put(CURRENT_TAXONOMY_RESULT, this.manifoldCoordinate);
             } else {
                this.letDeclarations.put(CURRENT_TAXONOMY_RESULT,
                                         Get.configurationService()
-                                           .getDefaultTaxonomyCoordinate());
+                                           .getDefaultManifoldCoordinate());
             }
          }
 
@@ -791,7 +791,7 @@ public abstract class Query {
     * @return the logic coordinate
     */
    public LogicCoordinate getLogicCoordinate() {
-      return this.taxonomyCoordinate.getLogicCoordinate();
+      return this.manifoldCoordinate.getLogicCoordinate();
    }
 
    /**
@@ -831,18 +831,18 @@ public abstract class Query {
     * @return the <code>StampCoordinate</code> in the query
     */
    public StampCoordinate getStampCoordinate() {
-      return this.taxonomyCoordinate.getStampCoordinate();
+      return this.manifoldCoordinate.getStampCoordinate();
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Set <code>TaxonomyCoordinate</code> used in the query.
+    * Set <code>ManifoldCoordinate</code> used in the query.
     *
-    * @param taxonomyCoordinate the new <code>TaxonomyCoordinate</code> used in the query
+    * @param manifoldCoordinate the new <code>ManifoldCoordinate</code> used in the query
     */
-   public void setTaxonomyCoordinate(TaxonomyCoordinate taxonomyCoordinate) {
-      this.taxonomyCoordinate = taxonomyCoordinate;
+   public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
    }
 }
 

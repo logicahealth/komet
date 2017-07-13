@@ -112,7 +112,6 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.externalizable.OchreExternalizableObjectType;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.SearchResult;
@@ -146,6 +145,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import sh.isaac.api.index.IndexService;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -552,14 +552,20 @@ public class Frills
                                                                                   .getIdentifiedObjectChronology(nid);
 
       if (c.isPresent()) {
-         if (c.get()
-              .getOchreObjectType() == OchreExternalizableObjectType.SEMEME) {
-            return findConcept(((SememeChronology<?>) c.get()).getReferencedComponentNid());
-         } else if (c.get()
-                     .getOchreObjectType() == OchreExternalizableObjectType.CONCEPT) {
-            return ((ConceptChronology<?>) c.get()).getConceptSequence();
-         } else {
+         if (null == c.get()
+                 .getOchreObjectType()) {
             LOG.warn("Unexpected object type: " + c.get().getOchreObjectType());
+         } else {
+            switch (c.get()
+                    .getOchreObjectType()) {
+               case SEMEME:
+                  return findConcept(((SememeChronology<?>) c.get()).getReferencedComponentNid());
+               case CONCEPT:
+                  return ((ConceptChronology<?>) c.get()).getConceptSequence();
+               default:
+                  LOG.warn("Unexpected object type: " + c.get().getOchreObjectType());
+                  break;
+            }
          }
       }
 
@@ -573,19 +579,17 @@ public class Frills
     * @param nid the nid
     * @param callback - who to inform when lookup completes
     * @param callId - An arbitrary identifier that will be returned to the caller when this completes
-    * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
-    * @param langCoord - optional - what lang coord to use when returning the ConceptSnapshot (defaults to user prefs)
+    * @param manifoldCoordinate
     */
    public static void lookupConceptSnapshot(final int nid,
          final TaskCompleteCallback<ConceptSnapshot> callback,
          final Integer callId,
-         final StampCoordinate stampCoord,
-         final LanguageCoordinate langCoord) {
+         final ManifoldCoordinate manifoldCoordinate) {
       LOG.debug("Threaded Lookup: '{}'", nid);
 
       final long     submitTime = System.currentTimeMillis();
       final Runnable r          = () -> {
-                                     final Optional<ConceptSnapshot> c = getConceptSnapshot(nid, stampCoord, langCoord);
+                                     final Optional<ConceptSnapshot> c = getConceptSnapshot(nid, manifoldCoordinate);
 
                                      callback.taskComplete(c.isPresent() ? c.get()
                : null, submitTime, callId);
@@ -658,7 +662,7 @@ public class Frills
                ((SememeChronology) dc).getLatestVersion(DescriptionSememe.class,
                                                         Get.configurationService()
                                                               .getDefaultStampCoordinate()
-                                                              .makeAnalog(State.ACTIVE,
+                                                              .makeCoordinateAnalog(State.ACTIVE,
                                                                     State.INACTIVE,
                                                                     State.CANCELED,
                                                                     State.PRIMORDIAL));
@@ -790,7 +794,9 @@ public class Frills
                            } else {
                               UUID   uuid          = null;
                               String componentDesc = null;
-
+                                 throw new UnsupportedOperationException("Need to refactor to use ManifoldCoordinate. ");
+                                 /*
+ 
                               try {
                                  final Optional<UUID> uuidOptional = Get.identifierService()
                                                                         .getUuidPrimordialForNid(latest.get()
@@ -800,11 +806,8 @@ public class Frills
                                  if (uuidOptional.isPresent()) {
                                     uuid = uuidOptional.get();
                                  }
-
-                                 final Optional<LatestVersion<DescriptionSememe<?>>> desc = Get.conceptService()
-                                                                                               .getSnapshot(
-                                                                                                  StampCoordinates.getDevelopmentLatest(),
-                                                                                                        LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate())
+                                final Optional<LatestVersion<DescriptionSememe<?>>> desc = Get.conceptService()
+                                                                                               .getSnapshot(StampCoordinates.getDevelopmentLatest())
                                                                                                .getDescriptionOptional(
                                                                                                   latest.get()
                                                                                                         .value()
@@ -817,14 +820,16 @@ public class Frills
                               } catch (final Exception e) {
                                  // NOOP
                               }
-
+                                 
                               LOG.warn("Unexpected component " + componentDesc + " (uuid=" + uuid + ", nid=" +
                                        latest.get().value().getComponentNid() + ")");
 
                               // throw new RuntimeException("Unexpected component " + componentDesc + " (uuid=" + uuid + ", nid=" + latest.get().value().getComponentNid() + ")");
                               // dialectSequenceToAcceptabilityNidMap.put(dialectSequence, latest.get().value().getComponentNid());
-                           }
+                           */
+                                 }
                         }
+                                 
                      }
                   });
       return dialectSequenceToAcceptabilityNidMap;
@@ -1091,14 +1096,12 @@ public class Frills
     * Gets the concept snapshot.
     *
     * @param conceptNidOrSequence the concept nid or sequence
-    * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
-    * @param langCoord - optional - what lang coord to use when returning the ConceptSnapshot (defaults to user prefs)
+    * @param manifoldCoordinate - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
     * @return the ConceptSnapshot, or an optional that indicates empty, if the identifier was invalid, or if the concept didn't
-    * have a version available on the specified stampCoord
+ have a version available on the specified manifoldCoordinate
     */
    public static Optional<ConceptSnapshot> getConceptSnapshot(int conceptNidOrSequence,
-         StampCoordinate stampCoord,
-         LanguageCoordinate langCoord) {
+         ManifoldCoordinate manifoldCoordinate) {
       final Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> c = Get.conceptService()
                                                                                       .getOptionalConcept(
                                                                                          conceptNidOrSequence);
@@ -1106,16 +1109,13 @@ public class Frills
       if (c.isPresent()) {
          try {
             return Optional.of(Get.conceptService()
-                                  .getSnapshot((stampCoord == null) ? Get.configurationService()
-                                        .getDefaultStampCoordinate()
-                  : stampCoord,
-                                               (langCoord == null) ? Get.configurationService()
-                                                     .getDefaultLanguageCoordinate()
-                  : langCoord)
+                                  .getSnapshot((manifoldCoordinate == null) ? Get.configurationService()
+                                        .getDefaultManifoldCoordinate()
+                  : manifoldCoordinate)
                                   .getConceptSnapshot(c.get()
                                         .getConceptSequence()));
          } catch (final Exception e) {
-            // TODO conceptSnapshot APIs are currently broken, provide no means of detecting if a concept doesn't exist on a given coordinate
+            // TODO defaultConceptSnapshotService APIs are currently broken, provide no means of detecting if a concept doesn't exist on a given coordinate
             // See slack convo https://informatics-arch.slack.com/archives/dev-isaac/p1440568057000512
             return Optional.empty();
          }
@@ -1128,125 +1128,14 @@ public class Frills
     * Gets the concept snapshot.
     *
     * @param conceptUUID the concept UUID
-    * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
-    * @param langCoord - optional - what lang coord to use when returning the ConceptSnapshot (defaults to user prefs)
+    * @param manifoldCoordinate
     * @return the ConceptSnapshot, or an optional that indicates empty, if the identifier was invalid, or if the concept didn't
     *   have a version available on the specified stampCoord
     */
    public static Optional<ConceptSnapshot> getConceptSnapshot(UUID conceptUUID,
-         StampCoordinate stampCoord,
-         LanguageCoordinate langCoord) {
+         ManifoldCoordinate manifoldCoordinate) {
       return getConceptSnapshot(Get.identifierService()
-                                   .getNidForUuids(conceptUUID), stampCoord, langCoord);
-   }
-
-   /**
-    * Utility method to get the best text value description for a concept, according to the user preferences.
-    * Calls {@link #getDescription(int, LanguageCoordinate, StampCoordinate)} using the default system stamp coordinate,
-    * modified to return all states (this may return an inactive description)
-    *
-    * @param conceptId - either a sequence or a nid
-    * @return the description
-    */
-   public static Optional<String> getDescription(int conceptId) {
-      return getDescription(conceptId,
-                            Get.configurationService()
-                               .getDefaultStampCoordinate()
-                               .makeAnalog(State.ACTIVE, State.INACTIVE, State.CANCELED, State.PRIMORDIAL),
-                            null);
-   }
-
-   /**
-    * Utility method to get the best text value description for a concept, according to the user preferences.
-    * Calls {@link #getDescription(UUID, LanguageCoordinate, StampCoordinate)} with nulls.
-    *
-    * @param conceptUUID - identifier for a concept
-    * @return the description
-    */
-   public static Optional<String> getDescription(UUID conceptUUID) {
-      return getDescription(conceptUUID, null, null);
-   }
-
-   /**
-    * Utility method to get the best text value description for a concept, according to the passed in options,
-    * or the user preferences.  Calls {@link #getDescription(int, LanguageCoordinate, StampCoordinate)} with values
-    * extracted from the taxonomyCoordinate, or null.
-    *
-    * @param conceptId - either a sequence or a nid
-    * @param taxonomyCoordinate the taxonomy coordinate
-    * @return the description
-    */
-   public static Optional<String> getDescription(int conceptId, TaxonomyCoordinate taxonomyCoordinate) {
-      return getDescription(conceptId,
-                            (taxonomyCoordinate == null) ? null
-            : taxonomyCoordinate.getStampCoordinate(),
-                            (taxonomyCoordinate == null) ? null
-            : taxonomyCoordinate.getLanguageCoordinate());
-   }
-
-   /**
-    * Utility method to get the best text value description for a concept, according to the passed in options,
-    * or the user preferences.  Calls {@link #getDescription(UUID, LanguageCoordinate, StampCoordinate)} with values
-    * extracted from the taxonomyCoordinate, or null.
-    *
-    * @param conceptUUID - identifier for a concept
-    * @param taxonomyCoordinate the taxonomy coordinate
-    * @return the description
-    */
-   public static Optional<String> getDescription(UUID conceptUUID, TaxonomyCoordinate taxonomyCoordinate) {
-      return getDescription(conceptUUID,
-                            (taxonomyCoordinate == null) ? null
-            : taxonomyCoordinate.getStampCoordinate(),
-                            (taxonomyCoordinate == null) ? null
-            : taxonomyCoordinate.getLanguageCoordinate());
-   }
-
-   /**
-    * Utility method to get the best text value description for a concept, according to the passed in options,
-    * or the user preferences.
-    *
-    * @param conceptId - either a sequence or a nid
-    * @param stampCoordinate - optional - if not provided, defaults to system preference values
-    * @param languageCoordinate - optional - if not provided, defaults to system preferences values
-    * @return the description
-    */
-   public static Optional<String> getDescription(int conceptId,
-         StampCoordinate stampCoordinate,
-         LanguageCoordinate languageCoordinate) {
-      final Optional<LatestVersion<DescriptionSememe<?>>> desc = Get.conceptService()
-                                                                    .getSnapshot((stampCoordinate == null)
-                                                                       ? Get.configurationService()
-                                                                             .getDefaultStampCoordinate()
-            : stampCoordinate,
-                                                                          (languageCoordinate == null)
-                                                                          ? Get.configurationService()
-                                                                                .getDefaultLanguageCoordinate()
-            : languageCoordinate)
-                                                                    .getDescriptionOptional(conceptId);
-
-      return desc.isPresent() ? Optional.of(desc.get()
-            .value()
-            .getText())
-                              : Optional.empty();
-   }
-
-   /**
-    * Utility method to get the best text value description for a concept, according to the passed in options,
-    * or the user preferences.  Calls {@link #getDescription(int, LanguageCoordinate, StampCoordinate)} with values
-    * extracted from the taxonomyCoordinate, or null.
-    *
-    * @param conceptUUID the concept UUID
-    * @param stampCoordinate - optional - if not provided, defaults to system preference values
-    * @param languageCoordinate - optional - if not provided, defaults to system preferences values
-    * @return the description
-    */
-   public static Optional<String> getDescription(UUID conceptUUID,
-         StampCoordinate stampCoordinate,
-         LanguageCoordinate languageCoordinate) {
-      return getDescription(Get.identifierService()
-                               .getConceptSequenceForUuids(conceptUUID),
-                            stampCoordinate,
-                            languageCoordinate);
+                                   .getNidForUuids(conceptUUID), manifoldCoordinate);
    }
 
    /**
@@ -1528,8 +1417,9 @@ public class Frills
          }
 
          if (nid != null) {
-            idInfo.put("DESC", Get.conceptService()
-                                  .getSnapshot(sc, lc)
+            throw new UnsupportedOperationException("Need to refactor to use ManifoldCoordinate");
+            /*idInfo.put("DESC", Get.conceptService()
+                                  .getSnapshot(sc)
                                   .conceptDescriptionText(nid));
 
             if (typeOfPassedId == ObjectChronologyType.CONCEPT) {
@@ -1540,6 +1430,7 @@ public class Frills
                   idInfo.put("SCTID", sctId);
                }
             }
+            */
          }
       } catch (final Exception e) {
          LOG.warn("Problem getting idInfo for \"{}\". Caught {}", e.getClass()
@@ -1835,10 +1726,10 @@ public class Frills
     *
     * @param stamp Stamp from which to generate StampCoordinate
     * @return StampCoordinate corresponding to Stamp values
-    *
-    * StampPrecedence set to StampPrecedence.TIME
-    *
-    * Use StampCoordinate.makeAnalog() to customize result
+
+ StampPrecedence set to StampPrecedence.TIME
+
+ Use StampCoordinate.makeCoordinateAnalog() to customize result
     */
    public static StampCoordinate getStampCoordinateFromStamp(Stamp stamp) {
       return getStampCoordinateFromStamp(stamp, StampPrecedence.TIME);
@@ -1850,8 +1741,8 @@ public class Frills
     * @param stamp Stamp from which to generate StampCoordinate
     * @param precedence Precedence to assign StampCoordinate
     * @return StampCoordinate corresponding to Stamp values
-    *
-    * Use StampCoordinate.makeAnalog() to customize result
+
+ Use StampCoordinate.makeCoordinateAnalog() to customize result
     */
    public static StampCoordinate getStampCoordinateFromStamp(Stamp stamp, StampPrecedence precedence) {
       final StampPosition stampPosition = new StampPositionImpl(stamp.getTime(), stamp.getPathSequence());
@@ -1869,10 +1760,10 @@ public class Frills
     *
     * @param version StampedVersion from which to generate StampCoordinate
     * @return StampCoordinate corresponding to StampedVersion values
-    *
-    * StampPrecedence set to StampPrecedence.TIME
-    *
-    * Use StampCoordinate.makeAnalog() to customize result
+
+ StampPrecedence set to StampPrecedence.TIME
+
+ Use StampCoordinate.makeCoordinateAnalog() to customize result
     */
    public static StampCoordinate getStampCoordinateFromVersion(StampedVersion version) {
       return getStampCoordinateFromVersion(version, StampPrecedence.TIME);
@@ -1884,10 +1775,10 @@ public class Frills
     * @param version StampedVersion from which to generate StampCoordinate
     * @param precedence the precedence
     * @return StampCoordinate corresponding to StampedVersion values
-    *
-    * StampPrecedence set to StampPrecedence.TIME
-    *
-    * Use StampCoordinate.makeAnalog() to customize result
+
+ StampPrecedence set to StampPrecedence.TIME
+
+ Use StampCoordinate.makeCoordinateAnalog() to customize result
     */
    public static StampCoordinate getStampCoordinateFromVersion(StampedVersion version, StampPrecedence precedence) {
       final StampPosition stampPosition = new StampPositionImpl(version.getTime(), version.getPathSequence());
@@ -2077,4 +1968,4 @@ public class Frills
 
    ;
 }
-
+//~--- JDK imports ------------------------------------------------------------

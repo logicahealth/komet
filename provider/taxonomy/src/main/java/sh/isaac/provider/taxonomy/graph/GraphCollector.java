@@ -57,12 +57,12 @@ import java.util.stream.IntStream;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.tree.hashtree.HashTreeBuilder;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
 import sh.isaac.provider.taxonomy.TaxonomyFlags;
 import sh.isaac.provider.taxonomy.TaxonomyRecordPrimitive;
 import sh.isaac.provider.taxonomy.TaxonomyRecordUnpacked;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -87,7 +87,7 @@ public class GraphCollector
    final CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap;
 
    /** The taxonomy coordinate. */
-   final TaxonomyCoordinate taxonomyCoordinate;
+   final ManifoldCoordinate manifoldCoordinate;
 
    /** The taxonomy flags. */
    final int taxonomyFlags;
@@ -98,12 +98,12 @@ public class GraphCollector
     * Instantiates a new graph collector.
     *
     * @param taxonomyMap the taxonomy map
-    * @param viewCoordinate the view coordinate
+    * @param manifoldCoordinate the view coordinate
     */
-   public GraphCollector(CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap, TaxonomyCoordinate viewCoordinate) {
+   public GraphCollector(CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap, ManifoldCoordinate manifoldCoordinate) {
       this.taxonomyMap        = taxonomyMap;
-      this.taxonomyCoordinate = viewCoordinate;
-      this.taxonomyFlags      = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(viewCoordinate);
+      this.manifoldCoordinate = manifoldCoordinate;
+      this.taxonomyFlags      = TaxonomyFlags.getFlagsFromManifoldCoordinate(manifoldCoordinate);
 
 //    addToWatchList("779ece66-7e95-323e-a261-214caf48c408");
 //    addToWatchList("778a75c9-8264-36aa-9ad6-b9c6e5ee9187");
@@ -145,7 +145,7 @@ public class GraphCollector
                                                                                            .getTaxonomyRecordUnpacked();
          final IntStream destinationStream =
             taxonomyRecordUnpacked.getConceptSequencesForType(this.ISA_CONCEPT_SEQUENCE,
-                                                              this.taxonomyCoordinate);
+                                                              this.manifoldCoordinate);
 
          destinationStream.forEach((int destinationSequence) -> graphBuilder.add(destinationSequence, originSequence));
       }

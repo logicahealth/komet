@@ -275,7 +275,7 @@ public class ConceptProxy
    }
 
    /**
-    * added as an alternative way to get the primary UUID - since most users of a concept spec
+    * Added as an alternative way to get the primary UUID - since most users of a concept spec
     * only have one UUID, and only care about one UUID.
     *
     * @return the first UUID in the UUID list, or null, if not present
@@ -364,6 +364,13 @@ public class ConceptProxy
 
    @Override
    public Optional<String> getPreferedConceptDescriptionText() {
+      if (this.preferredDescriptionText == null) {
+         this.preferredDescriptionText = Get.defaultCoordinate().getPreferredDescriptionText(this);
+      }
+      return Optional.ofNullable(this.preferredDescriptionText);
+   }
+   
+   public Optional<String> getPreferedConceptDescriptionTextNoLookup() {
       return Optional.ofNullable(this.preferredDescriptionText);
    }
 }

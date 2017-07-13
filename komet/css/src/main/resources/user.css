@@ -45,11 +45,26 @@ limitations under the License.
     -fx-scale-z:0.8;
 }
 
-.tree-cell > .tree-disclosure-node > .arrow,
-.tree-table-row-cell > .tree-disclosure-node > .arrow {
-    -fx-background-color: red;
-    -fx-padding: 0.333333em 0.229em 0.333333em 0.229em; /* 4 */
+
+.or-clause .arrow {
+    -fx-background-color: lightgreen;
+    -fx-padding: 0.5em 0.3435em 0.5em 0.3435em; /* 4 */
     -fx-shape: "M 0 -3.5 L 4 0 L 0 3.5 z";
 }
 
+
+.and-clause .arrow {
+    -fx-background-color: red;
+    -fx-padding: 0.5em 0.3435em 0.5em 0.3435em; /* 4 */
+    -fx-shape: "M 0 -3.5 L 4 0 L 0 3.5 z";
+}
+
+.or-clause-child {
+   /* use vertical paper clip for or graphic. In material designs icon demo */
+}
+
+
+.and-clause-child {
+   /* use circled plus? in Material Icons? */
+}
 

@@ -47,8 +47,7 @@ import java.util.Optional;
 
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -91,6 +90,15 @@ public interface ConceptSnapshotService {
    ConceptSnapshot getConceptSnapshot(int conceptId);
 
    /**
+    * Gets the concept snapshot.
+    *
+    * @param conceptSpecification specification of the concept to get the {@code ConceptSnapshot} for
+    * @return a concept that internally uses the {@code StampCoordinate}
+    * and {@code LanguageCoordinate} for
+    */
+   ConceptSnapshot getConceptSnapshot(ConceptSpecification conceptSpecification);
+
+   /**
     * This method will try to return description types according to the type preferences
     * of the language coordinate, finally any description if there is no
     * preferred or fully specified description that satisfies the {@code StampCoordinate} and the
@@ -111,13 +119,6 @@ public interface ConceptSnapshotService {
    Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(int conceptId);
 
    /**
-    * Gets the language coordinate.
-    *
-    * @return the {@code LanguageCoordinate} associated with this snapshot.
-    */
-   LanguageCoordinate getLanguageCoordinate();
-
-   /**
     * Gets the preferred description.
     *
     * @param conceptId nid or sequence of the concept to get the description for
@@ -128,10 +129,10 @@ public interface ConceptSnapshotService {
    Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(int conceptId);
 
    /**
-    * Gets the stamp coordinate.
+    * Gets the manifold coordinate.
     *
-    * @return the {@code StampCoordinate} associated with this snapshot.
+    * @return the {@code ManifoldCoordinate} associated with this snapshot.
     */
-   StampCoordinate getStampCoordinate();
+   ManifoldCoordinate getManifoldCoordinate();
 }
 

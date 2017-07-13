@@ -53,13 +53,13 @@ import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableTaxonomyCoordinate;
 import sh.isaac.model.observable.coordinate.ObservableEditCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableStampCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableStampPositionImpl;
-import sh.isaac.model.observable.coordinate.ObservableTaxonomyCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -91,7 +91,7 @@ public class DefaultCoordinateProvider {
    ObservableStampPositionImpl observableStampPosition;
 
    /** The observable taxonomy coordinate. */
-   ObservableTaxonomyCoordinate observableTaxonomyCoordinate;
+   ObservableManifoldCoordinate observableManifoldCoordinate;
 
    //~--- methods -------------------------------------------------------------
 
@@ -110,8 +110,8 @@ public class DefaultCoordinateProvider {
                new ObservableStampCoordinateImpl(StampCoordinates.getDevelopmentLatestActiveOnly());
             this.observableStampPosition =
                new ObservableStampPositionImpl(StampCoordinates.getDevelopmentLatestActiveOnly().getStampPosition());
-            this.observableTaxonomyCoordinate = new ObservableTaxonomyCoordinateImpl(
-                TaxonomyCoordinates.getInferredTaxonomyCoordinate(this.observableStampCoordinate,
+            this.observableManifoldCoordinate = new ObservableManifoldCoordinateImpl(
+                ManifoldCoordinates.getInferredManifoldCoordinate(this.observableStampCoordinate,
                       this.observableLanguageCoordinate,
                       this.observableLogicCoordinate));
             this.observableStampCoordinate.stampPositionProperty()
@@ -317,9 +317,9 @@ public class DefaultCoordinateProvider {
     *
     * @return the default taxonomy coordinate
     */
-   public ObservableTaxonomyCoordinate getDefaultTaxonomyCoordinate() {
+   public ObservableManifoldCoordinate getDefaultManifoldCoordinate() {
       setupDefaults();
-      return this.observableTaxonomyCoordinate;
+      return this.observableManifoldCoordinate;
    }
 
    //~--- set methods ---------------------------------------------------------

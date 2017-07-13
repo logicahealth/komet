@@ -56,12 +56,12 @@ import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -144,7 +144,7 @@ public class RelRestriction
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
 //    System.out.println("Let declerations: " + enclosingQuery.getLetDeclarations());
-      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+      final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
                                                                                             .get(this.viewCoordinateKey);
       final ConceptSpecification destinationSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
                                                                                              .get(this.destinationSpecKey);
@@ -169,7 +169,7 @@ public class RelRestriction
 
       if (relTypeSubsumption) {
          this.relTypeSet.or(Get.taxonomyService()
-                               .getKindOfSequenceSet(relType.getConceptSequence(), taxonomyCoordinate));
+                               .getKindOfSequenceSet(relType.getConceptSequence(), manifoldCoordinate));
       }
 
       this.destinationSet = new ConceptSequenceSet();
@@ -177,7 +177,7 @@ public class RelRestriction
 
       if (destinationSubsumption) {
          this.destinationSet.or(Get.taxonomyService()
-                                   .getKindOfSequenceSet(destinationSpec.getConceptSequence(), taxonomyCoordinate));
+                                   .getKindOfSequenceSet(destinationSpec.getConceptSequence(), manifoldCoordinate));
       }
 
       return incomingPossibleComponents;
@@ -199,18 +199,17 @@ public class RelRestriction
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
-      final TaxonomyCoordinate taxonomyCoordinate = (TaxonomyCoordinate) this.enclosingQuery.getLetDeclarations()
+      final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
                                                                                             .get(this.viewCoordinateKey);
 
       Get.taxonomyService()
          .getAllRelationshipDestinationSequencesOfType(conceptVersion.getChronology()
                .getConceptSequence(),
                this.relTypeSet,
-               taxonomyCoordinate)
+               manifoldCoordinate)
          .forEach((destinationSequence) -> {
                      if (this.destinationSet.contains(destinationSequence)) {
                         getResultsCache().add(conceptVersion.getChronology()
