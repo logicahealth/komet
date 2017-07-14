@@ -133,9 +133,20 @@ public class AndNot
       return TermAux.AND_NOT_QUERY_CLAUSE;
    }
 
+
    @Override
    public Clause[] getAllowedSubstutitionClauses() {
       return getParentClauses();
+   }
+   
+   @Override
+   public Clause[] getAllowedChildClauses() {
+      return getAllClauses();
+   }
+
+   @Override
+   public Clause[] getAllowedSiblingClauses() {
+      return getAllClauses();
    }
 
 }

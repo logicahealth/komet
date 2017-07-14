@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="AnchorPane" fx:id="anchorPane" prefHeight="400.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.search.QueryController">
+<AnchorPane id="AnchorPane" fx:id="anchorPane" prefHeight="723.0" prefWidth="604.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.search.QueryController">
    <stylesheets>
       <URL value="@/styles/search.css" />
    </stylesheets>
@@ -75,7 +75,7 @@
                               <Button fx:id="cancelButton" mnemonicParsing="false" text="cancel" />
                           </items>
                         </ToolBar>
-                        <ScrollPane fitToHeight="true" fitToWidth="true">
+                        <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
                            <content>
                               <TableView fx:id="resultTable" prefHeight="200.0" prefWidth="200.0">
                                 <columns>

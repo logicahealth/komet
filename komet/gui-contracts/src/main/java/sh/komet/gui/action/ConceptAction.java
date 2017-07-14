@@ -48,5 +48,9 @@ public class ConceptAction extends Action {
          this.setText(actionConcept.getFullySpecifiedConceptDescriptionText());
       }
    }
+
+   public ConceptSpecification getActionConcept() {
+      return actionConcept;
+   }
    
 }

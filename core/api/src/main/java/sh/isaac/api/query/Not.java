@@ -182,9 +182,20 @@ public class Not
       return TermAux.NOT_QUERY_CLAUSE;
    }
 
+
    @Override
    public Clause[] getAllowedSubstutitionClauses() {
       return getParentClauses();
+   }
+   
+   @Override
+   public Clause[] getAllowedChildClauses() {
+      return getAllClauses();
+   }
+
+   @Override
+   public Clause[] getAllowedSiblingClauses() {
+      return getAllClauses();
    }
 
 }

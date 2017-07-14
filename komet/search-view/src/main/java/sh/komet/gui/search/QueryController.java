@@ -69,10 +69,13 @@ import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+import javafx.event.ActionEvent;
+
 import javafx.fxml.FXML;
 
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
@@ -99,9 +102,9 @@ import javax.validation.constraints.NotNull;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.controlsfx.control.action.Action;
+import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
 
-import sh.isaac.MetaData;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.query.And;
@@ -111,7 +114,6 @@ import sh.isaac.api.query.clauses.ConceptIsChildOf;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 
 import sh.komet.gui.action.ConceptAction;
-import sh.komet.gui.action.ConceptActionGroup;
 import sh.komet.gui.contract.ExplorationNode;
 import sh.komet.gui.contract.Manifold;
 import sh.komet.gui.contract.StyleClasses;
@@ -120,55 +122,43 @@ import sh.komet.gui.contract.StyleClasses;
 
 public class QueryController
          implements ExplorationNode {
+   private static final String CLAUSE = "clause";
+
+   //~--- fields --------------------------------------------------------------
+
    private final SimpleStringProperty           toolTipProperty = new SimpleStringProperty("FLOWR query view");
-   @FXML // ResourceBundle that was given to the FXMLLoader
-    private ResourceBundle resources;
-
-    @FXML // URL location of the FXML file that was given to the FXMLLoader
-    private URL location;
-
-    @FXML // fx:id="anchorPane"
-    private AnchorPane anchorPane; // Value injected by FXMLLoader
-
-    @FXML // fx:id="flowrAccordian"
-    private Accordion flowrAccordian; // Value injected by FXMLLoader
-
-    @FXML // fx:id="forPane"
-    private TitledPane forPane; // Value injected by FXMLLoader
-
-    @FXML // fx:id="letPane"
-    private TitledPane letPane; // Value injected by FXMLLoader
-
-    @FXML // fx:id="orderPane"
-    private TitledPane orderPane; // Value injected by FXMLLoader
-
-    @FXML // fx:id="wherePane"
-    private TitledPane wherePane; // Value injected by FXMLLoader
-
-    @FXML // fx:id="whereTreeTable"
-    private TreeTableView<QueryClause> whereTreeTable; // Value injected by FXMLLoader
-
-    @FXML // fx:id="clauseNameColumn"
-    private TreeTableColumn<QueryClause, String> clauseNameColumn; // Value injected by FXMLLoader
-
-    @FXML // fx:id="parameterColumn"
-    private TreeTableColumn<QueryClause, String> parameterColumn; // Value injected by FXMLLoader
-
-    @FXML // fx:id="returnPane"
-    private TitledPane returnPane; // Value injected by FXMLLoader
-
-    @FXML // fx:id="executeButton"
-    private Button executeButton; // Value injected by FXMLLoader
-
-    @FXML // fx:id="progressBar"
-    private ProgressBar progressBar; // Value injected by FXMLLoader
-
-    @FXML // fx:id="cancelButton"
-    private Button cancelButton; // Value injected by FXMLLoader
-
-    @FXML // fx:id="resultTable"
-    private TableView<?> resultTable; // Value injected by FXMLLoader
-
+   @FXML                                                           // ResourceBundle that was given to the FXMLLoader
+   private ResourceBundle                       resources;
+   @FXML  // URL location of the FXML file that was given to the FXMLLoader
+   private URL                                  location;
+   @FXML                                                           // fx:id="anchorPane"
+   private AnchorPane                           anchorPane;        // Value injected by FXMLLoader
+   @FXML                                                           // fx:id="flowrAccordian"
+   private Accordion                            flowrAccordian;    // Value injected by FXMLLoader
+   @FXML                                                           // fx:id="forPane"
+   private TitledPane                           forPane;           // Value injected by FXMLLoader
+   @FXML                                                           // fx:id="letPane"
+   private TitledPane                           letPane;           // Value injected by FXMLLoader
+   @FXML                                                           // fx:id="orderPane"
+   private TitledPane                           orderPane;         // Value injected by FXMLLoader
+   @FXML                                                           // fx:id="wherePane"
+   private TitledPane                           wherePane;         // Value injected by FXMLLoader
+   @FXML                                                           // fx:id="whereTreeTable"
+   private TreeTableView<QueryClause>           whereTreeTable;    // Value injected by FXMLLoader
+   @FXML                                                           // fx:id="clauseNameColumn"
+   private TreeTableColumn<QueryClause, String> clauseNameColumn;  // Value injected by FXMLLoader
+   @FXML                                                           // fx:id="parameterColumn"
+   private TreeTableColumn<QueryClause, String> parameterColumn;   // Value injected by FXMLLoader
+   @FXML                                                           // fx:id="returnPane"
+   private TitledPane                           returnPane;        // Value injected by FXMLLoader
+   @FXML                                                           // fx:id="executeButton"
+   private Button                               executeButton;     // Value injected by FXMLLoader
+   @FXML                                                           // fx:id="progressBar"
+   private ProgressBar                          progressBar;       // Value injected by FXMLLoader
+   @FXML                                                           // fx:id="cancelButton"
+   private Button                               cancelButton;      // Value injected by FXMLLoader
+   @FXML                                                           // fx:id="resultTable"
+   private TableView<?>                         resultTable;       // Value injected by FXMLLoader
    private TreeItem<QueryClause>                root;
    private Manifold                             manifold;
 
@@ -176,20 +166,64 @@ public class QueryController
 
    @FXML  // This method is called by the FXMLLoader when initialization is complete
    void initialize() {
-        assert anchorPane != null : "fx:id=\"anchorPane\" was not injected: check your FXML file 'Query.fxml'.";
-        assert flowrAccordian != null : "fx:id=\"flowrAccordian\" was not injected: check your FXML file 'Query.fxml'.";
-        assert forPane != null : "fx:id=\"forPane\" was not injected: check your FXML file 'Query.fxml'.";
-        assert letPane != null : "fx:id=\"letPane\" was not injected: check your FXML file 'Query.fxml'.";
-        assert orderPane != null : "fx:id=\"orderPane\" was not injected: check your FXML file 'Query.fxml'.";
-        assert wherePane != null : "fx:id=\"wherePane\" was not injected: check your FXML file 'Query.fxml'.";
-        assert whereTreeTable != null : "fx:id=\"whereTreeTable\" was not injected: check your FXML file 'Query.fxml'.";
-        assert clauseNameColumn != null : "fx:id=\"clauseNameColumn\" was not injected: check your FXML file 'Query.fxml'.";
-        assert parameterColumn != null : "fx:id=\"parameterColumn\" was not injected: check your FXML file 'Query.fxml'.";
-        assert returnPane != null : "fx:id=\"returnPane\" was not injected: check your FXML file 'Query.fxml'.";
-        assert executeButton != null : "fx:id=\"executeButton\" was not injected: check your FXML file 'Query.fxml'.";
-        assert progressBar != null : "fx:id=\"progressBar\" was not injected: check your FXML file 'Query.fxml'.";
-        assert cancelButton != null : "fx:id=\"cancelButton\" was not injected: check your FXML file 'Query.fxml'.";
-        assert resultTable != null : "fx:id=\"resultTable\" was not injected: check your FXML file 'Query.fxml'.";
+      assert anchorPane != null: "fx:id=\"anchorPane\" was not injected: check your FXML file 'Query.fxml'.";
+      assert flowrAccordian != null: "fx:id=\"flowrAccordian\" was not injected: check your FXML file 'Query.fxml'.";
+      assert forPane != null: "fx:id=\"forPane\" was not injected: check your FXML file 'Query.fxml'.";
+      assert letPane != null: "fx:id=\"letPane\" was not injected: check your FXML file 'Query.fxml'.";
+      assert orderPane != null: "fx:id=\"orderPane\" was not injected: check your FXML file 'Query.fxml'.";
+      assert wherePane != null: "fx:id=\"wherePane\" was not injected: check your FXML file 'Query.fxml'.";
+      assert whereTreeTable != null: "fx:id=\"whereTreeTable\" was not injected: check your FXML file 'Query.fxml'.";
+      assert clauseNameColumn != null:
+             "fx:id=\"clauseNameColumn\" was not injected: check your FXML file 'Query.fxml'.";
+      assert parameterColumn != null: "fx:id=\"parameterColumn\" was not injected: check your FXML file 'Query.fxml'.";
+      assert returnPane != null: "fx:id=\"returnPane\" was not injected: check your FXML file 'Query.fxml'.";
+      assert executeButton != null: "fx:id=\"executeButton\" was not injected: check your FXML file 'Query.fxml'.";
+      assert progressBar != null: "fx:id=\"progressBar\" was not injected: check your FXML file 'Query.fxml'.";
+      assert cancelButton != null: "fx:id=\"cancelButton\" was not injected: check your FXML file 'Query.fxml'.";
+      assert resultTable != null: "fx:id=\"resultTable\" was not injected: check your FXML file 'Query.fxml'.";
+   }
+
+   private void addChildClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
+      TreeItem<QueryClause> treeItem      = rowValue.getTreeItem();
+      System.out.println(event.getSource().getClass());
+      ConceptAction         conceptAction = (ConceptAction) ((MenuItem) event.getSource())
+                                                 .getOnAction();
+      Clause                clause        = (Clause) conceptAction.getProperties()
+                                                         .get(CLAUSE);
+      treeItem.getChildren().add(new TreeItem<>(new QueryClause(clause, manifold)));
+   }
+
+   private void addSiblingClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
+      TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
+      System.out.println(event.getSource().getClass());
+       ConceptAction         conceptAction = (ConceptAction) ((MenuItem) event.getSource())
+                                                 .getOnAction();
+      Clause                clause        = (Clause) conceptAction.getProperties()
+                                                         .get(CLAUSE);
+
+      treeItem.getParent()
+              .getChildren()
+              .add(new TreeItem<>(new QueryClause(clause, manifold)));
+   }
+
+   private void changeClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
+      TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
+      System.out.println(event.getSource().getClass());
+      ConceptAction         conceptAction = (ConceptAction) ((MenuItem) event.getSource())
+                                                 .getOnAction();
+      Clause                clause        = (Clause) conceptAction.getProperties()
+                                                         .get(CLAUSE);
+
+      treeItem.setValue(new QueryClause(clause, manifold));
+   }
+
+   // changeClause->, addSibling->, addChild->,
+   private void deleteClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
+      TreeItem<QueryClause> treeItem = rowValue.getTreeItem();
+
+      treeItem.getParent()
+              .getChildren()
+              .remove(treeItem);
    }
 
    private void outputStyleInfo(String prefix, TreeTableCell nodeToStyle) {
@@ -198,29 +232,81 @@ public class QueryController
       System.out.println(prefix + " style classes: " + nodeToStyle.getStyleClass());
    }
 
-   private Collection<? extends Action> setupContextMenu(TreeTableRow<QueryClause> rowValue) {
+   private Collection<? extends Action> setupContextMenu(final TreeTableRow<QueryClause> rowValue) {
       // Firstly, create a list of Actions
-      ArrayList<Action>     actionList = new ArrayList();
-      TreeItem<QueryClause> treeItem   = rowValue.getTreeItem();
+      ArrayList<Action>           actionList = new ArrayList();
+      final TreeItem<QueryClause> treeItem   = rowValue.getTreeItem();
 
       if (treeItem != null) {
-         if (treeItem.getParent() != this.root) {
-            Action deleteAction = new Action("delete");
+         QueryClause clause = treeItem.getValue();
 
-            // deleteAction.setGraphic(GlyphFonts.fontAwesome().create('\uf013').color(Color.CORAL).size(28));
-            actionList.add(deleteAction);
+         if (clause != null) {
+            Clause[] siblings     = clause.getClause()
+                                          .getAllowedSiblingClauses();
+            Clause[] children     = clause.getClause()
+                                          .getAllowedChildClauses();
+            Clause[] substitution = clause.getClause()
+                                          .getAllowedSubstutitionClauses();
+
+            if (siblings.length > 0) {
+               ConceptAction[] actions = new ConceptAction[siblings.length];
+
+               for (int i = 0; i < siblings.length; i++) {
+                  actions[i] = new ConceptAction(
+                      siblings[i],
+                          (ActionEvent event) -> {
+                             addSiblingClause(event, rowValue);
+                          });
+                  actions[i].getProperties()
+                            .put(CLAUSE, siblings[i]);
+               }
+
+               actionList.add(new ActionGroup("add sibling", actions));
+            }
+
+            if (children.length > 0) {
+               ConceptAction[] actions = new ConceptAction[children.length];
+
+               for (int i = 0; i < children.length; i++) {
+                  actions[i] = new ConceptAction(
+                      children[i],
+                          (ActionEvent event) -> {
+                             addChildClause(event, rowValue);
+                          });
+                  actions[i].getProperties()
+                            .put(CLAUSE, children[i]);
+               }
+
+               actionList.add(new ActionGroup("add child", actions));
+            }
+
+            if (substitution.length > 0) {
+               ConceptAction[] actions = new ConceptAction[substitution.length];
+
+               for (int i = 0; i < substitution.length; i++) {
+                  actions[i] = new ConceptAction(
+                      substitution[i],
+                          (ActionEvent event) -> {
+                             changeClause(event, rowValue);
+                          });
+                  actions[i].getProperties()
+                            .put(CLAUSE, substitution[i]);
+               }
+
+               actionList.add(new ActionGroup("change this clause", actions));
+            }
+
+            if ((treeItem.getParent() != this.root) || (this.root.getChildren().size() > 1)) {
+               Action deleteAction = new Action(
+                                         "delete this clause",
+                                             (ActionEvent event) -> {
+                                                deleteClause(event, rowValue);
+                                             });
+
+               // deleteAction.setGraphic(GlyphFonts.fontAwesome().create('\uf013').color(Color.CORAL).size(28));
+               actionList.add(deleteAction);
+            }
          }
-
-         actionList.add(
-             new ConceptActionGroup(
-                 MetaData.ALL_CHILD_CRITERION_ARE_SATISFIED_FOR_COMPONENT_ǁQUERY_CLAUSEǁ,
-                 new ConceptAction(MetaData.ACCEPTABLE_ǁISAACǁ),
-                 new ConceptAction(MetaData.QUERY_CLAUSES_ǁISAACǁ)));
-         actionList.add(
-             new ConceptActionGroup(
-                 MetaData.ANY_CHILD_CRITERION_IS_SATISFIED_FOR_COMPONENT_ǁQUERY_CLAUSEǁ,
-                 new ConceptAction(MetaData.ACCEPTABLE_ǁISAACǁ),
-                 new ConceptAction(MetaData.QUERY_CLAUSES_ǁISAACǁ)));
       }
 
       return actionList;
@@ -287,6 +373,7 @@ public class QueryController
    //~--- set methods ---------------------------------------------------------
 
    public void setManifold(Manifold manifold) {
+      this.manifold = manifold;
       this.root = new TreeItem<>(new QueryClause(Clause.getRootClause(), manifold));
 
       TreeItem andTreeItem = new TreeItem<>(new QueryClause(new And(), manifold));

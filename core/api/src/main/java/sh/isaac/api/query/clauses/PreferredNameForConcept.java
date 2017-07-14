@@ -172,6 +172,11 @@ public class PreferredNameForConcept
    public Clause[] getAllowedSubstutitionClauses() {
       return new Clause[] {new ConceptForComponent(), new FullySpecifiedNameForConcept(), new PreferredNameForConcept()};
    }
+
+   @Override
+   public Clause[] getAllowedSiblingClauses() {
+      return new Clause[0];
+   }
    
 }
 

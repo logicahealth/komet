@@ -378,6 +378,7 @@ public class TermAux {
    public static ConceptSpecification ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT_QUERY_CLAUSE = new ConceptProxy("assemblage contains kind-of concept (query clause)", "assemblage contains kind-of concept", UUID.fromString("d9c20b38-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification REL_RESTRICTION_QUERY_CLAUSE = new ConceptProxy("relationship restriction (query clause)", "relationship restriction", UUID.fromString("d9c20c0a-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification REL_TYPE_QUERY_CLAUSE = new ConceptProxy("relationship type (query clause)", "relationship type", UUID.fromString("d9c211be-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification ENCLOSING_CONCEPT_QUERY_CLAUSE = new ConceptProxy("enclosing concept (query clause)", "enclosing concept", UUID.fromString("f5111e6c-681d-11e7-907b-a6006ad3dba0"));
 
   
    //~--- methods -------------------------------------------------------------

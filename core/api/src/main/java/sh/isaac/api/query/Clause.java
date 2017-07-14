@@ -43,6 +43,8 @@ package sh.isaac.api.query;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -85,7 +87,7 @@ import sh.isaac.api.query.clauses.RelationshipIsCircular;
  */
 @XmlRootElement(name = "CLAUSE")
 @XmlAccessorType(value = XmlAccessType.NONE)
-public abstract class Clause {
+public abstract class Clause implements ConceptSpecification {
    /** The Constant PRE_AND_POST_ITERATION. */
    protected static final EnumSet<ClauseComputeType> PRE_AND_POST_ITERATION =
       EnumSet.of(ClauseComputeType.PRE_ITERATION,
@@ -141,6 +143,21 @@ public abstract class Clause {
    }
    
    public abstract ConceptSpecification getClauseConcept();
+
+   @Override
+   public String getFullySpecifiedConceptDescriptionText() {
+      return getClauseConcept().getFullySpecifiedConceptDescriptionText();
+   }
+
+   @Override
+   public Optional<String> getPreferedConceptDescriptionText() {
+      return getClauseConcept().getPreferedConceptDescriptionText();
+   }
+
+   @Override
+   public List<UUID> getUuidList() {
+      return getClauseConcept().getUuidList();
+   }
 
    //~--- methods -------------------------------------------------------------
 
@@ -229,13 +246,6 @@ public abstract class Clause {
    
    /**
     * 
-    * @return new instances of the allowed children clauses that can substitute (in an allowed nesting sense, not in an 
-    * equivalent semantics sense) for this clause in a query specification. 
-    */
-   public abstract Clause[] getAllowedChildClauses();
-   
-   /**
-    * 
     * @return new instances of the all query clauses. 
     */
    public static Clause[] getAllClauses() {
@@ -253,10 +263,22 @@ public abstract class Clause {
    
    /**
     * 
-    * @return new instances of the allowed clauses that can substitute (in an allowed nesting sense, not in an 
+    * @return new instances of allowed clauses that can substitute (in an allowed nesting sense, not in an 
     * equivalent semantics sense) for this clause in a query specification. 
     */
    public abstract Clause[] getAllowedSubstutitionClauses();
+
+   /**
+    * 
+    * @return new instances of allowed children clauses for this clause. 
+    */
+   public abstract Clause[] getAllowedChildClauses();
+   
+   /**
+    * 
+    * @return new instances of allowed sibling clauses for this clause.
+    */
+   public abstract Clause[] getAllowedSiblingClauses();
 
    protected static Clause[] getParentClauses() {
       return new Clause[] {new And(), new AndNot(), new Not(), new Or(), new Xor()};

@@ -144,7 +144,12 @@ public abstract class LeafClause
 
    @Override
    public Clause[] getAllowedSubstutitionClauses() {
-      return getAllClauses();
+      return new Clause[0];
+   }
+
+   @Override
+   public Clause[] getAllowedSiblingClauses() {
+      return new Clause[0];
    }
    
    

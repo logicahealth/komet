@@ -137,6 +137,16 @@ public class Or
    public Clause[] getAllowedSubstutitionClauses() {
       return getParentClauses();
    }
+   
+   @Override
+   public Clause[] getAllowedChildClauses() {
+      return getAllClauses();
+   }
+
+   @Override
+   public Clause[] getAllowedSiblingClauses() {
+      return getAllClauses();
+   }
 
 }
 
