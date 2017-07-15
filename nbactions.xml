@@ -45,4 +45,16 @@
                 <goal>-DskipTests=true</goal>
             </goals>
         </action>
+        <action>
+            <actionName>CUSTOM-gitflow release</actionName>
+            <displayName>gitflow release</displayName>
+            <goals>
+                <goal>com.amashchenko.maven.plugin:gitflow-maven-plugin:release</goal>
+            </goals>
+            <activatedProfiles>
+                <activatedProfile>-solor-database</activatedProfile>
+                <activatedProfile>-solor</activatedProfile>
+                <activatedProfile>meta-database</activatedProfile>
+            </activatedProfiles>
+        </action>
     </actions>
