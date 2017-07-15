@@ -695,10 +695,8 @@
                   <phase>post-site</phase>
                   <configuration>
                      <tasks>
-                        <replace token='div id="banner"' 
-                                 value='div id="banner" style="background-color:black;color:white;"' 
-                                 dir="${project.build.directory}/site/">
-                           <include name="**/*.html"/>
+                        <replace token="div id=&quot;banner&quot;" value="div id=&quot;banner&quot; style=&quot;background-color:black;color:white;&quot;" dir="${project.build.directory}/site/">
+                           <include name="**/*.html" />
                         </replace>
                      </tasks>
                   </configuration>
