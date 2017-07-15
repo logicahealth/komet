@@ -53,7 +53,7 @@
    <packaging>pom</packaging>
 
    <scm>
-      <url>https://git.isaac.sh/git/summary/ISAAC.git</url>
+      <url>git:ssh://git.isaac.sh/git/summary/ISAAC.git</url>
    </scm>
 
    <distributionManagement>
