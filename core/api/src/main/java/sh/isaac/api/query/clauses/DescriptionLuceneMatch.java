@@ -152,7 +152,7 @@ public class DescriptionLuceneMatch
 
                       if (chronology.isPresent()) {
                          if (!chronology.get()
-                                        .isLatestVersionActive(manifoldCoordinate.getStampCoordinate())) {
+                                        .isLatestVersionActive(manifoldCoordinate)) {
                             getResultsCache().remove(nid);
                          }
                       } else {
@@ -204,6 +204,20 @@ public class DescriptionLuceneMatch
    public ConceptSpecification getClauseConcept() {
       return TermAux.DESCRIPTION_LUCENE_MATCH_QUERY_CLAUSE;
    }
+   public String getLuceneMatchKey() {
+      return luceneMatchKey;
+   }
 
+   public void setLuceneMatchKey(String luceneMatchKey) {
+      this.luceneMatchKey = luceneMatchKey;
+   }
+
+   public String getViewCoordinateKey() {
+      return viewCoordinateKey;
+   }
+
+   public void setViewCoordinateKey(String viewCoordinateKey) {
+      this.viewCoordinateKey = viewCoordinateKey;
+   }
 }
 

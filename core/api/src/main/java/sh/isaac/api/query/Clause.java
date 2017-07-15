@@ -138,9 +138,18 @@ public abstract class Clause implements ConceptSpecification {
     */
    public Clause(Query enclosingQuery) {
       this.enclosingQuery = enclosingQuery;
-      enclosingQuery.getComputePhases()
-                    .addAll(getComputePhases());
+      enclosingQuery.getComputePhases().addAll(getComputePhases());
    }
+
+   public final void setEnclosingQuery(Query enclosingQuery) {
+      this.enclosingQuery = enclosingQuery;
+      enclosingQuery.getComputePhases().addAll(getComputePhases());
+      for (Clause child: getChildren()) {
+         child.setEnclosingQuery(enclosingQuery);
+      }
+   }
+   
+   
    
    public abstract ConceptSpecification getClauseConcept();
 

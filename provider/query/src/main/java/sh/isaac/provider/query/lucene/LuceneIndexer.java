@@ -93,7 +93,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.IntPoint;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.LogByteSizeMergePolicy;
@@ -971,7 +971,7 @@ public abstract class LuceneIndexer
       public Long get() {
          try {
             final Document doc = new Document();
-            doc.add(new IntPoint(FIELD_COMPONENT_NID,
+            doc.add(new StoredField(FIELD_COMPONENT_NID,
                     this.chronicle.getNid()));
             addFields(this.chronicle, doc);
             // Note that the addDocument operation could cause duplicate documents to be
