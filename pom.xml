@@ -5,9 +5,9 @@
    <artifactId>isaac</artifactId>
    <version>4.21-SNAPSHOT</version>
 
-   <name>ISAAC: (MMP) InformaticS Architecture ACceleration</name>
+   <name>ISAAC: (MMP) Informatics Analytic Architecture</name>
 
-   <description>ISAAC: InformaticS Architecture ACceleration. ISAAC is a project to support
+   <description>ISAAC: Informatics Analytic Architecture. ISAAC is a project to support
       tooling for a coherent informatics  architecture that builds on top of a description-logic terminology foundation.
       This ISAAC parent pom that standardizes common dependencies and plugins for ISAAC modules.
    </description>
