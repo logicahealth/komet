@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlTransient;
@@ -53,6 +54,8 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.util.StringUtils;
+import sh.isaac.api.util.UUIDUtil;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -64,8 +67,10 @@ public class ConceptProxy
    /** Universal identifiers for the concept proxied by the is object. */
    protected UUID[] uuids;
 
-   /** A description of the concept proxied by this object. */
-   protected String description;
+   /** A fullySpecifiedDescriptionText of the concept proxied by this object. */
+   protected String fullySpecifiedDescriptionText;
+   
+   protected String preferredDescriptionText;
 
    //~--- constructors --------------------------------------------------------
 
@@ -85,7 +90,8 @@ public class ConceptProxy
 
       this.uuids       = cc.getUuidList()
                            .toArray(new UUID[0]);
-      this.description = cc.getConceptDescriptionText();
+      this.fullySpecifiedDescriptionText = Get.defaultCoordinate().getFullySpecifiedDescriptionText(conceptSequenceOrNid);
+      this.preferredDescriptionText = Get.defaultCoordinate().getPreferredDescriptionText(conceptSequenceOrNid);
    }
 
    /**
@@ -94,11 +100,18 @@ public class ConceptProxy
     * @param externalString the external string
     */
    public ConceptProxy(String externalString) {
-      final String[] parts = externalString.split(FIELD_SEPARATOR);
+      
+      final String[] parts = StringUtils.split(externalString, FIELD_SEPARATOR);
+      
+      int partIndex = 0;
 
-      this.description = parts[0];
+      this.fullySpecifiedDescriptionText = parts[partIndex++];
+      
+      if (UUIDUtil.isUUID(parts[partIndex])) {
+         this.preferredDescriptionText = parts[partIndex++];
+      }
 
-      final List<UUID> uuidList = new ArrayList<>(parts.length - 1);
+      final List<UUID> uuidList = new ArrayList<>(parts.length - partIndex);
 
       for (int i = 1; i < parts.length; i++) {
          uuidList.add(UUID.fromString(parts[i]));
@@ -114,25 +127,49 @@ public class ConceptProxy
    /**
     * Instantiates a new concept proxy.
     *
-    * @param description the description
-    * @param uuidStrings the uuid strings
+    * @param fullySpecifiedDescriptionText the fullySpecifiedDescriptionText
+    * @param uuidString the uuid string. 
     */
-   public ConceptProxy(String description, String... uuidStrings) {
-      this.uuids       = Arrays.stream(uuidStrings)
-                               .map(uuidString -> UUID.fromString(uuidString))
-                               .toArray(UUID[]::new);
-      this.description = description;
+   public ConceptProxy(String fullySpecifiedDescriptionText, String uuidString) {
+      this(fullySpecifiedDescriptionText, UUID.fromString(uuidString));
    }
 
    /**
     * Instantiates a new concept proxy.
     *
-    * @param description the description
+    * @param fullySpecifiedDescriptionText the fullySpecifiedDescriptionText
     * @param uuids the uuids
     */
-   public ConceptProxy(String description, UUID... uuids) {
+   public ConceptProxy(String fullySpecifiedDescriptionText, UUID... uuids) {
       this.uuids       = uuids;
-      this.description = description;
+      this.fullySpecifiedDescriptionText = fullySpecifiedDescriptionText;
+   }
+   /**
+    * Instantiates a new concept proxy.
+    *
+    * @param fullySpecifiedDescriptionText the fullySpecifiedDescriptionText
+    * @param preferredDescriptionText
+    * @param uuidStrings the uuid strings
+    */
+   public ConceptProxy(String fullySpecifiedDescriptionText, String preferredDescriptionText, String... uuidStrings) {
+      this.uuids       = Arrays.stream(uuidStrings)
+                               .map(uuidString -> UUID.fromString(uuidString))
+                               .toArray(UUID[]::new);
+      this.fullySpecifiedDescriptionText = fullySpecifiedDescriptionText;
+      this.preferredDescriptionText = preferredDescriptionText;
+   }
+
+   /**
+    * Instantiates a new concept proxy.
+    *
+    * @param fullySpecifiedDescriptionText the fullySpecifiedDescriptionText
+    * @param preferredDescriptionText
+    * @param uuids the uuids
+    */
+   public ConceptProxy(String fullySpecifiedDescriptionText, String preferredDescriptionText, UUID... uuids) {
+      this.uuids       = uuids;
+      this.fullySpecifiedDescriptionText = fullySpecifiedDescriptionText;
+      this.preferredDescriptionText = preferredDescriptionText;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -172,7 +209,7 @@ public class ConceptProxy
       int hash = 5;
 
       hash = 79 * hash + Arrays.deepHashCode(this.uuids);
-      hash = 79 * hash + Objects.hashCode(this.description);
+      hash = 79 * hash + Objects.hashCode(this.fullySpecifiedDescriptionText);
       return hash;
    }
 
@@ -184,22 +221,22 @@ public class ConceptProxy
    @Override
    public String toString() {
       if (this.uuids != null) {
-         return "ConceptProxy{" + this.description + "; " + Arrays.asList(this.uuids) + "}";
+         return "ConceptProxy{" + this.fullySpecifiedDescriptionText + "; " + Arrays.asList(this.uuids) + "}";
       }
 
-      return "ConceptProxy{" + this.description + "; null UUIDs}";
+      return "ConceptProxy{" + this.fullySpecifiedDescriptionText + "; null UUIDs}";
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the concept description text.
+    * Gets the concept fullySpecifiedDescriptionText text.
     *
-    * @return the concept description text
+    * @return the concept fullySpecifiedDescriptionText text
     */
    @Override
-   public String getConceptDescriptionText() {
-      return this.description;
+   public String getFullySpecifiedConceptDescriptionText() {
+      return this.fullySpecifiedDescriptionText;
    }
 
    /**
@@ -216,12 +253,12 @@ public class ConceptProxy
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Set a description of the concept proxied by this object.
+    * Set a fullySpecifiedDescriptionText of the concept proxied by this object.
     *
-    * @param description the new a description of the concept proxied by this object
+    * @param fullySpecifiedDescriptionText the new a fullySpecifiedDescriptionText of the concept proxied by this object
     */
-   public void setDescription(String description) {
-      this.description = description;
+   public void setFullySpecifiedDescriptionText(String fullySpecifiedDescriptionText) {
+      this.fullySpecifiedDescriptionText = fullySpecifiedDescriptionText;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -238,7 +275,7 @@ public class ConceptProxy
    }
 
    /**
-    * added as an alternative way to get the primary UUID - since most users of a concept spec
+    * Added as an alternative way to get the primary UUID - since most users of a concept spec
     * only have one UUID, and only care about one UUID.
     *
     * @return the first UUID in the UUID list, or null, if not present
@@ -323,6 +360,18 @@ public class ConceptProxy
       for (final String uuid: uuids) {
          this.uuids[i++] = UUID.fromString(uuid);
       }
+   }
+
+   @Override
+   public Optional<String> getPreferedConceptDescriptionText() {
+      if (this.preferredDescriptionText == null) {
+         this.preferredDescriptionText = Get.defaultCoordinate().getPreferredDescriptionText(this);
+      }
+      return Optional.ofNullable(this.preferredDescriptionText);
+   }
+   
+   public Optional<String> getPreferedConceptDescriptionTextNoLookup() {
+      return Optional.ofNullable(this.preferredDescriptionText);
    }
 }
 

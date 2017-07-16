@@ -79,6 +79,8 @@ public class Constants {
 
    /** Appended to the path specified by the {@link #DATA_STORE_ROOT_LOCATION_PROPERTY}. */
    public static final String DEFAULT_SEARCH_FOLDER = "search";
+   
+   public static final String USER_CSS_LOCATION_PROPERTY = "sh.isaac.api.constants.USER_CSS_LOCATION";
 
    /**
     * May be optionally used to enable console-level, extremely verbose debug output.

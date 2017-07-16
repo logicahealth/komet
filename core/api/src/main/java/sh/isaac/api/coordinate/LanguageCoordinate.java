@@ -61,12 +61,12 @@ import sh.isaac.api.component.sememe.version.DescriptionSememe;
  */
 public interface LanguageCoordinate {
    /**
-    * Return the description according to the type and dialect preferences
-    * of this {@code LanguageCoordinate}.
+    * Return the latestDescription according to the type and dialect preferences
+ of this {@code LanguageCoordinate}.
     *
     * @param descriptionList descriptions to consider
     * @param stampCoordinate the stamp coordinate
-    * @return an optional description best matching the {@code LanguageCoordinate}
+    * @return an optional latestDescription best matching the {@code LanguageCoordinate}
     * constraints.
     */
    Optional<LatestVersion<DescriptionSememe<?>>> getDescription(
@@ -74,9 +74,9 @@ public interface LanguageCoordinate {
            StampCoordinate stampCoordinate);
 
    /**
-    * Gets the description type preference list.
+    * Gets the latestDescription type preference list.
     *
-    * @return the description type preference list
+    * @return the latestDescription type preference list
     */
    int[] getDescriptionTypePreferenceList();
 
@@ -88,7 +88,7 @@ public interface LanguageCoordinate {
    int[] getDialectAssemblagePreferenceList();
 
    /**
-    * Convenience method - returns true if FSN is at the top of the description list.
+    * Convenience method - returns true if FSN is at the top of the latestDescription list.
     *
     * @return true, if FSN preferred
     */
@@ -107,15 +107,46 @@ public interface LanguageCoordinate {
    }
 
    /**
-    * Gets the fully specified description.
+    * Gets the fully specified latestDescription.
     *
-    * @param descriptionList the description list
+    * @param descriptionList the latestDescription list
     * @param stampCoordinate the stamp coordinate
-    * @return the fully specified description
+    * @return the fully specified latestDescription
     */
    Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
            StampCoordinate stampCoordinate);
+   /**
+    * Gets the fully specified latestDescription.
+    *
+    * @param conceptId the conceptId to get the fully specified latestDescription for
+    * @param stampCoordinate the stamp coordinate
+    * @return the fully specified latestDescription
+    */
+   default Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
+           int conceptId,
+           StampCoordinate stampCoordinate) {
+      return getFullySpecifiedDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
+   }
+
+   /**
+    * Gets the fully specified latestDescription text.
+    *
+    * @param conceptId the conceptId to get the fully specified latestDescription for
+    * @param stampCoordinate the stamp coordinate
+    * @return the fully specified latestDescription
+    */
+   default String getFullySpecifiedDescriptionText(
+           int conceptId,
+           StampCoordinate stampCoordinate) {
+      Optional<LatestVersion<DescriptionSememe<?>>> latestDescription = 
+              getFullySpecifiedDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
+      if (latestDescription.isPresent()) {
+         return latestDescription.get().value().getText();
+      } else {
+         return "No description for: " + conceptId;
+      }
+   }
 
    /**
     * Gets the language concept sequence.
@@ -125,14 +156,47 @@ public interface LanguageCoordinate {
    int getLanguageConceptSequence();
 
    /**
-    * Gets the preferred description.
+    * Gets the preferred latestDescription.
     *
-    * @param descriptionList the description list
+    * @param descriptionList the latestDescription list
     * @param stampCoordinate the stamp coordinate
-    * @return the preferred description
+    * @return the preferred latestDescription
     */
    Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(
            List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
            StampCoordinate stampCoordinate);
+   
+   /**
+    * Gets the preferred description.
+    *
+    * @param conceptId the conceptId to get the fully specified latestDescription for
+    * @param stampCoordinate the stamp coordinate
+    * @return the fully specified latestDescription
+    */
+   default Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(
+           int conceptId,
+           StampCoordinate stampCoordinate) {
+      return getPreferredDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
+   }
+
+   
+   /**
+    * Gets the preferred description text. 
+    *
+    * @param conceptId the conceptId to get the fully specified latestDescription for
+    * @param stampCoordinate the stamp coordinate
+    * @return the fully specified latestDescription
+    */
+   default String getPreferredDescriptionText(
+           int conceptId,
+           StampCoordinate stampCoordinate) {
+      Optional<LatestVersion<DescriptionSememe<?>>> latestDescription = 
+              getPreferredDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
+      if (latestDescription.isPresent()) {
+         return latestDescription.get().value().getText();
+      } else {
+         return "No description for: " + conceptId;
+      }
+   }
 }
 

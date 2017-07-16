@@ -41,6 +41,7 @@ package sh.isaac.api.component.concept;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -52,7 +53,9 @@ import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.component.sememe.SememeChronology;
+import sh.isaac.api.component.sememe.version.DescriptionSememe;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
@@ -85,6 +88,16 @@ public interface ConceptService
     * @return the concept chronology associated with the identifier.
     */
    ConceptChronology<? extends ConceptVersion<?>> getConcept(int conceptId);
+   
+   /**
+    * Gets the list of descriptions for a concept.
+    *
+    * @param conceptId either a concept sequence or a concept nid.
+    * @return the list of descriptions.
+    */
+   default List<SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptions(int conceptId) {
+      return getConcept(conceptId).getConceptDescriptionList();
+   }
 
    /**
     * Gets the concept.
@@ -190,10 +203,9 @@ public interface ConceptService
    /**
     * Gets the snapshot.
     *
-    * @param stampCoordinate the stamp coordinate
-    * @param languageCoordinate the language coordinate
-    * @return the snapshot
+    * @param manifoldCoordinate the stamp coordinate
+    * @return the sh.isaac.api.component.concept.ConceptSnapshotService
     */
-   ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate);
+   ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate);
 }
 

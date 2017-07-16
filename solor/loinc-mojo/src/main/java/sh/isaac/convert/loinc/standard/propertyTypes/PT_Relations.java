@@ -61,7 +61,7 @@ public class PT_Relations
       super("LOINC");
 
       // Used for tree building
-      addProperty(new Property("Multiaxial Child Of", null, null, MetaData.IS_A.getPrimordialUuid()));
+      addProperty(new Property("Multiaxial Child Of", null, null, MetaData.IS_A____ISAAC.getPrimordialUuid()));
    }
 }
 

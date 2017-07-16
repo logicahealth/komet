@@ -69,6 +69,7 @@ import com.sun.javafx.application.PlatformImpl;
 //~--- non-JDK imports --------------------------------------------------------
 
 import gov.va.oia.HK2Utilities.HK2RuntimeInitializer;
+import java.util.List;
 
 import sh.isaac.api.DatabaseServices.DatabaseValidity;
 import sh.isaac.api.constants.Constants;
@@ -308,7 +309,8 @@ public class LookupService {
             if (looker == null) {
                startupFxPlatform();
 
-               final ArrayList<String> packagesToSearch = new ArrayList<>(Arrays.asList("sh.isaac",
+               final ArrayList<String> packagesToSearch = new ArrayList<>(Arrays.asList("sh",
+                                                                                        "one",
                                                                                         "org.ihtsdo",
                                                                                         "org.glassfish",
                                                                                         "com.informatics"));
@@ -456,6 +458,12 @@ public class LookupService {
             .getName()
             : null), contractOrImpl.getName());
       return service;
+   }
+   public static <T> List<T> getServices(Class<T> contractOrImpl) {
+      final List<T> services = get().getAllServices(contractOrImpl, new Annotation[0]);
+
+      LOG.debug("LookupService returning {} for {}", services, contractOrImpl.getName());
+      return services;
    }
 
    /**

@@ -104,7 +104,7 @@
 		</dependency>
 		<dependency>
 			<groupId>sh.isaac.provider</groupId>
-			<artifactId>sememe</artifactId>
+			<artifactId>assemblage</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -184,7 +184,7 @@
 						</dependency>
 						<dependency>
 							<groupId>sh.isaac.provider</groupId>
-							<artifactId>sememe</artifactId>
+							<artifactId>assemblage</artifactId>
 							<version>${project.version}</version>
 						</dependency>
 						<dependency>

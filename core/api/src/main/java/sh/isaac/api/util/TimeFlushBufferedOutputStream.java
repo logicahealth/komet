@@ -34,13 +34,9 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.api.util;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -51,37 +47,40 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import sh.isaac.api.Get;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * {@link TimeFlushBufferedOutputStream}
  *
- * A wrapper for a {@link BufferedOutputStream} which calls flush once a minute, to ensure
- * that data is not hanging out unbuffered for a long period of time, before being written to disk.
+ * A wrapper for a {@link BufferedOutputStream} which calls flush once a minute, to ensure that data is not hanging out
+ * unbuffered for a long period of time, before being written to disk.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class TimeFlushBufferedOutputStream
         extends BufferedOutputStream {
-   /** The Constant instances_. */
-   private static final ArrayList<WeakReference<TimeFlushBufferedOutputStream>> instances = new ArrayList<>();
 
-   /** The Constant logger. */
-   private static final Logger logger = LoggerFactory.getLogger(TimeFlushBufferedOutputStream.class);
+   /**
+    * The Constant instances_.
+    */
+   private static final ArrayList<WeakReference<TimeFlushBufferedOutputStream>> INSTANCES = new ArrayList<>();
 
-   /** The scheduled job. */
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
+
+   /**
+    * The scheduled job.
+    */
    private static ScheduledFuture<?> scheduledJob;
 
    //~--- constructors --------------------------------------------------------
-
    /**
     * Instantiates a new time flush buffered output stream.
     *
@@ -104,7 +103,6 @@ public class TimeFlushBufferedOutputStream
    }
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * Close.
     *
@@ -112,13 +110,13 @@ public class TimeFlushBufferedOutputStream
     */
    @Override
    public void close()
-            throws IOException {
-      synchronized (instances) {
-         final Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = instances.iterator();
+           throws IOException {
+      synchronized (INSTANCES) {
+         final Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = INSTANCES.iterator();
 
          while (it.hasNext()) {
             if (it.next()
-                  .get() == this) {
+                    .get() == this) {
                it.remove();
                break;
             }
@@ -131,45 +129,40 @@ public class TimeFlushBufferedOutputStream
    /**
     * Schedule flush.
     */
-   private void scheduleFlush() {
-      synchronized (instances) {
-         instances.add(new WeakReference<>(this));
-      }
+   private synchronized void scheduleFlush() {
 
-      // Just sync on something at the class level
-      synchronized (logger) {
-         if (scheduledJob == null) {
-            logger.info("Scheduling thread to flush time flush buffers");
-            scheduledJob = Get.workExecutors().getScheduledThreadPoolExecutor().scheduleAtFixedRate(() -> {
-                     if (instances.isEmpty()) {
-                        scheduledJob.cancel(false);
-                        scheduledJob = null;
-                        logger.info("Stopping time flush buffer thread, as no instances are registered");
+      INSTANCES.add(new WeakReference<>(this));
+
+      if (scheduledJob == null) {
+         LOG.info("Scheduling thread to flush time flush buffers");
+         scheduledJob = Get.workExecutors().getScheduledThreadPoolExecutor().scheduleAtFixedRate(() -> {
+            if (INSTANCES.isEmpty()) {
+               scheduledJob.cancel(false);
+               scheduledJob = null;
+               LOG.info("Stopping time flush buffer thread, as no instances are registered");
+            } else {
+               LOG.debug("Calling flush on " + INSTANCES.size() + " buffered writers");
+
+               synchronized (INSTANCES) {
+                  final Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = INSTANCES.iterator();
+
+                  while (it.hasNext()) {
+                     final WeakReference<TimeFlushBufferedOutputStream> item = it.next();
+
+                     if (item.get() == null) {
+                        it.remove();
                      } else {
-                        logger.debug("Calling flush on " + instances.size() + " buffered writers");
-
-                        synchronized (instances) {
-                           final Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = instances.iterator();
-
-                           while (it.hasNext()) {
-                              final WeakReference<TimeFlushBufferedOutputStream> item = it.next();
-
-                              if (item.get() == null) {
-                                 it.remove();
-                              } else {
-                                 try {
-                                    item.get()
-                                        .flush();
-                                 } catch (final Exception e) {
-                                    logger.error("error during time flush", e);
-                                 }
-                              }
-                           }
+                        try {
+                           item.get()
+                                   .flush();
+                        } catch (final IOException e) {
+                           LOG.error("error during time flush", e);
                         }
                      }
-                  },1,1,TimeUnit.MINUTES);
-         }
+                  }
+               }
+            }
+         }, 1, 1, TimeUnit.MINUTES);
       }
    }
 }
-

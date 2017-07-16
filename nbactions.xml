@@ -35,4 +35,26 @@
                 <Env.MAVEN_OPTS>-XX:+UseCompressedOops -Xmx12g -Xms12g -Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address}</Env.MAVEN_OPTS>
             </properties>
         </action>
+        <action>
+            <actionName>CUSTOM-clean install site-deploy</actionName>
+            <displayName>clean install site-deploy</displayName>
+            <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+                <goal>site-deploy</goal>
+                <goal>-DskipTests=true</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>CUSTOM-gitflow release</actionName>
+            <displayName>gitflow release</displayName>
+            <goals>
+                <goal>com.amashchenko.maven.plugin:gitflow-maven-plugin:release</goal>
+            </goals>
+            <activatedProfiles>
+                <activatedProfile>-solor-database</activatedProfile>
+                <activatedProfile>-solor</activatedProfile>
+                <activatedProfile>meta-database</activatedProfile>
+            </activatedProfiles>
+        </action>
     </actions>

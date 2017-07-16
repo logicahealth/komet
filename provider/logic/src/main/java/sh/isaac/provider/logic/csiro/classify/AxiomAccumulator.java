@@ -59,7 +59,7 @@ import au.csiro.ontology.model.ConceptInclusion;
 import au.csiro.ontology.model.Role;
 
 import sh.isaac.api.logic.LogicNode;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
@@ -72,7 +72,7 @@ import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
 
 //TODO move to CSIRO specific module
 public class AxiomAccumulator
-         implements BiConsumer<Set<Axiom>, LogicalExpressionOchreImpl> {
+         implements BiConsumer<Set<Axiom>, LogicalExpressionImpl> {
    /** The concept sequences. */
    BitSet conceptSequences;
 
@@ -120,7 +120,7 @@ public class AxiomAccumulator
     * @param logicGraphVersion the logic graph version
     */
    @Override
-   public void accept(Set<Axiom> axioms, LogicalExpressionOchreImpl logicGraphVersion) {
+   public void accept(Set<Axiom> axioms, LogicalExpressionImpl logicGraphVersion) {
       if (this.conceptSequences.get(logicGraphVersion.getConceptSequence())) {
          axioms.addAll(generateAxioms(logicGraphVersion));
       }
@@ -132,7 +132,7 @@ public class AxiomAccumulator
     * @param logicGraphVersion the logic graph version
     * @return the set
     */
-   public Set<Axiom> generateAxioms(LogicalExpressionOchreImpl logicGraphVersion) {
+   public Set<Axiom> generateAxioms(LogicalExpressionImpl logicGraphVersion) {
       final Concept    thisConcept = this.concepts[logicGraphVersion.getConceptSequence()];
       final Set<Axiom> axioms      = new HashSet<>();
 

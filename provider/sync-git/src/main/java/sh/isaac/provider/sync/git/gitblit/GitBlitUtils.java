@@ -48,11 +48,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import sh.isaac.provider.sync.git.gitblit.models.RepositoryModel;
 import sh.isaac.provider.sync.git.gitblit.utils.RpcUtils;
@@ -72,8 +71,10 @@ import sh.isaac.provider.sync.git.gitblit.utils.RpcUtils.AccessRestrictionType;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class GitBlitUtils {
-   /** The log. */
-   private static Logger log = LoggerFactory.getLogger(GitBlitUtils.class);
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 
@@ -131,13 +132,13 @@ public class GitBlitUtils {
                                                           username,
                                                           password);
 
-         log.info("Repository: " + repoName + ", create successfully: " + status);
+         LOG.info("Repository: " + repoName + ", create successfully: " + status);
 
          if (!status) {
             throw new IOException("Create of repo '" + repoName + "' failed");
          }
-      } catch (final Exception e) {
-         log.error("Failed to create repository: " + repoName + ", Unexpected Error: ", e);
+      } catch (final IOException e) {
+         LOG.error("Failed to create repository: " + repoName + ", Unexpected Error: ", e);
          throw new IOException("Failed to create repository: " + repoName + ", Internal error", e);
       }
    }

@@ -76,7 +76,6 @@ import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.component.sememe.version.MutableLogicGraphSememe;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.index.IndexServiceBI;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -88,7 +87,7 @@ import sh.isaac.converters.sharedUtils.ConsoleUtil;
 import sh.isaac.converters.sharedUtils.ConverterBaseMojo;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.converters.sharedUtils.umlsUtils.rrf.REL;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.LiteralNodeFloat;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
@@ -102,6 +101,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.Feature;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.FloatLiteral;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
+import sh.isaac.api.index.IndexService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -302,18 +302,18 @@ public class RxNormLogicGraphsMojo
 //                                                                         if (n.getChildren().length == 1 && n.getChildren()[0].getNodeSemantic() == NodeSemantic.AND)
 //                                                                         {
 //                                                                                 FeatureNodeWithSequences feature = new FeatureNodeWithSequences(
-//                                                                                                 (LogicalExpressionOchreImpl)existing, 
+//                                                                                                 (LogicalExpressionImpl)existing, 
 //                                                                                                 IsaacMetadataAuxiliaryBinding.HAS_STRENGTH.getConceptSequence(), 
-//                                                                                                 new LiteralNodeFloat((LogicalExpressionOchreImpl)existing, parsed.getKey().floatValue()));
+//                                                                                                 new LiteralNodeFloat((LogicalExpressionImpl)existing, parsed.getKey().floatValue()));
 //                                                                                 
-//                                                                                 RoleNodeSomeWithSequences unitRole = new RoleNodeSomeWithSequences((LogicalExpressionOchreImpl)existing, 
+//                                                                                 RoleNodeSomeWithSequences unitRole = new RoleNodeSomeWithSequences((LogicalExpressionImpl)existing, 
 //                                                                                                 unitConcept.getConceptSequence(), 
-//                                                                                                 new ConceptNodeWithSequences((LogicalExpressionOchreImpl)existing, 
+//                                                                                                 new ConceptNodeWithSequences((LogicalExpressionImpl)existing, 
 //                                                                                                                 Get.identifierService().getConceptSequenceForUuids(parsed.getValue().getConceptUUID())));
 //                                                                                 
-//                                                                                 AndNode andNode = new AndNode((LogicalExpressionOchreImpl)existing, feature, unitRole);
+//                                                                                 AndNode andNode = new AndNode((LogicalExpressionImpl)existing, feature, unitRole);
 //                                                                                 
-//                                                                                 RoleNodeSomeWithSequences groupingRole = new RoleNodeSomeWithSequences((LogicalExpressionOchreImpl)existing, 
+//                                                                                 RoleNodeSomeWithSequences groupingRole = new RoleNodeSomeWithSequences((LogicalExpressionImpl)existing, 
 //                                                                                                 IsaacMetadataAuxiliaryBinding.ROLE_GROUP.getConceptSequence(), andNode);
 //                                                                                 
 //                                                                                 n.getChildren()[0].addChildren(groupingRole);
@@ -606,7 +606,7 @@ public class RxNormLogicGraphsMojo
 // 
 // private int findAssemblageNid(String uniqueName)
 // {
-//         IndexServiceBI si = LookupService.get().getService(IndexServiceBI.class, "description indexer");
+//         IndexService si = LookupService.get().getService(IndexService.class, "description indexer");
 //         if (si != null)
 //         {
 //                 //force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search

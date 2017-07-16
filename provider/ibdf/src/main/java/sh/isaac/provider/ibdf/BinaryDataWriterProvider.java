@@ -49,15 +49,14 @@ import java.nio.file.Path;
 
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Semaphore;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.glassfish.hk2.api.PerLookup;
 
 import org.jvnet.hk2.annotations.Service;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -83,8 +82,10 @@ public class BinaryDataWriterProvider
 
    //~--- fields --------------------------------------------------------------
 
-   /** The logger. */
-   private final Logger logger = LoggerFactory.getLogger(BinaryDataWriterProvider.class);
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
 
    /** The pause block. */
    private final Semaphore pauseBlock = new Semaphore(1);
@@ -157,7 +158,7 @@ public class BinaryDataWriterProvider
       this.output = new DataOutputStream(new TimeFlushBufferedOutputStream(new FileOutputStream(this.dataPath.toFile(),
             true)));
       this.buffer.setExternalData(true);
-      this.logger.info("ibdf changeset writer has been configured to write to " +
+      LOG.info("ibdf changeset writer has been configured to write to " +
                        this.dataPath.toAbsolutePath().toString());
 
       if (!Get.configurationService()
@@ -199,13 +200,13 @@ public class BinaryDataWriterProvider
    public void pause()
             throws IOException {
       if (this.output == null) {
-         this.logger.warn("already paused!");
+         LOG.warn("already paused!");
          return;
       }
 
       this.pauseBlock.acquireUninterruptibly();
       close();
-      this.logger.debug("ibdf writer paused");
+      LOG.debug("ibdf writer paused");
    }
 
    /**
@@ -242,7 +243,7 @@ public class BinaryDataWriterProvider
    public void resume()
             throws IOException {
       if (this.pauseBlock.availablePermits() == 1) {
-         this.logger.warn("asked to resume, but not paused?");
+         LOG.warn("asked to resume, but not paused?");
          return;
       }
 
@@ -251,7 +252,7 @@ public class BinaryDataWriterProvider
       }
 
       this.pauseBlock.release();
-      this.logger.debug("ibdf writer resumed");
+      LOG.debug("ibdf writer resumed");
    }
 
    //~--- get methods ---------------------------------------------------------

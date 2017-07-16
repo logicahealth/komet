@@ -120,6 +120,9 @@ public class LoadTermstore
    @Parameter(required = false)
    private boolean activeOnly = false;
 
+   @Parameter(required = false)
+   private int duplicatesToPrint = 20;
+
    /** The sememe types to skip. */
    private final HashSet<SememeType> sememeTypesToSkip = new HashSet<>();
 
@@ -234,7 +237,9 @@ public class LoadTermstore
          for (final File f: temp) {
             getLog().info("Loading termstore from " + f.getCanonicalPath() + (this.activeOnly ? " active items only"
                   : ""));
-
+            
+            int duplicateCount = 0;
+            
             final BinaryDataReaderQueueService       reader = Get.binaryDataQueueReader(f.toPath());
             final BlockingQueue<OchreExternalizable> queue  = reader.getQueue();
 
@@ -267,7 +272,8 @@ public class LoadTermstore
                                                                         sc.getReferencedComponentNid(),
                                                                               statedSequence);
 
-                              if (!sequences.isEmpty()) {
+                              if (!sequences.isEmpty() && duplicateCount < duplicatesToPrint) {
+                                 duplicateCount++;
                                  final List<LogicalExpression> listToMerge = new ArrayList<>();
 
                                  listToMerge.add(getLatestLogicalExpression(sc));
@@ -370,17 +376,17 @@ public class LoadTermstore
                      args.put(JsonWriter.PRETTY_PRINT, true);
 
                      final ByteArrayOutputStream baos       = new ByteArrayOutputStream();
-                     final JsonWriter            json       = new JsonWriter(baos, args);
-                     UUID                        primordial = null;
-
-                     if (object instanceof ObjectChronology) {
-                        primordial = ((ObjectChronology) object).getPrimordialUuid();
+                     try (JsonWriter json = new JsonWriter(baos, args)) {
+                        UUID                        primordial = null;
+                        
+                        if (object instanceof ObjectChronology) {
+                           primordial = ((ObjectChronology) object).getPrimordialUuid();
+                        }
+                        
+                        json.write(object);
+                        getLog().error("Failed on " + ((primordial == null) ? ": "
+                                : "object with primoridial UUID " + primordial.toString() + ": ") + baos.toString());
                      }
-
-                     json.write(object);
-                     getLog().error("Failed on " + ((primordial == null) ? ": "
-                           : "object with primoridial UUID " + primordial.toString() + ": ") + baos.toString());
-                     json.close();
                   }
 
                   if (this.itemCount % 50000 == 0) {
@@ -399,6 +405,7 @@ public class LoadTermstore
             getLog().info("Loaded " + this.conceptCount + " concepts, " + this.sememeCount + " sememes, " +
                           this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComment" +
                           ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
+                  : "") + ((duplicateCount > 0) ? " Duplicates " + duplicateCount
                   : "") + ((this.itemFailure > 0) ? " Failures " + this.itemFailure
                   : "") + " from file " + f.getName());
             this.conceptCount      = 0;

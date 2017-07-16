@@ -57,7 +57,7 @@ public class SearchHandle {
    /** The search start time. */
    private final long searchStartTime = System.currentTimeMillis();
 
-   /** The result block. */
+   /** The resultList block. */
    private final Semaphore resultBlock = new Semaphore(1);
 
    /** The cancelled. */
@@ -69,8 +69,8 @@ public class SearchHandle {
    /** The search I D. */
    private final Integer searchID;
 
-   /** The result. */
-   private List<CompositeSearchResult> result;
+   /** The resultList. */
+   private List<CompositeSearchResult> resultList;
 
    //~--- constructors --------------------------------------------------------
 
@@ -120,7 +120,7 @@ public class SearchHandle {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * This is not the same as the size of the result collection, as results may be merged.
+    * This is not the same as the size of the resultList collection, as results may be merged.
     *
     * @return the hit count
     * @throws Exception the exception
@@ -145,11 +145,11 @@ public class SearchHandle {
     */
    public Collection<CompositeSearchResult> getResults()
             throws Exception {
-      if (this.result == null) {
+      if (this.resultList == null) {
          try {
             this.resultBlock.acquireUninterruptibly();
 
-            while ((this.result == null) && (this.error == null) &&!this.cancelled) {
+            while ((this.resultList == null) && (this.error == null) &&!this.cancelled) {
                try {
                   SearchHandle.this.wait();
                } catch (final InterruptedException e) {
@@ -165,7 +165,7 @@ public class SearchHandle {
          throw this.error;
       }
 
-      return this.result;
+      return this.resultList;
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -177,7 +177,7 @@ public class SearchHandle {
     */
    protected void setResults(List<CompositeSearchResult> results) {
       synchronized (SearchHandle.this) {
-         this.result = results;
+         this.resultList = results;
          SearchHandle.this.notifyAll();
       }
    }

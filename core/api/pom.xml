@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>core</artifactId>
-        <version>4.16</version>
+        <version>4.22</version>
     </parent>
 
     <groupId>sh.isaac.core</groupId>
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.roaringbitmap</groupId>
             <artifactId>RoaringBitmap</artifactId>
-            <version>0.5.13</version>
+            <version>0.6.44</version>
         </dependency>
         <dependency>
             <groupId>gov.va.oia</groupId>
@@ -56,4 +56,20 @@
             <artifactId>json-io</artifactId>
         </dependency>
     </dependencies>
+    <build>
+       <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-site-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>attach-descriptor</id>
+                  <goals>
+                     <goal>attach-descriptor</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>            
+       </plugins>
+    </build>
 </project>

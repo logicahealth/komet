@@ -53,7 +53,7 @@ import au.csiro.ontology.classification.IReasoner;
 import au.csiro.ontology.model.Axiom;
 import au.csiro.snorocket.core.SnorocketReasoner;
 
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -76,7 +76,7 @@ public class Classify {
                               OpenIntHashSet roleSequences,
                               OpenIntHashSet neverGroupRoleSequences,
                               int roleGroupConceptSequence) {
-      final Stream<LogicalExpressionOchreImpl> logicGraphStream = null;
+      final Stream<LogicalExpressionImpl> logicGraphStream = null;
       final AxiomCollector axiomCollector = new AxiomCollector(conceptSequences,
                                                                roleSequences,
                                                                neverGroupRoleSequences,

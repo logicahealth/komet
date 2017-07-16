@@ -42,11 +42,10 @@ package sh.isaac.api.util;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.File;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -61,7 +60,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DBLocator {
    /** The Constant LOG. */
-   private static final Logger LOG = LoggerFactory.getLogger(DBLocator.class);
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 

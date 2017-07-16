@@ -43,6 +43,7 @@ package sh.isaac.model.observable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -240,7 +241,7 @@ public enum ObservableFields
     * @return the concept description text
     */
    @Override
-   public String getConceptDescriptionText() {
+   public String getFullySpecifiedConceptDescriptionText() {
       return getDescription();
    }
 
@@ -270,6 +271,11 @@ public enum ObservableFields
    @Override
    public List<UUID> getUuidList() {
       return Arrays.asList(new UUID[] { getUuid() });
+   }
+
+   @Override
+   public Optional<String> getPreferedConceptDescriptionText() {
+      return Optional.empty();
    }
 }
 

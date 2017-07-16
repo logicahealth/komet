@@ -94,7 +94,7 @@ public class ConceptBuilderProvider
          ConceptSpecification languageForDescriptions,
          ConceptSpecification dialectAssemblageForDescriptions,
          LogicCoordinate logicCoordinate) {
-      return new ConceptBuilderOchreImpl(conceptName,
+      return new ConceptBuilderImpl(conceptName,
                                          semanticTag,
                                          logicalExpression,
                                          languageForDescriptions,
@@ -114,7 +114,7 @@ public class ConceptBuilderProvider
    public ConceptBuilder getDefaultConceptBuilder(String conceptName,
          String semanticTag,
          LogicalExpression logicalExpression) {
-      return new ConceptBuilderOchreImpl(conceptName,
+      return new ConceptBuilderImpl(conceptName,
                                          semanticTag,
                                          logicalExpression,
                                          this.defaultLanguageForDescriptions,

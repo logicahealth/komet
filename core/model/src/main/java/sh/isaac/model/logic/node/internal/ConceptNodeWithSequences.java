@@ -55,7 +55,7 @@ import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
 
@@ -89,7 +89,7 @@ public final class ConceptNodeWithSequences
     * @param dataInputStream the data input stream
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public ConceptNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
+   public ConceptNodeWithSequences(LogicalExpressionImpl logicGraphVersion,
                                    DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
@@ -102,7 +102,7 @@ public final class ConceptNodeWithSequences
     * @param logicGraphVersion the logic graph version
     * @param conceptId the concept id
     */
-   public ConceptNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion, int conceptId) {
+   public ConceptNodeWithSequences(LogicalExpressionImpl logicGraphVersion, int conceptId) {
       super(logicGraphVersion);
       this.conceptSequence = Get.identifierService()
                                 .getConceptSequence(conceptId);

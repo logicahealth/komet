@@ -69,7 +69,7 @@ import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableTaxonomyCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -394,8 +394,8 @@ public class DefaultConfigurationService
     * @return the default taxonomy coordinate
     */
    @Override
-   public ObservableTaxonomyCoordinate getDefaultTaxonomyCoordinate() {
-      return this.defaultCoordinateProvider.getDefaultTaxonomyCoordinate();
+   public ObservableManifoldCoordinate getDefaultManifoldCoordinate() {
+      return this.defaultCoordinateProvider.getDefaultManifoldCoordinate();
    }
 
    //~--- set methods ---------------------------------------------------------

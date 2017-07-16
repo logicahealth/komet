@@ -59,7 +59,7 @@ import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableTaxonomyCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -340,10 +340,10 @@ public interface ConfigurationService {
    /**
     * Gets the default taxonomy coordinate.
     *
-    * @return an {@code ObservableTaxonomyCoordinate} based on the
+    * @return an {@code ObservableManifoldCoordinate} based on the
     * configuration defaults.
     */
-   ObservableTaxonomyCoordinate getDefaultTaxonomyCoordinate();
+   ObservableManifoldCoordinate getDefaultManifoldCoordinate();
 
    //~--- set methods ---------------------------------------------------------
 

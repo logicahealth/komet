@@ -60,12 +60,19 @@ import org.glassfish.hk2.api.Rank;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.IsaacTaxonomy;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import sh.isaac.api.constants.DynamicSememeConstants;
 import sh.isaac.api.constants.MetadataDynamicSememeConstant;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.LogicalExpressionBuilder;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.NodeSemantic;
 
 import static sh.isaac.model.observable.ObservableFields.ALLOWED_STATES_FOR_STAMP_COORDINATE;
@@ -148,7 +155,7 @@ public class IsaacMetadataAuxiliary
          createConcept(TermAux.ISAAC_ROOT);
          pushParent(current());
          createConcept("health concept").setPrimordialUuid("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8");
-         createConcept("ISAAC metadata");
+         createConcept(TermAux.ISAAC_METADATA);
          pushParent(current());
          createConcept("module").mergeFromSpec(TermAux.UNSPECIFIED_MODULE);
          pushParent(current());
@@ -479,7 +486,56 @@ public class IsaacMetadataAuxiliary
          createConcept(DESCRIPTION_LIST_FOR_CONCEPT);
          popParent();
          popParent();
+         
+         createConcept("query clauses");
+         pushParent(current());
+   createConcept(TermAux.ACTIVE_QUERY_CLAUSE);
+   createConcept(TermAux.INACTIVE_QUERY_CLAUSE);
+   createConcept(TermAux.AND_QUERY_CLAUSE);
 
+   createConcept(TermAux.NOT_QUERY_CLAUSE);
+   createConcept(TermAux.AND_NOT_QUERY_CLAUSE);
+   createConcept(TermAux.OR_QUERY_CLAUSE);
+   createConcept(TermAux.XOR_QUERY_CLAUSE);
+   createConcept(TermAux.CHANGED_FROM_PREVIOUS_VERSION_QUERY_CLAUSE);
+   createConcept(TermAux.CONCEPT_IS_QUERY_CLAUSE);
+   createConcept(TermAux.CONCEPT_IS_KIND_OF_QUERY_CLAUSE);
+   createConcept(TermAux.DESCRIPTION_LUCENE_MATCH_QUERY_CLAUSE);
+   createConcept(TermAux.PREFERRED_NAME_FOR_CONCEPT_QUERY_CLAUSE);
+   createConcept(TermAux.RELATIONSHIP_IS_CIRCULAR_QUERY_CLAUSE);
+   createConcept(TermAux.CONCEPT_IS_CHILD_OF_QUERY_CLAUSE);
+   createConcept(TermAux.DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE);
+   createConcept(TermAux.CONCEPT_FOR_COMPONENT_QUERY_CLAUSE);
+   createConcept(TermAux.CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE);
+   createConcept(TermAux.FULLY_SPECIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE);
+   
+   createConcept(TermAux.ASSEMBLAGE_CONTAINS_STRING_QUERY_CLAUSE);
+   createConcept(TermAux.ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE);
+   createConcept(TermAux.ASSEMBLAGE_CONTAINS_COMPONENT_QUERY_CLAUSE);
+   createConcept(TermAux.ASSEMBLAGE_LUCENE_MATCH_QUERY_CLAUSE);
+   createConcept(TermAux.ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT_QUERY_CLAUSE);
+   createConcept(TermAux.REL_RESTRICTION_QUERY_CLAUSE);
+   createConcept(TermAux.REL_TYPE_QUERY_CLAUSE);
+
+         popParent();
+         
+         
+         popParent(); // ISAAC root should still be parent on stack... 
+         createConcept("test concept");
+         pushParent(current());
+         ConceptBuilder parentOneBuilder = createConcept("parent one");
+         pushParent(current());
+         ConceptBuilder multiParentBuilder = createConcept("multi-parent");
+         popParent();
+         ConceptBuilder parentTwoBuilder = createConcept("parent two");
+         
+         
+         
+
+         
+         
+         popParent();
+         
          // Note that we leave this method with the root concept set as parent (on purpose) - we don't call popParent the last time.
          // This way, if createConcept(...) is called again, the new concepts go under root.
          // this nasty oversight took _far_ too long to recognize.
@@ -488,6 +544,16 @@ public class IsaacMetadataAuxiliary
          // breaks things in interesting ways when we have ibdf files that references the UUIDs from a
          // MetaData file....
          generateStableUUIDs();
+
+         final LogicalExpressionBuilderService expressionBuilderService =
+            LookupService.getService(LogicalExpressionBuilderService.class);
+         final LogicalExpressionBuilder defBuilder = expressionBuilderService.getLogicalExpressionBuilder();
+                  NecessarySet(And(ConceptAssertion(parentOneBuilder.getNid(), defBuilder), 
+                          ConceptAssertion(parentTwoBuilder.getNid(), defBuilder)));
+         
+         final LogicalExpression logicalExpression = defBuilder.build();
+         multiParentBuilder.setLogicalExpression(logicalExpression);
+
       } catch (final Exception ex) {
          Logger.getLogger(IsaacMetadataAuxiliary.class.getName())
                .log(Level.SEVERE, null, ex);

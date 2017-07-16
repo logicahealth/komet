@@ -57,9 +57,7 @@ import java.util.function.Function;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.logging.log4j.LogManager;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.LookupService;
 
@@ -81,7 +79,7 @@ public class MultipleDataWriterService
    ArrayList<DataWriterService> writers = new ArrayList<>();
 
    /** The logger. */
-   private final Logger logger = LoggerFactory.getLogger(MultipleDataWriterService.class);
+   private static final Logger LOG = LogManager.getLogger();
 
    /** The sdf. */
    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
@@ -265,7 +263,7 @@ public class MultipleDataWriterService
       if (exceptions.size() > 0) {
          if (exceptions.size() > 1) {
             for (int i = 1; i < exceptions.size(); i++) {
-               this.logger.error("extra, unthrown exception: ", exceptions.get(i));
+               LOG.error("extra, unthrown exception: ", exceptions.get(i));
             }
          }
 
@@ -315,7 +313,7 @@ public class MultipleDataWriterService
          if ((e.getCause() != null) && (e.getCause() instanceof RuntimeException)) {
             throw(RuntimeException) e.getCause();
          } else {
-            this.logger.warn("Unexpected", e);
+            LOG.warn("Unexpected", e);
             throw new RuntimeException(e);
          }
       }
@@ -370,7 +368,7 @@ public class MultipleDataWriterService
          this.objectWriteCount.set(0);
          resume();
       } catch (final IOException e) {
-         this.logger.error("Unexpected error rotating changeset files!", e);
+         LOG.error("Unexpected error rotating changeset files!", e);
          throw new RuntimeException(e);
       }
    }

@@ -55,7 +55,7 @@ import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.external.TemplateNodeWithUuids;
 
@@ -99,7 +99,7 @@ public final class TemplateNodeWithSequences
     * @param dataInputStream the data input stream
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public TemplateNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
+   public TemplateNodeWithSequences(LogicalExpressionImpl logicGraphVersion,
                                     DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
@@ -114,7 +114,7 @@ public final class TemplateNodeWithSequences
     * @param templateConceptId the template concept id
     * @param assemblageConceptId the assemblage concept id
     */
-   public TemplateNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
+   public TemplateNodeWithSequences(LogicalExpressionImpl logicGraphVersion,
                                     int templateConceptId,
                                     int assemblageConceptId) {
       super(logicGraphVersion);

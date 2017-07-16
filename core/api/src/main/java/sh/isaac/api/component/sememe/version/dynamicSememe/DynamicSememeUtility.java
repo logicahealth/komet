@@ -45,6 +45,7 @@ import java.security.InvalidParameterException;
 
 import java.util.Arrays;
 import java.util.UUID;
+import org.apache.logging.log4j.LogManager;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -68,8 +69,6 @@ import java.util.UUID;
  */
 import org.jvnet.hk2.annotations.Contract;
 
-import org.slf4j.LoggerFactory;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.component.sememe.SememeType;
@@ -77,7 +76,7 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSeme
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUID;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -152,7 +151,7 @@ public interface DynamicSememeUtility {
     * @param data the data
     * @param referencedComponentNid the referenced component nid
     * @param stampCoordinate - optional - column specific validators may be skipped if this is not provided
-    * @param taxonomyCoordinate - optional - column specific validators may be skipped if this is not provided
+    * @param manifoldCoordinate - optional - column specific validators may be skipped if this is not provided
     * @throws IllegalArgumentException the illegal argument exception
     * @throws InvalidParameterException - if anything fails validation
     */
@@ -160,7 +159,7 @@ public interface DynamicSememeUtility {
                                 DynamicSememeData[] data,
                                 int referencedComponentNid,
                                 StampCoordinate stampCoordinate,
-                                TaxonomyCoordinate taxonomyCoordinate)
+                                ManifoldCoordinate manifoldCoordinate)
             throws IllegalArgumentException {
       // Make sure the referenced component meets the ref component restrictions, if any are present.
       if ((dsud.getReferencedComponentTypeRestriction() != null) &&
@@ -264,7 +263,7 @@ public interface DynamicSememeUtility {
                                  .passesValidator(data[dataColumn],
                                                   dsci.getValidatorData()[i],
                                                   stampCoordinate,
-                                                  taxonomyCoordinate)) {
+                                                  manifoldCoordinate)) {
                            rethrow = true;
                            throw new IllegalArgumentException(
                                "The supplied data for column " + dataColumn +
@@ -276,7 +275,7 @@ public interface DynamicSememeUtility {
                         if (rethrow) {
                            throw e;
                         } else {
-                           LoggerFactory.getLogger(DynamicSememeUtility.class)
+                           LogManager.getLogger()
                                         .debug("Couldn't execute validator due to missing coordiantes");
                         }
                      }

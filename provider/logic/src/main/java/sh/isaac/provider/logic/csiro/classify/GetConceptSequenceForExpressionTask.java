@@ -65,7 +65,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.MetaData;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -158,8 +158,8 @@ public class GetConceptSequenceForExpressionTask
          final Optional<LatestVersion<LogicGraphSememeImpl>> match =
             sememeSnapshot.getLatestSememeVersionsFromAssemblage(this.logicCoordinate.getStatedAssemblageSequence()).filter((LatestVersion<LogicGraphSememeImpl> t) -> {
                                      final LogicGraphSememeImpl lgs = t.value();
-                                     final LogicalExpressionOchreImpl existingGraph =
-                                        new LogicalExpressionOchreImpl(lgs.getGraphData(),
+                                     final LogicalExpressionImpl existingGraph =
+                                        new LogicalExpressionImpl(lgs.getGraphData(),
                                                                        DataSource.INTERNAL);
 
                                      updateMessage("found existing definition");
@@ -179,8 +179,8 @@ public class GetConceptSequenceForExpressionTask
          final UUID                  uuidForNewConcept     = UUID.randomUUID();
          final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
-         conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE);
-         conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT);
+         conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____ISAAC);
+         conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____ISAAC);
          conceptBuilderService.setDefaultLogicCoordinate(this.logicCoordinate);
 
          final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(uuidForNewConcept.toString(),

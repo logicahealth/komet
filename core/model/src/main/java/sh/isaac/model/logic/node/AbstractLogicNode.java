@@ -49,6 +49,7 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -56,10 +57,15 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DataTarget;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.component.sememe.version.DescriptionSememe;
+import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.tree.TreeNodeVisitData;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
+import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -68,8 +74,8 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
  */
 public abstract class AbstractLogicNode
          implements LogicNode {
-   /** The Constant namespaceUuid. */
-   protected static final UUID namespaceUuid = UUID.fromString("d64c6d91-a37d-11e4-bcd8-0800200c9a66");
+   /** The Constant NAMESPACE_UUID. */
+   protected static final UUID NAMESPACE_UUID = UUID.fromString("d64c6d91-a37d-11e4-bcd8-0800200c9a66");
 
    //~--- fields --------------------------------------------------------------
 
@@ -80,7 +86,7 @@ public abstract class AbstractLogicNode
    protected UUID nodeUuid = null;
 
    /** The logic graph version. */
-   LogicalExpressionOchreImpl logicGraphVersion;
+   LogicalExpressionImpl logicalExpression;
 
    //~--- constructors --------------------------------------------------------
 
@@ -97,11 +103,11 @@ public abstract class AbstractLogicNode
    /**
     * Instantiates a new abstract logic node.
     *
-    * @param logicGraphVersion the logic graph version
+    * @param logicalExpression the logic graph version
     */
-   public AbstractLogicNode(LogicalExpressionOchreImpl logicGraphVersion) {
-      this.logicGraphVersion = logicGraphVersion;
-      logicGraphVersion.addNode(this);
+   public AbstractLogicNode(LogicalExpressionImpl logicalExpression) {
+      this.logicalExpression = logicalExpression;
+      logicalExpression.addNode(this);
    }
 
    /**
@@ -111,11 +117,11 @@ public abstract class AbstractLogicNode
     * @param dataInputStream the data input stream
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public AbstractLogicNode(LogicalExpressionOchreImpl logicGraphVersion,
+   public AbstractLogicNode(LogicalExpressionImpl logicGraphVersion,
                             DataInputStream dataInputStream)
             throws IOException {
       this.nodeIndex         = dataInputStream.readShort();
-      this.logicGraphVersion = logicGraphVersion;
+      this.logicalExpression = logicGraphVersion;
       logicGraphVersion.addNode(this);
    }
 
@@ -184,7 +190,7 @@ public abstract class AbstractLogicNode
    public String fragmentToString(String nodeIdSuffix) {
       final StringBuilder builder = new StringBuilder();
 
-      this.logicGraphVersion.processDepthFirst(this,
+      this.logicalExpression.processDepthFirst(this,
             (LogicNode logicNode,
              TreeNodeVisitData graphVisitData) -> {
                for (int i = 0; i < graphVisitData.getDistance(logicNode.getNodeIndex()); i++) {
@@ -397,5 +403,37 @@ public abstract class AbstractLogicNode
 
       return uuidSet;
    }
+
+   @Override
+   public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
+      int sequenceForDescription = -1;
+
+      switch (getNodeSemantic()) {
+         case CONCEPT:
+            ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) this;
+
+            sequenceForDescription = conceptNode.getConceptSequence();
+            break;
+
+         case DEFINITION_ROOT:
+            sequenceForDescription = this.getSequenceForConceptBeingDefined();
+            break;
+
+         default:
+            sequenceForDescription = getNodeSemantic()
+                    .getConceptSequence();
+      }
+
+      Optional<LatestVersion<DescriptionSememe<?>>> latestDescriptionOptional = languageCoordinate.getPreferredDescription(sequenceForDescription, stampCoordinate);
+
+      return latestDescriptionOptional;   
+   }
+
+   @Override
+   public int getSequenceForConceptBeingDefined() {
+      return logicalExpression.getConceptSequence();
+   }
+   
+   
 }
 

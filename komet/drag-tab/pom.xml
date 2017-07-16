@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+      <groupId>sh.isaac</groupId>
+      <artifactId>komet</artifactId>
+      <version>4.22</version>
+   </parent>
+   <groupId>sh.isaac.komet</groupId>
+   <artifactId>drag-tab</artifactId>
+   <packaging>jar</packaging>
+   <licenses>
+      <license>
+         <name>EPL: Eclipse Public License</name>
+         <url>http://www.eclipse.org/legal/epl-v10.html</url>
+      </license>
+   </licenses>
+
+   <name>ISAAC’s KOMET: Dragable tab</name>
+   <description>
+      A drag and drop tab implementation for ISAAC's KOMET
+   </description>
+   <dependencies>
+     <dependency>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-core</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>log-config</artifactId>
+         <version>${project.parent.version}</version>
+      </dependency>      
+   </dependencies>
+</project>

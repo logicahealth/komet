@@ -50,6 +50,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -84,17 +85,17 @@ public class ConverterUUID {
    public static boolean disableUUIDMap = false;  // Some loaders need to disable this due to memory constraints
 
    /** The master UUID map. */
-   private static Hashtable<UUID, String> masterUUIDMap = new Hashtable<UUID, String>();
+   private static final ConcurrentHashMap<UUID, String> masterUUIDMap = new ConcurrentHashMap<UUID, String>();
 
    /** The namespace. */
    private static NAMESPACE namespace = null;
 
-   /** The constants. */
-   private static ConceptSpecification[] constants = new ConceptSpecification[] {
-      MetaData.IS_A, MetaData.SYNONYM, MetaData.FULLY_SPECIFIED_NAME, MetaData.DEFINITION_DESCRIPTION_TYPE,
-      MetaData.US_ENGLISH_DIALECT, MetaData.GB_ENGLISH_DIALECT, MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER,
-      MetaData.CONVERTED_IBDF_ARTIFACT_VERSION, MetaData.CONVERTER_VERSION, MetaData.SOURCE_ARTIFACT_VERSION,
-      MetaData.SOURCE_RELEASE_DATE, MetaData.SCTID, DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION,
+   /** The CONSTANTS. */
+   private static final ConceptSpecification[] CONSTANTS = new ConceptSpecification[] {
+      MetaData.IS_A____ISAAC, MetaData.SYNONYM____ISAAC, MetaData.FULLY_SPECIFIED_NAME____ISAAC, MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC,
+      MetaData.US_ENGLISH_DIALECT____ISAAC, MetaData.GB_ENGLISH_DIALECT____ISAAC, MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER____ISAAC,
+      MetaData.CONVERTED_IBDF_ARTIFACT_VERSION____ISAAC, MetaData.CONVERTER_VERSION____ISAAC, MetaData.SOURCE_ARTIFACT_VERSION____ISAAC,
+      MetaData.SOURCE_RELEASE_DATE____ISAAC, MetaData.SCTID____ISAAC, DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION,
       DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION,
       DynamicSememeConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION,
       DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION,
@@ -281,7 +282,7 @@ public class ConverterUUID {
    }
 
    /**
-    * In some scenarios, it isn't desireable to cache every creation string - allow the removal in these cases.
+    * In some scenarios, it isn't desirable to cache every creation string - allow the removal in these cases.
     *
     * @param uuid the uuid
     */
@@ -323,9 +324,9 @@ public class ConverterUUID {
       final String found = masterUUIDMap.get(uuid);
 
       if (found == null) {
-         for (final ConceptSpecification cs: constants) {
+         for (final ConceptSpecification cs: CONSTANTS) {
             if (uuid.equals(cs.getPrimordialUuid())) {
-               return cs.getConceptDescriptionText();
+               return cs.getFullySpecifiedConceptDescriptionText();
             }
          }
       }

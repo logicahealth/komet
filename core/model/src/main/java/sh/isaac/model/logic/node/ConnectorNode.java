@@ -51,7 +51,7 @@ import org.apache.mahout.math.list.ShortArrayList;
 
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.logic.LogicNode;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -85,7 +85,7 @@ public abstract class ConnectorNode
     * @param logicGraphVersion the logic graph version
     * @param children the children
     */
-   public ConnectorNode(LogicalExpressionOchreImpl logicGraphVersion, AbstractLogicNode... children) {
+   public ConnectorNode(LogicalExpressionImpl logicGraphVersion, AbstractLogicNode... children) {
       super(logicGraphVersion);
       this.childIndices = new ShortArrayList(children.length);
 
@@ -101,7 +101,7 @@ public abstract class ConnectorNode
     * @param dataInputStream the data input stream
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public ConnectorNode(LogicalExpressionOchreImpl logicGraphVersion,
+   public ConnectorNode(LogicalExpressionImpl logicGraphVersion,
                         DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
@@ -171,8 +171,8 @@ public abstract class ConnectorNode
       this.childIndices.mergeSortFromTo(0,
                                         this.childIndices.size() - 1,
                                         (short o1,
-                                         short o2) -> this.logicGraphVersion.getNode(o1)
-                                               .compareTo(this.logicGraphVersion.getNode(o2)));
+                                         short o2) -> this.logicalExpression.getNode(o1)
+                                               .compareTo(this.logicalExpression.getNode(o2)));
    }
 
    /**
@@ -263,7 +263,7 @@ public abstract class ConnectorNode
       final AbstractLogicNode[] childNodes = new AbstractLogicNode[this.childIndices.size()];
 
       for (int i = 0; i < childNodes.length; i++) {
-         childNodes[i] = (AbstractLogicNode) this.logicGraphVersion.getNode(this.childIndices.get(i));
+         childNodes[i] = (AbstractLogicNode) this.logicalExpression.getNode(this.childIndices.get(i));
       }
 
       return childNodes;

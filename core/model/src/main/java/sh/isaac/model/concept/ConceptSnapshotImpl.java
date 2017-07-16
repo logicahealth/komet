@@ -56,6 +56,9 @@ import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
@@ -72,11 +75,8 @@ public class ConceptSnapshotImpl
    /** The concept chronology. */
    private final ConceptChronologyImpl conceptChronology;
 
-   /** The stamp coordinate. */
-   private final StampCoordinate stampCoordinate;
-
-   /** The language coordinate. */
-   private final LanguageCoordinate languageCoordinate;
+   /** The manifold coordinate. */
+   private final ManifoldCoordinate manifoldCoordinate;
 
    /** The snapshot version. */
    private final LatestVersion<ConceptVersionImpl> snapshotVersion;
@@ -87,18 +87,15 @@ public class ConceptSnapshotImpl
     * Instantiates a new concept snapshot impl.
     *
     * @param conceptChronology the concept chronology
-    * @param stampCoordinate the stamp coordinate
-    * @param languageCoordinate the language coordinate
+    * @param manifoldCoordinate
     */
    public ConceptSnapshotImpl(ConceptChronologyImpl conceptChronology,
-                              StampCoordinate stampCoordinate,
-                              LanguageCoordinate languageCoordinate) {
+                              ManifoldCoordinate manifoldCoordinate) {
       this.conceptChronology  = conceptChronology;
-      this.stampCoordinate    = stampCoordinate;
-      this.languageCoordinate = languageCoordinate;
+      this.manifoldCoordinate    = manifoldCoordinate;
 
       final Optional<LatestVersion<ConceptVersionImpl>> optionalVersion =
-         RelativePositionCalculator.getCalculator(stampCoordinate)
+         RelativePositionCalculator.getCalculator(manifoldCoordinate)
                                    .getLatestVersion(conceptChronology);
 
       this.snapshotVersion = optionalVersion.get();
@@ -114,7 +111,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public boolean containsActiveDescription(String descriptionText) {
-      return this.conceptChronology.containsDescription(descriptionText, this.stampCoordinate);
+      return this.conceptChronology.containsDescription(descriptionText, this.manifoldCoordinate);
    }
 
    /**
@@ -127,6 +124,10 @@ public class ConceptSnapshotImpl
       return this.snapshotVersion.toString();
    }
 
+   @Override
+   public String toString() {
+      return this.getDescription().getText();
+   }
    //~--- get methods ---------------------------------------------------------
 
    /**
@@ -167,7 +168,7 @@ public class ConceptSnapshotImpl
     * @return the concept description text
     */
    @Override
-   public String getConceptDescriptionText() {
+   public String getFullySpecifiedConceptDescriptionText() {
       return getDescription().getText();
    }
 
@@ -227,20 +228,10 @@ public class ConceptSnapshotImpl
     */
    @Override
    public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription() {
-      return this.languageCoordinate.getFullySpecifiedDescription(Get.sememeService()
+      return this.manifoldCoordinate.getFullySpecifiedDescription(Get.sememeService()
             .getDescriptionsForComponent(getNid())
             .collect(Collectors.toList()),
-            this.stampCoordinate);
-   }
-
-   /**
-    * Gets the language coordinate.
-    *
-    * @return the language coordinate
-    */
-   @Override
-   public LanguageCoordinate getLanguageCoordinate() {
-      return this.languageCoordinate;
+            this.manifoldCoordinate);
    }
 
    /**
@@ -283,10 +274,10 @@ public class ConceptSnapshotImpl
     */
    @Override
    public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription() {
-      return this.languageCoordinate.getPreferredDescription(Get.sememeService()
+      return this.manifoldCoordinate.getPreferredDescription(Get.sememeService()
             .getDescriptionsForComponent(getNid())
             .collect(Collectors.toList()),
-            this.stampCoordinate);
+            this.manifoldCoordinate);
    }
 
    /**
@@ -298,16 +289,6 @@ public class ConceptSnapshotImpl
    public UUID getPrimordialUuid() {
       return this.snapshotVersion.value()
                                  .getPrimordialUuid();
-   }
-
-   /**
-    * Gets the stamp coordinate.
-    *
-    * @return the stamp coordinate
-    */
-   @Override
-   public StampCoordinate getStampCoordinate() {
-      return this.stampCoordinate;
    }
 
    /**
@@ -353,5 +334,47 @@ public class ConceptSnapshotImpl
       return this.snapshotVersion.value()
                                  .getUuidList();
    }
+   
+
+   @Override
+   public Optional<String> getPreferedConceptDescriptionText() {
+     return Optional.ofNullable(Get.defaultCoordinate().getPreferredDescriptionText(this.getConceptSequence()));
+   }
+
+   @Override
+   public ManifoldCoordinate makeCoordinateAnalog(PremiseType taxonomyType) {
+      return this.manifoldCoordinate.makeCoordinateAnalog(taxonomyType);
+   }
+
+   @Override
+   public int getIsaConceptSequence() {
+      return this.manifoldCoordinate.getIsaConceptSequence();
+   }
+
+   @Override
+   public PremiseType getTaxonomyType() {
+      return this.manifoldCoordinate.getTaxonomyType();
+   }
+
+   @Override
+   public UUID getCoordinateUuid() {
+      return this.manifoldCoordinate.getCoordinateUuid();
+   }
+
+   @Override
+   public StampCoordinate getStampCoordinate() {
+      return this.manifoldCoordinate;
+   }
+
+   @Override
+   public LanguageCoordinate getLanguageCoordinate() {
+      return this.manifoldCoordinate;
+   }
+
+   @Override
+   public LogicCoordinate getLogicCoordinate() {
+      return this.manifoldCoordinate;
+   }
+   
 }
 

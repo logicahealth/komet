@@ -53,7 +53,7 @@ import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.logic.LogicNode;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.ConnectorNode;
 import sh.isaac.model.logic.node.external.TypedNodeWithUuids;
@@ -88,7 +88,7 @@ public abstract class TypedNodeWithSequences
     * @param dataInputStream the data input stream
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public TypedNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
+   public TypedNodeWithSequences(LogicalExpressionImpl logicGraphVersion,
                                  DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
@@ -102,7 +102,7 @@ public abstract class TypedNodeWithSequences
     * @param typeConceptId the type concept id
     * @param child the child
     */
-   public TypedNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
+   public TypedNodeWithSequences(LogicalExpressionImpl logicGraphVersion,
                                  int typeConceptId,
                                  AbstractLogicNode child) {
       super(logicGraphVersion, child);

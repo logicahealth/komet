@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<installer-gui-script minSpecVersion="1">
+<title>KOMET</title>
+<background file="KOMET-background.png" mime-type="image/png" alignment="bottomleft"  scaling="tofit"/>
+<pkg-ref id="KOMT"/>
+<options customize="allow" require-scripts="false"/>
+<choices-outline>
+    <line choice="default">
+        <line choice="KOMT"/>
+    </line>
+</choices-outline>
+<choice id="default"/>
+<choice id="KOMT" visible="false">
+    <pkg-ref id="KOMT"/>
+</choice>
+<pkg-ref id="KOMT" version="4.17-SNAPSHOT" onConclusion="none">KOMET-app.pkg</pkg-ref>
+</installer-gui-script>

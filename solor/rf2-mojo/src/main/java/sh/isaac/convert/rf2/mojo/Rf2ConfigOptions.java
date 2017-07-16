@@ -75,10 +75,10 @@ public class Rf2ConfigOptions
             "The UUID of the module to load this content on.  If not provided, defaults to the SNOMED CT Core Module",
             true,
             false,
-            new ConverterOptionParamSuggestedValue(MetaData.SNOMED_CT_CORE_MODULES.getPrimordialUuid().toString(),
-                  MetaData.SNOMED_CT_CORE_MODULES.getConceptDescriptionText()),
-            new ConverterOptionParamSuggestedValue(MetaData.US_EXTENSION_MODULES.getPrimordialUuid().toString(),
-                  MetaData.US_EXTENSION_MODULES.getConceptDescriptionText())) };
+            new ConverterOptionParamSuggestedValue(MetaData.SNOMED_CT_CORE_MODULES____ISAAC.getPrimordialUuid().toString(),
+                  MetaData.SNOMED_CT_CORE_MODULES____ISAAC.getFullySpecifiedConceptDescriptionText()),
+            new ConverterOptionParamSuggestedValue(MetaData.US_EXTENSION_MODULES____ISAAC.getPrimordialUuid().toString(),
+                  MetaData.US_EXTENSION_MODULES____ISAAC.getFullySpecifiedConceptDescriptionText())) };
    }
 
    /**

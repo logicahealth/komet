@@ -4,16 +4,21 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>provider</artifactId>
-        <version>4.16</version>
+        <version>4.22</version>
     </parent>
     <groupId>sh.isaac.provider</groupId>
     <artifactId>query</artifactId>
     <packaging>jar</packaging>
     <name>ISAAC provider: Query</name>
     <properties>
-       <org.apache.lucene.version>4.10.3</org.apache.lucene.version>
+       <org.apache.lucene.version>6.6.0</org.apache.lucene.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>sh.isaac.core</groupId>
+            <artifactId>metadata</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>sh.isaac.misc</groupId>
             <artifactId>util</artifactId>

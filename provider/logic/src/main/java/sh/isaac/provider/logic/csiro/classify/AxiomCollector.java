@@ -63,7 +63,7 @@ import au.csiro.ontology.model.Axiom;
 import au.csiro.ontology.model.Concept;
 import au.csiro.ontology.model.Role;
 
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -73,7 +73,7 @@ import sh.isaac.model.logic.LogicalExpressionOchreImpl;
 
 //TODO move to CSIRO specific module
 public class AxiomCollector
-         implements Collector<LogicalExpressionOchreImpl, Set<Axiom>, Set<Axiom>> {
+         implements Collector<LogicalExpressionImpl, Set<Axiom>, Set<Axiom>> {
    /** The concept sequences. */
    BitSet conceptSequences;
 
@@ -124,7 +124,7 @@ public class AxiomCollector
     * @return the bi consumer
     */
    @Override
-   public BiConsumer<Set<Axiom>, LogicalExpressionOchreImpl> accumulator() {
+   public BiConsumer<Set<Axiom>, LogicalExpressionImpl> accumulator() {
       return new AxiomAccumulator(this.concepts,
                                   this.conceptSequences,
                                   this.roles,

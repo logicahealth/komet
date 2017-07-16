@@ -128,8 +128,8 @@ public class ObservableStampCoordinateImpl
     * @return the observable stamp coordinate impl
     */
    @Override
-   public ObservableStampCoordinateImpl makeAnalog(long stampPositionTime) {
-      final StampCoordinate analog = this.stampCoordinate.makeAnalog(stampPositionTime);
+   public ObservableStampCoordinateImpl makeCoordinateAnalog(long stampPositionTime) {
+      final StampCoordinate analog = this.stampCoordinate.makeCoordinateAnalog(stampPositionTime);
 
       return new ObservableStampCoordinateImpl(analog);
    }
@@ -141,8 +141,8 @@ public class ObservableStampCoordinateImpl
     * @return the observable stamp coordinate
     */
    @Override
-   public ObservableStampCoordinate makeAnalog(State... state) {
-      final StampCoordinate analog = this.stampCoordinate.makeAnalog(state);
+   public ObservableStampCoordinate makeCoordinateAnalog(State... state) {
+      final StampCoordinate analog = this.stampCoordinate.makeCoordinateAnalog(state);
 
       return new ObservableStampCoordinateImpl(analog);
    }

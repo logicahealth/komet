@@ -1,0 +1,41 @@
+<project xmlns="http://maven.apache.org/DECORATION/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/DECORATION/1.1.0 http://maven.apache.org/xsd/decoration-1.1.0.xsd">
+  <bannerLeft>
+    <src>images/prism.gif</src>
+    <href>http://informatics-architecture.net/isaac</href>
+  </bannerLeft>
+ 
+  <bannerRight>
+    <src>images/newton-stamp.jpg</src>
+  </bannerRight>
+   <skin>
+      <groupId>org.apache.maven.skins</groupId>
+      <artifactId>maven-fluido-skin</artifactId>
+      <version>1.6</version>
+   </skin>
+   <custom>
+      <fluidoSkin>
+         <topBarEnabled>false</topBarEnabled>
+         <sideBarEnabled>true</sideBarEnabled>
+         <breadcrumbDivider>»</breadcrumbDivider>
+         <copyrightClass>pull-left</copyrightClass>
+         <sourceLineNumbersEnabled>false</sourceLineNumbersEnabled>
+         <leftColumnClass>span3</leftColumnClass>
+         <bodyColumnClass>span9</bodyColumnClass>
+      </fluidoSkin>
+   </custom>
+   <body>
+      <breadcrumbs>
+         <item name="Database builder" href="index.html"/>        
+      </breadcrumbs>
+      <menu ref="parent"/>
+      <menu ref="modules"/>
+      <menu ref="reports"/>
+   </body>
+   <version position="bottom"/>
+   <publishDate position="right" format="yyyy-MM-dd HH:mm:ss z"/>
+   <poweredBy>
+      <logo name="Maven" href="http://maven.apache.org/"
+            img="http://maven.apache.org/images/logos/maven-feather.png"/>
+   </poweredBy>
+</project>

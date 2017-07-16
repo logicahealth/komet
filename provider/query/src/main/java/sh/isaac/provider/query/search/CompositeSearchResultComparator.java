@@ -46,9 +46,8 @@ import java.util.Comparator;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.commons.lang3.ObjectUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.index.SearchResult;
 
@@ -62,8 +61,10 @@ import sh.isaac.api.index.SearchResult;
  */
 public class CompositeSearchResultComparator
          implements Comparator<CompositeSearchResult> {
-   /** The Constant LOG. */
-   protected static final Logger LOG = LoggerFactory.getLogger(CompositeSearchResultComparator.class);
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 
@@ -97,10 +98,10 @@ public class CompositeSearchResultComparator
       // sort on text
       final int textComparison = ObjectUtils.compare(o1.getContainingConcept()
                                                        .get()
-                                                       .getConceptDescriptionText(),
+                                                       .getFullySpecifiedConceptDescriptionText(),
                                                      o2.getContainingConcept()
                                                            .get()
-                                                           .getConceptDescriptionText());
+                                                           .getFullySpecifiedConceptDescriptionText());
 
       if (textComparison != 0) {
          return textComparison;

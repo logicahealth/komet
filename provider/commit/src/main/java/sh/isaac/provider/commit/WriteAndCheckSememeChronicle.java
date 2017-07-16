@@ -100,8 +100,8 @@ public class WriteAndCheckSememeChronicle
     * @param writeSemaphore the write semaphore
     * @param changeListeners the change listeners
     * @param uncommittedTracking A handle to call back to the caller to notify it that the sememe has been
-    * written to the SememeService.  Parameter 1 is the Sememe, Parameter two is true to indicate that the
-    * change checker is active for this implementation.
+ written to the AssemblageService.  Parameter 1 is the Sememe, Parameter two is true to indicate that the
+ change checker is active for this implementation.
     */
    public WriteAndCheckSememeChronicle(SememeChronology sc,
          ConcurrentSkipListSet<ChangeChecker> checkers,

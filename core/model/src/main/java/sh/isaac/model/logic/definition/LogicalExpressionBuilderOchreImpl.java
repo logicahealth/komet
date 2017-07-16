@@ -87,7 +87,7 @@ import sh.isaac.api.logic.assertions.substitution.InstantSubstitution;
 import sh.isaac.api.logic.assertions.substitution.IntegerSubstitution;
 import sh.isaac.api.logic.assertions.substitution.StringSubstitution;
 import sh.isaac.api.logic.assertions.substitution.SubstitutionFieldSpecification;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.LiteralNodeBoolean;
 import sh.isaac.model.logic.node.LiteralNodeFloat;
@@ -255,7 +255,7 @@ public class LogicalExpressionBuilderOchreImpl
             throws IllegalStateException {
       checkNotBuilt();
 
-      final LogicalExpressionOchreImpl definition = new LogicalExpressionOchreImpl();
+      final LogicalExpressionImpl definition = new LogicalExpressionImpl();
 
       definition.Root();
       this.rootSets.forEach((axiom) -> addToDefinition(axiom, definition));
@@ -696,7 +696,7 @@ public class LogicalExpressionBuilderOchreImpl
     * @throws IllegalStateException the illegal state exception
     */
    private AbstractLogicNode addToDefinition(GenericAxiom axiom,
-         LogicalExpressionOchreImpl definition)
+         LogicalExpressionImpl definition)
             throws IllegalStateException {
       AbstractLogicNode newNode;
 
@@ -1094,7 +1094,7 @@ public class LogicalExpressionBuilderOchreImpl
     * @param definition the definition
     * @return the children
     */
-   protected AbstractLogicNode[] getChildren(GenericAxiom axiom, LogicalExpressionOchreImpl definition) {
+   protected AbstractLogicNode[] getChildren(GenericAxiom axiom, LogicalExpressionImpl definition) {
       final List<GenericAxiom>      childrenAxioms = this.definitionTree.get(axiom);
       final List<AbstractLogicNode> children       = new ArrayList<>(childrenAxioms.size());
 

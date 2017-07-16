@@ -904,8 +904,8 @@ public class WorkflowFrameworkTest {
    )
    public void testLoadWorkflow() {
       LOG.info("Loading Metadata db");
-      firstTestConceptNid        = MetaData.ISAAC_METADATA.getNid();
-      secondTestConceptNid       = MetaData.ACCEPTABLE.getNid();
+      firstTestConceptNid        = MetaData.ISAAC_METADATA____ISAAC.getNid();
+      secondTestConceptNid       = MetaData.ACCEPTABLE____ISAAC.getNid();
       WorkflowProvider.BPMN_PATH = BPMN_FILE_PATH;
       this.wp                   = LookupService.get()
             .getService(WorkflowProvider.class);
@@ -915,8 +915,8 @@ public class WorkflowFrameworkTest {
                              .iterator()
                              .next();
       this.defaultEditCoordinate = new EditCoordinateImpl(TermAux.USER.getNid(),
-            MetaData.ISAAC_MODULE.getNid(),
-            MetaData.DEVELOPMENT_PATH.getNid());
+            MetaData.ISAAC_MODULE____ISAAC.getNid(),
+            MetaData.DEVELOPMENT_PATH____ISAAC.getNid());
 
       final ObservableStampCoordinate defaultSC = Get.configurationService()
                                                      .getDefaultStampCoordinate();
@@ -925,8 +925,8 @@ public class WorkflowFrameworkTest {
             defaultSC.getStampPosition(),
             defaultSC.getModuleSequences(),
             State.ANY_STATE_SET);
-      firstTestConceptNid  = MetaData.EL_PLUS_PLUS_INFERRED_FORM_ASSEMBLAGE.getNid();
-      secondTestConceptNid = MetaData.ACCEPTABLE.getNid();
+      firstTestConceptNid  = MetaData.EL_PLUS_PLUS_INFERRED_FORM_ASSEMBLAGE____ISAAC.getNid();
+      secondTestConceptNid = MetaData.ACCEPTABLE____ISAAC.getNid();
    }
 
    /**

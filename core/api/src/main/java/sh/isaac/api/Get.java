@@ -49,6 +49,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -79,7 +81,6 @@ import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeService;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.CoordinateFactory;
@@ -91,12 +92,13 @@ import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.externalizable.OchreExternalizableSpliterator;
 import sh.isaac.api.index.GenerateIndexes;
-import sh.isaac.api.index.IndexServiceBI;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.util.WorkExecutors;
+import sh.isaac.api.index.IndexService;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -163,7 +165,7 @@ public class Get
    private static SememeBuilderService<?> sememeBuilderService;
 
    /** The sememe service. */
-   private static SememeService sememeService;
+   private static AssemblageService sememeService;
 
    /** The coordinate factory. */
    private static CoordinateFactory coordinateFactory;
@@ -322,7 +324,7 @@ public class Get
     */
    public static String conceptDescriptionText(int conceptId) {
       final Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional =
-         conceptSnapshot().getDescriptionOptional(conceptId);
+         defaultConceptSnapshotService().getDescriptionOptional(conceptId);
 
       if (descriptionOptional.isPresent()) {
          return descriptionOptional.get()
@@ -398,12 +400,10 @@ public class Get
     * {@code StampCoordinate} and {@code LanguageCoordinate} provided by the
     * configuration service.
     */
-   public static ConceptSnapshotService conceptSnapshot() {
+   public static ConceptSnapshotService defaultConceptSnapshotService() {
       if (conceptSnapshot == null) {
          conceptSnapshot = getService(ConceptService.class).getSnapshot(Get.configurationService()
-               .getDefaultStampCoordinate(),
-               Get.configurationService()
-                  .getDefaultLanguageCoordinate());
+               .getDefaultManifoldCoordinate());
       }
 
       return conceptSnapshot;
@@ -431,6 +431,14 @@ public class Get
       }
 
       return configurationService;
+   }
+   
+   /**
+    * 
+    * @return the default manifold coordinate from the configuration service. 
+    */
+   public static ManifoldCoordinate defaultCoordinate() {
+      return configurationService().getDefaultManifoldCoordinate();
    }
 
    /**
@@ -623,9 +631,9 @@ public class Get
     *
     * @return the sememe service
     */
-   public static SememeService sememeService() {
+   public static AssemblageService sememeService() {
       if (sememeService == null) {
-         sememeService = getService(SememeService.class);
+         sememeService = getService(AssemblageService.class);
       }
 
       return sememeService;
@@ -638,7 +646,7 @@ public class Get
     */
    public static boolean sememeServiceAvailable() {
       if (sememeService == null) {
-         sememeService = LookupService.getService(SememeService.class);
+         sememeService = LookupService.getService(AssemblageService.class);
       }
 
       return sememeService != null;
@@ -660,19 +668,19 @@ public class Get
    /**
     * Perform indexing according to all installed indexers.
     *
-    * Cause all index generators implementing the {@link IndexServiceBI} to first
+    * Cause all index generators implementing the {@link IndexService} to first
     * <code>clearIndex()</code> then iterate over all sememes in the database
-    * and pass those chronicles to {@link IndexServiceBI#index(sh.isaac.api.chronicle.ObjectChronology)}
+    * and pass those chronicles to {@link IndexService#index(sh.isaac.api.chronicle.ObjectChronology)}
     * and when complete, to call <code>commitWriter()</code>.
-    * {@link IndexServiceBI} services will be discovered using the HK2 dependency injection framework.
+    * {@link IndexService} services will be discovered using the HK2 dependency injection framework.
     * @param indexersToReindex - if null or empty - all indexes found via HK2 will be cleared and
-    * reindexed.  Otherwise, only clear and reindex the instances of {@link IndexServiceBI} which match the specified
-    * class list.  Classes passed in should be an extension of {@link IndexServiceBI}
+    * reindexed.  Otherwise, only clear and reindex the instances of {@link IndexService} which match the specified
+    * class list.  Classes passed in should be an extension of {@link IndexService}
     *
     * @return Task that indicates progress.
     */
    public static Task<Void> startIndexTask(
-           @SuppressWarnings("unchecked") Class<? extends IndexServiceBI>... indexersToReindex) {
+           @SuppressWarnings("unchecked") Class<? extends IndexService>... indexersToReindex) {
       final GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);
 
       LookupService.getService(WorkExecutors.class)
@@ -721,6 +729,13 @@ public class Get
 
       return workExecutors;
    }
+   public static ThreadPoolExecutor executor() {
+      return workExecutors().getExecutor();
+   }
+   
+   public static ScheduledExecutorService scheduledExecutor() {
+      return workExecutors().getScheduledThreadPoolExecutor();
+   }
 
    //~--- get methods ---------------------------------------------------------
 
@@ -740,6 +755,25 @@ public class Get
       }
 
       return service;
+   }
+   /**
+    * Gets the service.
+    *
+    * @param <T> the generic type
+    * @param clazz the clazz
+    * @return the service
+    */
+   private static <T> List<T> getServices(Class<T> clazz) {
+      final List<T> services = LookupService.getServices(clazz);
+
+      return services;
+   }
+
+   public static <T> T service(Class<T> clazz) {
+      return getService(clazz);
+   }
+   public static <T> List<T> services(Class<T> clazz) {
+      return getServices(clazz);
    }
 }
 

@@ -93,6 +93,22 @@ public interface ConceptBuilder
     * @return a ConceptBuilder for use in method chaining/fluent API.
     */
    ConceptBuilder addLogicalExpressionBuilder(LogicalExpressionBuilder logicalExpressionBuilder);
+   
+   /**
+    * Sets the logical expression. This method erases any previous logical expressions. 
+    *
+    * @param logicalExpression the logical expression
+    * @return the concept builder
+    */
+   public ConceptBuilder setLogicalExpression(LogicalExpression logicalExpression);
+
+   /**
+    * Sets the logical expression builder. This method erases previous logical expression builders. 
+    *
+    * @param logicalExpressionBuilder the logical expression builder
+    * @return the concept builder
+    */
+   public ConceptBuilder setLogicalExpressionBuilder(LogicalExpressionBuilder logicalExpressionBuilder);
 
    /**
     * Sets the primordial UUID from the given spect, adds any additional UUIDs from the given spec, and
@@ -118,6 +134,6 @@ public interface ConceptBuilder
     *
     * @return the synonym preferred description builder
     */
-   DescriptionBuilder<?, ?> getSynonymPreferredDescriptionBuilder();
+   DescriptionBuilder<?, ?> getPreferredDescriptionBuilder();
 }
 

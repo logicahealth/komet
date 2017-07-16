@@ -35,13 +35,6 @@
  *
  */
 
-
-
-/*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
- */
 package sh.isaac.api;
 
 /**
@@ -50,10 +43,10 @@ package sh.isaac.api;
  * @author kec
  */
 public enum DataSource {
-   /** The internal. */
+   /** Internal datasource. */
    INTERNAL,
 
-   /** The external. */
+   /** External datasource. */
    EXTERNAL;
 }
 

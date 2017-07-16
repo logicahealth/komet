@@ -83,10 +83,12 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
@@ -182,7 +184,7 @@ public class ConceptProvider
                         .exists()) {
                try {
                   this.dbId = UUID.fromString(new String(Files.readAllBytes(dbIdPath)));
-               } catch (final Exception e) {
+               } catch (final IOException e) {
                   throw new IllegalStateException("The " + CRADLE_ID_FILE_NAME + " file does not contain a valid UUID!",
                                                   e);
                }
@@ -532,13 +534,12 @@ public class ConceptProvider
    /**
     * Gets the snapshot.
     *
-    * @param stampCoordinate the stamp coordinate
-    * @param languageCoordinate the language coordinate
-    * @return the snapshot
+    * @param manifoldCoordinate the stamp coordinate
+    * @return the sh.isaac.api.component.concept.ConceptSnapshotService
     */
    @Override
-   public ConceptSnapshotService getSnapshot(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
-      return new ConceptSnapshotProvider(stampCoordinate, languageCoordinate);
+   public ConceptSnapshotService getSnapshot(sh.isaac.api.coordinate.ManifoldCoordinate manifoldCoordinate) {
+      return new ConceptSnapshotProvider(manifoldCoordinate);
    }
 
    //~--- inner classes -------------------------------------------------------
@@ -548,23 +549,18 @@ public class ConceptProvider
     */
    public class ConceptSnapshotProvider
             implements ConceptSnapshotService {
-      /** The stamp coordinate. */
-      StampCoordinate stampCoordinate;
-
-      /** The language coordinate. */
-      LanguageCoordinate languageCoordinate;
+      /** The manifold coordinate. */
+      ManifoldCoordinate manifoldCoordinate;
 
       //~--- constructors -----------------------------------------------------
 
       /**
        * Instantiates a new concept snapshot provider.
        *
-       * @param stampCoordinate the stamp coordinate
-       * @param languageCoordinate the language coordinate
+       * @param manifoldCoordinate
        */
-      public ConceptSnapshotProvider(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
-         this.stampCoordinate    = stampCoordinate;
-         this.languageCoordinate = languageCoordinate;
+      public ConceptSnapshotProvider(ManifoldCoordinate manifoldCoordinate) {
+         this.manifoldCoordinate    = manifoldCoordinate;
       }
 
       //~--- methods ----------------------------------------------------------
@@ -595,8 +591,7 @@ public class ConceptProvider
        */
       @Override
       public String toString() {
-         return "ConceptSnapshotProvider{" + "stampCoordinate=" + this.stampCoordinate + ", languageCoordinate=" +
-                this.languageCoordinate + '}';
+         return "ConceptSnapshotProvider{" + "manifoldCoordinate=" + this.manifoldCoordinate + '}';
       }
 
       //~--- get methods ------------------------------------------------------
@@ -609,7 +604,7 @@ public class ConceptProvider
        */
       @Override
       public boolean isConceptActive(int conceptSequence) {
-         return ConceptProvider.this.isConceptActive(conceptSequence, this.stampCoordinate);
+         return ConceptProvider.this.isConceptActive(conceptSequence, this.manifoldCoordinate);
       }
 
       /**
@@ -620,7 +615,7 @@ public class ConceptProvider
        */
       @Override
       public ConceptSnapshot getConceptSnapshot(int conceptSequence) {
-         return new ConceptSnapshotImpl(getConcept(conceptSequence), this.stampCoordinate, this.languageCoordinate);
+         return new ConceptSnapshotImpl(getConcept(conceptSequence), this.manifoldCoordinate);
       }
 
       /**
@@ -646,7 +641,7 @@ public class ConceptProvider
        */
       @Override
       public Optional<LatestVersion<DescriptionSememe<?>>> getDescriptionOptional(int conceptId) {
-         return this.languageCoordinate.getDescription(getDescriptionList(conceptId), this.stampCoordinate);
+         return this.manifoldCoordinate.getDescription(getDescriptionList(conceptId));
       }
 
       /**
@@ -657,18 +652,7 @@ public class ConceptProvider
        */
       @Override
       public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(int conceptId) {
-         return this.languageCoordinate.getFullySpecifiedDescription(getDescriptionList(conceptId),
-               this.stampCoordinate);
-      }
-
-      /**
-       * Gets the language coordinate.
-       *
-       * @return the language coordinate
-       */
-      @Override
-      public LanguageCoordinate getLanguageCoordinate() {
-         return this.languageCoordinate;
+         return this.manifoldCoordinate.getFullySpecifiedDescription(getDescriptionList(conceptId));
       }
 
       /**
@@ -679,7 +663,7 @@ public class ConceptProvider
        */
       @Override
       public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(int conceptId) {
-         return this.languageCoordinate.getPreferredDescription(getDescriptionList(conceptId), this.stampCoordinate);
+         return this.manifoldCoordinate.getPreferredDescription(getDescriptionList(conceptId));
       }
 
       /**
@@ -688,8 +672,13 @@ public class ConceptProvider
        * @return the stamp coordinate
        */
       @Override
-      public StampCoordinate getStampCoordinate() {
-         return this.stampCoordinate;
+      public ManifoldCoordinate getManifoldCoordinate() {
+         return this.manifoldCoordinate;
+      }
+
+      @Override
+      public ConceptSnapshot getConceptSnapshot(ConceptSpecification conceptSpecification) {
+         return getConceptSnapshot(conceptSpecification.getConceptSequence());
       }
    }
 }

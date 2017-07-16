@@ -51,7 +51,7 @@ import java.util.EnumSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- enums ------------------------------------------------------------------
 
@@ -142,7 +142,7 @@ public enum TaxonomyFlags {
     * @param viewCoordinate the view coordinate
     * @return the flags from taxonomy coordinate
     */
-   public static int getFlagsFromTaxonomyCoordinate(TaxonomyCoordinate viewCoordinate) {
+   public static int getFlagsFromManifoldCoordinate(ManifoldCoordinate viewCoordinate) {
       switch (viewCoordinate.getTaxonomyType()) {
       case INFERRED:
          return TaxonomyFlags.INFERRED.bits;

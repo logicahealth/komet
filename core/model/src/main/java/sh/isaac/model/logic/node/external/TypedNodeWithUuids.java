@@ -58,7 +58,7 @@ import java.util.UUID;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.logic.LogicNode;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.ConnectorNode;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithSequences;
@@ -99,7 +99,7 @@ public abstract class TypedNodeWithUuids
     * @param dataInputStream the data input stream
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public TypedNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion,
+   public TypedNodeWithUuids(LogicalExpressionImpl logicGraphVersion,
                              DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
@@ -113,7 +113,7 @@ public abstract class TypedNodeWithUuids
     * @param typeConceptUuid the type concept uuid
     * @param child the child
     */
-   public TypedNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion,
+   public TypedNodeWithUuids(LogicalExpressionImpl logicGraphVersion,
                              UUID typeConceptUuid,
                              AbstractLogicNode child) {
       super(logicGraphVersion, child);

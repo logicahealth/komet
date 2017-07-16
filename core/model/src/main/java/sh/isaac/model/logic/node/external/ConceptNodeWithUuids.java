@@ -59,7 +59,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
 
@@ -96,7 +96,7 @@ public class ConceptNodeWithUuids
     * @param dataInputStream the data input stream
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public ConceptNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion,
+   public ConceptNodeWithUuids(LogicalExpressionImpl logicGraphVersion,
                                DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
@@ -109,7 +109,7 @@ public class ConceptNodeWithUuids
     * @param logicGraphVersion the logic graph version
     * @param conceptUuid the concept uuid
     */
-   public ConceptNodeWithUuids(LogicalExpressionOchreImpl logicGraphVersion, UUID conceptUuid) {
+   public ConceptNodeWithUuids(LogicalExpressionImpl logicGraphVersion, UUID conceptUuid) {
       super(logicGraphVersion);
       this.conceptUuid = conceptUuid;
    }

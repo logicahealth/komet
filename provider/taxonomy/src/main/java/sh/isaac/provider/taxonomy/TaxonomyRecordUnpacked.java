@@ -57,9 +57,9 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.provider.taxonomy.TypeStampTaxonomyRecords.TypeStampTaxonomyRecord;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -213,7 +213,7 @@ public class TaxonomyRecordUnpacked {
     */
    public boolean containsConceptSequenceViaType(int conceptSequence,
          ConceptSequenceSet typeSequenceSet,
-         TaxonomyCoordinate tc) {
+         ManifoldCoordinate tc) {
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
 
       if (this.conceptSequenceRecordMap.containsKey(conceptSequence)) {
@@ -232,7 +232,7 @@ public class TaxonomyRecordUnpacked {
     * @param tc the tc
     * @return true, if successful
     */
-   public boolean containsConceptSequenceViaType(int conceptSequence, int typeSequence, TaxonomyCoordinate tc) {
+   public boolean containsConceptSequenceViaType(int conceptSequence, int typeSequence, ManifoldCoordinate tc) {
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
 
       if (this.conceptSequenceRecordMap.containsKey(conceptSequence)) {
@@ -254,7 +254,7 @@ public class TaxonomyRecordUnpacked {
     */
    public boolean containsConceptSequenceViaType(int conceptSequence,
          ConceptSequenceSet typeSequenceSet,
-         TaxonomyCoordinate tc,
+         ManifoldCoordinate tc,
          int flags) {
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
 
@@ -277,7 +277,7 @@ public class TaxonomyRecordUnpacked {
     */
    public boolean containsConceptSequenceViaType(int conceptSequence,
          int typeSequence,
-         TaxonomyCoordinate tc,
+         ManifoldCoordinate tc,
          int flags) {
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
 
@@ -474,8 +474,8 @@ public class TaxonomyRecordUnpacked {
     * @param tc used to determine if a concept is active.
     * @return active concepts identified by their sequence value.
     */
-   public IntStream getConceptSequencesForType(int typeSequence, TaxonomyCoordinate tc) {
-      final int                        flags                    = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
+   public IntStream getConceptSequencesForType(int typeSequence, ManifoldCoordinate tc) {
+      final int                        flags                    = TaxonomyFlags.getFlagsFromManifoldCoordinate(tc);
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
       final IntStream.Builder          conceptSequenceIntStream = IntStream.builder();
 
@@ -528,8 +528,8 @@ public class TaxonomyRecordUnpacked {
     * @param tc the tc
     * @return the destination concept sequences not of type
     */
-   public IntStream getDestinationConceptSequencesNotOfType(ConceptSequenceSet typeSet, TaxonomyCoordinate tc) {
-      final int                        flags                    = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
+   public IntStream getDestinationConceptSequencesNotOfType(ConceptSequenceSet typeSet, ManifoldCoordinate tc) {
+      final int                        flags                    = TaxonomyFlags.getFlagsFromManifoldCoordinate(tc);
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
       final IntStream.Builder          conceptSequenceIntStream = IntStream.builder();
 
@@ -590,8 +590,8 @@ public class TaxonomyRecordUnpacked {
     * @param tc the tc
     * @return the destination concept sequences of type
     */
-   public IntStream getDestinationConceptSequencesOfType(ConceptSequenceSet typeSet, TaxonomyCoordinate tc) {
-      final int                        flags                    = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
+   public IntStream getDestinationConceptSequencesOfType(ConceptSequenceSet typeSet, ManifoldCoordinate tc) {
+      final int                        flags                    = TaxonomyFlags.getFlagsFromManifoldCoordinate(tc);
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
       final IntStream.Builder          conceptSequenceIntStream = IntStream.builder();
 
@@ -651,8 +651,8 @@ public class TaxonomyRecordUnpacked {
     * @param tc the tc
     * @return the types for relationship
     */
-   IntStream getTypesForRelationship(int destinationId, TaxonomyCoordinate tc) {
-      final int                        flags                 = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(tc);
+   IntStream getTypesForRelationship(int destinationId, ManifoldCoordinate tc) {
+      final int                        flags                 = TaxonomyFlags.getFlagsFromManifoldCoordinate(tc);
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
       final IntStream.Builder          typeSequenceIntStream = IntStream.builder();
 

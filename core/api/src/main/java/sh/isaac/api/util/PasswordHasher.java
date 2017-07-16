@@ -54,11 +54,10 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -74,33 +73,33 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class PasswordHasher {
-   /** The Constant log_. */
-   private static final Logger log = LoggerFactory.getLogger(PasswordHasher.class);
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
 
-   // The higher the number of iterations the more expensive computing the hash is for us
+   // The higher the number of ITERATIONS the more expensive computing the hash is for us
 
-   /** The Constant iterations. */
+   /** The Constant ITERATIONS. */
    // and also for a brute force attack.
-   private static final int iterations = 10 * 1024;
+   private static final int ITERATIONS = 10 * 1024;
 
-   /** The Constant saltLen. */
-   private static final int saltLen = 32;
+   /** The Constant SALT_LEN. */
+   private static final int SALT_LEN = 32;
 
-   /** The Constant desiredKeyLen. */
-   private static final int desiredKeyLen = 256;
+   /** The Constant DESIRED_KEY_LENGTH. */
+   private static final int DESIRED_KEY_LENGTH = 256;
 
-   /** The Constant keyFactoryAlgorithm. */
-   private static final String keyFactoryAlgorithm = "PBKDF2WithHmacSHA1";
+   /** The Constant KEY_FACTORY_ALGORITHM. */
+   private static final String KEY_FACTORY_ALGORITHM = "PBKDF2WithHmacSHA1";
 
-   /** The Constant cipherAlgorithm. */
-   private static final String cipherAlgorithm = "PBEWithSHA1AndDESede";
+   /** The Constant CIPHER_ALGORITHM. */
+   private static final String CIPHER_ALGORITHM = "PBEWithSHA1AndDESede";
 
    // private static final Random random = new Random();  //Note, it would be more secure to use SecureRandom... but the entropy issues on Linux are a nasty issue
    // and it results in SecureRandom.getInstance(...).generateSeed(...) blocking for long periods of time.  A regular random is certainly good enough
 
-   /** The Constant secureRandom. */
+   /** The Constant SECURE_RANDOM. */
    // for our encryption purposes.
-   private static final SecureRandom secureRandom = new SecureRandom();
+   private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
    //~--- methods -------------------------------------------------------------
 
@@ -150,7 +149,7 @@ public class PasswordHasher {
       final byte[] result = decrypt(password, Base64.getUrlDecoder()
                                                     .decode(saltAndPass[0]), saltAndPass[1]);
 
-      log.debug("Decrypt Time {} ms", System.currentTimeMillis() - startTime);
+      LOG.debug("Decrypt Time {} ms", System.currentTimeMillis() - startTime);
       return result;
    }
 
@@ -178,15 +177,15 @@ public class PasswordHasher {
    public static String encrypt(String password, byte[] data)
             throws Exception {
       final long   startTime = System.currentTimeMillis();
-      final byte[] salt      = new byte[saltLen];
+      final byte[] salt      = new byte[SALT_LEN];
 
-      secureRandom.nextBytes(salt);
+      SECURE_RANDOM.nextBytes(salt);
 
       // store the salt with the password
       final String result = Base64.getUrlEncoder()
                                   .encodeToString(salt) + "$$$" + encrypt(password, salt, data);
 
-      log.debug("Encrypt Time {} ms", System.currentTimeMillis() - startTime);
+      LOG.debug("Encrypt Time {} ms", System.currentTimeMillis() - startTime);
       return result;
    }
 
@@ -214,7 +213,7 @@ public class PasswordHasher {
     */
    public static String hash(String password, byte[] salt)
             throws Exception {
-      return hash(password, salt, iterations, desiredKeyLen);
+      return hash(password, salt, ITERATIONS, DESIRED_KEY_LENGTH);
    }
 
    /**
@@ -236,12 +235,12 @@ public class PasswordHasher {
          throw new IllegalArgumentException("Empty passwords are not supported.");
       }
 
-      final SecretKeyFactory f      = SecretKeyFactory.getInstance(keyFactoryAlgorithm);
+      final SecretKeyFactory f      = SecretKeyFactory.getInstance(KEY_FACTORY_ALGORITHM);
       final SecretKey key = f.generateSecret(new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength));
       final String           result = Base64.getUrlEncoder()
                                             .encodeToString(key.getEncoded());
 
-      log.debug("Password compute time: {} ms", System.currentTimeMillis() - startTime);
+      LOG.debug("Password compute time: {} ms", System.currentTimeMillis() - startTime);
       return result;
    }
 
@@ -256,14 +255,14 @@ public class PasswordHasher {
     */
    private static byte[] decrypt(String password, byte[] salt, String data)
             throws Exception {
-      final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(keyFactoryAlgorithm);
+      final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(KEY_FACTORY_ALGORITHM);
       final SecretKey key = keyFactory.generateSecret(new PBEKeySpec(password.toCharArray(),
                                                                      salt,
-                                                                     iterations,
-                                                                     desiredKeyLen));
-      final Cipher pbeCipher = Cipher.getInstance(cipherAlgorithm);
+                                                                     ITERATIONS,
+                                                                     DESIRED_KEY_LENGTH));
+      final Cipher pbeCipher = Cipher.getInstance(CIPHER_ALGORITHM);
 
-      pbeCipher.init(Cipher.DECRYPT_MODE, key, new PBEParameterSpec(salt, iterations));
+      pbeCipher.init(Cipher.DECRYPT_MODE, key, new PBEParameterSpec(salt, ITERATIONS));
 
       byte[] decrypted;
 
@@ -303,14 +302,14 @@ public class PasswordHasher {
     */
    private static String encrypt(String password, byte[] salt, byte[] data)
             throws Exception {
-      final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(keyFactoryAlgorithm);
+      final SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(KEY_FACTORY_ALGORITHM);
       final SecretKey key = keyFactory.generateSecret(new PBEKeySpec(password.toCharArray(),
                                                                      salt,
-                                                                     iterations,
-                                                                     desiredKeyLen));
-      final Cipher pbeCipher = Cipher.getInstance(cipherAlgorithm);
+                                                                     ITERATIONS,
+                                                                     DESIRED_KEY_LENGTH));
+      final Cipher pbeCipher = Cipher.getInstance(CIPHER_ALGORITHM);
 
-      pbeCipher.init(Cipher.ENCRYPT_MODE, key, new PBEParameterSpec(salt, iterations));
+      pbeCipher.init(Cipher.ENCRYPT_MODE, key, new PBEParameterSpec(salt, ITERATIONS));
 
       // attach a sha1 checksum to the end of the data, so we know if we decrypted it properly.
       final byte[]     dataCheckSum = ChecksumGenerator.calculateChecksum("SHA1", data)
@@ -336,15 +335,15 @@ public class PasswordHasher {
    public static String getSaltedHash(String password)
             throws Exception {
       final long   startTime = System.currentTimeMillis();
-      final byte[] salt      = new byte[saltLen];
+      final byte[] salt      = new byte[SALT_LEN];
 
-      secureRandom.nextBytes(salt);
+      SECURE_RANDOM.nextBytes(salt);
 
       // store the salt with the password
       final String result = Base64.getUrlEncoder()
                                   .encodeToString(salt) + "$$$" + hash(password, salt);
 
-      log.debug("Compute Salted Hash time {} ms", System.currentTimeMillis() - startTime);
+      LOG.debug("Compute Salted Hash time {} ms", System.currentTimeMillis() - startTime);
       return result;
    }
 }

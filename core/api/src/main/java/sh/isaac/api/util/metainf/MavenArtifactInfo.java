@@ -110,17 +110,17 @@ public class MavenArtifactInfo {
       final StringBuilder sb = new StringBuilder();
 
       sb.append("MavenArtifactInfo\r\n");
-      sb.append("  groupId=" + this.groupId + "\r\n");
-      sb.append("  artifactId=" + this.artifactId + "\r\n");
-      sb.append("  version=" + this.version + "\r\n");
-      sb.append("  classifier=" + this.classifier + "\r\n");
-      sb.append("  type=" + this.type + "\r\n");
+      sb.append("  groupId=").append(this.groupId).append("\r\n");
+      sb.append("  artifactId=").append(this.artifactId).append("\r\n");
+      sb.append("  version=").append(this.version).append("\r\n");
+      sb.append("  classifier=").append(this.classifier).append("\r\n");
+      sb.append("  type=").append(this.type).append("\r\n");
       sb.append("\r\n");
       sb.append("Licenses\r\n");
-      this.dbLicenses.forEach(license -> sb.append("  " + license.toString() + "\r\n"));
+      this.dbLicenses.forEach(license -> sb.append("  ").append(license.toString()).append("\r\n"));
       sb.append("\r\n");
       sb.append("Database Dependencies\r\n");
-      this.dbDependencies.forEach(dbDependendy -> sb.append("  " + dbDependendy.toString() + "\r\n"));
+      this.dbDependencies.forEach(dbDependendy -> sb.append("  ").append(dbDependendy.toString()).append("\r\n"));
       return sb.toString();
    }
 
@@ -135,7 +135,7 @@ public class MavenArtifactInfo {
     * @param classifier Maven Dependency Classifier
     * @param type Maven Dependency Type
     */
-   public void setValues(String groupId, String artifactId, String version, String classifier, String type) {
+   public final void setValues(String groupId, String artifactId, String version, String classifier, String type) {
       this.groupId    = groupId;
       this.artifactId = artifactId;
       this.version    = version;

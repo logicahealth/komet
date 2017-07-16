@@ -76,14 +76,14 @@ public interface CoordinateFactory
     *
     * @return the taxonomy coordinate
     */
-   TaxonomyCoordinate createDefaultInferredTaxonomyCoordinate();
+   ManifoldCoordinate createDefaultInferredManifoldCoordinate();
 
    /**
     * Creates a new Coordinate object.
     *
     * @return the taxonomy coordinate
     */
-   TaxonomyCoordinate createDefaultStatedTaxonomyCoordinate();
+   ManifoldCoordinate createDefaultStatedManifoldCoordinate();
 
    /**
     * Creates a new Coordinate object.
@@ -130,7 +130,7 @@ public interface CoordinateFactory
     * @param logicCoordinate the logic coordinate
     * @return the taxonomy coordinate
     */
-   TaxonomyCoordinate createInferredTaxonomyCoordinate(StampCoordinate stampCoordinate,
+   ManifoldCoordinate createInferredManifoldCoordinate(StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate,
          LogicCoordinate logicCoordinate);
 
@@ -226,7 +226,7 @@ public interface CoordinateFactory
     * @param logicCoordinate the logic coordinate
     * @return the taxonomy coordinate
     */
-   TaxonomyCoordinate createStatedTaxonomyCoordinate(StampCoordinate stampCoordinate,
+   ManifoldCoordinate createStatedManifoldCoordinate(StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate,
          LogicCoordinate logicCoordinate);
 }

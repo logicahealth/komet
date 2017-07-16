@@ -49,7 +49,7 @@ import java.io.IOException;
 
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.logic.LogicNode;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -63,7 +63,7 @@ public abstract class LiteralNode
     *
     * @param logicGraphVersion the logic graph version
     */
-   public LiteralNode(LogicalExpressionOchreImpl logicGraphVersion) {
+   public LiteralNode(LogicalExpressionImpl logicGraphVersion) {
       super(logicGraphVersion);
    }
 
@@ -74,7 +74,7 @@ public abstract class LiteralNode
     * @param dataInputStream the data input stream
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public LiteralNode(LogicalExpressionOchreImpl logicGraphVersion,
+   public LiteralNode(LogicalExpressionImpl logicGraphVersion,
                       DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);

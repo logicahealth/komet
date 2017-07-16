@@ -63,9 +63,8 @@ import java.util.concurrent.ExecutionException;
 import javafx.beans.value.ChangeListener;
 
 import javafx.concurrent.Task;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -77,7 +76,7 @@ import org.slf4j.LoggerFactory;
 public class MavenPublish
         extends Task<Integer> {
    /** The log. */
-   private static Logger log = LoggerFactory.getLogger(MavenPublish.class);
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
@@ -137,7 +136,7 @@ public class MavenPublish
       this.url        = url;
       this.username   = username;
       this.psswrd     = psswrd;
-      log.debug("Maven Publish task constructed for GAV: {}:{}:{}", groupId, artifactId, version);
+      LOG.debug("Maven Publish task constructed for GAV: {}:{}:{}", groupId, artifactId, version);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -152,7 +151,7 @@ public class MavenPublish
    @Override
    protected Integer call()
             throws Exception {
-      log.debug("Maven publish task begins");
+      LOG.debug("Maven publish task begins");
       updateProgress(-1, 0);
       updateMessage("Creating Checksum Files");
       writeChecksumFile(this.pomFile, "MD5");
@@ -178,7 +177,7 @@ public class MavenPublish
       putFile(new File(this.pomFile.getParentFile(), this.pomFile.getName() + ".sha1"), "pom.sha1");
       updateMessage("Publish Complete");
       updateProgress(10, 10);
-      log.debug("Maven Publish Task Complete");
+      LOG.debug("Maven Publish Task Complete");
       return 0;
    }
 
@@ -197,7 +196,7 @@ public class MavenPublish
                      ((targetFileName == null) ? file.getName()
             : targetFileName));
 
-      log.info("Uploading " + file.getAbsolutePath() + " to " + url.toString());
+      LOG.info("Uploading " + file.getAbsolutePath() + " to " + url.toString());
       updateMessage("Uploading " + file.getName());
       updateProgress(0, file.length());
 
@@ -264,7 +263,7 @@ public class MavenPublish
          throw new Exception("The server reported an error during the publish operation:  " + sb.toString());
       }
 
-      log.info("Upload Successful");
+      LOG.info("Upload Successful");
       updateMessage("");
       updateProgress(-1, 0);
    }
@@ -296,7 +295,7 @@ public class MavenPublish
       final String checksum = gen.get();
 
       updateMessage("Writing checksum file");
-      log.debug("Writing {} checksum file with {}", type, checksum);
+      LOG.debug("Writing {} checksum file with {}", type, checksum);
       Files.write(new File(file.getParentFile(), file.getName() + "." + type.toLowerCase()).toPath(),
                   (checksum + "  " + file.getName()).getBytes(),
                   StandardOpenOption.WRITE,

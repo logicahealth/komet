@@ -60,7 +60,6 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeConstraints;
-import sh.isaac.api.component.sememe.SememeService;
 import sh.isaac.api.component.sememe.SememeServiceTyped;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
 import sh.isaac.api.component.sememe.SememeType;
@@ -68,6 +67,7 @@ import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
+import sh.isaac.api.AssemblageService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -77,7 +77,7 @@ import sh.isaac.api.coordinate.StampPosition;
 @Service
 @Rank(value = -50)
 public class MockSememeService
-         implements SememeService {
+         implements AssemblageService {
    /** The component sememe map. */
    ConcurrentHashMap<Integer, SememeSequenceSet> componentSememeMap = new ConcurrentHashMap<>();
 

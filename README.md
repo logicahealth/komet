@@ -1,7 +1,7 @@
-ISAAC
+ISAAC: Informatics Analytic Architecture
 ======================
 
-ISAAC Object Chronicle Project
+A dynamic semantic architecture for the analysis of models, logic, and language.
 
 ## Deploying to a repository
 To deploy, set a profile in your settings.xml with the repository you want to deploy to, 

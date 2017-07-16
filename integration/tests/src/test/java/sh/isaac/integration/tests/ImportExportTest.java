@@ -49,6 +49,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -71,7 +72,6 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.OchreExternalizableObjectType;
@@ -80,6 +80,10 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.MetaData;
+import sh.isaac.api.component.concept.ConceptSnapshot;
+import sh.isaac.api.component.concept.ConceptSnapshotService;
+import sh.isaac.api.component.sememe.SememeChronology;
+import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.model.logic.LogicByteArrayConverterService;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderOchreProvider;
 
@@ -89,6 +93,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.Feature;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.FloatLiteral;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -129,7 +134,7 @@ public class ImportExportTest {
       final ClassifierService logicService = Get.logicService()
                                                 .getClassifierService(stampCoordinate, logicCoordinate, editCoordinate);
       final Task<ClassifierResults> classifyTask = logicService.classify();
-
+      
       try {
          final ClassifierResults classifierResults = classifyTask.get();
 
@@ -152,9 +157,9 @@ public class ImportExportTest {
             throws Exception {
       final LogicalExpressionBuilder defBuilder = this.builderProvider.getLogicalExpressionBuilder();
 
-      SufficientSet(And(SomeRole(MetaData.ROLE_GROUP,
-                                 And(Feature(MetaData.HAS_STRENGTH, FloatLiteral(1.2345F, defBuilder)),
-                                     ConceptAssertion(MetaData.MASTER_PATH, defBuilder)))));
+      SufficientSet(And(SomeRole(MetaData.ROLE_GROUP____ISAAC,
+                                 And(Feature(MetaData.HAS_STRENGTH____ISAAC, FloatLiteral(1.2345F, defBuilder)),
+                                     ConceptAssertion(MetaData.MASTER_PATH____ISAAC, defBuilder)))));
 
       final LogicalExpression              logicGraphDef    = defBuilder.build();
       final LogicByteArrayConverterService converter        = new LogicByteArrayConverterService();
@@ -275,17 +280,22 @@ public class ImportExportTest {
    public void testInferredTaxonomy() {
       LOG.info("Testing inferred taxonomy");
 
-      final TaxonomyCoordinate taxonomyCoordinate = Get.configurationService()
-                                                       .getDefaultTaxonomyCoordinate()
-                                                       .makeAnalog(PremiseType.INFERRED);
+      final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
+                                                       .getDefaultManifoldCoordinate()
+                                                       .makeCoordinateAnalog(PremiseType.INFERRED);
       final int[] roots = Get.taxonomyService()
-                             .getRoots(taxonomyCoordinate)
+                             .getRoots(manifoldCoordinate)
                              .toArray();
 
-      Assert.assertEquals(roots.length, 1);
+      StringBuilder rootsMessage = new StringBuilder();
+      for (int root: roots) {
+         rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
+      }
+      
+      Assert.assertEquals(roots.length, 1, rootsMessage.toString());
 
       final Tree          taxonomyTree  = Get.taxonomyService()
-                                             .getTaxonomyTree(taxonomyCoordinate);
+                                             .getTaxonomyTree(manifoldCoordinate);
       final AtomicInteger taxonomyCount = new AtomicInteger(0);
 
       taxonomyTree.depthFirstProcess(roots[0],
@@ -335,17 +345,21 @@ public class ImportExportTest {
    public void testStatedTaxonomy() {
       LOG.info("Testing stated taxonomy");
 
-      final TaxonomyCoordinate taxonomyCoordinate = Get.configurationService()
-                                                       .getDefaultTaxonomyCoordinate()
-                                                       .makeAnalog(PremiseType.STATED);
+      final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
+                                                       .getDefaultManifoldCoordinate()
+                                                       .makeCoordinateAnalog(PremiseType.STATED);
       final int[] roots = Get.taxonomyService()
-                             .getRoots(taxonomyCoordinate)
+                             .getRoots(manifoldCoordinate)
                              .toArray();
-
-      Assert.assertEquals(roots.length, 1);
+      StringBuilder rootsMessage = new StringBuilder();
+      for (int root: roots) {
+         rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
+      }
+      
+      Assert.assertEquals(roots.length, 1, rootsMessage.toString());
 
       final Tree          taxonomyTree  = Get.taxonomyService()
-                                             .getTaxonomyTree(taxonomyCoordinate);
+                                             .getTaxonomyTree(manifoldCoordinate);
       final AtomicInteger taxonomyCount = new AtomicInteger(0);
 
       taxonomyTree.depthFirstProcess(roots[0],

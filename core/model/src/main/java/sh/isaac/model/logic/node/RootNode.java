@@ -52,7 +52,7 @@ import java.util.UUID;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -67,7 +67,7 @@ public class RootNode
     * @param logicGraphVersion the logic graph version
     * @param children the children
     */
-   public RootNode(LogicalExpressionOchreImpl logicGraphVersion, ConnectorNode... children) {
+   public RootNode(LogicalExpressionImpl logicGraphVersion, ConnectorNode... children) {
       super(logicGraphVersion, children);
    }
 
@@ -78,7 +78,7 @@ public class RootNode
     * @param dataInputStream the data input stream
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public RootNode(LogicalExpressionOchreImpl logicGraphVersion, DataInputStream dataInputStream)
+   public RootNode(LogicalExpressionImpl logicGraphVersion, DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
    }

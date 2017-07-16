@@ -58,8 +58,8 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.provider.taxonomy.TaxonomyFlags;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -85,8 +85,8 @@ public class TaxonomyWalkCollector
    /** The print count. */
    int printCount = 0;
 
-   /** The taxonomy coordinate. */
-   final TaxonomyCoordinate taxonomyCoordinate;
+   /** The manifold coordinate. */
+   final ManifoldCoordinate manifoldCoordinate;
 
    /** The taxonomy flags. */
    final int taxonomyFlags;
@@ -96,11 +96,11 @@ public class TaxonomyWalkCollector
    /**
     * Instantiates a new taxonomy walk collector.
     *
-    * @param taxonomyCoordinate the taxonomy coordinate
+    * @param manifoldCoordinate the taxonomy coordinate
     */
-   public TaxonomyWalkCollector(TaxonomyCoordinate taxonomyCoordinate) {
-      this.taxonomyCoordinate = taxonomyCoordinate;
-      this.taxonomyFlags      = TaxonomyFlags.getFlagsFromTaxonomyCoordinate(taxonomyCoordinate);
+   public TaxonomyWalkCollector(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
+      this.taxonomyFlags      = TaxonomyFlags.getFlagsFromManifoldCoordinate(manifoldCoordinate);
 
       final int watchNid = Get.identifierService()
                               .getNidForUuids(UUID.fromString("df79ab93-4436-35b8-be3f-2a8e5849d732"));
@@ -127,9 +127,9 @@ public class TaxonomyWalkCollector
       }
 
       if (Get.conceptService()
-             .isConceptActive(conceptSequence, this.taxonomyCoordinate.getStampCoordinate())) {
+             .isConceptActive(conceptSequence, this.manifoldCoordinate.getStampCoordinate())) {
          final IntStream parentSequences = Get.taxonomyService()
-                                              .getTaxonomyParentSequences(conceptSequence, this.taxonomyCoordinate);
+                                              .getTaxonomyParentSequences(conceptSequence, this.manifoldCoordinate);
          final int parentCount = (int) parentSequences.count();
 
          if (parentCount == 0) {

@@ -4,11 +4,11 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>4.16</version>
+        <version>4.22</version>
     </parent>
     <artifactId>solor</artifactId>
     <name>ISAAC SOLOR: (MMP)</name>
-    <description>Aggrigator project for ISAAC's SOLOR modules</description>
+    <description>Aggregator project for ISAAC's SOLOR modules</description>
     <packaging>pom</packaging>
     <modules>
         <module>loinc-mojo</module>

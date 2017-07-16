@@ -55,9 +55,9 @@ import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.TaxonomyCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -79,7 +79,7 @@ public class Snapshot {
    StampCoordinate stampCoordinate;
 
    /** The taxonomy coordinate. */
-   TaxonomyCoordinate taxonomyCoordinate;
+   ManifoldCoordinate manifoldCoordinate;
 
    /** The position calculator. */
    RelativePositionCalculator positionCalculator;
@@ -92,16 +92,16 @@ public class Snapshot {
     * @param languageCoordinate the language coordinate
     * @param logicCoordinate the logic coordinate
     * @param stampCoordinate the stamp coordinate
-    * @param taxonomyCoordinate the taxonomy coordinate
+    * @param manifoldCoordinate the taxonomy coordinate
     */
    public Snapshot(LanguageCoordinate languageCoordinate,
                    LogicCoordinate logicCoordinate,
                    StampCoordinate stampCoordinate,
-                   TaxonomyCoordinate taxonomyCoordinate) {
+                   ManifoldCoordinate manifoldCoordinate) {
       this.languageCoordinate = languageCoordinate;
       this.logicCoordinate    = logicCoordinate;
       this.stampCoordinate    = stampCoordinate;
-      this.taxonomyCoordinate = taxonomyCoordinate;
+      this.manifoldCoordinate = manifoldCoordinate;
       this.positionCalculator = RelativePositionCalculator.getCalculator(stampCoordinate);
    }
 
@@ -126,7 +126,7 @@ public class Snapshot {
     */
    public TaxonomySnapshotService getTaxonomySnapshotService() {
       return Get.taxonomyService()
-                .getSnapshot(this.taxonomyCoordinate);
+                .getSnapshot(this.manifoldCoordinate);
    }
 
    /**

@@ -194,7 +194,7 @@ public class ClassifierData
 
                // get stampCoordinate for last classify.
                final StampCoordinate stampToCompare =
-                  this.stampCoordinate.makeAnalog(this.lastClassifyInstant.toEpochMilli());
+                  this.stampCoordinate.makeCoordinateAnalog(this.lastClassifyInstant.toEpochMilli());
 
                // See if there is a change in the optionalLatest vs the last classify.
                final Optional<LatestVersion<LogicGraphSememeImpl>> optionalPrevious =

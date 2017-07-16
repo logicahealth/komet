@@ -56,7 +56,7 @@ import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.logic.ConcreteDomainOperators;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.external.FeatureNodeWithUuids;
 
@@ -98,7 +98,7 @@ public final class FeatureNodeWithSequences
     */
 
 // int unitsConceptSequence;
-   public FeatureNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
+   public FeatureNodeWithSequences(LogicalExpressionImpl logicGraphVersion,
                                    DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
@@ -114,7 +114,7 @@ public final class FeatureNodeWithSequences
     * @param typeConceptId the type concept id
     * @param child the child
     */
-   public FeatureNodeWithSequences(LogicalExpressionOchreImpl logicGraphVersion,
+   public FeatureNodeWithSequences(LogicalExpressionImpl logicGraphVersion,
                                    int typeConceptId,
                                    AbstractLogicNode child) {
       super(logicGraphVersion, typeConceptId, child);

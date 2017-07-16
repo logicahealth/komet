@@ -48,11 +48,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -67,7 +66,6 @@ import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
-import sh.isaac.utility.Frills;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -80,8 +78,10 @@ import sh.isaac.utility.Frills;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class CompositeSearchResult {
-   /** The Constant LOG. */
-   private static final Logger LOG = LoggerFactory.getLogger(CompositeSearchResult.class);
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
@@ -146,7 +146,7 @@ public class CompositeSearchResult {
 
       if (results != null) {
          for (final CompositeSearchResult result: results) {
-            if (result.getContainingConcept() == null) {
+            if (!result.getContainingConcept().isPresent()) {
                nullResults.add(result);
             }
          }
@@ -239,7 +239,7 @@ public class CompositeSearchResult {
       if (this.containingConcept.isPresent()) {
          try {
             containingConceptDesc = this.containingConcept.get()
-                  .getConceptDescriptionText();
+                  .getFullySpecifiedConceptDescriptionText();
          } catch (final Exception e) {
             containingConceptDesc = "{nid=" + this.containingConcept.get().getNid() + "}";
          }
@@ -324,16 +324,21 @@ public class CompositeSearchResult {
       final ObjectChronologyType type = Get.identifierService()
                                            .getChronologyTypeForNid(componentNid);
 
-      if (type == ObjectChronologyType.UNKNOWN_NID) {
-         return Optional.empty();
-      } else if (type == ObjectChronologyType.CONCEPT) {
-         return Frills.getConceptSnapshot(componentNid, null, null);
-      } else if (type == ObjectChronologyType.SEMEME) {
-         return locateContainingConcept(Get.sememeService()
-                                           .getSememe(componentNid)
-                                           .getReferencedComponentNid());
-      } else {
+      if (null == type) {
          throw new RuntimeException("oops");
+      } else {
+         switch (type) {
+            case UNKNOWN_NID:
+               return Optional.empty();
+            case CONCEPT:
+               return Optional.ofNullable(Get.defaultConceptSnapshotService().getConceptSnapshot(componentNid));
+            case SEMEME:
+               return locateContainingConcept(Get.sememeService()
+                       .getSememe(componentNid)
+                       .getReferencedComponentNid());
+            default:
+               throw new RuntimeException("oops");
+         }
       }
    }
 
@@ -394,7 +399,7 @@ public class CompositeSearchResult {
    public List<String> getMatchingStrings(Optional<StampCoordinate> stampCoord) {
       final ArrayList<String> strings = new ArrayList<>();
 
-      if (this.matchingComponents.size() == 0) {
+      if (this.matchingComponents.isEmpty()) {
          if (!this.containingConcept.isPresent()) {
             strings.add("Match to NID (not on path):" + this.matchingComponentNid);
          } else {

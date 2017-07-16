@@ -75,7 +75,7 @@ public class DescriptionBuilderProvider
                                    ConceptBuilder conceptBuilder,
                                    ConceptSpecification descriptionType,
                                    ConceptSpecification languageForDescription) {
-      return new DescriptionBuilderOchreImpl(descriptionText, conceptBuilder, descriptionType, languageForDescription);
+      return new DescriptionBuilderImpl(descriptionText, conceptBuilder, descriptionType, languageForDescription);
    }
 
    /**
@@ -93,7 +93,7 @@ public class DescriptionBuilderProvider
                                    int conceptSequence,
                                    ConceptSpecification descriptionType,
                                    ConceptSpecification languageForDescription) {
-      return new DescriptionBuilderOchreImpl(descriptionText, conceptSequence, descriptionType, languageForDescription);
+      return new DescriptionBuilderImpl(descriptionText, conceptSequence, descriptionType, languageForDescription);
    }
 }
 

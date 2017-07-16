@@ -87,7 +87,7 @@ import sh.isaac.api.relationship.RelationshipAdaptorChronicleKey;
 import sh.isaac.api.relationship.RelationshipVersionAdaptor;
 import sh.isaac.MetaData;
 import sh.isaac.model.configuration.LogicCoordinates;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
@@ -141,7 +141,7 @@ public class LogicProvider
          PremiseType premiseType) {
       final int destinationSequence = Get.identifierService()
                                          .getConceptSequence(destinationNode.getConceptSequence());
-      final int typeSequence = MetaData.IS_A.getConceptSequence();
+      final int typeSequence = MetaData.IS_A____ISAAC.getConceptSequence();
       final int group        = 0;
       final RelationshipAdaptorChronicleKeyImpl key = new RelationshipAdaptorChronicleKeyImpl(originSequence,
                                                                                               destinationSequence,
@@ -170,7 +170,7 @@ public class LogicProvider
          int roleGroup) {
       final Stream.Builder<RelationshipVersionAdaptorImpl> roleStream = Stream.builder();
 
-      if (someNode.getTypeConceptSequence() == MetaData.ROLE_GROUP.getConceptSequence()) {
+      if (someNode.getTypeConceptSequence() == MetaData.ROLE_GROUP____ISAAC.getConceptSequence()) {
          final AndNode andNode = (AndNode) someNode.getOnlyChild();
 
          andNode.getChildStream().forEach((roleGroupSomeNode) -> {
@@ -196,7 +196,7 @@ public class LogicProvider
             destinationSequence = Get.identifierService()
                                      .getConceptSequence(restrictionNode.getConceptSequence());
          } else {
-            destinationSequence = MetaData.ANONYMOUS_CONCEPT.getConceptSequence();
+            destinationSequence = MetaData.ANONYMOUS_CONCEPT____ISAAC.getConceptSequence();
          }
 
          final int typeSequence = Get.identifierService()
@@ -237,8 +237,8 @@ public class LogicProvider
                                            .getConceptSequence(logicGraphChronology.getReferencedComponentNid());
 
       logicGraphChronology.getVersionList().forEach((logicVersion) -> {
-                                      final LogicalExpressionOchreImpl expression =
-                                         new LogicalExpressionOchreImpl(logicVersion.getGraphData(),
+                                      final LogicalExpressionImpl expression =
+                                         new LogicalExpressionImpl(logicVersion.getGraphData(),
                                                                         DataSource.INTERNAL,
                                                                         originConceptSequence);
                                    });
@@ -454,22 +454,22 @@ public class LogicProvider
       final SememeSnapshotService<LogicGraphSememeImpl> ssp = Get.sememeService()
                                                                  .getSnapshot(LogicGraphSememeImpl.class,
                                                                        stampCoordinate);
-      final List<LatestVersion<LogicalExpressionOchreImpl>> latestVersions =
+      final List<LatestVersion<LogicalExpressionImpl>> latestVersions =
          ssp.getLatestSememeVersionsForComponentFromAssemblage(conceptId,
                                                                logicAssemblageId)
             .map((LatestVersion<LogicGraphSememeImpl> lgs) -> {
-                    final LogicalExpressionOchreImpl expressionValue =
-                       new LogicalExpressionOchreImpl(lgs.value().getGraphData(),
+                    final LogicalExpressionImpl expressionValue =
+                       new LogicalExpressionImpl(lgs.value().getGraphData(),
                                                       DataSource.INTERNAL,
                                                       lgs.value().getReferencedComponentNid());
-                    final LatestVersion<LogicalExpressionOchreImpl> latestExpressionValue =
+                    final LatestVersion<LogicalExpressionImpl> latestExpressionValue =
                        new LatestVersion<>(expressionValue);
 
                     if (lgs.contradictions()
                            .isPresent()) {
                        lgs.contradictions().get().forEach((LogicGraphSememeImpl contradiction) -> {
-                                      final LogicalExpressionOchreImpl contradictionValue =
-                                         new LogicalExpressionOchreImpl(contradiction.getGraphData(),
+                                      final LogicalExpressionImpl contradictionValue =
+                                         new LogicalExpressionImpl(contradiction.getGraphData(),
                                                                         DataSource.INTERNAL,
                                                                         contradiction.getReferencedComponentNid());
 

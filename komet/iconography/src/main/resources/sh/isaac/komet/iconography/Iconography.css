@@ -1,0 +1,217 @@
+/*
+Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the 
+         US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+/* 
+    Created on : May 7, 2017, 5:40:30 PM
+    Author     : kec
+*/
+
+.root{
+   -icons-color: black;
+}
+
+.glyph-icon{
+   -fx-text-fill: -icons-color;
+   -fx-fill: -icons-color;
+   -glyph-size: 48pt;
+}
+
+.glyph-icon:hover{
+   -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,1.0), 10, 0, 0, 0);
+   /* -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 0); */
+}
+
+.bluesky-icon{
+   -glyph-name: "CLOUD";
+   -icons-color: blue;
+   -fx-fill: linear-gradient(-icons-color 0%, 
+      derive(-icons-color, 100%) 30%, derive(blueviolet, 30%) 85%);
+}
+
+.bluesky-icon:hover{
+   -glyph-name: "CLOUDY";
+   -icons-color: yellowgreen;
+   -fx-effect:  dropshadow(three-pass-box, 
+      rgba(156,115,241,0.6), 10, 0, 0, 0);
+}
+
+.bluesky-icon:pressed{
+   -glyph-name: "DAY_CLOUDY";
+   -icons-color: yellow;
+   -fx-effect:  dropshadow(three-pass-box, 
+      rgba(0,0,0,1.0), 10, 0, 0, 0);
+}
+
+
+.thumbs-up-icon{
+   -glyph-name: "THUMBS_UP";
+   -icons-color: yellowgreen;
+}
+
+.thumbs-up-icon:hover{
+   -fx-effect:  dropshadow(three-pass-box, rgba(154,205,55,0.7), 10, 0, 0, 0);
+}
+
+.thumbs-up-icon:pressed{
+   -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,1.0), 10, 0, 0, 0);
+}
+
+.thumbs-down-icon{
+   -glyph-name: "THUMBS_DOWN";
+   -icons-color: red;
+}
+
+.thumbs-down-icon:hover{
+   -fx-effect:  dropshadow(three-pass-box, rgba(255,0,0,0.7), 10, 0, 0, 0);
+}
+
+.thumbs-down-icon:pressed{
+   -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,1.0), 10, 0, 0, 0);
+}
+
+.android-icon{
+   -icons-color: yellowgreen;
+   -fx-fill: linear-gradient(-icons-color 0%, derive(yellowgreen, 30%) 85%);
+   -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,1.0), 10, 0, 0, 0);
+}
+
+.taxonomy-root-icon {
+   -glyph-name: "HEXAGON_OUTLINE";
+   -glyph-size: 14pt;
+   -icons-color: #FF4E08;
+}
+
+.taxonomy-defined-multiparent-open-icon {
+   -glyph-name: "ARROW_UP_BOLD_CIRCLE_OUTLINE"; 
+   -fx-rotate: 45;
+   -glyph-size: 14pt;
+   -icons-color: #7DDE3A;
+}
+.taxonomy-defined-multiparent-closed-icon {
+   -glyph-name: "ARROW_UP_BOLD_CIRCLE_OUTLINE";
+   -glyph-size: 14pt;
+   -icons-color: #7DDE3A;
+}
+.taxonomy-primitive-multiparent-open-icon {
+   -glyph-name: "ARROW_UP_BOLD_HEXAGON_OUTLINE";
+   -fx-rotate: 45;
+   -glyph-size: 14pt;
+   -icons-color: #FF4E08;
+}
+.taxonomy-primitive-multiparent-closed-icon {
+   -glyph-name: "ARROW_UP_BOLD_HEXAGON_OUTLINE";
+   -glyph-size: 14pt;
+   -icons-color: #FF4E08;
+}
+.taxonomy-primitive-singleparent-icon {
+   -glyph-name: "HEXAGON";
+   -glyph-size: 14pt;
+   -icons-color: #FF4E08;
+}
+.taxonomy-defined-singleparent-icon {
+   -glyph-name: "CHECKBOX_BLANK_CIRCLE_OUTLINE";
+   -glyph-size: 14pt;
+   -icons-color: #7DDE3A;
+   
+}
+
+.taxonomy-closed-icon {
+   -glyph-name: "CARET_DOWN";
+   -glyph-size: 14pt;
+   -icons-color: grey;
+   /* -fx-padding: 4 18 4 20; */
+   -fx-background-color: transparent;
+}
+.taxonomy-closed-icon:hover{
+   -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,1.0), 10, 0, 0, 0);
+}
+
+.taxonomy-open-icon {
+   -glyph-name: "CARET_RIGHT";
+   -glyph-size: 14pt;
+   -icons-color: grey;
+   /* -fx-padding: 2 24 4 14;  top right bottom left*/
+   -fx-background-color: transparent;
+}
+.taxonomy-open-icon:hover{
+   -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,1.0), 10, 0, 0, 0);
+}
+
+.inferred-view {
+   -fx-graphic: url("/sh/isaac/komet/iconography/icosahedron.svg");
+   -my-height: 24;
+   -my-width: 25;
+}
+
+.inferred-view:hover{
+   -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,1.0), 10, 0, 0, 0);
+   /* -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 0); */
+}
+
+.stated-view {
+   -fx-graphic: url("/sh/isaac/komet/iconography/tetrahedron.svg");
+   -my-height: 24;
+   -my-width: 25;
+}
+
+.stated-view:hover{
+   -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,1.0), 10, 0, 0, 0);
+   /* -fx-effect:  dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 0); */
+}
+.taxonomy-icon {
+   -glyph-name: "FILE_TREE";
+   -glyph-size: 14pt;
+   -icons-color: #4f80d9;
+
+}
+.short-text {
+   -glyph-name: "SHORT_TEXT";
+   -glyph-size: 14pt;
+   -icons-color: #4f80d9;
+
+}
+
+.long-text {
+   -glyph-name: "WRAP_TEXT";
+   -glyph-size: 14pt;
+   -icons-color: #4f80d9;
+
+}
+
+.vanity-box {
+   -fx-graphic: url("/sh/isaac/komet/iconography/isaacs_komet.svg");
+   -my-height: 40;
+   -my-width: 160;
+   
+}
+
+
+.set-and {
+   -fx-graphic: url("/sh/isaac/komet/iconography/and.svg");
+   -my-height: 18;
+   -my-width: 26;
+    -icons-color: #4f80d9;
+  
+}
+
+.set-or {
+   -fx-graphic: url("/sh/isaac/komet/iconography/or.svg");
+   -my-height: 50;
+   -my-width: 25;
+   -icons-color: #FF4E08;
+   -fx-rotate:90; 
+   
+}

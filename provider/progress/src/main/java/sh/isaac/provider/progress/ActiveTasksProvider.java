@@ -41,8 +41,9 @@ package sh.isaac.provider.progress;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -68,12 +69,12 @@ import sh.isaac.api.progress.ActiveTasks;
 public class ActiveTasksProvider
          implements ActiveTasks {
    /** The task set. */
-   Set<Task<?>> taskSet = ConcurrentHashMap.newKeySet();
+   ObservableSet<Task<?>> taskSet = FXCollections.observableSet(ConcurrentHashMap.newKeySet());
 
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Adds the.
+    * Adds the task to the active tasks set.
     *
     * @param task the task
     */
@@ -83,7 +84,7 @@ public class ActiveTasksProvider
    }
 
    /**
-    * Removes the.
+    * Removes the task from the active tasks set.
     *
     * @param task the task
     */
@@ -95,12 +96,12 @@ public class ActiveTasksProvider
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the.
+    * Gets the observable task set.
     *
     * @return the set
     */
    @Override
-   public Set<Task<?>> get() {
+   public ObservableSet<Task<?>> get() {
       return this.taskSet;
    }
 }

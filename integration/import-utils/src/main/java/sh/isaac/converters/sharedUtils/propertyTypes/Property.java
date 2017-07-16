@@ -104,9 +104,9 @@ public class Property {
     * @param cs the cs
     */
    public Property(PropertyType owner, ConceptSpecification cs) {
-      this(owner, cs.getConceptDescriptionText(), null, null, false, Integer.MAX_VALUE, null);
+      this(owner, cs.getFullySpecifiedConceptDescriptionText(), null, null, false, Integer.MAX_VALUE, null);
       this.propertyUUID = cs.getPrimordialUuid();
-      ConverterUUID.addMapping(cs.getConceptDescriptionText(), cs.getPrimordialUuid());
+      ConverterUUID.addMapping(cs.getFullySpecifiedConceptDescriptionText(), cs.getPrimordialUuid());
       this.isFromConceptSpec = true;
    }
 

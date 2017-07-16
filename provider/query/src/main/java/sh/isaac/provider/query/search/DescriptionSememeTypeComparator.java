@@ -42,11 +42,10 @@ package sh.isaac.provider.query.search;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Comparator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.component.sememe.version.DescriptionSememe;
@@ -61,8 +60,6 @@ import sh.isaac.api.component.sememe.version.DescriptionSememe;
  */
 public class DescriptionSememeTypeComparator
          implements Comparator<DescriptionSememe<?>> {
-   /** The Constant LOG. */
-   protected static final Logger LOG = LoggerFactory.getLogger(DescriptionSememeTypeComparator.class);
 
    //~--- methods -------------------------------------------------------------
 
@@ -78,11 +75,11 @@ public class DescriptionSememeTypeComparator
       final String o1matchingComponentType = Get.conceptService()
                                                 .getOptionalConcept(o1.getDescriptionTypeConceptSequence())
                                                 .get()
-                                                .getConceptDescriptionText();
+                                                .getFullySpecifiedConceptDescriptionText();
       final String o2matchingComponentType = Get.conceptService()
                                                 .getOptionalConcept(o2.getDescriptionTypeConceptSequence())
                                                 .get()
-                                                .getConceptDescriptionText();
+                                                .getFullySpecifiedConceptDescriptionText();
 
       return o1matchingComponentType.compareTo(o2matchingComponentType);
    }

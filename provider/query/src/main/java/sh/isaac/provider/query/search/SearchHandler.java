@@ -44,7 +44,7 @@ package sh.isaac.provider.query.search;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -55,11 +55,10 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -93,8 +92,10 @@ import sh.isaac.utility.Frills;
 
 //TODO need to rework these APIs to take in path info - so that the path for the search can easily be customized from the search GUI
 public class SearchHandler {
-   /** The Constant LOG. */
-   private static final Logger LOG = LoggerFactory.getLogger(SearchHandler.class);
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
 
    /** The description sememe assemblages cache. */
    private static Integer[] descriptionSememeAssemblagesCache = null;
@@ -187,14 +188,15 @@ public class SearchHandler {
                                if (localQuery.length() > 0) {
                                   // If search query is an ID, look up concept and add the result.
                                   if (UUIDUtil.isUUID(localQuery) || NumericUtils.isLong(localQuery)) {
-                                     final Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> temp =
-                                        Frills.getConceptForUnknownIdentifier(localQuery);
-
-                                     if (temp.isPresent()) {
-                                        final CompositeSearchResult gsr = new CompositeSearchResult(temp.get(), 2.0f);
-
-                                        initialSearchResults.add(gsr);
-                                     }
+                                     throw new UnsupportedOperationException("Search for unknown identifier is not implemented.");
+//                                     final Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> temp =
+//                                        Frills.getConceptForUnknownIdentifier(localQuery);
+//
+//                                     if (temp.isPresent()) {
+//                                        final CompositeSearchResult gsr = new CompositeSearchResult(temp.get(), 2.0f);
+//
+//                                        initialSearchResults.add(gsr);
+//                                     }
                                   }
 
                                   LOG.debug("Lucene Search: '" + localQuery + "'");
@@ -286,7 +288,7 @@ public class SearchHandler {
                                               comparator,
                                               mergeOnConcepts,
                                               includeOffPathResults);
-                            } catch (final Exception ex) {
+                            } catch (final SearchResultsFilterException ex) {
                                LOG.error("Unexpected error during lucene search", ex);
                                searchHandle.setError(ex);
                             }
@@ -523,7 +525,7 @@ public class SearchHandler {
                                               comparator,
                                               mergeOnConcepts,
                                               includeOffPathResults);
-                            } catch (final Exception ex) {
+                            } catch (final SearchResultsFilterException ex) {
                                LOG.error("Unexpected error during lucene search", ex);
                                searchHandle.setError(ex);
                             }
@@ -684,7 +686,7 @@ public class SearchHandler {
       }
 
       if (mergeOnConcepts) {
-         final Hashtable<Integer, CompositeSearchResult> merged      = new Hashtable<>();
+         final HashMap<Integer, CompositeSearchResult> merged      = new HashMap<>();
          final ArrayList<CompositeSearchResult>          unmergeable = new ArrayList<>();
 
          for (final CompositeSearchResult csr: rawResults) {
@@ -727,11 +729,11 @@ public class SearchHandler {
    private static Integer[] getDescriptionSememeAssemblages() {
       if (descriptionSememeAssemblagesCache == null) {
          final Set<Integer> descSememes =
-            Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_ASSEMBLAGE.getConceptSequence(),
+            Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_ASSEMBLAGE____ISAAC.getConceptSequence(),
                                            true,
                                            false);
 
-         descSememes.add(MetaData.DESCRIPTION_ASSEMBLAGE.getConceptSequence());
+         descSememes.add(MetaData.DESCRIPTION_ASSEMBLAGE____ISAAC.getConceptSequence());
          descriptionSememeAssemblagesCache = descSememes.toArray(new Integer[descSememes.size()]);
       }
 

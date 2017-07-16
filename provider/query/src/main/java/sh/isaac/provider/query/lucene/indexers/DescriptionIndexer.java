@@ -56,6 +56,7 @@ import java.util.function.Predicate;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.TextField;
 
 import org.glassfish.hk2.runlevel.RunLevel;
@@ -69,12 +70,12 @@ import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.constants.DynamicSememeConstants;
-import sh.isaac.api.index.IndexServiceBI;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.MetaData;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
+import sh.isaac.api.index.IndexService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -95,6 +96,9 @@ import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
  *
  * Each of the columns above is also x2, as everything is indexed both with a
  * standard analyzer, and with a whitespace analyzer.
+ * 
+ * TODO: use IntPoint for description types, and other aspects of the search, rather than creating redundant
+ * columns. 
  *
  * @author aimeefurber
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
@@ -103,12 +107,12 @@ import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 @RunLevel(value = 2)
 public class DescriptionIndexer
         extends LuceneIndexer
-         implements IndexServiceBI {
-   /** The Constant setupNidsSemaphore. */
-   private static final Semaphore setupNidsSemaphore = new Semaphore(1);
+         implements IndexService {
+   /** The Constant SETUP_NIDS_SEMAPHORE. */
+   private static final Semaphore SETUP_NIDS_SEMAPHORE = new Semaphore(1);
 
-   /** The Constant sequencesSetup. */
-   private static final AtomicBoolean sequencesSetup = new AtomicBoolean(false);
+   /** The Constant SEQUENCES_SETUP. */
+   private static final AtomicBoolean SEQUENCES_SETUP = new AtomicBoolean(false);
 
    /** The Constant FIELD_INDEXED_STRING_VALUE. */
    private static final String FIELD_INDEXED_STRING_VALUE = "_string_content_";
@@ -357,9 +361,7 @@ public class DescriptionIndexer
     */
    private void indexDescription(Document doc,
                                  SememeChronology<DescriptionSememe<? extends DescriptionSememe<?>>> sememeChronology) {
-      doc.add(new TextField(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE,
-                            sememeChronology.getAssemblageSequence() + "",
-                            Field.Store.NO));
+      doc.add(new IntPoint(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, sememeChronology.getAssemblageSequence()));
 
       String                      lastDescText     = null;
       String                      lastDescType     = null;
@@ -378,6 +380,7 @@ public class DescriptionIndexer
             addField(doc, FIELD_INDEXED_STRING_VALUE, descriptionVersion.getText(), true);
 
             // Add to the field that carries type-only text
+            // TODO using IntPoint with description type? 
             addField(doc, FIELD_INDEXED_STRING_VALUE + "_" + descType, descriptionVersion.getText(), true);
             uniqueTextValues.put(descriptionVersion.getTime(), descriptionVersion.getText());
             lastDescText = descriptionVersion.getText();
@@ -423,6 +426,7 @@ public class DescriptionIndexer
                      }
 
                      // This is a UUID, but we only do exact matches - indexing ints as strings is faster when doing exact-match only
+                     // TODO index UUIDs using InetAddressPoint which is 128 bits, or BigIntegerPoint which is also 128 bits
                      addField(doc,
                               FIELD_INDEXED_STRING_VALUE + "_" + extendedDescType,
                               value,
@@ -441,23 +445,24 @@ public class DescriptionIndexer
     */
    private void setupNidConstants() {
       // Can't put these in the start me, because if the database is not yet imported, then these calls will fail.
-      if (!sequencesSetup.get()) {
-         setupNidsSemaphore.acquireUninterruptibly();
+      // TODO: could put them in service setup, if service levels are set properly. 
+      if (!SEQUENCES_SETUP.get()) {
+         SETUP_NIDS_SEMAPHORE.acquireUninterruptibly();
 
          try {
-            if (!sequencesSetup.get()) {
-               this.sequenceTypeMap.put(MetaData.FULLY_SPECIFIED_NAME.getConceptSequence(),
+            if (!SEQUENCES_SETUP.get()) {
+               this.sequenceTypeMap.put(MetaData.FULLY_SPECIFIED_NAME____ISAAC.getConceptSequence(),
                                         LuceneDescriptionType.FSN.name());
-               this.sequenceTypeMap.put(MetaData.DEFINITION_DESCRIPTION_TYPE.getConceptSequence(),
+               this.sequenceTypeMap.put(MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC.getConceptSequence(),
                                         LuceneDescriptionType.DEFINITION.name());
-               this.sequenceTypeMap.put(MetaData.SYNONYM.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
+               this.sequenceTypeMap.put(MetaData.SYNONYM____ISAAC.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
                this.descExtendedTypeSequence = DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
                      .getConceptSequence();
             }
 
-            sequencesSetup.set(true);
+            SEQUENCES_SETUP.set(true);
          } finally {
-            setupNidsSemaphore.release();
+            SETUP_NIDS_SEMAPHORE.release();
          }
       }
    }

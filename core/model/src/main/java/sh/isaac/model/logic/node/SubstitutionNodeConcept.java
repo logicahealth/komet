@@ -51,7 +51,7 @@ import java.util.UUID;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.substitution.SubstitutionFieldSpecification;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -67,7 +67,7 @@ public class SubstitutionNodeConcept
     * @param dataInputStream the data input stream
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public SubstitutionNodeConcept(LogicalExpressionOchreImpl logicGraphVersion,
+   public SubstitutionNodeConcept(LogicalExpressionImpl logicGraphVersion,
                                   DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
@@ -79,7 +79,7 @@ public class SubstitutionNodeConcept
     * @param logicGraphVersion the logic graph version
     * @param substitutionFieldSpecification the substitution field specification
     */
-   public SubstitutionNodeConcept(LogicalExpressionOchreImpl logicGraphVersion,
+   public SubstitutionNodeConcept(LogicalExpressionImpl logicGraphVersion,
                                   SubstitutionFieldSpecification substitutionFieldSpecification) {
       super(logicGraphVersion, substitutionFieldSpecification);
    }

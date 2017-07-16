@@ -47,7 +47,7 @@ import java.io.IOException;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.logic.assertions.substitution.SubstitutionFieldSpecification;
-import sh.isaac.model.logic.LogicalExpressionOchreImpl;
+import sh.isaac.model.logic.LogicalExpressionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -63,7 +63,7 @@ public abstract class SubstitutionNodeLiteral
     * @param dataInputStream the data input stream
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public SubstitutionNodeLiteral(LogicalExpressionOchreImpl logicGraphVersion,
+   public SubstitutionNodeLiteral(LogicalExpressionImpl logicGraphVersion,
                                   DataInputStream dataInputStream)
             throws IOException {
       super(logicGraphVersion, dataInputStream);
@@ -75,7 +75,7 @@ public abstract class SubstitutionNodeLiteral
     * @param logicGraphVersion the logic graph version
     * @param substitutionFieldSpecification the substitution field specification
     */
-   public SubstitutionNodeLiteral(LogicalExpressionOchreImpl logicGraphVersion,
+   public SubstitutionNodeLiteral(LogicalExpressionImpl logicGraphVersion,
                                   SubstitutionFieldSpecification substitutionFieldSpecification) {
       super(logicGraphVersion, substitutionFieldSpecification);
    }

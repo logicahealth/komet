@@ -211,7 +211,7 @@ public class StampCoordinateImpl
     * @return the stamp coordinate impl
     */
    @Override
-   public StampCoordinateImpl makeAnalog(long stampPositionTime) {
+   public StampCoordinateImpl makeCoordinateAnalog(long stampPositionTime) {
       final StampPosition anotherStampPosition = new StampPositionImpl(stampPositionTime,
                                                                        this.stampPosition.getStampPathSequence());
 
@@ -228,7 +228,7 @@ public class StampCoordinateImpl
     * @return the stamp coordinate impl
     */
    @Override
-   public StampCoordinateImpl makeAnalog(State... states) {
+   public StampCoordinateImpl makeCoordinateAnalog(State... states) {
       final EnumSet<State> newAllowedStates = EnumSet.noneOf(State.class);
 
       newAllowedStates.addAll(Arrays.asList(states));

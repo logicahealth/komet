@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>sh.isaac</groupId>
+        <artifactId>komet</artifactId>
+        <version>4.22</version>
+    </parent>
+    <groupId>sh.isaac.komet</groupId>
+    <artifactId>css</artifactId>
+    <packaging>pom</packaging>
+   <name>ISAAC’s KOMET: CSS</name>
+   <build>
+      <plugins> 
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <executions>
+               <execution>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>single</goal>
+                  </goals>
+                  <configuration>
+                     <descriptors>
+                        <descriptor>src/assembly/assembly.xml</descriptor>
+                     </descriptors>
+                     <attach>true</attach>
+                     <appendAssemblyId>false</appendAssemblyId>
+                     <encoding>UTF-8</encoding>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+     </plugins>
+   </build>
+</project>

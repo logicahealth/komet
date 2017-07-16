@@ -54,5 +54,16 @@ public enum PremiseType {
     * Compute the taxonomy from inferred axioms.
     */
    INFERRED;
+   
+   public PremiseType next() {
+      switch(this) {
+         case INFERRED:
+            return STATED;
+         case STATED:
+            return INFERRED;
+         default:
+            throw new UnsupportedOperationException("Can't handle: " + this);
+      }
+   }
 }
 
