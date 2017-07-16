@@ -157,9 +157,9 @@ public class ImportExportTest {
             throws Exception {
       final LogicalExpressionBuilder defBuilder = this.builderProvider.getLogicalExpressionBuilder();
 
-      SufficientSet(And(SomeRole(MetaData.ROLE_GROUP_ǁISAACǁ,
-                                 And(Feature(MetaData.HAS_STRENGTH_ǁISAACǁ, FloatLiteral(1.2345F, defBuilder)),
-                                     ConceptAssertion(MetaData.MASTER_PATH_ǁISAACǁ, defBuilder)))));
+      SufficientSet(And(SomeRole(MetaData.ROLE_GROUP____ISAAC,
+                                 And(Feature(MetaData.HAS_STRENGTH____ISAAC, FloatLiteral(1.2345F, defBuilder)),
+                                     ConceptAssertion(MetaData.MASTER_PATH____ISAAC, defBuilder)))));
 
       final LogicalExpression              logicGraphDef    = defBuilder.build();
       final LogicByteArrayConverterService converter        = new LogicByteArrayConverterService();

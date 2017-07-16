@@ -213,8 +213,8 @@ public class Frills
 
       final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
-      conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE_ǁISAACǁ);
-      conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT_ǁISAACǁ);
+      conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____ISAAC);
+      conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____ISAAC);
       conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
 
       final DescriptionBuilderService descriptionBuilderService =
@@ -231,16 +231,16 @@ public class Frills
       final ConceptBuilder    builder = conceptBuilderService.getDefaultConceptBuilder(columnName, null, parentDef);
       DescriptionBuilder<?, ?> definitionBuilder = descriptionBuilderService.getDescriptionBuilder(columnName,
                                                                                                    builder,
-                                                                                                   MetaData.SYNONYM_ǁISAACǁ,
-                                                                                                   MetaData.ENGLISH_LANGUAGE_ǁISAACǁ);
+                                                                                                   MetaData.SYNONYM____ISAAC,
+                                                                                                   MetaData.ENGLISH_LANGUAGE____ISAAC);
 
-      definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT_ǁISAACǁ);
+      definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____ISAAC);
       builder.addDescription(definitionBuilder);
       definitionBuilder = descriptionBuilderService.getDescriptionBuilder(columnDescription,
             builder,
-            MetaData.DEFINITION_DESCRIPTION_TYPE_ǁISAACǁ,
-            MetaData.ENGLISH_LANGUAGE_ǁISAACǁ);
-      definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT_ǁISAACǁ);
+            MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC,
+            MetaData.ENGLISH_LANGUAGE____ISAAC);
+      definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____ISAAC);
       builder.addDescription(definitionBuilder);
 
       ConceptChronology<? extends ConceptVersion<?>> newCon;
@@ -289,8 +289,8 @@ public class Frills
                : editCoord);
          final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
-         conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE_ǁISAACǁ);
-         conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT_ǁISAACǁ);
+         conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____ISAAC);
+         conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____ISAAC);
          conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
 
          final DescriptionBuilderService descriptionBuilderService =
@@ -310,10 +310,10 @@ public class Frills
          DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>> definitionBuilder =
             descriptionBuilderService.getDescriptionBuilder(sememePreferredTerm,
                                                             builder,
-                                                            MetaData.SYNONYM_ǁISAACǁ,
-                                                            MetaData.ENGLISH_LANGUAGE_ǁISAACǁ);
+                                                            MetaData.SYNONYM____ISAAC,
+                                                            MetaData.ENGLISH_LANGUAGE____ISAAC);
 
-         definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT_ǁISAACǁ);
+         definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____ISAAC);
          builder.addDescription(definitionBuilder);
 
          final ConceptChronology<? extends ConceptVersion<?>> newCon = builder.build(localEditCoord,
@@ -326,9 +326,9 @@ public class Frills
             // Set up the dynamic sememe 'special' definition
             definitionBuilder = descriptionBuilderService.getDescriptionBuilder(sememeDescription,
                   builder,
-                  MetaData.DEFINITION_DESCRIPTION_TYPE_ǁISAACǁ,
-                  MetaData.ENGLISH_LANGUAGE_ǁISAACǁ);
-            definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT_ǁISAACǁ);
+                  MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC,
+                  MetaData.ENGLISH_LANGUAGE____ISAAC);
+            definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____ISAAC);
 
             final SememeChronology<?> definitionSememe = definitionBuilder.build(localEditCoord,
                                                                                  ChangeCheckerMode.ACTIVE)
@@ -779,8 +779,8 @@ public class Frills
                   : stamp);
 
                         if (latest.isPresent()) {
-                           if ((latest.get().value().getComponentNid() == MetaData.PREFERRED_ǁISAACǁ.getNid()) ||
-                               (latest.get().value().getComponentNid() == MetaData.ACCEPTABLE_ǁISAACǁ.getNid())) {
+                           if ((latest.get().value().getComponentNid() == MetaData.PREFERRED____ISAAC.getNid()) ||
+                               (latest.get().value().getComponentNid() == MetaData.ACCEPTABLE____ISAAC.getNid())) {
                               if ((dialectSequenceToAcceptabilityNidMap.get(dialectSequence) != null) &&
                                   (dialectSequenceToAcceptabilityNidMap.get(dialectSequence) !=
                                    latest.get().value().getComponentNid())) {
@@ -1227,7 +1227,7 @@ public class Frills
                         if (latest.isPresent()) {
                            if (latest.get()
                                      .value()
-                                     .getComponentNid() == MetaData.PREFERRED_ǁISAACǁ.getNid()) {
+                                     .getComponentNid() == MetaData.PREFERRED____ISAAC.getNid()) {
                               if ((answer.get() != null) && (answer.get() != true)) {
                                  throw new RuntimeException("contradictory annotations about preferred status!");
                               }
@@ -1235,7 +1235,7 @@ public class Frills
                               answer.set(true);
                            } else if (latest.get()
                                             .value()
-                                            .getComponentNid() == MetaData.ACCEPTABLE_ǁISAACǁ.getNid()) {
+                                            .getComponentNid() == MetaData.ACCEPTABLE____ISAAC.getNid()) {
                               if ((answer.get() != null) && (answer.get() != false)) {
                                  throw new RuntimeException("contradictory annotations about preferred status!");
                               }
@@ -1609,7 +1609,7 @@ public class Frills
          // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
          final List<SearchResult> result = si.query(sctID + " ",
                                                     true,
-                                                    new Integer[] { MetaData.SCTID_ǁISAACǁ.getConceptSequence() },
+                                                    new Integer[] { MetaData.SCTID____ISAAC.getConceptSequence() },
                                                     5,
                                                     Long.MIN_VALUE);
 
@@ -1640,7 +1640,7 @@ public class Frills
          // force the prefix algorithm, and add a trailing space - quickest way to do an exact-match type of search
          final List<SearchResult> result = si.query(vuID + " ",
                                                     true,
-                                                    new Integer[] { MetaData.VUID_ǁISAACǁ.getConceptSequence() },
+                                                    new Integer[] { MetaData.VUID____ISAAC.getConceptSequence() },
                                                     5,
                                                     Long.MIN_VALUE);
 
@@ -1674,7 +1674,7 @@ public class Frills
                : stamp)
                                                                      .getLatestSememeVersionsForComponentFromAssemblage(
                                                                         componentNid,
-                                                                              MetaData.SCTID_ǁISAACǁ.getConceptSequence())
+                                                                              MetaData.SCTID____ISAAC.getConceptSequence())
                                                                      .findFirst();
 
          if (sememe.isPresent()) {
@@ -1895,7 +1895,7 @@ public class Frills
                          (stamp == null) ? Get.configurationService()
                                .getDefaultStampCoordinate()
                                          : stamp)
-            .getLatestSememeVersionsForComponentFromAssemblage(componentNid, MetaData.VUID_ǁISAACǁ.getConceptSequence())
+            .getLatestSememeVersionsForComponentFromAssemblage(componentNid, MetaData.VUID____ISAAC.getConceptSequence())
             .forEach(latestSememe -> {
             // expected path
                         if (latestSememe.value()

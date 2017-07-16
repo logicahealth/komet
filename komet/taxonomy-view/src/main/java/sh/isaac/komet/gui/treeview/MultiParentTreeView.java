@@ -293,7 +293,7 @@ public class MultiParentTreeView extends BorderPane {
     }
 
     public void init() {
-        init(MetaData.ISAAC_ROOT_ǁISAACǁ.getPrimordialUuid());
+        init(MetaData.ISAAC_ROOT____ISAAC.getPrimordialUuid());
     }
 
     private synchronized void init(final UUID rootConcept) {

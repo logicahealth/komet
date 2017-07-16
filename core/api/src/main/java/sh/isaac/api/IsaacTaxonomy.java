@@ -327,8 +327,8 @@ public class IsaacTaxonomy {
          final String preferredName = concept.getFullySpecifiedDescriptionBuilder().getDescriptionText();
          String constantName = preferredName.toUpperCase();
 
-         constantName = constantName.replace("(", "\u01C1");
-         constantName = constantName.replace(")", "\u01C1");
+         constantName = constantName.replace("(", "___");
+         constantName = constantName.replace(")", "");
          constantName = constantName.replace(" ", "_");
          constantName = constantName.replace("-", "_");
          constantName = constantName.replace("+", "_PLUS");

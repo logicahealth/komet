@@ -120,6 +120,8 @@
       <plexus-io.version>2.7.1</plexus-io.version>
       <plexus-utils.version>3.0.24</plexus-utils.version>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
       <repackage-mojo.version>1.0</repackage-mojo.version>
       <sisu-guice.version>3.2.6</sisu-guice.version>
       <sisu-inject-plexus.version>2.6.0</sisu-inject-plexus.version>
@@ -383,6 +385,9 @@
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-resources-plugin</artifactId>
                <version>${maven-resources-plugin.version}</version>
+               <configuration>
+                  <encoding>UTF-8</encoding>
+               </configuration>
             </plugin>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
@@ -660,6 +665,7 @@
             <configuration>
                <source>${javac.version}</source>
                <target>${javac.version}</target>
+               <encoding>UTF-8</encoding>
             </configuration>
          </plugin>
          <plugin>

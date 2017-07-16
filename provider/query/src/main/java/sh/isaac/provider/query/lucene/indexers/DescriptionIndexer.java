@@ -451,11 +451,11 @@ public class DescriptionIndexer
 
          try {
             if (!SEQUENCES_SETUP.get()) {
-               this.sequenceTypeMap.put(MetaData.FULLY_SPECIFIED_NAME_ǁISAACǁ.getConceptSequence(),
+               this.sequenceTypeMap.put(MetaData.FULLY_SPECIFIED_NAME____ISAAC.getConceptSequence(),
                                         LuceneDescriptionType.FSN.name());
-               this.sequenceTypeMap.put(MetaData.DEFINITION_DESCRIPTION_TYPE_ǁISAACǁ.getConceptSequence(),
+               this.sequenceTypeMap.put(MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC.getConceptSequence(),
                                         LuceneDescriptionType.DEFINITION.name());
-               this.sequenceTypeMap.put(MetaData.SYNONYM_ǁISAACǁ.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
+               this.sequenceTypeMap.put(MetaData.SYNONYM____ISAAC.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
                this.descExtendedTypeSequence = DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
                      .getConceptSequence();
             }
