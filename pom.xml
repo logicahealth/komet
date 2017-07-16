@@ -83,6 +83,7 @@
       <jbpm.version>6.5.0.Final</jbpm.version>
       <jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
       <jersey.version>2.25.1</jersey.version>
+      <jgitflow-maven-plugin.version>1.0-m5.1</jgitflow-maven-plugin.version>
       <isaac-conventions.version>1.0</isaac-conventions.version>
       <jdepend-maven-plugin.version>2.0</jdepend-maven-plugin.version>
       <jna.version>4.4.0</jna.version>
@@ -651,6 +652,21 @@
                <archive>
                   <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                </archive>               -->
+            </configuration>
+         </plugin>
+        <plugin>
+            <groupId>external.atlassian.jgitflow</groupId>
+            <artifactId>jgitflow-maven-plugin</artifactId>
+            <version>${jgitflow-maven-plugin.version}</version>
+            <configuration>
+               <pushReleases>true</pushReleases>
+               <autoVersionSubmodules>true</autoVersionSubmodules>
+               <scmCommentPrefix>[jgitflow-plugin] </scmCommentPrefix>
+               <enableSshAgent>true</enableSshAgent>
+               <allowSnapshots>false</allowSnapshots>
+               <enableFeatureVersions>true</enableFeatureVersions>
+               <username>${git.user}</username>
+               <password>${git.password}</password>
             </configuration>
          </plugin>
          <plugin>
