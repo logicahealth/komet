@@ -46,7 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -448,7 +447,7 @@ public class LogicProvider
     * @return the logical expression
     */
    @Override
-   public Optional<LatestVersion<? extends LogicalExpression>> getLogicalExpression(int conceptId,
+   public LatestVersion<? extends LogicalExpression> getLogicalExpression(int conceptId,
          int logicAssemblageId,
          StampCoordinate stampCoordinate) {
       final SememeSnapshotService<LogicGraphSememeImpl> ssp = Get.sememeService()
@@ -465,9 +464,7 @@ public class LogicProvider
                     final LatestVersion<LogicalExpressionImpl> latestExpressionValue =
                        new LatestVersion<>(expressionValue);
 
-                    if (lgs.contradictions()
-                           .isPresent()) {
-                       lgs.contradictions().get().forEach((LogicGraphSememeImpl contradiction) -> {
+                       lgs.contradictions().forEach((LogicGraphSememeImpl contradiction) -> {
                                       final LogicalExpressionImpl contradictionValue =
                                          new LogicalExpressionImpl(contradiction.getGraphData(),
                                                                         DataSource.INTERNAL,
@@ -475,22 +472,19 @@ public class LogicProvider
 
                                       latestExpressionValue.addLatest(contradictionValue);
                                    });
-                    }
+                    
 
                     return latestExpressionValue;
                  })
             .collect(Collectors.toList());
 
-      if (latestVersions.isEmpty()) {
-         return Optional.empty();
-      }
 
       if (latestVersions.size() > 1) {
          throw new IllegalStateException("More than one LogicGraphSememeImpl for concept in assemblage: " +
                                          latestVersions);
       }
 
-      return Optional.of(latestVersions.get(0));
+      return latestVersions.get(0);
    }
 
    /**

@@ -86,7 +86,7 @@ public interface LogicService {
     * @param stampCoordinate the stamp coordinate
     * @return the logical expression
     */
-   Optional<LatestVersion<? extends LogicalExpression>> getLogicalExpression(int conceptId,
+   LatestVersion<? extends LogicalExpression> getLogicalExpression(int conceptId,
          int logicAssemblageId,
          StampCoordinate stampCoordinate);
 

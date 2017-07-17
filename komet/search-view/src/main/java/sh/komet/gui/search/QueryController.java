@@ -489,7 +489,7 @@ public class QueryController
       descriptionNids.stream().forEach((nid) -> {
          Optional<LatestVersion<DescriptionSememe>> latestDescriptionOptional = descriptionSnapshotService.getLatestSememeVersion(nid);
          if (latestDescriptionOptional.isPresent()) {
-           // Get.
+           //Get.
          }
       });
       

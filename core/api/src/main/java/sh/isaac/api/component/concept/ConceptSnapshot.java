@@ -85,7 +85,7 @@ public interface ConceptSnapshot
     *
     * @return any contradictions that may exist for the given {@code StampCoordinate}.
     */
-   Optional<? extends Set<? extends StampedVersion>> getContradictions();
+   Set<? extends StampedVersion> getContradictions();
 
    /**
     * This method will try first to return the fully specified description,

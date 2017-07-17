@@ -188,7 +188,7 @@ public class ConceptSnapshotImpl
     * @return the contradictions
     */
    @Override
-   public Optional<? extends Set<? extends StampedVersion>> getContradictions() {
+   public Set<? extends StampedVersion> getContradictions() {
       return this.snapshotVersion.contradictions();
    }
 

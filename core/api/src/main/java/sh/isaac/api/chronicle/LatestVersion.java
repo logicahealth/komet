@@ -42,6 +42,7 @@ package sh.isaac.api.chronicle;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -59,6 +60,7 @@ import java.util.stream.Stream;
  * TODO search for all value().get() methods to make sure test for isPresent() is completed. 
  */
 public final class LatestVersion<V> {
+   
    /** The value. */
    V value;
 
@@ -135,12 +137,15 @@ public final class LatestVersion<V> {
    }
 
    /**
-    * Contradictions.
+    * Read-only set of contradictions.
     *
     * @return the optional
     */
-   public Optional<Set<V>> contradictions() {
-      return Optional.ofNullable(this.contradictions);
+   public Set<V> contradictions() {
+      if (this.contradictions == null) {
+         return Collections.EMPTY_SET;
+      }
+      return this.contradictions;
    }
 
    /**
@@ -150,7 +155,7 @@ public final class LatestVersion<V> {
     */
    @Override
    public String toString() {
-      return "LatestVersion{" + "value=" + this.value + ", contradictions=" + this.contradictions + '}';
+      return "LatestVersion{" + "value=" + this.value + ", contradictions=" + contradictions() + '}';
    }
 
    /**

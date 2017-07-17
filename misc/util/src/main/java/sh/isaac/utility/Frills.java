@@ -1161,12 +1161,11 @@ public class Frills
                       .getDefaultStampCoordinate()
                                           : stampCoordinate);
 
-         if (optionalLatestSememeVersion.get().contradictions().isPresent() &&
-               (optionalLatestSememeVersion.get().contradictions().get().size() > 0)) {
+         if (!optionalLatestSememeVersion.get().contradictions().isEmpty()) {
             // TODO handle contradictions
             LOG.warn("Component " + descriptionId + " " +
                      " has DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE annotation with " +
-                     optionalLatestSememeVersion.get().contradictions().get().size() + " contradictions");
+                     optionalLatestSememeVersion.get().contradictions().size() + " contradictions");
          }
 
          final DynamicSememeData[] dataColumns = optionalLatestSememeVersion.get()
