@@ -233,10 +233,10 @@ public abstract class Query {
 
                         // Optional<LatestVersion<ConceptVersion<?>>> latest
                         // = ((ConceptChronology<ConceptVersion<?>>) concept).getLatestVersion(ConceptVersion.class, stampCoordinate);
-                        if (latest.isPresent()) {
+                        if (latest.isPresent() && latest.get().value().isPresent()) {
                            this.rootClause[0].getChildren().stream().forEach((c) -> {
                         c.getQueryMatches(latest.get()
-                                                .value());
+                                                .value().get());
                      });
                         }
                      });

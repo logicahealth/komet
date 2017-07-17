@@ -59,6 +59,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -100,10 +101,15 @@ import javax.validation.constraints.NotNull;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
+import sh.isaac.api.Get;
 
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.sememe.SememeSnapshotService;
+import sh.isaac.api.component.sememe.version.DescriptionSememe;
+import sh.isaac.api.observable.sememe.version.ObservableDescriptionSememe;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.ComponentCollectionTypes;
 import sh.isaac.api.query.Or;
@@ -159,7 +165,7 @@ public class QueryController
    @FXML                                                           // fx:id="cancelButton"
    private Button cancelButton;      // Value injected by FXMLLoader
    @FXML                                                           // fx:id="resultTable"
-   private TableView<?> resultTable;       // Value injected by FXMLLoader
+   private TableView<ObservableDescriptionSememe> resultTable;       // Value injected by FXMLLoader
 
    @FXML
    private RadioButton allComponents;
@@ -472,6 +478,20 @@ public class QueryController
       rootClause.setEnclosingQuery(query);
       NidSet results = query.compute();
       System.out.println("Result count: " + results.size());
+      
+   }
+   
+   void displayResults(NidSet descriptionNids) {
+      resultTable.getItems().clear();
+      SememeSnapshotService<DescriptionSememe> descriptionSnapshotService = 
+              Get.sememeService().getSnapshot(DescriptionSememe.class, manifold);
+      
+      descriptionNids.stream().forEach((nid) -> {
+         Optional<LatestVersion<DescriptionSememe>> latestDescriptionOptional = descriptionSnapshotService.getLatestSememeVersion(nid);
+         if (latestDescriptionOptional.isPresent()) {
+           // Get.
+         }
+      });
       
    }
 

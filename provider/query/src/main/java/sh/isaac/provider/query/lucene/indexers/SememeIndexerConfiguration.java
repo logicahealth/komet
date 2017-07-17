@@ -368,9 +368,9 @@ public class SememeIndexerConfiguration {
       @SuppressWarnings("rawtypes")
       final Optional<LatestVersion<DynamicSememe>> ds = sememes.findAny();
 
-      if (ds.isPresent()) {
+      if (ds.isPresent() &&  ds.get().value().isPresent()) {
          return ds.get()
-                  .value();
+                  .value().get();
       }
 
       return null;
@@ -402,14 +402,14 @@ public class SememeIndexerConfiguration {
                                             ((SememeChronology) sememeC).getLatestVersion(DynamicSememe.class,
                                                                                           StampCoordinates.getDevelopmentLatest());
 
-                                         if (dsv.isPresent() && (dsv.get().value().getState() == State.ACTIVE)) {
+                                         if (dsv.isPresent() && dsv.get().value().isPresent() && (dsv.get().value().get().getState() == State.ACTIVE)) {
                                             final int assemblageToIndex = Get.identifierService()
                                                                              .getConceptSequence(dsv.get()
-                                                                                   .value()
+                                                                                   .value().get()
                                                                                    .getReferencedComponentNid());
                                             Integer[]                 finalCols = new Integer[] {};
                                             final DynamicSememeData[] data      = dsv.get()
-                                                                                     .value()
+                                                                                     .value().get()
                                                                                      .getData();
 
                                             if ((data != null) && (data.length > 0)) {

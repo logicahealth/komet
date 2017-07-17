@@ -56,13 +56,14 @@ import java.util.stream.Stream;
  *
  * @author kec
  * @param <V> the value type
+ * TODO search for all value().get() methods to make sure test for isPresent() is completed. 
  */
 public final class LatestVersion<V> {
    /** The value. */
    V value;
 
    /** The contradictions. */
-   Optional<Set<V>> contradictions;
+   Set<V> contradictions;
 
    //~--- constructors --------------------------------------------------------
 
@@ -71,9 +72,7 @@ public final class LatestVersion<V> {
     *
     * @param versionType the version type
     */
-   public LatestVersion(Class<V> versionType) {
-      this.contradictions = Optional.empty();
-   }
+   public LatestVersion(Class<V> versionType) {}
 
    /**
     * Instantiates a new latest version.
@@ -84,9 +83,9 @@ public final class LatestVersion<V> {
       this.value = Objects.requireNonNull(versions.get(0), "latest version cannot be null");
 
       if (versions.size() < 2) {
-         this.contradictions = Optional.empty();
+         this.contradictions = null;
       } else {
-         this.contradictions = Optional.of(new HashSet<>(versions.subList(1, versions.size())));
+         this.contradictions = new HashSet<>(versions.subList(1, versions.size()));
       }
    }
 
@@ -97,7 +96,7 @@ public final class LatestVersion<V> {
     */
    public LatestVersion(V latest) {
       this.value          = Objects.requireNonNull(latest, "latest version cannot be null");
-      this.contradictions = Optional.empty();
+      this.contradictions = null;
    }
 
    /**
@@ -110,9 +109,9 @@ public final class LatestVersion<V> {
       this.value = latest;
 
       if (contradictions == null) {
-         this.contradictions = Optional.empty();
+         this.contradictions = null;
       } else {
-         this.contradictions = Optional.of(new HashSet<>(contradictions));
+         this.contradictions = new HashSet<>(contradictions);
       }
    }
 
@@ -127,12 +126,11 @@ public final class LatestVersion<V> {
       if (this.value == null) {
          this.value = value;
       } else {
-         if (!this.contradictions.isPresent()) {
-            this.contradictions = Optional.of(new HashSet<>());
+         if (this.contradictions == null) {
+            this.contradictions = new HashSet<>();
          }
 
-         this.contradictions.get()
-                            .add(value);
+         this.contradictions.add(value);
       }
    }
 
@@ -142,7 +140,7 @@ public final class LatestVersion<V> {
     * @return the optional
     */
    public Optional<Set<V>> contradictions() {
-      return this.contradictions;
+      return Optional.ofNullable(this.contradictions);
    }
 
    /**
@@ -160,8 +158,8 @@ public final class LatestVersion<V> {
     *
     * @return the v
     */
-   public V value() {
-      return this.value;
+   public Optional<V> value() {
+      return Optional.ofNullable(this.value);
    }
 
    /**
@@ -179,8 +177,8 @@ public final class LatestVersion<V> {
 
       builder.accept(this.value);
 
-      if (this.contradictions.isPresent()) {
-         this.contradictions.get().forEach((contradiction) -> {
+      if (this.contradictions != null) {
+         this.contradictions.forEach((contradiction) -> {
                                         builder.add(contradiction);
                                      });
       }

@@ -271,11 +271,11 @@ public class ObservableConceptChronologyImpl
     */
    private Optional<LatestVersion<ObservableDescriptionSememe<?>>> getSpecifiedDescription(
            Optional<LatestVersion<DescriptionSememe<?>>> optionalSpecifiedDescription) {
-      if (optionalSpecifiedDescription.isPresent()) {
+      if (optionalSpecifiedDescription.isPresent() && optionalSpecifiedDescription.get().value().isPresent()) {
          final LatestVersion<DescriptionSememe<?>> latestPreferred = optionalSpecifiedDescription.get();
-         final int latestStampSequence = ((DescriptionSememe) latestPreferred.value()).getStampSequence();
+         final int latestStampSequence = ((DescriptionSememe) latestPreferred.value().get()).getStampSequence();
          final ObservableSememeChronologyImpl<ObservableDescriptionImpl, SememeChronology<DescriptionSememe>> observableSpecified =
-            new ObservableSememeChronologyImpl(((DescriptionSememe) latestPreferred.value()).getChronology());
+            new ObservableSememeChronologyImpl(((DescriptionSememe) latestPreferred.value().get()).getChronology());
 
          new LatestVersion<>(ObservableDescriptionSememe.class);
 

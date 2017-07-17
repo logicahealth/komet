@@ -157,7 +157,7 @@ public class GetConceptSequenceForExpressionTask
 
          final Optional<LatestVersion<LogicGraphSememeImpl>> match =
             sememeSnapshot.getLatestSememeVersionsFromAssemblage(this.logicCoordinate.getStatedAssemblageSequence()).filter((LatestVersion<LogicGraphSememeImpl> t) -> {
-                                     final LogicGraphSememeImpl lgs = t.value();
+                                     final LogicGraphSememeImpl lgs = t.value().get();
                                      final LogicalExpressionImpl existingGraph =
                                         new LogicalExpressionImpl(lgs.getGraphData(),
                                                                        DataSource.INTERNAL);
@@ -168,7 +168,7 @@ public class GetConceptSequenceForExpressionTask
 
          if (match.isPresent()) {
             final LogicGraphSememeImpl lgs = match.get()
-                                                  .value();
+                                                  .value().get();
 
             return Get.identifierService()
                       .getConceptSequence(lgs.getReferencedComponentNid());

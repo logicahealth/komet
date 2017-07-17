@@ -137,7 +137,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public int getAuthorSequence() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.value().get()
                                  .getAuthorSequence();
    }
 
@@ -158,7 +158,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public CommitStates getCommitState() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.value().get()
                                  .getCommitState();
    }
 
@@ -201,16 +201,16 @@ public class ConceptSnapshotImpl
    public DescriptionSememe<?> getDescription() {
       final Optional<LatestVersion<DescriptionSememe<?>>> fsd = getFullySpecifiedDescription();
 
-      if (fsd.isPresent()) {
+      if (fsd.isPresent() && fsd.get().value().isPresent()) {
          return fsd.get()
-                   .value();
+                   .value().get();
       }
 
       final Optional<LatestVersion<DescriptionSememe<?>>> pd = getPreferredDescription();
 
-      if (pd.isPresent()) {
+      if (pd.isPresent() && pd.get().value().isPresent()) {
          return pd.get()
-                  .value();
+                  .value().get();
       }
 
       return Get.sememeService()
@@ -241,7 +241,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public int getModuleSequence() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.value().get()
                                  .getModuleSequence();
    }
 
@@ -252,7 +252,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public int getNid() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.value().get()
                                  .getNid();
    }
 
@@ -263,7 +263,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public int getPathSequence() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.value().get()
                                  .getPathSequence();
    }
 
@@ -287,7 +287,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public UUID getPrimordialUuid() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.value().get()
                                  .getPrimordialUuid();
    }
 
@@ -298,7 +298,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public int getStampSequence() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.value().get()
                                  .getStampSequence();
    }
 
@@ -309,7 +309,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public State getState() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.value().get()
                                  .getState();
    }
 
@@ -320,7 +320,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public long getTime() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.value().get()
                                  .getTime();
    }
 
@@ -331,7 +331,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public List<UUID> getUuidList() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.value().get()
                                  .getUuidList();
    }
    

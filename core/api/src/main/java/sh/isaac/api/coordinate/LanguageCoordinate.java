@@ -141,8 +141,8 @@ public interface LanguageCoordinate {
            StampCoordinate stampCoordinate) {
       Optional<LatestVersion<DescriptionSememe<?>>> latestDescription = 
               getFullySpecifiedDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
-      if (latestDescription.isPresent()) {
-         return latestDescription.get().value().getText();
+      if (latestDescription.isPresent() && latestDescription.get().value().isPresent()) {
+         return latestDescription.get().value().get().getText();
       } else {
          return "No description for: " + conceptId;
       }
@@ -192,8 +192,8 @@ public interface LanguageCoordinate {
            StampCoordinate stampCoordinate) {
       Optional<LatestVersion<DescriptionSememe<?>>> latestDescription = 
               getPreferredDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
-      if (latestDescription.isPresent()) {
-         return latestDescription.get().value().getText();
+      if (latestDescription.isPresent() && latestDescription.get().value().isPresent()) {
+         return latestDescription.get().value().get().getText();
       } else {
          return "No description for: " + conceptId;
       }

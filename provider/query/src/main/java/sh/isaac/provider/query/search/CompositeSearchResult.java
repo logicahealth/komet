@@ -421,9 +421,9 @@ public class CompositeSearchResult {
                                                                             stampCoord.orElse(Get.configurationService()
                                                                                   .getDefaultStampCoordinate()));
 
-            if (ds.isPresent()) {
+            if (ds.isPresent() && ds.get().value().isPresent()) {
                strings.add(ds.get()
-                             .value()
+                             .value().get()
                              .getText());
             } else {
                strings.add("No description available on stamp coordinate!");
@@ -435,9 +435,9 @@ public class CompositeSearchResult {
                                                                        stampCoord.orElse(Get.configurationService()
                                                                              .getDefaultStampCoordinate()));
 
-            if (ds.isPresent()) {
+            if (ds.isPresent() && ds.get().value().isPresent()) {
                strings.add(ds.get()
-                             .value()
+                             .value().get()
                              .getString());
             } else {
                strings.add("No sememe available on stamp coordinate!");
@@ -449,9 +449,9 @@ public class CompositeSearchResult {
                                                                         stampCoord.orElse(Get.configurationService()
                                                                               .getDefaultStampCoordinate()));
 
-            if (ds.isPresent()) {
+            if (ds.isPresent() && ds.get().value().isPresent()) {
                strings.add(ds.get()
-                             .value()
+                             .value().get()
                              .dataToString());
             } else {
                strings.add("No sememe available on stamp coordinate!");

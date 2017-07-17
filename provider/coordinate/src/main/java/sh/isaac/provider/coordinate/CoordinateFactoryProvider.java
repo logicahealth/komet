@@ -501,7 +501,7 @@ public class CoordinateFactoryProvider
       final LatestVersion<DescriptionSememe<?>> preferredForDialect = new LatestVersion(DescriptionSememe.class);
 
       IntStream.of(languageCoordinate.getDialectAssemblagePreferenceList()).forEach((dialectAssemblageSequence) -> {
-                           if (preferredForDialect.value() == null) {
+                           if (!preferredForDialect.value().isPresent()) {
                               descriptionsForLanguageOfType.forEach((DescriptionSememe description) -> {
                      final Stream<LatestVersion<ComponentNidSememe>> acceptability =
                         acceptabilitySnapshot.getLatestSememeVersionsForComponentFromAssemblage(description.getNid(),
@@ -509,7 +509,7 @@ public class CoordinateFactoryProvider
 
                      if (acceptability.anyMatch((LatestVersion<ComponentNidSememe> acceptabilityVersion) -> {
                                                    return Get.identifierService()
-                                                         .getConceptSequence(acceptabilityVersion.value()
+                                                         .getConceptSequence(acceptabilityVersion.value().get()
                                                                .getComponentNid()) == getPreferredConceptSequence();
                                                 })) {
                         preferredForDialect.addLatest(description);
@@ -518,13 +518,13 @@ public class CoordinateFactoryProvider
                            }
                         });
 
-      if (preferredForDialect.value() == null) {
+      if (!preferredForDialect.value().isPresent()) {
          descriptionsForLanguageOfType.forEach((fsn) -> {
                   preferredForDialect.addLatest(fsn);
                });
       }
 
-      if (preferredForDialect.value() == null) {
+      if (!preferredForDialect.value().isPresent()) {
          return Optional.empty();
       }
 

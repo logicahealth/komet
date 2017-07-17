@@ -459,9 +459,9 @@ public class LogicProvider
                                                                logicAssemblageId)
             .map((LatestVersion<LogicGraphSememeImpl> lgs) -> {
                     final LogicalExpressionImpl expressionValue =
-                       new LogicalExpressionImpl(lgs.value().getGraphData(),
+                       new LogicalExpressionImpl(lgs.value().get().getGraphData(),
                                                       DataSource.INTERNAL,
-                                                      lgs.value().getReferencedComponentNid());
+                                                      lgs.value().get().getReferencedComponentNid());
                     final LatestVersion<LogicalExpressionImpl> latestExpressionValue =
                        new LatestVersion<>(expressionValue);
 

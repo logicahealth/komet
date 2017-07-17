@@ -143,7 +143,7 @@ public class ConceptChronologyImpl
       return Get.sememeService()
                 .getSnapshot(DescriptionSememe.class, stampCoordinate)
                 .getLatestDescriptionVersionsForComponent(getNid())
-                .anyMatch((latestVersion) -> latestVersion.value()
+                .anyMatch((latestVersion) -> latestVersion.value().isPresent() && latestVersion.value().get()
                       .getText()
                       .equals(descriptionText));
    }

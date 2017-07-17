@@ -575,9 +575,9 @@ public class ConceptProvider
       public String conceptDescriptionText(int conceptId) {
          final Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional = getDescriptionOptional(conceptId);
 
-         if (descriptionOptional.isPresent()) {
+         if (descriptionOptional.isPresent() && descriptionOptional.get().value().isPresent()) {
             return descriptionOptional.get()
-                                      .value()
+                                      .value().get()
                                       .getText();
          }
 

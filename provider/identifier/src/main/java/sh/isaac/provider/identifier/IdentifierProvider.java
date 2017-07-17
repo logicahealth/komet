@@ -526,7 +526,7 @@ public class IdentifierProvider
                      .findAny()
                      .map((LatestVersion<StringSememe> latestSememe) -> {
                              final LatestVersion<String> latestString =
-                                new LatestVersion<>(latestSememe.value().getString());
+                                new LatestVersion<>(latestSememe.value().get().getString());
 
                              if (latestSememe.contradictions()
                                    .isPresent()) {

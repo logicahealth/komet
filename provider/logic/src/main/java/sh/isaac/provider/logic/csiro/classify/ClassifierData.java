@@ -201,13 +201,13 @@ public class ClassifierData
                   sc.getLatestVersion(LogicGraphSememeImpl.class,
                                       stampToCompare);
 
-               if (optionalPrevious.isPresent()) {
+               if (optionalPrevious.isPresent() && optionalPrevious.get().value().isPresent()) {
                   // See if the change has deletions, if so then incremental is not allowed.
                   final LatestVersion<LogicGraphSememeImpl> previous  = optionalPrevious.get();
                   boolean                                   deletions = false;
 
-                  if (latest.value()
-                            .getGraphData().length <= previous.value().getGraphData().length) {
+                  if (latest.value().get()
+                            .getGraphData().length <= previous.value().get().getGraphData().length) {
                      // If nodes where deleted, or an existing node was changed but the size remains the same assume deletions
                      deletions = true;
 
@@ -220,11 +220,11 @@ public class ClassifierData
                      this.reasoner = new SnorocketReasoner();
                   } else {
                      // Otherwise add axioms...
-                     this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value());
+                     this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value().get());
                   }
                } else {
                   // Otherwise add axioms...
-                  this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value());
+                  this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value().get());
                }
             }
          }

@@ -1849,7 +1849,7 @@ public class RxNormMojo
                                                                                                       StringSememe.class,
                                                                                                             StampCoordinates.getDevelopmentLatest());
                      final StringSememe<?> ss    = lv.get()
-                                                     .value();
+                                                     .value().get();
                      final Long            sctId = Long.parseLong(ss.getString());
                      final UUID conceptUUID = Get.identifierService()
                                                  .getUuidPrimordialForNid(ss.getReferencedComponentNid())

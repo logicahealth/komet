@@ -321,15 +321,19 @@ public class Get
     * for
     * @return a description for this concept. If no description can be found,
     * {@code "No desc for: " + conceptId;} will be returned.
+    *  TODO: make getDescriptionOptional return a LatestVersion, which has optional value, rather than returning an 
+    *  Optional&gt;LatestVersion>&lt;
     */
    public static String conceptDescriptionText(int conceptId) {
       final Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional =
          defaultConceptSnapshotService().getDescriptionOptional(conceptId);
 
       if (descriptionOptional.isPresent()) {
-         return descriptionOptional.get()
-                                   .value()
-                                   .getText();
+         if (descriptionOptional.get().value().isPresent()) {
+            return descriptionOptional.get()
+                    .value().get()
+                    .getText();
+         }
       }
 
       return "No desc for: " + conceptId;

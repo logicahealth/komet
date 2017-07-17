@@ -168,7 +168,7 @@ public class ComponentReference {
                                                                             IBDFCreationUtility.readBackStamp);
 
                             return latest.get()
-                                         .value()
+                                         .value().get()
                                          .getTime();
                          };
       return cr;
@@ -193,7 +193,7 @@ public class ComponentReference {
                                                                              IBDFCreationUtility.readBackStamp);
 
                             return latest.get()
-                                         .value()
+                                         .value().get()
                                          .getTime();
                          };
       return cr;

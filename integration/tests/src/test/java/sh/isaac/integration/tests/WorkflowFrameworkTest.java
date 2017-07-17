@@ -217,7 +217,7 @@ public class WorkflowFrameworkTest {
                                                           Get.configurationService()
                                                                 .getDefaultStampCoordinate());
          final String originalText = latestDescVersion.get()
-                                                      .value()
+                                                      .value().get()
                                                       .getText();
 
          // Modify Sememe Text
@@ -250,7 +250,7 @@ public class WorkflowFrameworkTest {
                Get.configurationService()
                   .getDefaultStampCoordinate());
          Assert.assertEquals(originalText, latestDescVersion.get()
-               .value()
+               .value().get()
                .getText());
       } catch (final Exception e) {
          Assert.fail(e.getMessage());
@@ -1516,7 +1516,7 @@ public class WorkflowFrameworkTest {
          ((LatestVersion<DescriptionSememe<?>>) semChron.getLatestVersion(DescriptionSememe.class,
                                                                           Get.configurationService()
                                                                                 .getDefaultStampCoordinate())
-                                                        .get()).value();
+                                                        .get()).value().get();
       final DescriptionSememeImpl createdVersion =
          (DescriptionSememeImpl) semChron.createMutableVersion(DescriptionSememeImpl.class,
                                                                state,
@@ -1739,7 +1739,7 @@ public class WorkflowFrameworkTest {
                                                    this.defaultStampCoordinate);
 
       Assert.assertEquals(latestConVersion.get()
-            .value()
+            .value().get()
             .getState(), state);
 
       final SememeChronology<? extends SememeVersion<?>> semChron = Get.sememeService()
@@ -1749,7 +1749,7 @@ public class WorkflowFrameworkTest {
                                                         this.defaultStampCoordinate);
 
       Assert.assertEquals(latestDescVersion.get()
-            .value()
+            .value().get()
             .getState(), state);
    }
 

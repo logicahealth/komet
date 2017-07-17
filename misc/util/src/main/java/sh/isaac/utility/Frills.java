@@ -667,9 +667,9 @@ public class Frills
                                                                     State.CANCELED,
                                                                     State.PRIMORDIAL));
 
-            if (descriptionVersion.isPresent()) {
+            if (descriptionVersion.isPresent() && descriptionVersion.get().value().isPresent()) {
                final DescriptionSememe<?> d = descriptionVersion.get()
-                                                                .value();
+                                                                .value().get();
 
                if (d.getDescriptionTypeConceptSequence() ==
                      TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence()) {
@@ -778,17 +778,17 @@ public class Frills
                                                                                     .getDefaultStampCoordinate()
                   : stamp);
 
-                        if (latest.isPresent()) {
-                           if ((latest.get().value().getComponentNid() == MetaData.PREFERRED____ISAAC.getNid()) ||
-                               (latest.get().value().getComponentNid() == MetaData.ACCEPTABLE____ISAAC.getNid())) {
+                        if (latest.isPresent() && latest.get().value().isPresent()) {
+                           if ((latest.get().value().get().getComponentNid() == MetaData.PREFERRED____ISAAC.getNid()) ||
+                               (latest.get().value().get().getComponentNid() == MetaData.ACCEPTABLE____ISAAC.getNid())) {
                               if ((dialectSequenceToAcceptabilityNidMap.get(dialectSequence) != null) &&
                                   (dialectSequenceToAcceptabilityNidMap.get(dialectSequence) !=
-                                   latest.get().value().getComponentNid())) {
+                                   latest.get().value().get().getComponentNid())) {
                                  throw new RuntimeException("contradictory annotations about acceptability!");
                               } else {
                                  dialectSequenceToAcceptabilityNidMap.put(dialectSequence,
                                        latest.get()
-                                             .value()
+                                             .value().get()
                                              .getComponentNid());
                               }
                            } else {
@@ -986,26 +986,26 @@ public class Frills
                                          : stamp)
             .getLatestSememeVersionsForComponentFromAssemblage(componentNid, assemblageConceptSequence)
             .forEach(latestSememe -> {
-                        if (latestSememe.value()
+                        if (latestSememe.value().get()
                                         .getChronology()
                                         .getSememeType() == SememeType.STRING) {
-                           values.add(((StringSememeImpl) latestSememe.value()).getString());
-                        } else if (latestSememe.value()
+                           values.add(((StringSememeImpl) latestSememe.value().get()).getString());
+                        } else if (latestSememe.value().get()
                                                .getChronology()
                                                .getSememeType() == SememeType.COMPONENT_NID) {
-                           values.add(((ComponentNidSememeImpl) latestSememe.value()).getComponentNid() + "");
-                        } else if (latestSememe.value()
+                           values.add(((ComponentNidSememeImpl) latestSememe.value().get()).getComponentNid() + "");
+                        } else if (latestSememe.value().get()
                                                .getChronology()
                                                .getSememeType() == SememeType.LONG) {
-                           values.add(((LongSememeImpl) latestSememe.value()).getLongValue() + "");
-                        } else if (latestSememe.value()
+                           values.add(((LongSememeImpl) latestSememe.value().get()).getLongValue() + "");
+                        } else if (latestSememe.value().get()
                                                .getChronology()
                                                .getSememeType() == SememeType.DYNAMIC) {
-                           final DynamicSememeData[] data = ((DynamicSememeImpl) latestSememe.value()).getData();
+                           final DynamicSememeData[] data = ((DynamicSememeImpl) latestSememe.value().get()).getData();
 
                            if (data.length > 0) {
                               LOG.warn("Found multiple (" + data.length + ") dynamic sememe data fields in sememe " +
-                                       latestSememe.value().getNid() + " of assemblage type " + assemblageConceptUuid +
+                                       latestSememe.value().get().getNid() + " of assemblage type " + assemblageConceptUuid +
                                        " on component " +
                                        Get.identifierService().getUuidPrimordialForNid(componentNid));
                            }
@@ -1083,9 +1083,9 @@ public class Frills
             ((SememeChronology) sememe.get()).getLatestVersion(LogicGraphSememe.class,
                                                                StampCoordinates.getDevelopmentLatest());
 
-         if (sv.isPresent()) {
+         if (sv.isPresent() && sv.get().value().isPresent()) {
             return Optional.of(isConceptFullyDefined((LogicGraphSememe<?>) sv.get()
-                  .value()));
+                  .value().get()));
          }
       }
 
@@ -1170,7 +1170,7 @@ public class Frills
          }
 
          final DynamicSememeData[] dataColumns = optionalLatestSememeVersion.get()
-                                                                            .value()
+                                                                            .value().get()
                                                                             .getData();
 
          if (dataColumns.length != 1) {
@@ -1224,9 +1224,9 @@ public class Frills
                                                                                     .getDefaultStampCoordinate()
                   : stamp);
 
-                        if (latest.isPresent()) {
+                        if (latest.isPresent() && latest.get().value().isPresent()) {
                            if (latest.get()
-                                     .value()
+                                     .value().get()
                                      .getComponentNid() == MetaData.PREFERRED____ISAAC.getNid()) {
                               if ((answer.get() != null) && (answer.get() != true)) {
                                  throw new RuntimeException("contradictory annotations about preferred status!");
@@ -1234,7 +1234,7 @@ public class Frills
 
                               answer.set(true);
                            } else if (latest.get()
-                                            .value()
+                                            .value().get()
                                             .getComponentNid() == MetaData.ACCEPTABLE____ISAAC.getNid()) {
                               if ((answer.get() != null) && (answer.get() != false)) {
                                  throw new RuntimeException("contradictory annotations about preferred status!");
@@ -1288,7 +1288,7 @@ public class Frills
 
                         if (latest.isPresent()) {
                            final DescriptionSememe<?> ds = latest.get()
-                                                                 .value();
+                                                                 .value().get();
 
                            if (ds.getDescriptionTypeConceptSequence() == descriptionType.getConceptSequence()) {
                               results.add(ds);
@@ -1677,9 +1677,9 @@ public class Frills
                                                                               MetaData.SCTID____ISAAC.getConceptSequence())
                                                                      .findFirst();
 
-         if (sememe.isPresent()) {
+         if (sememe.isPresent() && sememe.get().value().isPresent()) {
             return Optional.of(Long.parseLong(sememe.get()
-                  .value()
+                  .value().get()
                   .getString()));
          }
       } catch (final Exception e) {
@@ -1898,17 +1898,17 @@ public class Frills
             .getLatestSememeVersionsForComponentFromAssemblage(componentNid, MetaData.VUID____ISAAC.getConceptSequence())
             .forEach(latestSememe -> {
             // expected path
-                        if (latestSememe.value()
+                        if (latestSememe.value().get()
                                         .getChronology()
                                         .getSememeType() == SememeType.STRING) {
-                           vuids.add(Long.parseLong(((StringSememe) latestSememe.value()).getString()));
+                           vuids.add(Long.parseLong(((StringSememe) latestSememe.value().get()).getString()));
                         }
 
                         // Data model bug path (can go away, after bug is fixed)
-                        else if (latestSememe.value()
+                        else if (latestSememe.value().get()
                                              .getChronology()
                                              .getSememeType() == SememeType.DYNAMIC) {
-                           vuids.add(Long.parseLong(((DynamicSememe) latestSememe.value()).getData()[0]
+                           vuids.add(Long.parseLong(((DynamicSememe) latestSememe.value().get()).getData()[0]
                                  .dataToString()));
                         }
                      });

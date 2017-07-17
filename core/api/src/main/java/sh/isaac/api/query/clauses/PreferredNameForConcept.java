@@ -114,9 +114,9 @@ public class PreferredNameForConcept
                                                  conceptChronology.getPreferredDescription(
                                                     languageCoordinate, stampCoordinate);
 
-                                              if (desc.isPresent()) {
+                                              if (desc.isPresent() && desc.get().value().isPresent()) {
                                                  outgoingPreferredNids.add(desc.get()
-                                                       .value()
+                                                       .value().get()
                                                        .getNid());
                                               }
                                            });

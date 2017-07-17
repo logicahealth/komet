@@ -200,10 +200,10 @@ public class ChangeSetLoadProvider
             ((SememeChronology) sdic.get()).getLatestVersion(StringSememe.class,
                                                              StampCoordinates.getDevelopmentLatest());
 
-         if (sdi.isPresent()) {
+         if (sdi.isPresent() && sdi.get().value().isPresent()) {
             try {
                return UUID.fromString(sdi.get()
-                                         .value()
+                                         .value().get()
                                          .getString());
             } catch (final Exception e) {
                LOG.warn("The Database UUID annotation on Isaac Root does not contain a valid UUID!", e);

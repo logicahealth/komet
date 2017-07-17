@@ -150,7 +150,7 @@ public class WorkflowAccessor {
     */
    private String formatStringDescriptionInformation(LatestVersion<DescriptionSememe> descSem) {
       // Description: <Desctipion Text>
-      return String.format("Description: %s", descSem.value()
+      return String.format("Description: %s", descSem.value().get()
             .getText());
    }
 
@@ -302,7 +302,7 @@ public class WorkflowAccessor {
                (LatestVersion<DynamicSememe>) ((SememeChronology) sememe).getLatestVersion(LogicGraphSememe.class,
                                                                                            stampCoord)
                                                                          .get();
-            final int assemblageSeq = dynSem.value()
+            final int assemblageSeq = dynSem.value().get()
                                             .getAssemblageSequence();
 
             Get.conceptService()
