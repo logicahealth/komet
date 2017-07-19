@@ -105,7 +105,7 @@ public interface ObservableChronology<V extends ObservableVersion>
     *
     * @return the list property<? extends observable sememe chronology<? extends observable sememe version<?>>>
     */
-   ListProperty<? extends ObservableSememeChronology<? extends ObservableSememeVersion<?>>> sememeListProperty();
+   ListProperty<? extends ObservableSememeChronology<? extends ObservableSememeVersion>> sememeListProperty();
 
    /**
     * Uuid list property.
@@ -137,7 +137,7 @@ public interface ObservableChronology<V extends ObservableVersion>
     *
     * @return a list of sememes, where this object is the referenced component.
     */
-   ObservableList<? extends ObservableSememeChronology<? extends ObservableSememeVersion<?>>> getSememeList();
+   ObservableList<? extends ObservableSememeChronology<? extends ObservableSememeVersion>> getSememeList();
 
    /**
     * Gets the sememe list from assemblage.
@@ -145,7 +145,7 @@ public interface ObservableChronology<V extends ObservableVersion>
     * @param assemblageSequence the assemblage sequence
     * @return the sememe list from assemblage
     */
-   List<? extends ObservableSememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(
+   List<? extends ObservableSememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(
            int assemblageSequence);
 
    /**

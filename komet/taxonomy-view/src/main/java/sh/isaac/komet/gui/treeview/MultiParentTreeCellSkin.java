@@ -29,7 +29,7 @@ import sh.isaac.api.component.concept.ConceptVersion;
  *
  * @author kec
  */
-public class MultiParentTreeCellSkin extends TreeCellSkin<ConceptChronology<? extends ConceptVersion<?>>> {
+public class MultiParentTreeCellSkin extends TreeCellSkin<ConceptChronology> {
 
    private final double defaultDisclosureWidth = 18;
    private boolean disclosureNodeDirty = true;
@@ -59,7 +59,7 @@ public class MultiParentTreeCellSkin extends TreeCellSkin<ConceptChronology<? ex
       // being cleaned out.
       // if (treeItem == null) return;
 
-      TreeView<ConceptChronology<? extends ConceptVersion<?>>> tree = getSkinnable().getTreeView();
+      TreeView<ConceptChronology> tree = getSkinnable().getTreeView();
       if (tree == null) {
          return;
       }
@@ -126,7 +126,7 @@ public class MultiParentTreeCellSkin extends TreeCellSkin<ConceptChronology<? ex
 
       double pw = snappedLeftInset() + snappedRightInset();
 
-      TreeView<ConceptChronology<? extends ConceptVersion<?>>> tree = getSkinnable().getTreeView();
+      TreeView<ConceptChronology> tree = getSkinnable().getTreeView();
       if (tree == null) {
          return pw;
       }

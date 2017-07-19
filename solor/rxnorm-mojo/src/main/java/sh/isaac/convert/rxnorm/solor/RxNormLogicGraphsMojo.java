@@ -216,7 +216,7 @@ public class RxNormLogicGraphsMojo
 //                 
 //                 EditCoordinate ec = Get.configurationService().getDefaultEditCoordinate();
 //                 //TODO find constant
-//                 ConceptChronology<?> unitConcept = Get.conceptService().getConcept(UUID.fromString("17055d89-84e3-3e12-9fb1-1bc4c75a122d"));  //Units (attribute)
+//                 ConceptChronology unitConcept = Get.conceptService().getConcept(UUID.fromString("17055d89-84e3-3e12-9fb1-1bc4c75a122d"));  //Units (attribute)
 //                 
 //                 LogicalExpressionBuilderService expressionBuilderService = LookupService.getService(LogicalExpressionBuilderService.class);
 //                 
@@ -338,7 +338,7 @@ public class RxNormLogicGraphsMojo
 //                                                         LogicCoordinates.getStandardElProfile().getStatedAssemblageSequence()).findFirst().get();
 //                                         
 //                                         @SuppressWarnings("unchecked")
-//                                         MutableLogicGraphSememe<?> mls = ((SememeChronology<LogicGraphSememe<?>>)sc).createMutableVersion(MutableLogicGraphSememe.class, 
+//                                         MutableLogicGraphSememe mls = ((SememeChronology<LogicGraphSememe>)sc).createMutableVersion(MutableLogicGraphSememe.class, 
 //                                                         sh.isaac.api.State.ACTIVE, 
 //                                                         ec); 
 //                                         

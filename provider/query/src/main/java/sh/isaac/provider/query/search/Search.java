@@ -56,9 +56,9 @@ import java.util.function.Function;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -233,16 +233,15 @@ public class Search {
          .getDescriptionsForComponent(sourceConceptNid)
          .forEach(descriptionC -> {
                      @SuppressWarnings({ "rawtypes", "unchecked" })
-                     final Optional<LatestVersion<DescriptionSememe<?>>> latest =
-                        ((SememeChronology) descriptionC).getLatestVersion(DescriptionSememe.class,
+                     final LatestVersion<DescriptionVersion> latest =
+                        ((SememeChronology) descriptionC).getLatestVersion(DescriptionVersion.class,
                                                                            (stampCoord == null)
                                                                            ? Get.configurationService()
                                                                                  .getDefaultStampCoordinate()
                : stampCoord);
 
-                     if (latest.isPresent() && latest.get().value().isPresent()) {
-                        searchString.append(latest.get()
-                              .value().get()
+                     if (latest.value().isPresent()) {
+                        searchString.append(latest.value().get()
                               .getText());
                         searchString.append(" ");
                      }

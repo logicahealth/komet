@@ -64,7 +64,6 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.sememe.SememeChronology;
@@ -77,17 +76,19 @@ import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class ObjectChronologyImpl.
+ * The Class ChronologyImpl.
  *
  * @author kec
  * @param <V> the value type
  */
-public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
-         implements ObjectChronology<V>, WaitFreeComparable {
+public abstract class ChronologyImpl<V extends Version>
+         implements Chronology<V>, WaitFreeComparable {
    /** The Constant STAMPED_LOCKS. */
    private static final StampedLock[] STAMPED_LOCKS = new StampedLock[256];
 
@@ -161,7 +162,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * readData(ByteArrayDataBuffer data) method.
     *
     */
-   protected ObjectChronologyImpl() {}
+   protected ChronologyImpl() {}
 
    /**
     * For constructing an object for the first time.
@@ -172,7 +173,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * @param containerSequence Either a concept sequence or a sememe sequence
     * depending on the ofType of the underlying object.
     */
-   protected ObjectChronologyImpl(UUID primordialUuid, int nid, int containerSequence) {
+   protected ChronologyImpl(UUID primordialUuid, int nid, int containerSequence) {
       this.writeSequence     = Integer.MIN_VALUE;
       this.primordialUuidMsb = primordialUuid.getMostSignificantBits();
       this.primordialUuidLsb = primordialUuid.getLeastSignificantBits();
@@ -210,7 +211,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
          return false;
       }
 
-      final ObjectChronologyImpl<?> that = (ObjectChronologyImpl<?>) o;
+      final ChronologyImpl<?> that = (ChronologyImpl<?>) o;
 
       if (this.nid != that.nid) {
          return false;
@@ -264,7 +265,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
                                           final int startWritePosition = db.getPosition();
 
                                           db.putInt(0);  // placeholder for length
-                                          version.writeVersionData(db);
+                                          ((VersionImpl)version).writeVersionData(db);
 
                                           final int versionLength = db.getPosition() - startWritePosition;
 
@@ -659,7 +660,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
          final int startWritePosition = db.getPosition();
 
          db.putInt(0);  // placeholder for length
-         version.writeVersionData(db);
+         ((VersionImpl)version).writeVersionData(db);
 
          final int versionLength = db.getPosition() - startWritePosition;
 
@@ -807,7 +808,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * @return the latest version
     */
    @Override
-   public Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate coordinate) {
+   public LatestVersion<V> getLatestVersion(Class<V> type, StampCoordinate coordinate) {
       final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
 
       if (this.versionListReference != null) {
@@ -821,10 +822,10 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
       final StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
       if (latestStampSequences.isEmpty()) {
-         return Optional.empty();
+         return new LatestVersion<>();
       }
 
-      return Optional.of(new LatestVersion<>(getVersionsForStamps(latestStampSequences)));
+      return new LatestVersion<>(getVersionsForStamps(latestStampSequences));
    }
 
    /**
@@ -887,7 +888,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * @return the sememe list
     */
    @Override
-   public List<SememeChronology<? extends SememeVersion<?>>> getSememeList() {
+   public List<SememeChronology<? extends SememeVersion>> getSememeList() {
       return Get.sememeService()
                 .getSememesForComponent(this.nid)
                 .collect(Collectors.toList());
@@ -900,7 +901,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * @return the sememe list from assemblage
     */
    @Override
-   public List<SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence) {
+   public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
       return Get.sememeService()
                 .getSememesForComponentFromAssemblage(this.nid, assemblageSequence)
                 .collect(Collectors.toList());
@@ -932,7 +933,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * @return a list of all unwritten versions contained in this chronicle.
     */
    @Override
-   public List<? extends V> getUnwrittenVersionList() {
+   public List<V> getUnwrittenVersionList() {
       final ArrayList<V> results = new ArrayList<>();
 
       if (this.unwrittenData != null) {
@@ -1016,7 +1017,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * @return the version graph list
     */
    @Override
-   public List<Graph<? extends V>> getVersionGraphList() {
+   public List<Graph<V>> getVersionGraphList() {
       final HashMap<StampPath, TreeSet<V>> versionMap = new HashMap<>();
 
       getVersionList().forEach((version) -> {
@@ -1043,7 +1044,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
 
       if (versionMap.size() == 1) {
          // easy case...
-         final List<Graph<? extends V>> results = new ArrayList<>();
+         final List<Graph<V>> results = new ArrayList<>();
          final Graph<V>                 graph   = new Graph<>();
 
          results.add(graph);
@@ -1070,7 +1071,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * @return a list of all versions contained in this chronicle.
     */
    @Override
-   public List<? extends V> getVersionList() {
+   public List<V> getVersionList() {
       ArrayList<V> results = null;
 
       if (this.versionListReference != null) {
@@ -1202,7 +1203,7 @@ public abstract class ObjectChronologyImpl<V extends ObjectVersionImpl>
     * @return the visible ordered version list
     */
    @Override
-   public List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
+   public List<V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
       final RelativePositionCalculator calc              = RelativePositionCalculator.getCalculator(stampCoordinate);
       final SortedSet<V>               sortedLogicGraphs = new TreeSet<>((V graph1,
                                                                           V graph2) -> {

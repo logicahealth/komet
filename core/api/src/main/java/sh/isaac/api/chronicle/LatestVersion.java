@@ -68,6 +68,7 @@ public final class LatestVersion<V> {
    Set<V> contradictions;
 
    //~--- constructors --------------------------------------------------------
+   public LatestVersion() {}
 
    /**
     * Instantiates a new latest version.

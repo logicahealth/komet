@@ -120,7 +120,7 @@ public class PostCommitProvider
     * @param cc the cc
     */
    @Override
-   public void handleChange(ConceptChronology<? extends StampedVersion> cc) {
+   public void handleChange(ConceptChronology cc) {
       // not interested
    }
 
@@ -130,7 +130,7 @@ public class PostCommitProvider
     * @param sc the sc
     */
    @Override
-   public void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
+   public void handleChange(SememeChronology<? extends SememeVersion> sc) {
       // not interested
    }
 

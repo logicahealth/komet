@@ -64,7 +64,7 @@ public interface ConceptActiveService {
     *
     * @param conceptChronology the concept chronology
     */
-   void updateStatus(ConceptChronology<?> conceptChronology);
+   void updateStatus(ConceptChronology conceptChronology);
 
    //~--- get methods ---------------------------------------------------------
 

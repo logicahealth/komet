@@ -1,8 +1,9 @@
-/* 
+/*
+ * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
+         US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- *
- * You may not use this file except in compliance with the License.
- *
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
@@ -10,63 +11,28 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
- *
- * US Veterans Health Administration contributions by government employees
- * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
- * 
- * Contribution by contractors to the US Veterans Health Administration
- * during this period are contractually contributed under the
- * Apache License, Version 2.0.
- *
- * See: https://www.usa.gov/government-works
- * 
- * Contributions prior to 2013:
- *
- * Copyright (C) International Health Terminology Standards Development Organisation.
- * Licensed under the Apache License, Version 2.0.
- *
  */
-
-
-
 package sh.isaac.api.component.concept;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import org.jvnet.hk2.annotations.Contract;
-
-import sh.isaac.api.DatabaseServices;
+import javafx.collections.ObservableList;
 import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-
-//~--- interfaces -------------------------------------------------------------
+import sh.isaac.api.observable.concept.ObservableConceptChronology;
+import sh.isaac.api.observable.sememe.ObservableSememeChronology;
+import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 
 /**
- * The Interface ConceptService.
  *
  * @author kec
  */
-@Contract
-public interface ConceptService
+public interface ObservableConceptService 
         extends SharedConceptService {
    /**
     * Write a concept to the concept service. Will not overwrite a concept if one already exists, rather it will
@@ -87,7 +53,7 @@ public interface ConceptService
     * @param conceptId either a concept sequence or a concept nid.
     * @return the concept chronology associated with the identifier.
     */
-   ConceptChronology getConcept(int conceptId);
+   ObservableConceptChronology getConcept(int conceptId);
    
    /**
     * Gets the list of descriptions for a concept.
@@ -95,7 +61,7 @@ public interface ConceptService
     * @param conceptId either a concept sequence or a concept nid.
     * @return the list of descriptions.
     */
-   default List<SememeChronology<DescriptionVersion>> getConceptDescriptions(int conceptId) {
+   default ObservableList<ObservableSememeChronology<? extends ObservableDescriptionVersion>> getConceptDescriptions(int conceptId) {
       return getConcept(conceptId).getConceptDescriptionList();
    }
 
@@ -105,7 +71,7 @@ public interface ConceptService
     * @param conceptUuids a UUID that identifies a concept.
     * @return the concept chronology associated with the identifier.
     */
-   ConceptChronology getConcept(UUID... conceptUuids);
+   ObservableConceptChronology getConcept(UUID... conceptUuids);
 
    /**
     * Use in circumstances when not all concepts may have been loaded to find out if a concept is present,
@@ -173,7 +139,7 @@ public interface ConceptService
     * @param conceptId Either a nid or concept sequence
     * @return an Optional ConceptChronology.
     */
-   Optional<? extends ConceptChronology> getOptionalConcept(int conceptId);
+   Optional<? extends ObservableConceptChronology> getOptionalConcept(int conceptId);
 
    /**
     * Use in circumstances when not all concepts may have been loaded.
@@ -182,7 +148,7 @@ public interface ConceptService
     * This implementation should not have a side effect of adding the UUID to any indexes, if the UUID isn't yet present.
     * @return an Optional ConceptChronology.
     */
-   Optional<? extends ConceptChronology> getOptionalConcept(UUID... conceptUuids);
+   Optional<? extends ObservableConceptChronology> getOptionalConcept(UUID... conceptUuids);
 
    /**
     * Gets the parallel concept chronology stream.
@@ -206,6 +172,6 @@ public interface ConceptService
     * @param manifoldCoordinate the stamp coordinate
     * @return the sh.isaac.api.component.concept.ConceptSnapshotService
     */
-   ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate);
+   ObservableConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate);
 }
 

@@ -41,7 +41,6 @@ package sh.isaac.api.observable.concept;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -57,7 +56,7 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionSememe;
+import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -72,10 +71,9 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
    /**
     * Concept description list property.
     *
-    * @param <T> the generic type
     * @return the list property
     */
-   <T extends ObservableDescriptionSememe<T>> ListProperty<ObservableSememeChronology<T>> conceptDescriptionListProperty();
+   ListProperty<ObservableSememeChronology<ObservableDescriptionVersion>> conceptDescriptionListProperty();
 
    /**
     * Concept sequence property.
@@ -125,10 +123,9 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
    /**
     * Gets the concept description list.
     *
-    * @param <T> the generic type
     * @return the concept description list
     */
-   <T extends ObservableDescriptionSememe<T>> ObservableList<? extends ObservableSememeChronology<T>> getConceptDescriptionList();
+   ObservableList<ObservableSememeChronology<ObservableDescriptionVersion>> getConceptDescriptionList();
 
    /**
     * Gets the concept sequence.
@@ -145,20 +142,19 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
     * @param stampCoordinate the stamp coordinate
     * @return the fully specified description
     */
-   Optional<LatestVersion<ObservableDescriptionSememe<?>>> getFullySpecifiedDescription(
+   LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate);
 
    /**
     * Gets the preferred description.
     *
-    * @param <T> the generic type
     * @param languageCoordinate the language coordinate
     * @param stampCoordinate the stamp coordinate
     * @return the preferred description
     */
-   <T extends ObservableDescriptionSememe<T>> Optional<LatestVersion<T>> getPreferredDescription(
+   LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate);
 }
-
+//~--- JDK imports ------------------------------------------------------------

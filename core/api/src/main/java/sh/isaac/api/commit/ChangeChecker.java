@@ -51,7 +51,6 @@ import java.util.Collection;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 
@@ -71,7 +70,7 @@ public interface ChangeChecker
     * @param alertCollection the alert collection
     * @param checkPhase the check phase
     */
-   void check(ConceptChronology<? extends ConceptVersion<?>> cc,
+   void check(ConceptChronology cc,
               Collection<Alert> alertCollection,
               CheckPhase checkPhase);
 
@@ -82,7 +81,7 @@ public interface ChangeChecker
     * @param alertCollection the alert collection
     * @param checkPhase the check phase
     */
-   void check(SememeChronology<? extends SememeVersion<?>> sc,
+   void check(SememeChronology<? extends SememeVersion> sc,
               Collection<Alert> alertCollection,
               CheckPhase checkPhase);
 }

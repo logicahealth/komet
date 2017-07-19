@@ -81,7 +81,6 @@ import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.CoordinateFactory;
 import sh.isaac.api.externalizable.BinaryDataDifferService;
@@ -99,6 +98,7 @@ import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -325,15 +325,13 @@ public class Get
     *  Optional&gt;LatestVersion>&lt;
     */
    public static String conceptDescriptionText(int conceptId) {
-      final Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional =
+      final LatestVersion<DescriptionVersion> descriptionOptional =
          defaultConceptSnapshotService().getDescriptionOptional(conceptId);
 
-      if (descriptionOptional.isPresent()) {
-         if (descriptionOptional.get().value().isPresent()) {
-            return descriptionOptional.get()
+      if (descriptionOptional.value().isPresent()) {
+            return descriptionOptional
                     .value().get()
                     .getText();
-         }
       }
 
       return "No desc for: " + conceptId;
@@ -491,7 +489,7 @@ public class Get
     * @return the inferred definition chronology for the specified concept
     * according to the default logic coordinate.
     */
-   public static Optional<SememeChronology<? extends SememeVersion<?>>> inferredDefinitionChronology(int conceptId) {
+   public static Optional<SememeChronology<? extends SememeVersion>> inferredDefinitionChronology(int conceptId) {
       conceptId = identifierService().getConceptNid(conceptId);
       return sememeService().getSememesForComponentFromAssemblage(conceptId,
             configurationService().getDefaultLogicCoordinate()
@@ -618,11 +616,11 @@ public class Get
    }
 
    /**
-    * Sememe builder service.
+    * Sememe builder service. 
     *
     * @return the sememe builder service<? extends sememe chronology<? extends sememe version<?>>>
     */
-   public static SememeBuilderService<? extends SememeChronology<? extends SememeVersion<?>>> sememeBuilderService() {
+   public static SememeBuilderService<? extends SememeChronology<? extends SememeVersion>> sememeBuilderService() {
       if (sememeBuilderService == null) {
          sememeBuilderService = getService(SememeBuilderService.class);
       }
@@ -700,7 +698,7 @@ public class Get
     * @return the stated definition chronology for the specified concept
     * according to the default logic coordinate.
     */
-   public static Optional<SememeChronology<? extends SememeVersion<?>>> statedDefinitionChronology(int conceptId) {
+   public static Optional<SememeChronology<? extends SememeVersion>> statedDefinitionChronology(int conceptId) {
       conceptId = identifierService().getConceptNid(conceptId);
       return sememeService().getSememesForComponentFromAssemblage(conceptId,
             configurationService().getDefaultLogicCoordinate()

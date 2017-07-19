@@ -49,13 +49,13 @@ import javafx.collections.ObservableList;
 import sh.isaac.api.State;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
+import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 import sh.isaac.model.observable.version.ObservableDescriptionImpl;
-import sh.isaac.model.observable.version.ObservableSememeVersionImpl;
 import sh.isaac.model.sememe.version.DescriptionSememeImpl;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -66,7 +66,9 @@ import sh.isaac.model.sememe.version.DescriptionSememeImpl;
  * @param <OV> the generic type
  * @param <C> the generic type
  */
-public class ObservableSememeChronologyImpl<OV extends ObservableSememeVersionImpl<OV>, C extends SememeChronology<?>>
+public class ObservableSememeChronologyImpl
+        <OV extends ObservableSememeVersion, 
+         C extends SememeChronology<? extends SememeVersion>>
         extends ObservableChronologyImpl<OV, C>
          implements ObservableSememeChronology<OV> {
    /** The sememe sequence property. */
@@ -172,8 +174,8 @@ public class ObservableSememeChronologyImpl<OV extends ObservableSememeVersionIm
     * @param sememeVersion the sememe version
     * @return the ov
     */
-   private OV wrapInObservable(SememeVersion<?> sememeVersion) {
-      if (DescriptionSememe.class.isAssignableFrom(sememeVersion.getClass())) {
+   private OV wrapInObservable(SememeVersion sememeVersion) {
+      if (DescriptionVersion.class.isAssignableFrom(sememeVersion.getClass())) {
          return (OV) new ObservableDescriptionImpl((DescriptionSememeImpl) sememeVersion,
                (ObservableSememeChronology) this);
       }
@@ -260,7 +262,7 @@ public class ObservableSememeChronologyImpl<OV extends ObservableSememeVersionIm
     */
    private <M extends OV, T> Class<T> getSvForOv(Class<M> type) {
       if (type.isAssignableFrom(ObservableDescriptionImpl.class)) {
-         return (Class<T>) DescriptionSememe.class;
+         return (Class<T>) DescriptionVersion.class;
       }
 
       throw new UnsupportedOperationException("Can't convert " + type);

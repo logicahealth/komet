@@ -242,7 +242,7 @@ public class TaxonomyProvider
     * @param cc the cc
     */
    @Override
-   public void handleChange(ConceptChronology<? extends StampedVersion> cc) {
+   public void handleChange(ConceptChronology cc) {
       // not interested on concept changes
    }
 
@@ -252,7 +252,7 @@ public class TaxonomyProvider
     * @param sc the sc
     */
    @Override
-   public void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
+   public void handleChange(SememeChronology<? extends SememeVersion> sc) {
       if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {
          this.sememeSequencesForUnhandledChanges.add(sc.getSememeSequence());
       }
@@ -279,7 +279,7 @@ public class TaxonomyProvider
     * @param conceptChronology the concept chronology
     */
    @Override
-   public void updateStatus(ConceptChronology<?> conceptChronology) {
+   public void updateStatus(ConceptChronology conceptChronology) {
       final int               conceptSequence = conceptChronology.getConceptSequence();
       TaxonomyRecordPrimitive parentTaxonomyRecord;
 
@@ -306,7 +306,7 @@ public class TaxonomyProvider
     * @param logicGraphChronology the logic graph chronology
     */
    @Override
-   public void updateTaxonomy(SememeChronology<LogicGraphSememe<?>> logicGraphChronology) {
+   public void updateTaxonomy(SememeChronology<LogicGraphSememe> logicGraphChronology) {
       final int conceptSequence =
          this.identifierService.getConceptSequence(logicGraphChronology.getReferencedComponentNid());
       final Optional<TaxonomyRecordPrimitive> record = this.originDestinationTaxonomyRecordMap.get(conceptSequence);
@@ -326,7 +326,7 @@ public class TaxonomyProvider
          taxonomyFlags = TaxonomyFlags.STATED;
       }
 
-      final List<Graph<? extends LogicGraphSememe<?>>> versionGraphList = logicGraphChronology.getVersionGraphList();
+      final List<Graph<LogicGraphSememe>> versionGraphList = logicGraphChronology.getVersionGraphList();
 
       versionGraphList.forEach((versionGraph) -> {
                                   processVersionNode(versionGraph.getRoot(), parentTaxonomyRecord, taxonomyFlags);

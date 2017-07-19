@@ -135,13 +135,12 @@ public class DescriptionRegexMatch
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
       final String regex = (String) this.enclosingQuery.getLetDeclarations()
                                                        .get(this.regexKey);
-      final ConceptChronology<? extends ConceptVersion> conceptChronology = conceptVersion.getChronology();
+      final ConceptChronology conceptChronology = conceptVersion.getChronology();
 
       conceptChronology.getConceptDescriptionList().forEach((description) -> {
                                    if (this.cache.contains(description.getNid())) {

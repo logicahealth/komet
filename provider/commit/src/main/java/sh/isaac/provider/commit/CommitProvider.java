@@ -103,7 +103,6 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.SememeSequenceSet;
@@ -126,8 +125,9 @@ import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.task.SequentialAggregateTask;
 import sh.isaac.api.task.TimedTask;
-import sh.isaac.model.ObjectChronologyImpl;
-import sh.isaac.model.ObjectVersionImpl;
+import sh.isaac.model.ChronologyImpl;
+import sh.isaac.model.VersionImpl;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -398,11 +398,11 @@ public class CommitProvider
     * @return the task
     */
    @Override
-   public Task<Void> cancel(ObjectChronology<?> chronicle, EditCoordinate editCoordinate) {
-      final ObjectChronologyImpl    chronicleImpl = (ObjectChronologyImpl) chronicle;
-      final List<ObjectVersionImpl> versionList   = chronicleImpl.getVersionList();
+   public Task<Void> cancel(Chronology<?> chronicle, EditCoordinate editCoordinate) {
+      final ChronologyImpl    chronicleImpl = (ChronologyImpl) chronicle;
+      final List<VersionImpl> versionList   = chronicleImpl.getVersionList();
 
-      for (final ObjectVersionImpl version: versionList) {
+      for (final VersionImpl version: versionList) {
          if (version.isUncommitted()) {
             if (version.getAuthorSequence() == editCoordinate.getAuthorSequence()) {
                version.cancel();
@@ -570,7 +570,7 @@ public class CommitProvider
     * @return the task
     */
    @Override
-   public synchronized Task<Optional<CommitRecord>> commit(ObjectChronology<?> chronicle,
+   public synchronized Task<Optional<CommitRecord>> commit(Chronology<?> chronicle,
          EditCoordinate editCoordinate,
          String commitComment) {
       // TODO make asynchronous with a actual task.
@@ -616,11 +616,11 @@ public class CommitProvider
          final SememeSequenceSet  sememesInCommit  = new SememeSequenceSet();
 
          chronicle.getVersionList().forEach((version) -> {
-                              if (((ObjectVersionImpl) version).isUncommitted() &&
-                                  ((ObjectVersionImpl) version).getAuthorSequence() ==
+                              if (((VersionImpl) version).isUncommitted() &&
+                                  ((VersionImpl) version).getAuthorSequence() ==
                                   editCoordinate.getAuthorSequence()) {
-                                 ((ObjectVersionImpl) version).setTime(commitTime);
-                                 stampsInCommit.add(((ObjectVersionImpl) version).getStampSequence());
+                                 ((VersionImpl) version).setTime(commitTime);
+                                 stampsInCommit.add(((VersionImpl) version).getStampSequence());
                               }
                            });
 
@@ -915,7 +915,7 @@ public class CommitProvider
     * @param sememeOrConceptChronicle the sememe or concept chronicle
     * @param changeCheckerActive the change checker active
     */
-   private void handleUncommittedSequenceSet(ObjectChronology sememeOrConceptChronicle, boolean changeCheckerActive) {
+   private void handleUncommittedSequenceSet(Chronology sememeOrConceptChronicle, boolean changeCheckerActive) {
       try {
          this.uncommittedSequenceLock.lock();
 

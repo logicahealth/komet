@@ -120,7 +120,6 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -138,6 +137,7 @@ import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SememeIndexer;
 import sh.isaac.utility.Frills;
 import sh.isaac.api.index.IndexService;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -320,11 +320,11 @@ public abstract class LuceneIndexer
                                     });
             }
             @Override
-            public void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
+            public void handleChange(SememeChronology<? extends SememeVersion> sc) {
                // noop
             }
             @Override
-            public void handleChange(ConceptChronology<? extends StampedVersion> cc) {
+            public void handleChange(ConceptChronology cc) {
                // noop
             }
             @Override
@@ -423,7 +423,7 @@ public abstract class LuceneIndexer
     * @return the future
     */
    @Override
-   public final CompletableFuture<Long> index(ObjectChronology<?> chronicle) {
+   public final CompletableFuture<Long> index(Chronology<?> chronicle) {
       return index((() -> new AddDocument(chronicle)), (() -> indexChronicle(chronicle)), chronicle.getNid());
    }
 
@@ -552,7 +552,7 @@ public abstract class LuceneIndexer
     * @param chronicle the chronicle
     * @param doc the doc
     */
-   protected abstract void addFields(ObjectChronology<?> chronicle, Document doc);
+   protected abstract void addFields(Chronology<?> chronicle, Document doc);
 
    /**
     * Builds the prefix query.
@@ -666,7 +666,7 @@ public abstract class LuceneIndexer
     * @param chronicle the chronicle
     * @return true, if successful
     */
-   protected abstract boolean indexChronicle(ObjectChronology<?> chronicle);
+   protected abstract boolean indexChronicle(Chronology<?> chronicle);
 
    /**
     * Release latch.
@@ -952,7 +952,7 @@ public abstract class LuceneIndexer
    private class AddDocument
             implements Supplier<Long> {
       /** The chronicle. */
-      ObjectChronology<?> chronicle = null;
+      Chronology<?> chronicle = null;
 
       //~--- constructors -----------------------------------------------------
 
@@ -961,7 +961,7 @@ public abstract class LuceneIndexer
        *
        * @param chronicle the chronicle
        */
-      public AddDocument(ObjectChronology<?> chronicle) {
+      public AddDocument(Chronology<?> chronicle) {
          this.chronicle = chronicle;
       }
 

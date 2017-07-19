@@ -81,7 +81,6 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -105,6 +104,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -482,7 +482,7 @@ public class RF2Mojo
                                        " " + id + " " + definitionStatusId);
          }
 
-         final ConceptChronology<? extends ConceptVersion<?>> con = super.importUtil.createConcept(id,
+         final ConceptChronology con = super.importUtil.createConcept(id,
                                                                                                    time,
                                                                                                    active ? State.ACTIVE
                : State.INACTIVE,
@@ -585,7 +585,7 @@ public class RF2Mojo
                                                     .isLong() ? UuidT3Generator.fromSNOMED(
                                                        descRS.getLong("CASESIGNIFICANCEID"))
                   : UUID.fromString(descRS.getString("CASESIGNIFICANCEID")));
-            final SememeChronology<DescriptionSememe<?>> desc =
+            final SememeChronology<DescriptionVersion> desc =
                super.importUtil.addDescription(ComponentReference.fromConcept(conceptId),
                                                id,
                                                term,

@@ -68,7 +68,7 @@ import sh.isaac.api.AssemblageService;
  * @author kec
  * @param <V> the value type
  */
-public class SememeSnapshotProvider<V extends SememeVersion<?>>
+public class SememeSnapshotProvider<V extends SememeVersion>
          implements SememeSnapshotService<V> {
    /** The version type. */
    Class<V> versionType;

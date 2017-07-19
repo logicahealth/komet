@@ -63,7 +63,7 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  * @author kec
  */
 public class LogicGraphSememeImpl
-        extends SememeVersionImpl<LogicGraphSememeImpl>
+        extends SememeVersionImpl
          implements MutableLogicGraphSememe<LogicGraphSememeImpl> {
    /** The converter. */
    private static LogicalExpressionByteArrayConverter converter;

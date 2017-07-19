@@ -47,13 +47,12 @@ import javafx.beans.property.StringProperty;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- * The Interface ObservableDescriptionSememe.
+ * The Interface ObservableDescriptionVersion.
  *
  * @author kec
- * @param <V> the value type
  */
-public interface ObservableDescriptionSememe<V extends ObservableDescriptionSememe<V>>
-        extends ObservableSememeVersion<V> {
+public interface ObservableDescriptionVersion
+        extends ObservableSememeVersion {
    /**
     * Case significance concept sequence property.
     *

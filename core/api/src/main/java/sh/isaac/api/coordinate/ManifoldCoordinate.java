@@ -42,12 +42,11 @@ package sh.isaac.api.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -97,8 +96,8 @@ public interface ManifoldCoordinate
     * @return an optional description best matching the {@code LanguageCoordinate}
     * constraints.
     */
-   default Optional<LatestVersion<DescriptionSememe<?>>> getDescription(
-           List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList) {
+   default LatestVersion<DescriptionVersion> getDescription(
+           List<SememeChronology<DescriptionVersion>> descriptionList) {
       return getLanguageCoordinate().getDescription(descriptionList, getStampCoordinate());
    };
    
@@ -108,12 +107,12 @@ public interface ManifoldCoordinate
     * @param conceptId the conceptId to get the text for.
     * @return preferred description. 
     */
-   default Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(int conceptId) {
+   default LatestVersion<DescriptionVersion> getPreferredDescription(int conceptId) {
       return getLanguageCoordinate().getPreferredDescription(conceptId, 
               getStampCoordinate());
    }
    
-   default Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList) {
+   default LatestVersion<DescriptionVersion> getPreferredDescription(List<SememeChronology<DescriptionVersion>> descriptionList) {
       return getLanguageCoordinate().getPreferredDescription(descriptionList, getStampCoordinate());
    }
 
@@ -122,7 +121,7 @@ public interface ManifoldCoordinate
     * @param conceptSpec the {@code ConceptSpecification} to get the text for.
     * @return preferred description. 
     */
-   default Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(ConceptSpecification conceptSpec) {
+   default LatestVersion<DescriptionVersion> getPreferredDescription(ConceptSpecification conceptSpec) {
       return getLanguageCoordinate().getPreferredDescription(conceptSpec.getConceptSequence(), 
               getStampCoordinate());
    }
@@ -151,11 +150,11 @@ public interface ManifoldCoordinate
     * @param conceptId the conceptId to get the text for.
     * @return preferred description.
     */
-   default Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(int conceptId) {
+   default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(int conceptId) {
       return getLanguageCoordinate().getFullySpecifiedDescription(conceptId, getStampCoordinate());
    }
    
-   default Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList) {
+   default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(List<SememeChronology<DescriptionVersion>> descriptionList) {
       return getLanguageCoordinate().getFullySpecifiedDescription(descriptionList, getStampCoordinate());
    }
 
@@ -164,7 +163,7 @@ public interface ManifoldCoordinate
     * @param conceptSpec the {@code ConceptSpecification} to get the text for.
     * @return preferred description.
     */
-   default Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(ConceptSpecification conceptSpec) {
+   default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(ConceptSpecification conceptSpec) {
       return getLanguageCoordinate().getFullySpecifiedDescription(conceptSpec.getConceptSequence(), getStampCoordinate());
    }
 

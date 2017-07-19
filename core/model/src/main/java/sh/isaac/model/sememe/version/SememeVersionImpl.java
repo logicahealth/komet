@@ -45,8 +45,7 @@ import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.MutableSememeVersion;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.model.ObjectVersionImpl;
-import sh.isaac.model.sememe.SememeChronologyImpl;
+import sh.isaac.model.VersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -54,11 +53,11 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  * The Class SememeVersionImpl.
  *
  * @author kec
- * @param <V> the value type
+ * @param <V>
  */
-public class SememeVersionImpl<V extends SememeVersionImpl<V>>
-        extends ObjectVersionImpl<SememeChronologyImpl<V>, V>
-         implements MutableSememeVersion<V> {
+public class SememeVersionImpl<V extends MutableSememeVersion>
+        extends VersionImpl<SememeChronology<V>, V>
+         implements MutableSememeVersion {
    /**
     * Instantiates a new sememe version impl.
     *
@@ -66,7 +65,7 @@ public class SememeVersionImpl<V extends SememeVersionImpl<V>>
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     */
-   public SememeVersionImpl(SememeChronologyImpl<V> container, int stampSequence, short versionSequence) {
+   public SememeVersionImpl(SememeChronology<V> container, int stampSequence, short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
@@ -110,7 +109,7 @@ public class SememeVersionImpl<V extends SememeVersionImpl<V>>
     * @return the chronology
     */
    @Override
-   public SememeChronology<V> getChronology() {
+   public SememeChronology<? extends V> getChronology() {
       return this.chronicle;
    }
 

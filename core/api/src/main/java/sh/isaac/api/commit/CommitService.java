@@ -53,13 +53,13 @@ import javafx.concurrent.Task;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.DatabaseServices;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -103,7 +103,7 @@ public interface CommitService
     * @param cc the cc
     * @return the task
     */
-   Task<Void> addUncommitted(ConceptChronology<?> cc);
+   Task<Void> addUncommitted(ConceptChronology cc);
 
    /**
     * Adds the uncommitted.
@@ -119,7 +119,7 @@ public interface CommitService
     * @param cc the cc
     * @return the task
     */
-   Task<Void> addUncommittedNoChecks(ConceptChronology<?> cc);
+   Task<Void> addUncommittedNoChecks(ConceptChronology cc);
 
    /**
     * Adds the uncommitted no checks.
@@ -150,7 +150,7 @@ public interface CommitService
     * @deprecated use corresponding method that specifies the edit coordinate.
     */
    @Deprecated
-   Task<Void> cancel(ConceptChronology<?> chronicledConcept);
+   Task<Void> cancel(ConceptChronology chronicledConcept);
 
    /**
     * Cancels all pending changes using the provided EditCoordinate. The caller
@@ -185,7 +185,7 @@ public interface CommitService
     *                       cancel.
     * @return task representing the cancel.
     */
-   Task<Void> cancel(ObjectChronology<?> chronicle, EditCoordinate editCoordinate);
+   Task<Void> cancel(Chronology<?> chronicle, EditCoordinate editCoordinate);
 
    /**
     * Commit.
@@ -206,7 +206,7 @@ public interface CommitService
     * @deprecated use corresponding method that specifies the edit coordinate.
     */
    @Deprecated
-   Task<Optional<CommitRecord>> commit(ConceptChronology<?> chronicledConcept, String commitComment);
+   Task<Optional<CommitRecord>> commit(ConceptChronology chronicledConcept, String commitComment);
 
    /**
     * Commit all pending changes for the provided EditCoordinate. The caller may
@@ -240,7 +240,7 @@ public interface CommitService
     * @param commitComment  comment to associate with the commit.
     * @return task representing the cancel.
     */
-   Task<Optional<CommitRecord>> commit(ObjectChronology<?> chronicle,
+   Task<Optional<CommitRecord>> commit(Chronology<?> chronicle,
          EditCoordinate editCoordinate,
          String commitComment);
 

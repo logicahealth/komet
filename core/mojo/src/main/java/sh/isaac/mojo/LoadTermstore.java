@@ -73,7 +73,6 @@ import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -88,6 +87,7 @@ import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -253,12 +253,12 @@ public class LoadTermstore
                      if (null != object.getOchreObjectType()) {
                         switch (object.getOchreObjectType()) {
                         case CONCEPT:
-                           if (!this.activeOnly || isActive((ObjectChronology) object)) {
+                           if (!this.activeOnly || isActive((Chronology) object)) {
                               Get.conceptService()
                                  .writeConcept(((ConceptChronology) object));
                               this.conceptCount++;
                            } else {
-                              this.skippedItems.add(((ObjectChronology) object).getNid());
+                              this.skippedItems.add(((Chronology) object).getNid());
                            }
 
                            break;
@@ -379,8 +379,8 @@ public class LoadTermstore
                      try (JsonWriter json = new JsonWriter(baos, args)) {
                         UUID                        primordial = null;
                         
-                        if (object instanceof ObjectChronology) {
-                           primordial = ((ObjectChronology) object).getPrimordialUuid();
+                        if (object instanceof Chronology) {
+                           primordial = ((Chronology) object).getPrimordialUuid();
                         }
                         
                         json.write(object);
@@ -474,7 +474,7 @@ public class LoadTermstore
     * @param object the object
     * @return true, if active
     */
-   private boolean isActive(ObjectChronology<?> object) {
+   private boolean isActive(Chronology<?> object) {
       if (object.getVersionList()
                 .size() != 1) {
          throw new RuntimeException("Didn't expect version list of size " + object.getVersionList());

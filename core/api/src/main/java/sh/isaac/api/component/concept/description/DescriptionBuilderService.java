@@ -67,7 +67,7 @@ public interface DescriptionBuilderService {
     * @return the description builder
     */
    DescriptionBuilder<? extends SememeChronology<?>,
-                      ? extends MutableDescriptionSememe<?>> getDescriptionBuilder(String descriptionText,
+                      ? extends MutableDescriptionSememe> getDescriptionBuilder(String descriptionText,
                             ConceptBuilder conceptBuilder,
                             ConceptSpecification descriptionType,
                             ConceptSpecification languageForDescription);
@@ -82,7 +82,7 @@ public interface DescriptionBuilderService {
     * @return the description builder
     */
    DescriptionBuilder<? extends SememeChronology<?>,
-                      ? extends MutableDescriptionSememe<?>> getDescriptionBuilder(String descriptionText,
+                      ? extends MutableDescriptionSememe> getDescriptionBuilder(String descriptionText,
                             int conceptSequence,
                             ConceptSpecification descriptionType,
                             ConceptSpecification languageForDescription);

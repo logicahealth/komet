@@ -276,16 +276,16 @@ public class ProcessClassificationResults
                     = sememeService.getSememe(statedSememeSequences.stream()
                             .findFirst()
                             .getAsInt());
-            final Optional<LatestVersion<LogicGraphSememe>> latestStatedDefinitionOptional
+            final LatestVersion<LogicGraphSememe> latestStatedDefinitionOptional
                     = ((SememeChronology<LogicGraphSememe>) rawStatedChronology).getLatestVersion(
                             LogicGraphSememe.class,
                             this.stampCoordinate);
 
-            if (latestStatedDefinitionOptional.isPresent() && latestStatedDefinitionOptional.get().value().isPresent()) {
+            if (latestStatedDefinitionOptional.value().isPresent()) {
                final LogicalExpressionBuilder inferredBuilder
                        = logicalExpressionBuilderService.getLogicalExpressionBuilder();
                final LatestVersion<LogicGraphSememe> latestStatedDefinition
-                       = latestStatedDefinitionOptional.get();
+                       = latestStatedDefinitionOptional;
                final LogicalExpression statedDefinition = latestStatedDefinition.value().get()
                        .getLogicalExpression();
 
@@ -341,13 +341,12 @@ public class ProcessClassificationResults
                                      .getAsInt());
 
                      // check to see if changed from old...
-                     final Optional<LatestVersion<LogicGraphSememe>> latestDefinitionOptional
+                     final LatestVersion<LogicGraphSememe> latestDefinitionOptional
                              = inferredChronology.getLatestVersion(LogicGraphSememe.class,
                                      this.stampCoordinate);
 
-                     if (latestDefinitionOptional.isPresent() && latestDefinitionOptional.get().value().isPresent()) {
-                        if (!latestDefinitionOptional.get()
-                                .value().get()
+                     if (latestDefinitionOptional.value().isPresent()) {
+                        if (!latestDefinitionOptional.value().get()
                                 .getLogicalExpression()
                                 .equals(inferredExpression)) {
                            final MutableLogicGraphSememe newVersion

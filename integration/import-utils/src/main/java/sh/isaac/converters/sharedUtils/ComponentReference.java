@@ -41,7 +41,6 @@ package sh.isaac.converters.sharedUtils;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
@@ -50,12 +49,11 @@ import java.util.function.Supplier;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -116,7 +114,7 @@ public class ComponentReference {
     * @param object the object
     * @return the component reference
     */
-   public static ComponentReference fromChronology(ObjectChronology<?> object) {
+   public static ComponentReference fromChronology(Chronology<?> object) {
       return fromChronology(object, null);
    }
 
@@ -128,7 +126,7 @@ public class ComponentReference {
     * @return the component reference
     */
    @SuppressWarnings("rawtypes")
-   public static ComponentReference fromChronology(ObjectChronology<?> object, Supplier<String> typeLabelSupplier) {
+   public static ComponentReference fromChronology(Chronology<?> object, Supplier<String> typeLabelSupplier) {
       ComponentReference cr;
 
       if (object instanceof SememeChronology) {
@@ -163,12 +161,11 @@ public class ComponentReference {
       cr.nidProvider  = () -> object.getNid();
       cr.timeProvider = () -> {
                             @SuppressWarnings({ "unchecked" })
-                            final Optional<LatestVersion<StampedVersion>> latest =
-                               ((ObjectChronology) object).getLatestVersion(StampedVersion.class,
+                            final LatestVersion<StampedVersion> latest =
+                               ((Chronology) object).getLatestVersion(StampedVersion.class,
                                                                             IBDFCreationUtility.readBackStamp);
 
-                            return latest.get()
-                                         .value().get()
+                            return latest.value().get()
                                          .getTime();
                          };
       return cr;
@@ -180,7 +177,7 @@ public class ComponentReference {
     * @param concept the concept
     * @return the component reference
     */
-   public static ComponentReference fromConcept(ConceptChronology<? extends ConceptVersion<?>> concept) {
+   public static ComponentReference fromConcept(ConceptChronology concept) {
       final ComponentReference cr = new ComponentReference(() -> concept.getPrimordialUuid(),
                                                            () -> concept.getConceptSequence(),
                                                            () -> "Concept");
@@ -188,12 +185,11 @@ public class ComponentReference {
       cr.nidProvider  = () -> concept.getNid();
       cr.timeProvider = () -> {
                             @SuppressWarnings({ "rawtypes", "unchecked" })
-                            final Optional<LatestVersion<StampedVersion>> latest =
-                               ((ObjectChronology) concept).getLatestVersion(StampedVersion.class,
+                            final LatestVersion<StampedVersion> latest =
+                               ((Chronology) concept).getLatestVersion(StampedVersion.class,
                                                                              IBDFCreationUtility.readBackStamp);
 
-                            return latest.get()
-                                         .value().get()
+                            return latest.value().get()
                                          .getTime();
                          };
       return cr;

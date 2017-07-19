@@ -382,5 +382,25 @@ public class RelationshipVersionAdaptorImpl
    public List<UUID> getUuidList() {
       return this.chronology.getUuidList();
    }
+
+   @Override
+   public void setAuthorSequence(int authorSequence) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void setModuleSequence(int moduleSequence) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void setPathSequence(int pathSequence) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
+
+   @Override
+   public void setTime(long time) {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
 }
 

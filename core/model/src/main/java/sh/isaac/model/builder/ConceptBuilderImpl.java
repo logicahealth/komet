@@ -49,7 +49,6 @@ import org.apache.commons.lang3.StringUtils;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -64,6 +63,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -72,7 +72,7 @@ import sh.isaac.model.concept.ConceptChronologyImpl;
  * @author kec
  */
 public class ConceptBuilderImpl
-        extends ComponentBuilder<ConceptChronology<?>>
+        extends ComponentBuilder<ConceptChronology>
         implements ConceptBuilder {
 
    /**
@@ -256,7 +256,7 @@ public class ConceptBuilderImpl
     */
    @Override
    public ConceptChronology build(int stampCoordinate,
-           List<ObjectChronology<? extends StampedVersion>> builtObjects)
+           List<Chronology<? extends StampedVersion>> builtObjects)
            throws IllegalStateException {
       final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
               .getConcept(getUuids());
@@ -309,9 +309,9 @@ public class ConceptBuilderImpl
     * @throws IllegalStateException the illegal state exception
     */
    @Override
-   public OptionalWaitTask<ConceptChronology<?>> build(EditCoordinate editCoordinate,
+   public OptionalWaitTask<ConceptChronology> build(EditCoordinate editCoordinate,
            ChangeCheckerMode changeCheckerMode,
-           List<ObjectChronology<? extends StampedVersion>> builtObjects)
+           List<Chronology<? extends StampedVersion>> builtObjects)
            throws IllegalStateException {
       final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
       final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()

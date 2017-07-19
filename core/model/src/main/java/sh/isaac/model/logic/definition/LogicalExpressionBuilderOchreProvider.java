@@ -74,7 +74,7 @@ public class LogicalExpressionBuilderOchreProvider
     * @return the logical expression
     */
    @Override
-   public LogicalExpression fromSememe(LogicGraphSememe<?> sememe) {
+   public LogicalExpression fromSememe(LogicGraphSememe sememe) {
       return new LogicalExpressionImpl(sememe.getGraphData(),
             DataSource.INTERNAL,
             sememe.getReferencedComponentNid());

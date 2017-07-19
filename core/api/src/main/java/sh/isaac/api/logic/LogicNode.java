@@ -50,9 +50,9 @@ import java.util.stream.Stream;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -171,7 +171,7 @@ public interface LogicNode
     * @param languageCoordinate to determine the language and dialect.
     * @return the preferred description. 
     */
-   Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(StampCoordinate stampCoordinate, 
+   LatestVersion<DescriptionVersion> getPreferredDescription(StampCoordinate stampCoordinate, 
            LanguageCoordinate languageCoordinate);
    
    /**

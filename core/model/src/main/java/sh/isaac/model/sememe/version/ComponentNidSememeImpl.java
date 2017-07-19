@@ -48,6 +48,7 @@ import java.util.Optional;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.component.sememe.version.ComponentNidSememe;
 import sh.isaac.api.component.sememe.version.MutableComponentNidSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -61,7 +62,7 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  * @author kec
  */
 public class ComponentNidSememeImpl
-        extends SememeVersionImpl<ComponentNidSememeImpl>
+        extends SememeVersionImpl
          implements MutableComponentNidSememe<ComponentNidSememeImpl> {
    /** The component nid. */
    int componentNid = Integer.MAX_VALUE;
@@ -75,7 +76,7 @@ public class ComponentNidSememeImpl
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     */
-   public ComponentNidSememeImpl(SememeChronologyImpl<ComponentNidSememeImpl> container,
+   public ComponentNidSememeImpl(SememeChronology<ComponentNidSememe> container,
                                  int stampSequence,
                                  short versionSequence) {
       super(container, stampSequence, versionSequence);
@@ -117,7 +118,7 @@ public class ComponentNidSememeImpl
          break;
 
       case SEMEME:
-         final Optional<? extends SememeChronology<? extends SememeVersion<?>>> optionalSememe = Get.sememeService()
+         final Optional<? extends SememeChronology<? extends SememeVersion>> optionalSememe = Get.sememeService()
                                                                                                     .getOptionalSememe(
                                                                                                        this.componentNid);
 

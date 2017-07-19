@@ -66,7 +66,7 @@ import sh.isaac.api.coordinate.PremiseType;
  * @param <T> the generic type
  */
 public interface RelationshipVersionAdaptor<T extends RelationshipVersionAdaptor<T>>
-        extends SememeVersion<T> {
+        extends SememeVersion {
    /**
     * Gets the chronicle key.
     *

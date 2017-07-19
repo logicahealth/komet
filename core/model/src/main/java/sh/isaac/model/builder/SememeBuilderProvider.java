@@ -54,11 +54,11 @@ import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -69,7 +69,7 @@ import sh.isaac.api.logic.LogicalExpression;
  * @param <C> the generic type
  */
 @Service
-public class SememeBuilderProvider<C extends SememeChronology<? extends SememeVersion<?>>>
+public class SememeBuilderProvider<C extends SememeChronology<? extends SememeVersion>>
          implements SememeBuilderService<C> {
    /**
     * Gets the component sememe builder.
@@ -118,7 +118,7 @@ public class SememeBuilderProvider<C extends SememeChronology<? extends SememeVe
     * @return the description sememe builder
     */
    @Override
-   public SememeBuilder<? extends SememeChronology<? extends DescriptionSememe<?>>> getDescriptionSememeBuilder(
+   public SememeBuilder<? extends SememeChronology<DescriptionVersion>> getDescriptionSememeBuilder(
            int caseSignificanceConceptSequence,
            int descriptionTypeConceptSequence,
            int languageConceptSequence,
@@ -142,7 +142,7 @@ public class SememeBuilderProvider<C extends SememeChronology<? extends SememeVe
     * @return the description sememe builder
     */
    @Override
-   public SememeBuilder<? extends SememeChronology<? extends DescriptionSememe<?>>> getDescriptionSememeBuilder(
+   public SememeBuilder<? extends SememeChronology<DescriptionVersion>> getDescriptionSememeBuilder(
            int caseSignificanceConceptSequence,
            int languageConceptSequence,
            int descriptionTypeConceptSequence,

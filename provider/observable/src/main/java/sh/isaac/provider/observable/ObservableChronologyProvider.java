@@ -63,7 +63,6 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
@@ -115,7 +114,7 @@ public class ObservableChronologyProvider
     * @param cc the cc
     */
    @Override
-   public void handleChange(ConceptChronology<? extends StampedVersion> cc) {
+   public void handleChange(ConceptChronology cc) {
       final ObservableConceptChronology occ = this.observableConceptMap.get(cc.getNid());
 
       if (occ != null) {
@@ -129,7 +128,7 @@ public class ObservableChronologyProvider
     * @param sc the sc
     */
    @Override
-   public void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
+   public void handleChange(SememeChronology<? extends SememeVersion> sc) {
       final ObservableSememeChronology osc = this.observableSememeMap.get(sc.getNid());
 
       if (osc != null) {

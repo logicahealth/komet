@@ -50,15 +50,15 @@ import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 
 import sh.isaac.api.component.sememe.version.ComponentNidSememe;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.component.sememe.version.LongSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.observable.sememe.version.ObservableComponentNidSememe;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionSememe;
 import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 
 //~--- enums ------------------------------------------------------------------
 
@@ -208,7 +208,7 @@ public enum SememeType {
          return ObservableComponentNidSememe.class;
 
       case DESCRIPTION:
-         return ObservableDescriptionSememe.class;
+         return ObservableDescriptionVersion.class;
 
       case MEMBER:
          return ObservableSememeVersion.class;
@@ -251,7 +251,7 @@ public enum SememeType {
          return ComponentNidSememe.class;
 
       case DESCRIPTION:
-         return DescriptionSememe.class;
+         return DescriptionVersion.class;
 
       case MEMBER:
          return SememeVersion.class;

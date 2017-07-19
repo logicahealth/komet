@@ -63,7 +63,6 @@ import org.apache.mahout.math.map.OpenShortObjectHashMap;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitStates;
@@ -72,14 +71,15 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
-import sh.isaac.model.ObjectVersionImpl;
+import sh.isaac.model.VersionImpl;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -90,7 +90,9 @@ import sh.isaac.model.observable.version.ObservableVersionImpl;
  * @param <OV> ofType of the observable version
  * @param <C>  ofType of the unobservable (base) chronicle
  */
-public abstract class ObservableChronologyImpl<OV extends ObservableVersionImpl, C extends ObjectChronology<?>>
+public abstract class ObservableChronologyImpl
+        <OV extends ObservableVersion, 
+         C extends Chronology<?>>
          implements ObservableChronology<OV>, ChronologyChangeListener, CommittableComponent {
    /** The Constant ocs. */
    private static final ObservableChronologyService ocs = LookupService.getService(ObservableChronologyService.class);
@@ -116,7 +118,7 @@ public abstract class ObservableChronologyImpl<OV extends ObservableVersionImpl,
    private ObjectProperty<CommitStates> commitStateProperty;
 
    /** The sememe list property. */
-   private ListProperty<ObservableSememeChronology<? extends ObservableSememeVersion<?>>> sememeListProperty;
+   private ListProperty<ObservableSememeChronology<? extends ObservableSememeVersion>> sememeListProperty;
 
    /** The chronicled object local. */
    protected C chronicledObjectLocal;
@@ -146,7 +148,7 @@ public abstract class ObservableChronologyImpl<OV extends ObservableVersionImpl,
             @Override
             protected CommitStates computeValue() {
                if (getVersionList().stream()
-                                   .anyMatch((version) -> version.getCommitState() == CommitStates.UNCOMMITTED)) {
+                                   .anyMatch((version) -> ((ObservableVersionImpl) version).getCommitState() == CommitStates.UNCOMMITTED)) {
                   return CommitStates.UNCOMMITTED;
                }
 
@@ -169,7 +171,7 @@ public abstract class ObservableChronologyImpl<OV extends ObservableVersionImpl,
     * @param cc the cc
     */
    @Override
-   public final void handleChange(ConceptChronology<? extends StampedVersion> cc) {
+   public final void handleChange(ConceptChronology cc) {
       if (this.getNid() == cc.getNid()) {
          updateChronicle((C) cc);
 
@@ -184,7 +186,7 @@ public abstract class ObservableChronologyImpl<OV extends ObservableVersionImpl,
     * @param sc the sc
     */
    @Override
-   public final void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
+   public final void handleChange(SememeChronology<? extends SememeVersion> sc) {
       if (this.getNid() == sc.getNid()) {
          updateChronicle((C) sc);
       }
@@ -197,7 +199,7 @@ public abstract class ObservableChronologyImpl<OV extends ObservableVersionImpl,
                                        .noneMatch((element) -> element.getNid() == sc.getNid())) {
                this.sememeListProperty.get()
                                       .add(
-                                      (ObservableSememeChronology<? extends ObservableSememeVersion<?>>) ocs.getObservableSememeChronology(
+                                      (ObservableSememeChronology<? extends ObservableSememeVersion>) ocs.getObservableSememeChronology(
                                          sc.getNid()));
             }
          }
@@ -254,7 +256,7 @@ public abstract class ObservableChronologyImpl<OV extends ObservableVersionImpl,
     * @return the list property< observable sememe chronology<? extends observable sememe version<?>>>
     */
    @Override
-   public final ListProperty<ObservableSememeChronology<? extends ObservableSememeVersion<?>>> sememeListProperty() {
+   public final ListProperty<ObservableSememeChronology<? extends ObservableSememeVersion>> sememeListProperty() {
       if (this.sememeListProperty == null) {
          final ObservableList<ObservableSememeChronology<? extends ObservableSememeVersion>> sememeList =
             FXCollections.emptyObservableList();
@@ -325,10 +327,10 @@ public abstract class ObservableChronologyImpl<OV extends ObservableVersionImpl,
          final OpenShortObjectHashMap<OV> observableVersionMap = new OpenShortObjectHashMap<>(this.versionList.size());
 
          this.versionList.stream()
-                         .forEach((ov) -> observableVersionMap.put(ov.getVersionSequence(), ov));
+                         .forEach((ov) -> observableVersionMap.put(((ObservableVersionImpl)ov).getVersionSequence(), ov));
          chronicledObjectLocal.getVersionList().stream().forEach((sv) -> {
                                           final OV observableVersion =
-                                             observableVersionMap.get(((ObjectVersionImpl) sv).getVersionSequence());
+                                             observableVersionMap.get(((VersionImpl) sv).getVersionSequence());
 
                                           if (observableVersion == null) {
                                              // add new version to list
@@ -425,7 +427,7 @@ public abstract class ObservableChronologyImpl<OV extends ObservableVersionImpl,
     * @return the sememe list
     */
    @Override
-   public final ObservableList<? extends ObservableSememeChronology<? extends ObservableSememeVersion<?>>> getSememeList() {
+   public final ObservableList<? extends ObservableSememeChronology<? extends ObservableSememeVersion>> getSememeList() {
       return sememeListProperty().get();
    }
 
@@ -436,7 +438,7 @@ public abstract class ObservableChronologyImpl<OV extends ObservableVersionImpl,
     * @return the sememe list from assemblage
     */
    @Override
-   public List<? extends ObservableSememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(
+   public List<? extends ObservableSememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(
            int assemblageSequence) {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.

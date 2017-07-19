@@ -47,15 +47,12 @@ package sh.isaac.api.component.concept;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
-import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -63,6 +60,8 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.relationship.RelationshipVersionAdaptor;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -70,10 +69,10 @@ import sh.isaac.api.relationship.RelationshipVersionAdaptor;
  * The Interface ConceptChronology.
  *
  * @author kec
- * @param <V> the value type
  */
-public interface ConceptChronology<V extends ConceptVersion<V>>
-        extends ObjectChronology<V>, ConceptSpecification {
+public interface ConceptChronology
+        extends Chronology<ConceptVersion>, 
+                ConceptSpecification {
    /**
     * A test for validating that a concept contains a description. Used
     * to validate concept proxies or concept specs at runtime.
@@ -97,7 +96,7 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
     * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version.
     * @return the mutable version
     */
-   V createMutableVersion(int stampSequence);
+   ConceptVersion createMutableVersion(int stampSequence);
 
    /**
     * Create a mutable version with Long.MAX_VALUE as the time, indicating
@@ -108,7 +107,7 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
     * @param ec edit coordinate to provide the author, module, and path for the mutable version
     * @return the mutable version
     */
-   V createMutableVersion(State state, EditCoordinate ec);
+   ConceptVersion createMutableVersion(State state, EditCoordinate ec);
 
    //~--- get methods ---------------------------------------------------------
 
@@ -117,7 +116,7 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
     *
     * @return the concept description list
     */
-   List<SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList();
+   List<SememeChronology<DescriptionVersion>> getConceptDescriptionList();
 
    /**
     * Gets the fully specified description.
@@ -126,7 +125,7 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
     * @param stampCoordinate the stamp coordinate
     * @return the fully specified description
     */
-   Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate,
+   LatestVersion<DescriptionVersion> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate,
          StampCoordinate stampCoordinate);
 
    /**
@@ -137,7 +136,7 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
     * @param logicCoordinate the logic coordinate
     * @return the logical definition
     */
-   Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate stampCoordinate,
+   LatestVersion<LogicGraphSememe> getLogicalDefinition(StampCoordinate stampCoordinate,
          PremiseType premiseType,
          LogicCoordinate logicCoordinate);
 
@@ -161,7 +160,7 @@ public interface ConceptChronology<V extends ConceptVersion<V>>
     * @param stampCoordinate the stamp coordinate
     * @return the preferred description
     */
-   Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate,
+   LatestVersion<DescriptionVersion> getPreferredDescription(LanguageCoordinate languageCoordinate,
          StampCoordinate stampCoordinate);
 
    /**

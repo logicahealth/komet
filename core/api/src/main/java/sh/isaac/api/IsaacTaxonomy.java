@@ -60,7 +60,6 @@ import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
 import sh.isaac.api.component.sememe.SememeBuilder;
@@ -201,7 +200,7 @@ public class IsaacTaxonomy {
          if (cc instanceof MetadataDynamicSememeConstant) {
             // See {@link DynamicSememeUsageDescription} class for more details on this format.
             final MetadataDynamicSememeConstant dsc = (MetadataDynamicSememeConstant) cc;
-            final DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>> db
+            final DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe> db
                     = addDescription(dsc.getSememeAssemblageDescription(),
                             cb,
                             TermAux.DEFINITION_DESCRIPTION_TYPE,
@@ -554,11 +553,11 @@ public class IsaacTaxonomy {
     * @param preferred the preferred
     * @return the description builder<? extends sememe chronology<?>,? extends mutable description sememe<?>>
     */
-   private DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>> addDescription(String description,
+   private DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe> addDescription(String description,
            ConceptBuilder cb,
            ConceptSpecification descriptionType,
            boolean preferred) {
-      final DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>> db
+      final DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe> db
               = LookupService.getService(DescriptionBuilderService.class)
                       .getDescriptionBuilder(description,
                               cb,
@@ -595,7 +594,7 @@ public class IsaacTaxonomy {
       builtObjects.forEach((builtObject) -> {
          if (builtObject instanceof ConceptChronology) {
             conceptService.writeConcept(
-                    (ConceptChronology<? extends ConceptVersion<?>>) builtObject);
+                    (ConceptChronology) builtObject);
          } else if (builtObject instanceof SememeChronology) {
             sememeService.writeSememe((SememeChronology) builtObject);
          } else {

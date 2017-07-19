@@ -45,11 +45,12 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionSememe;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.sememe.version.DescriptionSememeImpl;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -59,8 +60,8 @@ import sh.isaac.model.sememe.version.DescriptionSememeImpl;
  * @author kec
  */
 public class ObservableDescriptionImpl
-        extends ObservableSememeVersionImpl<ObservableDescriptionImpl>
-         implements ObservableDescriptionSememe<ObservableDescriptionImpl> {
+        extends ObservableSememeVersionImpl<ObservableDescriptionVersion>
+         implements ObservableDescriptionVersion {
    /** The case significance concept sequence property. */
    IntegerProperty caseSignificanceConceptSequenceProperty;
 
@@ -81,9 +82,10 @@ public class ObservableDescriptionImpl
     * @param stampedVersion the stamped version
     * @param chronology the chronology
     */
-   public ObservableDescriptionImpl(DescriptionSememeImpl stampedVersion,
-                                    ObservableSememeChronology<ObservableDescriptionImpl> chronology) {
-      super(stampedVersion, chronology);
+   public ObservableDescriptionImpl(DescriptionVersion stampedVersion,
+                                    ObservableSememeChronology<ObservableDescriptionVersion> chronology) {
+      super(stampedVersion, 
+              chronology);
    }
 
    //~--- methods -------------------------------------------------------------

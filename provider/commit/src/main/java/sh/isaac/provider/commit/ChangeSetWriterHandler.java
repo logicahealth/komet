@@ -255,7 +255,7 @@ public class ChangeSetWriterHandler
     */
    private void sequenceSetChange(ConceptSequenceSet conceptSequenceSet) {
       conceptSequenceSet.stream().forEach((conceptSequence) -> {
-                                    final ConceptChronology<? extends ConceptVersion<?>> concept = Get.conceptService()
+                                    final ConceptChronology concept = Get.conceptService()
                                                                                                       .getConcept(
                                                                                                          conceptSequence);
 
@@ -277,7 +277,7 @@ public class ChangeSetWriterHandler
     */
    private void sequenceSetChange(SememeSequenceSet sememeSequenceSet) {
       sememeSequenceSet.stream().forEach((sememeSequence) -> {
-                                   final SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeService()
+                                   final SememeChronology<? extends SememeVersion> sememe = Get.sememeService()
                                                                                                   .getSememe(
                                                                                                      sememeSequence);
 

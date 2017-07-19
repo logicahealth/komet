@@ -49,7 +49,7 @@ import sh.isaac.api.util.AlphanumComparator;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  * @see MultiParentTreeCell
  */
-public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends ConceptVersion<?>>> 
+public class MultiParentTreeItem extends TreeItem<ConceptChronology> 
         implements MultiParentTreeItemI, Comparable<MultiParentTreeItem> {
 
    /**
@@ -72,8 +72,8 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
       return treeView;
    }
 
-   private static TreeItem<ConceptChronology<? extends ConceptVersion<?>>> getTreeRoot(TreeItem<ConceptChronology<? extends ConceptVersion<?>>> item) {
-      TreeItem<ConceptChronology<? extends ConceptVersion<?>>> parent = item.getParent();
+   private static TreeItem<ConceptChronology> getTreeRoot(TreeItem<ConceptChronology> item) {
+      TreeItem<ConceptChronology> parent = item.getParent();
 
       if (parent == null) {
          return item;
@@ -89,7 +89,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
       this(Get.conceptService().getConcept(conceptSequence), treeView, graphic);
    }
 
-   MultiParentTreeItem(ConceptChronology<? extends ConceptVersion<?>> conceptChronology, MultiParentTreeView treeView, Node graphic) {
+   MultiParentTreeItem(ConceptChronology conceptChronology, MultiParentTreeView treeView, Node graphic) {
       super(conceptChronology, graphic);
       this.treeView = treeView;
    }
@@ -101,7 +101,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
    void addChildren() {
       childLoadStarts();
       try {
-         final ConceptChronology<? extends ConceptVersion<?>> conceptChronology = getValue();
+         final ConceptChronology conceptChronology = getValue();
          if (!shouldDisplay()) {
             // Don't add children to something that shouldn't be displayed
             LOG.debug("this.shouldDisplay() == false: not adding children to " + this.getConceptUuid());
@@ -152,14 +152,14 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
             // Don't add children to something that shouldn't be displayed
             LOG.debug("this.shouldDisplay() == false: not adding children concepts and grandchildren items to " + this.getConceptUuid());
          } else {
-            for (TreeItem<ConceptChronology<? extends ConceptVersion<?>>> child : getChildren()) {
+            for (TreeItem<ConceptChronology> child : getChildren()) {
                if (cancelLookup) {
                   return;
                }
                if (((MultiParentTreeItem) child).shouldDisplay()) {
                   if (child.getChildren().isEmpty() && (child.getValue() != null)) {
                      if (treeView.getTaxonomyTree().getChildrenSequences(child.getValue().getConceptSequence()).length == 0) {
-                        ConceptChronology<? extends ConceptVersion<?>> value = child.getValue();
+                        ConceptChronology value = child.getValue();
                         child.setValue(null);
                         MultiParentTreeItem noChildItem = (MultiParentTreeItem) child;
                         noChildItem.computeGraphic();
@@ -234,7 +234,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
       return getValue() != null ? getValue().getNid() : Integer.MIN_VALUE;
    }
 
-   private static int getConceptNid(TreeItem<ConceptChronology<? extends ConceptVersion<?>>> item) {
+   private static int getConceptNid(TreeItem<ConceptChronology> item) {
       return item != null && item.getValue() != null ? item.getValue().getNid() : null;
    }
 
@@ -245,7 +245,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
       } else if (this.getParent() == null) {
          return true;
       } else {
-         TreeItem<ConceptChronology<? extends ConceptVersion<?>>> root = getTreeRoot(this);
+         TreeItem<ConceptChronology> root = getTreeRoot(this);
 
          if (this == root) {
             return true;

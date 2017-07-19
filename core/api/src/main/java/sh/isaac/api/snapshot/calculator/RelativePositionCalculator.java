@@ -70,7 +70,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.OchreCache;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
@@ -78,6 +77,7 @@ import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -694,8 +694,8 @@ public class RelativePositionCalculator
     * @param chronicle the chronicle
     * @return the latest version
     */
-   public <C extends ObjectChronology<V>,
-           V extends StampedVersion> Optional<LatestVersion<V>> getLatestVersion(C chronicle) {
+   public <C extends Chronology<V>,
+           V extends StampedVersion> LatestVersion<V> getLatestVersion(C chronicle) {
       final HashSet<V> latestVersionSet = new HashSet<>();
 
       chronicle.getVersionList()
@@ -725,15 +725,15 @@ public class RelativePositionCalculator
       final List<V> latestVersionList = new ArrayList<>(latestVersionSet);
 
       if (latestVersionList.isEmpty()) {
-         return Optional.empty();
+         return new LatestVersion();
       }
 
       if (latestVersionList.size() == 1) {
-         return Optional.of(new LatestVersion<>(latestVersionList.get(0)));
+         return new LatestVersion<>(latestVersionList.get(0));
       }
 
-      return Optional.of(new LatestVersion<>(latestVersionList.get(0),
-            latestVersionList.subList(1, latestVersionList.size())));
+      return new LatestVersion<>(latestVersionList.get(0),
+            latestVersionList.subList(1, latestVersionList.size()));
    }
 
    //~--- inner classes -------------------------------------------------------

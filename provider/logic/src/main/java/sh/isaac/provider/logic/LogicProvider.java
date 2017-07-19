@@ -221,13 +221,13 @@ public class LogicProvider
     * @return the stream
     */
    private Stream<RelationshipVersionAdaptorImpl> extractRelationshipAdaptors(
-           SememeChronology<LogicGraphSememe<?>> logicGraphChronology,
+           SememeChronology<LogicGraphSememe> logicGraphChronology,
            PremiseType premiseType) {
       final Stream.Builder<RelationshipVersionAdaptorImpl> streamBuilder = Stream.builder();
 
       // one graph for each origin... Usually only one.
-      for (final Graph<? extends LogicGraphSememe<?>> versionGraph: logicGraphChronology.getVersionGraphList()) {
-         final Node<? extends LogicGraphSememe<?>> node = versionGraph.getRoot();
+      for (final Graph<? extends LogicGraphSememe> versionGraph: logicGraphChronology.getVersionGraphList()) {
+         final Node<? extends LogicGraphSememe> node = versionGraph.getRoot();
 
          processNode(node, null, streamBuilder, premiseType);
       }
@@ -269,7 +269,7 @@ public class LogicProvider
          SememeChronology<? extends SememeVersion> logicalDef,
          HashMap<RelationshipAdaptorChronicleKey, RelationshipAdaptorChronologyImpl> conceptOriginRelationshipMap,
          PremiseType premiseType) {
-      extractRelationshipAdaptors((SememeChronology<LogicGraphSememe<?>>) logicalDef,
+      extractRelationshipAdaptors((SememeChronology<LogicGraphSememe>) logicalDef,
                                   premiseType).forEach((relAdaptor) -> {
                if ((conceptDestinationSequence == Integer.MAX_VALUE) ||
                    (conceptDestinationSequence == relAdaptor.getDestinationSequence())) {
@@ -300,7 +300,7 @@ public class LogicProvider
     * @param streamBuilder the stream builder
     * @param premiseType the premise type
     */
-   private void processNode(Node<? extends LogicGraphSememe<?>> node,
+   private void processNode(Node<? extends LogicGraphSememe> node,
                             LogicalExpression previousExpression,
                             Stream.Builder<RelationshipVersionAdaptorImpl> streamBuilder,
                             PremiseType premiseType) {
@@ -330,7 +330,7 @@ public class LogicProvider
                          premiseType));
       }
 
-      for (final Node<? extends LogicGraphSememe<?>> child: node.getChildren()) {
+      for (final Node<? extends LogicGraphSememe> child: node.getChildren()) {
          processNode(child, newExpression, streamBuilder, premiseType);
       }
    }
@@ -495,7 +495,7 @@ public class LogicProvider
     */
    @Override
    public Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsOriginatingWithConcept(
-           ConceptChronology<?> conceptChronology) {
+           ConceptChronology conceptChronology) {
       return getRelationshipAdaptorsOriginatingWithConcept(conceptChronology, LogicCoordinates.getStandardElProfile());
    }
 
@@ -508,7 +508,7 @@ public class LogicProvider
     */
    @Override
    public Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsOriginatingWithConcept(
-           ConceptChronology<?> conceptChronology,
+           ConceptChronology conceptChronology,
            LogicCoordinate logicCoordinate) {
       final Stream.Builder<RelationshipAdaptorChronologyImpl> streamBuilder = Stream.builder();
       final HashMap<RelationshipAdaptorChronicleKey, RelationshipAdaptorChronologyImpl> conceptOriginRelationshipMap =
@@ -548,7 +548,7 @@ public class LogicProvider
     */
    @Override
    public Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsWithConceptAsDestination(
-           ConceptChronology<?> conceptChronology) {
+           ConceptChronology conceptChronology) {
       return getRelationshipAdaptorsWithConceptAsDestination(conceptChronology,
             LogicCoordinates.getStandardElProfile());
    }
@@ -562,7 +562,7 @@ public class LogicProvider
     */
    @Override
    public Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsWithConceptAsDestination(
-           ConceptChronology<?> conceptChronology,
+           ConceptChronology conceptChronology,
            LogicCoordinate logicCoordinate) {
       final List<SememeChronology<? extends SememeVersion>> statedDefinitions = new ArrayList<>();
       final List<SememeChronology<? extends SememeVersion>> inferredDefinitions = new ArrayList<>();

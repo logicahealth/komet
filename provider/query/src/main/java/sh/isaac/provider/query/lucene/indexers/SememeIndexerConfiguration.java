@@ -65,7 +65,6 @@ import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
@@ -145,7 +144,7 @@ public class SememeIndexerConfiguration {
                .getService(SememeIndexer.class));
       }
 
-      final ConceptChronology<? extends ConceptVersion<?>> referencedAssemblageConceptC = Get.conceptService()
+      final ConceptChronology referencedAssemblageConceptC = Get.conceptService()
                                                                                              .getConcept(
                                                                                                 assemblageNidOrSequence);
 
@@ -220,7 +219,7 @@ public class SememeIndexerConfiguration {
                .getService(SememeIndexer.class));
       }
 
-      final ConceptChronology<? extends ConceptVersion<?>> referencedAssemblageConceptC = Get.conceptService()
+      final ConceptChronology referencedAssemblageConceptC = Get.conceptService()
                                                                                              .getConcept(
                                                                                                 assemblageNidOrSequence);
 
@@ -390,7 +389,7 @@ public class SememeIndexerConfiguration {
 
                try {
                   final HashMap<Integer, Integer[]> updatedWhatToIndex = new HashMap<>();
-                  final Stream<SememeChronology<? extends SememeVersion<?>>> sememeCs = Get.sememeService()
+                  final Stream<SememeChronology<? extends SememeVersion>> sememeCs = Get.sememeService()
                                                                                            .getSememesFromAssemblage(
                                                                                               DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION
                                                                                                     .getSequence());
@@ -398,18 +397,16 @@ public class SememeIndexerConfiguration {
                   sememeCs.forEach(sememeC -> {
                                       if (sememeC.getSememeType() == SememeType.DYNAMIC) {
                                          @SuppressWarnings({ "unchecked", "rawtypes" })
-                                         final Optional<LatestVersion<DynamicSememe>> dsv =
+                                         final LatestVersion<DynamicSememe> dsv =
                                             ((SememeChronology) sememeC).getLatestVersion(DynamicSememe.class,
                                                                                           StampCoordinates.getDevelopmentLatest());
 
-                                         if (dsv.isPresent() && dsv.get().value().isPresent() && (dsv.get().value().get().getState() == State.ACTIVE)) {
+                                         if (dsv.value().isPresent() && (dsv.value().get().getState() == State.ACTIVE)) {
                                             final int assemblageToIndex = Get.identifierService()
-                                                                             .getConceptSequence(dsv.get()
-                                                                                   .value().get()
+                                                                             .getConceptSequence(dsv.value().get()
                                                                                    .getReferencedComponentNid());
                                             Integer[]                 finalCols = new Integer[] {};
-                                            final DynamicSememeData[] data      = dsv.get()
-                                                                                     .value().get()
+                                            final DynamicSememeData[] data      = dsv.value().get()
                                                                                      .getData();
 
                                             if ((data != null) && (data.length > 0)) {

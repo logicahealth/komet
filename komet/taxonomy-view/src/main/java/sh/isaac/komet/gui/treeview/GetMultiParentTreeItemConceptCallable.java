@@ -48,7 +48,7 @@ public class GetMultiParentTreeItemConceptCallable extends Task<Boolean> {
     private final boolean addChildren;
     private final ArrayList<MultiParentTreeItem> childrenToAdd = new ArrayList<>();
 
-    private ConceptChronology<? extends ConceptVersion<?>> concept;
+    private ConceptChronology concept;
 
     GetMultiParentTreeItemConceptCallable(MultiParentTreeItem treeItem) {
         this(treeItem, true);
@@ -117,7 +117,7 @@ public class GetMultiParentTreeItemConceptCallable extends Task<Boolean> {
     
             Platform.runLater(() -> 
             {
-                ConceptChronology<? extends ConceptVersion<?>> itemValue = treeItem.getValue();
+                ConceptChronology itemValue = treeItem.getValue();
 
                 treeItem.setValue(null);
                 if (addChildren)

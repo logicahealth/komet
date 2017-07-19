@@ -61,7 +61,7 @@ import sh.isaac.api.AssemblageService;
  * @author kec
  * @param <V> the value type
  */
-public class SememeTypeProvider<V extends SememeVersion<?>>
+public class SememeTypeProvider<V extends SememeVersion>
          implements SememeServiceTyped<V> {
    /** The type. */
    Class<V> type;

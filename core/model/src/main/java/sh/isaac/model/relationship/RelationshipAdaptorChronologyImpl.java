@@ -170,7 +170,7 @@ public class RelationshipAdaptorChronologyImpl
       sb.delete(sb.length() - 4, sb.length() - 1);
       sb.append("]");
 
-      final Optional<? extends SememeChronology<? extends SememeVersion<?>>> optionalSememe = Get.sememeService()
+      final Optional<? extends SememeChronology<? extends SememeVersion>> optionalSememe = Get.sememeService()
                                                                                                  .getOptionalSememe(
                                                                                                     this.referencedComponentNid);
 
@@ -232,7 +232,7 @@ public class RelationshipAdaptorChronologyImpl
     * @return the latest version
     */
    @Override
-   public Optional<LatestVersion<RelationshipVersionAdaptorImpl>> getLatestVersion(
+   public LatestVersion<RelationshipVersionAdaptorImpl> getLatestVersion(
            Class<RelationshipVersionAdaptorImpl> type,
            StampCoordinate coordinate) {
       final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
@@ -301,7 +301,7 @@ public class RelationshipAdaptorChronologyImpl
     * @return the sememe list
     */
    @Override
-   public List<? extends SememeChronology<? extends SememeVersion<?>>> getSememeList() {
+   public List<? extends SememeChronology<? extends SememeVersion>> getSememeList() {
       return Collections.emptyList();
    }
 
@@ -312,7 +312,7 @@ public class RelationshipAdaptorChronologyImpl
     * @return the sememe list from assemblage
     */
    @Override
-   public List<? extends SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(
+   public List<? extends SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(
            int assemblageSequence) {
       return Collections.emptyList();
    }
@@ -358,7 +358,7 @@ public class RelationshipAdaptorChronologyImpl
     * @return the unwritten version list
     */
    @Override
-   public List<? extends RelationshipVersionAdaptorImpl> getUnwrittenVersionList() {
+   public List<RelationshipVersionAdaptorImpl> getUnwrittenVersionList() {
       throw new UnsupportedOperationException("Not supported.");
    }
 

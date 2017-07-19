@@ -69,7 +69,6 @@ import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -89,6 +88,7 @@ import sh.isaac.provider.workflow.model.contents.ProcessDetail.EndWorkflowType;
 import sh.isaac.provider.workflow.model.contents.ProcessDetail.ProcessStatus;
 import sh.isaac.provider.workflow.model.contents.ProcessHistory;
 import sh.isaac.provider.workflow.user.SimpleUserRoleService;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -207,17 +207,16 @@ public class WorkflowFrameworkTest {
                                               userId,
                                               "Framework Workflow Name",
                                               " Framework Workflow Description");
-         final ConceptChronology<? extends ConceptVersion<?>> con = Get.conceptService()
+         final ConceptChronology con = Get.conceptService()
                                                                        .getConcept(firstTestConceptNid);
          final SememeChronologyImpl descSem = (SememeChronologyImpl) con.getConceptDescriptionList()
                                                                         .iterator()
                                                                         .next();
-         Optional<LatestVersion<DescriptionSememe<?>>> latestDescVersion =
-            ((SememeChronology) descSem).getLatestVersion(DescriptionSememe.class,
+         LatestVersion<DescriptionVersion> latestDescVersion =
+            ((SememeChronology) descSem).getLatestVersion(DescriptionVersion.class,
                                                           Get.configurationService()
                                                                 .getDefaultStampCoordinate());
-         final String originalText = latestDescVersion.get()
-                                                      .value().get()
+         final String originalText = latestDescVersion.value().get()
                                                       .getText();
 
          // Modify Sememe Text
@@ -243,14 +242,13 @@ public class WorkflowFrameworkTest {
                                   "Canceling Workflow for Testing",
                                   this.defaultEditCoordinate);
 
-         final SememeChronology<? extends SememeVersion<?>> semChron = Get.sememeService()
+         final SememeChronology<? extends SememeVersion> semChron = Get.sememeService()
                                                                           .getSememe(descSem.getNid());
 
-         latestDescVersion = ((SememeChronology) semChron).getLatestVersion(DescriptionSememe.class,
+         latestDescVersion = ((SememeChronology) semChron).getLatestVersion(DescriptionVersion.class,
                Get.configurationService()
                   .getDefaultStampCoordinate());
-         Assert.assertEquals(originalText, latestDescVersion.get()
-               .value().get()
+         Assert.assertEquals(originalText, latestDescVersion.value().get()
                .getText());
       } catch (final Exception e) {
          Assert.fail(e.getMessage());
@@ -1278,9 +1276,9 @@ public class WorkflowFrameworkTest {
       clearStores();
       LOG.info("Testing Workflow History Accessor isComponentInActiveWorkflow()");
 
-      final ConceptChronology<? extends ConceptVersion<?>>   con = Get.conceptService()
+      final ConceptChronology   con = Get.conceptService()
                                                                       .getConcept(firstTestConceptNid);
-      final SememeChronology<? extends DescriptionSememe<?>> descSem = con.getConceptDescriptionList()
+      final SememeChronology<? extends DescriptionVersion> descSem = con.getConceptDescriptionList()
                                                                           .iterator()
                                                                           .next();
       final int conNid = con.getNid();
@@ -1512,11 +1510,10 @@ public class WorkflowFrameworkTest {
          State state)
             throws InterruptedException,
                    ExecutionException {
-      final DescriptionSememe<?> latestVersion =
-         ((LatestVersion<DescriptionSememe<?>>) semChron.getLatestVersion(DescriptionSememe.class,
+      final DescriptionVersion latestVersion =
+         ((LatestVersion<DescriptionVersion>) semChron.getLatestVersion(DescriptionVersion.class,
                                                                           Get.configurationService()
-                                                                                .getDefaultStampCoordinate())
-                                                        .get()).value().get();
+                                                                                .getDefaultStampCoordinate())).value().get();
       final DescriptionSememeImpl createdVersion =
          (DescriptionSememeImpl) semChron.createMutableVersion(DescriptionSememeImpl.class,
                                                                state,
@@ -1729,27 +1726,25 @@ public class WorkflowFrameworkTest {
     * @param descSem the desc sem
     * @param state the state
     */
-   private void verifyState(ConceptChronology<? extends ConceptVersion<?>> con,
-                            SememeChronology<? extends DescriptionSememe<?>> descSem,
+   private void verifyState(ConceptChronology con,
+                            SememeChronology<? extends DescriptionVersion> descSem,
                             State state) {
-      final ConceptChronology<? extends ConceptVersion<?>> cc = Get.conceptService()
+      final ConceptChronology cc = Get.conceptService()
                                                                    .getConcept(con.getNid());
-      final Optional<LatestVersion<ConceptVersion>> latestConVersion =
+      final LatestVersion<ConceptVersion> latestConVersion =
          ((ConceptChronology) cc).getLatestVersion(ConceptVersion.class,
                                                    this.defaultStampCoordinate);
 
-      Assert.assertEquals(latestConVersion.get()
-            .value().get()
+      Assert.assertEquals(latestConVersion.value().get()
             .getState(), state);
 
-      final SememeChronology<? extends SememeVersion<?>> semChron = Get.sememeService()
+      final SememeChronology<? extends SememeVersion> semChron = Get.sememeService()
                                                                        .getSememe(descSem.getNid());
-      final Optional<LatestVersion<DescriptionSememe<?>>> latestDescVersion =
-         ((SememeChronology) semChron).getLatestVersion(DescriptionSememe.class,
+      final LatestVersion<DescriptionVersion> latestDescVersion =
+         ((SememeChronology) semChron).getLatestVersion(DescriptionVersion.class,
                                                         this.defaultStampCoordinate);
 
-      Assert.assertEquals(latestDescVersion.get()
-            .value().get()
+      Assert.assertEquals(latestDescVersion.value().get()
             .getState(), state);
    }
 

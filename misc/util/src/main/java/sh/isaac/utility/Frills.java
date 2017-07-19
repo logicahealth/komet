@@ -76,7 +76,6 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.LruCache;
@@ -93,7 +92,6 @@ import sh.isaac.api.component.concept.description.DescriptionBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.ComponentNidSememe;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.component.sememe.version.MutableDescriptionSememe;
@@ -146,6 +144,8 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -200,7 +200,7 @@ public class Frills
     * @throws RuntimeException the runtime exception
     */
    @SuppressWarnings("deprecation")
-   public static ConceptChronology<? extends ConceptVersion<?>> buildNewDynamicSememeColumnInfoConcept(
+   public static ConceptChronology buildNewDynamicSememeColumnInfoConcept(
            String columnName,
            String columnDescription)
             throws RuntimeException {
@@ -243,7 +243,7 @@ public class Frills
       definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____ISAAC);
       builder.addDescription(definitionBuilder);
 
-      ConceptChronology<? extends ConceptVersion<?>> newCon;
+      ConceptChronology newCon;
 
       try {
          newCon = builder.build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE, new ArrayList<>())
@@ -274,7 +274,7 @@ public class Frills
     * @return the concept chronology<? extends concept version<?>>
     */
    @SuppressWarnings("deprecation")
-   public static ConceptChronology<? extends ConceptVersion<?>> buildUncommittedNewDynamicSememeUsageDescription(
+   public static ConceptChronology buildUncommittedNewDynamicSememeUsageDescription(
            String sememeFSN,
            String sememePreferredTerm,
            String sememeDescription,
@@ -297,7 +297,7 @@ public class Frills
             LookupService.getService(DescriptionBuilderService.class);
          final LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class)
                                                                   .getLogicalExpressionBuilder();
-         final ConceptChronology<?> parentConcept = Get.conceptService()
+         final ConceptChronology parentConcept = Get.conceptService()
                                                        .getConcept((parentConceptNidOrSequence == null)
                                                           ? DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSEMBLAGES
                                                                 .getNid()
@@ -307,7 +307,7 @@ public class Frills
 
          final LogicalExpression parentDef = defBuilder.build();
          final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(sememeFSN, null, parentDef);
-         DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe<?>> definitionBuilder =
+         DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe> definitionBuilder =
             descriptionBuilderService.getDescriptionBuilder(sememePreferredTerm,
                                                             builder,
                                                             MetaData.SYNONYM____ISAAC,
@@ -316,7 +316,7 @@ public class Frills
          definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____ISAAC);
          builder.addDescription(definitionBuilder);
 
-         final ConceptChronology<? extends ConceptVersion<?>> newCon = builder.build(localEditCoord,
+         final ConceptChronology newCon = builder.build(localEditCoord,
                                                                                      ChangeCheckerMode.ACTIVE,
                                                                                      new ArrayList<>())
                                                                               .getNoThrow();
@@ -413,11 +413,11 @@ public class Frills
     * @throws RuntimeException the runtime exception
     */
    @SuppressWarnings("deprecation")
-   public static ConceptChronology<? extends ConceptVersion<?>> createNewDynamicSememeColumnInfoConcept(
+   public static ConceptChronology createNewDynamicSememeColumnInfoConcept(
            String columnName,
            String columnDescription)
             throws RuntimeException {
-      final ConceptChronology<? extends ConceptVersion<?>> newCon = buildNewDynamicSememeColumnInfoConcept(columnName,
+      final ConceptChronology newCon = buildNewDynamicSememeColumnInfoConcept(columnName,
                                                                                                            columnDescription);
 
       try {
@@ -464,7 +464,7 @@ public class Frills
          ObjectChronologyType referencedComponentRestriction,
          SememeType referencedComponentSubRestriction,
          EditCoordinate editCoord) {
-      final ConceptChronology<? extends ConceptVersion<?>> newDynamicSememeUsageDescriptionConcept =
+      final ConceptChronology newDynamicSememeUsageDescriptionConcept =
          buildUncommittedNewDynamicSememeUsageDescription(sememeFSN,
                                                           sememePreferredTerm,
                                                           sememeDescription,
@@ -548,7 +548,7 @@ public class Frills
     * @return the nearest concept sequence, or -1, if no concept can be found.
     */
    public static int findConcept(int nid) {
-      final Optional<? extends ObjectChronology<? extends StampedVersion>> c = Get.identifiedObjectService()
+      final Optional<? extends Chronology<? extends StampedVersion>> c = Get.identifiedObjectService()
                                                                                   .getIdentifiedObjectChronology(nid);
 
       if (c.isPresent()) {
@@ -561,7 +561,7 @@ public class Frills
                case SEMEME:
                   return findConcept(((SememeChronology<?>) c.get()).getReferencedComponentNid());
                case CONCEPT:
-                  return ((ConceptChronology<?>) c.get()).getConceptSequence();
+                  return ((ConceptChronology) c.get()).getConceptSequence();
                default:
                   LOG.warn("Unexpected object type: " + c.get().getOchreObjectType());
                   break;
@@ -649,17 +649,17 @@ public class Frills
       String acceptableDefinition = null;
 
       try {
-         final ConceptChronology<? extends ConceptVersion<?>> cc = Get.conceptService()
+         final ConceptChronology cc = Get.conceptService()
                                                                       .getConcept(columnDescriptionConcept);
 
-         for (final SememeChronology<? extends DescriptionSememe<?>> dc: cc.getConceptDescriptionList()) {
+         for (final SememeChronology<? extends DescriptionVersion> dc: cc.getConceptDescriptionList()) {
             if ((columnName != null) && (columnDescription != null)) {
                break;
             }
 
             @SuppressWarnings("rawtypes")
-            final Optional<LatestVersion<DescriptionSememe<?>>> descriptionVersion =
-               ((SememeChronology) dc).getLatestVersion(DescriptionSememe.class,
+            final LatestVersion<DescriptionVersion> descriptionVersion =
+               ((SememeChronology) dc).getLatestVersion(DescriptionVersion.class,
                                                         Get.configurationService()
                                                               .getDefaultStampCoordinate()
                                                               .makeCoordinateAnalog(State.ACTIVE,
@@ -667,9 +667,8 @@ public class Frills
                                                                     State.CANCELED,
                                                                     State.PRIMORDIAL));
 
-            if (descriptionVersion.isPresent() && descriptionVersion.get().value().isPresent()) {
-               final DescriptionSememe<?> d = descriptionVersion.get()
-                                                                .value().get();
+            if (descriptionVersion.value().isPresent()) {
+               final DescriptionVersion d = descriptionVersion.value().get();
 
                if (d.getDescriptionTypeConceptSequence() ==
                      TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence()) {
@@ -771,24 +770,23 @@ public class Frills
                      if (nestedSememe.getSememeType() == SememeType.COMPONENT_NID) {
                         final int dialectSequence = nestedSememe.getAssemblageSequence();
                         @SuppressWarnings({ "rawtypes", "unchecked" })
-                        final Optional<LatestVersion<ComponentNidSememe>> latest =
+                        final LatestVersion<ComponentNidSememe> latest =
                            ((SememeChronology) nestedSememe).getLatestVersion(ComponentNidSememe.class,
                                                                               (stamp == null)
                                                                               ? Get.configurationService()
                                                                                     .getDefaultStampCoordinate()
                   : stamp);
 
-                        if (latest.isPresent() && latest.get().value().isPresent()) {
-                           if ((latest.get().value().get().getComponentNid() == MetaData.PREFERRED____ISAAC.getNid()) ||
-                               (latest.get().value().get().getComponentNid() == MetaData.ACCEPTABLE____ISAAC.getNid())) {
+                        if (latest.value().isPresent()) {
+                           if ((latest.value().get().getComponentNid() == MetaData.PREFERRED____ISAAC.getNid()) ||
+                               (latest.value().get().getComponentNid() == MetaData.ACCEPTABLE____ISAAC.getNid())) {
                               if ((dialectSequenceToAcceptabilityNidMap.get(dialectSequence) != null) &&
                                   (dialectSequenceToAcceptabilityNidMap.get(dialectSequence) !=
-                                   latest.get().value().get().getComponentNid())) {
+                                   latest.value().get().getComponentNid())) {
                                  throw new RuntimeException("contradictory annotations about acceptability!");
                               } else {
                                  dialectSequenceToAcceptabilityNidMap.put(dialectSequence,
-                                       latest.get()
-                                             .value().get()
+                                       latest.value().get()
                                              .getComponentNid());
                               }
                            } else {
@@ -806,7 +804,7 @@ public class Frills
                                  if (uuidOptional.isPresent()) {
                                     uuid = uuidOptional.get();
                                  }
-                                final Optional<LatestVersion<DescriptionSememe<?>>> desc = Get.conceptService()
+                                final Optional<LatestVersion<DescriptionSememe>> desc = Get.conceptService()
                                                                                                .getSnapshot(StampCoordinates.getDevelopmentLatest())
                                                                                                .getDescriptionOptional(
                                                                                                   latest.get()
@@ -902,13 +900,13 @@ public class Frills
 
    /**
     * Convenience method to return sequences of a distinct set of modules in
-    * which versions of an ObjectChronology have been defined.
+ which versions of an Chronology have been defined.
     *
-    * @param chronology The ObjectChronology
+    * @param chronology The Chronology
     * @return sequences of a distinct set of modules in which versions of an
-    * ObjectChronology have been defined
+ Chronology have been defined
     */
-   public static Set<Integer> getAllModuleSequences(ObjectChronology<? extends StampedVersion> chronology) {
+   public static Set<Integer> getAllModuleSequences(Chronology<? extends StampedVersion> chronology) {
       final Set<Integer> moduleSequences = new HashSet<>();
 
       for (final StampedVersion version: chronology.getVersionList()) {
@@ -926,13 +924,13 @@ public class Frills
     * @param assemblageConceptId - the assemblage type you are interested in (nid or concept sequence)
     * @return the annotation sememe
     */
-   public static Optional<SememeChronology<? extends SememeVersion<?>>> getAnnotationSememe(int componentNid,
+   public static Optional<SememeChronology<? extends SememeVersion>> getAnnotationSememe(int componentNid,
          int assemblageConceptId) {
       final Set<Integer> allowedAssemblages = new HashSet<>();
 
       allowedAssemblages.add(assemblageConceptId);
 
-      final Set<SememeChronology<? extends SememeVersion<?>>> sememeSet = Get.sememeService()
+      final Set<SememeChronology<? extends SememeVersion>> sememeSet = Get.sememeService()
                                                                              .getSememesForComponentFromAssemblages(
                                                                                 componentNid,
                                                                                       allowedAssemblages)
@@ -1039,7 +1037,7 @@ public class Frills
     * @param sc the sc
     * @return true, if association
     */
-   public static boolean isAssociation(SememeChronology<? extends SememeVersion<?>> sc) {
+   public static boolean isAssociation(SememeChronology<? extends SememeVersion> sc) {
       return definesAssociation(sc.getAssemblageSequence());
    }
 
@@ -1047,14 +1045,13 @@ public class Frills
    /**
     * Checks if concept fully defined.
     *
-    * @param <T> the generic type
     * @param lgs The LogicGraphSememe containing the logic graph data
     * @return true if the corresponding concept is fully defined, otherwise returns false (for primitive concepts)
     *
     * Things that are defined with at least one SUFFICIENT_SET node are defined.
     * Things that are defined without any SUFFICIENT_SET nodes are primitive.
     */
-   public static <T extends LogicGraphSememe<T>> boolean isConceptFullyDefined(LogicGraphSememe<T> lgs) {
+   public static boolean isConceptFullyDefined(LogicGraphSememe lgs) {
       return lgs.getLogicalExpression()
                 .contains(NodeSemantic.SUFFICIENT_SET);
    }
@@ -1067,7 +1064,7 @@ public class Frills
     * @return the optional
     */
    public static Optional<Boolean> isConceptFullyDefined(int conceptNid, boolean stated) {
-      final Optional<SememeChronology<? extends SememeVersion<?>>> sememe = Get.sememeService()
+      final Optional<SememeChronology<? extends SememeVersion>> sememe = Get.sememeService()
                                                                                .getSememesForComponentFromAssemblage(
                                                                                   conceptNid,
                                                                                         (stated
@@ -1079,13 +1076,12 @@ public class Frills
 
       if (sememe.isPresent()) {
          @SuppressWarnings({ "unchecked", "rawtypes" })
-         final Optional<LatestVersion<LogicGraphSememe>> sv =
+         final LatestVersion<LogicGraphSememe> sv =
             ((SememeChronology) sememe.get()).getLatestVersion(LogicGraphSememe.class,
                                                                StampCoordinates.getDevelopmentLatest());
 
-         if (sv.isPresent() && sv.get().value().isPresent()) {
-            return Optional.of(isConceptFullyDefined((LogicGraphSememe<?>) sv.get()
-                  .value().get()));
+         if (sv.value().isPresent()) {
+            return Optional.of(isConceptFullyDefined((LogicGraphSememe) sv.value().get()));
          }
       }
 
@@ -1102,7 +1098,7 @@ public class Frills
     */
    public static Optional<ConceptSnapshot> getConceptSnapshot(int conceptNidOrSequence,
          ManifoldCoordinate manifoldCoordinate) {
-      final Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> c = Get.conceptService()
+      final Optional<? extends ConceptChronology> c = Get.conceptService()
                                                                                       .getOptionalConcept(
                                                                                          conceptNidOrSequence);
 
@@ -1146,7 +1142,7 @@ public class Frills
     * @return the description extended type concept
     */
    public static Optional<UUID> getDescriptionExtendedTypeConcept(StampCoordinate stampCoordinate, int descriptionId) {
-      final Optional<SememeChronology<? extends SememeVersion<?>>> descriptionExtendedTypeAnnotationSememe =
+      final Optional<SememeChronology<? extends SememeVersion>> descriptionExtendedTypeAnnotationSememe =
          getAnnotationSememe(Get.identifierService()
                                 .getSememeNid(descriptionId),
                              DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
@@ -1154,22 +1150,21 @@ public class Frills
 
       if (descriptionExtendedTypeAnnotationSememe.isPresent()) {
          @SuppressWarnings({ "rawtypes", "unchecked" })
-         final Optional<LatestVersion<DynamicSememeImpl>> optionalLatestSememeVersion =
+         final LatestVersion<DynamicSememeImpl> optionalLatestSememeVersion =
             ((SememeChronology) (descriptionExtendedTypeAnnotationSememe.get())).getLatestVersion(
                 DynamicSememeImpl.class,
                 (stampCoordinate == null) ? Get.configurationService()
                       .getDefaultStampCoordinate()
                                           : stampCoordinate);
 
-         if (!optionalLatestSememeVersion.get().contradictions().isEmpty()) {
+         if (!optionalLatestSememeVersion.contradictions().isEmpty()) {
             // TODO handle contradictions
             LOG.warn("Component " + descriptionId + " " +
                      " has DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE annotation with " +
-                     optionalLatestSememeVersion.get().contradictions().size() + " contradictions");
+                     optionalLatestSememeVersion.contradictions().size() + " contradictions");
          }
 
-         final DynamicSememeData[] dataColumns = optionalLatestSememeVersion.get()
-                                                                            .value().get()
+         final DynamicSememeData[] dataColumns = optionalLatestSememeVersion.value().get()
                                                                             .getData();
 
          if (dataColumns.length != 1) {
@@ -1216,24 +1211,22 @@ public class Frills
          .forEach(nestedSememe -> {
                      if (nestedSememe.getSememeType() == SememeType.COMPONENT_NID) {
                         @SuppressWarnings({ "rawtypes", "unchecked" })
-                        final Optional<LatestVersion<ComponentNidSememe>> latest =
+                        final LatestVersion<ComponentNidSememe> latest =
                            ((SememeChronology) nestedSememe).getLatestVersion(ComponentNidSememe.class,
                                                                               (stamp == null)
                                                                               ? Get.configurationService()
                                                                                     .getDefaultStampCoordinate()
                   : stamp);
 
-                        if (latest.isPresent() && latest.get().value().isPresent()) {
-                           if (latest.get()
-                                     .value().get()
+                        if (latest.value().isPresent()) {
+                           if (latest.value().get()
                                      .getComponentNid() == MetaData.PREFERRED____ISAAC.getNid()) {
                               if ((answer.get() != null) && (answer.get() != true)) {
                                  throw new RuntimeException("contradictory annotations about preferred status!");
                               }
 
                               answer.set(true);
-                           } else if (latest.get()
-                                            .value().get()
+                           } else if (latest.value().get()
                                             .getComponentNid() == MetaData.ACCEPTABLE____ISAAC.getNid()) {
                               if ((answer.get() != null) && (answer.get() != false)) {
                                  throw new RuntimeException("contradictory annotations about preferred status!");
@@ -1268,26 +1261,25 @@ public class Frills
     * config service
     * @return the descriptions - may be empty, will not be null
     */
-   public static List<DescriptionSememe<?>> getDescriptionsOfType(int conceptNid,
+   public static List<DescriptionVersion> getDescriptionsOfType(int conceptNid,
          ConceptSpecification descriptionType,
          StampCoordinate stamp) {
-      final ArrayList<DescriptionSememe<?>> results = new ArrayList<>();
+      final ArrayList<DescriptionVersion> results = new ArrayList<>();
 
       Get.sememeService()
          .getSememesForComponent(conceptNid)
          .forEach(descriptionC -> {
                      if (descriptionC.getSememeType() == SememeType.DESCRIPTION) {
                         @SuppressWarnings({ "unchecked", "rawtypes" })
-                        final Optional<LatestVersion<DescriptionSememe<?>>> latest =
-                           ((SememeChronology) descriptionC).getLatestVersion(DescriptionSememe.class,
+                        final LatestVersion<DescriptionVersion> latest =
+                           ((SememeChronology) descriptionC).getLatestVersion(DescriptionVersion.class,
                                                                               (stamp == null)
                                                                               ? Get.configurationService()
                                                                                     .getDefaultStampCoordinate()
                   : stamp);
 
-                        if (latest.isPresent()) {
-                           final DescriptionSememe<?> ds = latest.get()
-                                                                 .value().get();
+                        if (latest.value().isPresent()) {
+                           final DescriptionVersion ds = latest.value().get();
 
                            if (ds.getDescriptionTypeConceptSequence() == descriptionType.getConceptSequence()) {
                               results.add(ds);
@@ -1464,7 +1456,7 @@ public class Frills
     * @return the inferred definition chronology for the specified concept
     * according to the default logic coordinate.
     */
-   public static Optional<SememeChronology<? extends SememeVersion<?>>> getInferredDefinitionChronology(int conceptId,
+   public static Optional<SememeChronology<? extends SememeVersion>> getInferredDefinitionChronology(int conceptId,
          LogicCoordinate logicCoordinate) {
       conceptId = Get.identifierService()
                      .getConceptNid(conceptId);
@@ -1480,12 +1472,12 @@ public class Frills
     * @param stated boolean indicating stated vs inferred definition chronology should be used
     * @return An Optional containing a LogicGraphSememe SememeChronology
     */
-   public static Optional<SememeChronology<? extends LogicGraphSememe<?>>> getLogicGraphChronology(int id,
+   public static Optional<SememeChronology<? extends LogicGraphSememe>> getLogicGraphChronology(int id,
          boolean stated) {
       LOG.debug("Getting {} logic graph chronology for {}", (stated ? "stated"
             : "inferred"), Optional.ofNullable(Frills.getIdInfo(id)));
 
-      final Optional<SememeChronology<? extends SememeVersion<?>>> defChronologyOptional =
+      final Optional<SememeChronology<? extends SememeVersion>> defChronologyOptional =
          stated ? Get.statedDefinitionChronology(id)
                 : Get.inferredDefinitionChronology(id);
 
@@ -1494,8 +1486,8 @@ public class Frills
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id)));
 
          @SuppressWarnings("unchecked")
-         final SememeChronology<? extends LogicGraphSememe<?>> sememeChronology =
-            (SememeChronology<? extends LogicGraphSememe<?>>) defChronologyOptional.get();
+         final SememeChronology<? extends LogicGraphSememe> sememeChronology =
+            (SememeChronology<? extends LogicGraphSememe>) defChronologyOptional.get();
 
          return Optional.of(sememeChronology);
       } else {
@@ -1515,7 +1507,7 @@ public class Frills
     * @param logicCoordinate the LogicCoordinate for which the logic graph is requested
     * @return An Optional containing a LogicGraphSememe SememeChronology
     */
-   public static Optional<SememeChronology<? extends LogicGraphSememe<?>>> getLogicGraphChronology(int id,
+   public static Optional<SememeChronology<? extends LogicGraphSememe>> getLogicGraphChronology(int id,
          boolean stated,
          StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate,
@@ -1523,7 +1515,7 @@ public class Frills
       LOG.debug("Getting {} logic graph chronology for {}", (stated ? "stated"
             : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
 
-      final Optional<SememeChronology<? extends SememeVersion<?>>> defChronologyOptional =
+      final Optional<SememeChronology<? extends SememeVersion>> defChronologyOptional =
          stated ? getStatedDefinitionChronology(id,
                                                 logicCoordinate)
                 : getInferredDefinitionChronology(id, logicCoordinate);
@@ -1533,8 +1525,8 @@ public class Frills
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
 
          @SuppressWarnings("unchecked")
-         final SememeChronology<? extends LogicGraphSememe<?>> sememeChronology =
-            (SememeChronology<? extends LogicGraphSememe<?>>) defChronologyOptional.get();
+         final SememeChronology<? extends LogicGraphSememe> sememeChronology =
+            (SememeChronology<? extends LogicGraphSememe>) defChronologyOptional.get();
 
          return Optional.of(sememeChronology);
       } else {
@@ -1547,22 +1539,22 @@ public class Frills
    /**
     * Gets the logic graph version.
     *
-    * @param logicGraphSememeChronology The SememeChronology<? extends LogicGraphSememe<?>> chronology for which the logic graph version is requested
+    * @param logicGraphSememeChronology The SememeChronology<? extends LogicGraphSememe> chronology for which the logic graph version is requested
     * @param stampCoordinate StampCoordinate to be used for selecting latest version
     * @return An Optional containing a LogicGraphSememe SememeChronology
     */
-   public static Optional<LatestVersion<LogicGraphSememe<?>>> getLogicGraphVersion(
-           SememeChronology<? extends LogicGraphSememe<?>> logicGraphSememeChronology,
+   public static LatestVersion<LogicGraphSememe> getLogicGraphVersion(
+           SememeChronology<? extends LogicGraphSememe> logicGraphSememeChronology,
            StampCoordinate stampCoordinate) {
       LOG.debug("Getting logic graph sememe for {}",
                 Optional.ofNullable(Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid())));
 
       @SuppressWarnings({ "unchecked", "rawtypes" })
-      final Optional<LatestVersion<LogicGraphSememe<?>>> latest =
+      final LatestVersion<LogicGraphSememe> latest =
          ((SememeChronology) logicGraphSememeChronology).getLatestVersion(LogicGraphSememe.class,
                                                                           stampCoordinate);
 
-      if (latest.isPresent()) {
+      if (latest.value().isPresent()) {
          LOG.debug("Got logic graph sememe for {}",
                    Optional.ofNullable(Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid())));
       } else {
@@ -1579,7 +1571,7 @@ public class Frills
     * @param sc the sc
     * @return true, if mapping
     */
-   public static boolean isMapping(SememeChronology<? extends SememeVersion<?>> sc) {
+   public static boolean isMapping(SememeChronology<? extends SememeVersion> sc) {
       return definesMapping(sc.getAssemblageSequence());
    }
 
@@ -1589,7 +1581,7 @@ public class Frills
     * @param chronology the chronology
     * @return true if there is a nested sememe, false otherwise
     */
-   public static boolean hasNestedSememe(ObjectChronology<?> chronology) {
+   public static boolean hasNestedSememe(Chronology<?> chronology) {
       return !chronology.getSememeList()
                         .isEmpty();
    }
@@ -1799,7 +1791,7 @@ public class Frills
     * @return the stated definition chronology for the specified concept
     * according to the default logic coordinate.
     */
-   public static Optional<SememeChronology<? extends SememeVersion<?>>> getStatedDefinitionChronology(int conceptId,
+   public static Optional<SememeChronology<? extends SememeVersion>> getStatedDefinitionChronology(int conceptId,
          LogicCoordinate logicCoordinate) {
       conceptId = Get.identifierService()
                      .getConceptNid(conceptId);
@@ -1815,7 +1807,7 @@ public class Frills
     * @return the version type
     */
    public static Class<? extends StampedVersion> getVersionType(int nid) {
-      final Optional<? extends ObjectChronology<? extends StampedVersion>> obj = Get.identifiedObjectService()
+      final Optional<? extends Chronology<? extends StampedVersion>> obj = Get.identifiedObjectService()
                                                                                     .getIdentifiedObjectChronology(nid);
 
       if (!obj.isPresent()) {
@@ -1831,7 +1823,7 @@ public class Frills
     * @param obj the obj
     * @return the version type
     */
-   public static Class<? extends StampedVersion> getVersionType(ObjectChronology<? extends StampedVersion> obj) {
+   public static Class<? extends StampedVersion> getVersionType(Chronology<? extends StampedVersion> obj) {
       switch (obj.getOchreObjectType()) {
       case SEMEME: {
          @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -1967,4 +1959,6 @@ public class Frills
 
    ;
 }
+//~--- JDK imports ------------------------------------------------------------
+//~--- JDK imports ------------------------------------------------------------
 //~--- JDK imports ------------------------------------------------------------

@@ -66,7 +66,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.UuidIntMapMap;
@@ -79,7 +78,6 @@ import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.ComponentNidSememe;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.component.sememe.version.StringSememe;
@@ -125,6 +123,8 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -552,7 +552,7 @@ public class IBDFCreationUtility {
     * @param state the state
     * @return the sememe chronology
     */
-   public SememeChronology<DescriptionSememe<?>> addDescription(ComponentReference concept,
+   public SememeChronology<DescriptionVersion> addDescription(ComponentReference concept,
          String descriptionValue,
          DescriptionType wbDescriptionType,
          boolean preferred,
@@ -585,7 +585,7 @@ public class IBDFCreationUtility {
     * @param status the status
     * @return the sememe chronology
     */
-   public SememeChronology<DescriptionSememe<?>> addDescription(ComponentReference concept,
+   public SememeChronology<DescriptionVersion> addDescription(ComponentReference concept,
          UUID descriptionPrimordialUUID,
          String descriptionValue,
          DescriptionType wbDescriptionType,
@@ -625,7 +625,7 @@ public class IBDFCreationUtility {
     * @return the sememe chronology
     */
    @SuppressWarnings("unchecked")
-   public SememeChronology<DescriptionSememe<?>> addDescription(ComponentReference concept,
+   public SememeChronology<DescriptionVersion> addDescription(ComponentReference concept,
          UUID descriptionPrimordialUUID,
          String descriptionValue,
          DescriptionType wbDescriptionType,
@@ -662,7 +662,7 @@ public class IBDFCreationUtility {
       }
 
       @SuppressWarnings({ "rawtypes" })
-      final SememeBuilder<? extends SememeChronology<? extends DescriptionSememe>> descBuilder =
+      final SememeBuilder<? extends SememeChronology<? extends DescriptionVersion>> descBuilder =
          this.sememeBuilderService.getDescriptionSememeBuilder(
              Get.identifierService()
                 .getConceptSequenceForUuids(
@@ -678,9 +678,9 @@ public class IBDFCreationUtility {
 
       descBuilder.setPrimordialUuid(descriptionPrimordialUUID);
 
-      final List<ObjectChronology<? extends StampedVersion>> builtObjects = new ArrayList<>();
-      final SememeChronology<DescriptionSememe<?>> newDescription =
-         (SememeChronology<DescriptionSememe<?>>) descBuilder.build(
+      final List<Chronology<? extends StampedVersion>> builtObjects = new ArrayList<>();
+      final SememeChronology<DescriptionVersion> newDescription =
+         (SememeChronology<DescriptionVersion>) descBuilder.build(
              createStamp(
                  state,
                  selectTime(time, concept),
@@ -786,9 +786,9 @@ public class IBDFCreationUtility {
     * @param descriptions the descriptions
     * @return the list
     */
-   public List<SememeChronology<DescriptionSememe<?>>> addDescriptions(ComponentReference concept,
+   public List<SememeChronology<DescriptionVersion>> addDescriptions(ComponentReference concept,
          List<? extends ValuePropertyPair> descriptions) {
-      final ArrayList<SememeChronology<DescriptionSememe<?>>> result = new ArrayList<>(descriptions.size());
+      final ArrayList<SememeChronology<DescriptionVersion>> result = new ArrayList<>(descriptions.size());
 
       Collections.sort(descriptions);
 
@@ -869,7 +869,7 @@ public class IBDFCreationUtility {
     * @param fullySpecifiedName the fully specified name
     * @return the sememe chronology
     */
-   public SememeChronology<DescriptionSememe<?>> addFullySpecifiedName(ComponentReference concept,
+   public SememeChronology<DescriptionVersion> addFullySpecifiedName(ComponentReference concept,
          String fullySpecifiedName) {
       return addDescription(concept, fullySpecifiedName, DescriptionType.FSN, true, null, State.ACTIVE);
    }
@@ -882,7 +882,7 @@ public class IBDFCreationUtility {
     * @param targetUuid the target uuid
     * @return the sememe chronology
     */
-   public SememeChronology<LogicGraphSememe<?>> addParent(ComponentReference concept, UUID targetUuid) {
+   public SememeChronology<LogicGraphSememe> addParent(ComponentReference concept, UUID targetUuid) {
       return addParent(concept, null, new UUID[] { targetUuid }, null, null);
    }
 
@@ -897,7 +897,7 @@ public class IBDFCreationUtility {
     * @param time the time
     * @return the sememe chronology
     */
-   public SememeChronology<LogicGraphSememe<?>> addParent(ComponentReference concept,
+   public SememeChronology<LogicGraphSememe> addParent(ComponentReference concept,
          UUID targetUuid,
          Property p,
          Long time) {
@@ -919,7 +919,7 @@ public class IBDFCreationUtility {
     * @param time - if null, default is used
     * @return the sememe chronology
     */
-   public SememeChronology<LogicGraphSememe<?>> addParent(ComponentReference concept,
+   public SememeChronology<LogicGraphSememe> addParent(ComponentReference concept,
          UUID relPrimordialUuid,
          UUID[] targetUuid,
          UUID sourceRelTypeUUID,
@@ -964,7 +964,7 @@ public class IBDFCreationUtility {
 
       final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SememeChronology<LogicGraphSememe<?>> sci = (SememeChronology<LogicGraphSememe<?>>) sb.build(
+      final SememeChronology<LogicGraphSememe> sci = (SememeChronology<LogicGraphSememe>) sb.build(
                                                             createStamp(State.ACTIVE, selectTime(time, concept)),
                                                                   builtObjects);
 
@@ -1021,7 +1021,7 @@ public class IBDFCreationUtility {
     * @param module the module
     * @return the sememe chronology
     */
-   public SememeChronology<LogicGraphSememe<?>> addRelationshipGraph(ComponentReference concept,
+   public SememeChronology<LogicGraphSememe> addRelationshipGraph(ComponentReference concept,
          LogicalExpression logicalExpression,
          boolean stated,
          Long time,
@@ -1040,7 +1040,7 @@ public class IBDFCreationUtility {
     * @param module the module
     * @return the sememe chronology
     */
-   public SememeChronology<LogicGraphSememe<?>> addRelationshipGraph(ComponentReference concept,
+   public SememeChronology<LogicGraphSememe> addRelationshipGraph(ComponentReference concept,
          UUID graphPrimordialUuid,
          LogicalExpression logicalExpression,
          boolean stated,
@@ -1085,7 +1085,7 @@ public class IBDFCreationUtility {
 
       final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SememeChronology<LogicGraphSememe<?>> sci = (SememeChronology<LogicGraphSememe<?>>) sb.build(
+      final SememeChronology<LogicGraphSememe> sci = (SememeChronology<LogicGraphSememe>) sb.build(
                                                             createStamp(
                                                                   State.ACTIVE,
                                                                         selectTime(time, concept),
@@ -1109,7 +1109,7 @@ public class IBDFCreationUtility {
     * @param state the state
     * @return the sememe chronology
     */
-   public SememeChronology<StringSememe<?>> addStaticStringAnnotation(ComponentReference referencedComponent,
+   public SememeChronology<StringSememe> addStaticStringAnnotation(ComponentReference referencedComponent,
          String annotationValue,
          UUID refsetUuid,
          State state) {
@@ -1129,7 +1129,7 @@ public class IBDFCreationUtility {
 
       final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SememeChronology<StringSememe<?>> sc = (SememeChronology<StringSememe<?>>) sb.build(
+      final SememeChronology<StringSememe> sc = (SememeChronology<StringSememe>) sb.build(
                                                        createStamp(state, selectTime(null, referencedComponent)),
                                                              builtObjects);
 
@@ -1263,7 +1263,7 @@ public class IBDFCreationUtility {
           null);
 
       if (!StringUtils.isBlank(inverseName)) {
-         final SememeChronology<DescriptionSememe<?>> inverseDesc = addDescription(
+         final SememeChronology<DescriptionVersion> inverseDesc = addDescription(
                                                                         ComponentReference.fromConcept(
                                                                               associationTypeConcept),
                                                                               inverseName,
@@ -1315,7 +1315,7 @@ public class IBDFCreationUtility {
                                   .toString(),
                             new Boolean("true").toString(),
                             "DynamicSememeMarker");
-      final SememeChronology<DescriptionSememe<?>> desc = addDescription(
+      final SememeChronology<DescriptionVersion> desc = addDescription(
                                                               concept,
                                                                     temp,
                                                                     refexDescription,
@@ -1394,7 +1394,7 @@ public class IBDFCreationUtility {
     * @param conceptPrimordialUuid the concept primordial uuid
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid) {
+   public ConceptChronology createConcept(UUID conceptPrimordialUuid) {
       return createConcept(conceptPrimordialUuid, (Long) null, State.ACTIVE, null);
    }
 
@@ -1406,7 +1406,7 @@ public class IBDFCreationUtility {
     * @param createSynonymFromFSN the create synonym from FSN
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology<? extends ConceptVersion<?>> createConcept(String fsn, boolean createSynonymFromFSN) {
+   public ConceptChronology createConcept(String fsn, boolean createSynonymFromFSN) {
       return createConcept(ConverterUUID.createNamespaceUUIDFromString(fsn), fsn, createSynonymFromFSN);
    }
 
@@ -1418,10 +1418,10 @@ public class IBDFCreationUtility {
     * @param parentConceptPrimordial the parent concept primordial
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology<? extends ConceptVersion<?>> createConcept(String fsn,
+   public ConceptChronology createConcept(String fsn,
          boolean createSynonymFromFSN,
          UUID parentConceptPrimordial) {
-      final ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(fsn, createSynonymFromFSN);
+      final ConceptChronology concept = createConcept(fsn, createSynonymFromFSN);
 
       addParent(ComponentReference.fromConcept(concept), parentConceptPrimordial);
       return concept;
@@ -1436,7 +1436,7 @@ public class IBDFCreationUtility {
     * @param createSynonymFromFSN the create synonym from FSN
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid,
+   public ConceptChronology createConcept(UUID conceptPrimordialUuid,
          String fsn,
          boolean createSynonymFromFSN) {
       return createConcept(conceptPrimordialUuid, fsn, createSynonymFromFSN, null, State.ACTIVE);
@@ -1451,7 +1451,7 @@ public class IBDFCreationUtility {
     * @param module - if null, uses the default
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid,
+   public ConceptChronology createConcept(UUID conceptPrimordialUuid,
          Long time,
          State status,
          UUID module) {
@@ -1473,11 +1473,11 @@ public class IBDFCreationUtility {
     * @param relParentPrimordial the rel parent primordial
     * @return the concept chronology<? extends concept version<?>>
     */
-   public final ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid,
+   public final ConceptChronology createConcept(UUID conceptPrimordialUuid,
          String fsn,
          boolean createSynonymFromFSN,
          UUID relParentPrimordial) {
-      final ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(
+      final ConceptChronology concept = createConcept(
                                                                          conceptPrimordialUuid,
                                                                                fsn,
                                                                                createSynonymFromFSN);
@@ -1496,12 +1496,12 @@ public class IBDFCreationUtility {
     * @param status the status
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid,
+   public ConceptChronology createConcept(UUID conceptPrimordialUuid,
          String fsn,
          boolean createSynonymFromFSN,
          Long time,
          State status) {
-      final ConceptChronology<? extends ConceptVersion<?>> cc = createConcept(
+      final ConceptChronology cc = createConcept(
                                                                     conceptPrimordialUuid,
                                                                           time,
                                                                           status,
@@ -1536,14 +1536,14 @@ public class IBDFCreationUtility {
     * @param secondParent - optional
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID primordial,
+   public ConceptChronology createConcept(UUID primordial,
          String fsnName,
          String preferredName,
          String altName,
          String definition,
          UUID relParentPrimordial,
          UUID secondParent) {
-      final ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(
+      final ConceptChronology concept = createConcept(
                                                                          (primordial == null)
                                                                          ? ConverterUUID.createNamespaceUUIDFromString(
                                                                                fsnName)
@@ -1721,7 +1721,7 @@ public class IBDFCreationUtility {
                addParent(ComponentReference.fromConcept(p.getUUID()), pt.getPropertyTypeUUID());
             } else {
                // don't feed in the 'definition' if it is an association, because that will be done by the configureConceptAsDynamicRefex method
-               final ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(
+               final ConceptChronology concept = createConcept(
                                                                                   p.getUUID(),
                                                                                         p.getSourcePropertyNameFSN() +
                                                                                         METADATA_SEMANTIC_TAG,
@@ -1766,7 +1766,7 @@ public class IBDFCreationUtility {
 
                   // add the inverse name, if it has one
                   if (!StringUtils.isBlank(item.getAssociationInverseName())) {
-                     final SememeChronology<DescriptionSememe<?>> inverseDesc = addDescription(
+                     final SememeChronology<DescriptionVersion> inverseDesc = addDescription(
                                                                                     ComponentReference.fromConcept(
                                                                                           concept),
                                                                                           item.getAssociationInverseName(),

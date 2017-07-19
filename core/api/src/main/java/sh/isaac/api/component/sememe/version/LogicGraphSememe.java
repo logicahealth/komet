@@ -49,10 +49,9 @@ import sh.isaac.api.logic.LogicalExpression;
  * The Interface LogicGraphSememe.
  *
  * @author kec
- * @param <T> the generic type
  */
-public interface LogicGraphSememe<T extends LogicGraphSememe<T>>
-        extends SememeVersion<T> {
+public interface LogicGraphSememe
+        extends SememeVersion {
    /**
     * Gets the external graph data.
     *

@@ -73,7 +73,7 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeImpl
-        extends SememeVersionImpl<DynamicSememeImpl>
+        extends SememeVersionImpl
          implements MutableDynamicSememe<DynamicSememeImpl> {
    /** The bootstrap mode. */
    private static boolean bootstrapMode = Get.configurationService()

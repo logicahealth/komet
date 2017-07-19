@@ -84,15 +84,13 @@ import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
-import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -247,7 +245,7 @@ public class ConceptProvider
     * @param concept the concept
     */
    @Override
-   public void writeConcept(ConceptChronology<? extends ConceptVersion<?>> concept) {
+   public void writeConcept(ConceptChronology concept) {
       this.conceptMap.put(concept.getConceptSequence(), (ConceptChronologyImpl) concept);
    }
 
@@ -360,9 +358,9 @@ public class ConceptProvider
     * @return the concept chronology stream
     */
    @Override
-   public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream() {
+   public Stream<ConceptChronology> getConceptChronologyStream() {
       return this.conceptMap.getStream().map((cc) -> {
-                                    return (ConceptChronology<? extends ConceptVersion<?>>) cc;
+                                    return (ConceptChronology) cc;
                                  });
    }
 
@@ -373,7 +371,7 @@ public class ConceptProvider
     * @return the concept chronology stream
     */
    @Override
-   public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream(
+   public Stream<ConceptChronology> getConceptChronologyStream(
            ConceptSequenceSet conceptSequences) {
       return Get.identifierService().getConceptSequenceStream().filter((int sequence) -> conceptSequences.contains(sequence)).mapToObj((int sequence) -> {
                              final Optional<ConceptChronologyImpl> result = this.conceptMap.get(sequence);
@@ -471,7 +469,7 @@ public class ConceptProvider
     * @return the optional concept
     */
    @Override
-   public Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(int conceptId) {
+   public Optional<? extends ConceptChronology> getOptionalConcept(int conceptId) {
       if (conceptId < 0) {
          conceptId = Get.identifierService()
                         .getConceptSequence(conceptId);
@@ -487,7 +485,7 @@ public class ConceptProvider
     * @return the optional concept
     */
    @Override
-   public Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(UUID... conceptUuids) {
+   public Optional<? extends ConceptChronology> getOptionalConcept(UUID... conceptUuids) {
       // check hasUuid first, because getOptionalConcept adds the UUID to the index if it doesn't exist...
       if (Get.identifierService()
              .hasUuid(conceptUuids)) {
@@ -504,7 +502,7 @@ public class ConceptProvider
     * @return the parallel concept chronology stream
     */
    @Override
-   public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream() {
+   public Stream<ConceptChronology> getParallelConceptChronologyStream() {
       return this.conceptMap.getParallelStream().map((cc) -> {
                                     return cc;
                                  });
@@ -517,7 +515,7 @@ public class ConceptProvider
     * @return the parallel concept chronology stream
     */
    @Override
-   public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream(
+   public Stream<ConceptChronology> getParallelConceptChronologyStream(
            ConceptSequenceSet conceptSequences) {
       return Get.identifierService().getParallelConceptSequenceStream().filter((int sequence) -> conceptSequences.contains(sequence)).mapToObj((int sequence) -> {
                              final Optional<ConceptChronologyImpl> result = this.conceptMap.get(sequence);
@@ -573,11 +571,10 @@ public class ConceptProvider
        */
       @Override
       public String conceptDescriptionText(int conceptId) {
-         final Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional = getDescriptionOptional(conceptId);
+         final LatestVersion<DescriptionVersion> descriptionOptional = getDescriptionOptional(conceptId);
 
-         if (descriptionOptional.isPresent() && descriptionOptional.get().value().isPresent()) {
-            return descriptionOptional.get()
-                                      .value().get()
+         if (descriptionOptional.value().isPresent()) {
+            return descriptionOptional.value().get()
                                       .getText();
          }
 
@@ -624,7 +621,7 @@ public class ConceptProvider
        * @param conceptId the concept id
        * @return the description list
        */
-      private List<SememeChronology<? extends DescriptionSememe<?>>> getDescriptionList(int conceptId) {
+      private List<SememeChronology<DescriptionVersion>> getDescriptionList(int conceptId) {
          final int conceptNid = Get.identifierService()
                                    .getConceptNid(conceptId);
 
@@ -640,7 +637,7 @@ public class ConceptProvider
        * @return the description optional
        */
       @Override
-      public Optional<LatestVersion<DescriptionSememe<?>>> getDescriptionOptional(int conceptId) {
+      public LatestVersion<DescriptionVersion> getDescriptionOptional(int conceptId) {
          return this.manifoldCoordinate.getDescription(getDescriptionList(conceptId));
       }
 
@@ -651,7 +648,7 @@ public class ConceptProvider
        * @return the fully specified description
        */
       @Override
-      public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(int conceptId) {
+      public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(int conceptId) {
          return this.manifoldCoordinate.getFullySpecifiedDescription(getDescriptionList(conceptId));
       }
 
@@ -662,7 +659,7 @@ public class ConceptProvider
        * @return the preferred description
        */
       @Override
-      public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(int conceptId) {
+      public LatestVersion<DescriptionVersion> getPreferredDescription(int conceptId) {
          return this.manifoldCoordinate.getPreferredDescription(getDescriptionList(conceptId));
       }
 

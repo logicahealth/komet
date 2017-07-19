@@ -47,7 +47,6 @@ package sh.isaac.api.chronicle;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
-import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -69,12 +68,12 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- * The Interface ObjectChronology.
+ * The Interface Chronology.
  *
  * @author kec
  * @param <V> the Version type this chronicled object contains.
  */
-public interface ObjectChronology<V extends StampedVersion>
+public interface Chronology<V extends StampedVersion>
         extends OchreExternalizable, CommittableComponent {
    /**
     * Gets the latest version.
@@ -83,10 +82,10 @@ public interface ObjectChronology<V extends StampedVersion>
     * @param coordinate the coordinate
     * @return the latest version
     */
-   Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate coordinate);
+   LatestVersion<V> getLatestVersion(Class<V> type, StampCoordinate coordinate);
 
    /**
-    * Determe if the latest version is active, on a given stamp coordinate.  This method ignores the
+    * Determine if the latest version is active, on a given stamp coordinate.  This method ignores the
     * state attribute of the provided StampCoordinate - allowing all State types -
     * it returns true if the latest version is {@link State#ACTIVE}
     *
@@ -100,7 +99,7 @@ public interface ObjectChronology<V extends StampedVersion>
     *
     * @return a list of sememes, where this object is the referenced component.
     */
-   List<? extends SememeChronology<? extends SememeVersion<?>>> getSememeList();
+   List<? extends SememeChronology<? extends SememeVersion>> getSememeList();
 
    /**
     * Gets the sememe list from assemblage.
@@ -108,7 +107,7 @@ public interface ObjectChronology<V extends StampedVersion>
     * @param assemblageSequence the assemblage sequence
     * @return the sememe list from assemblage
     */
-   List<? extends SememeChronology<? extends SememeVersion<?>>> getSememeListFromAssemblage(int assemblageSequence);
+   List<? extends SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence);
 
    /**
     * Gets the sememe list from assemblage of type.
@@ -127,7 +126,7 @@ public interface ObjectChronology<V extends StampedVersion>
     *
     * @return a list of all unwritten versions of this object chronology, with no order guarantee.
     */
-   List<? extends V> getUnwrittenVersionList();
+   List<V> getUnwrittenVersionList();
 
    /**
     * Gets the version graph list.
@@ -140,7 +139,7 @@ public interface ObjectChronology<V extends StampedVersion>
     * A version may be included in more than one graph if disconnected original versions are subsequently
     * merged onto commonly visible downstream paths.
     */
-   default List<Graph<? extends V>> getVersionGraphList() {
+   default List<Graph<V>> getVersionGraphList() {
       throw new UnsupportedOperationException();
    }
 
@@ -149,7 +148,7 @@ public interface ObjectChronology<V extends StampedVersion>
     *
     * @return a list of all versions of this object chronology, with no order guarantee. .
     */
-   List<? extends V> getVersionList();
+   List<V> getVersionList();
 
    /**
     * Gets the version stamp sequences.
@@ -165,7 +164,7 @@ public interface ObjectChronology<V extends StampedVersion>
     * @return a list of all visible versions of this object chronology, sorted in
     * ascending order (oldest version first, newest version last).
     */
-   default List<? extends V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
+   default List<V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
       final RelativePositionCalculator calc              = RelativePositionCalculator.getCalculator(stampCoordinate);
       final SortedSet<V>               sortedLogicGraphs = new TreeSet<>((V graph1,
                                                                           V graph2) -> {

@@ -72,7 +72,7 @@ public interface TaxonomyService
     *
     * @param logicGraphChronology Chronology of the logical definitions
     */
-   void updateTaxonomy(SememeChronology<LogicGraphSememe<?>> logicGraphChronology);
+   void updateTaxonomy(SememeChronology<LogicGraphSememe> logicGraphChronology);
 
    /**
     * Method to determine if a concept was ever a kind of another, without

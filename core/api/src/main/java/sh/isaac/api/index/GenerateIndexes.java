@@ -160,7 +160,7 @@ public class GenerateIndexes
          this.componentCount = sememeCount;
 
          for (final SememeChronology<?> sememe:
-               (Iterable<SememeChronology<? extends SememeVersion<?>>>) Get.sememeService()
+               (Iterable<SememeChronology<? extends SememeVersion>>) Get.sememeService()
                      .getParallelSememeStream()::iterator) {
             for (final IndexService i: this.indexers) {
                try {

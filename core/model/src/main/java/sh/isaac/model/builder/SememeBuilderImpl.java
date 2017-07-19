@@ -52,7 +52,6 @@ import javafx.concurrent.Task;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeChronology;
@@ -71,6 +70,7 @@ import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
 import sh.isaac.model.sememe.version.LongSememeImpl;
 import sh.isaac.model.sememe.version.SememeVersionImpl;
 import sh.isaac.model.sememe.version.StringSememeImpl;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -80,7 +80,7 @@ import sh.isaac.model.sememe.version.StringSememeImpl;
  * @author kec
  * @param <C> the generic type
  */
-public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersion<?>>>
+public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersion>>
         extends ComponentBuilder<C>
          implements SememeBuilder<C> {
    /** The referenced component nid. */
@@ -148,7 +148,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
     */
    @Override
    public C build(int stampSequence,
-                  List<ObjectChronology<? extends StampedVersion>> builtObjects)
+                  List<Chronology<? extends StampedVersion>> builtObjects)
             throws IllegalStateException {
       if (this.referencedComponentNid == Integer.MAX_VALUE) {
          this.referencedComponentNid = Get.identifierService()
@@ -262,7 +262,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
    @Override
    public OptionalWaitTask<C> build(EditCoordinate editCoordinate,
                                     ChangeCheckerMode changeCheckerMode,
-                                    List<ObjectChronology<? extends StampedVersion>> builtObjects)
+                                    List<Chronology<? extends StampedVersion>> builtObjects)
             throws IllegalStateException {
       if (this.referencedComponentNid == Integer.MAX_VALUE) {
          this.referencedComponentNid = Get.identifierService()

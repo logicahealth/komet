@@ -48,22 +48,22 @@ import java.util.UUID;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
-import sh.isaac.api.chronicle.MutableStampedVersion;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.commit.IdentifiedStampedVersion;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class ObjectVersionImpl.
+ * The Class VersionImpl.
  *
  * @author kec
  * @param <C> the generic type
  * @param <V> the value type
  */
-public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V extends ObjectVersionImpl>
-         implements MutableStampedVersion, IdentifiedStampedVersion {
+public abstract class VersionImpl<C extends Chronology<V>, V extends Version>
+         implements Version {
    /** The chronicle. */
    protected final C chronicle;
 
@@ -82,7 +82,7 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     */
-   public ObjectVersionImpl(C chronicle, int stampSequence, short versionSequence) {
+   public VersionImpl(C chronicle, int stampSequence, short versionSequence) {
       this.chronicle       = chronicle;
       this.stampSequence   = stampSequence;
       this.versionSequence = versionSequence;
@@ -121,7 +121,7 @@ public abstract class ObjectVersionImpl<C extends ObjectChronologyImpl<V>, V ext
          return false;
       }
 
-      final ObjectVersionImpl<?, ?> other = (ObjectVersionImpl<?, ?>) obj;
+      final VersionImpl<?, ?> other = (VersionImpl<?, ?>) obj;
 
       if (this.stampSequence != other.stampSequence) {
          return false;

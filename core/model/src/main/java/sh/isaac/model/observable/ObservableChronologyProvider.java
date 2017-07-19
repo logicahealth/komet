@@ -63,7 +63,6 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
@@ -88,7 +87,7 @@ public class ObservableChronologyProvider
    private final UUID listenerUuid = UUID.randomUUID();
 
    /** The observable concept map. */
-   ConcurrentReferenceHashMap<Integer, ObservableConceptChronology<?>> observableConceptMap =
+   ConcurrentReferenceHashMap<Integer, ObservableConceptChronology> observableConceptMap =
       new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
                                        ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
@@ -115,8 +114,8 @@ public class ObservableChronologyProvider
     * @param cc the cc
     */
    @Override
-   public void handleChange(ConceptChronology<? extends StampedVersion> cc) {
-      final ObservableConceptChronology<?> occ = this.observableConceptMap.get(cc.getNid());
+   public void handleChange(ConceptChronology cc) {
+      final ObservableConceptChronology occ = this.observableConceptMap.get(cc.getNid());
 
       if (occ != null) {
          occ.handleChange(cc);
@@ -129,14 +128,14 @@ public class ObservableChronologyProvider
     * @param sc the sc
     */
    @Override
-   public void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
+   public void handleChange(SememeChronology<? extends SememeVersion> sc) {
       final ObservableSememeChronology<?> osc = this.observableSememeMap.get(sc.getNid());
 
       if (osc != null) {
          osc.handleChange(sc);
       }
 
-      final ObservableConceptChronology<?> assemblageOcc = this.observableConceptMap.get(sc.getAssemblageSequence());
+      final ObservableConceptChronology assemblageOcc = this.observableConceptMap.get(sc.getAssemblageSequence());
 
       if (assemblageOcc != null) {
          assemblageOcc.handleChange(sc);
@@ -211,13 +210,13 @@ public class ObservableChronologyProvider
     * @return the observable concept chronology
     */
    @Override
-   public ObservableConceptChronology<?> getObservableConceptChronology(int id) {
+   public ObservableConceptChronology getObservableConceptChronology(int id) {
       if (id >= 0) {
          id = Get.identifierService()
                  .getConceptNid(id);
       }
 
-      final ObservableConceptChronology<?> occ = this.observableConceptMap.get(id);
+      final ObservableConceptChronology occ = this.observableConceptMap.get(id);
 
       if (occ != null) {
          return occ;

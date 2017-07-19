@@ -47,8 +47,8 @@ import java.util.Optional;
 
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -65,6 +65,6 @@ public interface IdentifiedObjectService {
     * @param nid the nid
     * @return the identified object chronology
     */
-   Optional<? extends ObjectChronology<? extends StampedVersion>> getIdentifiedObjectChronology(int nid);
+   Optional<? extends Chronology<? extends StampedVersion>> getIdentifiedObjectChronology(int nid);
 }
 

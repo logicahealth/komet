@@ -41,7 +41,6 @@ package sh.isaac.model.observable;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -55,17 +54,15 @@ import javafx.collections.ObservableList;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
+import sh.isaac.api.observable.concept.ObservableConceptVersion;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionSememe;
-import sh.isaac.model.concept.ConceptVersionImpl;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
-import sh.isaac.model.observable.version.ObservableDescriptionImpl;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -75,13 +72,15 @@ import sh.isaac.model.observable.version.ObservableDescriptionImpl;
  * @author kec
  */
 public class ObservableConceptChronologyImpl
-        extends ObservableChronologyImpl<ObservableConceptVersionImpl, ConceptChronology<ConceptVersionImpl>>
-         implements ObservableConceptChronology<ObservableConceptVersionImpl> {
+        extends ObservableChronologyImpl
+        <ObservableConceptVersion, 
+        ConceptChronology>
+         implements ObservableConceptChronology<ObservableConceptVersion> {
    /** The concept sequence property. */
    private IntegerProperty conceptSequenceProperty;
 
    /** The description list property. */
-   private ListProperty<ObservableSememeChronology<ObservableDescriptionSememe<?>>> descriptionListProperty;
+   private ListProperty<ObservableSememeChronology<ObservableDescriptionVersion>> descriptionListProperty;
 
    //~--- constructors --------------------------------------------------------
 
@@ -90,7 +89,7 @@ public class ObservableConceptChronologyImpl
     *
     * @param chronicledObjectLocal the chronicled object local
     */
-   public ObservableConceptChronologyImpl(ConceptChronology<ConceptVersionImpl> chronicledObjectLocal) {
+   public ObservableConceptChronologyImpl(ConceptChronology chronicledObjectLocal) {
       super(chronicledObjectLocal);
    }
 
@@ -102,9 +101,9 @@ public class ObservableConceptChronologyImpl
     * @return the list property
     */
    @Override
-   public ListProperty<ObservableSememeChronology<ObservableDescriptionSememe<?>>> conceptDescriptionListProperty() {
+   public ListProperty<ObservableSememeChronology<ObservableDescriptionVersion>> conceptDescriptionListProperty() {
       if (this.descriptionListProperty == null) {
-         final ObservableList<ObservableSememeChronology<ObservableDescriptionSememe<?>>> observableList =
+         final ObservableList<ObservableSememeChronology<ObservableDescriptionVersion>> observableList =
             FXCollections.observableArrayList();
 
          this.descriptionListProperty =
@@ -194,7 +193,7 @@ public class ObservableConceptChronologyImpl
     * @return the concept description list
     */
    @Override
-   public ObservableList<ObservableSememeChronology<ObservableDescriptionSememe<?>>> getConceptDescriptionList() {
+   public ObservableList<ObservableSememeChronology<ObservableDescriptionVersion>> getConceptDescriptionList() {
       return conceptDescriptionListProperty().get();
    }
 
@@ -220,10 +219,10 @@ public class ObservableConceptChronologyImpl
     * @return the fully specified description
     */
    @Override
-   public Optional<LatestVersion<ObservableDescriptionSememe<?>>> getFullySpecifiedDescription(
+   public LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate) {
-      final Optional<LatestVersion<DescriptionSememe<?>>> optionalFsn =
+      final LatestVersion<DescriptionVersion> optionalFsn =
          this.chronicledObjectLocal.getFullySpecifiedDescription(languageCoordinate,
                                                                  stampCoordinate);
 
@@ -253,10 +252,10 @@ public class ObservableConceptChronologyImpl
     * @return the preferred description
     */
    @Override
-   public Optional<LatestVersion<ObservableDescriptionSememe<?>>> getPreferredDescription(
+   public LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate) {
-      final Optional<LatestVersion<DescriptionSememe<?>>> optionalPreferred =
+      final LatestVersion<DescriptionVersion> optionalPreferred =
          this.chronicledObjectLocal.getPreferredDescription(languageCoordinate,
                                                             stampCoordinate);
 
@@ -266,35 +265,31 @@ public class ObservableConceptChronologyImpl
    /**
     * Gets the specified description.
     *
-    * @param optionalSpecifiedDescription the optional specified description
+    * @param description the optional specified description
     * @return the specified description
     */
-   private Optional<LatestVersion<ObservableDescriptionSememe<?>>> getSpecifiedDescription(
-           Optional<LatestVersion<DescriptionSememe<?>>> optionalSpecifiedDescription) {
-      if (optionalSpecifiedDescription.isPresent() && optionalSpecifiedDescription.get().value().isPresent()) {
-         final LatestVersion<DescriptionSememe<?>> latestPreferred = optionalSpecifiedDescription.get();
-         final int latestStampSequence = ((DescriptionSememe) latestPreferred.value().get()).getStampSequence();
-         final ObservableSememeChronologyImpl<ObservableDescriptionImpl, SememeChronology<DescriptionSememe>> observableSpecified =
-            new ObservableSememeChronologyImpl(((DescriptionSememe) latestPreferred.value().get()).getChronology());
+   private LatestVersion<ObservableDescriptionVersion> getSpecifiedDescription(
+           LatestVersion<DescriptionVersion> description) {
+      if (description.value().isPresent()) {
+         final int specifiedStampSequence = ((DescriptionVersion) description.value().get()).getStampSequence();
+         final ObservableSememeChronology<ObservableDescriptionVersion> observableSpecified =
+            new ObservableSememeChronologyImpl(((DescriptionVersion) description.value().get()).getChronology());
 
-         new LatestVersion<>(ObservableDescriptionSememe.class);
+         
 
-         LatestVersion<ObservableDescriptionSememe<?>> latest = null;
+         LatestVersion<ObservableDescriptionVersion> latest = new LatestVersion<>(ObservableDescriptionVersion.class);
 
-         for (final ObservableDescriptionSememe<?> descVersion: observableSpecified.getVersionList()) {
-            if (descVersion.getStampSequence() == latestStampSequence) {
-               if (latest == null) {
-                  latest = new LatestVersion<>(descVersion);
-               } else {
-                  latest.addLatest(descVersion);
-               }
-            }
+         for (final ObservableDescriptionVersion descVersion: observableSpecified.getVersionList()) {
+            if (descVersion.getStampSequence() == specifiedStampSequence) {
+               latest.addLatest(descVersion);
+              }
          }
 
-         return Optional.of(latest);
+         return latest;
       }
 
-      return Optional.empty();
+      return new LatestVersion<>(ObservableDescriptionVersion.class);
    }
 }
-
+//~--- JDK imports ------------------------------------------------------------
+//~--- JDK imports ------------------------------------------------------------

@@ -54,7 +54,7 @@ import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSnapshot;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
@@ -62,6 +62,7 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -79,7 +80,7 @@ public class ConceptSnapshotImpl
    private final ManifoldCoordinate manifoldCoordinate;
 
    /** The snapshot version. */
-   private final LatestVersion<ConceptVersionImpl> snapshotVersion;
+   private final LatestVersion<ConceptVersion> snapshotVersion;
 
    //~--- constructors --------------------------------------------------------
 
@@ -94,11 +95,11 @@ public class ConceptSnapshotImpl
       this.conceptChronology  = conceptChronology;
       this.manifoldCoordinate    = manifoldCoordinate;
 
-      final Optional<LatestVersion<ConceptVersionImpl>> optionalVersion =
+      final LatestVersion<ConceptVersion> latestVersion =
          RelativePositionCalculator.getCalculator(manifoldCoordinate)
                                    .getLatestVersion(conceptChronology);
 
-      this.snapshotVersion = optionalVersion.get();
+      this.snapshotVersion = latestVersion;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -198,19 +199,17 @@ public class ConceptSnapshotImpl
     * @return the description
     */
    @Override
-   public DescriptionSememe<?> getDescription() {
-      final Optional<LatestVersion<DescriptionSememe<?>>> fsd = getFullySpecifiedDescription();
+   public DescriptionVersion getDescription() {
+      final LatestVersion<DescriptionVersion> fsd = getFullySpecifiedDescription();
 
-      if (fsd.isPresent() && fsd.get().value().isPresent()) {
-         return fsd.get()
-                   .value().get();
+      if (fsd.value().isPresent()) {
+         return fsd.value().get();
       }
 
-      final Optional<LatestVersion<DescriptionSememe<?>>> pd = getPreferredDescription();
+      final LatestVersion<DescriptionVersion> pd = getPreferredDescription();
 
-      if (pd.isPresent() && pd.get().value().isPresent()) {
-         return pd.get()
-                  .value().get();
+      if (pd.value().isPresent()) {
+         return pd.value().get();
       }
 
       return Get.sememeService()
@@ -227,7 +226,7 @@ public class ConceptSnapshotImpl
     * @return the fully specified description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription() {
+   public LatestVersion<DescriptionVersion> getFullySpecifiedDescription() {
       return this.manifoldCoordinate.getFullySpecifiedDescription(Get.sememeService()
             .getDescriptionsForComponent(getNid())
             .collect(Collectors.toList()),
@@ -273,7 +272,7 @@ public class ConceptSnapshotImpl
     * @return the preferred description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription() {
+   public LatestVersion<DescriptionVersion> getPreferredDescription() {
       return this.manifoldCoordinate.getPreferredDescription(Get.sememeService()
             .getDescriptionsForComponent(getNid())
             .collect(Collectors.toList()),

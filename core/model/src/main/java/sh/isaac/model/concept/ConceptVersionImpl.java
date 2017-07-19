@@ -41,8 +41,9 @@ package sh.isaac.model.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.model.ObjectVersionImpl;
+import sh.isaac.model.VersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -52,8 +53,8 @@ import sh.isaac.model.ObjectVersionImpl;
  * @author kec
  */
 public class ConceptVersionImpl
-        extends ObjectVersionImpl<ConceptChronologyImpl, ConceptVersionImpl>
-         implements ConceptVersion<ConceptVersionImpl> {
+        extends VersionImpl<ConceptChronology, ConceptVersion>
+         implements ConceptVersion {
    /**
     * Instantiates a new concept version impl.
     *
@@ -73,7 +74,7 @@ public class ConceptVersionImpl
     * @return the chronology
     */
    @Override
-   public ConceptChronologyImpl getChronology() {
+   public ConceptChronology getChronology() {
       return this.chronicle;
    }
 }

@@ -58,7 +58,7 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDes
  * @param <T> the generic type
  */
 public interface DynamicSememe<T extends DynamicSememe<T>>
-        extends SememeVersion<T> {
+        extends SememeVersion {
    /**
     * Return a string representation of the data fields.
     *

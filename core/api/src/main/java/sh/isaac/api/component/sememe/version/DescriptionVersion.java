@@ -45,10 +45,9 @@ package sh.isaac.api.component.sememe.version;
  * The description is annotated to provide support for dialect.
  *
  * @author kec
- * @param <V> the value type
  */
-public interface DescriptionSememe<V extends DescriptionSememe<V>>
-        extends SememeVersion<V> {
+public interface DescriptionVersion
+        extends SememeVersion {
    /**
     * Gets the case significance concept sequence.
     *

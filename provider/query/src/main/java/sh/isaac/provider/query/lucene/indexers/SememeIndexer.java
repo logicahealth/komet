@@ -75,7 +75,6 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
@@ -105,6 +104,7 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeNidImpl;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeStringImpl;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -317,7 +317,7 @@ public class SememeIndexer
     * @param doc the doc
     */
    @Override
-   protected void addFields(ObjectChronology<?> chronicle, Document doc) {
+   protected void addFields(Chronology<?> chronicle, Document doc) {
       final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
 
       doc.add(new TextField(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE,
@@ -346,7 +346,7 @@ public class SememeIndexer
          // TODO enhance the index configuration to allow us to configure Static sememes as indexed, or not indexed
          // static sememe types are never more than 1 column, always pass -1
          else if (sv instanceof StringSememe) {
-            final StringSememe<?> ssv = (StringSememe<?>) sv;
+            final StringSememe ssv = (StringSememe) sv;
 
             handleType(doc, new DynamicSememeStringImpl(ssv.getString()), -1);
             incrementIndexedItemCount("Sememe String");
@@ -361,7 +361,7 @@ public class SememeIndexer
             handleType(doc, new DynamicSememeNidImpl(csv.getComponentNid()), -1);
             incrementIndexedItemCount("Sememe Component Nid");
          } else if (sv instanceof LogicGraphSememe) {
-            final LogicGraphSememe<?> lgsv = (LogicGraphSememe<?>) sv;
+            final LogicGraphSememe lgsv = (LogicGraphSememe) sv;
             final ConceptSequenceSet  css  = new ConceptSequenceSet();
 
             lgsv.getLogicalExpression().processDepthFirst((LogicNode logicNode,TreeNodeVisitData data) -> {
@@ -400,7 +400,7 @@ public class SememeIndexer
     * @return true, if successful
     */
    @Override
-   protected boolean indexChronicle(ObjectChronology<?> chronicle) {
+   protected boolean indexChronicle(Chronology<?> chronicle) {
       if (chronicle instanceof SememeChronology<?>) {
          final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
 

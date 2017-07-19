@@ -97,7 +97,7 @@ public interface LogicService {
     * @return the relationship adaptors originating with concept
     */
    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsOriginatingWithConcept(
-           ConceptChronology<?> conceptChronology);
+           ConceptChronology conceptChronology);
 
    /**
     * Gets the relationship adaptors originating with concept.
@@ -107,7 +107,7 @@ public interface LogicService {
     * @return the relationship adaptors originating with concept
     */
    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsOriginatingWithConcept(
-           ConceptChronology<?> conceptChronology,
+           ConceptChronology conceptChronology,
            LogicCoordinate logicCoordinate);
 
    /**
@@ -117,7 +117,7 @@ public interface LogicService {
     * @return the relationship adaptors with concept as destination
     */
    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsWithConceptAsDestination(
-           ConceptChronology<?> conceptChronology);
+           ConceptChronology conceptChronology);
 
    /**
     * Gets the relationship adaptors with concept as destination.
@@ -127,7 +127,7 @@ public interface LogicService {
     * @return the relationship adaptors with concept as destination
     */
    Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsWithConceptAsDestination(
-           ConceptChronology<?> conceptChronology,
+           ConceptChronology conceptChronology,
            LogicCoordinate logicCoordinate);
 }
 

@@ -43,10 +43,9 @@ package sh.isaac.api.component.sememe.version;
  * The Interface StringSememe.
  *
  * @author kec
- * @param <T> the generic type
  */
-public interface StringSememe<T extends StringSememe<T>>
-        extends SememeVersion<T> {
+public interface StringSememe
+        extends SememeVersion {
    /**
     * Gets the string.
     *

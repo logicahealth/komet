@@ -49,7 +49,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
+import sh.isaac.api.component.sememe.version.ComponentNidSememe;
 import sh.isaac.api.component.sememe.version.LongSememe;
 import sh.isaac.api.component.sememe.version.MutableComponentNidSememe;
 import sh.isaac.api.component.sememe.version.MutableDynamicSememe;
@@ -60,7 +60,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.externalizable.OchreExternalizableObjectType;
-import sh.isaac.model.ObjectChronologyImpl;
+import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.sememe.version.ComponentNidSememeImpl;
 import sh.isaac.model.sememe.version.DescriptionSememeImpl;
 import sh.isaac.model.sememe.version.DynamicSememeImpl;
@@ -68,6 +68,7 @@ import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
 import sh.isaac.model.sememe.version.LongSememeImpl;
 import sh.isaac.model.sememe.version.SememeVersionImpl;
 import sh.isaac.model.sememe.version.StringSememeImpl;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -77,9 +78,11 @@ import sh.isaac.model.sememe.version.StringSememeImpl;
  * @author kec
  * @param <V> the value type
  */
-public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
-        extends ObjectChronologyImpl<V>
-         implements SememeChronology<V>, OchreExternalizable {
+public class SememeChronologyImpl<V extends SememeVersion>
+        extends ChronologyImpl<V>
+         implements 
+        SememeChronology<V>, 
+        OchreExternalizable {
    /** The sememe type token. */
    byte sememeTypeToken = -1;
 
@@ -169,7 +172,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
     * @param bb the bb
     * @return the sememe version impl
     */
-   public static SememeVersionImpl<?> createSememe(byte token,
+   public static SememeVersionImpl createSememe(byte token,
          SememeChronologyImpl<?> container,
          int stampSequence,
          short versionSequence,
@@ -178,7 +181,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
 
       switch (st) {
       case MEMBER:
-         return new SememeVersionImpl<>(container, stampSequence, versionSequence);
+         return new SememeVersionImpl(container, stampSequence, versionSequence);
 
       case COMPONENT_NID:
          return new ComponentNidSememeImpl((SememeChronologyImpl<ComponentNidSememeImpl>) container,
@@ -205,13 +208,13 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
                                       bb);
 
       case STRING:
-         return new StringSememeImpl((SememeChronologyImpl<StringSememeImpl>) container,
+         return new StringSememeImpl((SememeChronology<StringSememe>) container,
                                      stampSequence,
                                      versionSequence,
                                      bb);
 
       case DESCRIPTION:
-         return (new DescriptionSememeImpl((SememeChronologyImpl<DescriptionSememeImpl>) container,
+         return (new DescriptionSememeImpl((SememeChronology<DescriptionVersion>) container,
                                            stampSequence,
                                            versionSequence,
                                            bb));
@@ -312,7 +315,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
       switch (getSememeType()) {
       case COMPONENT_NID:
          if (MutableComponentNidSememe.class.isAssignableFrom(type)) {
-            return (M) new ComponentNidSememeImpl((SememeChronologyImpl<ComponentNidSememeImpl>) this,
+            return (M) new ComponentNidSememeImpl((SememeChronology<ComponentNidSememe>) this,
                   stampSequence,
                   versionSequence);
          }
@@ -346,7 +349,7 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
 
       case STRING:
          if (StringSememe.class.isAssignableFrom(type)) {
-            return (M) new StringSememeImpl((SememeChronologyImpl<StringSememeImpl>) this,
+            return (M) new StringSememeImpl((SememeChronology<StringSememe>) this,
                                             stampSequence,
                                             versionSequence);
          }
@@ -361,8 +364,8 @@ public class SememeChronologyImpl<V extends SememeVersionImpl<V>>
          break;
 
       case DESCRIPTION:
-         if (DescriptionSememe.class.isAssignableFrom(type)) {
-            return (M) new DescriptionSememeImpl((SememeChronologyImpl<DescriptionSememeImpl>) this,
+         if (DescriptionVersion.class.isAssignableFrom(type)) {
+            return (M) new DescriptionSememeImpl((SememeChronology<DescriptionVersion>) this,
                   stampSequence,
                   versionSequence);
          }

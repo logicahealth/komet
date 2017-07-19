@@ -90,7 +90,7 @@ public class MultiParentTreeView extends BorderPane {
     private final StackPane stackPane;
     private final ToolBar toolBar = new ToolBar();
     private MultiParentTreeItem rootTreeItem;
-    private final TreeView<ConceptChronology<? extends ConceptVersion<?>>> treeView;
+    private final TreeView<ConceptChronology> treeView;
     private MultiParentTreeItemDisplayPolicies displayPolicies = DEFAULT_DISPLAY_POLICIES;
 
    public MultiParentTreeItemDisplayPolicies getDisplayPolicies() {
@@ -122,9 +122,9 @@ public class MultiParentTreeView extends BorderPane {
         treeView = new TreeView<>();
         //treeView.setSkin(new MultiParentTreeViewSkin<>(treeView));
         treeView.getSelectionModel().selectedItemProperty().addListener(
-                (ObservableValue<? extends TreeItem<ConceptChronology<? extends ConceptVersion<?>>>> observable, 
-                 TreeItem<ConceptChronology<? extends ConceptVersion<?>>> oldValue, 
-                 TreeItem<ConceptChronology<? extends ConceptVersion<?>>> newValue) -> {
+                (ObservableValue<? extends TreeItem<ConceptChronology>> observable, 
+                 TreeItem<ConceptChronology> oldValue, 
+                 TreeItem<ConceptChronology> newValue) -> {
            manifold.setFocusedObject(newValue.getValue());
         });
         
@@ -320,7 +320,7 @@ public class MultiParentTreeView extends BorderPane {
 
                 try
                 {
-                    ConceptChronology<? extends ConceptVersion<?>> rootConceptCV = Get.conceptService().getConcept(rootConcept);
+                    ConceptChronology rootConceptCV = Get.conceptService().getConcept(rootConcept);
                     rootTreeItem = new MultiParentTreeItem(rootConceptCV, MultiParentTreeView.this, Iconography.TAXONOMY_ROOT_ICON.getIconographic());
                     return null;
                 }
@@ -338,18 +338,18 @@ public class MultiParentTreeView extends BorderPane {
 
                 treeView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-                treeView.setCellFactory((TreeView<ConceptChronology<? extends ConceptVersion<?>>> p) -> new MultiParentTreeCell(treeView));
+                treeView.setCellFactory((TreeView<ConceptChronology> p) -> new MultiParentTreeCell(treeView));
                 treeView.setRoot(rootTreeItem);
                 
                 Get.executor().execute(() -> rootTreeItem.addChildren());
 
                 // put this event handler on the root
-                rootTreeItem.addEventHandler(TreeItem.<ConceptChronology<? extends ConceptVersion<?>>>branchCollapsedEvent(), (TreeItem.TreeModificationEvent<ConceptChronology<? extends ConceptVersion<?>>> t) -> {
+                rootTreeItem.addEventHandler(TreeItem.<ConceptChronology>branchCollapsedEvent(), (TreeItem.TreeModificationEvent<ConceptChronology> t) -> {
                    // remove grandchildren
                    ((MultiParentTreeItem) t.getSource()).removeGrandchildren();
                 });
 
-                rootTreeItem.addEventHandler(TreeItem.<ConceptChronology<? extends ConceptVersion<?>>> branchExpandedEvent(), (TreeItem.TreeModificationEvent<ConceptChronology<? extends ConceptVersion<?>>> t) -> {
+                rootTreeItem.addEventHandler(TreeItem.<ConceptChronology> branchExpandedEvent(), (TreeItem.TreeModificationEvent<ConceptChronology> t) -> {
                    // add grandchildren
                    MultiParentTreeItem sourceTreeItem = (MultiParentTreeItem) t.getSource();
                    Get.executor().execute(() -> sourceTreeItem.addChildrenConceptsAndGrandchildrenItems());
@@ -404,7 +404,7 @@ public class MultiParentTreeView extends BorderPane {
                 UUID current = conceptUUID;
                 while (true) {
 
-                    Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> conceptOptional = Get.conceptService().getOptionalConcept(current);
+                    Optional<? extends ConceptChronology> conceptOptional = Get.conceptService().getOptionalConcept(current);
                     if (! conceptOptional.isPresent()) {
 
                         // Must be a "pending concept".
@@ -412,7 +412,7 @@ public class MultiParentTreeView extends BorderPane {
                         return null;
                     }
 
-                    ConceptChronology<? extends ConceptVersion<?>> concept = conceptOptional.get();
+                    ConceptChronology concept = conceptOptional.get();
                     
                     // Look for an IS_A relationship to origin.
                     boolean found = false;
@@ -505,7 +505,7 @@ public class MultiParentTreeView extends BorderPane {
         {
             item.blockUntilChildrenReady();
             // Iterate through children and look for child with target UUID.
-            for (TreeItem<ConceptChronology<? extends ConceptVersion<?>>> child : item.getChildren()) {
+            for (TreeItem<ConceptChronology> child : item.getChildren()) {
                 if (child != null && child.getValue() != null
                         && child.getValue().getPrimordialUuid().equals(targetChildUUID)) {
 
@@ -576,7 +576,7 @@ public class MultiParentTreeView extends BorderPane {
             //keep the last save
             return;
         }
-        TreeItem<ConceptChronology<? extends ConceptVersion<?>>> selected = treeView.getSelectionModel().getSelectedItem();
+        TreeItem<ConceptChronology> selected = treeView.getSelectionModel().getSelectedItem();
         selectedItem = Optional.ofNullable(selected == null ? null : selected.getValue().getPrimordialUuid());
         expandedUUIDs.clear();
         saveExpanded(rootTreeItem);
@@ -587,7 +587,7 @@ public class MultiParentTreeView extends BorderPane {
         if (!item.isLeaf() && item.isExpanded()) {
             expandedUUIDs.add(item.getConceptUuid());
             if (!item.isLeaf()) {
-                for (TreeItem<ConceptChronology<? extends ConceptVersion<?>>> child : item.getChildren()) {
+                for (TreeItem<ConceptChronology> child : item.getChildren()) {
                     saveExpanded((MultiParentTreeItem) child);
                 }
             }
@@ -626,8 +626,8 @@ public class MultiParentTreeView extends BorderPane {
         if (expandedUUIDs.contains(item.getConceptUuid())) {
             item.blockUntilChildrenReady();
             Platform.runLater(() -> item.setExpanded(true));
-            List<TreeItem<ConceptChronology<? extends ConceptVersion<?>>>> list = new ArrayList<>(item.getChildren());
-            for (TreeItem<ConceptChronology<? extends ConceptVersion<?>>> child : list) {
+            List<TreeItem<ConceptChronology>> list = new ArrayList<>(item.getChildren());
+            for (TreeItem<ConceptChronology> child : list) {
                 restoreExpanded((MultiParentTreeItem) child, scrollTo);
             }
         }

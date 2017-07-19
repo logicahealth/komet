@@ -55,7 +55,6 @@ import com.cedarsoftware.util.io.JsonWriter;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.ComponentNidSememe;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.component.sememe.version.LongSememe;
@@ -64,6 +63,7 @@ import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -93,7 +93,7 @@ public class Writers {
       @Override
       public void write(Object obj, boolean showType, Writer output, Map<String, Object> args)
                throws IOException {
-         final ConceptChronology<?> cc         = (ConceptChronology<?>) obj;
+         final ConceptChronology cc         = (ConceptChronology) obj;
          final JsonWriter           mainWriter = Support.getWriter(args);
 
          output.write("\"nid\":\"");
@@ -144,7 +144,7 @@ public class Writers {
       public void write(Object obj, boolean showType, Writer output, Map<String, Object> args)
                throws IOException {
          @SuppressWarnings("unchecked")
-         final SememeChronology<SememeVersion<?>> sc         = (SememeChronology<SememeVersion<?>>) obj;
+         final SememeChronology<SememeVersion> sc         = (SememeChronology<SememeVersion>) obj;
          final JsonWriter                         mainWriter = Support.getWriter(args);
 
          output.write("\"sememeType\":\"");
@@ -187,7 +187,7 @@ public class Writers {
          output.write("\",");
 
          @SuppressWarnings("unchecked")
-         final List<SememeVersion<?>> versions = (List<SememeVersion<?>>) sc.getVersionList();
+         final List<SememeVersion> versions = (List<SememeVersion>) sc.getVersionList();
 
          mainWriter.newLine();
          output.write("\"versions\":[");
@@ -195,7 +195,7 @@ public class Writers {
 
          boolean first = true;
 
-         for (final SememeVersion<?> sv: versions) {
+         for (final SememeVersion sv: versions) {
             if (first) {
                first = false;
                output.write("{");
@@ -215,8 +215,8 @@ public class Writers {
                mainWriter.newLine();
             }
 
-            if (sv instanceof DescriptionSememe<?>) {
-               final DescriptionSememe<?> ds = (DescriptionSememe<?>) sv;
+            if (sv instanceof DescriptionVersion) {
+               final DescriptionVersion ds = (DescriptionVersion) sv;
 
                output.write("\"caseSignificanceSequence\":\"");
                output.write(ds.getCaseSignificanceConceptSequence() + "");
@@ -245,11 +245,11 @@ public class Writers {
                output.write("\"data\":\"");
                output.write(ds.dataToString());
                output.write("\"");
-            } else if (sv instanceof LogicGraphSememe<?>) {
+            } else if (sv instanceof LogicGraphSememe) {
                // A hack for the moment, to just write out the parent of the concept from the logic graph,
                // as that is often what is wanted for debugging.
                // TODO represent the entire logic graph in JSON?
-               final LogicGraphSememe<?> lgs  = (LogicGraphSememe<?>) sv;
+               final LogicGraphSememe lgs  = (LogicGraphSememe) sv;
                final LogicalExpression   le   = lgs.getLogicalExpression();
                final LogicNode           root = le.getRoot();
 
@@ -281,8 +281,8 @@ public class Writers {
                output.write("\"long\":\"");
                output.write(ls.getLongValue() + "");
                output.write("\"");
-            } else if (sv instanceof StringSememe<?>) {
-               final StringSememe<?> ss = (StringSememe<?>) sv;
+            } else if (sv instanceof StringSememe) {
+               final StringSememe ss = (StringSememe) sv;
 
                output.write("\"string\":\"");
                output.write(ss.getString());

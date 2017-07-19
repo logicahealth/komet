@@ -55,7 +55,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
@@ -68,6 +67,7 @@ import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -146,7 +146,7 @@ public class DescriptionLuceneMatch
 
       // Filter the results, based upon the input ViewCoordinate
       nids.stream().forEach((nid) -> {
-                      final Optional<? extends ObjectChronology<? extends StampedVersion>> chronology =
+                      final Optional<? extends Chronology<? extends StampedVersion>> chronology =
                          Get.identifiedObjectService()
                             .getIdentifiedObjectChronology(nid);
 

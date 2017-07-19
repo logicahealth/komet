@@ -46,7 +46,7 @@ package sh.isaac.api.component.sememe.version;
  * @param <T> the generic type
  */
 public interface MutableLogicGraphSememe<T extends MutableLogicGraphSememe<T>>
-        extends MutableSememeVersion<T>, LogicGraphSememe<T> {
+        extends MutableSememeVersion, LogicGraphSememe {
    /**
     * Sets the graph data.
     *

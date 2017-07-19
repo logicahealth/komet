@@ -42,10 +42,12 @@ package sh.isaac.model.sememe.version;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.MutableDescriptionSememe;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.sememe.SememeChronologyImpl;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -55,8 +57,8 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  * @author kec
  */
 public class DescriptionSememeImpl
-        extends SememeVersionImpl<DescriptionSememeImpl>
-         implements MutableDescriptionSememe<DescriptionSememeImpl> {
+        extends SememeVersionImpl
+         implements MutableDescriptionSememe {
    /** The case significance concept sequence. */
    protected int caseSignificanceConceptSequence;
 
@@ -78,7 +80,7 @@ public class DescriptionSememeImpl
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     */
-   public DescriptionSememeImpl(SememeChronologyImpl<DescriptionSememeImpl> chronicle,
+   public DescriptionSememeImpl(SememeChronology<DescriptionVersion> chronicle,
                                 int stampSequence,
                                 short versionSequence) {
       super(chronicle, stampSequence, versionSequence);
@@ -92,7 +94,7 @@ public class DescriptionSememeImpl
     * @param versionSequence the version sequence
     * @param data the data
     */
-   public DescriptionSememeImpl(SememeChronologyImpl<DescriptionSememeImpl> chronicle,
+   public DescriptionSememeImpl(SememeChronology<DescriptionVersion> chronicle,
                                 int stampSequence,
                                 short versionSequence,
                                 ByteArrayDataBuffer data) {

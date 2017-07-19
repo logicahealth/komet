@@ -60,7 +60,7 @@ public interface LogicalExpressionBuilderService {
     * @param sememe the sememe
     * @return the logical expression
     */
-   LogicalExpression fromSememe(LogicGraphSememe<?> sememe);
+   LogicalExpression fromSememe(LogicGraphSememe sememe);
 
    //~--- get methods ---------------------------------------------------------
 

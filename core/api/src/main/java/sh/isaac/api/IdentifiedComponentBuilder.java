@@ -46,7 +46,6 @@ import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.sememe.SememeBuilder;
@@ -54,6 +53,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.task.OptionalWaitTask;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -105,7 +105,7 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     * @throws IllegalStateException the illegal state exception
     */
    T build(int stampSequence,
-           List<ObjectChronology<? extends StampedVersion>> builtObjects)
+           List<Chronology<? extends StampedVersion>> builtObjects)
             throws IllegalStateException;
 
    /**
@@ -120,7 +120,7 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     */
    OptionalWaitTask<T> build(EditCoordinate editCoordinate,
                              ChangeCheckerMode changeCheckerMode,
-                             List<ObjectChronology<? extends StampedVersion>> subordinateBuiltObjects)
+                             List<Chronology<? extends StampedVersion>> subordinateBuiltObjects)
             throws IllegalStateException;
 
    //~--- set methods ---------------------------------------------------------

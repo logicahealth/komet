@@ -52,6 +52,6 @@ import sh.isaac.api.component.sememe.version.SememeVersion;
  * @author kec
  * @param <C> the generic type
  */
-public interface SememeBuilder<C extends SememeChronology<? extends SememeVersion<?>>>
+public interface SememeBuilder<C extends SememeChronology<? extends SememeVersion>>
         extends IdentifiedComponentBuilder<C> {}
 

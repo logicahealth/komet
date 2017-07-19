@@ -108,8 +108,6 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionSememe;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.ComponentCollectionTypes;
 import sh.isaac.api.query.Or;
@@ -123,6 +121,8 @@ import sh.komet.gui.action.ConceptAction;
 import sh.komet.gui.contract.ExplorationNode;
 import sh.komet.gui.contract.Manifold;
 import sh.komet.gui.contract.StyleClasses;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 public class QueryController
@@ -165,7 +165,7 @@ public class QueryController
    @FXML                                                           // fx:id="cancelButton"
    private Button cancelButton;      // Value injected by FXMLLoader
    @FXML                                                           // fx:id="resultTable"
-   private TableView<ObservableDescriptionSememe> resultTable;       // Value injected by FXMLLoader
+   private TableView<ObservableDescriptionVersion> resultTable;       // Value injected by FXMLLoader
 
    @FXML
    private RadioButton allComponents;
@@ -483,11 +483,11 @@ public class QueryController
    
    void displayResults(NidSet descriptionNids) {
       resultTable.getItems().clear();
-      SememeSnapshotService<DescriptionSememe> descriptionSnapshotService = 
-              Get.sememeService().getSnapshot(DescriptionSememe.class, manifold);
+      SememeSnapshotService<DescriptionVersion> descriptionSnapshotService = 
+              Get.sememeService().getSnapshot(DescriptionVersion.class, manifold);
       
       descriptionNids.stream().forEach((nid) -> {
-         Optional<LatestVersion<DescriptionSememe>> latestDescriptionOptional = descriptionSnapshotService.getLatestSememeVersion(nid);
+         Optional<LatestVersion<DescriptionVersion>> latestDescriptionOptional = descriptionSnapshotService.getLatestSememeVersion(nid);
          if (latestDescriptionOptional.isPresent()) {
            //Get.
          }

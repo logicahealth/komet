@@ -55,17 +55,17 @@ import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -89,7 +89,7 @@ public class CompositeSearchResult {
    private Optional<ConceptSnapshot> containingConcept = null;
 
    /** The matching components. */
-   private final Set<ObjectChronology<?>> matchingComponents = new HashSet<>();
+   private final Set<Chronology<?>> matchingComponents = new HashSet<>();
 
    /** The matching component nid. */
    private int matchingComponentNid;
@@ -119,7 +119,7 @@ public class CompositeSearchResult {
     * @param matchingComponent the matching component
     * @param score the score
     */
-   public CompositeSearchResult(ObjectChronology<?> matchingComponent, float score) {
+   public CompositeSearchResult(Chronology<?> matchingComponent, float score) {
       this.matchingComponents.add(matchingComponent);
       this.bestScore = score;
 
@@ -176,7 +176,7 @@ public class CompositeSearchResult {
 
       final List<String> matchingComponentDescs = new ArrayList<>();
 
-      for (final ObjectChronology<?> matchingComponent: getMatchingComponents()) {
+      for (final Chronology<?> matchingComponent: getMatchingComponents()) {
          matchingComponentDescs.add((matchingComponent != null) ? matchingComponent.toUserString()
                : null);
       }
@@ -212,7 +212,7 @@ public class CompositeSearchResult {
 
          final List<Integer> matchingComponentNids = new ArrayList<>();
 
-         for (final ObjectChronology<?> matchingComponent: this.matchingComponents) {
+         for (final Chronology<?> matchingComponent: this.matchingComponents) {
             matchingComponentNids.add((matchingComponent != null) ? matchingComponent.getNid()
                   : null);
          }
@@ -253,7 +253,7 @@ public class CompositeSearchResult {
 
       if (this.matchingComponentNid != 0) {
          try {
-            final Optional<? extends ObjectChronology<?>> cc = Get.identifiedObjectService()
+            final Optional<? extends Chronology<?>> cc = Get.identifiedObjectService()
                                                                   .getIdentifiedObjectChronology(
                                                                      this.matchingComponentNid);
 
@@ -277,7 +277,7 @@ public class CompositeSearchResult {
 
       final List<Integer> matchingComponentNids = new ArrayList<>();
 
-      for (final ObjectChronology<?> matchingComponent: getMatchingComponents()) {
+      for (final Chronology<?> matchingComponent: getMatchingComponents()) {
          matchingComponentNids.add((matchingComponent != null) ? matchingComponent.getNid()
                : null);
       }
@@ -367,7 +367,7 @@ public class CompositeSearchResult {
     *
     * @return the matching components
     */
-   public Set<ObjectChronology<?>> getMatchingComponents() {
+   public Set<Chronology<?>> getMatchingComponents() {
       return this.matchingComponents;
    }
 
@@ -377,13 +377,13 @@ public class CompositeSearchResult {
     *
     * @return the matching description components
     */
-   public Set<SememeChronology<DescriptionSememe>> getMatchingDescriptionComponents() {
-      final Set<SememeChronology<DescriptionSememe>> setToReturn = new HashSet<>();
+   public Set<SememeChronology<DescriptionVersion>> getMatchingDescriptionComponents() {
+      final Set<SememeChronology<DescriptionVersion>> setToReturn = new HashSet<>();
 
-      for (final ObjectChronology<?> comp: this.matchingComponents) {
+      for (final Chronology<?> comp: this.matchingComponents) {
          if ((comp instanceof SememeChronology<?>) &&
                ((SememeChronology<?>) comp).getSememeType() == SememeType.DESCRIPTION) {
-            setToReturn.add(((SememeChronology<DescriptionSememe>) comp));
+            setToReturn.add(((SememeChronology<DescriptionVersion>) comp));
          }
       }
 
@@ -408,7 +408,7 @@ public class CompositeSearchResult {
       }
 
       for (final IdentifiedObject iol: this.matchingComponents) {
-         if (iol instanceof ConceptChronology<?>) {
+         if (iol instanceof ConceptChronology) {
             // This means they matched on a UUID or other ID lookup.
             // Return UUID for now - matches on other ID types will be handled differently
             // in the near future - so ignore the SCTID case for now.
@@ -416,42 +416,39 @@ public class CompositeSearchResult {
                            .toString());
          } else if ((iol instanceof SememeChronology<?>) &&
                     ((SememeChronology<?>) iol).getSememeType() == SememeType.DESCRIPTION) {
-            final Optional<LatestVersion<DescriptionSememe>> ds =
-               ((SememeChronology<DescriptionSememe>) iol).getLatestVersion(DescriptionSememe.class,
+            final LatestVersion<DescriptionVersion> ds =
+               ((SememeChronology<DescriptionVersion>) iol).getLatestVersion(DescriptionVersion.class,
                                                                             stampCoord.orElse(Get.configurationService()
                                                                                   .getDefaultStampCoordinate()));
 
-            if (ds.isPresent() && ds.get().value().isPresent()) {
-               strings.add(ds.get()
-                             .value().get()
+            if (ds.value().isPresent()) {
+               strings.add(ds.value().get()
                              .getText());
             } else {
                strings.add("No description available on stamp coordinate!");
             }
          } else if ((iol instanceof SememeChronology<?>) &&
                     ((SememeChronology<?>) iol).getSememeType() == SememeType.STRING) {
-            final Optional<LatestVersion<StringSememe>> ds =
+            final LatestVersion<StringSememe> ds =
                ((SememeChronology<StringSememe>) iol).getLatestVersion(StringSememe.class,
                                                                        stampCoord.orElse(Get.configurationService()
                                                                              .getDefaultStampCoordinate()));
 
-            if (ds.isPresent() && ds.get().value().isPresent()) {
-               strings.add(ds.get()
-                             .value().get()
+            if (ds.value().isPresent()) {
+               strings.add(ds.value().get()
                              .getString());
             } else {
                strings.add("No sememe available on stamp coordinate!");
             }
          } else if ((iol instanceof SememeChronology<?>) &&
                     ((SememeChronology<?>) iol).getSememeType() == SememeType.DYNAMIC) {
-            final Optional<LatestVersion<DynamicSememe>> ds =
+            final LatestVersion<DynamicSememe> ds =
                ((SememeChronology<DynamicSememe>) iol).getLatestVersion(DynamicSememe.class,
                                                                         stampCoord.orElse(Get.configurationService()
                                                                               .getDefaultStampCoordinate()));
 
-            if (ds.isPresent() && ds.get().value().isPresent()) {
-               strings.add(ds.get()
-                             .value().get()
+            if (ds.value().isPresent()) {
+               strings.add(ds.value().get()
                              .dataToString());
             } else {
                strings.add("No sememe available on stamp coordinate!");

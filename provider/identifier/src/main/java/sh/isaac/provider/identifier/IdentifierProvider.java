@@ -77,7 +77,6 @@ import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.LruCache;
@@ -89,6 +88,7 @@ import sh.isaac.api.component.sememe.SememeSnapshotService;
 import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -494,7 +494,7 @@ public class IdentifierProvider
     * @return the identified object chronology
     */
    @Override
-   public Optional<? extends ObjectChronology<? extends StampedVersion>> getIdentifiedObjectChronology(int nid) {
+   public Optional<? extends Chronology<? extends StampedVersion>> getIdentifiedObjectChronology(int nid) {
       switch (getChronologyTypeForNid(nid)) {
       case CONCEPT:
          return Get.conceptService()
@@ -801,7 +801,7 @@ public class IdentifierProvider
       // If we have a cache in uuidIntMapMap, read from there, it is faster.
       // If we don't have a cache, then uuidIntMapMap will be extremely slow, so try this first.
       if (!this.uuidIntMapMap.cacheContainsNid(nid)) {
-         final Optional<? extends ObjectChronology<? extends StampedVersion>> optionalObj =
+         final Optional<? extends Chronology<? extends StampedVersion>> optionalObj =
             Get.identifiedObjectService()
                .getIdentifiedObjectChronology(
                    nid);
@@ -858,7 +858,7 @@ public class IdentifierProvider
          throw new RuntimeException("Method expected nid!");
       }
 
-      final Optional<? extends ObjectChronology<? extends StampedVersion>> optionalObj = Get.identifiedObjectService()
+      final Optional<? extends Chronology<? extends StampedVersion>> optionalObj = Get.identifiedObjectService()
                                                                                             .getIdentifiedObjectChronology(
                                                                                                   nid);
 

@@ -45,11 +45,11 @@ import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.commit.CommittableComponent;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -60,7 +60,7 @@ import sh.isaac.api.logic.LogicalExpression;
  * @param <C> the generic type
  */
 @Contract
-public interface SememeBuilderService<C extends SememeChronology<? extends SememeVersion<?>>> {
+public interface SememeBuilderService<C extends SememeChronology<? extends SememeVersion>> {
    /**
     * Gets the component sememe builder.
     *
@@ -95,7 +95,7 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
     * @param referencedComponent the referenced component
     * @return the description sememe builder
     */
-   SememeBuilder<? extends SememeChronology<? extends DescriptionSememe<?>>> getDescriptionSememeBuilder(
+   SememeBuilder<? extends SememeChronology<DescriptionVersion>> getDescriptionSememeBuilder(
            int caseSignificanceConceptSequence,
            int descriptionTypeConceptSequence,
            int languageConceptSequence,
@@ -112,7 +112,7 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
     * @param referencedComponentNid the referenced component nid
     * @return the description sememe builder
     */
-   SememeBuilder<? extends SememeChronology<? extends DescriptionSememe<?>>> getDescriptionSememeBuilder(
+   SememeBuilder<? extends SememeChronology<DescriptionVersion>> getDescriptionSememeBuilder(
            int caseSignificanceConceptSequence,
            int languageConceptSequence,
            int descriptionTypeConceptSequence,

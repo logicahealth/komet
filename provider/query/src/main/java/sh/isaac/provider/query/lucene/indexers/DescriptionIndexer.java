@@ -63,10 +63,8 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.constants.DynamicSememeConstants;
@@ -76,6 +74,8 @@ import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 import sh.isaac.api.index.IndexService;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -303,13 +303,13 @@ public class DescriptionIndexer
     */
    @SuppressWarnings("unchecked")
    @Override
-   protected void addFields(ObjectChronology<?> chronicle, Document doc) {
+   protected void addFields(Chronology<?> chronicle, Document doc) {
       if (chronicle instanceof SememeChronology) {
          final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
 
          if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
             indexDescription(doc,
-                             (SememeChronology<DescriptionSememe<? extends DescriptionSememe<?>>>) sememeChronology);
+                             (SememeChronology<DescriptionVersion>) sememeChronology);
             incrementIndexedItemCount("Description");
          }
       }
@@ -322,7 +322,7 @@ public class DescriptionIndexer
     * @return true, if successful
     */
    @Override
-   protected boolean indexChronicle(ObjectChronology<?> chronicle) {
+   protected boolean indexChronicle(Chronology<?> chronicle) {
       setupNidConstants();
 
       if (chronicle instanceof SememeChronology) {
@@ -360,14 +360,14 @@ public class DescriptionIndexer
     * @param sememeChronology the sememe chronology
     */
    private void indexDescription(Document doc,
-                                 SememeChronology<DescriptionSememe<? extends DescriptionSememe<?>>> sememeChronology) {
+                                 SememeChronology<DescriptionVersion> sememeChronology) {
       doc.add(new IntPoint(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, sememeChronology.getAssemblageSequence()));
 
       String                      lastDescText     = null;
       String                      lastDescType     = null;
       final TreeMap<Long, String> uniqueTextValues = new TreeMap<>();
 
-      for (final DescriptionSememe<? extends DescriptionSememe<?>> descriptionVersion:
+      for (final DescriptionVersion descriptionVersion:
             sememeChronology.getVersionList()) {
          final String descType = this.sequenceTypeMap.get(descriptionVersion.getDescriptionTypeConceptSequence());
 
@@ -392,7 +392,7 @@ public class DescriptionIndexer
       String lastExtendedDescType = null;
       String lastValue            = null;
 
-      for (final SememeChronology<? extends SememeVersion<?>> sememeChronicle: sememeChronology.getSememeList()) {
+      for (final SememeChronology<? extends SememeVersion> sememeChronicle: sememeChronology.getSememeList()) {
          if (sememeChronicle.getSememeType() == SememeType.DYNAMIC) {
             @SuppressWarnings("unchecked")
             final SememeChronology<DynamicSememe<?>> sememeDynamicChronicle =

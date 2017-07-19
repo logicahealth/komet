@@ -42,9 +42,9 @@ package sh.isaac.api.component.sememe;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.State;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -55,7 +55,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
  * @param <V> the value type
  */
 public interface SememeChronology<V extends SememeVersion>
-        extends ObjectChronology<V>, SememeObject {
+        extends Chronology<V>, SememeObject {
    /**
     * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
     * add persist the chronicle when changes to the mutable version are complete .

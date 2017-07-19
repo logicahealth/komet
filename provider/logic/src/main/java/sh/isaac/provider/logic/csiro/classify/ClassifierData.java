@@ -185,25 +185,25 @@ public class ClassifierData
 
          // only process if incremental is a possibility.
          if (this.incrementalAllowed) {
-            final Optional<LatestVersion<LogicGraphSememeImpl>> optionalLatest =
+            final LatestVersion<LogicGraphSememeImpl> optionalLatest =
                sc.getLatestVersion(LogicGraphSememeImpl.class,
                                    this.stampCoordinate);
 
-            if (optionalLatest.isPresent()) {
-               final LatestVersion<LogicGraphSememeImpl> latest = optionalLatest.get();
+            if (optionalLatest.value().isPresent()) {
+               final LatestVersion<LogicGraphSememeImpl> latest = optionalLatest;
 
                // get stampCoordinate for last classify.
                final StampCoordinate stampToCompare =
                   this.stampCoordinate.makeCoordinateAnalog(this.lastClassifyInstant.toEpochMilli());
 
                // See if there is a change in the optionalLatest vs the last classify.
-               final Optional<LatestVersion<LogicGraphSememeImpl>> optionalPrevious =
+               final LatestVersion<LogicGraphSememeImpl> optionalPrevious =
                   sc.getLatestVersion(LogicGraphSememeImpl.class,
                                       stampToCompare);
 
-               if (optionalPrevious.isPresent() && optionalPrevious.get().value().isPresent()) {
+               if (optionalPrevious.value().isPresent()) {
                   // See if the change has deletions, if so then incremental is not allowed.
-                  final LatestVersion<LogicGraphSememeImpl> previous  = optionalPrevious.get();
+                  final LatestVersion<LogicGraphSememeImpl> previous  = optionalPrevious;
                   boolean                                   deletions = false;
 
                   if (latest.value().get()

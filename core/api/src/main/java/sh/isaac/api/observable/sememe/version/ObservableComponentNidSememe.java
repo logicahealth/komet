@@ -52,7 +52,7 @@ import javafx.beans.property.IntegerProperty;
  * @param <T> the generic type
  */
 public interface ObservableComponentNidSememe<T extends ObservableComponentNidSememe<T>>
-        extends ObservableSememeVersion<T> {
+        extends ObservableSememeVersion {
    /**
     * Component nid property.
     *

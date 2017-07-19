@@ -17,10 +17,9 @@
 package sh.isaac.api.coordinate;
 
 import java.util.List;
-import java.util.Optional;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 /**
  *
@@ -36,7 +35,7 @@ public interface LanguageCoordinateProxy extends LanguageCoordinate {
    LanguageCoordinate getLanguageCoordinate();
 
    @Override
-   public default Optional<LatestVersion<DescriptionSememe<?>>> getDescription(List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate) {
+   public default LatestVersion<DescriptionVersion> getDescription(List<SememeChronology<DescriptionVersion>> descriptionList, StampCoordinate stampCoordinate) {
       return getLanguageCoordinate().getDescription(descriptionList, stampCoordinate);
    }
 
@@ -51,7 +50,7 @@ public interface LanguageCoordinateProxy extends LanguageCoordinate {
    }
 
    @Override
-   public default Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate) {
+   public default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(List<SememeChronology<DescriptionVersion>> descriptionList, StampCoordinate stampCoordinate) {
       return getLanguageCoordinate().getFullySpecifiedDescription(descriptionList, stampCoordinate);
    }
 
@@ -61,7 +60,7 @@ public interface LanguageCoordinateProxy extends LanguageCoordinate {
    }
 
    @Override
-   public default Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList, StampCoordinate stampCoordinate) {
+   public default LatestVersion<DescriptionVersion> getPreferredDescription(List<SememeChronology<DescriptionVersion>> descriptionList, StampCoordinate stampCoordinate) {
       return getLanguageCoordinate().getPreferredDescription(descriptionList, stampCoordinate);
    }
 

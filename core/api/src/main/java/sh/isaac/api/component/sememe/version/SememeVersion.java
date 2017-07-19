@@ -41,9 +41,9 @@ package sh.isaac.api.component.sememe.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeObject;
-import sh.isaac.api.identity.StampedVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -51,15 +51,14 @@ import sh.isaac.api.identity.StampedVersion;
  * The Interface SememeVersion.
  *
  * @author kec
- * @param <V> the value type
  */
-public interface SememeVersion<V extends SememeVersion<V>>
-        extends StampedVersion, SememeObject {
+public interface SememeVersion
+        extends Version, SememeObject {
    /**
     * Gets the chronology.
     *
     * @return the chronology
     */
-   SememeChronology<V> getChronology();
+   SememeChronology<? extends SememeVersion> getChronology();
 }
 

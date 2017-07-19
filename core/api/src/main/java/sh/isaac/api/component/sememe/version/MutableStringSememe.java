@@ -43,10 +43,9 @@ package sh.isaac.api.component.sememe.version;
  * The Interface MutableStringSememe.
  *
  * @author kec
- * @param <T> the generic type
  */
-public interface MutableStringSememe<T extends MutableStringSememe<T>>
-        extends MutableSememeVersion<T>, StringSememe<T> {
+public interface MutableStringSememe
+        extends MutableSememeVersion, StringSememe {
    /**
     * Sets the string.
     *

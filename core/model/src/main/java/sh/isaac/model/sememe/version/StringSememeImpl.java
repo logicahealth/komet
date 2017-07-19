@@ -41,6 +41,7 @@ package sh.isaac.model.sememe.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.MutableStringSememe;
 import sh.isaac.api.component.sememe.version.StringSememe;
@@ -55,8 +56,8 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  * @author kec
  */
 public class StringSememeImpl
-        extends SememeVersionImpl<StringSememeImpl>
-         implements StringSememe<StringSememeImpl>, MutableStringSememe<StringSememeImpl> {
+        extends SememeVersionImpl
+         implements StringSememe, MutableStringSememe {
    /** The string. */
    private String string = null;
 
@@ -69,7 +70,7 @@ public class StringSememeImpl
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     */
-   public StringSememeImpl(SememeChronologyImpl<StringSememeImpl> container, int stampSequence, short versionSequence) {
+   public StringSememeImpl(SememeChronology<StringSememe> container, int stampSequence, short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
@@ -81,7 +82,7 @@ public class StringSememeImpl
     * @param versionSequence the version sequence
     * @param data the data
     */
-   public StringSememeImpl(SememeChronologyImpl<StringSememeImpl> container,
+   public StringSememeImpl(SememeChronology<StringSememe> container,
                            int stampSequence,
                            short versionSequence,
                            ByteArrayDataBuffer data) {

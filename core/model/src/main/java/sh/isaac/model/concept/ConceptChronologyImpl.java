@@ -54,8 +54,8 @@ import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -69,9 +69,10 @@ import sh.isaac.api.externalizable.OchreExternalizableObjectType;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.relationship.RelationshipVersionAdaptor;
-import sh.isaac.model.ObjectChronologyImpl;
+import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.relationship.RelationshipAdaptorChronologyImpl;
 import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -81,8 +82,8 @@ import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
  * @author kec
  */
 public class ConceptChronologyImpl
-        extends ObjectChronologyImpl<ConceptVersionImpl>
-         implements ConceptChronology<ConceptVersionImpl>, OchreExternalizable {
+        extends ChronologyImpl<ConceptVersion>
+         implements ConceptChronology, OchreExternalizable {
    /** The concept origin relationship list. */
    List<RelationshipAdaptorChronologyImpl> conceptOriginRelationshipList;
 
@@ -141,7 +142,7 @@ public class ConceptChronologyImpl
    @Override
    public boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate) {
       return Get.sememeService()
-                .getSnapshot(DescriptionSememe.class, stampCoordinate)
+                .getSnapshot(DescriptionVersion.class, stampCoordinate)
                 .getLatestDescriptionVersionsForComponent(getNid())
                 .anyMatch((latestVersion) -> latestVersion.value().isPresent() && latestVersion.value().get()
                       .getText()
@@ -221,7 +222,7 @@ public class ConceptChronologyImpl
     */
    @Override
    public String toUserString() {
-      final List<SememeChronology<? extends DescriptionSememe<?>>> descList = getConceptDescriptionList();
+      final List<SememeChronology<DescriptionVersion>> descList = getConceptDescriptionList();
 
       if (descList.isEmpty()) {
          return "no description for concept: " + getUuidList() + " " + getConceptSequence() + " " + getNid();
@@ -294,7 +295,7 @@ public class ConceptChronologyImpl
     * @return the concept description list
     */
    @Override
-   public List<SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptionList() {
+   public List<SememeChronology<DescriptionVersion>> getConceptDescriptionList() {
       if (Get.sememeServiceAvailable()) {
          return Get.sememeService()
                    .getDescriptionsForComponent(getNid())
@@ -342,7 +343,7 @@ public class ConceptChronologyImpl
     * @return the fully specified description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
+   public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate) {
       return languageCoordinate.getFullySpecifiedDescription(getConceptDescriptionList(), stampCoordinate);
@@ -357,7 +358,7 @@ public class ConceptChronologyImpl
     * @return the logical definition
     */
    @Override
-   public Optional<LatestVersion<LogicGraphSememe<?>>> getLogicalDefinition(StampCoordinate stampCoordinate,
+   public LatestVersion<LogicGraphSememe> getLogicalDefinition(StampCoordinate stampCoordinate,
          PremiseType premiseType,
          LogicCoordinate logicCoordinate) {
       int assemblageSequence;
@@ -373,7 +374,7 @@ public class ConceptChronologyImpl
                                       .getLatestSememeVersionsForComponentFromAssemblage(getNid(), assemblageSequence)
                                       .findFirst();
 
-      return (Optional<LatestVersion<LogicGraphSememe<?>>>) optional;
+      return (LatestVersion<LogicGraphSememe>) optional.get();
    }
 
    /**
@@ -396,7 +397,7 @@ public class ConceptChronologyImpl
          assemblageSequence = logicCoordinate.getStatedAssemblageSequence();
       }
 
-      final Optional<SememeChronology<? extends SememeVersion<?>>> definitionChronologyOptional = Get.sememeService()
+      final Optional<SememeChronology<? extends SememeVersion>> definitionChronologyOptional = Get.sememeService()
                                                                                                      .getSememesForComponentFromAssemblage(
                                                                                                         getNid(),
                                                                                                               assemblageSequence)
@@ -472,7 +473,7 @@ public class ConceptChronologyImpl
     * @return the preferred description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(LanguageCoordinate languageCoordinate,
+   public LatestVersion<DescriptionVersion> getPreferredDescription(LanguageCoordinate languageCoordinate,
          StampCoordinate stampCoordinate) {
       return languageCoordinate.getPreferredDescription(getConceptDescriptionList(), stampCoordinate);
    }

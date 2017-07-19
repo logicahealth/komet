@@ -95,7 +95,7 @@ import sh.isaac.komet.iconography.Iconography;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 final public class MultiParentTreeCell
-        extends TreeCell<ConceptChronology<? extends ConceptVersion<?>>>
+        extends TreeCell<ConceptChronology>
          implements DraggableWithImage {
    /**
     * The Constant LOG.
@@ -109,7 +109,7 @@ final public class MultiParentTreeCell
 
    //~--- constructors --------------------------------------------------------
 
-   MultiParentTreeCell(TreeView<ConceptChronology<? extends ConceptVersion<?>>> treeView) {
+   MultiParentTreeCell(TreeView<ConceptChronology> treeView) {
       super();
       updateTreeView(treeView);
       setSkin(new MultiParentTreeCellSkin(this));
@@ -129,7 +129,7 @@ final public class MultiParentTreeCell
       KOMET.setupDragOnly(
           this,
               () -> {
-                 ConceptChronology<? extends ConceptVersion<?>> conceptChronicle = MultiParentTreeCell.this.getItem();
+                 ConceptChronology conceptChronicle = MultiParentTreeCell.this.getItem();
 
                  return conceptChronicle.getUuidList();
               });
@@ -138,7 +138,7 @@ final public class MultiParentTreeCell
    //~--- methods -------------------------------------------------------------
 
    @Override
-   protected void updateItem(ConceptChronology<? extends ConceptVersion<?>> taxRef, boolean empty) {
+   protected void updateItem(ConceptChronology taxRef, boolean empty) {
       boolean addProgressIndicator = false;
 
       try {
@@ -243,13 +243,13 @@ final public class MultiParentTreeCell
 
    private void openOrCloseParent(MultiParentTreeItem treeItem)
             throws IOException {
-      ConceptChronology<? extends ConceptVersion<?>> value = treeItem.getValue();
+      ConceptChronology value = treeItem.getValue();
 
       if (value != null) {
          treeItem.setValue(null);
 
          MultiParentTreeItem parentItem = (MultiParentTreeItem) treeItem.getParent();
-         ObservableList<TreeItem<ConceptChronology<? extends ConceptVersion<?>>>> siblings = parentItem.getChildren();
+         ObservableList<TreeItem<ConceptChronology>> siblings = parentItem.getChildren();
 
          if (treeItem.isSecondaryParentOpened()) {
             removeExtraParents(treeItem, siblings);
@@ -290,7 +290,7 @@ final public class MultiParentTreeCell
    }
 
    private void removeExtraParents(MultiParentTreeItem treeItem,
-                                   ObservableList<TreeItem<ConceptChronology<? extends ConceptVersion<?>>>> siblings) {
+                                   ObservableList<TreeItem<ConceptChronology>> siblings) {
       for (MultiParentTreeItem extraParent: treeItem.getExtraParents()) {
          removeExtraParents(extraParent, siblings);
          siblings.remove(extraParent);

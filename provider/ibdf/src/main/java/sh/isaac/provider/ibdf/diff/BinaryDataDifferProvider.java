@@ -76,7 +76,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.State;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -88,6 +87,7 @@ import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.externalizable.OchreExternalizableObjectType;
 import sh.isaac.api.externalizable.json.JsonDataWriterService;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -213,8 +213,8 @@ public class BinaryDataDifferProvider
          // Search for modified components
          for (final OchreExternalizable oldComp: oldContentMap.get(type)) {
             for (final OchreExternalizable newComp: newContentMap.get(type)) {
-               final ObjectChronology<?> oldCompChron = (ObjectChronology<?>) oldComp;
-               final ObjectChronology<?> newCompChron = (ObjectChronology<?>) newComp;
+               final Chronology<?> oldCompChron = (Chronology<?>) oldComp;
+               final Chronology<?> newCompChron = (Chronology<?>) newComp;
 
                if (oldCompChron.getPrimordialUuid()
                                .equals(newCompChron.getPrimordialUuid())) {
@@ -245,7 +245,7 @@ public class BinaryDataDifferProvider
 
          // Add newCons not in newList
          for (final OchreExternalizable oldComp: oldContentMap.get(type)) {
-            if (!matchedSet.contains(((ObjectChronology<?>) oldComp).getPrimordialUuid())) {
+            if (!matchedSet.contains(((Chronology<?>) oldComp).getPrimordialUuid())) {
                final OchreExternalizable retiredComp = this.diffUtil.addNewInactiveVersion(oldComp,
                                                                                            oldComp.getOchreObjectType(),
                                                                                            inactiveStampSeq);
@@ -258,9 +258,9 @@ public class BinaryDataDifferProvider
 
          // Add newCons not in newList
          for (final OchreExternalizable newComp: newContentMap.get(type)) {
-            if (!matchedSet.contains(((ObjectChronology<?>) newComp).getPrimordialUuid())) {
+            if (!matchedSet.contains(((Chronology<?>) newComp).getPrimordialUuid())) {
                final OchreExternalizable addedComp = this.diffUtil.diff(null,
-                                                                        (ObjectChronology<?>) newComp,
+                                                                        (Chronology<?>) newComp,
                                                                         activeStampSeq,
                                                                         type);
 
@@ -386,8 +386,8 @@ public class BinaryDataDifferProvider
                                  final JsonWriter            json       = new JsonWriter(baos, args);
                                  UUID                        primordial = null;
 
-                                 if (object instanceof ObjectChronology) {
-                                    primordial = ((ObjectChronology<?>) object).getPrimordialUuid();
+                                 if (object instanceof Chronology) {
+                                    primordial = ((Chronology<?>) object).getPrimordialUuid();
                                  }
 
                                  json.write(object);
@@ -530,7 +530,7 @@ public class BinaryDataDifferProvider
                   }
 
                   final String componentToWrite = "# ---- " + key.toString() + " " + componentType + " #" + counter++ +
-                                                  "   " + ((ObjectChronology<?>) c).getPrimordialUuid() + " ----";
+                                                  "   " + ((Chronology<?>) c).getPrimordialUuid() + " ----";
 
                   jsonOutputWriter.put(componentToWrite);
                   textOutputWriter.write("\n\n\t\t\t" + componentToWrite);
@@ -598,8 +598,8 @@ public class BinaryDataDifferProvider
                   final JsonWriter            json       = new JsonWriter(baos, args);
                   UUID                        primordial = null;
 
-                  if (object instanceof ObjectChronology) {
-                     primordial = ((ObjectChronology<?>) object).getPrimordialUuid();
+                  if (object instanceof Chronology) {
+                     primordial = ((Chronology<?>) object).getPrimordialUuid();
                   }
 
                   json.write(object);
@@ -646,7 +646,7 @@ public class BinaryDataDifferProvider
          int i = 1;
 
          for (final OchreExternalizable component: contentMap.get(OchreExternalizableObjectType.CONCEPT)) {
-            final ConceptChronology<?> cc = (ConceptChronology<?>) component;
+            final ConceptChronology cc = (ConceptChronology) component;
 
             jsonInputWriter.put("#---- " + version + " Concept #" + i + "   " + cc.getPrimordialUuid() + " ----");
             jsonInputWriter.put(cc);

@@ -52,7 +52,7 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
  * @param <T> the generic type
  */
 public interface MutableDynamicSememe<T extends MutableDynamicSememe<T>>
-        extends MutableSememeVersion<T>, DynamicSememe<T> {
+        extends MutableSememeVersion, DynamicSememe<T> {
    /**
     * Set the data (if any) for the DynamicSememe.
     *

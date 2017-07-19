@@ -51,7 +51,7 @@ import sh.isaac.api.observable.ObservableVersion;
  *
  * @param <T> the generic type
  */
-public interface ObservableConceptVersion<T extends ObservableConceptVersion<T>>
+public interface ObservableConceptVersion
         extends ObservableVersion, StampedVersion {
    /**
     * Gets the chronology.
@@ -59,6 +59,6 @@ public interface ObservableConceptVersion<T extends ObservableConceptVersion<T>>
     * @return the chronology
     */
    @Override
-   ObservableConceptChronology<T> getChronology();
+   ObservableConceptChronology<ObservableConceptVersion> getChronology();
 }
 
