@@ -131,6 +131,11 @@
          <version>${project.parent.version}</version>
       </dependency>
       <dependency>
+         <groupId>sh.isaac.provider</groupId>
+         <artifactId>observable</artifactId>
+         <version>${project.parent.version}</version>
+      </dependency>
+      <dependency>
          <groupId>sh.isaac.komet</groupId>
          <artifactId>gui-contracts</artifactId>
          <version>${project.parent.version}</version>

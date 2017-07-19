@@ -128,7 +128,8 @@ public class KometStageController {
    private Label                                statusMessage;                    // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="vanityBox"
    private Button                               vanityBox;                        // Value injected by FXMLLoader
-   Manifold                                     manifold;
+   Manifold                                     taxonomyManifold;
+   Manifold                                     searchManifold;
 
    //~--- methods -------------------------------------------------------------
 
@@ -208,7 +209,7 @@ public class KometStageController {
                              statusMessage.setText(getManifold().getName() + " selected: " + newValue.toUserString());
                           });
 
-         MultiParentTreeView treeView = new MultiParentTreeView(manifold);
+         MultiParentTreeView treeView = new MultiParentTreeView(taxonomyManifold);
 
          treeViewList.add(treeView);
          tab.setContent(new BorderPane(treeView));
@@ -222,26 +223,7 @@ public class KometStageController {
       } else {
          if (tabPanelCount == 2) {
             for (DetailNodeFactory factory: Get.services(DetailNodeFactory.class)) {
-               Tab tab = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
-
-               tab.setTooltip(new Tooltip("A Square"));
-
-               BorderPane graphPane = new BorderPane();
-
-               graphPane.setBorder(
-                   new Border(
-                       new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-
-               DetailNode detailNode = factory.createDetailNode(manifold, graphPane);
-
-               tab.textProperty()
-                  .bind(detailNode.getTitle());
-               tab.getTooltip()
-                  .textProperty()
-                  .bind(detailNode.getToolTip());
-               tab.setContent(graphPane);
-               tabPane.getTabs()
-                      .add(tab);
+               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, taxonomyManifold);
             }
          }
 
@@ -257,7 +239,7 @@ public class KometStageController {
                    new Border(
                        new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
-               ExplorationNode explorationNode = factory.createExplorationNode(manifold, searchPane);
+               ExplorationNode explorationNode = factory.createExplorationNode(taxonomyManifold, searchPane);
 
                tab.getTooltip()
                   .textProperty()
@@ -297,18 +279,37 @@ public class KometStageController {
       return tabPane;
    }
 
+   private int setupConceptTab(int tabCountInPanel, DetailNodeFactory factory, TabPane tabPane, Manifold manifold) {
+      Tab tab = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
+      tab.setTooltip(new Tooltip("A Square"));
+      BorderPane graphPane = new BorderPane();
+      graphPane.setBorder(
+              new Border(
+                      new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+      DetailNode detailNode = factory.createDetailNode(manifold, graphPane);
+      tab.textProperty()
+              .bind(detailNode.getTitle());
+      tab.getTooltip()
+              .textProperty()
+              .bind(detailNode.getToolTip());
+      tab.setContent(graphPane);
+      tabPane.getTabs()
+              .add(tab);
+      return tabCountInPanel;
+   }
+
    //~--- get methods ---------------------------------------------------------
 
    private Manifold getManifold() {
-      if (this.manifold == null) {
-         this.manifold = new Manifold(
+      if (this.taxonomyManifold == null) {
+         this.taxonomyManifold = new Manifold(
              "taxonomy",
              UUID.randomUUID(),
              Get.configurationService().getDefaultManifoldCoordinate(),
              Get.configurationService().getDefaultEditCoordinate());
       }
 
-      return this.manifold;
+      return this.taxonomyManifold;
    }
 }
 

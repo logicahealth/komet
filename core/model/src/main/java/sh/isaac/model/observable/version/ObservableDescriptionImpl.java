@@ -43,6 +43,7 @@ package sh.isaac.model.observable.version;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
+import sh.isaac.api.Get;
 
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
@@ -282,5 +283,13 @@ public class ObservableDescriptionImpl
 
       ((DescriptionSememeImpl) this.stampedVersion).setText(text);
    }
+
+   @Override
+   public String toString() {
+      return "ObservableDescriptionImpl{text:" + getText() + ", case: " + Get.conceptDescriptionText(getCaseSignificanceConceptSequence())
+              + ", language:" + Get.conceptDescriptionText(getLanguageConceptSequence()) + ", type: " + Get.conceptDescriptionText(getDescriptionTypeConceptSequence()) + '}';
+   }
+   
+   
 }
 

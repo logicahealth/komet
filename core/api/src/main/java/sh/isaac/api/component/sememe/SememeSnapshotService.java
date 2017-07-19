@@ -73,7 +73,7 @@ public interface SememeSnapshotService<V extends SememeVersion> {
     * @param sememeSequenceOrNid the sememe sequence or nid
     * @return the latest sememe version
     */
-   Optional<LatestVersion<V>> getLatestSememeVersion(int sememeSequenceOrNid);
+   LatestVersion<V> getLatestSememeVersion(int sememeSequenceOrNid);
 
    /**
     * Gets the latest sememe versions for component.

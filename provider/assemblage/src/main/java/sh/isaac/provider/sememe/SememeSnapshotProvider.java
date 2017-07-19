@@ -121,13 +121,13 @@ public class SememeSnapshotProvider<V extends SememeVersion>
     * @return the latest sememe version
     */
    @Override
-   public Optional<LatestVersion<V>> getLatestSememeVersion(int sememeSequenceOrNid) {
+   public LatestVersion<V> getLatestSememeVersion(int sememeSequenceOrNid) {
       final SememeChronologyImpl<?> sc = (SememeChronologyImpl<?>) this.sememeProvider.getSememe(sememeSequenceOrNid);
       final IntStream               stampSequences  = sc.getVersionStampSequences();
       final StampSequenceSet        latestSequences = this.calculator.getLatestStampSequencesAsSet(stampSequences);
 
       if (latestSequences.isEmpty()) {
-         return Optional.empty();
+         return new LatestVersion<>();
       }
 
       final LatestVersion<V> latest = new LatestVersion<>(this.versionType);
@@ -136,7 +136,7 @@ public class SememeSnapshotProvider<V extends SememeVersion>
                                  latest.addLatest((V) sc.getVersionForStamp(stampSequence)
                                        .get());
                               });
-      return Optional.of(latest);
+      return latest;
    }
 
    /**

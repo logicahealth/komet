@@ -96,8 +96,9 @@
                            <content>
                               <TableView fx:id="resultTable" prefHeight="200.0" prefWidth="200.0">
                                 <columns>
-                                  <TableColumn prefWidth="75.0" text="resultC1" />
-                                  <TableColumn prefWidth="75.0" text="resultC2" />
+                                  <TableColumn fx:id="textColumn" editable="false" prefWidth="320.0" text="text" />
+                                  <TableColumn fx:id="typeColumn" editable="false" minWidth="0.0" prefWidth="124.0" text="type" />
+                                    <TableColumn fx:id="languageColumn" editable="false" prefWidth="155.0" text="language" />
                                 </columns>
                               </TableView>
                            </content>
