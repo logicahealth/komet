@@ -42,7 +42,6 @@ package sh.isaac.api.observable;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
@@ -130,7 +129,7 @@ public interface ObservableChronology<V extends ObservableVersion>
     * @param coordinate the coordinate
     * @return the latest version
     */
-   Optional<LatestVersion<V>> getLatestVersion(Class<V> type, StampCoordinate coordinate);
+   LatestVersion<? extends V> getLatestVersion(Class<V> type, StampCoordinate coordinate);
 
    /**
     * Gets the sememe list.

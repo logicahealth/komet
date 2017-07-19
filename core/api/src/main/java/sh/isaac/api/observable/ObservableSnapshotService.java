@@ -17,38 +17,31 @@
 package sh.isaac.api.observable;
 
 import org.jvnet.hk2.annotations.Contract;
-import sh.isaac.api.observable.concept.ObservableConceptChronology;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.observable.concept.ObservableConceptVersion;
+import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 
 /**
- *
- * @author kec
- */
-public interface ObservableSnapshotService {
-
-/**
- * The Interface ObservableChronologyService.
  *
  * @author kec
  */
 @Contract
-public interface ObservableChronologyService {
+public interface ObservableSnapshotService {
+
    /**
-    * Gets the observable concept chronology.
+    * Gets the observable concept version.
     *
     * @param id either a nid or a concept sequence
     * @return the ObservableConceptChronology with the provided id
     */
-   ObservableConceptChronology getObservableConceptChronology(int id);
+   LatestVersion<ObservableConceptVersion> getObservableConceptVersion(int id);
 
    /**
-    * Gets the observable sememe chronology.
+    * Gets the observable sememe version.
     *
     * @param id either a nid or a sememe sequence
     * @return the ObservableSememeChronology with the provided id
     */
-   ObservableSememeChronology<?> getObservableSememeChronology(int id);
-}
+   LatestVersion<? extends ObservableSememeVersion> getObservableSememeVersion(int id);
 
-   
 }

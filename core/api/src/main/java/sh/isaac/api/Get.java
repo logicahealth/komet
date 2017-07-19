@@ -99,6 +99,8 @@ import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.observable.ObservableChronologyService;
+import sh.isaac.api.observable.ObservableSnapshotService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -187,6 +189,8 @@ public class Get
 
    /** The change set writer service. */
    private static ChangeSetWriterService changeSetWriterService;
+   
+   private static ObservableChronologyService observableChronologyService;
 
    //~--- constructors --------------------------------------------------------
 
@@ -613,6 +617,7 @@ public class Get
       binaryDataDifferService         = null;
       postCommitService               = null;
       changeSetWriterService          = null;
+      observableChronologyService     = null;
    }
 
    /**
@@ -717,6 +722,17 @@ public class Get
       }
 
       return taxonomyService;
+   }
+   
+   public static ObservableChronologyService observableChronologyService() {
+      if (observableChronologyService == null) {
+         observableChronologyService = getService(ObservableChronologyService.class);
+      }
+      return observableChronologyService;
+   }
+   
+   public static ObservableSnapshotService observableSnapshotService(ManifoldCoordinate manifoldCoordinate) {
+      return observableChronologyService().getObservableSnapshotService(manifoldCoordinate);
    }
 
    /**

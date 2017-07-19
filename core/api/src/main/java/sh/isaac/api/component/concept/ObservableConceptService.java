@@ -31,6 +31,7 @@ import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 /**
  *
  * @author kec
+ * TODO: determine if this class is necessary or overlooked. 
  */
 public interface ObservableConceptService 
         extends SharedConceptService {

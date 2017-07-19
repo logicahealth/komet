@@ -13,7 +13,7 @@
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>
-            <artifactId>api</artifactId>
+            <artifactId>model</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

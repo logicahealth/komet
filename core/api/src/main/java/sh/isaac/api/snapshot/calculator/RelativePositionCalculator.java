@@ -657,7 +657,7 @@ public class RelativePositionCalculator
     * @return the latest version
     */
    public <C extends ObservableChronology<V>,
-           V extends ObservableVersion> Optional<LatestVersion<V>> getLatestVersion(C chronicle) {
+           V extends ObservableVersion> LatestVersion<V> getLatestVersion(C chronicle) {
       final HashSet<V> latestVersionSet = new HashSet<>();
 
       chronicle.getVersionList()
@@ -675,15 +675,15 @@ public class RelativePositionCalculator
       final List<V> latestVersionList = new ArrayList<>(latestVersionSet);
 
       if (latestVersionList.isEmpty()) {
-         return Optional.empty();
+         return new LatestVersion();
       }
 
       if (latestVersionList.size() == 1) {
-         return Optional.of(new LatestVersion<>(latestVersionList.get(0)));
+         return new LatestVersion<>(latestVersionList.get(0));
       }
 
-      return Optional.of(new LatestVersion<>(latestVersionList.get(0),
-            latestVersionList.subList(1, latestVersionList.size())));
+      return new LatestVersion<>(latestVersionList.get(0),
+            latestVersionList.subList(1, latestVersionList.size()));
    }
 
    /**

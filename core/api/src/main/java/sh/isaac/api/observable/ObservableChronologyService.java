@@ -42,6 +42,7 @@ package sh.isaac.api.observable;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
@@ -70,5 +71,11 @@ public interface ObservableChronologyService {
     * @return the ObservableSememeChronology with the provided id
     */
    ObservableSememeChronology<?> getObservableSememeChronology(int id);
+   /**
+    * 
+    * @param manifoldCoordinate the coordinate to determine the latest versions of the snapshot
+    * @return the snapshot service. 
+    */
+   ObservableSnapshotService getObservableSnapshotService(ManifoldCoordinate manifoldCoordinate);
 }
 

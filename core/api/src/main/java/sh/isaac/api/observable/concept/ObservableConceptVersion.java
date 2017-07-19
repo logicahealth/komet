@@ -49,7 +49,6 @@ import sh.isaac.api.observable.ObservableVersion;
 /**
  * Created by kec on 6/6/15.
  *
- * @param <T> the generic type
  */
 public interface ObservableConceptVersion
         extends ObservableVersion, StampedVersion {

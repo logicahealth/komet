@@ -19,7 +19,7 @@ package sh.isaac.api.component.concept;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 /**
- *
+ * TODO: determine if this class is necessary or overlooked. 
  * @author kec
  */
 public interface SharedConceptSnapshotService {

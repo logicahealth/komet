@@ -204,7 +204,7 @@ public interface ConceptService
     * Gets the snapshot.
     *
     * @param manifoldCoordinate the stamp coordinate
-    * @return the sh.isaac.api.component.concept.ConceptSnapshotService
+    * @return the ConceptSnapshotService
     */
    ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate);
 }
