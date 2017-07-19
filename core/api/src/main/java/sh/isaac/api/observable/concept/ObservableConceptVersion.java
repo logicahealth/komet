@@ -59,6 +59,6 @@ public interface ObservableConceptVersion
     * @return the chronology
     */
    @Override
-   ObservableConceptChronology<ObservableConceptVersion> getChronology();
+   ObservableConceptChronology getChronology();
 }
 

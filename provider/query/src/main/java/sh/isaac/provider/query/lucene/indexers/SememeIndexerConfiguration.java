@@ -70,7 +70,6 @@ import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.MutableDynamicSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
@@ -82,6 +81,7 @@ import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeArrayImpl;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeIntegerImpl;
 import sh.isaac.api.index.IndexStatusListener;
+import sh.isaac.api.component.sememe.version.MutableDynamicVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -290,7 +290,7 @@ public class SememeIndexerConfiguration {
                   .getService(SememeIndexer.class));
          }
 
-         ((SememeChronology) rdv.getChronology()).createMutableVersion(MutableDynamicSememe.class,
+         ((SememeChronology) rdv.getChronology()).createMutableVersion(MutableDynamicVersion.class,
                State.INACTIVE,
                EditCoordinates.getDefaultUserMetadata());
          Get.commitService()

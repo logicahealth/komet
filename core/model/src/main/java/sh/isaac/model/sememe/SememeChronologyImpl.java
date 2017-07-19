@@ -49,13 +49,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.ComponentNidSememe;
-import sh.isaac.api.component.sememe.version.LongSememe;
-import sh.isaac.api.component.sememe.version.MutableComponentNidSememe;
-import sh.isaac.api.component.sememe.version.MutableDynamicSememe;
-import sh.isaac.api.component.sememe.version.MutableLogicGraphSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.OchreExternalizable;
@@ -69,6 +63,12 @@ import sh.isaac.model.sememe.version.LongSememeImpl;
 import sh.isaac.model.sememe.version.SememeVersionImpl;
 import sh.isaac.model.sememe.version.StringSememeImpl;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.ComponentNidVersion;
+import sh.isaac.api.component.sememe.version.LongVersion;
+import sh.isaac.api.component.sememe.version.MutableComponentNidVersion;
+import sh.isaac.api.component.sememe.version.MutableDynamicVersion;
+import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
+import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -208,7 +208,7 @@ public class SememeChronologyImpl<V extends SememeVersion>
                                       bb);
 
       case STRING:
-         return new StringSememeImpl((SememeChronology<StringSememe>) container,
+         return new StringSememeImpl((SememeChronology<StringVersion>) container,
                                      stampSequence,
                                      versionSequence,
                                      bb);
@@ -314,8 +314,8 @@ public class SememeChronologyImpl<V extends SememeVersion>
             throws UnsupportedOperationException {
       switch (getSememeType()) {
       case COMPONENT_NID:
-         if (MutableComponentNidSememe.class.isAssignableFrom(type)) {
-            return (M) new ComponentNidSememeImpl((SememeChronology<ComponentNidSememe>) this,
+         if (MutableComponentNidVersion.class.isAssignableFrom(type)) {
+            return (M) new ComponentNidSememeImpl((SememeChronology<ComponentNidVersion>) this,
                   stampSequence,
                   versionSequence);
          }
@@ -323,14 +323,14 @@ public class SememeChronologyImpl<V extends SememeVersion>
          break;
 
       case LONG:
-         if (LongSememe.class.isAssignableFrom(type)) {
+         if (LongVersion.class.isAssignableFrom(type)) {
             return (M) new LongSememeImpl((SememeChronologyImpl<LongSememeImpl>) this, stampSequence, versionSequence);
          }
 
          break;
 
       case DYNAMIC:
-         if (MutableDynamicSememe.class.isAssignableFrom(type)) {
+         if (MutableDynamicVersion.class.isAssignableFrom(type)) {
             return (M) new DynamicSememeImpl((SememeChronologyImpl<DynamicSememeImpl>) this,
                                              stampSequence,
                                              versionSequence);
@@ -339,7 +339,7 @@ public class SememeChronologyImpl<V extends SememeVersion>
          break;
 
       case LOGIC_GRAPH:
-         if (MutableLogicGraphSememe.class.isAssignableFrom(type)) {
+         if (MutableLogicGraphVersion.class.isAssignableFrom(type)) {
             return (M) new LogicGraphSememeImpl((SememeChronologyImpl<LogicGraphSememeImpl>) this,
                   stampSequence,
                   versionSequence);
@@ -348,8 +348,8 @@ public class SememeChronologyImpl<V extends SememeVersion>
          break;
 
       case STRING:
-         if (StringSememe.class.isAssignableFrom(type)) {
-            return (M) new StringSememeImpl((SememeChronology<StringSememe>) this,
+         if (StringVersion.class.isAssignableFrom(type)) {
+            return (M) new StringSememeImpl((SememeChronology<StringVersion>) this,
                                             stampSequence,
                                             versionSequence);
          }

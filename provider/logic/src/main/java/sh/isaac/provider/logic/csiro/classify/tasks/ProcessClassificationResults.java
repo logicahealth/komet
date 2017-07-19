@@ -66,8 +66,6 @@ import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
-import sh.isaac.api.component.sememe.version.MutableLogicGraphSememe;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
@@ -82,6 +80,8 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import sh.isaac.api.AssemblageService;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -276,15 +276,14 @@ public class ProcessClassificationResults
                     = sememeService.getSememe(statedSememeSequences.stream()
                             .findFirst()
                             .getAsInt());
-            final LatestVersion<LogicGraphSememe> latestStatedDefinitionOptional
-                    = ((SememeChronology<LogicGraphSememe>) rawStatedChronology).getLatestVersion(
-                            LogicGraphSememe.class,
+            final LatestVersion<LogicGraphVersion> latestStatedDefinitionOptional
+                    = ((SememeChronology<LogicGraphVersion>) rawStatedChronology).getLatestVersion(LogicGraphVersion.class,
                             this.stampCoordinate);
 
             if (latestStatedDefinitionOptional.value().isPresent()) {
                final LogicalExpressionBuilder inferredBuilder
                        = logicalExpressionBuilderService.getLogicalExpressionBuilder();
-               final LatestVersion<LogicGraphSememe> latestStatedDefinition
+               final LatestVersion<LogicGraphVersion> latestStatedDefinition
                        = latestStatedDefinitionOptional;
                final LogicalExpression statedDefinition = latestStatedDefinition.value().get()
                        .getLogicalExpression();
@@ -341,17 +340,16 @@ public class ProcessClassificationResults
                                      .getAsInt());
 
                      // check to see if changed from old...
-                     final LatestVersion<LogicGraphSememe> latestDefinitionOptional
-                             = inferredChronology.getLatestVersion(LogicGraphSememe.class,
+                     final LatestVersion<LogicGraphVersion> latestDefinitionOptional
+                             = inferredChronology.getLatestVersion(LogicGraphVersion.class,
                                      this.stampCoordinate);
 
                      if (latestDefinitionOptional.value().isPresent()) {
                         if (!latestDefinitionOptional.value().get()
                                 .getLogicalExpression()
                                 .equals(inferredExpression)) {
-                           final MutableLogicGraphSememe newVersion
-                                   = ((SememeChronology<LogicGraphSememe>) inferredChronology).createMutableVersion(
-                                           MutableLogicGraphSememe.class,
+                           final MutableLogicGraphVersion newVersion
+                                   = ((SememeChronology<LogicGraphVersion>) inferredChronology).createMutableVersion(MutableLogicGraphVersion.class,
                                            sh.isaac.api.State.ACTIVE,
                                            EditCoordinates.getClassifierSolorOverlay());
 

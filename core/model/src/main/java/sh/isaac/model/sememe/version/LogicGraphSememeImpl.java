@@ -48,12 +48,12 @@ import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.MutableLogicGraphSememe;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionByteArrayConverter;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
+import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -64,7 +64,7 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  */
 public class LogicGraphSememeImpl
         extends SememeVersionImpl
-         implements MutableLogicGraphSememe<LogicGraphSememeImpl> {
+         implements MutableLogicGraphVersion<LogicGraphSememeImpl> {
    /** The converter. */
    private static LogicalExpressionByteArrayConverter converter;
 

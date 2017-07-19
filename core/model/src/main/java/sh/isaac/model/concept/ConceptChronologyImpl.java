@@ -56,7 +56,6 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -73,6 +72,7 @@ import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.relationship.RelationshipAdaptorChronologyImpl;
 import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -358,7 +358,7 @@ public class ConceptChronologyImpl
     * @return the logical definition
     */
    @Override
-   public LatestVersion<LogicGraphSememe> getLogicalDefinition(StampCoordinate stampCoordinate,
+   public LatestVersion<LogicGraphVersion> getLogicalDefinition(StampCoordinate stampCoordinate,
          PremiseType premiseType,
          LogicCoordinate logicCoordinate) {
       int assemblageSequence;
@@ -370,11 +370,11 @@ public class ConceptChronologyImpl
       }
 
       final Optional<?> optional = Get.sememeService()
-                                      .getSnapshot(LogicGraphSememe.class, stampCoordinate)
+                                      .getSnapshot(LogicGraphVersion.class, stampCoordinate)
                                       .getLatestSememeVersionsForComponentFromAssemblage(getNid(), assemblageSequence)
                                       .findFirst();
 
-      return (LatestVersion<LogicGraphSememe>) optional.get();
+      return (LatestVersion<LogicGraphVersion>) optional.get();
    }
 
    /**

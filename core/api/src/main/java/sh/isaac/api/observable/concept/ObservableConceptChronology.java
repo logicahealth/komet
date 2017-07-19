@@ -64,10 +64,9 @@ import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
  * The Interface ObservableConceptChronology.
  *
  * @author kec
- * @param <V> the value type
  */
-public interface ObservableConceptChronology<V extends ObservableConceptVersion>
-        extends ObservableChronology<V> {
+public interface ObservableConceptChronology
+        extends ObservableChronology<ObservableConceptVersion> {
    /**
     * Concept description list property.
     *
@@ -105,7 +104,7 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
     * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version.
     * @return the mutable version
     */
-   V createMutableVersion(int stampSequence);
+   ObservableConceptVersion createMutableVersion(int stampSequence);
 
    /**
     * Create a mutable version with Long.MAX_VALUE as the time, indicating
@@ -116,7 +115,7 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
     * @param ec edit coordinate to provide the author, module, and path for the mutable version
     * @return the mutable version
     */
-   V createMutableVersion(State state, EditCoordinate ec);
+   ObservableConceptVersion createMutableVersion(State state, EditCoordinate ec);
 
    //~--- get methods ---------------------------------------------------------
 

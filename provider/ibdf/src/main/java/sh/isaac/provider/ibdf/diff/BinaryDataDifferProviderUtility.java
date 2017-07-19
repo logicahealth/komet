@@ -58,18 +58,8 @@ import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.ComponentNidSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
-import sh.isaac.api.component.sememe.version.LongSememe;
-import sh.isaac.api.component.sememe.version.MutableComponentNidSememe;
-import sh.isaac.api.component.sememe.version.MutableDescriptionSememe;
-import sh.isaac.api.component.sememe.version.MutableDynamicSememe;
-import sh.isaac.api.component.sememe.version.MutableLogicGraphSememe;
-import sh.isaac.api.component.sememe.version.MutableLongSememe;
-import sh.isaac.api.component.sememe.version.MutableStringSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.externalizable.OchreExternalizableObjectType;
@@ -91,6 +81,16 @@ import sh.isaac.model.sememe.version.StringSememeImpl;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.ComponentNidVersion;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.sememe.version.LongVersion;
+import sh.isaac.api.component.sememe.version.MutableComponentNidVersion;
+import sh.isaac.api.component.sememe.version.MutableDescriptionVersion;
+import sh.isaac.api.component.sememe.version.MutableDynamicVersion;
+import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
+import sh.isaac.api.component.sememe.version.MutableLongVersion;
+import sh.isaac.api.component.sememe.version.MutableStringVersion;
+import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -314,27 +314,26 @@ public class BinaryDataDifferProviderUtility {
          return newVer;
 
       case COMPONENT_NID:
-         ((MutableComponentNidSememe<?>) newVer).setComponentNid(
-             ((ComponentNidSememe<?>) originalVersion).getComponentNid());
+         ((MutableComponentNidVersion<?>) newVer).setComponentNid(((ComponentNidVersion<?>) originalVersion).getComponentNid());
          return newVer;
 
       case DESCRIPTION:
-         ((MutableDescriptionSememe) newVer).setText(((DescriptionVersion) originalVersion).getText());
-         ((MutableDescriptionSememe) newVer).setDescriptionTypeConceptSequence(((DescriptionVersion) originalVersion).getDescriptionTypeConceptSequence());
-         ((MutableDescriptionSememe) newVer).setCaseSignificanceConceptSequence(((DescriptionVersion) originalVersion).getCaseSignificanceConceptSequence());
-         ((MutableDescriptionSememe) newVer).setLanguageConceptSequence(((DescriptionVersion) originalVersion).getLanguageConceptSequence());
+         ((MutableDescriptionVersion) newVer).setText(((DescriptionVersion) originalVersion).getText());
+         ((MutableDescriptionVersion) newVer).setDescriptionTypeConceptSequence(((DescriptionVersion) originalVersion).getDescriptionTypeConceptSequence());
+         ((MutableDescriptionVersion) newVer).setCaseSignificanceConceptSequence(((DescriptionVersion) originalVersion).getCaseSignificanceConceptSequence());
+         ((MutableDescriptionVersion) newVer).setLanguageConceptSequence(((DescriptionVersion) originalVersion).getLanguageConceptSequence());
          return newVer;
 
       case DYNAMIC:
-         ((MutableDynamicSememe<?>) newVer).setData(((DynamicSememe<?>) originalVersion).getData());
+         ((MutableDynamicVersion<?>) newVer).setData(((DynamicSememe<?>) originalVersion).getData());
          return newVer;
 
       case LONG:
-         ((MutableLongSememe<?>) newVer).setLongValue(((LongSememe<?>) originalVersion).getLongValue());
+         ((MutableLongVersion<?>) newVer).setLongValue(((LongVersion<?>) originalVersion).getLongValue());
          return newVer;
 
       case STRING:
-         ((MutableStringSememe) newVer).setString(((StringSememe) originalVersion).getString());
+         ((MutableStringVersion) newVer).setString(((StringVersion) originalVersion).getString());
          return newVer;
 
       case RELATIONSHIP_ADAPTOR:
@@ -350,7 +349,7 @@ public class BinaryDataDifferProviderUtility {
          return new RelationshipVersionAdaptorImpl(key, inactiveStampSeq);
 
       case LOGIC_GRAPH:
-         ((MutableLogicGraphSememe) newVer).setGraphData(((LogicGraphSememe) originalVersion).getGraphData());
+         ((MutableLogicGraphVersion) newVer).setGraphData(((LogicGraphVersion) originalVersion).getGraphData());
          return newVer;
 
       case UNKNOWN:
@@ -374,7 +373,7 @@ public class BinaryDataDifferProviderUtility {
       switch (version.getChronology()
                      .getSememeType()) {
       case COMPONENT_NID:
-         final ComponentNidSememe<?> compNidSememe = (ComponentNidSememe<?>) version;
+         final ComponentNidVersion<?> compNidSememe = (ComponentNidVersion<?>) version;
 
          builder = this.sememeBuilderService.getComponentSememeBuilder(compNidSememe.getComponentNid(),
                compNidSememe.getReferencedComponentNid(),
@@ -401,7 +400,7 @@ public class BinaryDataDifferProviderUtility {
          break;
 
       case LONG:
-         final LongSememe<?> longSememe = (LongSememe<?>) version;
+         final LongVersion<?> longSememe = (LongVersion<?>) version;
 
          builder = this.sememeBuilderService.getLongSememeBuilder(longSememe.getLongValue(),
                longSememe.getReferencedComponentNid(),
@@ -414,7 +413,7 @@ public class BinaryDataDifferProviderUtility {
          break;
 
       case STRING:
-         final StringSememe stringSememe = (StringSememe) version;
+         final StringVersion stringSememe = (StringVersion) version;
 
          builder = this.sememeBuilderService.getStringSememeBuilder(stringSememe.getString(),
                stringSememe.getReferencedComponentNid(),
@@ -422,7 +421,7 @@ public class BinaryDataDifferProviderUtility {
          break;
 
       case LOGIC_GRAPH:
-         final LogicGraphSememe logicGraphSememe = (LogicGraphSememe) version;
+         final LogicGraphVersion logicGraphSememe = (LogicGraphVersion) version;
 
          builder = this.sememeBuilderService.getLogicalExpressionSememeBuilder(logicGraphSememe.getLogicalExpression(),
                logicGraphSememe.getReferencedComponentNid(),
@@ -552,7 +551,7 @@ public class BinaryDataDifferProviderUtility {
                        .getSememeType()) {
          case COMPONENT_NID:
             return new DynamicSememeData[] {
-               new DynamicSememeNidImpl(((ComponentNidSememe<?>) sememe).getComponentNid()) };
+               new DynamicSememeNidImpl(((ComponentNidVersion<?>) sememe).getComponentNid()) };
 
          case DESCRIPTION:
             return new DynamicSememeData[] { new DynamicSememeStringImpl(((DescriptionVersion) sememe).getText()) };
@@ -561,20 +560,20 @@ public class BinaryDataDifferProviderUtility {
             return ((DynamicSememe<?>) sememe).getData();
 
          case LONG:
-            return new DynamicSememeData[] { new DynamicSememeLongImpl(((LongSememe<?>) sememe).getLongValue()) };
+            return new DynamicSememeData[] { new DynamicSememeLongImpl(((LongVersion<?>) sememe).getLongValue()) };
 
          case MEMBER:
             return new DynamicSememeData[] {};
 
          case STRING:
-            return new DynamicSememeData[] { new DynamicSememeStringImpl(((StringSememe) sememe).getString()) };
+            return new DynamicSememeData[] { new DynamicSememeStringImpl(((StringVersion) sememe).getString()) };
 
          case RELATIONSHIP_ADAPTOR:
             return new DynamicSememeData[] {
                new DynamicSememeStringImpl(((RelationshipVersionAdaptor<?>) sememe).toString()) };
 
          case LOGIC_GRAPH:
-            return new DynamicSememeData[] { new DynamicSememeStringImpl(((LogicGraphSememe) sememe).toString()) };
+            return new DynamicSememeData[] { new DynamicSememeStringImpl(((LogicGraphVersion) sememe).toString()) };
 
          case UNKNOWN:
          default:

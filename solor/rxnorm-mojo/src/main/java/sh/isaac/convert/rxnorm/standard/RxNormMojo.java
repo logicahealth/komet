@@ -85,7 +85,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.convert.rxnorm.propertyTypes.PT_Annotations;
@@ -119,6 +118,7 @@ import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.rxnorm.rrf.RXNCONSO;
 import sh.isaac.rxnorm.rrf.RXNSAT;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -1904,15 +1904,13 @@ public class RxNormMojo
       Get.sememeService()
          .getSememeSequencesFromAssemblage(MetaData.SCTID____ISAAC.getConceptSequence())
          .stream()
-         .forEach(
-             sememe -> {
+         .forEach(sememe -> {
                 @SuppressWarnings({ "unchecked", "rawtypes" })
-                final LatestVersion<StringSememe> lv = ((SememeChronology) Get.sememeService()
+                final LatestVersion<StringVersion> lv = ((SememeChronology) Get.sememeService()
                                                                               .getSememe(
-                                                                                    sememe)).getLatestVersion(
-                                                                                          StringSememe.class,
+                                                                                    sememe)).getLatestVersion(StringVersion.class,
                                                                                                 StampCoordinates.getDevelopmentLatest());
-                final StringSememe ss    = lv.value()
+                final StringVersion ss    = lv.value()
                                              .get();
                 final Long         sctId = Long.parseLong(ss.getString());
                 final UUID conceptUUID = Get.identifierService()

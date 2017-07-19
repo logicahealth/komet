@@ -61,13 +61,13 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.PathService;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.component.sememe.version.LongSememe;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.model.coordinate.StampPathImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
+import sh.isaac.api.component.sememe.version.LongVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -218,7 +218,7 @@ public class PathProvider
       return Get.sememeService()
                 .getSememesForComponentFromAssemblage(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getConceptSequence())
                 .map((pathOrigin) -> {
-                        final long time = ((LongSememe) pathOrigin.getVersionList()
+                        final long time = ((LongVersion) pathOrigin.getVersionList()
                                                                   .get(0)).getLongValue();
 
                         return new StampPositionImpl(time, Get.identifierService().getConceptSequence(nid));

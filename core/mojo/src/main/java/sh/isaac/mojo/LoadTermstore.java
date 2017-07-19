@@ -78,8 +78,6 @@ import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
-import sh.isaac.api.component.sememe.version.MutableLogicGraphSememe;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.externalizable.StampAlias;
@@ -88,6 +86,8 @@ import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -311,9 +311,8 @@ public class LoadTermstore
                                                                     userProxy.getConceptSequence(),
                                                                     moduleProxy.getConceptSequence(),
                                                                     pathProxy.getConceptSequence());
-                                 final MutableLogicGraphSememe newVersion =
-                                    (MutableLogicGraphSememe) existingChronology.createMutableVersion(
-                                        MutableLogicGraphSememe.class,
+                                 final MutableLogicGraphVersion newVersion =
+                                    (MutableLogicGraphVersion) existingChronology.createMutableVersion(MutableLogicGraphVersion.class,
                                         stampSequence);
 
                                  newVersion.setGraphData(isomorphicResults.getMergedExpression()
@@ -504,10 +503,10 @@ public class LoadTermstore
     * @return the latest logical expression
     */
    private static LogicalExpression getLatestLogicalExpression(SememeChronology sc) {
-      final SememeChronology<? extends LogicGraphSememe> lgsc          = sc;
-      LogicGraphSememe                                   latestVersion = null;
+      final SememeChronology<? extends LogicGraphVersion> lgsc          = sc;
+      LogicGraphVersion                                   latestVersion = null;
 
-      for (final LogicGraphSememe version: lgsc.getVersionList()) {
+      for (final LogicGraphVersion version: lgsc.getVersionList()) {
          if (latestVersion == null) {
             latestVersion = version;
          } else if (latestVersion.getTime() < version.getTime()) {

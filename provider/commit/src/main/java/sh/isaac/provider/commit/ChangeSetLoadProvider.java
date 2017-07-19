@@ -76,11 +76,11 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.util.metainf.MetaInfReader;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
+import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -196,8 +196,8 @@ public class ChangeSetLoadProvider
                                                                              .findFirst();
 
       if (sdic.isPresent()) {
-         final LatestVersion<StringSememe> sdi =
-            ((SememeChronology) sdic.get()).getLatestVersion(StringSememe.class,
+         final LatestVersion<StringVersion> sdi =
+            ((SememeChronology) sdic.get()).getLatestVersion(StringVersion.class,
                                                              StampCoordinates.getDevelopmentLatest());
 
          if (sdi.value().isPresent()) {

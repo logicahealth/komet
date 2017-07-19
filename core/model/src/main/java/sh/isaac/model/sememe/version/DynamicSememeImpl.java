@@ -51,7 +51,6 @@ import javax.naming.InvalidNameException;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.MutableDynamicSememe;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
@@ -64,6 +63,7 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeNidImpl;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeTypeToClassUtility;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
+import sh.isaac.api.component.sememe.version.MutableDynamicVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -74,7 +74,7 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
  */
 public class DynamicSememeImpl
         extends SememeVersionImpl
-         implements MutableDynamicSememe<DynamicSememeImpl> {
+         implements MutableDynamicVersion<DynamicSememeImpl> {
    /** The bootstrap mode. */
    private static boolean bootstrapMode = Get.configurationService()
                                              .inBootstrapMode();

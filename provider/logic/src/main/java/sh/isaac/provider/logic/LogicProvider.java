@@ -69,7 +69,6 @@ import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
@@ -95,6 +94,7 @@ import sh.isaac.model.relationship.RelationshipAdaptorChronologyImpl;
 import sh.isaac.model.relationship.RelationshipVersionAdaptorImpl;
 import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierProvider;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -221,13 +221,13 @@ public class LogicProvider
     * @return the stream
     */
    private Stream<RelationshipVersionAdaptorImpl> extractRelationshipAdaptors(
-           SememeChronology<LogicGraphSememe> logicGraphChronology,
+           SememeChronology<LogicGraphVersion> logicGraphChronology,
            PremiseType premiseType) {
       final Stream.Builder<RelationshipVersionAdaptorImpl> streamBuilder = Stream.builder();
 
       // one graph for each origin... Usually only one.
-      for (final Graph<? extends LogicGraphSememe> versionGraph: logicGraphChronology.getVersionGraphList()) {
-         final Node<? extends LogicGraphSememe> node = versionGraph.getRoot();
+      for (final Graph<? extends LogicGraphVersion> versionGraph: logicGraphChronology.getVersionGraphList()) {
+         final Node<? extends LogicGraphVersion> node = versionGraph.getRoot();
 
          processNode(node, null, streamBuilder, premiseType);
       }
@@ -269,7 +269,7 @@ public class LogicProvider
          SememeChronology<? extends SememeVersion> logicalDef,
          HashMap<RelationshipAdaptorChronicleKey, RelationshipAdaptorChronologyImpl> conceptOriginRelationshipMap,
          PremiseType premiseType) {
-      extractRelationshipAdaptors((SememeChronology<LogicGraphSememe>) logicalDef,
+      extractRelationshipAdaptors((SememeChronology<LogicGraphVersion>) logicalDef,
                                   premiseType).forEach((relAdaptor) -> {
                if ((conceptDestinationSequence == Integer.MAX_VALUE) ||
                    (conceptDestinationSequence == relAdaptor.getDestinationSequence())) {
@@ -300,7 +300,7 @@ public class LogicProvider
     * @param streamBuilder the stream builder
     * @param premiseType the premise type
     */
-   private void processNode(Node<? extends LogicGraphSememe> node,
+   private void processNode(Node<? extends LogicGraphVersion> node,
                             LogicalExpression previousExpression,
                             Stream.Builder<RelationshipVersionAdaptorImpl> streamBuilder,
                             PremiseType premiseType) {
@@ -330,7 +330,7 @@ public class LogicProvider
                          premiseType));
       }
 
-      for (final Node<? extends LogicGraphSememe> child: node.getChildren()) {
+      for (final Node<? extends LogicGraphVersion> child: node.getChildren()) {
          processNode(child, newExpression, streamBuilder, premiseType);
       }
    }

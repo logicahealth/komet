@@ -65,7 +65,6 @@ import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription;
@@ -86,6 +85,7 @@ import sh.isaac.provider.workflow.model.contents.ProcessHistory.ProcessHistoryCo
 import sh.isaac.utility.Frills;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -295,14 +295,14 @@ public class WorkflowAccessor {
                switch (sememe.getSememeType()) {
                   case DESCRIPTION:
                      final LatestVersion<DescriptionVersion> descSem =
-                             (LatestVersion<DescriptionVersion>) ((SememeChronology) sememe).getLatestVersion(LogicGraphSememe.class,
+                             (LatestVersion<DescriptionVersion>) ((SememeChronology) sememe).getLatestVersion(LogicGraphVersion.class,
                                      stampCoord);
                      
                      return formatStringDescriptionInformation(descSem);
                      
                   case DYNAMIC:
                      final LatestVersion<DynamicSememe> dynSem =
-                             (LatestVersion<DynamicSememe>) ((SememeChronology) sememe).getLatestVersion(LogicGraphSememe.class,
+                             (LatestVersion<DynamicSememe>) ((SememeChronology) sememe).getLatestVersion(LogicGraphVersion.class,
                                      stampCoord);
                      final int assemblageSeq = dynSem.value().get()
                              .getAssemblageSequence();

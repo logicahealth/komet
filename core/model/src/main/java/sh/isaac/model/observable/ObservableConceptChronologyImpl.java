@@ -75,7 +75,7 @@ public class ObservableConceptChronologyImpl
         extends ObservableChronologyImpl
         <ObservableConceptVersion, 
         ConceptChronology>
-         implements ObservableConceptChronology<ObservableConceptVersion> {
+         implements ObservableConceptChronology {
    /** The concept sequence property. */
    private IntegerProperty conceptSequenceProperty;
 

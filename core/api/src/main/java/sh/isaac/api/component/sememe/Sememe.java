@@ -37,21 +37,42 @@
 
 
 
-package sh.isaac.api.component.sememe.version;
+package sh.isaac.api.component.sememe;
+
+//~--- non-JDK imports --------------------------------------------------------
+
+import sh.isaac.api.commit.CommittableComponent;
+
+//~--- interfaces -------------------------------------------------------------
 
 /**
- * The Interface MutableComponentNidSememe.
+ * The Interface Sememe.
  *
  * @author kec
- * @param <T> the generic type
  */
-public interface MutableComponentNidSememe<T extends MutableComponentNidSememe<T>>
-        extends MutableSememeVersion, ComponentNidSememe<T> {
+public interface Sememe
+        extends CommittableComponent {
    /**
-    * Sets the component nid.
+    * Gets the assemblage sequence.
     *
-    * @param componentNid the new component nid
+    * @return concept sequence for the concept that identifies this assemblage.
     */
-   void setComponentNid(int componentNid);
+   int getAssemblageSequence();
+
+   /**
+    * Gets the referenced component nid.
+    *
+    * @return nid for the component referenced by this sememe. Since the referenced component can either
+    * be a concept or another sememe, nids are used instead of concept sequences or sememe sequences, since the
+    * concept and sememe namespaces overlap.
+    */
+   int getReferencedComponentNid();
+
+   /**
+    * Gets the sememe sequence.
+    *
+    * @return unique sequential identifier >= 0 for this sememe.
+    */
+   int getSememeSequence();
 }
 

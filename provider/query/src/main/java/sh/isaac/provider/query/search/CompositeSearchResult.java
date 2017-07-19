@@ -61,11 +61,11 @@ import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -429,8 +429,8 @@ public class CompositeSearchResult {
             }
          } else if ((iol instanceof SememeChronology<?>) &&
                     ((SememeChronology<?>) iol).getSememeType() == SememeType.STRING) {
-            final LatestVersion<StringSememe> ds =
-               ((SememeChronology<StringSememe>) iol).getLatestVersion(StringSememe.class,
+            final LatestVersion<StringVersion> ds =
+               ((SememeChronology<StringVersion>) iol).getLatestVersion(StringVersion.class,
                                                                        stampCoord.orElse(Get.configurationService()
                                                                              .getDefaultStampCoordinate()));
 

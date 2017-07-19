@@ -78,11 +78,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.ComponentNidSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
-import sh.isaac.api.component.sememe.version.LongSememe;
-import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeBoolean;
@@ -105,6 +101,10 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeStringImpl;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.sememe.version.ComponentNidVersion;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.sememe.version.LongVersion;
+import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -345,23 +345,23 @@ public class SememeIndexer
 
          // TODO enhance the index configuration to allow us to configure Static sememes as indexed, or not indexed
          // static sememe types are never more than 1 column, always pass -1
-         else if (sv instanceof StringSememe) {
-            final StringSememe ssv = (StringSememe) sv;
+         else if (sv instanceof StringVersion) {
+            final StringVersion ssv = (StringVersion) sv;
 
             handleType(doc, new DynamicSememeStringImpl(ssv.getString()), -1);
             incrementIndexedItemCount("Sememe String");
-         } else if (sv instanceof LongSememe) {
-            final LongSememe<?> lsv = (LongSememe<?>) sv;
+         } else if (sv instanceof LongVersion) {
+            final LongVersion<?> lsv = (LongVersion<?>) sv;
 
             handleType(doc, new DynamicSememeLongImpl(lsv.getLongValue()), -1);
             incrementIndexedItemCount("Sememe Long");
-         } else if (sv instanceof ComponentNidSememe) {
-            final ComponentNidSememe<?> csv = (ComponentNidSememe<?>) sv;
+         } else if (sv instanceof ComponentNidVersion) {
+            final ComponentNidVersion<?> csv = (ComponentNidVersion<?>) sv;
 
             handleType(doc, new DynamicSememeNidImpl(csv.getComponentNid()), -1);
             incrementIndexedItemCount("Sememe Component Nid");
-         } else if (sv instanceof LogicGraphSememe) {
-            final LogicGraphSememe lgsv = (LogicGraphSememe) sv;
+         } else if (sv instanceof LogicGraphVersion) {
+            final LogicGraphVersion lgsv = (LogicGraphVersion) sv;
             final ConceptSequenceSet  css  = new ConceptSequenceSet();
 
             lgsv.getLogicalExpression().processDepthFirst((LogicNode logicNode,TreeNodeVisitData data) -> {

@@ -68,7 +68,6 @@ import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.ConcurrentSequenceObjectMap;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AndNode;
@@ -83,6 +82,7 @@ import sh.isaac.model.logic.node.SufficientSetNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithSequences;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -129,7 +129,7 @@ public class GraphToAxiomTranslator {
     *
     * @param logicGraphSememe the logic graph sememe
     */
-   public void convertToAxiomsAndAdd(LogicGraphSememe logicGraphSememe) {
+   public void convertToAxiomsAndAdd(LogicGraphVersion logicGraphSememe) {
       this.loadedConcepts.add(logicGraphSememe.getReferencedComponentNid());
 
       final LogicalExpressionImpl logicGraph = new LogicalExpressionImpl(logicGraphSememe.getGraphData(),

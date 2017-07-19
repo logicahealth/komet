@@ -40,12 +40,12 @@
 package sh.isaac.api.component.sememe.version;
 
 /**
- * The Interface LongSememe.
+ * The Interface LongVersion.
  *
  * @author kec
  * @param <T> the generic type
  */
-public interface LongSememe<T extends LongSememe<T>>
+public interface LongVersion<T extends LongVersion<T>>
         extends SememeVersion {
    /**
     * Gets the long value.

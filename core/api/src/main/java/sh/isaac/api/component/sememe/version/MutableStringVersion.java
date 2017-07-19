@@ -40,12 +40,12 @@
 package sh.isaac.api.component.sememe.version;
 
 /**
- * The Interface MutableStringSememe.
+ * The Interface MutableStringVersion.
  *
  * @author kec
  */
-public interface MutableStringSememe
-        extends MutableSememeVersion, StringSememe {
+public interface MutableStringVersion
+        extends MutableSememeVersion, StringVersion {
    /**
     * Sets the string.
     *

@@ -53,7 +53,6 @@ import java.util.List;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
@@ -62,6 +61,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.relationship.RelationshipVersionAdaptor;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -136,7 +136,7 @@ public interface ConceptChronology
     * @param logicCoordinate the logic coordinate
     * @return the logical definition
     */
-   LatestVersion<LogicGraphSememe> getLogicalDefinition(StampCoordinate stampCoordinate,
+   LatestVersion<LogicGraphVersion> getLogicalDefinition(StampCoordinate stampCoordinate,
          PremiseType premiseType,
          LogicCoordinate logicCoordinate);
 

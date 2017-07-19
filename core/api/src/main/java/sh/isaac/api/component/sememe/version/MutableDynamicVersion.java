@@ -39,19 +39,30 @@
 
 package sh.isaac.api.component.sememe.version;
 
+//~--- non-JDK imports --------------------------------------------------------
+
+import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
+
+//~--- interfaces -------------------------------------------------------------
+
 /**
- * The Interface MutableLogicGraphSememe.
+ * The Interface MutableDynamicVersion.
  *
  * @author kec
  * @param <T> the generic type
  */
-public interface MutableLogicGraphSememe<T extends MutableLogicGraphSememe<T>>
-        extends MutableSememeVersion, LogicGraphSememe {
+public interface MutableDynamicVersion<T extends MutableDynamicVersion<T>>
+        extends MutableSememeVersion, DynamicSememe<T> {
    /**
-    * Sets the graph data.
+    * Set the data (if any) for the DynamicSememe.
     *
-    * @param setGraphData the new graph data
+    * For a DyanamicSememe that is only establishing membership, there will be no data columns.
+    *
+    * If there is one or more data columns associated with a DynamicSememe membership, then the type of each of data columns would
+    * be an extension of {@link DynamicSememeData}
+    *
+    * @param data the new data
     */
-   void setGraphData(byte[][] setGraphData);
+   void setData(DynamicSememeData[] data);
 }
 

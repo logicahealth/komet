@@ -91,12 +91,8 @@ import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.ComponentNidSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
-import sh.isaac.api.component.sememe.version.MutableDescriptionSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnUtility;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
@@ -146,6 +142,10 @@ import sh.isaac.api.index.IndexService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.ComponentNidVersion;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.sememe.version.MutableDescriptionVersion;
+import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -307,7 +307,7 @@ public class Frills
 
          final LogicalExpression parentDef = defBuilder.build();
          final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(sememeFSN, null, parentDef);
-         DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe> definitionBuilder =
+         DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionVersion> definitionBuilder =
             descriptionBuilderService.getDescriptionBuilder(sememePreferredTerm,
                                                             builder,
                                                             MetaData.SYNONYM____ISAAC,
@@ -770,8 +770,8 @@ public class Frills
                      if (nestedSememe.getSememeType() == SememeType.COMPONENT_NID) {
                         final int dialectSequence = nestedSememe.getAssemblageSequence();
                         @SuppressWarnings({ "rawtypes", "unchecked" })
-                        final LatestVersion<ComponentNidSememe> latest =
-                           ((SememeChronology) nestedSememe).getLatestVersion(ComponentNidSememe.class,
+                        final LatestVersion<ComponentNidVersion> latest =
+                           ((SememeChronology) nestedSememe).getLatestVersion(ComponentNidVersion.class,
                                                                               (stamp == null)
                                                                               ? Get.configurationService()
                                                                                     .getDefaultStampCoordinate()
@@ -1045,13 +1045,13 @@ public class Frills
    /**
     * Checks if concept fully defined.
     *
-    * @param lgs The LogicGraphSememe containing the logic graph data
+    * @param lgs The LogicGraphVersion containing the logic graph data
     * @return true if the corresponding concept is fully defined, otherwise returns false (for primitive concepts)
     *
     * Things that are defined with at least one SUFFICIENT_SET node are defined.
     * Things that are defined without any SUFFICIENT_SET nodes are primitive.
     */
-   public static boolean isConceptFullyDefined(LogicGraphSememe lgs) {
+   public static boolean isConceptFullyDefined(LogicGraphVersion lgs) {
       return lgs.getLogicalExpression()
                 .contains(NodeSemantic.SUFFICIENT_SET);
    }
@@ -1076,12 +1076,12 @@ public class Frills
 
       if (sememe.isPresent()) {
          @SuppressWarnings({ "unchecked", "rawtypes" })
-         final LatestVersion<LogicGraphSememe> sv =
-            ((SememeChronology) sememe.get()).getLatestVersion(LogicGraphSememe.class,
+         final LatestVersion<LogicGraphVersion> sv =
+            ((SememeChronology) sememe.get()).getLatestVersion(LogicGraphVersion.class,
                                                                StampCoordinates.getDevelopmentLatest());
 
          if (sv.value().isPresent()) {
-            return Optional.of(isConceptFullyDefined((LogicGraphSememe) sv.value().get()));
+            return Optional.of(isConceptFullyDefined((LogicGraphVersion) sv.value().get()));
          }
       }
 
@@ -1211,8 +1211,8 @@ public class Frills
          .forEach(nestedSememe -> {
                      if (nestedSememe.getSememeType() == SememeType.COMPONENT_NID) {
                         @SuppressWarnings({ "rawtypes", "unchecked" })
-                        final LatestVersion<ComponentNidSememe> latest =
-                           ((SememeChronology) nestedSememe).getLatestVersion(ComponentNidSememe.class,
+                        final LatestVersion<ComponentNidVersion> latest =
+                           ((SememeChronology) nestedSememe).getLatestVersion(ComponentNidVersion.class,
                                                                               (stamp == null)
                                                                               ? Get.configurationService()
                                                                                     .getDefaultStampCoordinate()
@@ -1470,9 +1470,9 @@ public class Frills
     *
     * @param id The int sequence or NID of the Concept for which the logic graph is requested
     * @param stated boolean indicating stated vs inferred definition chronology should be used
-    * @return An Optional containing a LogicGraphSememe SememeChronology
+    * @return An Optional containing a LogicGraphVersion SememeChronology
     */
-   public static Optional<SememeChronology<? extends LogicGraphSememe>> getLogicGraphChronology(int id,
+   public static Optional<SememeChronology<? extends LogicGraphVersion>> getLogicGraphChronology(int id,
          boolean stated) {
       LOG.debug("Getting {} logic graph chronology for {}", (stated ? "stated"
             : "inferred"), Optional.ofNullable(Frills.getIdInfo(id)));
@@ -1486,8 +1486,8 @@ public class Frills
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id)));
 
          @SuppressWarnings("unchecked")
-         final SememeChronology<? extends LogicGraphSememe> sememeChronology =
-            (SememeChronology<? extends LogicGraphSememe>) defChronologyOptional.get();
+         final SememeChronology<? extends LogicGraphVersion> sememeChronology =
+            (SememeChronology<? extends LogicGraphVersion>) defChronologyOptional.get();
 
          return Optional.of(sememeChronology);
       } else {
@@ -1505,9 +1505,9 @@ public class Frills
     * @param stampCoordinate The StampCoordinate for which the logic graph is requested
     * @param languageCoordinate The LanguageCoordinate for which the logic graph is requested
     * @param logicCoordinate the LogicCoordinate for which the logic graph is requested
-    * @return An Optional containing a LogicGraphSememe SememeChronology
+    * @return An Optional containing a LogicGraphVersion SememeChronology
     */
-   public static Optional<SememeChronology<? extends LogicGraphSememe>> getLogicGraphChronology(int id,
+   public static Optional<SememeChronology<? extends LogicGraphVersion>> getLogicGraphChronology(int id,
          boolean stated,
          StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate,
@@ -1525,8 +1525,8 @@ public class Frills
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
 
          @SuppressWarnings("unchecked")
-         final SememeChronology<? extends LogicGraphSememe> sememeChronology =
-            (SememeChronology<? extends LogicGraphSememe>) defChronologyOptional.get();
+         final SememeChronology<? extends LogicGraphVersion> sememeChronology =
+            (SememeChronology<? extends LogicGraphVersion>) defChronologyOptional.get();
 
          return Optional.of(sememeChronology);
       } else {
@@ -1539,19 +1539,19 @@ public class Frills
    /**
     * Gets the logic graph version.
     *
-    * @param logicGraphSememeChronology The SememeChronology<? extends LogicGraphSememe> chronology for which the logic graph version is requested
+    * @param logicGraphSememeChronology The SememeChronology<? extends LogicGraphVersion> chronology for which the logic graph version is requested
     * @param stampCoordinate StampCoordinate to be used for selecting latest version
-    * @return An Optional containing a LogicGraphSememe SememeChronology
+    * @return An Optional containing a LogicGraphVersion SememeChronology
     */
-   public static LatestVersion<LogicGraphSememe> getLogicGraphVersion(
-           SememeChronology<? extends LogicGraphSememe> logicGraphSememeChronology,
+   public static LatestVersion<LogicGraphVersion> getLogicGraphVersion(
+           SememeChronology<? extends LogicGraphVersion> logicGraphSememeChronology,
            StampCoordinate stampCoordinate) {
       LOG.debug("Getting logic graph sememe for {}",
                 Optional.ofNullable(Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid())));
 
       @SuppressWarnings({ "unchecked", "rawtypes" })
-      final LatestVersion<LogicGraphSememe> latest =
-         ((SememeChronology) logicGraphSememeChronology).getLatestVersion(LogicGraphSememe.class,
+      final LatestVersion<LogicGraphVersion> latest =
+         ((SememeChronology) logicGraphSememeChronology).getLatestVersion(LogicGraphVersion.class,
                                                                           stampCoordinate);
 
       if (latest.value().isPresent()) {
@@ -1892,7 +1892,7 @@ public class Frills
                         if (latestSememe.value().get()
                                         .getChronology()
                                         .getSememeType() == SememeType.STRING) {
-                           vuids.add(Long.parseLong(((StringSememe) latestSememe.value().get()).getString()));
+                           vuids.add(Long.parseLong(((StringVersion) latestSememe.value().get()).getString()));
                         }
 
                         // Data model bug path (can go away, after bug is fixed)
@@ -1959,6 +1959,10 @@ public class Frills
 
    ;
 }
+//~--- JDK imports ------------------------------------------------------------
+//~--- JDK imports ------------------------------------------------------------
+//~--- JDK imports ------------------------------------------------------------
+//~--- JDK imports ------------------------------------------------------------
 //~--- JDK imports ------------------------------------------------------------
 //~--- JDK imports ------------------------------------------------------------
 //~--- JDK imports ------------------------------------------------------------

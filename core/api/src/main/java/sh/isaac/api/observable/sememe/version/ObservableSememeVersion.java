@@ -41,9 +41,9 @@ package sh.isaac.api.observable.sememe.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.sememe.SememeObject;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
+import sh.isaac.api.component.sememe.Sememe;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -53,7 +53,7 @@ import sh.isaac.api.observable.sememe.ObservableSememeChronology;
  * @author kec
  */
 public interface ObservableSememeVersion
-        extends ObservableVersion, SememeObject {
+        extends ObservableVersion, Sememe {
    /**
     * Gets the chronology.
     *

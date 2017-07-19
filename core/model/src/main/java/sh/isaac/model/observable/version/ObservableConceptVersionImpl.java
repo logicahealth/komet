@@ -62,7 +62,7 @@ public class ObservableConceptVersionImpl
     * @param chronology the chronology
     */
    public ObservableConceptVersionImpl(ConceptVersion stampedVersion,
-         ObservableConceptChronology<ObservableConceptVersion> chronology) {
+         ObservableConceptChronology chronology) {
       super(stampedVersion, 
               chronology);
    }
@@ -75,8 +75,8 @@ public class ObservableConceptVersionImpl
     * @return the chronology
     */
    @Override
-   public ObservableConceptChronology<ObservableConceptVersion> getChronology() {
-      return (ObservableConceptChronology<ObservableConceptVersion>) this.chronology;
+   public ObservableConceptChronology getChronology() {
+      return (ObservableConceptChronology) this.chronology;
    }
    
    

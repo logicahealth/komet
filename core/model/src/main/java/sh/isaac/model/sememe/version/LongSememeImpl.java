@@ -42,9 +42,9 @@ package sh.isaac.model.sememe.version;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.MutableLongSememe;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.sememe.SememeChronologyImpl;
+import sh.isaac.api.component.sememe.version.MutableLongVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -54,7 +54,7 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  */
 public class LongSememeImpl
         extends SememeVersionImpl
-         implements MutableLongSememe<LongSememeImpl> {
+         implements MutableLongVersion<LongSememeImpl> {
    /** The long value. */
    long longValue = Long.MAX_VALUE;
 

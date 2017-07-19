@@ -40,11 +40,11 @@
 package sh.isaac.api.component.sememe.version;
 
 /**
- * The Interface StringSememe.
+ * The Interface StringVersion.
  *
  * @author kec
  */
-public interface StringSememe
+public interface StringVersion
         extends SememeVersion {
    /**
     * Gets the string.

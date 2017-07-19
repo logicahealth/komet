@@ -43,7 +43,7 @@ package sh.isaac.api.component.sememe.version;
 
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeObject;
+import sh.isaac.api.component.sememe.Sememe;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -53,7 +53,7 @@ import sh.isaac.api.component.sememe.SememeObject;
  * @author kec
  */
 public interface SememeVersion
-        extends Version, SememeObject {
+        extends Version, Sememe {
    /**
     * Gets the chronology.
     *

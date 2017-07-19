@@ -85,10 +85,10 @@ import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -528,14 +528,13 @@ public class IdentifierProvider
       }
 
       final int authoritySequence = getConceptSequenceForUuids(identifierAuthorityUuid);
-      final SememeSnapshotService<StringSememe> snapshot = Get.sememeService()
-                                                              .getSnapshot(StringSememe.class, stampCoordinate);
+      final SememeSnapshotService<StringVersion> snapshot = Get.sememeService()
+                                                              .getSnapshot(StringVersion.class, stampCoordinate);
 
       return snapshot.getLatestSememeVersionsForComponentFromAssemblage(nid, authoritySequence)
-                     .filter((LatestVersion<StringSememe> latestSememe) -> latestSememe.value()
+                     .filter((LatestVersion<StringVersion> latestSememe) -> latestSememe.value()
                            .isPresent())
-                     .map(
-                         (LatestVersion<StringSememe> latestSememe) -> 
+                     .map((LatestVersion<StringVersion> latestSememe) -> 
                             latestSememe.value()
                                   .get()
                                   .getString())

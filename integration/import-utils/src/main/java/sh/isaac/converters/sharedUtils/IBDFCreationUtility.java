@@ -77,10 +77,7 @@ import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.ComponentNidSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
-import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
@@ -125,6 +122,9 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.ComponentNidVersion;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -739,7 +739,7 @@ public class IBDFCreationUtility {
     * @param module - optional
     * @return the sememe chronology
     */
-   public SememeChronology<ComponentNidSememe<?>> addDescriptionAcceptibility(ComponentReference description,
+   public SememeChronology<ComponentNidVersion<?>> addDescriptionAcceptibility(ComponentReference description,
          UUID acceptabilityPrimordialUUID,
          UUID dialectRefset,
          boolean preferred,
@@ -766,7 +766,7 @@ public class IBDFCreationUtility {
 
       final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SememeChronology<ComponentNidSememe<?>> sc = (SememeChronology<ComponentNidSememe<?>>) sb.build(
+      final SememeChronology<ComponentNidVersion<?>> sc = (SememeChronology<ComponentNidVersion<?>>) sb.build(
                                                              createStamp(state, selectTime(time, description), module),
                                                                    builtObjects);
 
@@ -882,7 +882,7 @@ public class IBDFCreationUtility {
     * @param targetUuid the target uuid
     * @return the sememe chronology
     */
-   public SememeChronology<LogicGraphSememe> addParent(ComponentReference concept, UUID targetUuid) {
+   public SememeChronology<LogicGraphVersion> addParent(ComponentReference concept, UUID targetUuid) {
       return addParent(concept, null, new UUID[] { targetUuid }, null, null);
    }
 
@@ -897,7 +897,7 @@ public class IBDFCreationUtility {
     * @param time the time
     * @return the sememe chronology
     */
-   public SememeChronology<LogicGraphSememe> addParent(ComponentReference concept,
+   public SememeChronology<LogicGraphVersion> addParent(ComponentReference concept,
          UUID targetUuid,
          Property p,
          Long time) {
@@ -919,7 +919,7 @@ public class IBDFCreationUtility {
     * @param time - if null, default is used
     * @return the sememe chronology
     */
-   public SememeChronology<LogicGraphSememe> addParent(ComponentReference concept,
+   public SememeChronology<LogicGraphVersion> addParent(ComponentReference concept,
          UUID relPrimordialUuid,
          UUID[] targetUuid,
          UUID sourceRelTypeUUID,
@@ -964,7 +964,7 @@ public class IBDFCreationUtility {
 
       final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SememeChronology<LogicGraphSememe> sci = (SememeChronology<LogicGraphSememe>) sb.build(
+      final SememeChronology<LogicGraphVersion> sci = (SememeChronology<LogicGraphVersion>) sb.build(
                                                             createStamp(State.ACTIVE, selectTime(time, concept)),
                                                                   builtObjects);
 
@@ -1021,7 +1021,7 @@ public class IBDFCreationUtility {
     * @param module the module
     * @return the sememe chronology
     */
-   public SememeChronology<LogicGraphSememe> addRelationshipGraph(ComponentReference concept,
+   public SememeChronology<LogicGraphVersion> addRelationshipGraph(ComponentReference concept,
          LogicalExpression logicalExpression,
          boolean stated,
          Long time,
@@ -1040,7 +1040,7 @@ public class IBDFCreationUtility {
     * @param module the module
     * @return the sememe chronology
     */
-   public SememeChronology<LogicGraphSememe> addRelationshipGraph(ComponentReference concept,
+   public SememeChronology<LogicGraphVersion> addRelationshipGraph(ComponentReference concept,
          UUID graphPrimordialUuid,
          LogicalExpression logicalExpression,
          boolean stated,
@@ -1085,7 +1085,7 @@ public class IBDFCreationUtility {
 
       final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SememeChronology<LogicGraphSememe> sci = (SememeChronology<LogicGraphSememe>) sb.build(
+      final SememeChronology<LogicGraphVersion> sci = (SememeChronology<LogicGraphVersion>) sb.build(
                                                             createStamp(
                                                                   State.ACTIVE,
                                                                         selectTime(time, concept),
@@ -1109,7 +1109,7 @@ public class IBDFCreationUtility {
     * @param state the state
     * @return the sememe chronology
     */
-   public SememeChronology<StringSememe> addStaticStringAnnotation(ComponentReference referencedComponent,
+   public SememeChronology<StringVersion> addStaticStringAnnotation(ComponentReference referencedComponent,
          String annotationValue,
          UUID refsetUuid,
          State state) {
@@ -1129,7 +1129,7 @@ public class IBDFCreationUtility {
 
       final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SememeChronology<StringSememe> sc = (SememeChronology<StringSememe>) sb.build(
+      final SememeChronology<StringVersion> sc = (SememeChronology<StringVersion>) sb.build(
                                                        createStamp(state, selectTime(null, referencedComponent)),
                                                              builtObjects);
 

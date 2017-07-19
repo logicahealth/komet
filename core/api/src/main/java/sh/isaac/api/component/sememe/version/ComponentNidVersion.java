@@ -39,30 +39,19 @@
 
 package sh.isaac.api.component.sememe.version;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
-
-//~--- interfaces -------------------------------------------------------------
-
 /**
- * The Interface MutableDynamicSememe.
+ * The Interface ComponentNidVersion.
  *
  * @author kec
  * @param <T> the generic type
  */
-public interface MutableDynamicSememe<T extends MutableDynamicSememe<T>>
-        extends MutableSememeVersion, DynamicSememe<T> {
+public interface ComponentNidVersion<T extends ComponentNidVersion<T>>
+        extends SememeVersion {
    /**
-    * Set the data (if any) for the DynamicSememe.
+    * Gets the component nid.
     *
-    * For a DyanamicSememe that is only establishing membership, there will be no data columns.
-    *
-    * If there is one or more data columns associated with a DynamicSememe membership, then the type of each of data columns would
-    * be an extension of {@link DynamicSememeData}
-    *
-    * @param data the new data
+    * @return the component nid
     */
-   void setData(DynamicSememeData[] data);
+   int getComponentNid();
 }
 

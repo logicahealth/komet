@@ -37,42 +37,41 @@
 
 
 
-package sh.isaac.api.component.sememe;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.commit.CommittableComponent;
-
-//~--- interfaces -------------------------------------------------------------
+package sh.isaac.api.component.sememe.version;
 
 /**
- * The Interface SememeObject.
+ * The Interface MutableDescriptionVersion.
  *
  * @author kec
  */
-public interface SememeObject
-        extends CommittableComponent {
+public interface MutableDescriptionVersion
+        extends DescriptionVersion {
    /**
-    * Gets the assemblage sequence.
+    * Sets the case significance concept sequence.
     *
-    * @return concept sequence for the concept that identifies this assemblage.
+    * @param caseSignificanceConceptSequence the new case significance concept sequence
     */
-   int getAssemblageSequence();
+   void setCaseSignificanceConceptSequence(int caseSignificanceConceptSequence);
 
    /**
-    * Gets the referenced component nid.
+    * Sets the description type concept sequence.
     *
-    * @return nid for the component referenced by this sememe. Since the referenced component can either
-    * be a concept or another sememe, nids are used instead of concept sequences or sememe sequences, since the
-    * concept and sememe namespaces overlap.
+    * @param descriptionTypeConceptSequence the new description type concept sequence
     */
-   int getReferencedComponentNid();
+   void setDescriptionTypeConceptSequence(int descriptionTypeConceptSequence);
 
    /**
-    * Gets the sememe sequence.
+    * Sets the language concept sequence.
     *
-    * @return unique sequential identifier >= 0 for this sememe.
+    * @param languageConceptSequence the new language concept sequence
     */
-   int getSememeSequence();
+   void setLanguageConceptSequence(int languageConceptSequence);
+
+   /**
+    * Sets the text.
+    *
+    * @param text the new text
+    */
+   void setText(String text);
 }
 

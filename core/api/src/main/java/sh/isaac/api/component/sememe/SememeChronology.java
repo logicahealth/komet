@@ -55,7 +55,7 @@ import sh.isaac.api.chronicle.Chronology;
  * @param <V> the value type
  */
 public interface SememeChronology<V extends SememeVersion>
-        extends Chronology<V>, SememeObject {
+        extends Chronology<V>, Sememe {
    /**
     * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
     * add persist the chronicle when changes to the mutable version are complete .

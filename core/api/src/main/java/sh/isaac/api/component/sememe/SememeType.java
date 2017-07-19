@@ -49,16 +49,16 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 
-import sh.isaac.api.component.sememe.version.ComponentNidSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
-import sh.isaac.api.component.sememe.version.LongSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.StringSememe;
-import sh.isaac.api.observable.sememe.version.ObservableComponentNidSememe;
 import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
+import sh.isaac.api.component.sememe.version.ComponentNidVersion;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.sememe.version.LongVersion;
+import sh.isaac.api.component.sememe.version.StringVersion;
+import sh.isaac.api.observable.sememe.version.ObservableComponentNidVersion;
 
 //~--- enums ------------------------------------------------------------------
 
@@ -205,7 +205,7 @@ public enum SememeType {
    public Class<? extends ObservableSememeVersion> getObservableSememeVersionClass() {
       switch (this) {
       case COMPONENT_NID:
-         return ObservableComponentNidSememe.class;
+         return ObservableComponentNidVersion.class;
 
       case DESCRIPTION:
          return ObservableDescriptionVersion.class;
@@ -248,7 +248,7 @@ public enum SememeType {
    public Class<? extends SememeVersion> getSememeVersionClass() {
       switch (this) {
       case COMPONENT_NID:
-         return ComponentNidSememe.class;
+         return ComponentNidVersion.class;
 
       case DESCRIPTION:
          return DescriptionVersion.class;
@@ -260,13 +260,13 @@ public enum SememeType {
          return DynamicSememe.class;
 
       case LOGIC_GRAPH:
-         return LogicGraphSememe.class;
+         return LogicGraphVersion.class;
 
       case LONG:
-         return LongSememe.class;
+         return LongVersion.class;
 
       case STRING:
-         return StringSememe.class;
+         return StringVersion.class;
 
       default:
          throw new RuntimeException("Can't handle: " + this);

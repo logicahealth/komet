@@ -65,7 +65,6 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.version.ComponentNidSememe;
 import sh.isaac.api.coordinate.CoordinateFactory;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -81,6 +80,7 @@ import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -472,9 +472,8 @@ public class CoordinateFactoryProvider
          List<SememeChronology<DescriptionVersion>> descriptionList,
          int typeSequence,
          LanguageCoordinate languageCoordinate) {
-      final SememeSnapshotService<ComponentNidSememe> acceptabilitySnapshot = Get.sememeService()
-                                                                                 .getSnapshot(
-                                                                                       ComponentNidSememe.class,
+      final SememeSnapshotService<ComponentNidVersion> acceptabilitySnapshot = Get.sememeService()
+                                                                                 .getSnapshot(ComponentNidVersion.class,
                                                                                              stampCoordinate);
       final List<DescriptionVersion> descriptionsForLanguageOfType = new ArrayList<>();
 
@@ -515,13 +514,12 @@ public class CoordinateFactoryProvider
                       if (!preferredForDialect.value()
                             .isPresent()) {
                          descriptionsForLanguageOfType.forEach((DescriptionVersion description) -> {
-                                final Stream<LatestVersion<ComponentNidSememe>> acceptability =
+                                final Stream<LatestVersion<ComponentNidVersion>> acceptability =
                                    acceptabilitySnapshot.getLatestSememeVersionsForComponentFromAssemblage(
                                        description.getNid(),
                                        dialectAssemblageSequence);
 
-                                if (acceptability.anyMatch(
-                                    (LatestVersion<ComponentNidSememe> acceptabilityVersion) -> {
+                                if (acceptability.anyMatch((LatestVersion<ComponentNidVersion> acceptabilityVersion) -> {
                                        return Get.identifierService()
                                                  .getConceptSequence(
                                                      acceptabilityVersion.value()

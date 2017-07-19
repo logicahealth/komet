@@ -54,16 +54,16 @@ import com.cedarsoftware.util.io.JsonWriter;
 
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.ComponentNidSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
-import sh.isaac.api.component.sememe.version.LongSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.ComponentNidVersion;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.sememe.version.LongVersion;
+import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -233,8 +233,8 @@ public class Writers {
                output.write("\"text\":\"");
                output.write(ds.getText() + "");
                output.write("\"");
-            } else if (sv instanceof ComponentNidSememe<?>) {
-               final ComponentNidSememe<?> cns = (ComponentNidSememe<?>) sv;
+            } else if (sv instanceof ComponentNidVersion<?>) {
+               final ComponentNidVersion<?> cns = (ComponentNidVersion<?>) sv;
 
                output.write("\"componentNid\":\"");
                output.write(cns.getComponentNid() + "");
@@ -245,11 +245,11 @@ public class Writers {
                output.write("\"data\":\"");
                output.write(ds.dataToString());
                output.write("\"");
-            } else if (sv instanceof LogicGraphSememe) {
+            } else if (sv instanceof LogicGraphVersion) {
                // A hack for the moment, to just write out the parent of the concept from the logic graph,
                // as that is often what is wanted for debugging.
                // TODO represent the entire logic graph in JSON?
-               final LogicGraphSememe lgs  = (LogicGraphSememe) sv;
+               final LogicGraphVersion lgs  = (LogicGraphVersion) sv;
                final LogicalExpression   le   = lgs.getLogicalExpression();
                final LogicNode           root = le.getRoot();
 
@@ -275,14 +275,14 @@ public class Writers {
                      }
                   }
                }
-            } else if (sv instanceof LongSememe<?>) {
-               final LongSememe<?> ls = (LongSememe<?>) sv;
+            } else if (sv instanceof LongVersion<?>) {
+               final LongVersion<?> ls = (LongVersion<?>) sv;
 
                output.write("\"long\":\"");
                output.write(ls.getLongValue() + "");
                output.write("\"");
-            } else if (sv instanceof StringSememe) {
-               final StringSememe ss = (StringSememe) sv;
+            } else if (sv instanceof StringVersion) {
+               final StringVersion ss = (StringVersion) sv;
 
                output.write("\"string\":\"");
                output.write(ss.getString());

@@ -39,39 +39,38 @@
 
 package sh.isaac.api.component.sememe.version;
 
+//~--- non-JDK imports --------------------------------------------------------
+
+import sh.isaac.api.logic.LogicalExpression;
+
+//~--- interfaces -------------------------------------------------------------
+
 /**
- * The Interface MutableDescriptionSememe.
+ * The Interface LogicGraphVersion.
  *
  * @author kec
  */
-public interface MutableDescriptionSememe
-        extends DescriptionVersion {
+public interface LogicGraphVersion
+        extends SememeVersion {
    /**
-    * Sets the case significance concept sequence.
+    * Gets the external graph data.
     *
-    * @param caseSignificanceConceptSequence the new case significance concept sequence
+    * @return the external graph data
     */
-   void setCaseSignificanceConceptSequence(int caseSignificanceConceptSequence);
+   byte[][] getExternalGraphData();
 
    /**
-    * Sets the description type concept sequence.
+    * Gets the graph data.
     *
-    * @param descriptionTypeConceptSequence the new description type concept sequence
+    * @return the graph data
     */
-   void setDescriptionTypeConceptSequence(int descriptionTypeConceptSequence);
+   byte[][] getGraphData();
 
    /**
-    * Sets the language concept sequence.
+    * Gets the logical expression.
     *
-    * @param languageConceptSequence the new language concept sequence
+    * @return the logical expression
     */
-   void setLanguageConceptSequence(int languageConceptSequence);
-
-   /**
-    * Sets the text.
-    *
-    * @param text the new text
-    */
-   void setText(String text);
+   LogicalExpression getLogicalExpression();
 }
 

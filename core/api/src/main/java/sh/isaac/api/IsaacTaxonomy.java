@@ -65,7 +65,6 @@ import sh.isaac.api.component.concept.description.DescriptionBuilderService;
 import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.MutableDescriptionSememe;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUtility;
@@ -84,6 +83,7 @@ import sh.isaac.api.util.UuidT5Generator;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import sh.isaac.api.component.sememe.version.MutableDescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -200,7 +200,7 @@ public class IsaacTaxonomy {
          if (cc instanceof MetadataDynamicSememeConstant) {
             // See {@link DynamicSememeUsageDescription} class for more details on this format.
             final MetadataDynamicSememeConstant dsc = (MetadataDynamicSememeConstant) cc;
-            final DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe> db
+            final DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionVersion> db
                     = addDescription(dsc.getSememeAssemblageDescription(),
                             cb,
                             TermAux.DEFINITION_DESCRIPTION_TYPE,
@@ -553,11 +553,11 @@ public class IsaacTaxonomy {
     * @param preferred the preferred
     * @return the description builder<? extends sememe chronology<?>,? extends mutable description sememe<?>>
     */
-   private DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe> addDescription(String description,
+   private DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionVersion> addDescription(String description,
            ConceptBuilder cb,
            ConceptSpecification descriptionType,
            boolean preferred) {
-      final DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionSememe> db
+      final DescriptionBuilder<? extends SememeChronology<?>, ? extends MutableDescriptionVersion> db
               = LookupService.getService(DescriptionBuilderService.class)
                       .getDescriptionBuilder(description,
                               cb,

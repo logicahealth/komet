@@ -44,10 +44,10 @@ package sh.isaac.model.sememe.version;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.MutableDescriptionSememe;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.MutableDescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -58,7 +58,7 @@ import sh.isaac.api.component.sememe.version.DescriptionVersion;
  */
 public class DescriptionSememeImpl
         extends SememeVersionImpl
-         implements MutableDescriptionSememe {
+         implements MutableDescriptionVersion {
    /** The case significance concept sequence. */
    protected int caseSignificanceConceptSequence;
 

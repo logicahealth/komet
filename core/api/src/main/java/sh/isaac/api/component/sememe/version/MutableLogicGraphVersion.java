@@ -39,38 +39,19 @@
 
 package sh.isaac.api.component.sememe.version;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.logic.LogicalExpression;
-
-//~--- interfaces -------------------------------------------------------------
-
 /**
- * The Interface LogicGraphSememe.
+ * The Interface MutableLogicGraphVersion.
  *
  * @author kec
+ * @param <T> the generic type
  */
-public interface LogicGraphSememe
-        extends SememeVersion {
+public interface MutableLogicGraphVersion<T extends MutableLogicGraphVersion<T>>
+        extends MutableSememeVersion, LogicGraphVersion {
    /**
-    * Gets the external graph data.
+    * Sets the graph data.
     *
-    * @return the external graph data
+    * @param setGraphData the new graph data
     */
-   byte[][] getExternalGraphData();
-
-   /**
-    * Gets the graph data.
-    *
-    * @return the graph data
-    */
-   byte[][] getGraphData();
-
-   /**
-    * Gets the logical expression.
-    *
-    * @return the logical expression
-    */
-   LogicalExpression getLogicalExpression();
+   void setGraphData(byte[][] setGraphData);
 }
 

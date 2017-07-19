@@ -44,11 +44,11 @@ package sh.isaac.api.observable.sememe;
 import javafx.beans.property.IntegerProperty;
 
 import sh.isaac.api.State;
-import sh.isaac.api.component.sememe.SememeObject;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
+import sh.isaac.api.component.sememe.Sememe;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -59,7 +59,7 @@ import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
  * @param <V> the value type
  */
 public interface ObservableSememeChronology<V extends ObservableSememeVersion>
-        extends ObservableChronology<V>, SememeObject {
+        extends ObservableChronology<V>, Sememe {
    /**
     * Assemblage sequence property.
     *

@@ -46,7 +46,7 @@ import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.MutableDescriptionSememe;
+import sh.isaac.api.component.sememe.version.MutableDescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -67,7 +67,7 @@ public interface DescriptionBuilderService {
     * @return the description builder
     */
    DescriptionBuilder<? extends SememeChronology<?>,
-                      ? extends MutableDescriptionSememe> getDescriptionBuilder(String descriptionText,
+                      ? extends MutableDescriptionVersion> getDescriptionBuilder(String descriptionText,
                             ConceptBuilder conceptBuilder,
                             ConceptSpecification descriptionType,
                             ConceptSpecification languageForDescription);
@@ -82,7 +82,7 @@ public interface DescriptionBuilderService {
     * @return the description builder
     */
    DescriptionBuilder<? extends SememeChronology<?>,
-                      ? extends MutableDescriptionSememe> getDescriptionBuilder(String descriptionText,
+                      ? extends MutableDescriptionVersion> getDescriptionBuilder(String descriptionText,
                             int conceptSequence,
                             ConceptSpecification descriptionType,
                             ConceptSpecification languageForDescription);
