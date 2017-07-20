@@ -107,8 +107,8 @@ import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 @RunLevel(value = 2)
 public class LogicProvider
          implements LogicService {
-   /** The Constant log. */
-   private static final Logger log = LogManager.getLogger();
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
 
    /** The Constant classifierServiceMap. */
    private static final Map<ClassifierServiceKey, ClassifierService> classifierServiceMap = new ConcurrentHashMap<>();
@@ -120,7 +120,7 @@ public class LogicProvider
     */
    private LogicProvider() {
       // For HK2
-      log.info("logic provider constructed");
+      LOG.info("logic provider constructed");
    }
 
    //~--- methods -------------------------------------------------------------
@@ -403,7 +403,7 @@ public class LogicProvider
     */
    @PostConstruct
    private void startMe() {
-      log.info("Starting LogicProvider.");
+      LOG.info("Starting LogicProvider.");
    }
 
    /**
@@ -411,7 +411,7 @@ public class LogicProvider
     */
    @PreDestroy
    private void stopMe() {
-      log.info("Stopping LogicProvider.");
+      LOG.info("Stopping LogicProvider.");
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -479,10 +479,17 @@ public class LogicProvider
             .collect(Collectors.toList());
 
 
-      if (latestVersions.size() > 1) {
+      if (latestVersions.isEmpty()) {
+         LOG.warn("No logical expression for: " + Get.conceptDescriptionText(conceptId) + " in: " + 
+                 Get.conceptDescriptionText(logicAssemblageId) + "\n\n" + 
+                 Get.conceptService().getConcept(conceptId).toString());
+         return new LatestVersion<>();
+      } else if (latestVersions.size() > 1) {
          throw new IllegalStateException("More than one LogicGraphSememeImpl for concept in assemblage: " +
                                          latestVersions);
       }
+      
+      
 
       return latestVersions.get(0);
    }
