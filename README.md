@@ -96,4 +96,14 @@ Use "jenv exec mvn clean install" to get maven using the correct jdk.
 
 The first time I attempted to build this app these were the problems I had and creating the proper settings.xml file and running "jenv exec mvn clean install" fixed the problem.
 
+2) IntelliJ memory issues.
+
+https://stackoverflow.com/questions/13578062/how-to-increase-ide-memory-limit-in-intellij-idea-on-mac#13581526
+
+Be aware... newer versions of IntelliJ "should" make this a non issue as is indicated in the last post in that file:
+
+It looks like IDEA solves this for you (like everything else). When loading a large project and letting it thrash, it will open a dialog to up the memory settings. Entering 2048 for Xmx and clicking "Shutdown", then restarting IDEA makes IDEA start up with more memory. This seems to work well for Mac OS, though it never seems to persist for me on Windows (not sure about IDEA 12).
+
+
+
 
