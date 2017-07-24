@@ -258,19 +258,19 @@ public class KometStageController {
          } else {
             Tab tab1 = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
 
-            tab1.setContent(Cube.redContent());
+            //tab1.setContent(Cube.redContent());
             tabPane.getTabs()
                    .add(tab1);
 
             Tab tab2 = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
 
-            tab2.setContent(Cube.orangeContent());
+            //tab2.setContent(Cube.orangeContent());
             tabPane.getTabs()
                    .add(tab2);
 
             Tab tab3 = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
 
-            tab3.setContent(Cube.greenContent());
+            //tab3.setContent(Cube.greenContent());
             tabPane.getTabs()
                    .add(tab3);
          }

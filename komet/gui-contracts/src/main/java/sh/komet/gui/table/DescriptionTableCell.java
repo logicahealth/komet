@@ -1,10 +1,17 @@
 package sh.komet.gui.table;
 
+import java.util.HashSet;
+import java.util.Set;
+import javafx.collections.ObservableSet;
+import javafx.css.PseudoClass;
+import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.TableCell;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import javafx.scene.transform.NonInvertibleTransformException;
+import javafx.scene.transform.Transform;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
@@ -50,20 +57,29 @@ public class DescriptionTableCell<T extends IdentifiedObject> extends TableCell<
 
    @Override
    public Image getDragImage() {
+      
       SnapshotParameters snapshotParameters = new SnapshotParameters();
-
+      //snapshotParameters.setFill(Color.BISQUE);
       dragOffset = 0;
 
       double width  = this.getWidth();
       double height = this.getHeight();
+      
+      Transform pointTransform = this.getLocalToParentTransform();
+      pointTransform = pointTransform.createConcatenation(this.getParent().getLocalToParentTransform());
 
       try {
-         snapshotParameters.setTransform(this.getLocalToParentTransform().createInverse());
+         snapshotParameters.setTransform(pointTransform.createInverse());
       } catch (NonInvertibleTransformException ex) {
          throw new RuntimeException(ex);
       }
-      snapshotParameters.setViewport(new Rectangle2D(dragOffset -2, 0, width, height));
-      return snapshot(snapshotParameters, null);
+      
+      Point2D pointInTable = pointTransform.deltaTransform(0, 0);
+      snapshotParameters.setViewport(new Rectangle2D(dragOffset -2, pointInTable.getY(), width, height));
+      Image image = this.getParent().getParent().snapshot(snapshotParameters, null);
+      //return this.getScene().snapshot(null);
+      return image;
+      //return snapshot(null, null);
    }
 
    @Override

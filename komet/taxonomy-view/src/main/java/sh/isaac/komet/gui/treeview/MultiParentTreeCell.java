@@ -306,9 +306,9 @@ final public class MultiParentTreeCell
       double height = this.getHeight();
 
       if (graphicTilePane != null) {
-         // The height difference and widh difference are to account for possible 
+         // The height difference and width difference are to account for possible 
          // changes in size of an object secondary to a hover (which might cause a 
-         // -fx-effect:  dropshadow... or similar, whicn will create a diference in the 
+         // -fx-effect:  dropshadow... or similar, whicn will create a difference in the 
          // tile pane height, but not cause a change in getLayoutBounds()...
          // I don't know if this is a workaround for a bug, or if this is expected
          // behaviour for some reason...
