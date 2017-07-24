@@ -1,7 +1,6 @@
 package sh.komet.fx.stage;
 
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import javafx.application.Application;
@@ -10,8 +9,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javax.swing.ImageIcon;
-import org.apache.commons.lang3.SystemUtils;
 import sh.isaac.api.LookupService;
 import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
 import sh.isaac.komet.iconography.Iconography;
@@ -34,16 +31,23 @@ public class MainApp extends Application {
          System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/data/meta-db.data");
       } else if (Files.exists(Paths.get("target", "data", "solor-db.data"))) {
          System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/data/solor-db.data");
+      } else if (Files.exists(Paths.get("data", "meta-db.data"))) {
+         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "data/meta-db.data");
+      } else if (Files.exists(Paths.get("data", "solor-db.data"))) {
+         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "data/solor-db.data");
       } else if (Files.exists(Paths.get("meta-db.data"))) {
-         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "solor-db.data");
-      } else if (Files.exists(Paths.get("solor-db.data"))) {
          System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "meta-db.data");
+      } else if (Files.exists(Paths.get("solor-db.data"))) {
+         System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "solor-db.data");
       } else {
          throw new UnsupportedOperationException("Can't find data directory... Working dir: " + System.getProperty("user.dir"));
       }
 
       if (Files.exists(Paths.get("target", "data", "user.css"))) {
          System.setProperty(USER_CSS_LOCATION_PROPERTY, Paths.get("target", "data", "user.css").toUri().toURL().toString());
+
+      } else if (Files.exists(Paths.get("data", "user.css"))) {
+         System.setProperty(USER_CSS_LOCATION_PROPERTY, Paths.get("data", "user.css").toUri().toURL().toString());
 
       } else if (Files.exists(Paths.get("user.css"))) {
          System.setProperty(USER_CSS_LOCATION_PROPERTY, Paths.get("user.css").toUri().toURL().toString());
