@@ -87,9 +87,9 @@ import sh.isaac.komet.gui.treeview.MultiParentTreeView;
 
 import sh.komet.fx.tabpane.DndTabPaneFactory;
 import sh.komet.fx.tabpane.DndTabPaneFactory.FeedbackType;
-import sh.komet.gui.contract.DetailNode;
+import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.contract.DetailNodeFactory;
-import sh.komet.gui.contract.ExplorationNode;
+import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.contract.Manifold;
 

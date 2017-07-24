@@ -18,7 +18,6 @@
  */
 package sh.isaac.komet.gui.treeview;
 
-import sh.komet.gui.interfaces.MultiParentTreeItemDisplayPolicies;
 import sh.komet.gui.contract.Manifold;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +55,6 @@ import org.controlsfx.dialog.ExceptionDialog;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.komet.iconography.Iconography;

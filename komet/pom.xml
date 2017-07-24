@@ -37,5 +37,6 @@
       <module>gui-contracts</module>
       <module>search-view</module>
       <module>css</module>
+      <module>mavenproject1/dialog</module>
    </modules>
 </project> 

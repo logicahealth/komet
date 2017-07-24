@@ -62,13 +62,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 
 import javafx.collections.ObservableList;
 
@@ -102,8 +102,8 @@ import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
-
 import javafx.util.Callback;
+
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -120,8 +120,6 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 import sh.isaac.api.query.Clause;
@@ -133,11 +131,14 @@ import sh.isaac.api.query.QueryBuilder;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 
 import sh.komet.gui.action.ConceptAction;
-import sh.komet.gui.contract.ExplorationNode;
+import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.contract.Manifold;
-import sh.komet.gui.contract.StyleClasses;
+import sh.komet.gui.style.StyleClasses;
 
 import static sh.isaac.api.query.QueryBuilder.DEFAULT_MANIFOLD_COORDINATE_KEY;
+import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
+import sh.komet.gui.drag.drop.DragDoneEventHandler;
+import sh.komet.gui.table.DescriptionTableCell;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -287,6 +288,13 @@ public class QueryController
       assert textColumn != null: "fx:id=\"textColumn\" was not injected: check your FXML file 'Query.fxml'.";
       assert typeColumn != null: "fx:id=\"typeColumn\" was not injected: check your FXML file 'Query.fxml'.";
       assert languageColumn != null: "fx:id=\"languageColumn\" was not injected: check your FXML file 'Query.fxml'.";
+      
+      
+      textColumn.setCellValueFactory((TableColumn.CellDataFeatures<ObservableDescriptionVersion, String> param) -> param.getValue().textProperty());
+      textColumn.setCellFactory((TableColumn<ObservableDescriptionVersion, String> stringText) -> new DescriptionTableCell());
+      resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
+      resultTable.setOnDragDone(new DragDoneEventHandler());
+
    }
 
    private void addChildClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
@@ -378,12 +386,14 @@ public class QueryController
       } else {
          ParentClause parent = (ParentClause) clause;
 
-         for (TreeItem<QueryClause> child: itemToProcess.getChildren()) {
+         itemToProcess.getChildren().stream().map((child) -> {
             parent.getChildren()
-                  .add(child.getValue()
+                    .add(child.getValue()
                             .getClause());
+            return child;
+         }).forEachOrdered((child) -> {
             processQueryTreeItem(child, queryBuilder);
-         }
+         });
       }
    }
 

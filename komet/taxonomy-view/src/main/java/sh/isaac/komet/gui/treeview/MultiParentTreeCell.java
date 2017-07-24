@@ -45,7 +45,6 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.logging.Level;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -81,9 +80,10 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.komet.gui.KOMET;
 import sh.komet.gui.interfaces.DraggableWithImage;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
+import sh.komet.gui.drag.drop.DragDoneEventHandler;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -125,14 +125,10 @@ final public class MultiParentTreeCell
       setContextMenu(cm);
 
       // Allow drags
-      // TODO FixLeak...
-      KOMET.setupDragOnly(
-          this,
-              () -> {
-                 ConceptChronology conceptChronicle = MultiParentTreeCell.this.getItem();
+      
+      this.setOnDragDetected(new DragDetectedCellEventHandler());
+      this.setOnDragDone(new DragDoneEventHandler());
 
-                 return conceptChronicle.getUuidList();
-              });
    }
 
    //~--- methods -------------------------------------------------------------
@@ -301,6 +297,7 @@ final public class MultiParentTreeCell
 
    @Override
    public Image getDragImage() {
+      //TODO see if we can replace this method with DragImageMaker...
       SnapshotParameters snapshotParameters = new SnapshotParameters();
 
       dragOffset = 0;
@@ -315,13 +312,6 @@ final public class MultiParentTreeCell
          // tile pane height, but not cause a change in getLayoutBounds()...
          // I don't know if this is a workaround for a bug, or if this is expected
          // behaviour for some reason...
-         double layoutHeight     = graphicTilePane.getLayoutBounds()
-                                       .getHeight();
-         double heightDifference = graphicTilePane.getBoundsInParent()
-                                                  .getHeight() - layoutHeight;
-         if (heightDifference > 0) {
-            heightDifference = Math.rint(heightDifference);
-         }
 
          double layoutWidth     = graphicTilePane.getLayoutBounds()
                                        .getWidth();

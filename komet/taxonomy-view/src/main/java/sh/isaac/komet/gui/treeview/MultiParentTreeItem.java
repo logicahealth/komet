@@ -18,8 +18,6 @@
  */
 package sh.isaac.komet.gui.treeview;
 
-import sh.komet.gui.interfaces.MultiParentTreeItemDisplayPolicies;
-import sh.komet.gui.interfaces.MultiParentTreeItemI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +33,6 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.util.AlphanumComparator;
 
 /**
