@@ -45,7 +45,6 @@ import java.net.URL;
 
 import java.util.ArrayList;
 import java.util.ResourceBundle;
-import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -127,8 +126,6 @@ public class KometStageController {
    private Label                                statusMessage;                    // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="vanityBox"
    private Button                               vanityBox;                        // Value injected by FXMLLoader
-   Manifold                                     taxonomyManifold;
-   Manifold                                     searchManifold;
 
    //~--- methods -------------------------------------------------------------
 
@@ -201,15 +198,15 @@ public class KometStageController {
          Tab tab = new Tab("Taxonomy");
          tab.setGraphic(Iconography.TAXONOMY_ICON.getIconographic());
 
-         getManifold().focusedObjectProperty()
+         Manifold.TAXONOMY.focusedObjectProperty()
                       .addListener(
                           (ObservableValue<? extends IdentifiedObject> observable,
                            IdentifiedObject oldValue,
                            IdentifiedObject newValue) -> {
-                             statusMessage.setText(getManifold().getName() + " selected: " + newValue.toUserString());
+                             statusMessage.setText(Manifold.TAXONOMY.getName() + " selected: " + newValue.toUserString());
                           });
 
-         MultiParentTreeView treeView = new MultiParentTreeView(taxonomyManifold);
+         MultiParentTreeView treeView = new MultiParentTreeView(Manifold.TAXONOMY);
 
          treeViewList.add(treeView);
          tab.setContent(new BorderPane(treeView));
@@ -224,31 +221,31 @@ public class KometStageController {
       } else {
          if (tabPanelCount == 2) {
             for (DetailNodeFactory factory: Get.services(DetailNodeFactory.class)) {
-               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, taxonomyManifold);
+               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.TAXONOMY);
+               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.FLOWR_QUERY);
+               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.SIMPLE_SEARCH);
             }
          }
 
          if (tabPanelCount == 3) {
-            for (ExplorationNodeFactory factory: Get.services(ExplorationNodeFactory.class)) {
+            Get.services(ExplorationNodeFactory.class).stream().map((factory) -> {
                Tab tab = new Tab("FLOWR Query");
                tab.setGraphic(Iconography.FL0WR_SEARCH.getIconographic());
                tab.setTooltip(new Tooltip("For, Let, Order, Where, Return query construction panel"));
-
                BorderPane searchPane = new BorderPane();
-
                searchPane.setBorder(
-                   new Border(
-                       new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-
-               ExplorationNode explorationNode = factory.createExplorationNode(taxonomyManifold, searchPane);
-
+                       new Border(
+                               new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+               ExplorationNode explorationNode = factory.createExplorationNode(Manifold.FLOWR_QUERY, searchPane);
                tab.getTooltip()
-                  .textProperty()
-                  .bind(explorationNode.getToolTip());
+                       .textProperty()
+                       .bind(explorationNode.getToolTip());
                tab.setContent(searchPane);
+               return tab;
+            }).forEachOrdered((tab) -> {
                tabPane.getTabs()
-                      .add(tab);
-            }
+                       .add(tab);
+            });
 
             ProgressIndicator p1 = new ProgressIndicator();
             p1.setPrefSize(20, 20);
@@ -256,24 +253,6 @@ public class KometStageController {
             tabPane.getTabs()
                    .add(progressTab);
             progressTab.setGraphic(p1);
-         } else {
-            Tab tab1 = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
-
-            //tab1.setContent(Cube.redContent());
-            tabPane.getTabs()
-                   .add(tab1);
-
-            Tab tab2 = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
-
-            //tab2.setContent(Cube.orangeContent());
-            tabPane.getTabs()
-                   .add(tab2);
-
-            Tab tab3 = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
-
-            //tab3.setContent(Cube.greenContent());
-            tabPane.getTabs()
-                   .add(tab3);
          }
       }
 
@@ -297,20 +276,6 @@ public class KometStageController {
       tabPane.getTabs()
               .add(tab);
       return tabCountInPanel;
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   private Manifold getManifold() {
-      if (this.taxonomyManifold == null) {
-         this.taxonomyManifold = new Manifold(
-             "taxonomy",
-             UUID.randomUUID(),
-             Get.configurationService().getDefaultManifoldCoordinate(),
-             Get.configurationService().getDefaultEditCoordinate());
-      }
-
-      return this.taxonomyManifold;
    }
 }
 
