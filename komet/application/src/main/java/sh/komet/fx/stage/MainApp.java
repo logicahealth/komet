@@ -21,6 +21,11 @@ public class MainApp extends Application {
     public static final String SPLASH_IMAGE =
             "prism-splash.png";
 
+    // Add link dropdown populated with all manifolds, and ability to add...
+    // Create drop label for identified components
+    // Create walker panel
+    // grow & shrink icons for tabs & tab panels...
+    // for each tab group, add a + control to create new tabs...
    @Override
    public void start(Stage stage) throws Exception {
       //TODO have SvgImageLoaderFactory autoinstall as part of a HK2 service. 

@@ -11,6 +11,7 @@
  *******************************************************************************/
 package sh.komet.fx.tabpane;
 
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
 /**
@@ -40,7 +41,7 @@ public class FXTabPaneWrapper implements GenericTabPane {
 
 	@Override
 	public boolean remove(GenericTab t) {
-		return this.pane.getTabs().remove(t.getNativeInstance());
+		return this.pane.getTabs().remove((Tab) t.getNativeInstance());
 	}
 
 	@Override
@@ -63,18 +64,23 @@ public class FXTabPaneWrapper implements GenericTabPane {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		if (this == obj) {
+                   return true;
+                }
+		if (obj == null) {
+                   return false;
+                }
+		if (getClass() != obj.getClass()) {
+                   return false;
+                }
 		FXTabPaneWrapper other = (FXTabPaneWrapper) obj;
 		if (this.pane == null) {
-			if (other.pane != null)
-				return false;
-		} else if (!this.pane.equals(other.pane))
-			return false;
+			if (other.pane != null) {
+                           return false;
+                        }
+		} else if (!this.pane.equals(other.pane)) {
+                   return false;
+                }
 		return true;
 	}
 

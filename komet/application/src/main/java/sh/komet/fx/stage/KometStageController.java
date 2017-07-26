@@ -53,7 +53,6 @@ import javafx.application.Platform;
 
 import javafx.beans.value.ObservableValue;
 
-import javafx.concurrent.Task;
 
 import javafx.event.ActionEvent;
 
@@ -79,7 +78,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 
-import org.controlsfx.control.TaskProgressView;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.identity.IdentifiedObject;
@@ -94,6 +92,7 @@ import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.contract.Manifold;
 
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
+import sh.isaac.komet.iconography.Iconography;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -200,6 +199,7 @@ public class KometStageController {
 
       if (tabPanelCount == 1) {
          Tab tab = new Tab("Taxonomy");
+         tab.setGraphic(Iconography.TAXONOMY_ICON.getIconographic());
 
          getManifold().focusedObjectProperty()
                       .addListener(
@@ -217,6 +217,7 @@ public class KometStageController {
                 .add(tab);
 
          Tab searchTab = new Tab("Search");
+         searchTab.setGraphic(Iconography.SIMPLE_SEARCH.getIconographic());
 
          tabPane.getTabs()
                 .add(searchTab);
@@ -230,8 +231,8 @@ public class KometStageController {
          if (tabPanelCount == 3) {
             for (ExplorationNodeFactory factory: Get.services(ExplorationNodeFactory.class)) {
                Tab tab = new Tab("FLOWR Query");
-
-               tab.setTooltip(new Tooltip("Query view"));
+               tab.setGraphic(Iconography.FL0WR_SEARCH.getIconographic());
+               tab.setTooltip(new Tooltip("For, Let, Order, Where, Return query construction panel"));
 
                BorderPane searchPane = new BorderPane();
 

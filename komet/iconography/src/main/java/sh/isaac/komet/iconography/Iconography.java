@@ -17,10 +17,12 @@
 package sh.isaac.komet.iconography;
 
 import de.jensd.fx.glyphs.GlyphIcon;
+import de.jensd.fx.glyphs.emojione.EmojiOneView;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
 import de.jensd.fx.glyphs.materialicons.MaterialIconView;
 import javafx.scene.Node;
+import static sh.isaac.komet.iconography.Iconography.IconSource.EMOJI_ONE;
 import static sh.isaac.komet.iconography.Iconography.IconSource.FONT_AWSOME;
 import static sh.isaac.komet.iconography.Iconography.IconSource.MATERIAL_DESIGNS_ICON;
 import static sh.isaac.komet.iconography.Iconography.IconSource.MATERIAL_DESIGNS_WEBFONT;
@@ -49,7 +51,12 @@ public enum Iconography {
    VANITY_BOX(SVG, "vanity-box"),
    SET_AND(SVG, "set-and"),
    SET_OR(SVG, "set-or"),
-   RUN(MATERIAL_DESIGNS_ICON, "run"),
+   RUN(MATERIAL_DESIGNS_WEBFONT, "run"),
+   LINK(MATERIAL_DESIGNS_WEBFONT, "link"),
+   LINK_BROKEN(MATERIAL_DESIGNS_WEBFONT, "link-broken"),
+   FL0WR_SEARCH(MATERIAL_DESIGNS_WEBFONT, "flowr-search"),
+   SIMPLE_SEARCH(MATERIAL_DESIGNS_WEBFONT, "simple-search"),
+   SETTINGS_GEAR(EMOJI_ONE, "settings-gear")
    ;
 
    String cssClass;
@@ -63,19 +70,15 @@ public enum Iconography {
    public Node getIconographic() {
       switch (source) {
          case MATERIAL_DESIGNS_WEBFONT:
-            GlyphIcon mdiv = new MaterialDesignIconView().setStyleClass(cssClass);
-            //mdiv.setBoundsType(TextBoundsType.LOGICAL_VERTICAL_CENTER);
-            return mdiv;
+            return new MaterialDesignIconView().setStyleClass(cssClass);
          case FONT_AWSOME:
-            GlyphIcon faiv = new FontAwesomeIconView().setStyleClass(cssClass);
-            //faiv.setBoundsType(TextBoundsType.LOGICAL_VERTICAL_CENTER);
-            return faiv;
+            return new FontAwesomeIconView().setStyleClass(cssClass);
          case SVG:
             return new SvgIconographic().setStyleClass(cssClass);
          case MATERIAL_DESIGNS_ICON:
-            GlyphIcon miv = new MaterialIconView().setStyleClass(cssClass);
-            //miv.setBoundsType(TextBoundsType.LOGICAL_VERTICAL_CENTER);
-            return miv;
+            return new MaterialIconView().setStyleClass(cssClass);
+         case EMOJI_ONE:
+            return new EmojiOneView().setStyleClass(cssClass);
          default:
             throw new UnsupportedOperationException("Can't handle: " + source);
       }
@@ -83,7 +86,7 @@ public enum Iconography {
 
 
    enum IconSource {
-      MATERIAL_DESIGNS_WEBFONT, MATERIAL_DESIGNS_ICON, FONT_AWSOME, SVG
+      MATERIAL_DESIGNS_WEBFONT, MATERIAL_DESIGNS_ICON, FONT_AWSOME, SVG, EMOJI_ONE
    };
    
    public static String getStyleSheetStringUrl() {

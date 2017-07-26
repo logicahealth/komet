@@ -125,7 +125,6 @@ limitations under the License.
    -glyph-name: "CHECKBOX_BLANK_CIRCLE_OUTLINE";
    -glyph-size: 14pt;
    -icons-color: #7DDE3A;
-   
 }
 
 .taxonomy-closed-icon {
@@ -213,5 +212,36 @@ limitations under the License.
    -my-width: 25;
    -icons-color: #FF4E08;
    -fx-rotate:90; 
-   
+}
+.run {
+   -glyph-name: "RUN";
+   -glyph-size: 16pt;
+   -icons-color: #4f80d9;
+}
+
+.link {
+   -glyph-name: "LINK_VARIANT";
+   -glyph-size: 16pt;
+   -icons-color: #4f80d9;
+}
+.link-broken {
+   -glyph-name: "LINK_VARIANT_OFF";
+   -glyph-size: 16pt;
+   -icons-color: #4f80d9;
+}
+
+.flowr-search {
+   -glyph-name: "FLOWER";
+   -glyph-size: 16pt;
+   -icons-color: #4f80d9;
+}
+.simple-search {
+   -glyph-name: "MAGNIFY";
+   -glyph-size: 16pt;
+   -icons-color: #4f80d9;
+}
+.settings-gear {
+   -glyph-name: "GEAR";
+   -glyph-size: 16pt;
+   -icons-color: #4f80d9;
 }

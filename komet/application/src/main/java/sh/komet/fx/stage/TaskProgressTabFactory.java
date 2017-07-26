@@ -92,7 +92,9 @@ public class TaskProgressTabFactory {
          @Override
          public void accept(Object t) {
             if (view.getTasks().isEmpty()) {
-               tab.setGraphic(null);
+               if (tab.getGraphic() != null) {
+                  tab.setGraphic(null);
+               }
             } else {
                if (tab.getGraphic() == null) {
                   tab.setGraphic(new ProgressIndicator());
