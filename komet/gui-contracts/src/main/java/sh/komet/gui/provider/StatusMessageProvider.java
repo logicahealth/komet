@@ -14,29 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.util;
+package sh.komet.gui.provider;
 
-import sh.isaac.api.Get;
-import sh.komet.gui.contract.DialogService;
+import java.util.HashMap;
+import java.util.function.Consumer;
+import javafx.scene.Scene;
 import sh.komet.gui.contract.StatusMessageService;
-import sh.komet.gui.provider.StatusMessageProvider;
 
 /**
  *
  * @author kec
  */
-public class FxGet {
-   private static DialogService DIALOG_SERVICE = null;
-   private static StatusMessageProvider statusMessageProvider = new StatusMessageProvider();
-   public static DialogService dialogs() {
-      if (DIALOG_SERVICE == null) {
-         DIALOG_SERVICE = Get.service(DialogService.class);
-      }
-      return DIALOG_SERVICE;
+public class StatusMessageProvider implements StatusMessageService {
+   
+   private final HashMap<String, Consumer<String>> consumerMap = new HashMap<>();
+   
+   @Override
+   public void addScene(Scene scene, Consumer<String> messageConsumer) {
+      consumerMap.put(scene.getRoot().getId(), messageConsumer);
    }
    
-   public static StatusMessageService statusMessageService() {
-      return statusMessageProvider;
+   @Override
+   public void removeScene(Scene scene) {
+      consumerMap.remove(scene.getRoot().getId());
+   }
+   
+   @Override
+   public void reportSceneStatus(Scene scene, String status) {
+      if (consumerMap.containsKey(scene.getRoot().getId())) {
+         consumerMap.get(scene.getRoot().getId()).accept(status);
+      }
    }
    
 }

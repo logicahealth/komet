@@ -216,32 +216,50 @@ limitations under the License.
 .run {
    -glyph-name: "RUN";
    -glyph-size: 16pt;
-   -icons-color: #4f80d9;
+   -icons-color: #4CB709;
 }
 
 .link {
    -glyph-name: "LINK_VARIANT";
    -glyph-size: 16pt;
-   -icons-color: #4f80d9;
+   -icons-color: #4CB709;
 }
 .link-broken {
    -glyph-name: "LINK_VARIANT_OFF";
    -glyph-size: 16pt;
-   -icons-color: #4f80d9;
+   -icons-color: #4CB709;
 }
 
 .flowr-search {
    -glyph-name: "FLOWER";
    -glyph-size: 16pt;
-   -icons-color: #4f80d9;
+   -icons-color: #4CB709;
 }
 .simple-search {
    -glyph-name: "MAGNIFY";
    -glyph-size: 16pt;
-   -icons-color: #4f80d9;
+   -icons-color: #4CB709;
 }
 .settings-gear {
    -glyph-name: "GEAR";
    -glyph-size: 16pt;
-   -icons-color: #4f80d9;
+   -icons-color: #4CB709;
+}
+
+.tree-aspect-ratio-layout {
+   -glyph-name: "ARRANGE_SEND_TO_BACK";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+
+.classic-tree-layout {
+   -glyph-name: "FILE_TREE";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+
+.hierarchical-layout {
+   -glyph-name: "CROWN";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
 }

@@ -66,16 +66,10 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
-import javafx.scene.paint.Color;
 
 
 import sh.isaac.api.Get;
@@ -92,10 +86,15 @@ import sh.komet.gui.contract.Manifold;
 
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.contract.StatusMessageConsumer;
+import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
-
-public class KometStageController {
+/**
+ * Root node of scene is given a UUID for unique identification. 
+ * @author kec
+ */
+public class KometStageController implements StatusMessageConsumer{
    private int                                  tabPanelCount = 0;
    private final ArrayList<MultiParentTreeView> treeViewList  = new ArrayList<>();
    @FXML  // ResourceBundle that was given to the FXMLLoader
@@ -187,7 +186,7 @@ public class KometStageController {
       HBox.setHgrow(pane, Priority.ALWAYS);
       return pane;
    }
-
+   
    private TabPane setupTabPane(TabPane tabPane) {
       HBox.setHgrow(tabPane, Priority.ALWAYS);
       tabPanelCount++;
@@ -203,7 +202,23 @@ public class KometStageController {
                           (ObservableValue<? extends IdentifiedObject> observable,
                            IdentifiedObject oldValue,
                            IdentifiedObject newValue) -> {
-                             statusMessage.setText(Manifold.TAXONOMY.getName() + " selected: " + newValue.toUserString());
+                             FxGet.statusMessageService().reportSceneStatus(statusMessage.getScene(), Manifold.TAXONOMY.getName() + " selected: " + newValue.toUserString());
+                          });
+
+         Manifold.FLOWR_QUERY.focusedObjectProperty()
+                      .addListener(
+                          (ObservableValue<? extends IdentifiedObject> observable,
+                           IdentifiedObject oldValue,
+                           IdentifiedObject newValue) -> {
+                             FxGet.statusMessageService().reportSceneStatus(statusMessage.getScene(), Manifold.FLOWR_QUERY.getName() + " selected: " + newValue.toUserString());
+                          });
+
+         Manifold.SIMPLE_SEARCH.focusedObjectProperty()
+                      .addListener(
+                          (ObservableValue<? extends IdentifiedObject> observable,
+                           IdentifiedObject oldValue,
+                           IdentifiedObject newValue) -> {
+                             FxGet.statusMessageService().reportSceneStatus(statusMessage.getScene(), Manifold.SIMPLE_SEARCH.getName() + " selected: " + newValue.toUserString());
                           });
 
          MultiParentTreeView treeView = new MultiParentTreeView(Manifold.TAXONOMY);
@@ -233,9 +248,6 @@ public class KometStageController {
                tab.setGraphic(Iconography.FL0WR_SEARCH.getIconographic());
                tab.setTooltip(new Tooltip("For, Let, Order, Where, Return query construction panel"));
                BorderPane searchPane = new BorderPane();
-               searchPane.setBorder(
-                       new Border(
-                               new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
                ExplorationNode explorationNode = factory.createExplorationNode(Manifold.FLOWR_QUERY, searchPane);
                tab.getTooltip()
                        .textProperty()
@@ -263,9 +275,6 @@ public class KometStageController {
       Tab tab = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
       tab.setTooltip(new Tooltip("A Square"));
       BorderPane graphPane = new BorderPane();
-      graphPane.setBorder(
-              new Border(
-                      new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
       DetailNode detailNode = factory.createDetailNode(manifold, graphPane);
       tab.textProperty()
               .bind(detailNode.getTitle());
@@ -276,6 +285,11 @@ public class KometStageController {
       tabPane.getTabs()
               .add(tab);
       return tabCountInPanel;
+   }
+
+   @Override
+   public void reportStatus(String status) {
+            statusMessage.setText(status);
    }
 }
 

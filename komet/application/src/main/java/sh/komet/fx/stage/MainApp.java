@@ -3,6 +3,7 @@ package sh.komet.fx.stage;
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.UUID;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +14,7 @@ import sh.isaac.api.LookupService;
 import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
 import sh.isaac.komet.iconography.Iconography;
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
+import sh.komet.gui.util.FxGet;
 
 public class MainApp extends Application {
 // TODO add TaskProgressView
@@ -21,7 +23,6 @@ public class MainApp extends Application {
     public static final String SPLASH_IMAGE =
             "prism-splash.png";
 
-    // Add link dropdown populated with all manifolds, and ability to add...
     // Create drop label for identified components
     // Create walker panel
     // grow & shrink icons for tabs & tab panels...
@@ -61,8 +62,12 @@ public class MainApp extends Application {
       }
 
       LookupService.startupIsaac();
-      Parent root = FXMLLoader.load(getClass().getResource("/fxml/KometStageScene.fxml"));
-
+      
+      FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
+      
+      Parent root = loader.load();
+      KometStageController controller = loader.getController();
+      root.setId(UUID.randomUUID().toString());
       Scene scene = new Scene(root);
       //GraphController.setSceneForControllers(scene);
       scene.getStylesheets().add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
@@ -81,6 +86,9 @@ public class MainApp extends Application {
       // KOLDAC
       stage.setTitle("KOMET Reflector");
       stage.setScene(scene);
+      
+      FxGet.statusMessageService().addScene(scene, controller::reportStatus);
+
       stage.show();
 
       //ScenicView.show(scene);

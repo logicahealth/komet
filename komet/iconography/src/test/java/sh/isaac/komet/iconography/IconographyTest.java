@@ -62,6 +62,9 @@ public class IconographyTest extends Application {
       iconsPane.getChildren().add(Iconography.FL0WR_SEARCH.getIconographic());
       iconsPane.getChildren().add(Iconography.SIMPLE_SEARCH.getIconographic());
       iconsPane.getChildren().add(Iconography.SETTINGS_GEAR.getIconographic());
+      iconsPane.getChildren().add(Iconography.TREE_ASPECT_RATIO_LAYOUT.getIconographic());
+      iconsPane.getChildren().add(Iconography.CLASSIC_TREE_LAYOUT.getIconographic());
+      iconsPane.getChildren().add(Iconography.HIERARCHICAL_LAYOUT.getIconographic());
 
       Scene scene = new Scene(new ScrollPane(iconsPane), 500, 500);
       stage.setScene(scene);

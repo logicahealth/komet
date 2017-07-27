@@ -14,29 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.util;
+package sh.komet.gui.contract;
 
-import sh.isaac.api.Get;
-import sh.komet.gui.contract.DialogService;
-import sh.komet.gui.contract.StatusMessageService;
-import sh.komet.gui.provider.StatusMessageProvider;
+import java.util.function.Consumer;
+import javafx.scene.Scene;
 
 /**
  *
  * @author kec
  */
-public class FxGet {
-   private static DialogService DIALOG_SERVICE = null;
-   private static StatusMessageProvider statusMessageProvider = new StatusMessageProvider();
-   public static DialogService dialogs() {
-      if (DIALOG_SERVICE == null) {
-         DIALOG_SERVICE = Get.service(DialogService.class);
-      }
-      return DIALOG_SERVICE;
-   }
-   
-   public static StatusMessageService statusMessageService() {
-      return statusMessageProvider;
-   }
-   
+public interface StatusMessageService {
+   void reportSceneStatus(Scene scene, String status);
+   void addScene(Scene scene, Consumer<String> messageConsumer);
+   void removeScene(Scene scene);
 }

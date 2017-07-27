@@ -16,7 +16,6 @@
  */
 package sh.isaac.komet.iconography;
 
-import de.jensd.fx.glyphs.GlyphIcon;
 import de.jensd.fx.glyphs.emojione.EmojiOneView;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
@@ -56,7 +55,11 @@ public enum Iconography {
    LINK_BROKEN(MATERIAL_DESIGNS_WEBFONT, "link-broken"),
    FL0WR_SEARCH(MATERIAL_DESIGNS_WEBFONT, "flowr-search"),
    SIMPLE_SEARCH(MATERIAL_DESIGNS_WEBFONT, "simple-search"),
-   SETTINGS_GEAR(EMOJI_ONE, "settings-gear")
+   SETTINGS_GEAR(EMOJI_ONE, "settings-gear"),
+   
+  TREE_ASPECT_RATIO_LAYOUT(MATERIAL_DESIGNS_WEBFONT, "tree-aspect-ratio-layout"),
+  CLASSIC_TREE_LAYOUT(MATERIAL_DESIGNS_WEBFONT, "classic-tree-layout"),
+  HIERARCHICAL_LAYOUT(MATERIAL_DESIGNS_WEBFONT, "hierarchical-layout")
    ;
 
    String cssClass;
