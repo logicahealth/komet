@@ -280,12 +280,12 @@ public class ProcessClassificationResults
                     = ((SememeChronology<LogicGraphVersion>) rawStatedChronology).getLatestVersion(LogicGraphVersion.class,
                             this.stampCoordinate);
 
-            if (latestStatedDefinitionOptional.value().isPresent()) {
+            if (latestStatedDefinitionOptional.isPresent()) {
                final LogicalExpressionBuilder inferredBuilder
                        = logicalExpressionBuilderService.getLogicalExpressionBuilder();
                final LatestVersion<LogicGraphVersion> latestStatedDefinition
                        = latestStatedDefinitionOptional;
-               final LogicalExpression statedDefinition = latestStatedDefinition.value().get()
+               final LogicalExpression statedDefinition = latestStatedDefinition.get()
                        .getLogicalExpression();
 
                if (statedDefinition.contains(NodeSemantic.SUFFICIENT_SET)) {
@@ -344,8 +344,8 @@ public class ProcessClassificationResults
                              = inferredChronology.getLatestVersion(LogicGraphVersion.class,
                                      this.stampCoordinate);
 
-                     if (latestDefinitionOptional.value().isPresent()) {
-                        if (!latestDefinitionOptional.value().get()
+                     if (latestDefinitionOptional.isPresent()) {
+                        if (!latestDefinitionOptional.get()
                                 .getLogicalExpression()
                                 .equals(inferredExpression)) {
                            final MutableLogicGraphVersion newVersion

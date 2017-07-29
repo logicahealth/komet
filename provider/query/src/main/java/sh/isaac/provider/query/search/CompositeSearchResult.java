@@ -86,7 +86,7 @@ public class CompositeSearchResult {
    //~--- fields --------------------------------------------------------------
 
    /** The containing concept. */
-   private Optional<ConceptSnapshot> containingConcept = null;
+   private ConceptSnapshot containingConcept = null;
 
    /** The matching components. */
    private final Set<Chronology<?>> matchingComponents = new HashSet<>();
@@ -109,8 +109,8 @@ public class CompositeSearchResult {
       this.bestScore = score;
 
       // matchingComponent may be null, if the match is not on our view path...
-      this.containingConcept     = Optional.empty();
       this.matchingComponentNid = matchingComponentNid;
+      getContainingConcept(matchingComponentNid);
    }
 
    /**
@@ -129,8 +129,15 @@ public class CompositeSearchResult {
       } else {
          this.matchingComponentNid = matchingComponent.getNid();
       }
+      getContainingConcept(matchingComponent.getNid());
+      
+   }
 
-      this.containingConcept = locateContainingConcept(matchingComponent.getNid());
+   private void getContainingConcept(int nid) {
+      Optional<ConceptSnapshot> containingConceptOptional = locateContainingConcept(nid);
+      if (containingConceptOptional.isPresent()) {
+         this.containingConcept = containingConceptOptional.get();
+      }
    }
 
    //~--- methods -------------------------------------------------------------
@@ -166,8 +173,7 @@ public class CompositeSearchResult {
       final StringBuilder builder = new StringBuilder();
 
       builder.append("CompositeSearchResult [containingConcept=");
-      builder.append(this.containingConcept.isPresent() ? this.containingConcept.get()
-            : "null");
+      builder.append(this.containingConcept);
       builder.append(", matchingComponentNid_=");
       builder.append(this.matchingComponentNid);
       builder.append(", bestScore=");
@@ -195,9 +201,7 @@ public class CompositeSearchResult {
       final StringBuilder builder = new StringBuilder();
 
       builder.append("CompositeSearchResult [containingConcept=");
-      builder.append(this.containingConcept.isPresent() ? this.containingConcept.get()
-            .getNid()
-            : null);
+      builder.append(this.containingConcept);
 
       if (this.matchingComponentNid != 0) {
          builder.append(", matchingComponentNid_=");
@@ -236,12 +240,11 @@ public class CompositeSearchResult {
 
       String containingConceptDesc = null;
 
-      if (this.containingConcept.isPresent()) {
+      if (this.containingConcept != null) {
          try {
-            containingConceptDesc = this.containingConcept.get()
-                  .getFullySpecifiedConceptDescriptionText();
+            containingConceptDesc = this.containingConcept.getFullySpecifiedConceptDescriptionText();
          } catch (final Exception e) {
-            containingConceptDesc = "{nid=" + this.containingConcept.get().getNid() + "}";
+            containingConceptDesc = "{nid=" + this.containingConcept.getNid() + "}";
          }
       }
 
@@ -302,8 +305,7 @@ public class CompositeSearchResult {
     * @param other the other
     */
    protected void merge(CompositeSearchResult other) {
-      if (this.containingConcept.get()
-                                .getNid() != other.containingConcept.get().getNid()) {
+      if (this.containingConcept.getNid() != other.containingConcept.getNid()) {
          throw new RuntimeException("Unmergeable!");
       }
 
@@ -359,7 +361,7 @@ public class CompositeSearchResult {
     * @return the containing concept
     */
    public Optional<ConceptSnapshot> getContainingConcept() {
-      return this.containingConcept;
+      return Optional.ofNullable(this.containingConcept);
    }
 
    /**
@@ -400,7 +402,7 @@ public class CompositeSearchResult {
       final ArrayList<String> strings = new ArrayList<>();
 
       if (this.matchingComponents.isEmpty()) {
-         if (!this.containingConcept.isPresent()) {
+         if (this.containingConcept == null) {
             strings.add("Match to NID (not on path):" + this.matchingComponentNid);
          } else {
             throw new RuntimeException("Unexpected");
@@ -421,8 +423,8 @@ public class CompositeSearchResult {
                                                                             stampCoord.orElse(Get.configurationService()
                                                                                   .getDefaultStampCoordinate()));
 
-            if (ds.value().isPresent()) {
-               strings.add(ds.value().get()
+            if (ds.isPresent()) {
+               strings.add(ds.get()
                              .getText());
             } else {
                strings.add("No description available on stamp coordinate!");
@@ -434,8 +436,8 @@ public class CompositeSearchResult {
                                                                        stampCoord.orElse(Get.configurationService()
                                                                              .getDefaultStampCoordinate()));
 
-            if (ds.value().isPresent()) {
-               strings.add(ds.value().get()
+            if (ds.isPresent()) {
+               strings.add(ds.get()
                              .getString());
             } else {
                strings.add("No sememe available on stamp coordinate!");
@@ -447,8 +449,8 @@ public class CompositeSearchResult {
                                                                         stampCoord.orElse(Get.configurationService()
                                                                               .getDefaultStampCoordinate()));
 
-            if (ds.value().isPresent()) {
-               strings.add(ds.value().get()
+            if (ds.isPresent()) {
+               strings.add(ds.get()
                              .dataToString());
             } else {
                strings.add("No sememe available on stamp coordinate!");

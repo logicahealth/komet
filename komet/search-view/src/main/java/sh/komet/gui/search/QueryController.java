@@ -217,10 +217,8 @@ public class QueryController
                                (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSememeVersion(
                                    nid);
 
-                            if (latestDescription.value()
-                                  .isPresent()) {
-                               tableItems.add(latestDescription.value()
-                                     .get());
+                            if (latestDescription.isPresent()) {
+                               tableItems.add(latestDescription.get());
                             }
                          });
       System.out.println("Results: " + tableItems);

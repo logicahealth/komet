@@ -240,8 +240,8 @@ public class Search {
                                                                                  .getDefaultStampCoordinate()
                : stampCoord);
 
-                     if (latest.value().isPresent()) {
-                        searchString.append(latest.value().get()
+                     if (latest.isPresent()) {
+                        searchString.append(latest.get()
                               .getText());
                         searchString.append(" ");
                      }

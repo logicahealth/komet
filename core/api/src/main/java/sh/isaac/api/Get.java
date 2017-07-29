@@ -332,9 +332,9 @@ public class Get
       final LatestVersion<DescriptionVersion> descriptionOptional =
          defaultConceptSnapshotService().getDescriptionOptional(conceptId);
 
-      if (descriptionOptional.value().isPresent()) {
+      if (descriptionOptional.isPresent()) {
             return descriptionOptional
-                    .value().get()
+                    .get()
                     .getText();
       }
 

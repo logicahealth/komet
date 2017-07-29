@@ -143,9 +143,9 @@ public class DynamicSememeUsageDescriptionImpl
             ((SememeChronology) descriptionSememe).getLatestVersion(DescriptionVersion.class,
                                                                     StampCoordinates.getDevelopmentLatestActiveOnly());
 
-         if (descriptionVersion.value().isPresent()) {
+         if (descriptionVersion.isPresent()) {
             @SuppressWarnings("rawtypes")
-            final DescriptionVersion ds = descriptionVersion.value().get();
+            final DescriptionVersion ds = descriptionVersion.get();
 
             if (ds.getDescriptionTypeConceptSequence() == TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
                final Optional<SememeChronology<? extends SememeVersion>> nestesdSememe = Get.sememeService()
@@ -189,9 +189,9 @@ public class DynamicSememeUsageDescriptionImpl
                            ((SememeChronology) sememe).getLatestVersion(DynamicSememe.class,
                                                                         StampCoordinates.getDevelopmentLatestActiveOnly());
 
-                        if (sememeVersion.value().isPresent()) {
+                        if (sememeVersion.isPresent()) {
                            @SuppressWarnings("rawtypes")
-                           final DynamicSememe       ds                  = sememeVersion.value().get();
+                           final DynamicSememe       ds                  = sememeVersion.get();
                            final DynamicSememeData[] refexDefinitionData = ds.getData();
 
                            if (sememe.getAssemblageSequence() ==

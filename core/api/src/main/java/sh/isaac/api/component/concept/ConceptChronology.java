@@ -62,6 +62,7 @@ import sh.isaac.api.relationship.RelationshipVersionAdaptor;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -127,6 +128,17 @@ public interface ConceptChronology
     */
    LatestVersion<DescriptionVersion> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate,
          StampCoordinate stampCoordinate);
+   
+   /**
+    * Gets the fully specified description.
+    *
+    * @param coordinate the manifold coordinate that specifies both the stamp coordinate and the language 
+    * coordinate.
+    * @return the fully specified description
+    */
+   default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(ManifoldCoordinate coordinate) {
+      return getFullySpecifiedDescription(coordinate, coordinate);
+   }
 
    /**
     * Gets the logical definition.

@@ -45,9 +45,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 //~--- classes ----------------------------------------------------------------
@@ -57,7 +62,7 @@ import java.util.stream.Stream;
  *
  * @author kec
  * @param <V> the value type
- * TODO search for all value().get() methods to make sure test for isPresent() is completed. 
+ * TODO search for all get() methods to make sure test for isPresent() is completed. 
  */
 public final class LatestVersion<V> {
    
@@ -136,7 +141,84 @@ public final class LatestVersion<V> {
          this.contradictions.add(value);
       }
    }
-
+   
+   /**
+    * 
+    * @param consumer the consumer to process the value if it is present.
+    * @return the latest version unmodified for use in a fluent API manner. 
+    */
+   public LatestVersion<V> ifPresent(Consumer<? super V> consumer) {
+      if (value != null) {
+         consumer.accept(this.value);
+      }
+      return this;
+   }
+   
+   /**
+    * Return true if there is a value present, otherwise false.
+    * @return true if there is a value present, otherwise false.
+    */
+   public boolean isPresent() {
+      return value != null;
+   }
+   
+   /**
+    * Return true if there is a value absent, otherwise false.
+    * @return true if the value absent, otherwise false.
+    */
+   public boolean isAbsent() {
+      return value == null;
+   }
+   
+   /**
+    * Return the value if present, otherwise return other.
+    * @param other
+    * @return the value if present, otherwise return other.
+    */
+   public V orElse(V other) {
+      if (this.value != null) {
+         return this.value;
+      }
+      return other;
+   }
+   
+   /**
+    * Return the value if present, otherwise invoke other and return the result of that invocation.
+    * @param other
+    * @return the value if present, otherwise invoke other and return the result of that invocation.
+    */
+   public V orElseGet(Supplier<? extends V> other) {
+      if (this.value != null) {
+         return this.value;
+      }
+      return other.get();
+   }
+   /**
+    * Execute the runnable to execute if the value is present.
+    * @param runnable the runnable to execute if the value is present
+    * @return the latest version unmodified for use in a fluent API manner. 
+    */
+   public LatestVersion<V> ifAbsent(Runnable runnable) {
+      if (value == null) {
+         runnable.run();
+      }
+      return this;
+   }
+           
+   /**
+    * Return the contained value, if present, otherwise throw an exception to be created by the provided supplier.
+    * @param <X> Type of the exception to be thrown
+    * @param exceptionSupplier The supplier which will return the exception to be thrown
+    * @return the present value
+    * @throws X if there is no value present
+    */
+   public <X extends Throwable> V orElseThrow(Supplier<? extends X> exceptionSupplier) 
+      throws X {
+      if (this.value != null) {
+         return this.value;
+      }
+      throw exceptionSupplier.get();
+   }
    /**
     * Read-only set of contradictions.
     *
@@ -160,16 +242,41 @@ public final class LatestVersion<V> {
    }
 
    /**
-    * Value.
-    *
-    * @return the v
+    * The latest version value
+    * @return the latest version
+    * @throws NoSuchElementException - if there is no value present
+    * @see isPresent()
     */
-   public Optional<V> value() {
-      return Optional.ofNullable(this.value);
+   public V get() {
+      if (this.value == null) {
+         throw new NoSuchElementException();
+      }
+      return this.value;
    }
 
    /**
-    * Version stream.
+    * If a value is present, and the value matches the given predicate, return an Optional describing the value, otherwise return an empty Optional.
+    * @param predicate a predicate to apply to the value, if present
+    * @return an Optional describing the value of this Optional if a value is present and the value matches the given predicate, otherwise an empty Optional
+    */
+   Optional<V>	filter(Predicate<? super V> predicate) {
+      return Optional.ofNullable(value).filter(predicate);
+   }
+           
+   /**
+    * If a value is present, apply the provided mapping function to it, and if the result is non-null, 
+    * return an Optional describing the result. Otherwise return an empty Optional.
+    * @param <U> The type of the result of the mapping function
+    * @param mapper a mapping function to apply to the value, if present
+    * @return an Optional describing the result of applying a mapping function to the value of this Optional, if a value is present, otherwise an empty Optional
+    */
+   public <U> Optional<U> map(Function<? super V,? extends U> mapper) {
+      return Optional.ofNullable(value).map(mapper);
+   }
+   
+   /**
+    * Stream of the latest values (if more that one latest value is computed, then
+    * all are included in this stream), including all contradictions.
     *
     * @return the stream
     */

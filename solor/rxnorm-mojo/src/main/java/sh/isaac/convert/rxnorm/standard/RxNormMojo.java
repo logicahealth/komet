@@ -1910,8 +1910,7 @@ public class RxNormMojo
                                                                               .getSememe(
                                                                                     sememe)).getLatestVersion(StringVersion.class,
                                                                                                 StampCoordinates.getDevelopmentLatest());
-                final StringVersion ss    = lv.value()
-                                             .get();
+                final StringVersion ss    = lv.get();
                 final Long         sctId = Long.parseLong(ss.getString());
                 final UUID conceptUUID = Get.identifierService()
                                             .getUuidPrimordialForNid(ss.getReferencedComponentNid())

@@ -171,14 +171,14 @@ public class BinaryDataDifferProviderUtility {
                                                                         StampCoordinates.getDevelopmentLatestActiveOnly());
 
       if (type == OchreExternalizableObjectType.CONCEPT) {
-         ((ConceptVersion) latestVersion.value().get()).getChronology()
+         ((ConceptVersion) latestVersion.get()).getChronology()
                .createMutableVersion(inactiveStampSeq);
       } else if (type == OchreExternalizableObjectType.SEMEME) {
-         final SememeVersion originalVersion = (SememeVersion) latestVersion.value().get();
+         final SememeVersion originalVersion = (SememeVersion) latestVersion.get();
          SememeVersionImpl createdVersion = (SememeVersionImpl)
                  ((SememeChronologyImpl) originalVersion.getChronology())
                                                        .createMutableVersion(
-                                                          getSememeClass((SememeVersion) latestVersion.value().get()),
+                                                          getSememeClass((SememeVersion) latestVersion.get()),
                                                                 inactiveStampSeq);
 
          populateData(createdVersion, originalVersion, inactiveStampSeq);

@@ -453,15 +453,17 @@ public class LogicProvider
       final SememeSnapshotService<LogicGraphSememeImpl> ssp = Get.sememeService()
                                                                  .getSnapshot(LogicGraphSememeImpl.class,
                                                                        stampCoordinate);
-      final List<LatestVersion<LogicalExpressionImpl>> latestVersions =
+      
+      final List<LatestVersion<LogicalExpression>> latestVersions =
          ssp.getLatestSememeVersionsForComponentFromAssemblage(conceptId,
                                                                logicAssemblageId)
             .map((LatestVersion<LogicGraphSememeImpl> lgs) -> {
-                    final LogicalExpressionImpl expressionValue =
-                       new LogicalExpressionImpl(lgs.value().get().getGraphData(),
+                    final LogicalExpression expressionValue =
+                       new LogicalExpressionImpl(lgs.get().getGraphData(),
                                                       DataSource.INTERNAL,
-                                                      lgs.value().get().getReferencedComponentNid());
-                    final LatestVersion<LogicalExpressionImpl> latestExpressionValue =
+                                                      lgs.get().getReferencedComponentNid());
+                    
+                    final LatestVersion<LogicalExpression> latestExpressionValue =
                        new LatestVersion<>(expressionValue);
 
                        lgs.contradictions().forEach((LogicGraphSememeImpl contradiction) -> {

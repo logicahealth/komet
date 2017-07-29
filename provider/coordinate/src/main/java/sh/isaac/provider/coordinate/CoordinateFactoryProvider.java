@@ -449,8 +449,7 @@ public class CoordinateFactoryProvider
                                                                   descType,
                                                                   languageCoordinate);
 
-         if (match.value()
-                  .isPresent()) {
+         if (match.isPresent()) {
             return match;
          }
       }
@@ -484,8 +483,7 @@ public class CoordinateFactoryProvider
                                ((SememeChronology) descriptionChronicle).getLatestVersion(DescriptionVersion.class,
                                    stampCoordinate);
 
-                            if (latestDescription.value()
-                                  .isPresent()) {
+                            if (latestDescription.isPresent()) {
                                final LatestVersion<DescriptionVersion> latestDescriptionVersion = latestDescription;
 
                                latestDescriptionVersion.versionStream()
@@ -511,8 +509,7 @@ public class CoordinateFactoryProvider
 
       IntStream.of(languageCoordinate.getDialectAssemblagePreferenceList())
                .forEach((dialectAssemblageSequence) -> {
-                      if (!preferredForDialect.value()
-                            .isPresent()) {
+                      if (!preferredForDialect.isPresent()) {
                          descriptionsForLanguageOfType.forEach((DescriptionVersion description) -> {
                                 final Stream<LatestVersion<ComponentNidVersion>> acceptability =
                                    acceptabilitySnapshot.getLatestSememeVersionsForComponentFromAssemblage(
@@ -522,8 +519,7 @@ public class CoordinateFactoryProvider
                                 if (acceptability.anyMatch((LatestVersion<ComponentNidVersion> acceptabilityVersion) -> {
                                        return Get.identifierService()
                                                  .getConceptSequence(
-                                                     acceptabilityVersion.value()
-                                                           .get()
+                                                     acceptabilityVersion.get()
                                                            .getComponentNid()) == getPreferredConceptSequence();
                                     })) {
                                    preferredForDialect.addLatest(description);
@@ -532,8 +528,7 @@ public class CoordinateFactoryProvider
                       }
                    });
 
-      if (!preferredForDialect.value()
-                              .isPresent()) {
+      if (!preferredForDialect.isPresent()) {
          descriptionsForLanguageOfType.forEach(
              (fsn) -> {
                 preferredForDialect.addLatest(fsn);

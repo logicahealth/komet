@@ -165,7 +165,7 @@ public class ComponentReference {
                                ((Chronology) object).getLatestVersion(StampedVersion.class,
                                                                             IBDFCreationUtility.readBackStamp);
 
-                            return latest.value().get()
+                            return latest.get()
                                          .getTime();
                          };
       return cr;
@@ -189,7 +189,7 @@ public class ComponentReference {
                                ((Chronology) concept).getLatestVersion(StampedVersion.class,
                                                                              IBDFCreationUtility.readBackStamp);
 
-                            return latest.value().get()
+                            return latest.get()
                                          .getTime();
                          };
       return cr;

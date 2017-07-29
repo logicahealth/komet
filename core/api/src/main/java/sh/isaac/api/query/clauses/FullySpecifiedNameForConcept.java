@@ -114,9 +114,9 @@ public class FullySpecifiedNameForConcept
                         final LatestVersion<DescriptionVersion> desc =
                            conceptChronology.getFullySpecifiedDescription(languageCoordinate, stampCoordinate);
 
-                        if (desc.value().isPresent()) {
+                        if (desc.isPresent()) {
                            outgoingFullySpecifiedNids.add(desc
-                                 .value().get()
+                                 .get()
                                  .getNid());
                         }
                      });

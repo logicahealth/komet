@@ -48,6 +48,7 @@ import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.AssemblageService;
 import sh.isaac.api.ProgressTracker;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.SememeSequenceSet;
@@ -57,8 +58,9 @@ import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
+import sh.isaac.api.stream.VersionStream;
+import sh.isaac.api.stream.VersionStreamWrapper;
 import sh.isaac.model.sememe.SememeChronologyImpl;
-import sh.isaac.api.AssemblageService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -70,16 +72,24 @@ import sh.isaac.api.AssemblageService;
  */
 public class SememeSnapshotProvider<V extends SememeVersion>
          implements SememeSnapshotService<V> {
-   /** The version type. */
+   /**
+    * The version type.
+    */
    Class<V> versionType;
 
-   /** The stamp coordinate. */
+   /**
+    * The stamp coordinate.
+    */
    StampCoordinate stampCoordinate;
 
-   /** The sememe provider. */
+   /**
+    * The sememe provider.
+    */
    AssemblageService sememeProvider;
 
-   /** The calculator. */
+   /**
+    * The calculator.
+    */
    RelativePositionCalculator calculator;
 
    //~--- constructors --------------------------------------------------------
@@ -91,7 +101,9 @@ public class SememeSnapshotProvider<V extends SememeVersion>
     * @param stampCoordinate the stamp coordinate
     * @param sememeProvider the sememe provider
     */
-   public SememeSnapshotProvider(Class<V> versionType, StampCoordinate stampCoordinate, AssemblageService sememeProvider) {
+   public SememeSnapshotProvider(Class<V> versionType,
+                                 StampCoordinate stampCoordinate,
+                                 AssemblageService sememeProvider) {
       this.versionType     = versionType;
       this.stampCoordinate = stampCoordinate;
       this.sememeProvider  = sememeProvider;
@@ -108,10 +120,12 @@ public class SememeSnapshotProvider<V extends SememeVersion>
     */
    @Override
    public Stream<LatestVersion<V>> getLatestDescriptionVersionsForComponent(int componentNid) {
-      return getLatestSememeVersions(this.sememeProvider.getSememeSequencesForComponent(componentNid)
-            .parallelStream()
-            .filter(sememeSequence -> (this.sememeProvider.getSememe(sememeSequence)
-                  .getSememeType() == SememeType.DESCRIPTION)));
+      return getLatestSememeVersions(
+          this.sememeProvider.getSememeSequencesForComponent(componentNid)
+                             .parallelStream()
+                             .filter(
+                                 sememeSequence -> (this.sememeProvider.getSememe(sememeSequence)
+                                       .getSememeType() == SememeType.DESCRIPTION)));
    }
 
    /**
@@ -132,10 +146,12 @@ public class SememeSnapshotProvider<V extends SememeVersion>
 
       final LatestVersion<V> latest = new LatestVersion<>(this.versionType);
 
-      latestSequences.stream().forEach((stampSequence) -> {
-                                 latest.addLatest((V) sc.getVersionForStamp(stampSequence)
-                                       .get());
-                              });
+      latestSequences.stream()
+                     .forEach(
+                         (stampSequence) -> {
+                            latest.addLatest((V) sc.getVersionForStamp(stampSequence)
+                                  .get());
+                         });
       return latest;
    }
 
@@ -146,37 +162,9 @@ public class SememeSnapshotProvider<V extends SememeVersion>
     * @param progressTrackers the progress trackers
     * @return the latest sememe versions
     */
-   private Stream<LatestVersion<V>> getLatestSememeVersions(IntStream sememeSequenceStream,
+   private VersionStream<V> getLatestSememeVersions(IntStream sememeSequenceStream,
          ProgressTracker... progressTrackers) {
-      return sememeSequenceStream.mapToObj((int sememeSequence) -> {
-               try {
-                  final SememeChronologyImpl<?> sc =
-                     (SememeChronologyImpl<?>) this.sememeProvider.getSememe(sememeSequence);
-                  final IntStream stampSequences = sc.getVersionStampSequences();
-                  final StampSequenceSet latestStampSequences =
-                     this.calculator.getLatestStampSequencesAsSet(stampSequences);
-
-                  if (latestStampSequences.isEmpty()) {
-                     return Optional.empty();
-                  }
-
-                  final LatestVersion<V> latest = new LatestVersion<>(this.versionType);
-
-                  latestStampSequences.stream().forEach((stampSequence) -> {
-                                                  latest.addLatest((V) sc.getVersionForStamp(stampSequence)
-                                                        .get());
-                                               });
-                  return Optional.of(latest);
-               } finally {
-                  Arrays.stream(progressTrackers).forEach((tracker) -> {
-                                    tracker.completedUnitOfWork();
-                                 });
-               }
-            })
-                                 .filter((optional) -> {
-                                            return optional.isPresent();
-                                         })
-                                 .map((optional) -> (LatestVersion<V>) optional.get());
+      return new VersionStreamWrapper<>(getLatestSememeVersionsUnwrapped(sememeSequenceStream, progressTrackers));
    }
 
    /**
@@ -186,11 +174,13 @@ public class SememeSnapshotProvider<V extends SememeVersion>
     * @param progressTrackers the progress trackers
     * @return the latest sememe versions
     */
-   private Stream<LatestVersion<V>> getLatestSememeVersions(SememeSequenceSet sememeSequenceSet,
+   private VersionStream<V> getLatestSememeVersions(SememeSequenceSet sememeSequenceSet,
          ProgressTracker... progressTrackers) {
-      Arrays.stream(progressTrackers).forEach((tracker) -> {
-                        tracker.addToTotalWork(sememeSequenceSet.size());
-                     });
+      Arrays.stream(progressTrackers)
+            .forEach(
+                (tracker) -> {
+                   tracker.addToTotalWork(sememeSequenceSet.size());
+                });
       return getLatestSememeVersions(sememeSequenceSet.parallelStream(), progressTrackers);
    }
 
@@ -201,7 +191,7 @@ public class SememeSnapshotProvider<V extends SememeVersion>
     * @return the latest sememe versions for component
     */
    @Override
-   public Stream<LatestVersion<V>> getLatestSememeVersionsForComponent(int componentNid) {
+   public VersionStream<V> getLatestSememeVersionsForComponent(int componentNid) {
       return getLatestSememeVersions(this.sememeProvider.getSememeSequencesForComponent(componentNid));
    }
 
@@ -213,10 +203,10 @@ public class SememeSnapshotProvider<V extends SememeVersion>
     * @return the latest sememe versions for component from assemblage
     */
    @Override
-   public Stream<LatestVersion<V>> getLatestSememeVersionsForComponentFromAssemblage(int componentNid,
+   public VersionStream<V> getLatestSememeVersionsForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence) {
-      return getLatestSememeVersions(this.sememeProvider.getSememeSequencesForComponentFromAssemblage(componentNid,
-            assemblageConceptSequence));
+      return getLatestSememeVersions(
+          this.sememeProvider.getSememeSequencesForComponentFromAssemblage(componentNid, assemblageConceptSequence));
    }
 
    /**
@@ -227,10 +217,50 @@ public class SememeSnapshotProvider<V extends SememeVersion>
     * @return the latest sememe versions from assemblage
     */
    @Override
-   public Stream<LatestVersion<V>> getLatestSememeVersionsFromAssemblage(int assemblageConceptSequence,
+   public VersionStream<V> getLatestSememeVersionsFromAssemblage(int assemblageConceptSequence,
          ProgressTracker... progressTrackers) {
-      return getLatestSememeVersions(this.sememeProvider.getSememeSequencesFromAssemblage(assemblageConceptSequence),
-                                     progressTrackers);
+      return getLatestSememeVersions(
+          this.sememeProvider.getSememeSequencesFromAssemblage(assemblageConceptSequence),
+          progressTrackers);
+   }
+
+   private Stream<LatestVersion<V>> getLatestSememeVersionsUnwrapped(IntStream sememeSequenceStream,
+         ProgressTracker... progressTrackers) {
+      return sememeSequenceStream.mapToObj(
+          (int sememeSequence) -> {
+             try {
+                final SememeChronologyImpl<?> sc = (SememeChronologyImpl<?>) this.sememeProvider.getSememe(
+                                                       sememeSequence);
+                final IntStream stampSequences = sc.getVersionStampSequences();
+                final StampSequenceSet latestStampSequences = this.calculator.getLatestStampSequencesAsSet(
+                                                                  stampSequences);
+
+                if (latestStampSequences.isEmpty()) {
+                   return Optional.empty();
+                }
+
+                final LatestVersion<V> latest = new LatestVersion<>(this.versionType);
+
+                latestStampSequences.stream()
+                                    .forEach(
+                                        (stampSequence) -> {
+                                           latest.addLatest((V) sc.getVersionForStamp(stampSequence)
+                                                 .get());
+                                        });
+                return Optional.of(latest);
+             } finally {
+                Arrays.stream(progressTrackers)
+                      .forEach(
+                          (tracker) -> {
+                             tracker.completedUnitOfWork();
+                          });
+             }
+          })
+                                 .filter(
+                                     (optional) -> {
+                                        return optional.isPresent();
+                                     })
+                                 .map((optional) -> (LatestVersion<V>) optional.get());
    }
 }
 

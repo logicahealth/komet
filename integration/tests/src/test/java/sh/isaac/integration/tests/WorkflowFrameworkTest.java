@@ -216,7 +216,7 @@ public class WorkflowFrameworkTest {
             ((SememeChronology) descSem).getLatestVersion(DescriptionVersion.class,
                                                           Get.configurationService()
                                                                 .getDefaultStampCoordinate());
-         final String originalText = latestDescVersion.value().get()
+         final String originalText = latestDescVersion.get()
                                                       .getText();
 
          // Modify Sememe Text
@@ -248,7 +248,7 @@ public class WorkflowFrameworkTest {
          latestDescVersion = ((SememeChronology) semChron).getLatestVersion(DescriptionVersion.class,
                Get.configurationService()
                   .getDefaultStampCoordinate());
-         Assert.assertEquals(originalText, latestDescVersion.value().get()
+         Assert.assertEquals(originalText, latestDescVersion.get()
                .getText());
       } catch (final Exception e) {
          Assert.fail(e.getMessage());
@@ -1513,7 +1513,7 @@ public class WorkflowFrameworkTest {
       final DescriptionVersion latestVersion =
          ((LatestVersion<DescriptionVersion>) semChron.getLatestVersion(DescriptionVersion.class,
                                                                           Get.configurationService()
-                                                                                .getDefaultStampCoordinate())).value().get();
+                                                                                .getDefaultStampCoordinate())).get();
       final DescriptionSememeImpl createdVersion =
          (DescriptionSememeImpl) semChron.createMutableVersion(DescriptionSememeImpl.class,
                                                                state,
@@ -1735,7 +1735,7 @@ public class WorkflowFrameworkTest {
          ((ConceptChronology) cc).getLatestVersion(ConceptVersion.class,
                                                    this.defaultStampCoordinate);
 
-      Assert.assertEquals(latestConVersion.value().get()
+      Assert.assertEquals(latestConVersion.get()
             .getState(), state);
 
       final SememeChronology<? extends SememeVersion> semChron = Get.sememeService()
@@ -1744,7 +1744,7 @@ public class WorkflowFrameworkTest {
          ((SememeChronology) semChron).getLatestVersion(DescriptionVersion.class,
                                                         this.defaultStampCoordinate);
 
-      Assert.assertEquals(latestDescVersion.value().get()
+      Assert.assertEquals(latestDescVersion.get()
             .getState(), state);
    }
 

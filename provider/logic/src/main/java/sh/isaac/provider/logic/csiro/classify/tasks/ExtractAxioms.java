@@ -125,7 +125,7 @@ public class ExtractAxioms
 
       sememeSnapshot.getLatestSememeVersionsFromAssemblage(logicCoordinate.getStatedAssemblageSequence(), this)
                     .forEach((LatestVersion<LogicGraphSememeImpl> latest) -> {
-                                final LogicGraphSememeImpl lgs = latest.value().get();
+                                final LogicGraphSememeImpl lgs = latest.get();
                                 final int conceptSequence = Get.identifierService()
                                                                .getConceptSequence(lgs.getReferencedComponentNid());
 

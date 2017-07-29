@@ -49,6 +49,7 @@ import java.util.stream.Stream;
 import sh.isaac.api.ProgressTracker;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.version.SememeVersion;
+import sh.isaac.api.stream.VersionStream;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -81,7 +82,7 @@ public interface SememeSnapshotService<V extends SememeVersion> {
     * @param componentNid the component nid
     * @return the latest sememe versions for component
     */
-   Stream<LatestVersion<V>> getLatestSememeVersionsForComponent(int componentNid);
+   VersionStream<V> getLatestSememeVersionsForComponent(int componentNid);
 
    /**
     * Gets the latest sememe versions for component from assemblage.
@@ -90,7 +91,7 @@ public interface SememeSnapshotService<V extends SememeVersion> {
     * @param assemblageConceptSequence the assemblage concept sequence
     * @return the latest sememe versions for component from assemblage
     */
-   Stream<LatestVersion<V>> getLatestSememeVersionsForComponentFromAssemblage(int componentNid,
+   VersionStream<V> getLatestSememeVersionsForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence);
 
    /**
@@ -104,7 +105,7 @@ public interface SememeSnapshotService<V extends SememeVersion> {
     * @return {@code Stream} of the {@code LatestVersion<V>} for each sememe according to the
     * criterion of this snapshot service.
     */
-   Stream<LatestVersion<V>> getLatestSememeVersionsFromAssemblage(int assemblageConceptSequence,
+   VersionStream<V> getLatestSememeVersionsFromAssemblage(int assemblageConceptSequence,
          ProgressTracker... progressTrackers);
 }
 

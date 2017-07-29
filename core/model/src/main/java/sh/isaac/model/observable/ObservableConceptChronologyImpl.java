@@ -270,10 +270,10 @@ public class ObservableConceptChronologyImpl
     */
    private LatestVersion<ObservableDescriptionVersion> getSpecifiedDescription(
            LatestVersion<DescriptionVersion> description) {
-      if (description.value().isPresent()) {
-         final int specifiedStampSequence = ((DescriptionVersion) description.value().get()).getStampSequence();
+      if (description.isPresent()) {
+         final int specifiedStampSequence = ((DescriptionVersion) description.get()).getStampSequence();
          final ObservableSememeChronology<ObservableDescriptionVersion> observableSpecified =
-            new ObservableSememeChronologyImpl(((DescriptionVersion) description.value().get()).getChronology());
+            new ObservableSememeChronologyImpl(((DescriptionVersion) description.get()).getChronology());
 
          
 

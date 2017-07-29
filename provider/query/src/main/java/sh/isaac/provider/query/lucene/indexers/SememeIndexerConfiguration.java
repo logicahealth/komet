@@ -367,9 +367,9 @@ public class SememeIndexerConfiguration {
       @SuppressWarnings("rawtypes")
       final Optional<LatestVersion<DynamicSememe>> ds = sememes.findAny();
 
-      if (ds.isPresent() &&  ds.get().value().isPresent()) {
+      if (ds.isPresent() &&  ds.get().isPresent()) {
          return ds.get()
-                  .value().get();
+                  .get();
       }
 
       return null;
@@ -401,12 +401,12 @@ public class SememeIndexerConfiguration {
                                             ((SememeChronology) sememeC).getLatestVersion(DynamicSememe.class,
                                                                                           StampCoordinates.getDevelopmentLatest());
 
-                                         if (dsv.value().isPresent() && (dsv.value().get().getState() == State.ACTIVE)) {
+                                         if (dsv.isPresent() && (dsv.get().getState() == State.ACTIVE)) {
                                             final int assemblageToIndex = Get.identifierService()
-                                                                             .getConceptSequence(dsv.value().get()
+                                                                             .getConceptSequence(dsv.get()
                                                                                    .getReferencedComponentNid());
                                             Integer[]                 finalCols = new Integer[] {};
-                                            final DynamicSememeData[] data      = dsv.value().get()
+                                            final DynamicSememeData[] data      = dsv.get()
                                                                                      .getData();
 
                                             if ((data != null) && (data.length > 0)) {

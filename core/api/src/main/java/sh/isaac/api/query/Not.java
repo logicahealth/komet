@@ -114,7 +114,7 @@ public class Not
                      final LatestVersion<ConceptVersion> latestVersion =
                         cc.getLatestVersion(ConceptVersion.class, getEnclosingQuery().getStampCoordinate());
 
-                     if (latestVersion.value().isPresent()) {
+                     if (latestVersion.isPresent()) {
                         activeSet.add(cc.getNid());
                      }
                   });

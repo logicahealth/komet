@@ -532,11 +532,9 @@ public class IdentifierProvider
                                                               .getSnapshot(StringVersion.class, stampCoordinate);
 
       return snapshot.getLatestSememeVersionsForComponentFromAssemblage(nid, authoritySequence)
-                     .filter((LatestVersion<StringVersion> latestSememe) -> latestSememe.value()
-                           .isPresent())
+                     .filter((LatestVersion<StringVersion> latestSememe) -> latestSememe.isPresent())
                      .map((LatestVersion<StringVersion> latestSememe) -> 
-                            latestSememe.value()
-                                  .get()
+                            latestSememe.get()
                                   .getString())
                      .findAny();
    }

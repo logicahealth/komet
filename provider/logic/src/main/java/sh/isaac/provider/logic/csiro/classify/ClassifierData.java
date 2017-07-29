@@ -189,7 +189,7 @@ public class ClassifierData
                sc.getLatestVersion(LogicGraphSememeImpl.class,
                                    this.stampCoordinate);
 
-            if (optionalLatest.value().isPresent()) {
+            if (optionalLatest.isPresent()) {
                final LatestVersion<LogicGraphSememeImpl> latest = optionalLatest;
 
                // get stampCoordinate for last classify.
@@ -201,13 +201,13 @@ public class ClassifierData
                   sc.getLatestVersion(LogicGraphSememeImpl.class,
                                       stampToCompare);
 
-               if (optionalPrevious.value().isPresent()) {
+               if (optionalPrevious.isPresent()) {
                   // See if the change has deletions, if so then incremental is not allowed.
                   final LatestVersion<LogicGraphSememeImpl> previous  = optionalPrevious;
                   boolean                                   deletions = false;
 
-                  if (latest.value().get()
-                            .getGraphData().length <= previous.value().get().getGraphData().length) {
+                  if (latest.get()
+                            .getGraphData().length <= previous.get().getGraphData().length) {
                      // If nodes where deleted, or an existing node was changed but the size remains the same assume deletions
                      deletions = true;
 
@@ -220,11 +220,11 @@ public class ClassifierData
                      this.reasoner = new SnorocketReasoner();
                   } else {
                      // Otherwise add axioms...
-                     this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value().get());
+                     this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.get());
                   }
                } else {
                   // Otherwise add axioms...
-                  this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value().get());
+                  this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.get());
                }
             }
          }
