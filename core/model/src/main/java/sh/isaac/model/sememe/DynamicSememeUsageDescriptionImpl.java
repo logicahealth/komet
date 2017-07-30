@@ -62,7 +62,6 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
@@ -136,19 +135,18 @@ public class DynamicSememeUsageDescriptionImpl
 
       final TreeMap<Integer, DynamicSememeColumnInfo> allowedColumnInfo = new TreeMap<>();
 
-      for (final SememeChronology<DescriptionVersion> descriptionSememe:
+      for (final SememeChronology descriptionSememe:
             assemblageConcept.getConceptDescriptionList()) {
          @SuppressWarnings("rawtypes")
-         final LatestVersion<DescriptionVersion> descriptionVersion =
-            ((SememeChronology) descriptionSememe).getLatestVersion(DescriptionVersion.class,
-                                                                    StampCoordinates.getDevelopmentLatestActiveOnly());
+         final LatestVersion descriptionVersion =
+            ((SememeChronology) descriptionSememe).getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
 
          if (descriptionVersion.isPresent()) {
             @SuppressWarnings("rawtypes")
-            final DescriptionVersion ds = descriptionVersion.get();
+            final DescriptionVersion ds = (DescriptionVersion) descriptionVersion.get();
 
             if (ds.getDescriptionTypeConceptSequence() == TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
-               final Optional<SememeChronology<? extends SememeVersion>> nestesdSememe = Get.sememeService()
+               final Optional<SememeChronology> nestesdSememe = Get.sememeService()
                                                                                                .getSememesForComponentFromAssemblage(
                                                                                                   ds.getNid(),
                                                                                                         DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION
@@ -186,8 +184,7 @@ public class DynamicSememeUsageDescriptionImpl
                      if (sememe.getSememeType() == SememeType.DYNAMIC) {
                         @SuppressWarnings("rawtypes")
                         final LatestVersion<? extends DynamicSememe> sememeVersion =
-                           ((SememeChronology) sememe).getLatestVersion(DynamicSememe.class,
-                                                                        StampCoordinates.getDevelopmentLatestActiveOnly());
+                           ((SememeChronology) sememe).getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
 
                         if (sememeVersion.isPresent()) {
                            @SuppressWarnings("rawtypes")
@@ -422,7 +419,7 @@ public class DynamicSememeUsageDescriptionImpl
     * @param sememe the sememe in question
     * @return the dynamic sememe usage description
     */
-   public static DynamicSememeUsageDescription mockOrRead(SememeChronology<?> sememe) {
+   public static DynamicSememeUsageDescription mockOrRead(SememeChronology sememe) {
       final DynamicSememeUsageDescriptionImpl dsud = new DynamicSememeUsageDescriptionImpl();
 
       dsud.name                                  = Get.conceptDescriptionText(sememe.getAssemblageSequence());

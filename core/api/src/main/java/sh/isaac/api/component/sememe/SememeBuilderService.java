@@ -45,11 +45,8 @@ import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.commit.CommittableComponent;
-import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -60,7 +57,7 @@ import sh.isaac.api.component.sememe.version.DescriptionVersion;
  * @param <C> the generic type
  */
 @Contract
-public interface SememeBuilderService<C extends SememeChronology<? extends SememeVersion>> {
+public interface SememeBuilderService<C extends SememeChronology> {
    /**
     * Gets the component sememe builder.
     *
@@ -95,7 +92,7 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
     * @param referencedComponent the referenced component
     * @return the description sememe builder
     */
-   SememeBuilder<? extends SememeChronology<DescriptionVersion>> getDescriptionSememeBuilder(
+   SememeBuilder<? extends SememeChronology> getDescriptionSememeBuilder(
            int caseSignificanceConceptSequence,
            int descriptionTypeConceptSequence,
            int languageConceptSequence,
@@ -112,7 +109,7 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
     * @param referencedComponentNid the referenced component nid
     * @return the description sememe builder
     */
-   SememeBuilder<? extends SememeChronology<DescriptionVersion>> getDescriptionSememeBuilder(
+   SememeBuilder<? extends SememeChronology> getDescriptionSememeBuilder(
            int caseSignificanceConceptSequence,
            int languageConceptSequence,
            int descriptionTypeConceptSequence,
@@ -126,7 +123,7 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
     * @param assemblageConceptSequence the assemblage concept sequence
     * @return the dynamic sememe builder
     */
-   SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(
+   SememeBuilder<? extends SememeChronology> getDynamicSememeBuilder(
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
            int assemblageConceptSequence);
 
@@ -137,7 +134,7 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
     * @param assemblageConceptSequence the assemblage concept sequence
     * @return the dynamic sememe builder
     */
-   SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(
+   SememeBuilder<? extends SememeChronology> getDynamicSememeBuilder(
            int referencedComponentNid,
            int assemblageConceptSequence);
 
@@ -149,7 +146,7 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
     * @param data the data
     * @return the dynamic sememe builder
     */
-   SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(
+   SememeBuilder<? extends SememeChronology> getDynamicSememeBuilder(
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
            int assemblageConceptSequence,
            DynamicSememeData[] data);
@@ -162,7 +159,7 @@ public interface SememeBuilderService<C extends SememeChronology<? extends Semem
     * @param data the data
     * @return the dynamic sememe builder
     */
-   SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> getDynamicSememeBuilder(
+   SememeBuilder<? extends SememeChronology> getDynamicSememeBuilder(
            int referencedComponentNid,
            int assemblageConceptSequence,
            DynamicSememeData[] data);

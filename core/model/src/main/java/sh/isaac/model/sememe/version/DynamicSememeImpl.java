@@ -81,7 +81,7 @@ public class DynamicSememeImpl
 
    //~--- fields --------------------------------------------------------------
 
-   /** The data. */
+   /** The dynamicData. */
    private DynamicSememeData[] data = null;
 
    //~--- constructors --------------------------------------------------------
@@ -93,7 +93,7 @@ public class DynamicSememeImpl
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     */
-   public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container,
+   public DynamicSememeImpl(SememeChronologyImpl container,
                             int stampSequence,
                             short versionSequence) {
       super(container, stampSequence, versionSequence);
@@ -105,9 +105,9 @@ public class DynamicSememeImpl
     * @param container the container
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
-    * @param data the data
+    * @param data the dynamicData
     */
-   public DynamicSememeImpl(SememeChronologyImpl<DynamicSememeImpl> container,
+   public DynamicSememeImpl(SememeChronologyImpl container,
                             int stampSequence,
                             short versionSequence,
                             ByteArrayDataBuffer data) {
@@ -168,12 +168,12 @@ public class DynamicSememeImpl
 
       sb.append("{DynamicSememeData≤");
 
-      final DynamicSememeData[] data = getData();
+      final DynamicSememeData[] dynamicData = getData();
 
       // make sure the column numbers are set, so lookups can happen for column names.
-      for (int i = 0; i < data.length; i++) {
-         if (data[i] != null) {
-            data[i].configureNameProvider(getAssemblageSequence(), i);
+      for (int i = 0; i < dynamicData.length; i++) {
+         if (dynamicData[i] != null) {
+            dynamicData[i].configureNameProvider(getAssemblageSequence(), i);
          }
       }
 
@@ -184,9 +184,9 @@ public class DynamicSememeImpl
    }
 
    /**
-    * Write version data.
+    * Write version dynamicData.
     *
-    * @param data the data
+    * @param data the dynamicData
     */
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
@@ -223,9 +223,9 @@ public class DynamicSememeImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the data.
+    * Gets the dynamicData.
     *
-    * @return the data
+    * @return the dynamicData
     * @see sh.isaac.api.component.sememe.version.DynamicSememe#getData()
     */
    @Override
@@ -235,10 +235,10 @@ public class DynamicSememeImpl
    }
 
    /**
-    * Gets the data.
+    * Gets the dynamicData.
     *
     * @param columnNumber the column number
-    * @return the data
+    * @return the dynamicData
     * @throws IndexOutOfBoundsException the index out of bounds exception
     */
    @Override
@@ -248,10 +248,10 @@ public class DynamicSememeImpl
    }
 
    /**
-    * Gets the data.
+    * Gets the dynamicData.
     *
     * @param columnName the column name
-    * @return the data
+    * @return the dynamicData
     * @throws InvalidNameException the invalid name exception
     */
    @Override
@@ -270,9 +270,9 @@ public class DynamicSememeImpl
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the data.
+    * Sets the dynamicData.
     *
-    * @param data the new data
+    * @param data the new dynamicData
     */
    @Override
    public void setData(DynamicSememeData[] data) {

@@ -58,7 +58,6 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.relationship.RelationshipVersionAdaptor;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.component.sememe.version.LogicGraphVersion;
@@ -72,7 +71,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  * @author kec
  */
 public interface ConceptChronology
-        extends Chronology<ConceptVersion>, 
+        extends Chronology, 
                 ConceptSpecification {
    /**
     * A test for validating that a concept contains a description. Used
@@ -117,7 +116,7 @@ public interface ConceptChronology
     *
     * @return the concept description list
     */
-   List<SememeChronology<DescriptionVersion>> getConceptDescriptionList();
+   List<SememeChronology> getConceptDescriptionList();
 
    /**
     * Gets the fully specified description.
@@ -175,36 +174,16 @@ public interface ConceptChronology
    LatestVersion<DescriptionVersion> getPreferredDescription(LanguageCoordinate languageCoordinate,
          StampCoordinate stampCoordinate);
 
-   /**
-    * Uses the default logic coordinate.
-    *
-    * @return the relationship list originating from concept
-    */
-   List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListOriginatingFromConcept();
 
    /**
-    * Gets the relationship list originating from concept.
+    * Gets the preferred description.
     *
-    * @param logicCoordinate the logic coordinate
-    * @return the relationship list originating from concept
+    * @param coordinate the language coordinate and the stamp coordinate
+    * @return the preferred description
     */
-   List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListOriginatingFromConcept(
-           LogicCoordinate logicCoordinate);
+   default LatestVersion<DescriptionVersion> getPreferredDescription(ManifoldCoordinate coordinate) {
+      return getPreferredDescription(coordinate, coordinate);
+   }
 
-   /**
-    * Uses the default logic coordinate.
-    *
-    * @return the relationship list with concept as destination
-    */
-   List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListWithConceptAsDestination();
-
-   /**
-    * Gets the relationship list with concept as destination.
-    *
-    * @param logicCoordinate the logic coordinate
-    * @return the relationship list with concept as destination
-    */
-   List<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipListWithConceptAsDestination(
-           LogicCoordinate logicCoordinate);
 }
 

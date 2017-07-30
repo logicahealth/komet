@@ -43,9 +43,8 @@ package sh.isaac.api.component.sememe.version;
  * The Interface ComponentNidVersion.
  *
  * @author kec
- * @param <T> the generic type
  */
-public interface ComponentNidVersion<T extends ComponentNidVersion<T>>
+public interface ComponentNidVersion
         extends SememeVersion {
    /**
     * Gets the component nid.

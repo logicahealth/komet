@@ -47,14 +47,15 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import sh.isaac.api.bootstrap.TermAux;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
@@ -121,6 +122,11 @@ public class DescriptionRegexMatch
 
    //~--- get methods ---------------------------------------------------------
 
+   @Override
+   public ConceptSpecification getClauseConcept() {
+      return TermAux.DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE;
+   }
+
    /**
     * Gets the compute phases.
     *
@@ -138,20 +144,24 @@ public class DescriptionRegexMatch
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {
-      final String regex = (String) this.enclosingQuery.getLetDeclarations()
-                                                       .get(this.regexKey);
+      final String            regex             = (String) this.enclosingQuery.getLetDeclarations()
+                                                                              .get(this.regexKey);
       final ConceptChronology conceptChronology = conceptVersion.getChronology();
 
-      conceptChronology.getConceptDescriptionList().forEach((description) -> {
-                                   if (this.cache.contains(description.getNid())) {
-                                      description.getVersionList().forEach((dv) -> {
-                     if (dv.getText()
+      conceptChronology.getConceptDescriptionList()
+                       .forEach(
+                           (description) -> {
+                              if (this.cache.contains(description.getNid())) {
+                                 description.getVersionList()
+                                            .forEach(
+                                                  (dv) -> {
+                     if (((DescriptionVersion) dv).getText()
                            .matches(regex)) {
-                        addToResultsCache((dv.getNid()));
+                        addToResultsCache((((DescriptionVersion) dv).getNid()));
                      }
                   });
-                                   }
-                                });
+                              }
+                           });
    }
 
    /**
@@ -170,11 +180,5 @@ public class DescriptionRegexMatch
                  .add(this.viewCoordinateKey);
       return whereClause;
    }
-   
-      @Override
-   public ConceptSpecification getClauseConcept() {
-      return TermAux.DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE;
-   }
-
 }
 

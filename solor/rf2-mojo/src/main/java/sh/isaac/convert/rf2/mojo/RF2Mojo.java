@@ -585,7 +585,7 @@ public class RF2Mojo
                                                     .isLong() ? UuidT3Generator.fromSNOMED(
                                                        descRS.getLong("CASESIGNIFICANCEID"))
                   : UUID.fromString(descRS.getString("CASESIGNIFICANCEID")));
-            final SememeChronology<DescriptionVersion> desc =
+            final SememeChronology desc =
                super.importUtil.addDescription(ComponentReference.fromConcept(conceptId),
                                                id,
                                                term,
@@ -786,7 +786,7 @@ public class RF2Mojo
                } else {
                   // kick it over into an association bucket
                   // TODO should I toss these when processing inferred?
-                  final SememeChronology<DynamicSememe<?>> assn =
+                  final SememeChronology assn =
                      super.importUtil.addAssociation(ComponentReference.fromConcept(r.sourceId),
                                                      r.id,
                                                      r.destinationId,

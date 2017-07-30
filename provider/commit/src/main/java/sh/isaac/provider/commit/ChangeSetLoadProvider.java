@@ -189,7 +189,7 @@ public class ChangeSetLoadProvider
     * @return the uuid
     */
    private UUID readSememeDbId() {
-      final Optional<SememeChronology<? extends SememeVersion>> sdic = Get.sememeService()
+      final Optional<SememeChronology> sdic = Get.sememeService()
                                                                              .getSememesForComponentFromAssemblage(
                                                                                 TermAux.ISAAC_ROOT.getNid(),
                                                                                       TermAux.DATABASE_UUID.getConceptSequence())
@@ -197,8 +197,7 @@ public class ChangeSetLoadProvider
 
       if (sdic.isPresent()) {
          final LatestVersion<StringVersion> sdi =
-            ((SememeChronology) sdic.get()).getLatestVersion(StringVersion.class,
-                                                             StampCoordinates.getDevelopmentLatest());
+            ((SememeChronology) sdic.get()).getLatestVersion(StampCoordinates.getDevelopmentLatest());
 
          if (sdi.isPresent()) {
             try {

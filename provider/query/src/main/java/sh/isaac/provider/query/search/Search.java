@@ -46,7 +46,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -102,12 +101,10 @@ public class Search {
          filters.add(t -> {
                         final ArrayList<CompositeSearchResult> keep = new ArrayList<>();
 
-                        for (final CompositeSearchResult csr: t) {
-                           if (csr.getContainingConcept().isPresent() &&
-                               (csr.getContainingConcept().get().getPathSequence() == pathFilterSequence)) {
-                              keep.add(csr);
-                           }
-                        }
+                        t.stream().filter((csr) -> (csr.getContainingConcept().isPresent() &&
+                                (csr.getContainingConcept().get().getPathSequence() == pathFilterSequence))).forEachOrdered((csr) -> {
+                                   keep.add(csr);
+            });
 
                         return keep;
                      });
@@ -124,12 +121,10 @@ public class Search {
                                           refsetMembers.add(sememeC.getReferencedComponentNid());
                                        });
 
-                           for (final CompositeSearchResult csr: t) {
-                              if (csr.getContainingConcept().isPresent() &&
-                                  refsetMembers.contains(csr.getContainingConcept().get().getNid())) {
-                                 keep.add(csr);
-                              }
-                           }
+                           t.stream().filter((csr) -> (csr.getContainingConcept().isPresent() &&
+                                   refsetMembers.contains(csr.getContainingConcept().get().getNid()))).forEachOrdered((csr) -> {
+                                      keep.add(csr);
+                           });
 
                            return keep;
                         } catch (final Exception e) {
@@ -142,13 +137,11 @@ public class Search {
          filters.add(t -> {
                         final ArrayList<CompositeSearchResult> keep = new ArrayList<>();
 
-                        for (final CompositeSearchResult csr: t) {
-                           if (csr.getContainingConcept().isPresent() &&
-                               Get.taxonomyService().wasEverKindOf(csr.getContainingConcept().get().getNid(),
-                                     kindOfNid)) {
-                              keep.add(csr);
-                           }
-                        }
+                        t.stream().filter((csr) -> (csr.getContainingConcept().isPresent() &&
+                                Get.taxonomyService().wasEverKindOf(csr.getContainingConcept().get().getNid(),
+                                        kindOfNid))).forEachOrdered((csr) -> {
+                                           keep.add(csr);
+            });
 
                         return keep;
                      });
@@ -234,8 +227,7 @@ public class Search {
          .forEach(descriptionC -> {
                      @SuppressWarnings({ "rawtypes", "unchecked" })
                      final LatestVersion<DescriptionVersion> latest =
-                        ((SememeChronology) descriptionC).getLatestVersion(DescriptionVersion.class,
-                                                                           (stampCoord == null)
+                        ((SememeChronology) descriptionC).getLatestVersion((stampCoord == null)
                                                                            ? Get.configurationService()
                                                                                  .getDefaultStampCoordinate()
                : stampCoord);

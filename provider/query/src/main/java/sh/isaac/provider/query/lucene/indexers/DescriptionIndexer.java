@@ -66,7 +66,6 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.constants.DynamicSememeConstants;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.MetaData;
@@ -76,6 +75,7 @@ import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.identity.StampedVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -303,13 +303,13 @@ public class DescriptionIndexer
     */
    @SuppressWarnings("unchecked")
    @Override
-   protected void addFields(Chronology<?> chronicle, Document doc) {
+   protected void addFields(Chronology chronicle, Document doc) {
       if (chronicle instanceof SememeChronology) {
-         final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
+         final SememeChronology sememeChronology = (SememeChronology) chronicle;
 
          if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
             indexDescription(doc,
-                             (SememeChronology<DescriptionVersion>) sememeChronology);
+                             (SememeChronology) sememeChronology);
             incrementIndexedItemCount("Description");
          }
       }
@@ -322,11 +322,11 @@ public class DescriptionIndexer
     * @return true, if successful
     */
    @Override
-   protected boolean indexChronicle(Chronology<?> chronicle) {
+   protected boolean indexChronicle(Chronology chronicle) {
       setupNidConstants();
 
       if (chronicle instanceof SememeChronology) {
-         final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
+         final SememeChronology sememeChronology = (SememeChronology) chronicle;
 
          if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
             return true;
@@ -360,15 +360,16 @@ public class DescriptionIndexer
     * @param sememeChronology the sememe chronology
     */
    private void indexDescription(Document doc,
-                                 SememeChronology<DescriptionVersion> sememeChronology) {
+                                 SememeChronology sememeChronology) {
       doc.add(new IntPoint(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, sememeChronology.getAssemblageSequence()));
 
       String                      lastDescText     = null;
       String                      lastDescType     = null;
       final TreeMap<Long, String> uniqueTextValues = new TreeMap<>();
 
-      for (final DescriptionVersion descriptionVersion:
+      for (final StampedVersion stampedVersion:
             sememeChronology.getVersionList()) {
+         DescriptionVersion descriptionVersion = (DescriptionVersion) stampedVersion;
          final String descType = this.sequenceTypeMap.get(descriptionVersion.getDescriptionTypeConceptSequence());
 
          // No need to index if the text is the same as the previous version.
@@ -392,13 +393,14 @@ public class DescriptionIndexer
       String lastExtendedDescType = null;
       String lastValue            = null;
 
-      for (final SememeChronology<? extends SememeVersion> sememeChronicle: sememeChronology.getSememeList()) {
+      for (final SememeChronology sememeChronicle: sememeChronology.getSememeList()) {
          if (sememeChronicle.getSememeType() == SememeType.DYNAMIC) {
             @SuppressWarnings("unchecked")
-            final SememeChronology<DynamicSememe<?>> sememeDynamicChronicle =
-               (SememeChronology<DynamicSememe<?>>) sememeChronicle;
+            final SememeChronology sememeDynamicChronicle =
+               (SememeChronology) sememeChronicle;
 
-            for (final DynamicSememe<?> sememeDynamic: sememeDynamicChronicle.getVersionList()) {
+            for (final StampedVersion sv: sememeDynamicChronicle.getVersionList()) {
+               DynamicSememe sememeDynamic = (DynamicSememe) sv;
                // If this sememe is the sememe recording a dynamic sememe extended type....
                if (sememeDynamic.getAssemblageSequence() == this.descExtendedTypeSequence) {
                   // this is a UUID, but we want to treat it as a string anyway

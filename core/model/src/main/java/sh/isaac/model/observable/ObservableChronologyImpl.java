@@ -42,7 +42,6 @@ package sh.isaac.model.observable;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
@@ -69,17 +68,17 @@ import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
-import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.sememe.version.SememeVersion;
+import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.api.observable.ObservableStampedVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -87,23 +86,19 @@ import sh.isaac.api.chronicle.Chronology;
  * The Class ObservableChronologyImpl.
  *
  * @author kec
- * @param <OV> ofType of the observable version
- * @param <C>  ofType of the unobservable (base) chronicle
  */
 public abstract class ObservableChronologyImpl
-        <OV extends ObservableVersion, 
-         C extends Chronology<?>>
-         implements ObservableChronology<OV>, ChronologyChangeListener, CommittableComponent {
+         implements ObservableChronology, ChronologyChangeListener, CommittableComponent {
    /** The Constant ocs. */
    private static final ObservableChronologyService ocs = LookupService.getService(ObservableChronologyService.class);
 
    //~--- fields --------------------------------------------------------------
 
    /** The version list. */
-   private ObservableList<? extends OV> versionList = null;
+   private ObservableList<? extends ObservableStampedVersion> versionList = null;
 
    /** The version list property. */
-   private ListProperty<? extends OV> versionListProperty;
+   private ListProperty<ObservableStampedVersion> versionListProperty;
 
    /** The nid property. */
    private IntegerProperty nidProperty;
@@ -118,10 +113,15 @@ public abstract class ObservableChronologyImpl
    private ObjectProperty<CommitStates> commitStateProperty;
 
    /** The sememe list property. */
-   private ListProperty<ObservableSememeChronology<? extends ObservableSememeVersion>> sememeListProperty;
+   private ListProperty<ObservableSememeChronology> sememeListProperty;
 
    /** The chronicled object local. */
-   protected C chronicledObjectLocal;
+   protected Chronology chronicledObjectLocal;
+
+   @Override
+   public <V extends StampedVersion> List<V> getUnwrittenVersionList() {
+      return chronicledObjectLocal.getUnwrittenVersionList();
+   }
 
    //~--- constructors --------------------------------------------------------
 
@@ -130,7 +130,7 @@ public abstract class ObservableChronologyImpl
     *
     * @param chronicledObjectLocal the chronicled object local
     */
-   public ObservableChronologyImpl(C chronicledObjectLocal) {
+   public ObservableChronologyImpl(Chronology chronicledObjectLocal) {
       this.chronicledObjectLocal = chronicledObjectLocal;
    }
 
@@ -173,7 +173,7 @@ public abstract class ObservableChronologyImpl
    @Override
    public final void handleChange(ConceptChronology cc) {
       if (this.getNid() == cc.getNid()) {
-         updateChronicle((C) cc);
+         updateChronicle(cc);
 
          // update descriptions...
          throw new UnsupportedOperationException();
@@ -186,9 +186,9 @@ public abstract class ObservableChronologyImpl
     * @param sc the sc
     */
    @Override
-   public final void handleChange(SememeChronology<? extends SememeVersion> sc) {
+   public final void handleChange(SememeChronology sc) {
       if (this.getNid() == sc.getNid()) {
-         updateChronicle((C) sc);
+         updateChronicle(sc);
       }
 
       if (sc.getReferencedComponentNid() == this.getNid()) {
@@ -199,7 +199,7 @@ public abstract class ObservableChronologyImpl
                                        .noneMatch((element) -> element.getNid() == sc.getNid())) {
                this.sememeListProperty.get()
                                       .add(
-                                      (ObservableSememeChronology<? extends ObservableSememeVersion>) ocs.getObservableSememeChronology(
+                                      (ObservableSememeChronology) ocs.getObservableSememeChronology(
                                          sc.getNid()));
             }
          }
@@ -256,9 +256,9 @@ public abstract class ObservableChronologyImpl
     * @return the list property< observable sememe chronology<? extends observable sememe version<?>>>
     */
    @Override
-   public final ListProperty<ObservableSememeChronology<? extends ObservableSememeVersion>> sememeListProperty() {
+   public final ListProperty<ObservableSememeChronology> sememeListProperty() {
       if (this.sememeListProperty == null) {
-         final ObservableList<ObservableSememeChronology<? extends ObservableSememeVersion>> sememeList =
+         final ObservableList<ObservableSememeChronology> sememeList =
             FXCollections.emptyObservableList();
 
          Get.sememeService()
@@ -305,11 +305,11 @@ public abstract class ObservableChronologyImpl
     * @return the list property<? extends O v>
     */
    @Override
-   public final ListProperty<? extends OV> versionListProperty() {
+   public final ListProperty<ObservableStampedVersion> versionListProperty() {
       if (this.versionListProperty == null) {
          this.versionListProperty = new SimpleListProperty<>(this,
-               ObservableFields.VERSION_LIST_FOR_CHRONICLE.toExternalString(),
-               getVersionList());
+               ObservableFields.VERSION_LIST_FOR_CHRONICLE.toExternalString(), 
+                 getVersionList());
       }
 
       return this.versionListProperty;
@@ -320,16 +320,16 @@ public abstract class ObservableChronologyImpl
     *
     * @param chronicledObjectLocal the chronicled object local
     */
-   protected final void updateChronicle(C chronicledObjectLocal) {
+   protected final void updateChronicle(Chronology chronicledObjectLocal) {
       this.chronicledObjectLocal = chronicledObjectLocal;
 
       if (this.versionList != null) {
-         final OpenShortObjectHashMap<OV> observableVersionMap = new OpenShortObjectHashMap<>(this.versionList.size());
+         final OpenShortObjectHashMap<ObservableStampedVersion> observableVersionMap = new OpenShortObjectHashMap<>(this.versionList.size());
 
          this.versionList.stream()
                          .forEach((ov) -> observableVersionMap.put(((ObservableVersionImpl)ov).getVersionSequence(), ov));
          chronicledObjectLocal.getVersionList().stream().forEach((sv) -> {
-                                          final OV observableVersion =
+                                          final ObservableStampedVersion observableVersion =
                                              observableVersionMap.get(((VersionImpl) sv).getVersionSequence());
 
                                           if (observableVersion == null) {
@@ -370,7 +370,7 @@ public abstract class ObservableChronologyImpl
     * @return the latest version
     */
    @Override
-   public LatestVersion<OV> getLatestVersion(Class<OV> type, StampCoordinate coordinate) {
+   public LatestVersion<ObservableStampedVersion> getLatestVersion(Class<? extends StampedVersion> type, StampCoordinate coordinate) {
       final RelativePositionCalculator calculator = RelativePositionCalculator.getCalculator(coordinate);
 
       return calculator.getLatestVersion(this);
@@ -403,9 +403,11 @@ public abstract class ObservableChronologyImpl
    /**
     * Gets the observable version list.
     *
+    * @param <OV>
     * @return the observable version list
     */
-   protected abstract ObservableList<? extends OV> getObservableVersionList();
+   protected abstract <OV extends ObservableStampedVersion> 
+        ObservableList<OV> getObservableVersionList();
 
    /**
     * Gets the primordial uuid.
@@ -427,7 +429,7 @@ public abstract class ObservableChronologyImpl
     * @return the sememe list
     */
    @Override
-   public final ObservableList<? extends ObservableSememeChronology<? extends ObservableSememeVersion>> getSememeList() {
+   public final ObservableList<? extends ObservableSememeChronology> getSememeList() {
       return sememeListProperty().get();
    }
 
@@ -438,7 +440,7 @@ public abstract class ObservableChronologyImpl
     * @return the sememe list from assemblage
     */
    @Override
-   public List<? extends ObservableSememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(
+   public List<? extends ObservableSememeChronology> getSememeListFromAssemblage(
            int assemblageSequence) {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -453,9 +455,9 @@ public abstract class ObservableChronologyImpl
     * @return the sememe list from assemblage of type
     */
    @Override
-   public <SV extends ObservableSememeVersion> List<? extends ObservableSememeChronology<SV>> getSememeListFromAssemblageOfType(
+   public <V extends SememeChronology> List<V> getSememeListFromAssemblageOfType(
            int assemblageSequence,
-           Class<SV> type) {
+           Class<? extends SememeVersion> type) {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
@@ -476,16 +478,16 @@ public abstract class ObservableChronologyImpl
     * @return the version list
     */
    @Override
-   public final ObservableList<? extends OV> getVersionList() {
+   public final <V extends StampedVersion> ObservableList<V> getVersionList() {
       if (this.versionListProperty != null) {
-         return this.versionListProperty.get();
+         return (ObservableList<V>) this.versionListProperty.get();
       }
 
       if (this.versionList == null) {
          this.versionList = getObservableVersionList();
       }
 
-      return this.versionList;
+      return (ObservableList<V>) this.versionList;
    }
 
    /**

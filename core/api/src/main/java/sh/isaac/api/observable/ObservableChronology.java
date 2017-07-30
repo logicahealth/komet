@@ -41,9 +41,7 @@ package sh.isaac.api.observable;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -51,15 +49,14 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 
-import javafx.collections.ObservableList;
 
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -74,10 +71,9 @@ import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
  * ObservableChronologies are singletons.
  *
  * @author kec
- * @param <V> the value type
  */
-public interface ObservableChronology<V extends ObservableVersion>
-        extends ChronologyChangeListener {
+public interface ObservableChronology
+        extends ChronologyChangeListener, Chronology {
    /**
     * Commit state property.
     *
@@ -104,7 +100,7 @@ public interface ObservableChronology<V extends ObservableVersion>
     *
     * @return the list property<? extends observable sememe chronology<? extends observable sememe version<?>>>
     */
-   ListProperty<? extends ObservableSememeChronology<? extends ObservableSememeVersion>> sememeListProperty();
+   ListProperty<? extends ObservableSememeChronology> sememeListProperty();
 
    /**
     * Uuid list property.
@@ -118,7 +114,7 @@ public interface ObservableChronology<V extends ObservableVersion>
     *
     * @return the list property<? extends v>
     */
-   ListProperty<? extends V> versionListProperty();
+   ListProperty<ObservableStampedVersion> versionListProperty();
 
    //~--- get methods ---------------------------------------------------------
 
@@ -129,48 +125,8 @@ public interface ObservableChronology<V extends ObservableVersion>
     * @param coordinate the coordinate
     * @return the latest version
     */
-   LatestVersion<? extends V> getLatestVersion(Class<V> type, StampCoordinate coordinate);
+   LatestVersion<? extends ObservableStampedVersion> getLatestVersion(Class<? extends StampedVersion> type,
+                                                            StampCoordinate coordinate);
 
-   /**
-    * Gets the sememe list.
-    *
-    * @return a list of sememes, where this object is the referenced component.
-    */
-   ObservableList<? extends ObservableSememeChronology<? extends ObservableSememeVersion>> getSememeList();
-
-   /**
-    * Gets the sememe list from assemblage.
-    *
-    * @param assemblageSequence the assemblage sequence
-    * @return the sememe list from assemblage
-    */
-   List<? extends ObservableSememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(
-           int assemblageSequence);
-
-   /**
-    * Gets the sememe list from assemblage of type.
-    *
-    * @param <SV> the generic type
-    * @param assemblageSequence the assemblage sequence
-    * @param type the type
-    * @return the sememe list from assemblage of type
-    */
-   <SV extends ObservableSememeVersion> List<? extends ObservableSememeChronology<SV>> getSememeListFromAssemblageOfType(
-           int assemblageSequence,
-           Class<SV> type);
-
-   /**
-    * Gets the version list.
-    *
-    * @return a list of all versions of this object chronology.
-    */
-   List<? extends V> getVersionList();
-
-   /**
-    * Gets the version stamp sequences.
-    *
-    * @return the version stamps for all the versions of this object chronology.
-    */
-   IntStream getVersionStampSequences();
 }
 

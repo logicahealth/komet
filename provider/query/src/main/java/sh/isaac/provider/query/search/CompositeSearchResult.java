@@ -62,7 +62,6 @@ import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.component.sememe.version.StringVersion;
@@ -89,7 +88,7 @@ public class CompositeSearchResult {
    private ConceptSnapshot containingConcept = null;
 
    /** The matching components. */
-   private final Set<Chronology<?>> matchingComponents = new HashSet<>();
+   private final Set<Chronology> matchingComponents = new HashSet<>();
 
    /** The matching component nid. */
    private int matchingComponentNid;
@@ -119,7 +118,7 @@ public class CompositeSearchResult {
     * @param matchingComponent the matching component
     * @param score the score
     */
-   public CompositeSearchResult(Chronology<?> matchingComponent, float score) {
+   public CompositeSearchResult(Chronology matchingComponent, float score) {
       this.matchingComponents.add(matchingComponent);
       this.bestScore = score;
 
@@ -152,11 +151,9 @@ public class CompositeSearchResult {
       final Collection<CompositeSearchResult> nullResults = new ArrayList<>();
 
       if (results != null) {
-         for (final CompositeSearchResult result: results) {
-            if (!result.getContainingConcept().isPresent()) {
-               nullResults.add(result);
-            }
-         }
+         results.stream().filter((result) -> (!result.getContainingConcept().isPresent())).forEachOrdered((result) -> {
+            nullResults.add(result);
+         });
 
          results.removeAll(nullResults);
       }
@@ -182,10 +179,10 @@ public class CompositeSearchResult {
 
       final List<String> matchingComponentDescs = new ArrayList<>();
 
-      for (final Chronology<?> matchingComponent: getMatchingComponents()) {
+      getMatchingComponents().forEach((matchingComponent) -> {
          matchingComponentDescs.add((matchingComponent != null) ? matchingComponent.toUserString()
-               : null);
-      }
+                 : null);
+      });
 
       builder.append(matchingComponentDescs);
       builder.append("]");
@@ -216,10 +213,10 @@ public class CompositeSearchResult {
 
          final List<Integer> matchingComponentNids = new ArrayList<>();
 
-         for (final Chronology<?> matchingComponent: this.matchingComponents) {
+         this.matchingComponents.forEach((matchingComponent) -> {
             matchingComponentNids.add((matchingComponent != null) ? matchingComponent.getNid()
-                  : null);
-         }
+                    : null);
+         });
 
          builder.append(matchingComponentNids);
       }
@@ -256,7 +253,7 @@ public class CompositeSearchResult {
 
       if (this.matchingComponentNid != 0) {
          try {
-            final Optional<? extends Chronology<?>> cc = Get.identifiedObjectService()
+            final Optional<? extends Chronology> cc = Get.identifiedObjectService()
                                                                   .getIdentifiedObjectChronology(
                                                                      this.matchingComponentNid);
 
@@ -280,10 +277,10 @@ public class CompositeSearchResult {
 
       final List<Integer> matchingComponentNids = new ArrayList<>();
 
-      for (final Chronology<?> matchingComponent: getMatchingComponents()) {
+      getMatchingComponents().forEach((matchingComponent) -> {
          matchingComponentNids.add((matchingComponent != null) ? matchingComponent.getNid()
-               : null);
-      }
+                 : null);
+      });
 
       builder.append(matchingComponentNids);
       builder.append("]");
@@ -369,7 +366,7 @@ public class CompositeSearchResult {
     *
     * @return the matching components
     */
-   public Set<Chronology<?>> getMatchingComponents() {
+   public Set<Chronology> getMatchingComponents() {
       return this.matchingComponents;
    }
 
@@ -379,15 +376,13 @@ public class CompositeSearchResult {
     *
     * @return the matching description components
     */
-   public Set<SememeChronology<DescriptionVersion>> getMatchingDescriptionComponents() {
-      final Set<SememeChronology<DescriptionVersion>> setToReturn = new HashSet<>();
+   public Set<SememeChronology> getMatchingDescriptionComponents() {
+      final Set<SememeChronology> setToReturn = new HashSet<>();
 
-      for (final Chronology<?> comp: this.matchingComponents) {
-         if ((comp instanceof SememeChronology<?>) &&
-               ((SememeChronology<?>) comp).getSememeType() == SememeType.DESCRIPTION) {
-            setToReturn.add(((SememeChronology<DescriptionVersion>) comp));
-         }
-      }
+      this.matchingComponents.stream().filter((comp) -> ((comp instanceof SememeChronology) &&
+              ((SememeChronology) comp).getSememeType() == SememeType.DESCRIPTION)).forEachOrdered((comp) -> {
+                 setToReturn.add(((SememeChronology) comp));
+      });
 
       return Collections.unmodifiableSet(setToReturn);
    }
@@ -409,56 +404,53 @@ public class CompositeSearchResult {
          }
       }
 
-      for (final IdentifiedObject iol: this.matchingComponents) {
+      this.matchingComponents.forEach((iol) -> {
          if (iol instanceof ConceptChronology) {
             // This means they matched on a UUID or other ID lookup.
             // Return UUID for now - matches on other ID types will be handled differently
             // in the near future - so ignore the SCTID case for now.
             strings.add(iol.getPrimordialUuid()
-                           .toString());
-         } else if ((iol instanceof SememeChronology<?>) &&
-                    ((SememeChronology<?>) iol).getSememeType() == SememeType.DESCRIPTION) {
+                    .toString());
+         } else if ((iol instanceof SememeChronology) &&
+                 ((SememeChronology) iol).getSememeType() == SememeType.DESCRIPTION) {
             final LatestVersion<DescriptionVersion> ds =
-               ((SememeChronology<DescriptionVersion>) iol).getLatestVersion(DescriptionVersion.class,
-                                                                            stampCoord.orElse(Get.configurationService()
-                                                                                  .getDefaultStampCoordinate()));
-
+                    ((SememeChronology) iol).getLatestVersion(stampCoord.orElse(Get.configurationService()
+                            .getDefaultStampCoordinate()));
+            
             if (ds.isPresent()) {
                strings.add(ds.get()
-                             .getText());
+                       .getText());
             } else {
                strings.add("No description available on stamp coordinate!");
             }
-         } else if ((iol instanceof SememeChronology<?>) &&
-                    ((SememeChronology<?>) iol).getSememeType() == SememeType.STRING) {
+         } else if ((iol instanceof SememeChronology) &&
+                 ((SememeChronology) iol).getSememeType() == SememeType.STRING) {
             final LatestVersion<StringVersion> ds =
-               ((SememeChronology<StringVersion>) iol).getLatestVersion(StringVersion.class,
-                                                                       stampCoord.orElse(Get.configurationService()
-                                                                             .getDefaultStampCoordinate()));
-
+                    ((SememeChronology) iol).getLatestVersion(stampCoord.orElse(Get.configurationService()
+                            .getDefaultStampCoordinate()));
+            
             if (ds.isPresent()) {
                strings.add(ds.get()
-                             .getString());
+                       .getString());
             } else {
                strings.add("No sememe available on stamp coordinate!");
             }
-         } else if ((iol instanceof SememeChronology<?>) &&
-                    ((SememeChronology<?>) iol).getSememeType() == SememeType.DYNAMIC) {
+         } else if ((iol instanceof SememeChronology) &&
+                 ((SememeChronology) iol).getSememeType() == SememeType.DYNAMIC) {
             final LatestVersion<DynamicSememe> ds =
-               ((SememeChronology<DynamicSememe>) iol).getLatestVersion(DynamicSememe.class,
-                                                                        stampCoord.orElse(Get.configurationService()
-                                                                              .getDefaultStampCoordinate()));
-
+                    ((SememeChronology) iol).getLatestVersion(stampCoord.orElse(Get.configurationService()
+                            .getDefaultStampCoordinate()));
+            
             if (ds.isPresent()) {
                strings.add(ds.get()
-                             .dataToString());
+                       .dataToString());
             } else {
                strings.add("No sememe available on stamp coordinate!");
             }
          } else {
             strings.add("ERROR: No string extractor available for " + iol.getClass().getName());
          }
-      }
+      });
 
       return strings;
    }

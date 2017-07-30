@@ -228,7 +228,7 @@ public abstract class Query {
 
                         final ConceptChronology cch = concept;
                         final LatestVersion<ConceptVersion> latest =
-                           cch.getLatestVersion(ConceptVersion.class, this.manifoldCoordinate);
+                           cch.getLatestVersion(this.manifoldCoordinate);
 
                         // Optional<LatestVersion<ConceptVersion>> latest
                         // = ((ConceptChronology<ConceptVersion>) concept).getLatestVersion(ConceptVersion.class, stampCoordinate);

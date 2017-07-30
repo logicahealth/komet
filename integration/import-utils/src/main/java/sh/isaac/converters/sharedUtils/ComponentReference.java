@@ -114,7 +114,7 @@ public class ComponentReference {
     * @param object the object
     * @return the component reference
     */
-   public static ComponentReference fromChronology(Chronology<?> object) {
+   public static ComponentReference fromChronology(Chronology object) {
       return fromChronology(object, null);
    }
 
@@ -126,7 +126,7 @@ public class ComponentReference {
     * @return the component reference
     */
    @SuppressWarnings("rawtypes")
-   public static ComponentReference fromChronology(Chronology<?> object, Supplier<String> typeLabelSupplier) {
+   public static ComponentReference fromChronology(Chronology object, Supplier<String> typeLabelSupplier) {
       ComponentReference cr;
 
       if (object instanceof SememeChronology) {
@@ -162,8 +162,7 @@ public class ComponentReference {
       cr.timeProvider = () -> {
                             @SuppressWarnings({ "unchecked" })
                             final LatestVersion<StampedVersion> latest =
-                               ((Chronology) object).getLatestVersion(StampedVersion.class,
-                                                                            IBDFCreationUtility.readBackStamp);
+                               ((Chronology) object).getLatestVersion(IBDFCreationUtility.readBackStamp);
 
                             return latest.get()
                                          .getTime();
@@ -186,8 +185,7 @@ public class ComponentReference {
       cr.timeProvider = () -> {
                             @SuppressWarnings({ "rawtypes", "unchecked" })
                             final LatestVersion<StampedVersion> latest =
-                               ((Chronology) concept).getLatestVersion(StampedVersion.class,
-                                                                             IBDFCreationUtility.readBackStamp);
+                               ((Chronology) concept).getLatestVersion(IBDFCreationUtility.readBackStamp);
 
                             return latest.get()
                                          .getTime();

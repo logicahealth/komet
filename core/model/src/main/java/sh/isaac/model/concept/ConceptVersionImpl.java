@@ -53,7 +53,7 @@ import sh.isaac.model.VersionImpl;
  * @author kec
  */
 public class ConceptVersionImpl
-        extends VersionImpl<ConceptChronology, ConceptVersion>
+        extends VersionImpl
          implements ConceptVersion {
    /**
     * Instantiates a new concept version impl.
@@ -75,7 +75,7 @@ public class ConceptVersionImpl
     */
    @Override
    public ConceptChronology getChronology() {
-      return this.chronicle;
+      return (ConceptChronology) this.chronicle;
    }
 }
 

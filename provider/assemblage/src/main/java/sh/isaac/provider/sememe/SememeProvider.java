@@ -95,7 +95,6 @@ import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
 import sh.isaac.api.AssemblageService;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -131,7 +130,7 @@ public class SememeProvider
    private DatabaseValidity databaseValidity = DatabaseValidity.NOT_SET;
 
    /** The sememe map. */
-   final CasSequenceObjectMap<SememeChronologyImpl<? extends SememeVersion>> sememeMap;
+   final CasSequenceObjectMap<SememeChronologyImpl> sememeMap;
 
    /** The sememe path. */
    final Path sememePath;
@@ -186,8 +185,8 @@ public class SememeProvider
     * @return the sememe service typed
     */
    @Override
-   public <V extends SememeVersion> SememeServiceTyped<V> ofType(Class<V> versionType) {
-      return new SememeTypeProvider<>(versionType, this);
+   public <V extends SememeVersion> SememeServiceTyped ofType(Class<V> versionType) {
+      return new SememeTypeProvider(versionType, this);
    }
 
    /**
@@ -197,7 +196,7 @@ public class SememeProvider
     * @param constraints the constraints
     */
    @Override
-   public void writeSememe(SememeChronology<?> sememeChronicle, SememeConstraints... constraints) {
+   public void writeSememe(SememeChronology sememeChronicle, SememeConstraints... constraints) {
       Arrays.stream(constraints).forEach((constraint) -> {
                         switch (constraint) {
                         case ONE_SEMEME_PER_COMPONENT:
@@ -238,7 +237,7 @@ public class SememeProvider
           new ReferencedNidAssemblageSequenceSememeSequenceKey(sememeChronicle.getReferencedComponentNid(),
                 sememeChronicle.getAssemblageSequence(),
                 sememeChronicle.getSememeSequence()));
-      this.sememeMap.put(sememeChronicle.getSememeSequence(), (SememeChronologyImpl<?>) sememeChronicle);
+      this.sememeMap.put(sememeChronicle.getSememeSequence(), (SememeChronologyImpl) sememeChronicle);
    }
 
    /**
@@ -398,14 +397,14 @@ public class SememeProvider
     * @return the descriptions for component
     */
    @Override
-   public Stream<SememeChronology<DescriptionVersion>> getDescriptionsForComponent(int componentNid) {
+   public Stream<SememeChronology> getDescriptionsForComponent(int componentNid) {
       final SememeSequenceSet sequences = getSememeSequencesForComponent(componentNid);
-      final IntFunction<SememeChronology<DescriptionVersion>> mapper =
-         (int sememeSequence) -> (SememeChronology<DescriptionVersion>) getSememe(sememeSequence);
+      final IntFunction<SememeChronology> mapper =
+         (int sememeSequence) -> (SememeChronology) getSememe(sememeSequence);
 
       return sequences.stream()
                       .filter((int sememeSequence) -> {
-                                 final Optional<? extends SememeChronology<?>> sememe =
+                                 final Optional<? extends SememeChronology> sememe =
                                     getOptionalSememe(sememeSequence);
 
                                  return sememe.isPresent() && (sememe.get().getSememeType() == SememeType.DESCRIPTION);
@@ -420,7 +419,7 @@ public class SememeProvider
     * @return the optional sememe
     */
    @Override
-   public Optional<? extends SememeChronology<? extends SememeVersion>> getOptionalSememe(int sememeSequence) {
+   public Optional<? extends SememeChronology> getOptionalSememe(int sememeSequence) {
       sememeSequence = Get.identifierService()
                           .getSememeSequence(sememeSequence);
       return this.sememeMap.get(sememeSequence);
@@ -432,9 +431,9 @@ public class SememeProvider
     * @return the parallel sememe stream
     */
    @Override
-   public Stream<SememeChronology<? extends SememeVersion>> getParallelSememeStream() {
+   public Stream<SememeChronology> getParallelSememeStream() {
       return this.sememeMap.getParallelStream().map((s) -> {
-                                   return (SememeChronology<? extends SememeVersion>) s;
+                                   return (SememeChronology) s;
                                 });
    }
 
@@ -445,7 +444,7 @@ public class SememeProvider
     * @return the sememe
     */
    @Override
-   public SememeChronology<? extends SememeVersion> getSememe(int sememeId) {
+   public SememeChronology getSememe(int sememeId) {
       sememeId = Get.identifierService()
                     .getSememeSequence(sememeId);
       return this.sememeMap.getQuick(sememeId);
@@ -473,9 +472,9 @@ public class SememeProvider
     * @return the sememe chronology stream
     */
    @Override
-   public Stream<SememeChronology<? extends SememeVersion>> getSememeChronologyStream() {
+   public Stream<SememeChronology> getSememeChronologyStream() {
       return this.sememeMap.getStream().map((s) -> {
-                                   return (SememeChronology<? extends SememeVersion>) s;
+                                   return (SememeChronology) s;
                                 });
    }
 
@@ -650,8 +649,8 @@ public class SememeProvider
       final SememeSequenceSet sequencesThatPassedTest = new SememeSequenceSet();
 
       sequencesToTest.stream().forEach((sememeSequence) -> {
-                                 final SememeChronologyImpl<?> chronicle =
-                                    (SememeChronologyImpl<?>) getSememe(sememeSequence);
+                                 final SememeChronologyImpl chronicle =
+                                    (SememeChronologyImpl) getSememe(sememeSequence);
 
                                  if (chronicle.getVersionStampSequences().anyMatch((stampSequence) -> {
                   return ((Get.stampService().getTimeForStamp(stampSequence) > position.getTime()) &&
@@ -695,7 +694,7 @@ public class SememeProvider
     * @return the sememes for component
     */
    @Override
-   public Stream<SememeChronology<? extends SememeVersion>> getSememesForComponent(int componentNid) {
+   public <C extends SememeChronology> Stream<C> getSememesForComponent(int componentNid) {
       return getSememesForComponentFromAssemblages(componentNid, null);
    }
 
@@ -707,7 +706,7 @@ public class SememeProvider
     * @return the sememes for component from assemblage
     */
    @Override
-   public Stream<SememeChronology<? extends SememeVersion>> getSememesForComponentFromAssemblage(int componentNid,
+   public <C extends SememeChronology> Stream<C> getSememesForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence) {
       if (componentNid >= 0) {
          componentNid = Get.identifierService()
@@ -723,7 +722,7 @@ public class SememeProvider
                                                                                              assemblageConceptSequence);
 
       return sememeSequences.stream()
-                            .mapToObj((int sememeSequence) -> getSememe(sememeSequence));
+                            .mapToObj((int sememeSequence) -> (C) getSememe(sememeSequence));
    }
 
    /**
@@ -734,13 +733,13 @@ public class SememeProvider
     * @return the sememes for component from assemblages
     */
    @Override
-   public Stream<SememeChronology<? extends SememeVersion>> getSememesForComponentFromAssemblages(int componentNid,
+   public <C extends SememeChronology> Stream<C> getSememesForComponentFromAssemblages(int componentNid,
          Set<Integer> allowedAssemblageSequences) {
       final SememeSequenceSet sememeSequences = getSememeSequencesForComponentFromAssemblages(componentNid,
                                                                                               allowedAssemblageSequences);
 
       return sememeSequences.stream()
-                            .mapToObj((int sememeSequence) -> getSememe(sememeSequence));
+                            .mapToObj((int sememeSequence) -> (C) getSememe(sememeSequence));
    }
 
    /**
@@ -750,11 +749,11 @@ public class SememeProvider
     * @return the sememes from assemblage
     */
    @Override
-   public Stream<SememeChronology<? extends SememeVersion>> getSememesFromAssemblage(int assemblageConceptSequence) {
+   public <C extends SememeChronology> Stream<C> getSememesFromAssemblage(int assemblageConceptSequence) {
       final SememeSequenceSet sememeSequences = getSememeSequencesFromAssemblage(assemblageConceptSequence);
 
       return sememeSequences.stream()
-                            .mapToObj((int sememeSequence) -> getSememe(sememeSequence));
+                            .mapToObj((int sememeSequence) -> (C) getSememe(sememeSequence));
    }
 
    /**

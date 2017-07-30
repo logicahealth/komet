@@ -70,8 +70,8 @@ public class DescriptionBuilderProvider
     * @return the description builder
     */
    @Override
-   public DescriptionBuilder<? extends SememeChronology<?>,
-                             DescriptionSememeImpl> getDescriptionBuilder(String descriptionText,
+   public DescriptionBuilder<SememeChronology, DescriptionSememeImpl> 
+        getDescriptionBuilder(String descriptionText,
                                    ConceptBuilder conceptBuilder,
                                    ConceptSpecification descriptionType,
                                    ConceptSpecification languageForDescription) {
@@ -88,8 +88,9 @@ public class DescriptionBuilderProvider
     * @return the description builder
     */
    @Override
-   public DescriptionBuilder<? extends SememeChronology<?>,
-                             DescriptionSememeImpl> getDescriptionBuilder(String descriptionText,
+   public DescriptionBuilder<SememeChronology,
+                             DescriptionSememeImpl> 
+        getDescriptionBuilder(String descriptionText,
                                    int conceptSequence,
                                    ConceptSpecification descriptionType,
                                    ConceptSpecification languageForDescription) {

@@ -139,7 +139,7 @@ public class ValuePropertyPairWithAttributes
     */
    public static void processAttributes(IBDFCreationUtility ibdfCreationUtility,
          List<? extends ValuePropertyPairWithAttributes> descriptionSource,
-         List<SememeChronology<DescriptionVersion>> descriptions) {
+         List<SememeChronology> descriptions) {
       for (int i = 0; i < descriptionSource.size(); i++) {
          for (final Entry<UUID, ArrayList<String>> attributes: descriptionSource.get(i).stringAttributes
                .entrySet()) {

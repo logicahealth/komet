@@ -35,7 +35,7 @@ public interface LanguageCoordinateProxy extends LanguageCoordinate {
    LanguageCoordinate getLanguageCoordinate();
 
    @Override
-   public default LatestVersion<DescriptionVersion> getDescription(List<SememeChronology<DescriptionVersion>> descriptionList, StampCoordinate stampCoordinate) {
+   public default LatestVersion<DescriptionVersion> getDescription(List<SememeChronology> descriptionList, StampCoordinate stampCoordinate) {
       return getLanguageCoordinate().getDescription(descriptionList, stampCoordinate);
    }
 
@@ -50,7 +50,7 @@ public interface LanguageCoordinateProxy extends LanguageCoordinate {
    }
 
    @Override
-   public default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(List<SememeChronology<DescriptionVersion>> descriptionList, StampCoordinate stampCoordinate) {
+   public default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(List<SememeChronology> descriptionList, StampCoordinate stampCoordinate) {
       return getLanguageCoordinate().getFullySpecifiedDescription(descriptionList, stampCoordinate);
    }
 
@@ -60,7 +60,7 @@ public interface LanguageCoordinateProxy extends LanguageCoordinate {
    }
 
    @Override
-   public default LatestVersion<DescriptionVersion> getPreferredDescription(List<SememeChronology<DescriptionVersion>> descriptionList, StampCoordinate stampCoordinate) {
+   public default LatestVersion<DescriptionVersion> getPreferredDescription(List<SememeChronology> descriptionList, StampCoordinate stampCoordinate) {
       return getLanguageCoordinate().getPreferredDescription(descriptionList, stampCoordinate);
    }
 

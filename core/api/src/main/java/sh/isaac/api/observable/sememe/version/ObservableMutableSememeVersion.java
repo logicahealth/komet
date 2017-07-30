@@ -14,29 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.util;
+package sh.isaac.api.observable.sememe.version;
 
-import sh.isaac.api.Get;
-import sh.komet.gui.contract.DialogService;
-import sh.komet.gui.contract.StatusMessageService;
-import sh.komet.gui.provider.StatusMessageProvider;
+import sh.isaac.api.component.sememe.version.MutableSememeVersion;
 
 /**
  *
  * @author kec
  */
-public class FxGet {
-   private static DialogService DIALOG_SERVICE = null;
-   private static final StatusMessageProvider STATUS_MESSAGE_PROVIDER = new StatusMessageProvider();
-   public static DialogService dialogs() {
-      if (DIALOG_SERVICE == null) {
-         DIALOG_SERVICE = Get.service(DialogService.class);
-      }
-      return DIALOG_SERVICE;
-   }
-   
-   public static StatusMessageService statusMessageService() {
-      return STATUS_MESSAGE_PROVIDER;
-   }
+public interface ObservableMutableSememeVersion extends MutableSememeVersion {
    
 }

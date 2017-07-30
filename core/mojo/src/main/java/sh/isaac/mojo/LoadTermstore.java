@@ -79,7 +79,6 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
-import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.identity.StampedVersion;
@@ -88,6 +87,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -241,17 +241,17 @@ public class LoadTermstore
             int duplicateCount = 0;
             
             final BinaryDataReaderQueueService       reader = Get.binaryDataQueueReader(f.toPath());
-            final BlockingQueue<OchreExternalizable> queue  = reader.getQueue();
+            final BlockingQueue<IsaacExternalizable> queue  = reader.getQueue();
 
             while (!queue.isEmpty() ||!reader.isFinished()) {
-               final OchreExternalizable object = queue.poll(500, TimeUnit.MILLISECONDS);
+               final IsaacExternalizable object = queue.poll(500, TimeUnit.MILLISECONDS);
 
                if (object != null) {
                   this.itemCount++;
 
                   try {
-                     if (null != object.getOchreObjectType()) {
-                        switch (object.getOchreObjectType()) {
+                     if (null != object.getExternalizableObjectType()) {
+                        switch (object.getExternalizableObjectType()) {
                         case CONCEPT:
                            if (!this.activeOnly || isActive((Chronology) object)) {
                               Get.conceptService()
@@ -312,7 +312,7 @@ public class LoadTermstore
                                                                     moduleProxy.getConceptSequence(),
                                                                     pathProxy.getConceptSequence());
                                  final MutableLogicGraphVersion newVersion =
-                                    (MutableLogicGraphVersion) existingChronology.createMutableVersion(MutableLogicGraphVersion.class,
+                                    (MutableLogicGraphVersion) existingChronology.createMutableVersion(
                                         stampSequence);
 
                                  newVersion.setGraphData(isomorphicResults.getMergedExpression()
@@ -473,7 +473,7 @@ public class LoadTermstore
     * @param object the object
     * @return true, if active
     */
-   private boolean isActive(Chronology<?> object) {
+   private boolean isActive(Chronology object) {
       if (object.getVersionList()
                 .size() != 1) {
          throw new RuntimeException("Didn't expect version list of size " + object.getVersionList());
@@ -503,14 +503,14 @@ public class LoadTermstore
     * @return the latest logical expression
     */
    private static LogicalExpression getLatestLogicalExpression(SememeChronology sc) {
-      final SememeChronology<? extends LogicGraphVersion> lgsc          = sc;
+      final SememeChronology lgsc          = sc;
       LogicGraphVersion                                   latestVersion = null;
 
-      for (final LogicGraphVersion version: lgsc.getVersionList()) {
+      for (final StampedVersion version: lgsc.getVersionList()) {
          if (latestVersion == null) {
-            latestVersion = version;
+            latestVersion = (LogicGraphVersion) version;
          } else if (latestVersion.getTime() < version.getTime()) {
-            latestVersion = version;
+            latestVersion = (LogicGraphVersion) version;
          }
       }
 

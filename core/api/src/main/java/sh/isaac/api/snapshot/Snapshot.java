@@ -136,10 +136,10 @@ public class Snapshot {
     * @param chronicle the chronicle
     * @return the visible
     */
-   public <V extends StampedVersion> Stream<? extends V> getVisible(Chronology<V> chronicle) {
-      return chronicle.getVersionList()
+   public <V extends StampedVersion> Stream<V> getVisible(Chronology chronicle) {
+      return chronicle.<V>getVersionList()
                       .stream()
-                      .filter(version -> this.positionCalculator.onRoute(version));
+                      .filter((V version) -> this.positionCalculator.onRoute(version));
    }
 }
 

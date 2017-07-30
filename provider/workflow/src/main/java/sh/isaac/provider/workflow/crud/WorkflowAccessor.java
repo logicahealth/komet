@@ -289,21 +289,19 @@ public class WorkflowAccessor {
             case CONCEPT:
                return formatStringConceptInformation(nid, stampCoord, langCoord);
             case SEMEME:
-               final SememeChronology<? extends SememeVersion> sememe = Get.sememeService()
+               final SememeChronology sememe = Get.sememeService()
                        .getSememe(nid);
                
                switch (sememe.getSememeType()) {
                   case DESCRIPTION:
                      final LatestVersion<DescriptionVersion> descSem =
-                             (LatestVersion<DescriptionVersion>) ((SememeChronology) sememe).getLatestVersion(LogicGraphVersion.class,
-                                     stampCoord);
+                              ((SememeChronology) sememe).getLatestVersion(stampCoord);
                      
                      return formatStringDescriptionInformation(descSem);
                      
                   case DYNAMIC:
                      final LatestVersion<DynamicSememe> dynSem =
-                             (LatestVersion<DynamicSememe>) ((SememeChronology) sememe).getLatestVersion(LogicGraphVersion.class,
-                                     stampCoord);
+                             ((SememeChronology) sememe).getLatestVersion(stampCoord);
                      final int assemblageSeq = dynSem.get()
                              .getAssemblageSequence();
                      
@@ -568,18 +566,25 @@ public class WorkflowAccessor {
       }
 
       final long          timeLaunched = proc.getTimeCreated();
-      Chronology<?> objChron;
+      Chronology objChron;
 
-      if (Get.identifierService()
-             .getChronologyTypeForNid(compNid) == ObjectChronologyType.CONCEPT) {
-         objChron = Get.conceptService()
-                       .getConcept(compNid);
-      } else if (Get.identifierService()
-                    .getChronologyTypeForNid(compNid) == ObjectChronologyType.SEMEME) {
-         objChron = Get.sememeService()
-                       .getSememe(compNid);
-      } else {
+      if (null == Get.identifierService()
+              .getChronologyTypeForNid(compNid)) {
          throw new RuntimeException("Cannot reconcile NID with Identifier Service for nid: " + compNid);
+      } else {
+         switch (Get.identifierService()
+                 .getChronologyTypeForNid(compNid)) {
+            case CONCEPT:
+               objChron = Get.conceptService()
+                       .getConcept(compNid);
+               break;
+            case SEMEME:
+               objChron = Get.sememeService()
+                       .getSememe(compNid);
+               break;
+            default:
+               throw new RuntimeException("Cannot reconcile NID with Identifier Service for nid: " + compNid);
+         }
       }
 
       final OfInt stampSequencesItr = objChron.getVersionStampSequences()

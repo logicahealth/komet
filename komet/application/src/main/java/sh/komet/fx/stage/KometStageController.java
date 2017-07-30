@@ -197,7 +197,7 @@ public class KometStageController implements StatusMessageConsumer{
          Tab tab = new Tab("Taxonomy");
          tab.setGraphic(Iconography.TAXONOMY_ICON.getIconographic());
 
-         Manifold.TAXONOMY.focusedObjectProperty()
+         Manifold.TAXONOMY.focusedConceptChronologyProperty()
                       .addListener(
                           (ObservableValue<? extends IdentifiedObject> observable,
                            IdentifiedObject oldValue,
@@ -205,7 +205,7 @@ public class KometStageController implements StatusMessageConsumer{
                              FxGet.statusMessageService().reportSceneStatus(statusMessage.getScene(), Manifold.TAXONOMY.getName() + " selected: " + newValue.toUserString());
                           });
 
-         Manifold.FLOWR_QUERY.focusedObjectProperty()
+         Manifold.FLOWR_QUERY.focusedConceptChronologyProperty()
                       .addListener(
                           (ObservableValue<? extends IdentifiedObject> observable,
                            IdentifiedObject oldValue,
@@ -213,7 +213,7 @@ public class KometStageController implements StatusMessageConsumer{
                              FxGet.statusMessageService().reportSceneStatus(statusMessage.getScene(), Manifold.FLOWR_QUERY.getName() + " selected: " + newValue.toUserString());
                           });
 
-         Manifold.SIMPLE_SEARCH.focusedObjectProperty()
+         Manifold.SIMPLE_SEARCH.focusedConceptChronologyProperty()
                       .addListener(
                           (ObservableValue<? extends IdentifiedObject> observable,
                            IdentifiedObject oldValue,
@@ -239,6 +239,7 @@ public class KometStageController implements StatusMessageConsumer{
                tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.TAXONOMY);
                tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.FLOWR_QUERY);
                tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.SIMPLE_SEARCH);
+               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.UNLINKED);
             }
          }
 

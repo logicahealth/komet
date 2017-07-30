@@ -54,7 +54,7 @@ import sh.isaac.api.component.sememe.version.MutableLongVersion;
  */
 public class LongSememeImpl
         extends SememeVersionImpl
-         implements MutableLongVersion<LongSememeImpl> {
+         implements MutableLongVersion {
    /** The long value. */
    long longValue = Long.MAX_VALUE;
 
@@ -67,7 +67,7 @@ public class LongSememeImpl
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     */
-   public LongSememeImpl(SememeChronologyImpl<LongSememeImpl> container, int stampSequence, short versionSequence) {
+   public LongSememeImpl(SememeChronologyImpl container, int stampSequence, short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
@@ -79,7 +79,7 @@ public class LongSememeImpl
     * @param versionSequence the version sequence
     * @param data the data
     */
-   public LongSememeImpl(SememeChronologyImpl<LongSememeImpl> container,
+   public LongSememeImpl(SememeChronologyImpl container,
                          int stampSequence,
                          short versionSequence,
                          ByteArrayDataBuffer data) {

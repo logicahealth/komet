@@ -73,13 +73,11 @@ import sh.isaac.api.commit.ChangeSetListener;
 import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.MultipleDataWriterService;
-import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.util.NamedThreadFactory;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -277,7 +275,7 @@ public class ChangeSetWriterHandler
     */
    private void sequenceSetChange(SememeSequenceSet sememeSequenceSet) {
       sememeSequenceSet.stream().forEach((sememeSequence) -> {
-                                   final SememeChronology<? extends SememeVersion> sememe = Get.sememeService()
+                                   final SememeChronology sememe = Get.sememeService()
                                                                                                   .getSememe(
                                                                                                      sememeSequence);
 
@@ -341,7 +339,7 @@ public class ChangeSetWriterHandler
     * @param ochreObject the ochre object
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   private void writeToFile(OchreExternalizable ochreObject)
+   private void writeToFile(IsaacExternalizable ochreObject)
             throws IOException {
       this.writer.put(ochreObject);
    }

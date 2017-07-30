@@ -67,8 +67,6 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.PostCommitService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.identity.StampedVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -130,7 +128,7 @@ public class PostCommitProvider
     * @param sc the sc
     */
    @Override
-   public void handleChange(SememeChronology<? extends SememeVersion> sc) {
+   public void handleChange(SememeChronology sc) {
       // not interested
    }
 

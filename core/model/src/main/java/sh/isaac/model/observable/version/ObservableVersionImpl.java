@@ -57,12 +57,12 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.observable.ObservableChronology;
-import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareLongProperty;
 import sh.isaac.model.observable.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.api.observable.ObservableStampedVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -72,7 +72,7 @@ import sh.isaac.model.observable.ObservableFields;
  * @author kec
  */
 public class ObservableVersionImpl
-         implements ObservableVersion, CommittableComponent {
+         implements ObservableStampedVersion, CommittableComponent {
    /** The state property. */
    ObjectProperty<State> stateProperty;
 
@@ -101,7 +101,7 @@ public class ObservableVersionImpl
    protected Version stampedVersion;
 
    /** The chronology. */
-   protected final ObservableChronology<? extends ObservableVersion> chronology;
+   protected final ObservableChronology chronology;
 
    //~--- constructors --------------------------------------------------------
 
@@ -111,7 +111,7 @@ public class ObservableVersionImpl
     * @param stampedVersion the stamped version
     * @param chronology the chronology
     */
-   public ObservableVersionImpl(Version stampedVersion, ObservableChronology<? extends ObservableVersion> chronology) {
+   public ObservableVersionImpl(Version stampedVersion, ObservableChronology chronology) {
       this.stampedVersion = stampedVersion;
       this.chronology     = chronology;
    }
@@ -324,7 +324,7 @@ public class ObservableVersionImpl
     * @return the chronology
     */
    @Override
-   public ObservableChronology<? extends ObservableVersion> getChronology() {
+   public ObservableChronology getChronology() {
       return this.chronology;
    }
 

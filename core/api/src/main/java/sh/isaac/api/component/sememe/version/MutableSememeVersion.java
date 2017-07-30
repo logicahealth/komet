@@ -55,7 +55,7 @@ public interface MutableSememeVersion
         extends MutableStampedVersion, SememeVersion {
 
    @Override
-   public SememeChronology<? extends MutableSememeVersion> getChronology();
+   public SememeChronology getChronology();
 
 }
 

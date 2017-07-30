@@ -62,9 +62,6 @@ import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.TaskCompleteCallback;
@@ -235,7 +232,7 @@ public class SearchHandler {
                                            }
 
                                            // Get the description object.
-                                           final Optional<? extends Chronology<? extends StampedVersion>> io =
+                                           final Optional<? extends Chronology> io =
                                               Get.identifiedObjectService()
                                                  .getIdentifiedObjectChronology(searchResult2.getNid());
 
@@ -623,7 +620,7 @@ public class SearchHandler {
             }
 
             // Get the match object.
-            final Optional<? extends Chronology<? extends StampedVersion>> io = Get.identifiedObjectService()
+            final Optional<? extends Chronology> io = Get.identifiedObjectService()
                                                                                          .getIdentifiedObjectChronology(
                                                                                             searchResult.getNid());
 

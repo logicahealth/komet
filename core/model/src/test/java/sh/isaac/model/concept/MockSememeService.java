@@ -67,7 +67,6 @@ import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.AssemblageService;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -82,7 +81,7 @@ public class MockSememeService
    ConcurrentHashMap<Integer, SememeSequenceSet> componentSememeMap = new ConcurrentHashMap<>();
 
    /** The sememe map. */
-   ConcurrentHashMap<Integer, SememeChronology<? extends SememeVersion>> sememeMap = new ConcurrentHashMap<>();
+   ConcurrentHashMap<Integer, SememeChronology> sememeMap = new ConcurrentHashMap<>();
 
    //~--- methods -------------------------------------------------------------
 
@@ -102,7 +101,7 @@ public class MockSememeService
     * @return the sememe service typed
     */
    @Override
-   public <V extends SememeVersion> SememeServiceTyped<V> ofType(Class<V> versionType) {
+   public <V extends SememeVersion> SememeServiceTyped ofType(Class<V> versionType) {
       throw new UnsupportedOperationException();
    }
 
@@ -113,7 +112,7 @@ public class MockSememeService
     * @param constraints the constraints
     */
    @Override
-   public void writeSememe(SememeChronology<?> sememeChronicle, SememeConstraints... constraints) {
+   public void writeSememe(SememeChronology sememeChronicle, SememeConstraints... constraints) {
       if (this.componentSememeMap.containsKey(sememeChronicle.getReferencedComponentNid())) {
          this.componentSememeMap.get(sememeChronicle.getReferencedComponentNid())
                                 .add(sememeChronicle.getSememeSequence());
@@ -124,7 +123,7 @@ public class MockSememeService
       }
 
       this.sememeMap.put(sememeChronicle.getSememeSequence(),
-                         (SememeChronology<? extends SememeVersion>) sememeChronicle);
+                         (SememeChronology) sememeChronicle);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -166,9 +165,9 @@ public class MockSememeService
     * @return the descriptions for component
     */
    @Override
-   public Stream<SememeChronology<DescriptionVersion>> getDescriptionsForComponent(int componentNid) {
+   public Stream<SememeChronology> getDescriptionsForComponent(int componentNid) {
       final SememeSequenceSet set = this.componentSememeMap.get(componentNid);
-      final Stream.Builder<SememeChronology<DescriptionVersion>> builder = Stream.builder();
+      final Stream.Builder<SememeChronology> builder = Stream.builder();
 
       if (set != null) {
          set.stream().forEach((sememeSequence) -> {
@@ -190,7 +189,7 @@ public class MockSememeService
     * @return the optional sememe
     */
    @Override
-   public Optional<? extends SememeChronology<? extends SememeVersion>> getOptionalSememe(int sememeId) {
+   public Optional<? extends SememeChronology> getOptionalSememe(int sememeId) {
       return Optional.ofNullable(getSememe(sememeId));
    }
 
@@ -200,7 +199,7 @@ public class MockSememeService
     * @return the parallel sememe stream
     */
    @Override
-   public Stream<SememeChronology<? extends SememeVersion>> getParallelSememeStream() {
+   public Stream<SememeChronology> getParallelSememeStream() {
       return this.sememeMap.values()
                            .parallelStream();
    }
@@ -212,7 +211,7 @@ public class MockSememeService
     * @return the sememe
     */
    @Override
-   public SememeChronology<? extends SememeVersion> getSememe(int sememeId) {
+   public SememeChronology getSememe(int sememeId) {
       return this.sememeMap.get(Get.identifierService()
                                    .getSememeSequence(sememeId));
    }
@@ -235,7 +234,7 @@ public class MockSememeService
     * @return the sememe chronology stream
     */
    @Override
-   public Stream<SememeChronology<? extends SememeVersion>> getSememeChronologyStream() {
+   public Stream<SememeChronology> getSememeChronologyStream() {
       return this.sememeMap.values()
                            .stream();
    }
@@ -357,7 +356,7 @@ public class MockSememeService
     * @return the sememes for component
     */
    @Override
-   public Stream<SememeChronology<? extends SememeVersion>> getSememesForComponent(int componentNid) {
+   public Stream<SememeChronology> getSememesForComponent(int componentNid) {
       throw new UnsupportedOperationException();
    }
 
@@ -369,7 +368,7 @@ public class MockSememeService
     * @return the sememes for component from assemblage
     */
    @Override
-   public Stream<SememeChronology<? extends SememeVersion>> getSememesForComponentFromAssemblage(int componentNid,
+   public <C extends SememeChronology> Stream<C> getSememesForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence) {
       throw new UnsupportedOperationException();
    }
@@ -382,7 +381,7 @@ public class MockSememeService
     * @return the sememes for component from assemblages
     */
    @Override
-   public Stream<SememeChronology<? extends SememeVersion>> getSememesForComponentFromAssemblages(int componentNid,
+   public <C extends SememeChronology> Stream<C> getSememesForComponentFromAssemblages(int componentNid,
          Set<Integer> allowedAssemblageSequences) {
       throw new UnsupportedOperationException();
    }
@@ -394,7 +393,7 @@ public class MockSememeService
     * @return the sememes from assemblage
     */
    @Override
-   public Stream<SememeChronology<? extends SememeVersion>> getSememesFromAssemblage(int assemblageConceptSequence) {
+   public Stream<SememeChronology> getSememesFromAssemblage(int assemblageConceptSequence) {
       throw new UnsupportedOperationException();
    }
 

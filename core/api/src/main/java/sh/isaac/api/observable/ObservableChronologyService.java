@@ -70,7 +70,7 @@ public interface ObservableChronologyService {
     * @param id either a nid or a sememe sequence
     * @return the ObservableSememeChronology with the provided id
     */
-   ObservableSememeChronology<?> getObservableSememeChronology(int id);
+   ObservableSememeChronology getObservableSememeChronology(int id);
    /**
     * 
     * @param manifoldCoordinate the coordinate to determine the latest versions of the snapshot

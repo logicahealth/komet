@@ -59,12 +59,11 @@ import sh.isaac.api.AssemblageService;
  * The Class SememeTypeProvider.
  *
  * @author kec
- * @param <V> the value type
  */
-public class SememeTypeProvider<V extends SememeVersion>
-         implements SememeServiceTyped<V> {
+public class SememeTypeProvider
+         implements SememeServiceTyped {
    /** The type. */
-   Class<V> type;
+   Class<? extends SememeVersion> type;
 
    /** The sememe provider. */
    AssemblageService sememeProvider;
@@ -77,7 +76,7 @@ public class SememeTypeProvider<V extends SememeVersion>
     * @param type the type
     * @param sememeProvider the sememe provider
     */
-   public SememeTypeProvider(Class<V> type, AssemblageService sememeProvider) {
+   public SememeTypeProvider(Class<? extends SememeVersion> type, AssemblageService sememeProvider) {
       this.type           = type;
       this.sememeProvider = sememeProvider;
    }
@@ -90,7 +89,7 @@ public class SememeTypeProvider<V extends SememeVersion>
     * @param sememeChronicle the sememe chronicle
     */
    @Override
-   public void writeSememe(SememeChronology<?> sememeChronicle) {
+   public void writeSememe(SememeChronology sememeChronicle) {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -104,7 +103,7 @@ public class SememeTypeProvider<V extends SememeVersion>
     * @return the parallel sememe stream
     */
    @Override
-   public Stream<SememeChronology<V>> getParallelSememeStream() {
+   public Stream<SememeChronology> getParallelSememeStream() {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -117,7 +116,7 @@ public class SememeTypeProvider<V extends SememeVersion>
     * @return the sememe
     */
    @Override
-   public SememeChronology<V> getSememe(int sememeSequence) {
+   public SememeChronology getSememe(int sememeSequence) {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -213,10 +212,11 @@ public class SememeTypeProvider<V extends SememeVersion>
    /**
     * Gets the sememe stream.
     *
+    * @param <C>
     * @return the sememe stream
     */
    @Override
-   public Stream<SememeChronology<V>> getSememeStream() {
+   public <C extends SememeChronology> Stream<C> getSememeStream() {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -225,11 +225,12 @@ public class SememeTypeProvider<V extends SememeVersion>
    /**
     * Gets the sememes for component.
     *
+    * @param <C>
     * @param componentNid the component nid
     * @return the sememes for component
     */
    @Override
-   public Stream<SememeChronology<V>> getSememesForComponent(int componentNid) {
+   public <C extends SememeChronology> Stream<C> getSememesForComponent(int componentNid) {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -238,12 +239,13 @@ public class SememeTypeProvider<V extends SememeVersion>
    /**
     * Gets the sememes for component from assemblage.
     *
+    * @param <C>
     * @param componentNid the component nid
     * @param assemblageSequence the assemblage sequence
     * @return the sememes for component from assemblage
     */
    @Override
-   public Stream<SememeChronology<V>> getSememesForComponentFromAssemblage(int componentNid, int assemblageSequence) {
+   public <C extends SememeChronology> Stream<C> getSememesForComponentFromAssemblage(int componentNid, int assemblageSequence) {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -252,11 +254,12 @@ public class SememeTypeProvider<V extends SememeVersion>
    /**
     * Gets the sememes from assemblage.
     *
+    * @param <C>
     * @param assemblageSequence the assemblage sequence
     * @return the sememes from assemblage
     */
    @Override
-   public Stream<SememeChronology<V>> getSememesFromAssemblage(int assemblageSequence) {
+   public <C extends SememeChronology> Stream<C> getSememesFromAssemblage(int assemblageSequence) {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.

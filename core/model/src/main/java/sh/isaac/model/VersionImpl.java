@@ -59,13 +59,11 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
  * The Class VersionImpl.
  *
  * @author kec
- * @param <C> the generic type
- * @param <V> the value type
  */
-public abstract class VersionImpl<C extends Chronology<V>, V extends Version>
+public abstract class VersionImpl
          implements Version {
    /** The chronicle. */
-   protected final C chronicle;
+   protected final Chronology chronicle;
 
    /** The stamp sequence. */
    private int stampSequence;
@@ -82,7 +80,7 @@ public abstract class VersionImpl<C extends Chronology<V>, V extends Version>
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     */
-   public VersionImpl(C chronicle, int stampSequence, short versionSequence) {
+   public VersionImpl(Chronology chronicle, int stampSequence, short versionSequence) {
       this.chronicle       = chronicle;
       this.stampSequence   = stampSequence;
       this.versionSequence = versionSequence;
@@ -121,7 +119,7 @@ public abstract class VersionImpl<C extends Chronology<V>, V extends Version>
          return false;
       }
 
-      final VersionImpl<?, ?> other = (VersionImpl<?, ?>) obj;
+      final VersionImpl other = (VersionImpl) obj;
 
       if (this.stampSequence != other.stampSequence) {
          return false;

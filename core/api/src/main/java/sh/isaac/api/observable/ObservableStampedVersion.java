@@ -37,61 +37,84 @@
 
 
 
-package sh.isaac.api.relationship;
+package sh.isaac.api.observable;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.coordinate.PremiseType;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.ObjectProperty;
+
+import sh.isaac.api.State;
+import sh.isaac.api.chronicle.MutableStampedVersion;
+import sh.isaac.api.commit.CommitStates;
+import sh.isaac.api.identity.StampedVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
 /**
- * The Interface RelationshipAdaptorChronicleKey.
+ * The Interface ObservableStampedVersion.
  *
  * @author kec
  */
-public interface RelationshipAdaptorChronicleKey {
+public interface ObservableStampedVersion
+        extends MutableStampedVersion {
    /**
-    * Gets the destination sequence.
+    * Author sequence property.
     *
-    * @return the destination sequence
+    * @return the integer property
     */
-   int getDestinationSequence();
+   IntegerProperty authorSequenceProperty();
 
    /**
-    * Gets the group.
+    * Commit state property.
     *
-    * @return the group
+    * @return the object property
     */
-   int getGroup();
+   ObjectProperty<CommitStates> commitStateProperty();
 
    /**
-    * Gets the node sequence.
+    * Module sequence property.
     *
-    * @return sequence of the node in the logical expression
-    * from which this adaptor originated.
+    * @return the integer property
     */
-   short getNodeSequence();
+   IntegerProperty moduleSequenceProperty();
 
    /**
-    * Gets the origin sequence.
+    * Path sequence property.
     *
-    * @return the origin sequence
+    * @return the integer property
     */
-   int getOriginSequence();
+   IntegerProperty pathSequenceProperty();
 
    /**
-    * Gets the premise type.
+    * Stamp sequence property.
     *
-    * @return the premise type
+    * @return the integer property
     */
-   PremiseType getPremiseType();
+   IntegerProperty stampSequenceProperty();
 
    /**
-    * Gets the type sequence.
+    * State property.
     *
-    * @return the type sequence
+    * @return the object property
     */
-   int getTypeSequence();
+   ObjectProperty<State> stateProperty();
+
+   /**
+    * Time property.
+    *
+    * @return the long property
+    */
+   LongProperty timeProperty();
+
+   //~--- get methods ---------------------------------------------------------
+
+   /**
+    * Gets the chronology.
+    *
+    * @return the chronology
+    */
+   ObservableChronology getChronology();
 }
 

@@ -56,17 +56,17 @@ import sh.isaac.api.Get;
 /**
  * Created by kec on 1/23/16.
  */
-public class OchreExternalizableSpliterator
-         implements Spliterator<OchreExternalizable> {
+public class IsaacExternalizableSpliterator
+         implements Spliterator<IsaacExternalizable> {
    /** The streams. */
-   List<Stream<? extends OchreExternalizable>> streams = new ArrayList<>();
+   List<Stream<? extends IsaacExternalizable>> streams = new ArrayList<>();
 
    //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new ochre externalizable spliterator.
     */
-   public OchreExternalizableSpliterator() {
+   public IsaacExternalizableSpliterator() {
       this.streams.add(Get.conceptService()
                           .getConceptChronologyStream());
       this.streams.add(Get.sememeService()
@@ -105,8 +105,8 @@ public class OchreExternalizableSpliterator
     * @param action the action
     */
    @Override
-   public void forEachRemaining(Consumer<? super OchreExternalizable> action) {
-      for (final Stream<? extends OchreExternalizable> stream: this.streams) {
+   public void forEachRemaining(Consumer<? super IsaacExternalizable> action) {
+      for (final Stream<? extends IsaacExternalizable> stream: this.streams) {
          stream.forEach(action);
       }
    }
@@ -118,7 +118,7 @@ public class OchreExternalizableSpliterator
     * @return true, if successful
     */
    @Override
-   public boolean tryAdvance(Consumer<? super OchreExternalizable> action) {
+   public boolean tryAdvance(Consumer<? super IsaacExternalizable> action) {
       throw new UnsupportedOperationException();
    }
 
@@ -128,7 +128,7 @@ public class OchreExternalizableSpliterator
     * @return the spliterator
     */
    @Override
-   public Spliterator<OchreExternalizable> trySplit() {
+   public Spliterator<IsaacExternalizable> trySplit() {
       return null;
    }
 }

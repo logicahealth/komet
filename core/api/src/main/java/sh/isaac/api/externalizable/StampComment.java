@@ -45,7 +45,7 @@ package sh.isaac.api.externalizable;
  * @author kec
  */
 public class StampComment
-         implements OchreExternalizable {
+         implements IsaacExternalizable {
    /** The comment. */
    private String comment;
 
@@ -134,8 +134,8 @@ public class StampComment
     * @return the ochre object type
     */
    @Override
-   public OchreExternalizableObjectType getOchreObjectType() {
-      return OchreExternalizableObjectType.STAMP_COMMENT;
+   public IsaacExternalizableObjectType getExternalizableObjectType() {
+      return IsaacExternalizableObjectType.STAMP_COMMENT;
    }
 
    /**

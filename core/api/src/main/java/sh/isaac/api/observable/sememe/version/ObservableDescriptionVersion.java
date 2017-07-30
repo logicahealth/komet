@@ -43,6 +43,7 @@ package sh.isaac.api.observable.sememe.version;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -52,7 +53,7 @@ import javafx.beans.property.StringProperty;
  * @author kec
  */
 public interface ObservableDescriptionVersion
-        extends ObservableSememeVersion {
+        extends ObservableSememeVersion, DescriptionVersion {
    /**
     * Case significance concept sequence property.
     *
@@ -81,15 +82,6 @@ public interface ObservableDescriptionVersion
     */
    StringProperty textProperty();
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the case significance concept sequence.
-    *
-    * @return the case significance concept sequence
-    */
-   int getCaseSignificanceConceptSequence();
-
    //~--- set methods ---------------------------------------------------------
 
    /**
@@ -101,13 +93,6 @@ public interface ObservableDescriptionVersion
 
    //~--- get methods ---------------------------------------------------------
 
-   /**
-    * Gets the description type concept sequence.
-    *
-    * @return the description type concept sequence
-    */
-   int getDescriptionTypeConceptSequence();
-
    //~--- set methods ---------------------------------------------------------
 
    /**
@@ -118,14 +103,6 @@ public interface ObservableDescriptionVersion
    void setDescriptionTypeConceptSequence(int descriptionTypeConceptSequence);
 
    //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the language concept sequence.
-    *
-    * @return the language concept sequence
-    */
-   int getLanguageConceptSequence();
-
    //~--- set methods ---------------------------------------------------------
 
    /**
@@ -135,14 +112,6 @@ public interface ObservableDescriptionVersion
     */
    void setLanguageConceptSequence(int languageConceptSequence);
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the text.
-    *
-    * @return the text
-    */
-   String getText();
 
    //~--- set methods ---------------------------------------------------------
 

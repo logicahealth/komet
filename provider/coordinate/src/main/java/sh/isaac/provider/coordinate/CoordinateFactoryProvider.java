@@ -440,7 +440,7 @@ public class CoordinateFactoryProvider
     */
    @Override
    public LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SememeChronology<DescriptionVersion>> descriptionList,
+         List<SememeChronology> descriptionList,
          LanguageCoordinate languageCoordinate) {
       for (final int descType: languageCoordinate.getDescriptionTypePreferenceList()) {
          final LatestVersion<DescriptionVersion> match = getSpecifiedDescription(
@@ -468,7 +468,7 @@ public class CoordinateFactoryProvider
     */
    @Override
    public LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SememeChronology<DescriptionVersion>> descriptionList,
+         List<SememeChronology> descriptionList,
          int typeSequence,
          LanguageCoordinate languageCoordinate) {
       final SememeSnapshotService<ComponentNidVersion> acceptabilitySnapshot = Get.sememeService()
@@ -480,8 +480,7 @@ public class CoordinateFactoryProvider
                      .forEach((descriptionChronicle) -> {
                             @SuppressWarnings("unchecked")
                             final LatestVersion<DescriptionVersion> latestDescription =
-                               ((SememeChronology) descriptionChronicle).getLatestVersion(DescriptionVersion.class,
-                                   stampCoordinate);
+                               ((SememeChronology) descriptionChronicle).getLatestVersion(stampCoordinate);
 
                             if (latestDescription.isPresent()) {
                                final LatestVersion<DescriptionVersion> latestDescriptionVersion = latestDescription;

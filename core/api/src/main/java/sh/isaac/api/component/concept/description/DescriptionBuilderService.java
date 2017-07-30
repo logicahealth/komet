@@ -66,7 +66,7 @@ public interface DescriptionBuilderService {
     * @param languageForDescription the language for description
     * @return the description builder
     */
-   DescriptionBuilder<? extends SememeChronology<?>,
+   DescriptionBuilder<SememeChronology,
                       ? extends MutableDescriptionVersion> getDescriptionBuilder(String descriptionText,
                             ConceptBuilder conceptBuilder,
                             ConceptSpecification descriptionType,
@@ -81,7 +81,7 @@ public interface DescriptionBuilderService {
     * @param languageForDescription the language for description
     * @return the description builder
     */
-   DescriptionBuilder<? extends SememeChronology<?>,
+   DescriptionBuilder<SememeChronology,
                       ? extends MutableDescriptionVersion> getDescriptionBuilder(String descriptionText,
                             int conceptSequence,
                             ConceptSpecification descriptionType,

@@ -94,13 +94,11 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.dag.Node;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
@@ -252,7 +250,7 @@ public class TaxonomyProvider
     * @param sc the sc
     */
    @Override
-   public void handleChange(SememeChronology<? extends SememeVersion> sc) {
+   public void handleChange(SememeChronology sc) {
       if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {
          this.sememeSequencesForUnhandledChanges.add(sc.getSememeSequence());
       }
@@ -306,7 +304,7 @@ public class TaxonomyProvider
     * @param logicGraphChronology the logic graph chronology
     */
    @Override
-   public void updateTaxonomy(SememeChronology<LogicGraphVersion> logicGraphChronology) {
+   public void updateTaxonomy(SememeChronology logicGraphChronology) {
       final int conceptSequence =
          this.identifierService.getConceptSequence(logicGraphChronology.getReferencedComponentNid());
       final Optional<TaxonomyRecordPrimitive> record = this.originDestinationTaxonomyRecordMap.get(conceptSequence);

@@ -45,8 +45,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.model.sememe.SememeChronologyImpl;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.component.sememe.version.MutableDescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
@@ -80,7 +78,7 @@ public class DescriptionSememeImpl
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     */
-   public DescriptionSememeImpl(SememeChronology<DescriptionVersion> chronicle,
+   public DescriptionSememeImpl(SememeChronology chronicle,
                                 int stampSequence,
                                 short versionSequence) {
       super(chronicle, stampSequence, versionSequence);
@@ -94,7 +92,7 @@ public class DescriptionSememeImpl
     * @param versionSequence the version sequence
     * @param data the data
     */
-   public DescriptionSememeImpl(SememeChronology<DescriptionVersion> chronicle,
+   public DescriptionSememeImpl(SememeChronology chronicle,
                                 int stampSequence,
                                 short versionSequence,
                                 ByteArrayDataBuffer data) {

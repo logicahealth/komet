@@ -69,7 +69,7 @@ public interface LanguageCoordinate {
     * constraints.
     */
    LatestVersion<DescriptionVersion> getDescription(
-           List<SememeChronology<DescriptionVersion>> descriptionList,
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate);
 
    /**
@@ -113,7 +113,7 @@ public interface LanguageCoordinate {
     * @return the fully specified latestDescription
     */
    LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
-           List<SememeChronology<DescriptionVersion>> descriptionList,
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate);
    /**
     * Gets the fully specified latestDescription.
@@ -162,7 +162,7 @@ public interface LanguageCoordinate {
     * @return the preferred latestDescription
     */
    LatestVersion<DescriptionVersion> getPreferredDescription(
-           List<SememeChronology<DescriptionVersion>> descriptionList,
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate);
    
    /**

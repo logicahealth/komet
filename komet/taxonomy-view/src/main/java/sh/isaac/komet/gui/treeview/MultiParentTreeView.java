@@ -123,7 +123,7 @@ public class MultiParentTreeView extends BorderPane {
                 (ObservableValue<? extends TreeItem<ConceptChronology>> observable, 
                  TreeItem<ConceptChronology> oldValue, 
                  TreeItem<ConceptChronology> newValue) -> {
-           manifold.setFocusedObject(newValue.getValue());
+           manifold.setFocusedConceptChronology(newValue.getValue());
         });
         
         

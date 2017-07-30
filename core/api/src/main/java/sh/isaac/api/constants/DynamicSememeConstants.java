@@ -390,9 +390,8 @@ public class DynamicSememeConstants
                                                           SememeType.DESCRIPTION.name() + "|" +
                                                           SememeType.DYNAMIC.name() + "|" +
                                                           SememeType.LOGIC_GRAPH.name() + "|" +
-                                                          SememeType.LONG.name() + "|" + SememeType.MEMBER.name() +
-                                                          "|" + SememeType.RELATIONSHIP_ADAPTOR.name() + "|" +
-                                                          SememeType.STRING.name()) },
+                                                          SememeType.LONG.name() + "|" + SememeType.MEMBER.name() 
+                                                          + "|" + SememeType.STRING.name()) },
                                                     false) }) {}
    ;
 

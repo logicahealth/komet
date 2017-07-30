@@ -42,9 +42,9 @@ package sh.isaac.api.component.sememe;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.State;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.sememe.version.MutableSememeVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -52,20 +52,18 @@ import sh.isaac.api.chronicle.Chronology;
  * The Interface SememeChronology.
  *
  * @author kec
- * @param <V> the value type
  */
-public interface SememeChronology<V extends SememeVersion>
-        extends Chronology<V>, Sememe {
+public interface SememeChronology
+        extends Chronology, Sememe {
    /**
     * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
     * add persist the chronicle when changes to the mutable version are complete .
     *
-    * @param <M> the generic type
-    * @param type SememeVersion type
+    * @param <V> the mutable version type
     * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version.
     * @return the mutable version
     */
-   <M extends V> M createMutableVersion(Class<M> type, int stampSequence);
+   <V extends MutableSememeVersion> V createMutableVersion(int stampSequence);
 
    /**
     * Create a mutable version with Long.MAX_VALUE as the time, indicating
@@ -73,13 +71,12 @@ public interface SememeChronology<V extends SememeVersion>
     * add the mutable version to the commit manager when changes are complete
     * prior to committing the component.
     *
-    * @param <M> the generic type
-    * @param type SememeVersion type
+    * @param <V> the mutable version type
     * @param state state of the created mutable version
     * @param ec edit coordinate to provide the author, module, and path for the mutable version
     * @return the mutable version
     */
-   <M extends V> M createMutableVersion(Class<M> type, State state, EditCoordinate ec);
+   <V extends MutableSememeVersion> V createMutableVersion(State state, EditCoordinate ec);
 
    //~--- get methods ---------------------------------------------------------
 

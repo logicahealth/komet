@@ -136,7 +136,7 @@ public class SememeSnapshotProvider<V extends SememeVersion>
     */
    @Override
    public LatestVersion<V> getLatestSememeVersion(int sememeSequenceOrNid) {
-      final SememeChronologyImpl<?> sc = (SememeChronologyImpl<?>) this.sememeProvider.getSememe(sememeSequenceOrNid);
+      final SememeChronologyImpl sc = (SememeChronologyImpl) this.sememeProvider.getSememe(sememeSequenceOrNid);
       final IntStream               stampSequences  = sc.getVersionStampSequences();
       final StampSequenceSet        latestSequences = this.calculator.getLatestStampSequencesAsSet(stampSequences);
 
@@ -229,7 +229,7 @@ public class SememeSnapshotProvider<V extends SememeVersion>
       return sememeSequenceStream.mapToObj(
           (int sememeSequence) -> {
              try {
-                final SememeChronologyImpl<?> sc = (SememeChronologyImpl<?>) this.sememeProvider.getSememe(
+                final SememeChronologyImpl sc = (SememeChronologyImpl) this.sememeProvider.getSememe(
                                                        sememeSequence);
                 final IntStream stampSequences = sc.getVersionStampSequences();
                 final StampSequenceSet latestStampSequences = this.calculator.getLatestStampSequencesAsSet(

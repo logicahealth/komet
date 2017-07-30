@@ -63,6 +63,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.CommitStates;
@@ -72,12 +73,11 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.chronicle.Version;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -85,10 +85,9 @@ import sh.isaac.api.chronicle.Version;
  * The Class ChronologyImpl.
  *
  * @author kec
- * @param <V> the value type
  */
-public abstract class ChronologyImpl<V extends Version>
-         implements Chronology<V>, WaitFreeComparable {
+public abstract class ChronologyImpl
+         implements Chronology, WaitFreeComparable {
    /** The Constant STAMPED_LOCKS. */
    private static final StampedLock[] STAMPED_LOCKS = new StampedLock[256];
 
@@ -147,13 +146,13 @@ public abstract class ChronologyImpl<V extends Version>
     * Data that has not yet been persisted. This data will need to be merged
     * with the written data when the chronicle is next serialized.
     */
-   private ConcurrentSkipListMap<Integer, V> unwrittenData;
+   private ConcurrentSkipListMap<Integer, StampedVersion> unwrittenData;
 
    /**
     * Version data is stored in a soft reference after lazy instantiation, to
     * minimize unnecessary memory utilization.
     */
-   private SoftReference<ArrayList<V>> versionListReference;
+   private SoftReference<ArrayList<? extends StampedVersion>> versionListReference;
 
    //~--- constructors --------------------------------------------------------
 
@@ -211,13 +210,13 @@ public abstract class ChronologyImpl<V extends Version>
          return false;
       }
 
-      final ChronologyImpl<?> that = (ChronologyImpl<?>) o;
+      final ChronologyImpl that = (ChronologyImpl) o;
 
       if (this.nid != that.nid) {
          return false;
       }
 
-      final List<? extends V> versionList = getVersionList();
+      final List<StampedVersion> versionList = (List<StampedVersion>) getVersionList();
 
       if (versionList.size() != that.getVersionList().size()) {
          return false;
@@ -255,25 +254,27 @@ public abstract class ChronologyImpl<V extends Version>
       final OpenIntHashSet writtenStamps = new OpenIntHashSet(11);
 
       if (this.unwrittenData != null) {
-         this.unwrittenData.values().forEach((version) -> {
-                                       final int stampSequenceForVersion = version.getStampSequence();
+         this.unwrittenData.values()
+                           .forEach(
+                               (version) -> {
+                                  final int stampSequenceForVersion = version.getStampSequence();
 
-                                       if (Get.stampService()
-                                              .isNotCanceled(stampSequenceForVersion)) {
-                                          writtenStamps.add(stampSequenceForVersion);
+                                  if (Get.stampService()
+                                         .isNotCanceled(stampSequenceForVersion)) {
+                                     writtenStamps.add(stampSequenceForVersion);
 
-                                          final int startWritePosition = db.getPosition();
+                                     final int startWritePosition = db.getPosition();
 
-                                          db.putInt(0);  // placeholder for length
-                                          ((VersionImpl)version).writeVersionData(db);
+                                     db.putInt(0);  // placeholder for length
+                                     ((VersionImpl) version).writeVersionData(db);
 
-                                          final int versionLength = db.getPosition() - startWritePosition;
+                                     final int versionLength = db.getPosition() - startWritePosition;
 
-                                          db.setPosition(startWritePosition);
-                                          db.putInt(versionLength);
-                                          db.setPosition(db.getLimit());
-                                       }
-                                    });
+                                     db.setPosition(startWritePosition);
+                                     db.putInt(versionLength);
+                                     db.setPosition(db.getLimit());
+                                  }
+                               });
       }
 
       if (this.writtenData != null) {
@@ -300,12 +301,12 @@ public abstract class ChronologyImpl<V extends Version>
       writeChronicleData(out);
 
       // add versions...
-      for (final V version: getVersionList()) {
-         final int stampSequenceForVersion = version.getStampSequence();
+      getVersionList().forEach(
+          (version) -> {
+             final int stampSequenceForVersion = version.getStampSequence();
 
-         writeIfNotCanceled(out, version, stampSequenceForVersion);
-      }
-
+             writeIfNotCanceled(out, version, stampSequenceForVersion);
+          });
       out.putInt(0);  // last data is a zero length version record
    }
 
@@ -342,11 +343,12 @@ public abstract class ChronologyImpl<V extends Version>
 
       // .append(", versionStartPosition:").append(versionStartPosition)
       .append(",\n versions[");
-      getVersionList().forEach((version) -> {
-                                  builder.append("\n");
-                                  builder.append(version);
-                                  builder.append(",");
-                               });
+      getVersionList().forEach(
+          (version) -> {
+             builder.append("\n");
+             builder.append(version);
+             builder.append(",");
+          });
 
       if (getVersionList() != null) {
          builder.deleteCharAt(builder.length() - 1);
@@ -368,9 +370,10 @@ public abstract class ChronologyImpl<V extends Version>
    /**
     * Use to add a new version to the chronicle.
     *
+    * @param <V>
     * @param version the version to add
     */
-   protected void addVersion(V version) {
+   protected <V extends StampedVersion> void addVersion(V version) {
       if (this.unwrittenData == null) {
          final long lockStamp = getLock(this.nid).writeLock();
 
@@ -404,19 +407,21 @@ public abstract class ChronologyImpl<V extends Version>
     * version to the version list, that task is performed by the calling method
     * ({@code maveVersions}).
     *
+    * @param <V>
     * @param stampSequence the stamp sequence for this version
     * @param bb the data buffer
     * @return the version object
     */
-   protected abstract V makeVersion(int stampSequence, ByteArrayDataBuffer bb);
+   protected abstract <V extends StampedVersion> V makeVersion(int stampSequence, ByteArrayDataBuffer bb);
 
    /**
     * Reconstitutes version objects previously serialized.
     *
+    * @param <V>
     * @param bb the byte buffer containing previously written data
     * @param results list of the reconstituted version objects
     */
-   protected void makeVersions(ByteArrayDataBuffer bb, ArrayList<V> results) {
+   protected <V extends StampedVersion> void makeVersions(ByteArrayDataBuffer bb, ArrayList<V> results) {
       int nextPosition = bb.getPosition();
 
       assert nextPosition >= 0: bb;
@@ -499,8 +504,8 @@ public abstract class ChronologyImpl<V extends Version>
     */
    protected void readData(ByteArrayDataBuffer data) {
       if (data.getObjectDataFormatVersion() != 0) {
-         throw new UnsupportedOperationException("Can't handle data format version: " +
-               data.getObjectDataFormatVersion());
+         throw new UnsupportedOperationException(
+             "Can't handle data format version: " + data.getObjectDataFormatVersion());
       }
 
       if (data.isExternalData()) {
@@ -517,11 +522,11 @@ public abstract class ChronologyImpl<V extends Version>
       if (data.isExternalData()) {
          this.nid = Get.identifierService()
                        .getNidForUuids(new UUID(this.primordialUuidMsb, this.primordialUuidLsb));
-
-         for (final UUID uuid: getUuidList()) {
-            Get.identifierService()
-               .addUuidForNid(uuid, this.nid);
-         }
+         getUuidList().forEach(
+             (uuid) -> {
+                Get.identifierService()
+                   .addUuidForNid(uuid, this.nid);
+             });
 
          if (this instanceof ConceptChronologyImpl) {
             this.containerSequence = Get.identifierService()
@@ -533,13 +538,13 @@ public abstract class ChronologyImpl<V extends Version>
             throw new UnsupportedOperationException("Can't handle " + this.getClass().getSimpleName());
          }
 
-         getAdditionalChronicleFields(data);
+         setAdditionalChronicleFieldsFromBuffer(data);
          readVersionList(data);
       } else {
          this.nid               = data.getNid();
          this.containerSequence = data.getInt();
          this.versionSequence   = data.getShort();
-         getAdditionalChronicleFields(data);
+         setAdditionalChronicleFieldsFromBuffer(data);
          constructorEnd(data);
       }
    }
@@ -654,13 +659,15 @@ public abstract class ChronologyImpl<V extends Version>
     * @param version the version
     * @param stampSequenceForVersion the stamp sequence for version
     */
-   private void writeIfNotCanceled(ByteArrayDataBuffer db, V version, int stampSequenceForVersion) {
+   private <V extends StampedVersion> void writeIfNotCanceled(ByteArrayDataBuffer db,
+         V version,
+         int stampSequenceForVersion) {
       if (Get.stampService()
              .isNotCanceled(stampSequenceForVersion)) {
          final int startWritePosition = db.getPosition();
 
          db.putInt(0);  // placeholder for length
-         ((VersionImpl)version).writeVersionData(db);
+         ((VersionImpl) version).writeVersionData(db);
 
          final int versionLength = db.getPosition() - startWritePosition;
 
@@ -670,17 +677,14 @@ public abstract class ChronologyImpl<V extends Version>
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
+   //~--- set methods ---------------------------------------------------------
 
    /**
     * Gets the additional chronicle fields.
     *
     * @param in the in
-    * @return the additional chronicle fields
     */
-   protected abstract void getAdditionalChronicleFields(ByteArrayDataBuffer in);
-
-   //~--- set methods ---------------------------------------------------------
+   protected abstract void setAdditionalChronicleFieldsFromBuffer(ByteArrayDataBuffer in);
 
    /**
     * Sets the additional uuids.
@@ -784,17 +788,20 @@ public abstract class ChronologyImpl<V extends Version>
       writeChronicleData(db);
 
       if (this.writtenData != null) {
-         db.put(this.writtenData,
-                this.versionStartPosition,
-                this.writtenData.length - this.versionStartPosition - 4);  // 4 for the zero length version at the end.
+         db.put(
+             this.writtenData,
+             this.versionStartPosition,
+             this.writtenData.length - this.versionStartPosition - 4);  // 4 for the zero length version at the end.
       }
 
       // add versions..
-      this.unwrittenData.values().forEach((version) -> {
-                                    final int stampSequenceForVersion = version.getStampSequence();
+      this.unwrittenData.values()
+                        .forEach(
+                            (version) -> {
+                               final int stampSequenceForVersion = version.getStampSequence();
 
-                                    writeIfNotCanceled(db, version, stampSequenceForVersion);
-                                 });
+                               writeIfNotCanceled(db, version, stampSequenceForVersion);
+                            });
       db.putInt(0);  // last data is a zero length version record
       db.trimToSize();
       return db.getData();
@@ -803,16 +810,16 @@ public abstract class ChronologyImpl<V extends Version>
    /**
     * Gets the latest version.
     *
-    * @param type the type
+    * @param <V>
     * @param coordinate the coordinate
     * @return the latest version
     */
    @Override
-   public LatestVersion<V> getLatestVersion(Class<V> type, StampCoordinate coordinate) {
+   public <V extends StampedVersion> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
       final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
 
       if (this.versionListReference != null) {
-         final ArrayList<V> versions = this.versionListReference.get();
+         final ArrayList<V> versions = (ArrayList<V>) this.versionListReference.get();
 
          if (versions != null) {
             return calc.getLatestVersion(this);
@@ -836,11 +843,12 @@ public abstract class ChronologyImpl<V extends Version>
     */
    @Override
    public boolean isLatestVersionActive(StampCoordinate coordinate) {
-      final RelativePositionCalculator calc =
-         RelativePositionCalculator.getCalculator(coordinate.makeCoordinateAnalog(State.ACTIVE,
-                                                                        State.INACTIVE,
-                                                                        State.CANCELED,
-                                                                        State.PRIMORDIAL));
+      final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(
+                                                  coordinate.makeCoordinateAnalog(
+                                                        State.ACTIVE,
+                                                              State.INACTIVE,
+                                                              State.CANCELED,
+                                                              State.PRIMORDIAL));
       final StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
       if (latestStampSequences.isEmpty()) {
@@ -848,8 +856,9 @@ public abstract class ChronologyImpl<V extends Version>
       }
 
       return latestStampSequences.stream()
-                                 .anyMatch(stampSequence -> Get.stampService()
-                                       .getStatusForStamp(stampSequence) == State.ACTIVE);
+                                 .anyMatch(
+                                     stampSequence -> Get.stampService()
+                                           .getStatusForStamp(stampSequence) == State.ACTIVE);
    }
 
    /**
@@ -888,9 +897,9 @@ public abstract class ChronologyImpl<V extends Version>
     * @return the sememe list
     */
    @Override
-   public List<SememeChronology<? extends SememeVersion>> getSememeList() {
+   public <V extends SememeChronology> List<V> getSememeList() {
       return Get.sememeService()
-                .getSememesForComponent(this.nid)
+                .<V>getSememesForComponent(this.nid)
                 .collect(Collectors.toList());
    }
 
@@ -901,28 +910,26 @@ public abstract class ChronologyImpl<V extends Version>
     * @return the sememe list from assemblage
     */
    @Override
-   public List<SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence) {
+   public <V extends SememeChronology> List<V> getSememeListFromAssemblage(int assemblageSequence) {
       return Get.sememeService()
-                .getSememesForComponentFromAssemblage(this.nid, assemblageSequence)
+                .<V>getSememesForComponentFromAssemblage(this.nid, assemblageSequence)
                 .collect(Collectors.toList());
    }
 
    /**
     * Gets the sememe list from assemblage of type.
     *
-    * @param <SV> the generic type
     * @param assemblageSequence the assemblage sequence
     * @param type the type
     * @return the sememe list from assemblage of type
     */
    @Override
-   public <SV extends SememeVersion> List<SememeChronology<SV>> getSememeListFromAssemblageOfType(
-           int assemblageSequence,
-           Class<SV> type) {
-      final List<SememeChronology<SV>> results = Get.sememeService()
-                                                    .ofType(type)
-                                                    .getSememesForComponentFromAssemblage(this.nid, assemblageSequence)
-                                                    .collect(Collectors.toList());
+   public <V extends SememeChronology> List<V> getSememeListFromAssemblageOfType(int assemblageSequence,
+         Class<? extends SememeVersion> type) {
+      final List<V> results = Get.sememeService()
+                                 .ofType(type)
+                                 .<V>getSememesForComponentFromAssemblage(this.nid, assemblageSequence)
+                                 .collect(Collectors.toList());
 
       return results;
    }
@@ -933,11 +940,11 @@ public abstract class ChronologyImpl<V extends Version>
     * @return a list of all unwritten versions contained in this chronicle.
     */
    @Override
-   public List<V> getUnwrittenVersionList() {
+   public <V extends StampedVersion> List<V> getUnwrittenVersionList() {
       final ArrayList<V> results = new ArrayList<>();
 
       if (this.unwrittenData != null) {
-         results.addAll(this.unwrittenData.values());
+         results.addAll((Collection<V>) this.unwrittenData.values());
       }
 
       return results;
@@ -967,13 +974,14 @@ public abstract class ChronologyImpl<V extends Version>
     * Used to retrieve a single version, without creating all version objects
     * and storing them in a version list.
     *
+    * @param <V>
     * @param stampSequence the stamp sequence that specifies a particular
     * version
     * @return the version with the corresponding stamp sequence
     */
-   public Optional<V> getVersionForStamp(int stampSequence) {
+   public <V extends StampedVersion> Optional<V> getVersionForStamp(int stampSequence) {
       if (this.versionListReference != null) {
-         final List<V> versions = this.versionListReference.get();
+         final List<V> versions = (List<V>) this.versionListReference.get();
 
          if (versions != null) {
             for (final V v: versions) {
@@ -985,7 +993,7 @@ public abstract class ChronologyImpl<V extends Version>
       }
 
       if ((this.unwrittenData != null) && this.unwrittenData.containsKey(stampSequence)) {
-         return Optional.of(this.unwrittenData.get(stampSequence));
+         return Optional.of((V) this.unwrittenData.get(stampSequence));
       }
 
       final ByteArrayDataBuffer bb = new ByteArrayDataBuffer(this.writtenData);
@@ -1017,47 +1025,53 @@ public abstract class ChronologyImpl<V extends Version>
     * @return the version graph list
     */
    @Override
-   public List<Graph<V>> getVersionGraphList() {
+   public <V extends StampedVersion> List<Graph<V>> getVersionGraphList() {
       final HashMap<StampPath, TreeSet<V>> versionMap = new HashMap<>();
 
-      getVersionList().forEach((version) -> {
-                                  final StampPath path       = Get.pathService()
-                                                                  .getStampPath(version.getPathSequence());
-                                  TreeSet<V>      versionSet = versionMap.get(path);
+      getVersionList().<V>forEach(
+          (version) -> {
+             final StampPath path = Get.pathService()
+                                       .getStampPath(version.getPathSequence());
+             TreeSet<V>      versionSet = versionMap.get(path);
 
-                                  if (versionSet == null) {
-                                     versionSet = new TreeSet<>((V v1,
-                                           V v2) -> {
-                     final int comparison = Long.compare(v1.getTime(), v2.getTime());
+             if (versionSet == null) {
+                versionSet = new TreeSet<>(
+                    (V v1,
+                     V v2) -> {
+                       final int comparison = Long.compare(v1.getTime(), v2.getTime());
 
-                     if (comparison != 0) {
-                        return comparison;
-                     }
+                       if (comparison != 0) {
+                          return comparison;
+                       }
 
-                     return Integer.compare(v1.getStampSequence(), v2.getStampSequence());
-                  });
-                                     versionMap.put(path, versionSet);
-                                  }
+                       return Integer.compare(v1.getStampSequence(), v2.getStampSequence());
+                    });
+                versionMap.put(path, versionSet);
+             }
 
-                                  versionSet.add(version);
-                               });
+             versionSet.add((V) version);
+          });
 
       if (versionMap.size() == 1) {
          // easy case...
          final List<Graph<V>> results = new ArrayList<>();
-         final Graph<V>                 graph   = new Graph<>();
+         final Graph<V>       graph   = new Graph<>();
 
          results.add(graph);
-         versionMap.entrySet().forEach((entry) -> {
-                               entry.getValue().forEach((version) -> {
-                                                if (graph.getRoot() == null) {
-                                                   graph.createRoot(version);
-                                                } else {
-                                                   graph.getLastAddedNode()
-                                                         .addChild(version);
-                                                }
-                                             });
-                            });
+         versionMap.entrySet()
+                   .forEach(
+                       (entry) -> {
+                          entry.getValue()
+                               .forEach(
+                                   (version) -> {
+                                      if (graph.getRoot() == null) {
+                                         graph.createRoot(version);
+                                      } else {
+                                         graph.getLastAddedNode()
+                                              .addChild(version);
+                                      }
+                                   });
+                       });
          return results;
       }
 
@@ -1071,11 +1085,11 @@ public abstract class ChronologyImpl<V extends Version>
     * @return a list of all versions contained in this chronicle.
     */
    @Override
-   public List<V> getVersionList() {
+   public <V extends StampedVersion> List<V> getVersionList() {
       ArrayList<V> results = null;
 
       if (this.versionListReference != null) {
-         results = this.versionListReference.get();
+         results = (ArrayList<V>) this.versionListReference.get();
       }
 
       while (results == null) {
@@ -1095,7 +1109,7 @@ public abstract class ChronologyImpl<V extends Version>
          }
 
          if (this.unwrittenData != null) {
-            results.addAll(this.unwrittenData.values());
+            results.addAll((Collection<V>) this.unwrittenData.values());
          }
 
          this.versionListReference = new SoftReference<>(results);
@@ -1113,7 +1127,7 @@ public abstract class ChronologyImpl<V extends Version>
    @Override
    public IntStream getVersionStampSequences() {
       final IntStream.Builder builder  = IntStream.builder();
-      List<V>                 versions = null;
+      List<? extends StampedVersion>                 versions = null;
 
       if (this.versionListReference != null) {
          versions = this.versionListReference.get();
@@ -1141,7 +1155,6 @@ public abstract class ChronologyImpl<V extends Version>
     * @param index the index
     * @param bb the bb
     * @param builder the builder
-    * @return the version stamp sequences
     */
    protected void getVersionStampSequences(int index, ByteArrayDataBuffer bb, IntStream.Builder builder) {
       final int limit = bb.getLimit();
@@ -1168,9 +1181,10 @@ public abstract class ChronologyImpl<V extends Version>
     * Overwrites existing versions. Use to remove duplicates, etc. Deliberately
     * not advertised in standard API, as this call may lose audit data.
     *
+    * @param <V>
     * @param versions the new versions
     */
-   public void setVersions(Collection<V> versions) {
+   public <V extends StampedVersion> void setVersions(Collection<V> versions) {
       if (this.unwrittenData != null) {
          this.unwrittenData.clear();
       }
@@ -1188,11 +1202,11 @@ public abstract class ChronologyImpl<V extends Version>
     * @param stampSequences the stamp sequences
     * @return the versions for stamps
     */
-   private List<V> getVersionsForStamps(StampSequenceSet stampSequences) {
+   private <V extends StampedVersion> List<V> getVersionsForStamps(StampSequenceSet stampSequences) {
       final List<V> versions = new ArrayList<>(stampSequences.size());
 
       stampSequences.stream()
-                    .forEach((stampSequence) -> versions.add(getVersionForStamp(stampSequence).get()));
+                    .forEach((stampSequence) -> versions.add((V) getVersionForStamp(stampSequence).get()));
       return versions;
    }
 
@@ -1203,13 +1217,15 @@ public abstract class ChronologyImpl<V extends Version>
     * @return the visible ordered version list
     */
    @Override
-   public List<V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
+   public <V extends StampedVersion> List<V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
       final RelativePositionCalculator calc              = RelativePositionCalculator.getCalculator(stampCoordinate);
-      final SortedSet<V>               sortedLogicGraphs = new TreeSet<>((V graph1,
-                                                                          V graph2) -> {
-               final RelativePosition relativePosition = calc.fastRelativePosition(graph1,
-                                                                                   graph2,
-                                                                                   stampCoordinate.getStampPrecedence());
+      final SortedSet<V>               sortedLogicGraphs = new TreeSet<>(
+                                                               (V graph1,
+                                                                     V graph2) -> {
+               final RelativePosition relativePosition = calc.fastRelativePosition(
+                                                             graph1,
+                                                                   graph2,
+                                                                   stampCoordinate.getStampPrecedence());
 
                switch (relativePosition) {
                case BEFORE:

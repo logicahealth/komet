@@ -58,7 +58,6 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
@@ -146,7 +145,7 @@ public class DescriptionLuceneMatch
 
       // Filter the results, based upon the input ViewCoordinate
       nids.stream().forEach((nid) -> {
-                      final Optional<? extends Chronology<? extends StampedVersion>> chronology =
+                      final Optional<? extends Chronology> chronology =
                          Get.identifiedObjectService()
                             .getIdentifiedObjectChronology(nid);
 

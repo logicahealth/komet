@@ -53,6 +53,7 @@ import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
@@ -66,13 +67,13 @@ import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
  * @author kec
  */
 public interface ObservableConceptChronology
-        extends ObservableChronology<ObservableConceptVersion> {
+        extends ObservableChronology {
    /**
     * Concept description list property.
     *
     * @return the list property
     */
-   ListProperty<ObservableSememeChronology<ObservableDescriptionVersion>> conceptDescriptionListProperty();
+   ListProperty<ObservableSememeChronology> conceptDescriptionListProperty();
 
    /**
     * Concept sequence property.
@@ -124,7 +125,7 @@ public interface ObservableConceptChronology
     *
     * @return the concept description list
     */
-   ObservableList<ObservableSememeChronology<ObservableDescriptionVersion>> getConceptDescriptionList();
+   ObservableList<ObservableSememeChronology> getConceptDescriptionList();
 
    /**
     * Gets the concept sequence.
@@ -146,6 +147,18 @@ public interface ObservableConceptChronology
            StampCoordinate stampCoordinate);
 
    /**
+    * Gets the fully specified description.
+    *
+    * @param manifoldCoordinate the language coordinate and the stamp coordinate
+    * @return the fully specified description
+    */
+   default LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
+           ManifoldCoordinate manifoldCoordinate) {
+      return getFullySpecifiedDescription(manifoldCoordinate, manifoldCoordinate);
+      
+   }
+
+   /**
     * Gets the preferred description.
     *
     * @param languageCoordinate the language coordinate
@@ -155,5 +168,15 @@ public interface ObservableConceptChronology
    LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate);
+   /**
+    * Gets the preferred description.
+    *
+    * @param manifoldCoordinate the language coordinate and the stamp coordinate
+    * @return the preferred description
+    */
+   default LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
+           ManifoldCoordinate manifoldCoordinate) {
+      return getPreferredDescription(manifoldCoordinate, manifoldCoordinate);
+   }
 }
 //~--- JDK imports ------------------------------------------------------------

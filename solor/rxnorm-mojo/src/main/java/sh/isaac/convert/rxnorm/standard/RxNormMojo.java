@@ -101,7 +101,6 @@ import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Relations;
 import sh.isaac.converters.sharedUtils.propertyTypes.Property;
 import sh.isaac.converters.sharedUtils.propertyTypes.PropertyAssociation;
 import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
-import sh.isaac.converters.sharedUtils.propertyTypes.ValuePropertyPair;
 import sh.isaac.converters.sharedUtils.sql.TableDefinition;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.converters.sharedUtils.umlsUtils.AbbreviationExpansion;
@@ -117,7 +116,6 @@ import sh.isaac.converters.sharedUtils.umlsUtils.rrf.REL;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.rxnorm.rrf.RXNCONSO;
 import sh.isaac.rxnorm.rrf.RXNSAT;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
@@ -1908,8 +1906,7 @@ public class RxNormMojo
                 @SuppressWarnings({ "unchecked", "rawtypes" })
                 final LatestVersion<StringVersion> lv = ((SememeChronology) Get.sememeService()
                                                                               .getSememe(
-                                                                                    sememe)).getLatestVersion(StringVersion.class,
-                                                                                                StampCoordinates.getDevelopmentLatest());
+                                                                                    sememe)).getLatestVersion(StampCoordinates.getDevelopmentLatest());
                 final StringVersion ss    = lv.get();
                 final Long         sctId = Long.parseLong(ss.getString());
                 final UUID conceptUUID = Get.identifierService()
@@ -2163,7 +2160,7 @@ public class RxNormMojo
                 });
          }
 
-         final List<SememeChronology<DescriptionVersion>> addedDescriptions = this.importUtil.addDescriptions(
+         final List<SememeChronology> addedDescriptions = this.importUtil.addDescriptions(
                                                                                  cuiConcept,
                                                                                        cuiDescriptions);
 
@@ -2174,7 +2171,7 @@ public class RxNormMojo
          final HashSet<String> uniqueUMLSCUI = new HashSet<>();
 
          for (int i = 0; i < cuiDescriptions.size(); i++) {
-            final SememeChronology<DescriptionVersion> desc      = addedDescriptions.get(i);
+            final SememeChronology desc      = addedDescriptions.get(i);
             final ValuePropertyPairWithSAB            descPP    = cuiDescriptions.get(i);
             final BiFunction<String, String, Boolean> functions = (atn, atv) -> {
                // Pull these up to the concept.

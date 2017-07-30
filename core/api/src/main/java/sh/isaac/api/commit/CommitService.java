@@ -56,10 +56,10 @@ import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -111,7 +111,7 @@ public interface CommitService
     * @param sc the sc
     * @return the task
     */
-   Task<Void> addUncommitted(SememeChronology<?> sc);
+   Task<Void> addUncommitted(SememeChronology sc);
 
    /**
     * Adds the uncommitted no checks.
@@ -127,7 +127,7 @@ public interface CommitService
     * @param sc the sc
     * @return the task
     */
-   Task<Void> addUncommittedNoChecks(SememeChronology<?> sc);
+   Task<Void> addUncommittedNoChecks(SememeChronology sc);
 
    /**
     * Cancels all pending changes using the default EditCoordinate. The caller
@@ -173,7 +173,7 @@ public interface CommitService
     * @deprecated use corresponding method that specifies the edit coordinate.
     */
    @Deprecated
-   Task<Void> cancel(SememeChronology<?> sememeChronicle);
+   Task<Void> cancel(SememeChronology sememeChronicle);
 
    /**
     * Cancels all pending changes using the provided EditCoordinate. The caller
@@ -185,7 +185,7 @@ public interface CommitService
     *                       cancel.
     * @return task representing the cancel.
     */
-   Task<Void> cancel(Chronology<?> chronicle, EditCoordinate editCoordinate);
+   Task<Void> cancel(Chronology chronicle, EditCoordinate editCoordinate);
 
    /**
     * Commit.
@@ -228,7 +228,7 @@ public interface CommitService
     * @deprecated use corresponding method that specifies the edit coordinate.
     */
    @Deprecated
-   Task<Optional<CommitRecord>> commit(SememeChronology<?> sememeChronicle, String commitComment);
+   Task<Optional<CommitRecord>> commit(SememeChronology sememeChronicle, String commitComment);
 
    /**
     * Commit all pending changes for the provided EditCoordinate. The caller may
@@ -240,7 +240,7 @@ public interface CommitService
     * @param commitComment  comment to associate with the commit.
     * @return task representing the cancel.
     */
-   Task<Optional<CommitRecord>> commit(Chronology<?> chronicle,
+   Task<Optional<CommitRecord>> commit(Chronology chronicle,
          EditCoordinate editCoordinate,
          String commitComment);
 
@@ -253,7 +253,7 @@ public interface CommitService
     *
     * @param ochreExternalizable the object to be imported.
     */
-   void importNoChecks(OchreExternalizable ochreExternalizable);
+   void importNoChecks(IsaacExternalizable ochreExternalizable);
 
    /**
     * Increment and get sequence.

@@ -42,7 +42,6 @@ package sh.isaac.model.observable.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
-import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -202,7 +201,7 @@ public final class ObservableLanguageCoordinateImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getDescription(
-           List<SememeChronology<DescriptionVersion>> descriptionList,
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return this.languageCoordinate.getDescription(descriptionList, stampCoordinate);
    }
@@ -246,7 +245,7 @@ public final class ObservableLanguageCoordinateImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
-           List<SememeChronology<DescriptionVersion>> descriptionList,
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return this.languageCoordinate.getFullySpecifiedDescription(descriptionList, stampCoordinate);
    }
@@ -274,7 +273,7 @@ public final class ObservableLanguageCoordinateImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getPreferredDescription(
-           List<SememeChronology<DescriptionVersion>> descriptionList,
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return this.languageCoordinate.getPreferredDescription(descriptionList, stampCoordinate);
    }

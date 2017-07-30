@@ -43,7 +43,6 @@ package sh.isaac.provider.logic.csiro.classify;
 
 import java.time.Instant;
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -186,8 +185,7 @@ public class ClassifierData
          // only process if incremental is a possibility.
          if (this.incrementalAllowed) {
             final LatestVersion<LogicGraphSememeImpl> optionalLatest =
-               sc.getLatestVersion(LogicGraphSememeImpl.class,
-                                   this.stampCoordinate);
+               sc.getLatestVersion(this.stampCoordinate);
 
             if (optionalLatest.isPresent()) {
                final LatestVersion<LogicGraphSememeImpl> latest = optionalLatest;
@@ -198,8 +196,7 @@ public class ClassifierData
 
                // See if there is a change in the optionalLatest vs the last classify.
                final LatestVersion<LogicGraphSememeImpl> optionalPrevious =
-                  sc.getLatestVersion(LogicGraphSememeImpl.class,
-                                      stampToCompare);
+                  sc.getLatestVersion(stampToCompare);
 
                if (optionalPrevious.isPresent()) {
                   // See if the change has deletions, if so then incremental is not allowed.

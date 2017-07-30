@@ -63,7 +63,6 @@ import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
@@ -100,7 +99,7 @@ public class ObservableChronologyProvider
                                        ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
    /** The observable sememe map. */
-   ConcurrentReferenceHashMap<Integer, ObservableSememeChronology<?>> observableSememeMap =
+   ConcurrentReferenceHashMap<Integer, ObservableSememeChronology> observableSememeMap =
       new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
                                        ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
@@ -136,8 +135,8 @@ public class ObservableChronologyProvider
     * @param sc the sc
     */
    @Override
-   public void handleChange(SememeChronology<? extends SememeVersion> sc) {
-      final ObservableSememeChronology<?> osc = this.observableSememeMap.get(sc.getNid());
+   public void handleChange(SememeChronology sc) {
+      final ObservableSememeChronology osc = this.observableSememeMap.get(sc.getNid());
 
       if (osc != null) {
          osc.handleChange(sc);
@@ -244,19 +243,19 @@ public class ObservableChronologyProvider
     * @return the observable sememe chronology
     */
    @Override
-   public ObservableSememeChronology<?> getObservableSememeChronology(int id) {
+   public ObservableSememeChronology getObservableSememeChronology(int id) {
       if (id >= 0) {
          id = Get.identifierService()
                  .getConceptNid(id);
       }
 
-      ObservableSememeChronology<?> observableSememeChronology = this.observableSememeMap.get(id);
+      ObservableSememeChronology observableSememeChronology = this.observableSememeMap.get(id);
 
       if (observableSememeChronology != null) {
          return observableSememeChronology;
       }
       
-      SememeChronology<?> sememeChronology = Get.sememeService().getSememe(id);
+      SememeChronology sememeChronology = Get.sememeService().getSememe(id);
       observableSememeChronology = new ObservableSememeChronologyImpl(sememeChronology);
       return observableSememeMap.putIfAbsentReturnCurrentValue(id, observableSememeChronology);
    }
@@ -283,7 +282,7 @@ public class ObservableChronologyProvider
 
       @Override
       public LatestVersion<? extends ObservableSememeVersion> getObservableSememeVersion(int id) {
-         ObservableSememeChronology<? extends ObservableSememeVersion> observableSememeChronology = getObservableSememeChronology(id);
+         ObservableSememeChronology observableSememeChronology = getObservableSememeChronology(id);
          return this.relativePositionCalculator.getLatestVersion(observableSememeChronology);
       }
    }

@@ -53,10 +53,9 @@ import sh.isaac.model.VersionImpl;
  * The Class SememeVersionImpl.
  *
  * @author kec
- * @param <V>
  */
-public class SememeVersionImpl<V extends MutableSememeVersion>
-        extends VersionImpl<SememeChronology<V>, V>
+public class SememeVersionImpl
+        extends VersionImpl
          implements MutableSememeVersion {
    /**
     * Instantiates a new sememe version impl.
@@ -65,7 +64,7 @@ public class SememeVersionImpl<V extends MutableSememeVersion>
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     */
-   public SememeVersionImpl(SememeChronology<V> container, int stampSequence, short versionSequence) {
+   public SememeVersionImpl(SememeChronology container, int stampSequence, short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
@@ -99,8 +98,8 @@ public class SememeVersionImpl<V extends MutableSememeVersion>
     * @return the assemblage sequence
     */
    @Override
-   public int getAssemblageSequence() {
-      return this.chronicle.getAssemblageSequence();
+   public final int getAssemblageSequence() {
+      return getChronology().getAssemblageSequence();
    }
 
    /**
@@ -109,8 +108,8 @@ public class SememeVersionImpl<V extends MutableSememeVersion>
     * @return the chronology
     */
    @Override
-   public SememeChronology<? extends V> getChronology() {
-      return this.chronicle;
+   public SememeChronology getChronology() {
+      return (SememeChronology) this.chronicle;
    }
 
    /**
@@ -120,7 +119,7 @@ public class SememeVersionImpl<V extends MutableSememeVersion>
     */
    @Override
    public int getReferencedComponentNid() {
-      return this.chronicle.getReferencedComponentNid();
+      return getChronology().getReferencedComponentNid();
    }
 
    /**
@@ -130,7 +129,7 @@ public class SememeVersionImpl<V extends MutableSememeVersion>
     */
    @Override
    public int getSememeSequence() {
-      return this.chronicle.getSememeSequence();
+      return getChronology().getSememeSequence();
    }
 
    /**

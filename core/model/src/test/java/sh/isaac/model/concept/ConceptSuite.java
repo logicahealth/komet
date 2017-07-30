@@ -66,11 +66,9 @@ import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.memory.HeapUseTicker;
 import sh.isaac.api.progress.ActiveTasksTicker;
 import sh.isaac.model.builder.ConceptBuilderImpl;
@@ -225,7 +223,7 @@ public class ConceptSuite {
       final int pathSequence   = TermAux.DEVELOPMENT_PATH.getConceptSequence();
       final int stampSequence = Get.stampService()
                                    .getStampSequence(State.ACTIVE, time, authorSequence, moduleSequence, pathSequence);
-      final List<Chronology<? extends StampedVersion>> builtObjects = new ArrayList<>();
+      final List<Chronology> builtObjects = new ArrayList<>();
       final ConceptChronology concept = testConceptBuilder.build(stampSequence, builtObjects);
 
       for (final Object obj: builtObjects) {
@@ -234,7 +232,7 @@ public class ConceptSuite {
                .writeConcept((ConceptChronology) obj);
          } else if (obj instanceof SememeChronologyImpl) {
             Get.sememeService()
-               .writeSememe((SememeChronology<?>) obj);
+               .writeSememe((SememeChronology) obj);
          } else {
             throw new UnsupportedOperationException("Can't handle: " + obj);
          }

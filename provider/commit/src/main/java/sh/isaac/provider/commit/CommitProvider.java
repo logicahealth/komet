@@ -120,7 +120,6 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.task.SequentialAggregateTask;
@@ -128,6 +127,7 @@ import sh.isaac.api.task.TimedTask;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -398,7 +398,7 @@ public class CommitProvider
     * @return the task
     */
    @Override
-   public Task<Void> cancel(Chronology<?> chronicle, EditCoordinate editCoordinate) {
+   public Task<Void> cancel(Chronology chronicle, EditCoordinate editCoordinate) {
       final ChronologyImpl    chronicleImpl = (ChronologyImpl) chronicle;
       final List<VersionImpl> versionList   = chronicleImpl.getVersionList();
 
@@ -570,7 +570,7 @@ public class CommitProvider
     * @return the task
     */
    @Override
-   public synchronized Task<Optional<CommitRecord>> commit(Chronology<?> chronicle,
+   public synchronized Task<Optional<CommitRecord>> commit(Chronology chronicle,
          EditCoordinate editCoordinate,
          String commitComment) {
       // TODO make asynchronous with a actual task.
@@ -677,8 +677,8 @@ public class CommitProvider
     * @param ochreExternalizable the ochre externalizable
     */
    @Override
-   public void importNoChecks(OchreExternalizable ochreExternalizable) {
-      switch (ochreExternalizable.getOchreObjectType()) {
+   public void importNoChecks(IsaacExternalizable ochreExternalizable) {
+      switch (ochreExternalizable.getExternalizableObjectType()) {
       case CONCEPT:
          final ConceptChronology conceptChronology = (ConceptChronology) ochreExternalizable;
 
@@ -919,7 +919,7 @@ public class CommitProvider
       try {
          this.uncommittedSequenceLock.lock();
 
-         switch (sememeOrConceptChronicle.getOchreObjectType()) {
+         switch (sememeOrConceptChronicle.getExternalizableObjectType()) {
          case CONCEPT: {
             final int sequence           = Get.identifierService()
                                               .getConceptSequence(sememeOrConceptChronicle.getNid());

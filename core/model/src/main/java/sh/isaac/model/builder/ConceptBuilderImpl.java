@@ -58,7 +58,6 @@ import sh.isaac.api.component.concept.description.DescriptionBuilderService;
 import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.task.OptionalWaitTask;
@@ -256,7 +255,7 @@ public class ConceptBuilderImpl
     */
    @Override
    public ConceptChronology build(int stampCoordinate,
-           List<Chronology<? extends StampedVersion>> builtObjects)
+           List<Chronology> builtObjects)
            throws IllegalStateException {
       final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
               .getConcept(getUuids());
@@ -311,7 +310,7 @@ public class ConceptBuilderImpl
    @Override
    public OptionalWaitTask<ConceptChronology> build(EditCoordinate editCoordinate,
            ChangeCheckerMode changeCheckerMode,
-           List<Chronology<? extends StampedVersion>> builtObjects)
+           List<Chronology> builtObjects)
            throws IllegalStateException {
       final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
       final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()

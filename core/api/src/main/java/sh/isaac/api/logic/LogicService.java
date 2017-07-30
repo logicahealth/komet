@@ -41,8 +41,6 @@ package sh.isaac.api.logic;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Optional;
-import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -50,12 +48,9 @@ import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierService;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.relationship.RelationshipVersionAdaptor;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -90,44 +85,5 @@ public interface LogicService {
          int logicAssemblageId,
          StampCoordinate stampCoordinate);
 
-   /**
-    * Gets the relationship adaptors originating with concept.
-    *
-    * @param conceptChronology the concept chronology
-    * @return the relationship adaptors originating with concept
-    */
-   Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsOriginatingWithConcept(
-           ConceptChronology conceptChronology);
-
-   /**
-    * Gets the relationship adaptors originating with concept.
-    *
-    * @param conceptChronology the concept chronology
-    * @param logicCoordinate the logic coordinate
-    * @return the relationship adaptors originating with concept
-    */
-   Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsOriginatingWithConcept(
-           ConceptChronology conceptChronology,
-           LogicCoordinate logicCoordinate);
-
-   /**
-    * Gets the relationship adaptors with concept as destination.
-    *
-    * @param conceptChronology the concept chronology
-    * @return the relationship adaptors with concept as destination
-    */
-   Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsWithConceptAsDestination(
-           ConceptChronology conceptChronology);
-
-   /**
-    * Gets the relationship adaptors with concept as destination.
-    *
-    * @param conceptChronology the concept chronology
-    * @param logicCoordinate the logic coordinate
-    * @return the relationship adaptors with concept as destination
-    */
-   Stream<? extends SememeChronology<? extends RelationshipVersionAdaptor<?>>> getRelationshipAdaptorsWithConceptAsDestination(
-           ConceptChronology conceptChronology,
-           LogicCoordinate logicCoordinate);
 }
 

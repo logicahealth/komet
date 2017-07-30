@@ -494,7 +494,7 @@ public class IdentifierProvider
     * @return the identified object chronology
     */
    @Override
-   public Optional<? extends Chronology<? extends StampedVersion>> getIdentifiedObjectChronology(int nid) {
+   public Optional<? extends Chronology> getIdentifiedObjectChronology(int nid) {
       switch (getChronologyTypeForNid(nid)) {
       case CONCEPT:
          return Get.conceptService()
@@ -798,7 +798,7 @@ public class IdentifierProvider
       // If we have a cache in uuidIntMapMap, read from there, it is faster.
       // If we don't have a cache, then uuidIntMapMap will be extremely slow, so try this first.
       if (!this.uuidIntMapMap.cacheContainsNid(nid)) {
-         final Optional<? extends Chronology<? extends StampedVersion>> optionalObj =
+         final Optional<? extends Chronology> optionalObj =
             Get.identifiedObjectService()
                .getIdentifiedObjectChronology(
                    nid);
@@ -855,7 +855,7 @@ public class IdentifierProvider
          throw new RuntimeException("Method expected nid!");
       }
 
-      final Optional<? extends Chronology<? extends StampedVersion>> optionalObj = Get.identifiedObjectService()
+      final Optional<? extends Chronology> optionalObj = Get.identifiedObjectService()
                                                                                             .getIdentifiedObjectChronology(
                                                                                                   nid);
 

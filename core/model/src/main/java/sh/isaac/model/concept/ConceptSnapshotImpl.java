@@ -212,7 +212,7 @@ public class ConceptSnapshotImpl
          return pd.get();
       }
 
-      return Get.sememeService()
+      return (DescriptionVersion) Get.sememeService()
                 .getDescriptionsForComponent(getNid())
                 .findAny()
                 .get()

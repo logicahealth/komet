@@ -90,7 +90,7 @@ public enum SememeType {
    DESCRIPTION((byte) 7, "Description"),
 
    /** The relationship adaptor. */
-   RELATIONSHIP_ADAPTOR((byte) 8, "Relationship Adapter"),
+   //RELATIONSHIP_ADAPTOR((byte) 8, "Relationship Adapter"),
 
    /** The unknown. */
    UNKNOWN(Byte.MAX_VALUE, "Unknown");

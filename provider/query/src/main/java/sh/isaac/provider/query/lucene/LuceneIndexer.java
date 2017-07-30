@@ -313,14 +313,14 @@ public abstract class LuceneIndexer
                }
 
                commitRecord.getSememesInCommit().stream().forEach(sememeId -> {
-                                       final SememeChronology<?> sc = Get.sememeService()
+                                       final SememeChronology sc = Get.sememeService()
                                                                          .getSememe(sememeId);
 
                                        index(sc);
                                     });
             }
             @Override
-            public void handleChange(SememeChronology<? extends SememeVersion> sc) {
+            public void handleChange(SememeChronology sc) {
                // noop
             }
             @Override
@@ -423,7 +423,7 @@ public abstract class LuceneIndexer
     * @return the future
     */
    @Override
-   public final CompletableFuture<Long> index(Chronology<?> chronicle) {
+   public final CompletableFuture<Long> index(Chronology chronicle) {
       return index((() -> new AddDocument(chronicle)), (() -> indexChronicle(chronicle)), chronicle.getNid());
    }
 
@@ -552,7 +552,7 @@ public abstract class LuceneIndexer
     * @param chronicle the chronicle
     * @param doc the doc
     */
-   protected abstract void addFields(Chronology<?> chronicle, Document doc);
+   protected abstract void addFields(Chronology chronicle, Document doc);
 
    /**
     * Builds the prefix query.
@@ -666,7 +666,7 @@ public abstract class LuceneIndexer
     * @param chronicle the chronicle
     * @return true, if successful
     */
-   protected abstract boolean indexChronicle(Chronology<?> chronicle);
+   protected abstract boolean indexChronicle(Chronology chronicle);
 
    /**
     * Release latch.
@@ -952,7 +952,7 @@ public abstract class LuceneIndexer
    private class AddDocument
             implements Supplier<Long> {
       /** The chronicle. */
-      Chronology<?> chronicle = null;
+      Chronology chronicle = null;
 
       //~--- constructors -----------------------------------------------------
 
@@ -961,7 +961,7 @@ public abstract class LuceneIndexer
        *
        * @param chronicle the chronicle
        */
-      public AddDocument(Chronology<?> chronicle) {
+      public AddDocument(Chronology chronicle) {
          this.chronicle = chronicle;
       }
 

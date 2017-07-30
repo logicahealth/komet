@@ -61,7 +61,7 @@ import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
  * @author kec
  */
 public class ObservableDescriptionImpl
-        extends ObservableSememeVersionImpl<ObservableDescriptionVersion>
+        extends ObservableSememeVersionImpl
          implements ObservableDescriptionVersion {
    /** The case significance concept sequence property. */
    IntegerProperty caseSignificanceConceptSequenceProperty;
@@ -84,7 +84,7 @@ public class ObservableDescriptionImpl
     * @param chronology the chronology
     */
    public ObservableDescriptionImpl(DescriptionVersion stampedVersion,
-                                    ObservableSememeChronology<ObservableDescriptionVersion> chronology) {
+                                    ObservableSememeChronology chronology) {
       super(stampedVersion, 
               chronology);
    }

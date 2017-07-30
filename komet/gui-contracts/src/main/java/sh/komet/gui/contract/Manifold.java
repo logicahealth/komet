@@ -24,12 +24,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.coordinate.LanguageCoordinateProxy;
 import sh.isaac.api.coordinate.LogicCoordinateProxy;
 import sh.isaac.api.coordinate.StampCoordinateProxy;
-import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
@@ -53,36 +54,42 @@ import sh.isaac.komet.iconography.Iconography;
  */
 public class Manifold implements StampCoordinateProxy, LanguageCoordinateProxy, LogicCoordinateProxy, ManifoldCoordinateProxy {
 
-   private static final ObservableMap<String,Manifold> manifolds = FXCollections.observableHashMap();
-   
+   private static final ObservableMap<String, Manifold> manifolds = FXCollections.observableHashMap();
+   public static final Manifold UNLINKED = newManifold(
+           "unlinked",
+           UUID.randomUUID(),
+           Get.configurationService().getDefaultManifoldCoordinate(),
+           Get.configurationService().getDefaultEditCoordinate(),
+           () -> new Label());
+
    public static final Manifold TAXONOMY = newManifold(
-             "taxonomy",
-             UUID.randomUUID(),
-             Get.configurationService().getDefaultManifoldCoordinate(),
-             Get.configurationService().getDefaultEditCoordinate(), 
-             () -> Iconography.TAXONOMY_ICON.getIconographic());
-   
-  public static final Manifold SIMPLE_SEARCH = newManifold(
-             "search",
-             UUID.randomUUID(),
-             Get.configurationService().getDefaultManifoldCoordinate(),
-             Get.configurationService().getDefaultEditCoordinate(), 
-             () -> Iconography.SIMPLE_SEARCH.getIconographic());
-   
- public static final Manifold FLOWR_QUERY = newManifold(
-             "flowr",
-             UUID.randomUUID(),
-             Get.configurationService().getDefaultManifoldCoordinate(),
-             Get.configurationService().getDefaultEditCoordinate(), 
-             () -> Iconography.FL0WR_SEARCH.getIconographic());
-   
+           "taxonomy",
+           UUID.randomUUID(),
+           Get.configurationService().getDefaultManifoldCoordinate(),
+           Get.configurationService().getDefaultEditCoordinate(),
+           () -> Iconography.TAXONOMY_ICON.getIconographic());
+
+   public static final Manifold SIMPLE_SEARCH = newManifold(
+           "search",
+           UUID.randomUUID(),
+           Get.configurationService().getDefaultManifoldCoordinate(),
+           Get.configurationService().getDefaultEditCoordinate(),
+           () -> Iconography.SIMPLE_SEARCH.getIconographic());
+
+   public static final Manifold FLOWR_QUERY = newManifold(
+           "flowr",
+           UUID.randomUUID(),
+           Get.configurationService().getDefaultManifoldCoordinate(),
+           Get.configurationService().getDefaultEditCoordinate(),
+           () -> Iconography.FL0WR_SEARCH.getIconographic());
+
    public static Manifold newManifold(String name, UUID manifoldUuid, ObservableManifoldCoordinate observableManifoldCoordinate, ObservableEditCoordinate editCoordinate, Supplier<Node> iconSupplier) {
       Manifold manifold = new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, iconSupplier);
       manifolds.put(name, manifold);
       return manifold;
    }
-   
-   public static Manifold newManifold(String name, UUID manifoldUuid, ObservableManifoldCoordinate observableManifoldCoordinate, ObservableEditCoordinate editCoordinate, Supplier<Node> iconSupplier, IdentifiedObject focusedObject) {
+
+   public static Manifold newManifold(String name, UUID manifoldUuid, ObservableManifoldCoordinate observableManifoldCoordinate, ObservableEditCoordinate editCoordinate, Supplier<Node> iconSupplier, ConceptChronology focusedObject) {
       Manifold manifold = new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, iconSupplier, focusedObject);
       manifolds.put(name, manifold);
       return manifold;
@@ -91,28 +98,28 @@ public class Manifold implements StampCoordinateProxy, LanguageCoordinateProxy, 
    public static Manifold get(String name) {
       return manifolds.get(name);
    }
+
    public static Collection<Manifold> getValues() {
       return manifolds.values();
    }
 
-   
    final SimpleStringProperty nameProperty;
    final SimpleObjectProperty<UUID> manifoldUuidProperty;
    final ObservableManifoldCoordinate observableManifoldCoordinate;
    final ObservableEditCoordinate editCoordinate;
-   final SimpleObjectProperty<IdentifiedObject> focusedObjectProperty;
+   final SimpleObjectProperty<ConceptChronology> focusedConceptChronologyProperty;
    final Supplier<Node> iconSupplier;
 
    private Manifold(String name, UUID manifoldUuid, ObservableManifoldCoordinate observableManifoldCoordinate, ObservableEditCoordinate editCoordinate, Supplier<Node> iconSupplier) {
       this(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, iconSupplier, null);
    }
-   
-  private Manifold(String name, UUID manifoldUuid, ObservableManifoldCoordinate observableManifoldCoordinate, ObservableEditCoordinate editCoordinate, Supplier<Node> iconSupplier, IdentifiedObject focusedObject) {
+
+   private Manifold(String name, UUID manifoldUuid, ObservableManifoldCoordinate observableManifoldCoordinate, ObservableEditCoordinate editCoordinate, Supplier<Node> iconSupplier, ConceptChronology focusedObject) {
       this.nameProperty = new SimpleStringProperty(name);
       this.manifoldUuidProperty = new SimpleObjectProperty<>(manifoldUuid);
       this.observableManifoldCoordinate = observableManifoldCoordinate;
       this.editCoordinate = editCoordinate;
-      this.focusedObjectProperty = new SimpleObjectProperty<>(focusedObject);
+      this.focusedConceptChronologyProperty = new SimpleObjectProperty<>(focusedObject);
       this.iconSupplier = iconSupplier;
    }
 
@@ -149,12 +156,12 @@ public class Manifold implements StampCoordinateProxy, LanguageCoordinateProxy, 
       return editCoordinate;
    }
 
-   public SimpleObjectProperty<IdentifiedObject> focusedObjectProperty() {
-      return focusedObjectProperty;
+   public SimpleObjectProperty<ConceptChronology> focusedConceptChronologyProperty() {
+      return focusedConceptChronologyProperty;
    }
 
-   public void setFocusedObject(IdentifiedObject focusedObject) {
-      this.focusedObjectProperty.set(focusedObject);
+   public void setFocusedConceptChronology(ConceptChronology focusedObject) {
+      this.focusedConceptChronologyProperty.set(focusedObject);
    }
 
    public ConceptSnapshotService getConceptSnapshotService() {
@@ -175,9 +182,9 @@ public class Manifold implements StampCoordinateProxy, LanguageCoordinateProxy, 
    public ObservableLogicCoordinate getLogicCoordinate() {
       return this.observableManifoldCoordinate.getLogicCoordinate();
    }
-   
+
    public Node getIconographic() {
       return iconSupplier.get();
    }
-   
+
 }

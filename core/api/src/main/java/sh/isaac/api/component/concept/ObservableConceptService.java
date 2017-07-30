@@ -62,7 +62,7 @@ public interface ObservableConceptService
     * @param conceptId either a concept sequence or a concept nid.
     * @return the list of descriptions.
     */
-   default ObservableList<ObservableSememeChronology<ObservableDescriptionVersion>> getConceptDescriptions(int conceptId) {
+   default ObservableList<ObservableSememeChronology> getConceptDescriptions(int conceptId) {
       return getConcept(conceptId).getConceptDescriptionList();
    }
 

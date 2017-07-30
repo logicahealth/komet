@@ -46,7 +46,6 @@ import java.io.Writer;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -109,10 +108,12 @@ public class Writers {
 
          final StringBuilder temp = new StringBuilder();
 
-         for (final UUID uuid: cc.getUuidList()) {
-            temp.append("\"" + uuid);
+         cc.getUuidList().stream().map((uuid) -> {
+            temp.append("\"").append(uuid);
+            return uuid;
+         }).forEachOrdered((_item) -> {
             temp.append("\", ");
-         }
+         });
 
          if (temp.length() > 2) {
             temp.setLength(temp.length() - 2);
@@ -144,7 +145,7 @@ public class Writers {
       public void write(Object obj, boolean showType, Writer output, Map<String, Object> args)
                throws IOException {
          @SuppressWarnings("unchecked")
-         final SememeChronology<SememeVersion> sc         = (SememeChronology<SememeVersion>) obj;
+         final SememeChronology sc         = (SememeChronology) obj;
          final JsonWriter                         mainWriter = Support.getWriter(args);
 
          output.write("\"sememeType\":\"");
@@ -165,10 +166,12 @@ public class Writers {
 
          final StringBuilder temp = new StringBuilder();
 
-         for (final UUID uuid: sc.getUuidList()) {
-            temp.append("\"" + uuid);
+         sc.getUuidList().stream().map((uuid) -> {
+            temp.append("\"").append(uuid);
+            return uuid;
+         }).forEachOrdered((_item) -> {
             temp.append("\", ");
-         }
+         });
 
          if (temp.length() > 2) {
             temp.setLength(temp.length() - 2);
@@ -186,8 +189,7 @@ public class Writers {
          output.write(sc.getReferencedComponentNid() + "");
          output.write("\",");
 
-         @SuppressWarnings("unchecked")
-         final List<SememeVersion> versions = (List<SememeVersion>) sc.getVersionList();
+         final List<SememeVersion> versions = sc.getVersionList();
 
          mainWriter.newLine();
          output.write("\"versions\":[");
@@ -233,8 +235,8 @@ public class Writers {
                output.write("\"text\":\"");
                output.write(ds.getText() + "");
                output.write("\"");
-            } else if (sv instanceof ComponentNidVersion<?>) {
-               final ComponentNidVersion<?> cns = (ComponentNidVersion<?>) sv;
+            } else if (sv instanceof ComponentNidVersion) {
+               final ComponentNidVersion cns = (ComponentNidVersion) sv;
 
                output.write("\"componentNid\":\"");
                output.write(cns.getComponentNid() + "");
@@ -275,8 +277,8 @@ public class Writers {
                      }
                   }
                }
-            } else if (sv instanceof LongVersion<?>) {
-               final LongVersion<?> ls = (LongVersion<?>) sv;
+            } else if (sv instanceof LongVersion) {
+               final LongVersion ls = (LongVersion) sv;
 
                output.write("\"long\":\"");
                output.write(ls.getLongValue() + "");

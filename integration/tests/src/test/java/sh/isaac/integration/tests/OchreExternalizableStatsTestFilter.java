@@ -46,7 +46,7 @@ import java.util.function.Predicate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.externalizable.OchreExternalizable;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -54,7 +54,7 @@ import sh.isaac.api.externalizable.OchreExternalizable;
  * Created by kec on 1/25/16.
  */
 public class OchreExternalizableStatsTestFilter
-         implements Predicate<OchreExternalizable> {
+         implements Predicate<IsaacExternalizable> {
    /** The concepts. */
    AtomicInteger concepts = new AtomicInteger(0);
 
@@ -124,8 +124,8 @@ public class OchreExternalizableStatsTestFilter
     * @return true, if successful
     */
    @Override
-   public boolean test(OchreExternalizable ochreExternalizable) {
-      switch (ochreExternalizable.getOchreObjectType()) {
+   public boolean test(IsaacExternalizable ochreExternalizable) {
+      switch (ochreExternalizable.getExternalizableObjectType()) {
       case CONCEPT:
          this.concepts.incrementAndGet();
          break;

@@ -52,7 +52,6 @@ import java.util.Collection;
 
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -81,7 +80,7 @@ public interface ChangeChecker
     * @param alertCollection the alert collection
     * @param checkPhase the check phase
     */
-   void check(SememeChronology<? extends SememeVersion> sc,
+   void check(SememeChronology sc,
               Collection<Alert> alertCollection,
               CheckPhase checkPhase);
 }

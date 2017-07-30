@@ -49,11 +49,9 @@ import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.OchreExternalizable;
-import sh.isaac.api.externalizable.OchreExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.sememe.version.ComponentNidSememeImpl;
 import sh.isaac.model.sememe.version.DescriptionSememeImpl;
@@ -62,13 +60,9 @@ import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
 import sh.isaac.model.sememe.version.LongSememeImpl;
 import sh.isaac.model.sememe.version.SememeVersionImpl;
 import sh.isaac.model.sememe.version.StringSememeImpl;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
-import sh.isaac.api.component.sememe.version.LongVersion;
-import sh.isaac.api.component.sememe.version.MutableComponentNidVersion;
-import sh.isaac.api.component.sememe.version.MutableDynamicVersion;
-import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
-import sh.isaac.api.component.sememe.version.StringVersion;
+import sh.isaac.api.component.sememe.version.MutableSememeVersion;
+import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.identity.StampedVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -76,13 +70,9 @@ import sh.isaac.api.component.sememe.version.StringVersion;
  * The Class SememeChronologyImpl.
  *
  * @author kec
- * @param <V> the value type
  */
-public class SememeChronologyImpl<V extends SememeVersion>
-        extends ChronologyImpl<V>
-         implements 
-        SememeChronology<V>, 
-        OchreExternalizable {
+public class SememeChronologyImpl extends ChronologyImpl
+         implements  SememeChronology, IsaacExternalizable {
    /** The sememe type token. */
    byte sememeTypeToken = -1;
 
@@ -132,8 +122,8 @@ public class SememeChronologyImpl<V extends SememeVersion>
     * @return the m
     */
    @Override
-   public <M extends V> M createMutableVersion(Class<M> type, int stampSequence) {
-      final M version = createMutableVersionInternal(type, stampSequence, nextVersionSequence());
+   public <M extends MutableSememeVersion> M createMutableVersion(int stampSequence) {
+      final M version = createMutableVersionInternal(stampSequence, nextVersionSequence());
 
       addVersion(version);
       return version;
@@ -149,14 +139,14 @@ public class SememeChronologyImpl<V extends SememeVersion>
     * @return the m
     */
    @Override
-   public <M extends V> M createMutableVersion(Class<M> type, State status, EditCoordinate ec) {
+   public <M extends MutableSememeVersion> M createMutableVersion(State status, EditCoordinate ec) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(status,
                                          Long.MAX_VALUE,
                                          ec.getAuthorSequence(),
                                          ec.getModuleSequence(),
                                          ec.getPathSequence());
-      final M version = createMutableVersionInternal(type, stampSequence, nextVersionSequence());
+      final M version = createMutableVersionInternal(stampSequence, nextVersionSequence());
 
       addVersion(version);
       return version;
@@ -173,7 +163,7 @@ public class SememeChronologyImpl<V extends SememeVersion>
     * @return the sememe version impl
     */
    public static SememeVersionImpl createSememe(byte token,
-         SememeChronologyImpl<?> container,
+         SememeChronologyImpl container,
          int stampSequence,
          short versionSequence,
          ByteArrayDataBuffer bb) {
@@ -184,37 +174,37 @@ public class SememeChronologyImpl<V extends SememeVersion>
          return new SememeVersionImpl(container, stampSequence, versionSequence);
 
       case COMPONENT_NID:
-         return new ComponentNidSememeImpl((SememeChronologyImpl<ComponentNidSememeImpl>) container,
+         return new ComponentNidSememeImpl((SememeChronologyImpl) container,
                                            stampSequence,
                                            versionSequence,
                                            bb);
 
       case LONG:
-         return new LongSememeImpl((SememeChronologyImpl<LongSememeImpl>) container,
+         return new LongSememeImpl((SememeChronologyImpl) container,
                                    stampSequence,
                                    versionSequence,
                                    bb);
 
       case LOGIC_GRAPH:
-         return new LogicGraphSememeImpl((SememeChronologyImpl<LogicGraphSememeImpl>) container,
+         return new LogicGraphSememeImpl((SememeChronologyImpl) container,
                                          stampSequence,
                                          versionSequence,
                                          bb);
 
       case DYNAMIC:
-         return new DynamicSememeImpl((SememeChronologyImpl<DynamicSememeImpl>) container,
+         return new DynamicSememeImpl((SememeChronologyImpl) container,
                                       stampSequence,
                                       versionSequence,
                                       bb);
 
       case STRING:
-         return new StringSememeImpl((SememeChronology<StringVersion>) container,
+         return new StringSememeImpl((SememeChronologyImpl) container,
                                      stampSequence,
                                      versionSequence,
                                      bb);
 
       case DESCRIPTION:
-         return (new DescriptionSememeImpl((SememeChronology<DescriptionVersion>) container,
+         return (new DescriptionSememeImpl((SememeChronologyImpl) container,
                                            stampSequence,
                                            versionSequence,
                                            bb));
@@ -308,76 +298,44 @@ public class SememeChronologyImpl<V extends SememeVersion>
     * @return the m
     * @throws UnsupportedOperationException the unsupported operation exception
     */
-   protected <M extends V> M createMutableVersionInternal(Class<M> type,
+   protected <M extends MutableSememeVersion> M createMutableVersionInternal(
          int stampSequence,
          short versionSequence)
             throws UnsupportedOperationException {
       switch (getSememeType()) {
       case COMPONENT_NID:
-         if (MutableComponentNidVersion.class.isAssignableFrom(type)) {
-            return (M) new ComponentNidSememeImpl((SememeChronology<ComponentNidVersion>) this,
+            return (M) new ComponentNidSememeImpl((SememeChronology) this,
                   stampSequence,
                   versionSequence);
-         }
-
-         break;
-
       case LONG:
-         if (LongVersion.class.isAssignableFrom(type)) {
-            return (M) new LongSememeImpl((SememeChronologyImpl<LongSememeImpl>) this, stampSequence, versionSequence);
-         }
-
-         break;
+            return (M) new LongSememeImpl((SememeChronologyImpl) this, stampSequence, versionSequence);
 
       case DYNAMIC:
-         if (MutableDynamicVersion.class.isAssignableFrom(type)) {
-            return (M) new DynamicSememeImpl((SememeChronologyImpl<DynamicSememeImpl>) this,
+            return (M) new DynamicSememeImpl((SememeChronologyImpl) this,
                                              stampSequence,
                                              versionSequence);
-         }
-
-         break;
 
       case LOGIC_GRAPH:
-         if (MutableLogicGraphVersion.class.isAssignableFrom(type)) {
-            return (M) new LogicGraphSememeImpl((SememeChronologyImpl<LogicGraphSememeImpl>) this,
+            return (M) new LogicGraphSememeImpl((SememeChronologyImpl) this,
                   stampSequence,
                   versionSequence);
-         }
-
-         break;
 
       case STRING:
-         if (StringVersion.class.isAssignableFrom(type)) {
-            return (M) new StringSememeImpl((SememeChronology<StringVersion>) this,
+            return (M) new StringSememeImpl((SememeChronology) this,
                                             stampSequence,
                                             versionSequence);
-         }
-
-         break;
 
       case MEMBER:
-         if (SememeVersion.class.isAssignableFrom(type)) {
             return (M) new SememeVersionImpl(this, stampSequence, versionSequence);
-         }
-
-         break;
 
       case DESCRIPTION:
-         if (DescriptionVersion.class.isAssignableFrom(type)) {
-            return (M) new DescriptionSememeImpl((SememeChronology<DescriptionVersion>) this,
+            return (M) new DescriptionSememeImpl((SememeChronology) this,
                   stampSequence,
                   versionSequence);
-         }
-
-         break;
 
       default:
          throw new UnsupportedOperationException("Can't handle: " + getSememeType());
       }
-
-      throw new UnsupportedOperationException("Chronicle is of type: " + getSememeType() +
-            " cannot create version of type: " + type.getCanonicalName());
    }
 
    /**
@@ -388,7 +346,7 @@ public class SememeChronologyImpl<V extends SememeVersion>
     * @return the v
     */
    @Override
-   protected V makeVersion(int stampSequence, ByteArrayDataBuffer db) {
+   protected <V extends StampedVersion> V makeVersion(int stampSequence, ByteArrayDataBuffer db) {
       return (V) createSememe(this.sememeTypeToken, this, stampSequence, db.getShort(), db);
    }
 
@@ -422,10 +380,9 @@ public class SememeChronologyImpl<V extends SememeVersion>
     * Gets the additional chronicle fields.
     *
     * @param in the in
-    * @return the additional chronicle fields
     */
    @Override
-   protected void getAdditionalChronicleFields(ByteArrayDataBuffer in) {
+   protected void setAdditionalChronicleFieldsFromBuffer(ByteArrayDataBuffer in) {
       this.sememeTypeToken        = in.getByte();
       this.assemblageSequence     = in.getConceptSequence();
       this.referencedComponentNid = in.getNid();
@@ -457,8 +414,8 @@ public class SememeChronologyImpl<V extends SememeVersion>
     * @return the ochre object type
     */
    @Override
-   public OchreExternalizableObjectType getOchreObjectType() {
-      return OchreExternalizableObjectType.SEMEME;
+   public IsaacExternalizableObjectType getExternalizableObjectType() {
+      return IsaacExternalizableObjectType.SEMEME;
    }
 
    /**

@@ -86,6 +86,7 @@ import sh.isaac.api.component.sememe.version.MutableDescriptionVersion;
 import sh.isaac.api.component.sememe.version.MutableDynamicVersion;
 import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.sememe.version.MutableLongVersion;
+import sh.isaac.api.component.sememe.version.MutableSememeVersion;
 import sh.isaac.api.component.sememe.version.MutableStringVersion;
 import sh.isaac.api.component.sememe.version.StringVersion;
 
@@ -399,21 +400,19 @@ public class WorkflowUpdater {
                   .commit("Reverting concept to how it was prior to workflow");
             } else if (Get.identifierService()
                           .getChronologyTypeForNid(compNid) == ObjectChronologyType.SEMEME) {
-               final SememeChronology<?> semChron = Get.sememeService()
+               final SememeChronology semChron = Get.sememeService()
                                                        .getSememe(compNid);
 
                if (version != null) {
-                  SememeVersion createdVersion = ((SememeChronology) semChron).createMutableVersion(version.getClass(),
-                                                                                                    ((SememeVersion) version).getState(),
+                  MutableSememeVersion createdVersion = semChron.createMutableVersion(((SememeVersion) version).getState(),
                                                                                                     editCoordinate);
 
-                  createdVersion = populateData(createdVersion, (SememeVersion) version);
+                  createdVersion = (MutableSememeVersion) populateData(createdVersion, (SememeVersion) version);
                } else {
                   final List<SememeVersion> list        = ((SememeChronology) semChron).getVersionList();
                   final SememeVersion       lastVersion = list.toArray(new SememeVersion[list.size()])[list.size() - 1];
                   SememeVersion createdVersion =
-                     ((SememeChronology) semChron).createMutableVersion(lastVersion.getClass(),
-                                                                        State.INACTIVE,
+                     ((SememeChronology) semChron).createMutableVersion(State.INACTIVE,
                                                                         editCoordinate);
 
                   createdVersion = populateData(createdVersion, lastVersion);
@@ -446,7 +445,7 @@ public class WorkflowUpdater {
          return newVer;
 
       case COMPONENT_NID:
-         ((MutableComponentNidVersion<?>) newVer).setComponentNid(((ComponentNidVersion<?>) originalVersion).getComponentNid());
+         ((MutableComponentNidVersion) newVer).setComponentNid(((ComponentNidVersion) originalVersion).getComponentNid());
          return newVer;
 
       case DESCRIPTION:
@@ -457,19 +456,16 @@ public class WorkflowUpdater {
          return newVer;
 
       case DYNAMIC:
-         ((MutableDynamicVersion<?>) newVer).setData(((DynamicSememe<?>) originalVersion).getData());
+         ((MutableDynamicVersion) newVer).setData(((DynamicSememe) originalVersion).getData());
          return newVer;
 
       case LONG:
-         ((MutableLongVersion<?>) newVer).setLongValue(((LongVersion<?>) originalVersion).getLongValue());
+         ((MutableLongVersion) newVer).setLongValue(((LongVersion) originalVersion).getLongValue());
          return newVer;
 
       case STRING:
          ((MutableStringVersion) newVer).setString(((StringVersion) originalVersion).getString());
          return newVer;
-
-      case RELATIONSHIP_ADAPTOR:
-         throw new Exception("Cannot handle Relationship adaptors at this time");
 
       /*
        * RelationshipVersionAdaptorImpl origRelVer =

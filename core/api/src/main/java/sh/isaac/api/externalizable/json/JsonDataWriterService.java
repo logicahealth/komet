@@ -64,8 +64,8 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.externalizable.DataWriterService;
-import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.util.TimeFlushBufferedOutputStream;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -211,7 +211,7 @@ public class JsonDataWriterService
     * @param ochreObject the ochre object
     */
    @Override
-   public void put(OchreExternalizable ochreObject) {
+   public void put(IsaacExternalizable ochreObject) {
       try {
          this.pauseBlock.acquireUninterruptibly();
          this.json.write(ochreObject);

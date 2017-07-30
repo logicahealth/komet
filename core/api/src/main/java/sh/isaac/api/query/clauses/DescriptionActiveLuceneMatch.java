@@ -52,7 +52,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.Query;
@@ -102,7 +101,7 @@ public class DescriptionActiveLuceneMatch
 
       getResultsCache().and(incomingComponents);
       incomingComponents.stream().forEach((nid) -> {
-                                    final Optional<? extends Chronology<? extends StampedVersion>> chronology =
+                                    final Optional<? extends Chronology> chronology =
                                        Get.identifiedObjectService()
                                           .getIdentifiedObjectChronology(nid);
 

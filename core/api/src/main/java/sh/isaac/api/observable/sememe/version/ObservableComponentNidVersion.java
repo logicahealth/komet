@@ -42,6 +42,7 @@ package sh.isaac.api.observable.sememe.version;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.IntegerProperty;
+import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -49,10 +50,9 @@ import javafx.beans.property.IntegerProperty;
  * The Interface ObservableComponentNidVersion.
  *
  * @author kec
- * @param <T> the generic type
  */
-public interface ObservableComponentNidVersion<T extends ObservableComponentNidVersion<T>>
-        extends ObservableSememeVersion {
+public interface ObservableComponentNidVersion
+        extends ObservableSememeVersion, ComponentNidVersion {
    /**
     * Component nid property.
     *
@@ -61,12 +61,5 @@ public interface ObservableComponentNidVersion<T extends ObservableComponentNidV
    IntegerProperty componentNidProperty();
 
    //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the component nid.
-    *
-    * @return the component nid
-    */
-   int getComponentNid();
 }
 

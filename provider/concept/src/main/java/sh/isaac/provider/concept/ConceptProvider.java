@@ -621,7 +621,7 @@ public class ConceptProvider
        * @param conceptId the concept id
        * @return the description list
        */
-      private List<SememeChronology<DescriptionVersion>> getDescriptionList(int conceptId) {
+      private List<SememeChronology> getDescriptionList(int conceptId) {
          final int conceptNid = Get.identifierService()
                                    .getConceptNid(conceptId);
 

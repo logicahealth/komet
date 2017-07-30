@@ -195,7 +195,7 @@ public class LanguageCoordinateImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getDescription(
-           List<SememeChronology<DescriptionVersion>> descriptionList,
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return Get.languageCoordinateService()
                 .getSpecifiedDescription(stampCoordinate, descriptionList, this);
@@ -278,7 +278,7 @@ public class LanguageCoordinateImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
-           List<SememeChronology<DescriptionVersion>> descriptionList,
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return Get.languageCoordinateService()
                 .getSpecifiedDescription(stampCoordinate,
@@ -328,7 +328,7 @@ public class LanguageCoordinateImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getPreferredDescription(
-           List<SememeChronology<DescriptionVersion>> descriptionList,
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return Get.languageCoordinateService()
                 .getSpecifiedDescription(stampCoordinate,

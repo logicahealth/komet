@@ -277,8 +277,7 @@ public class ProcessClassificationResults
                             .findFirst()
                             .getAsInt());
             final LatestVersion<LogicGraphVersion> latestStatedDefinitionOptional
-                    = ((SememeChronology<LogicGraphVersion>) rawStatedChronology).getLatestVersion(LogicGraphVersion.class,
-                            this.stampCoordinate);
+                    = ((SememeChronology) rawStatedChronology).getLatestVersion(this.stampCoordinate);
 
             if (latestStatedDefinitionOptional.isPresent()) {
                final LogicalExpressionBuilder inferredBuilder
@@ -341,15 +340,14 @@ public class ProcessClassificationResults
 
                      // check to see if changed from old...
                      final LatestVersion<LogicGraphVersion> latestDefinitionOptional
-                             = inferredChronology.getLatestVersion(LogicGraphVersion.class,
-                                     this.stampCoordinate);
+                             = inferredChronology.getLatestVersion(this.stampCoordinate);
 
                      if (latestDefinitionOptional.isPresent()) {
                         if (!latestDefinitionOptional.get()
                                 .getLogicalExpression()
                                 .equals(inferredExpression)) {
                            final MutableLogicGraphVersion newVersion
-                                   = ((SememeChronology<LogicGraphVersion>) inferredChronology).createMutableVersion(MutableLogicGraphVersion.class,
+                                   = ((SememeChronology) inferredChronology).createMutableVersion(
                                            sh.isaac.api.State.ACTIVE,
                                            EditCoordinates.getClassifierSolorOverlay());
 

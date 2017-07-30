@@ -45,7 +45,7 @@ package sh.isaac.api.externalizable;
  * @author kec
  */
 public class StampAlias
-         implements OchreExternalizable {
+         implements IsaacExternalizable {
    /** The stamp sequence. */
    int stampSequence;
 
@@ -165,8 +165,8 @@ public class StampAlias
     * @return the ochre object type
     */
    @Override
-   public OchreExternalizableObjectType getOchreObjectType() {
-      return OchreExternalizableObjectType.STAMP_ALIAS;
+   public IsaacExternalizableObjectType getExternalizableObjectType() {
+      return IsaacExternalizableObjectType.STAMP_ALIAS;
    }
 
    /**

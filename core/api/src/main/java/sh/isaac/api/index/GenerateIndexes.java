@@ -49,6 +49,7 @@ package sh.isaac.api.index;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -159,8 +160,8 @@ public class GenerateIndexes
          log.info("Sememes to index: " + sememeCount);
          this.componentCount = sememeCount;
 
-         for (final SememeChronology<?> sememe:
-               (Iterable<SememeChronology<? extends SememeVersion>>) Get.sememeService()
+         for (final SememeChronology sememe:
+               (Iterable<SememeChronology>) Get.sememeService()
                      .getParallelSememeStream()::iterator) {
             for (final IndexService i: this.indexers) {
                try {
@@ -170,7 +171,7 @@ public class GenerateIndexes
                      i.index(sememe)
                       .get();
                   }
-               } catch (final Exception e) {
+               } catch (final InterruptedException | ExecutionException e) {
                   throw new RuntimeException(e);
                }
             }

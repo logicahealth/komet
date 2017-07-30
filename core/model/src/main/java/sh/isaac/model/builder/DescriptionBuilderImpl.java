@@ -57,10 +57,7 @@ import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.task.OptionalWaitTask;
-import sh.isaac.model.sememe.SememeChronologyImpl;
-import sh.isaac.model.sememe.version.DescriptionSememeImpl;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
@@ -73,7 +70,7 @@ import sh.isaac.api.component.sememe.version.DescriptionVersion;
  * @param <T> the generic type
  * @param <V> the value type
  */
-public class DescriptionBuilderImpl<T extends SememeChronology<V>, V extends DescriptionVersion>
+public class DescriptionBuilderImpl<T extends SememeChronology, V extends DescriptionVersion>
         extends ComponentBuilder<T>
          implements DescriptionBuilder<T, V> {
    /** The preferred in dialect assemblages. */
@@ -172,7 +169,7 @@ public class DescriptionBuilderImpl<T extends SememeChronology<V>, V extends Des
     */
    @Override
    public T build(int stampSequence,
-                  List<Chronology<? extends StampedVersion>> builtObjects)
+                  List<Chronology> builtObjects)
             throws IllegalStateException {
       if (this.conceptSequence == Integer.MAX_VALUE) {
          this.conceptSequence = Get.identifierService()
@@ -180,7 +177,7 @@ public class DescriptionBuilderImpl<T extends SememeChronology<V>, V extends Des
       }
 
       final SememeBuilderService sememeBuilder = LookupService.getService(SememeBuilderService.class);
-      final SememeBuilder<? extends SememeChronology<DescriptionVersion>> descBuilder =
+      final SememeBuilder<? extends SememeChronology> descBuilder =
          sememeBuilder.getDescriptionSememeBuilder(TermAux.caseSignificanceToConceptSequence(false),
                                                    this.languageForDescription.getConceptSequence(),
                                                    this.descriptionType.getConceptSequence(),
@@ -190,8 +187,8 @@ public class DescriptionBuilderImpl<T extends SememeChronology<V>, V extends Des
 
       descBuilder.setPrimordialUuid(this.getPrimordialUuid());
 
-      final SememeChronology<DescriptionVersion> newDescription =
-         (SememeChronology<DescriptionVersion>) descBuilder.build(stampSequence,
+      final SememeChronology newDescription =
+         (SememeChronology) descBuilder.build(stampSequence,
                                                                          builtObjects);
       final SememeBuilderService sememeBuilderService = LookupService.getService(SememeBuilderService.class);
 
@@ -225,7 +222,7 @@ public class DescriptionBuilderImpl<T extends SememeChronology<V>, V extends Des
    @Override
    public OptionalWaitTask<T> build(EditCoordinate editCoordinate,
                                     ChangeCheckerMode changeCheckerMode,
-                                    List<Chronology<? extends StampedVersion>> builtObjects)
+                                    List<Chronology> builtObjects)
             throws IllegalStateException {
       if (this.conceptSequence == Integer.MAX_VALUE) {
          this.conceptSequence = Get.identifierService()
@@ -234,7 +231,7 @@ public class DescriptionBuilderImpl<T extends SememeChronology<V>, V extends Des
 
       final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
       final SememeBuilderService sememeBuilder = LookupService.getService(SememeBuilderService.class);
-      final SememeBuilder<? extends SememeChronology<? extends DescriptionVersion>> descBuilder =
+      final SememeBuilder<? extends SememeChronology> descBuilder =
          sememeBuilder.getDescriptionSememeBuilder(Get.languageCoordinateService()
                                                       .caseSignificanceToConceptSequence(false),
                                                    this.languageForDescription.getConceptSequence(),
@@ -245,8 +242,8 @@ public class DescriptionBuilderImpl<T extends SememeChronology<V>, V extends Des
 
       descBuilder.setPrimordialUuid(this.getPrimordialUuid());
 
-      final OptionalWaitTask<SememeChronology<DescriptionVersion>> newDescription =
-         (OptionalWaitTask<SememeChronology<DescriptionVersion>>) descBuilder.setState(this.state)
+      final OptionalWaitTask<SememeChronology> newDescription =
+         (OptionalWaitTask<SememeChronology>) descBuilder.setState(this.state)
                                                                                     .build(editCoordinate,
                                                                                           changeCheckerMode,
                                                                                           builtObjects);

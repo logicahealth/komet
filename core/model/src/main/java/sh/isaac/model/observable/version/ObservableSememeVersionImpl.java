@@ -51,9 +51,8 @@ import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
  * The Class ObservableSememeVersionImpl.
  *
  * @author kec
- * @param <V> the value type
  */
-public class ObservableSememeVersionImpl<V extends ObservableSememeVersion>
+public class ObservableSememeVersionImpl
         extends ObservableVersionImpl
          implements ObservableSememeVersion {
    /**
@@ -62,7 +61,7 @@ public class ObservableSememeVersionImpl<V extends ObservableSememeVersion>
     * @param stampedVersion the stamped version
     * @param chronology the chronology
     */
-   public ObservableSememeVersionImpl(SememeVersion stampedVersion, ObservableSememeChronology<V> chronology) {
+   public ObservableSememeVersionImpl(SememeVersion stampedVersion, ObservableSememeChronology chronology) {
       super(stampedVersion, 
               chronology);
    }
@@ -85,8 +84,8 @@ public class ObservableSememeVersionImpl<V extends ObservableSememeVersion>
     * @return the chronology
     */
    @Override
-   public ObservableSememeChronology<V> getChronology() {
-      return (ObservableSememeChronology<V>) this.chronology;
+   public ObservableSememeChronology getChronology() {
+      return (ObservableSememeChronology) this.chronology;
    }
 
    /**

@@ -53,11 +53,11 @@ import java.io.IOException;
 //~--- enums ------------------------------------------------------------------
 
 /**
- * The Enum OchreExternalizableObjectType.
+ * The Enum IsaacExternalizableObjectType.
  *
  * @author kec
  */
-public enum OchreExternalizableObjectType {
+public enum IsaacExternalizableObjectType {
    /**
     * An external representation of a concept. An identifier with status. Descriptions and definitions of concepts
     * are provided as SEMEMEs.
@@ -89,7 +89,7 @@ public enum OchreExternalizableObjectType {
     *
     * @param token the token
     */
-   private OchreExternalizableObjectType(byte token) {
+   private IsaacExternalizableObjectType(byte token) {
       this.token = token;
    }
 
@@ -102,7 +102,7 @@ public enum OchreExternalizableObjectType {
     * @return the ochre externalizable object type
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public static OchreExternalizableObjectType fromDataStream(DataInput input)
+   public static IsaacExternalizableObjectType fromDataStream(DataInput input)
             throws IOException {
       final byte token = input.readByte();
 

@@ -66,9 +66,9 @@ import java.util.stream.StreamSupport;
 import sh.isaac.api.Get;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.OchreExternalizable;
-import sh.isaac.api.externalizable.OchreExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -109,7 +109,7 @@ public class BinaryDataReaderQueueProvider
    /** The parsed data. */
 
    // This buffers from between the time when we deserialize the object, and when we write it back to the DB.
-   private final BlockingQueue<OchreExternalizable> parsedData = new ArrayBlockingQueue<>(50);
+   private final BlockingQueue<IsaacExternalizable> parsedData = new ArrayBlockingQueue<>(50);
 
    /** The data path. */
    Path dataPath;
@@ -207,7 +207,7 @@ public class BinaryDataReaderQueueProvider
    public boolean tryAdvance(Consumer<? super OchreExternalizableUnparsed> action) {
       try {
          final int                           startBytes        = this.input.available();
-         final OchreExternalizableObjectType type = OchreExternalizableObjectType.fromDataStream(this.input);
+         final IsaacExternalizableObjectType type = IsaacExternalizableObjectType.fromDataStream(this.input);
          final byte                          dataFormatVersion = this.input.readByte();
          final int                           recordSize        = this.input.readInt();
          final byte[]                        objectData        = new byte[recordSize];
@@ -275,7 +275,7 @@ public class BinaryDataReaderQueueProvider
     * @see sh.isaac.api.externalizable.BinaryDataReaderQueueService#getQueue()
     */
    @Override
-   public BlockingQueue<OchreExternalizable> getQueue() {
+   public BlockingQueue<IsaacExternalizable> getQueue() {
       if (this.complete.getCount() == this.NOTSTARTED) {
          try {
             this.completeBlock.acquireUninterruptibly();

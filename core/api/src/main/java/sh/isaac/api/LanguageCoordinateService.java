@@ -141,7 +141,7 @@ public interface LanguageCoordinateService {
     * @return the specified description
     */
    LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SememeChronology<DescriptionVersion>> descriptionList,
+         List<SememeChronology> descriptionList,
          LanguageCoordinate languageCoordinate);
 
    /**
@@ -154,7 +154,7 @@ public interface LanguageCoordinateService {
     * @return the specified description
     */
    LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SememeChronology<DescriptionVersion>> descriptionList,
+         List<SememeChronology> descriptionList,
          int typeSequence,
          LanguageCoordinate languageCoordinate);
 

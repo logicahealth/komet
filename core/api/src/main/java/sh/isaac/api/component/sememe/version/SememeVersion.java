@@ -59,6 +59,6 @@ public interface SememeVersion
     *
     * @return the chronology
     */
-   SememeChronology<? extends SememeVersion> getChronology();
+   SememeChronology getChronology();
 }
 

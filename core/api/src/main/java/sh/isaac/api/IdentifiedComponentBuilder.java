@@ -51,7 +51,6 @@ import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.chronicle.Chronology;
 
@@ -105,7 +104,7 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     * @throws IllegalStateException the illegal state exception
     */
    T build(int stampSequence,
-           List<Chronology<? extends StampedVersion>> builtObjects)
+           List<Chronology> builtObjects)
             throws IllegalStateException;
 
    /**
@@ -120,7 +119,7 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     */
    OptionalWaitTask<T> build(EditCoordinate editCoordinate,
                              ChangeCheckerMode changeCheckerMode,
-                             List<Chronology<? extends StampedVersion>> subordinateBuiltObjects)
+                             List<Chronology> subordinateBuiltObjects)
             throws IllegalStateException;
 
    //~--- set methods ---------------------------------------------------------

@@ -45,7 +45,7 @@ package sh.isaac.api.externalizable;
  * so each object is atomic, and no read-resolve or other methods for resolving object identity is required.
  * @author kec
  */
-public interface OchreExternalizable {
+public interface IsaacExternalizable {
    /**
     * The object implements the putExternal method to save its contents
     * by calling the methods of ByteArrayDataBuffer for primitive values.
@@ -63,10 +63,10 @@ public interface OchreExternalizable {
    byte getDataFormatVersion();
 
    /**
-    * Gets the ochre object type.
+    * Gets the externalizable object type.
     *
     * @return the type of the object.
     */
-   OchreExternalizableObjectType getOchreObjectType();
+   IsaacExternalizableObjectType getExternalizableObjectType();
 }
 

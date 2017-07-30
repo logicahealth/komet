@@ -76,8 +76,8 @@ import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableChronology;
-import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.observable.ObservableStampedVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -322,14 +322,15 @@ public class RelativePositionCalculator
    /**
     * On route.
     *
-    * @param v the v
+    * @param <V>
+    * @param version the version
     * @return true, if successful
     */
-   public boolean onRoute(StampedVersion v) {
-      final Segment seg = this.pathSequenceSegmentMap.get(v.getPathSequence());
+   public <V extends StampedVersion> boolean onRoute(V version) {
+      final Segment seg = this.pathSequenceSegmentMap.get(version.getPathSequence());
 
       if (seg != null) {
-         return seg.containsPosition(v.getPathSequence(), v.getModuleSequence(), v.getTime());
+         return seg.containsPosition(version.getPathSequence(), version.getModuleSequence(), version.getTime());
       }
 
       return false;
@@ -420,24 +421,24 @@ public class RelativePositionCalculator
     * @param partsForPosition the parts for position
     * @param part the part
     */
-   private <V extends StampedVersion> void handlePart(HashSet<V> partsForPosition, V part) {
+   private <V extends StampedVersion> void handlePart(HashSet<V> partsForPosition, StampedVersion part) {
       // create a list of values so we don't have any
       // concurrent modification issues with removing/adding
       // items to the partsForPosition.
-      final List<V> partsToCompare = new ArrayList<>(partsForPosition);
+      final List<StampedVersion> partsToCompare = new ArrayList<>(partsForPosition);
 
-      for (final V prevPartToTest: partsToCompare) {
+      for (final StampedVersion prevPartToTest: partsToCompare) {
          switch (fastRelativePosition(part, prevPartToTest, this.coordinate.getStampPrecedence())) {
          case AFTER:
-            partsForPosition.remove(prevPartToTest);
-            partsForPosition.add(part);
+            partsForPosition.remove((V) prevPartToTest);
+            partsForPosition.add((V) part);
             break;
 
          case BEFORE:
             break;
 
          case CONTRADICTION:
-            partsForPosition.add(part);
+            partsForPosition.add((V) part);
             break;
 
          case EQUAL:
@@ -651,13 +652,11 @@ public class RelativePositionCalculator
    /**
     * Gets the latest version.
     *
-    * @param <C> the generic type
     * @param <V> the value type
     * @param chronicle the chronicle
     * @return the latest version
     */
-   public <C extends ObservableChronology<V>,
-           V extends ObservableVersion> LatestVersion<V> getLatestVersion(C chronicle) {
+   public <V extends ObservableStampedVersion> LatestVersion<V> getLatestVersion(ObservableChronology chronicle) {
       final HashSet<V> latestVersionSet = new HashSet<>();
 
       chronicle.getVersionList()
@@ -666,7 +665,7 @@ public class RelativePositionCalculator
                .filter((newVersionToTest) -> (onRoute(newVersionToTest)))
                .forEach((newVersionToTest) -> {
                            if (latestVersionSet.isEmpty()) {
-                              latestVersionSet.add(newVersionToTest);
+                              latestVersionSet.add((V) newVersionToTest);
                            } else {
                               handlePart(latestVersionSet, newVersionToTest);
                            }
@@ -694,7 +693,7 @@ public class RelativePositionCalculator
     * @param chronicle the chronicle
     * @return the latest version
     */
-   public <C extends Chronology<V>,
+   public <C extends Chronology,
            V extends StampedVersion> LatestVersion<V> getLatestVersion(C chronicle) {
       final HashSet<V> latestVersionSet = new HashSet<>();
 
@@ -704,7 +703,7 @@ public class RelativePositionCalculator
                .filter((newVersionToTest) -> (onRoute(newVersionToTest)))
                .forEach((newVersionToTest) -> {
                            if (latestVersionSet.isEmpty()) {
-                              latestVersionSet.add(newVersionToTest);
+                              latestVersionSet.add((V) newVersionToTest);
                            } else {
                               handlePart(latestVersionSet, newVersionToTest);
                            }

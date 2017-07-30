@@ -54,14 +54,17 @@ import javafx.collections.ObservableList;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
-import sh.isaac.api.observable.concept.ObservableConceptVersion;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
+import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
@@ -73,14 +76,12 @@ import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
  */
 public class ObservableConceptChronologyImpl
         extends ObservableChronologyImpl
-        <ObservableConceptVersion, 
-        ConceptChronology>
          implements ObservableConceptChronology {
    /** The concept sequence property. */
    private IntegerProperty conceptSequenceProperty;
 
    /** The description list property. */
-   private ListProperty<ObservableSememeChronology<ObservableDescriptionVersion>> descriptionListProperty;
+   private ListProperty<ObservableSememeChronology> descriptionListProperty;
 
    //~--- constructors --------------------------------------------------------
 
@@ -92,6 +93,10 @@ public class ObservableConceptChronologyImpl
    public ObservableConceptChronologyImpl(ConceptChronology chronicledObjectLocal) {
       super(chronicledObjectLocal);
    }
+   
+   public ConceptChronology getConceptChronology() {
+      return (ConceptChronology) this.chronicledObjectLocal;
+   }
 
    //~--- methods -------------------------------------------------------------
 
@@ -101,16 +106,16 @@ public class ObservableConceptChronologyImpl
     * @return the list property
     */
    @Override
-   public ListProperty<ObservableSememeChronology<ObservableDescriptionVersion>> conceptDescriptionListProperty() {
+   public ListProperty<ObservableSememeChronology> conceptDescriptionListProperty() {
       if (this.descriptionListProperty == null) {
-         final ObservableList<ObservableSememeChronology<ObservableDescriptionVersion>> observableList =
+         final ObservableList<ObservableSememeChronology> observableList =
             FXCollections.observableArrayList();
 
          this.descriptionListProperty =
             new SimpleListProperty<>(this,
                   ObservableFields.DESCRIPTION_LIST_FOR_CONCEPT.toExternalString(),
                   observableList);
-         this.chronicledObjectLocal.getConceptDescriptionList().stream().forEach((conceptDescriptionChronicle) -> {
+         this.getConceptChronology().getConceptDescriptionList().stream().forEach((conceptDescriptionChronicle) -> {
                                                final ObservableSememeChronologyImpl observableConceptDescriptionChronicle =
                                                   new ObservableSememeChronologyImpl(conceptDescriptionChronicle);
 
@@ -146,7 +151,7 @@ public class ObservableConceptChronologyImpl
     */
    @Override
    public boolean containsActiveDescription(String descriptionText, StampCoordinate stampCoordinate) {
-      return this.chronicledObjectLocal.containsDescription(descriptionText, stampCoordinate);
+      return this.getConceptChronology().containsDescription(descriptionText, stampCoordinate);
    }
 
    /**
@@ -157,7 +162,7 @@ public class ObservableConceptChronologyImpl
     */
    @Override
    public boolean containsDescription(String descriptionText) {
-      return this.chronicledObjectLocal.containsDescription(descriptionText);
+      return this.getConceptChronology().containsDescription(descriptionText);
    }
 
    /**
@@ -193,7 +198,7 @@ public class ObservableConceptChronologyImpl
     * @return the concept description list
     */
    @Override
-   public ObservableList<ObservableSememeChronology<ObservableDescriptionVersion>> getConceptDescriptionList() {
+   public ObservableList<ObservableSememeChronology> getConceptDescriptionList() {
       return conceptDescriptionListProperty().get();
    }
 
@@ -208,7 +213,7 @@ public class ObservableConceptChronologyImpl
          return this.conceptSequenceProperty.get();
       }
 
-      return this.chronicledObjectLocal.getConceptSequence();
+      return this.getConceptChronology().getConceptSequence();
    }
 
    /**
@@ -223,7 +228,7 @@ public class ObservableConceptChronologyImpl
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate) {
       final LatestVersion<DescriptionVersion> optionalFsn =
-         this.chronicledObjectLocal.getFullySpecifiedDescription(languageCoordinate,
+         this.getConceptChronology().getFullySpecifiedDescription(languageCoordinate,
                                                                  stampCoordinate);
 
       return getSpecifiedDescription(optionalFsn);
@@ -239,7 +244,7 @@ public class ObservableConceptChronologyImpl
       final ObservableList<ObservableConceptVersionImpl> observableList = FXCollections.observableArrayList();
 
       this.chronicledObjectLocal.getVersionList().stream().forEach((conceptVersion) -> {
-                                            observableList.add(new ObservableConceptVersionImpl(conceptVersion, this));
+                                            observableList.add(new ObservableConceptVersionImpl((ConceptVersion) conceptVersion, this));
                                          });
       return observableList;
    }
@@ -256,7 +261,7 @@ public class ObservableConceptChronologyImpl
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate) {
       final LatestVersion<DescriptionVersion> optionalPreferred =
-         this.chronicledObjectLocal.getPreferredDescription(languageCoordinate,
+         this.getConceptChronology().getPreferredDescription(languageCoordinate,
                                                             stampCoordinate);
 
       return getSpecifiedDescription(optionalPreferred);
@@ -272,24 +277,45 @@ public class ObservableConceptChronologyImpl
            LatestVersion<DescriptionVersion> description) {
       if (description.isPresent()) {
          final int specifiedStampSequence = ((DescriptionVersion) description.get()).getStampSequence();
-         final ObservableSememeChronology<ObservableDescriptionVersion> observableSpecified =
+         final ObservableSememeChronology observableSpecified =
             new ObservableSememeChronologyImpl(((DescriptionVersion) description.get()).getChronology());
 
          
 
          LatestVersion<ObservableDescriptionVersion> latest = new LatestVersion<>(ObservableDescriptionVersion.class);
 
-         for (final ObservableDescriptionVersion descVersion: observableSpecified.getVersionList()) {
-            if (descVersion.getStampSequence() == specifiedStampSequence) {
-               latest.addLatest(descVersion);
-              }
-         }
+         observableSpecified.getVersionList().stream().filter((descVersion) -> (descVersion.getStampSequence() == specifiedStampSequence)).forEachOrdered((descVersion) -> {
+            latest.addLatest((ObservableDescriptionVersion) descVersion);
+         });
 
          return latest;
       }
 
       return new LatestVersion<>(ObservableDescriptionVersion.class);
    }
+
+   @Override
+   public <V extends StampedVersion> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
+      return getConceptChronology().getLatestVersion(coordinate);
+   }
+
+   @Override
+   public boolean isLatestVersionActive(StampCoordinate coordinate) {
+      return getConceptChronology().isLatestVersionActive(coordinate);
+   }
+
+   @Override
+   public void putExternal(ByteArrayDataBuffer out) {
+      getConceptChronology().putExternal(out);
+   }
+
+   @Override
+   public byte getDataFormatVersion() {
+      return getConceptChronology().getDataFormatVersion();
+   }
+
+   @Override
+   public IsaacExternalizableObjectType getExternalizableObjectType() {
+      return getConceptChronology().getExternalizableObjectType();
+   }
 }
-//~--- JDK imports ------------------------------------------------------------
-//~--- JDK imports ------------------------------------------------------------

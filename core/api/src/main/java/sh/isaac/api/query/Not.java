@@ -112,7 +112,7 @@ public class Not
 
       Get.conceptService().getConceptChronologyStream(ConceptSequenceSet.of(incomingComponents)).forEach((ConceptChronology cc) -> {
                      final LatestVersion<ConceptVersion> latestVersion =
-                        cc.getLatestVersion(ConceptVersion.class, getEnclosingQuery().getStampCoordinate());
+                        cc.getLatestVersion(getEnclosingQuery().getStampCoordinate());
 
                      if (latestVersion.isPresent()) {
                         activeSet.add(cc.getNid());

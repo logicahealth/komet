@@ -97,7 +97,7 @@ public interface ManifoldCoordinate
     * constraints.
     */
    default LatestVersion<DescriptionVersion> getDescription(
-           List<SememeChronology<DescriptionVersion>> descriptionList) {
+           List<SememeChronology> descriptionList) {
       return getLanguageCoordinate().getDescription(descriptionList, getStampCoordinate());
    };
    
@@ -112,7 +112,7 @@ public interface ManifoldCoordinate
               getStampCoordinate());
    }
    
-   default LatestVersion<DescriptionVersion> getPreferredDescription(List<SememeChronology<DescriptionVersion>> descriptionList) {
+   default LatestVersion<DescriptionVersion> getPreferredDescription(List<SememeChronology> descriptionList) {
       return getLanguageCoordinate().getPreferredDescription(descriptionList, getStampCoordinate());
    }
 
@@ -154,7 +154,7 @@ public interface ManifoldCoordinate
       return getLanguageCoordinate().getFullySpecifiedDescription(conceptId, getStampCoordinate());
    }
    
-   default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(List<SememeChronology<DescriptionVersion>> descriptionList) {
+   default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(List<SememeChronology> descriptionList) {
       return getLanguageCoordinate().getFullySpecifiedDescription(descriptionList, getStampCoordinate());
    }
 

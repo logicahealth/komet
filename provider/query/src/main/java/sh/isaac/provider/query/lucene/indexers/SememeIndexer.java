@@ -66,7 +66,6 @@ import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.PointRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
@@ -317,8 +316,8 @@ public class SememeIndexer
     * @param doc the doc
     */
    @Override
-   protected void addFields(Chronology<?> chronicle, Document doc) {
-      final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
+   protected void addFields(Chronology chronicle, Document doc) {
+      final SememeChronology sememeChronology = (SememeChronology) chronicle;
 
       doc.add(new TextField(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE,
                             sememeChronology.getAssemblageSequence() + "",
@@ -326,7 +325,7 @@ public class SememeIndexer
 
       for (final Object sv: sememeChronology.getVersionList()) {
          if (sv instanceof DynamicSememe) {
-            final DynamicSememe<?> dsv     = (DynamicSememe<?>) sv;
+            final DynamicSememe dsv     = (DynamicSememe) sv;
             final Integer[]        columns = this.lric.whatColumnsToIndex(dsv.getAssemblageSequence());
 
             if (columns != null) {
@@ -351,12 +350,12 @@ public class SememeIndexer
             handleType(doc, new DynamicSememeStringImpl(ssv.getString()), -1);
             incrementIndexedItemCount("Sememe String");
          } else if (sv instanceof LongVersion) {
-            final LongVersion<?> lsv = (LongVersion<?>) sv;
+            final LongVersion lsv = (LongVersion) sv;
 
             handleType(doc, new DynamicSememeLongImpl(lsv.getLongValue()), -1);
             incrementIndexedItemCount("Sememe Long");
          } else if (sv instanceof ComponentNidVersion) {
-            final ComponentNidVersion<?> csv = (ComponentNidVersion<?>) sv;
+            final ComponentNidVersion csv = (ComponentNidVersion) sv;
 
             handleType(doc, new DynamicSememeNidImpl(csv.getComponentNid()), -1);
             incrementIndexedItemCount("Sememe Component Nid");
@@ -400,9 +399,9 @@ public class SememeIndexer
     * @return true, if successful
     */
    @Override
-   protected boolean indexChronicle(Chronology<?> chronicle) {
-      if (chronicle instanceof SememeChronology<?>) {
-         final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
+   protected boolean indexChronicle(Chronology chronicle) {
+      if (chronicle instanceof SememeChronology) {
+         final SememeChronology sememeChronology = (SememeChronology) chronicle;
 
          if ((sememeChronology.getSememeType() == SememeType.DYNAMIC) ||
                (sememeChronology.getSememeType() == SememeType.STRING) ||
@@ -664,8 +663,8 @@ public class SememeIndexer
          }
 
          incrementIndexedItemCount("Dynamic Sememe UUID");
-      } else if (dataCol instanceof DynamicSememeArray<?>) {
-         for (final DynamicSememeData nestedData: ((DynamicSememeArray<?>) dataCol).getDataArray()) {
+      } else if (dataCol instanceof DynamicSememeArray) {
+         for (final DynamicSememeData nestedData: ((DynamicSememeArray) dataCol).getDataArray()) {
             handleType(doc, nestedData, colNumber);
          }
       } else {

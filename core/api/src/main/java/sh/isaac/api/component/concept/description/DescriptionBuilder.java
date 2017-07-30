@@ -55,7 +55,7 @@ import sh.isaac.api.chronicle.Chronology;
  * @param <T> the generic type
  * @param <V> the value type
  */
-public interface DescriptionBuilder<T extends Chronology<?>, V extends StampedVersion>
+public interface DescriptionBuilder<T extends Chronology, V extends StampedVersion>
         extends IdentifiedComponentBuilder<T> {
    /**
     * Adds the acceptable in dialect assemblage.

@@ -60,10 +60,10 @@ import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.dag.Graph;
-import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -71,18 +71,17 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
  * The Interface Chronology.
  *
  * @author kec
- * @param <V> the Version type this chronicled object contains.
  */
-public interface Chronology<V extends StampedVersion>
-        extends OchreExternalizable, CommittableComponent {
+public interface Chronology
+        extends IsaacExternalizable, CommittableComponent {
    /**
     * Gets the latest version.
     *
-    * @param type the type
+    * @param <V>
     * @param coordinate the coordinate
     * @return the latest version
     */
-   LatestVersion<V> getLatestVersion(Class<V> type, StampCoordinate coordinate);
+   <V extends StampedVersion> LatestVersion<V> getLatestVersion(StampCoordinate coordinate);
 
    /**
     * Determine if the latest version is active, on a given stamp coordinate.  This method ignores the
@@ -97,40 +96,44 @@ public interface Chronology<V extends StampedVersion>
    /**
     * Gets the sememe list.
     *
-    * @return a list of sememes, where this object is the referenced component.
+    * @param <V>
+    * @return a list of SememeChronology objects, where this object is the referenced component.
     */
-   List<? extends SememeChronology<? extends SememeVersion>> getSememeList();
+   <V extends SememeChronology> List<V> getSememeList();
 
    /**
     * Gets the sememe list from assemblage.
     *
+    * @param <V>
     * @param assemblageSequence the assemblage sequence
     * @return the sememe list from assemblage
     */
-   List<? extends SememeChronology<? extends SememeVersion>> getSememeListFromAssemblage(int assemblageSequence);
+   <V extends SememeChronology> List<V> getSememeListFromAssemblage(int assemblageSequence);
 
    /**
     * Gets the sememe list from assemblage of type.
     *
-    * @param <SV> the generic type
+    * @param <V>
     * @param assemblageSequence the assemblage sequence
     * @param type the type
     * @return the sememe list from assemblage of type
     */
-   <SV extends SememeVersion> List<? extends SememeChronology<SV>> getSememeListFromAssemblageOfType(
+   <V extends SememeChronology> List<V> getSememeListFromAssemblageOfType(
            int assemblageSequence,
-           Class<SV> type);
+           Class<? extends SememeVersion> type);
 
    /**
     * Gets the unwritten version list.
     *
+    * @param <V>
     * @return a list of all unwritten versions of this object chronology, with no order guarantee.
     */
-   List<V> getUnwrittenVersionList();
+   <V extends StampedVersion> List<V> getUnwrittenVersionList();
 
    /**
     * Gets the version graph list.
     *
+    * @param <V>
     * @return Get a graph representation of the versions of this object chronology, where the root of the
     * graph is the original version of this component on a path, and the children are in sequential order, taking path
     * precedence into account. When a component version may have subsequent changes on more than one path,
@@ -139,16 +142,17 @@ public interface Chronology<V extends StampedVersion>
     * A version may be included in more than one graph if disconnected original versions are subsequently
     * merged onto commonly visible downstream paths.
     */
-   default List<Graph<V>> getVersionGraphList() {
+   default <V extends StampedVersion> List<Graph<V>> getVersionGraphList() {
       throw new UnsupportedOperationException();
    }
 
    /**
     * Gets the version list.
     *
+    * @param <V>
     * @return a list of all versions of this object chronology, with no order guarantee. .
     */
-   List<V> getVersionList();
+   <V extends StampedVersion> List<V> getVersionList();
 
    /**
     * Gets the version stamp sequences.
@@ -160,14 +164,15 @@ public interface Chronology<V extends StampedVersion>
    /**
     * Gets the visible ordered version list.
     *
+    * @param <V>
     * @param stampCoordinate used to determine visibility and order of versions
     * @return a list of all visible versions of this object chronology, sorted in
     * ascending order (oldest version first, newest version last).
     */
-   default List<V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
+   default <V extends StampedVersion> List<V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
       final RelativePositionCalculator calc              = RelativePositionCalculator.getCalculator(stampCoordinate);
-      final SortedSet<V>               sortedLogicGraphs = new TreeSet<>((V graph1,
-                                                                          V graph2) -> {
+      final SortedSet<V>               sortedLogicGraphs = new TreeSet<>((StampedVersion graph1,
+                                                                          StampedVersion graph2) -> {
                final RelativePosition relativePosition = calc.fastRelativePosition(graph1,
                                                                                    graph2,
                                                                                    stampCoordinate.getStampPrecedence());

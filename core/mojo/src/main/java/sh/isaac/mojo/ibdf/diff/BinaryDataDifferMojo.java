@@ -57,9 +57,9 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.externalizable.BinaryDataDifferService;
 import sh.isaac.api.externalizable.BinaryDataDifferService.ChangeType;
-import sh.isaac.api.externalizable.OchreExternalizable;
-import sh.isaac.api.externalizable.OchreExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
 import sh.isaac.mojo.external.QuasiMojo;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -159,11 +159,11 @@ public class BinaryDataDifferMojo
                                this.importDate);
 
       try {
-         final Map<OchreExternalizableObjectType, Set<OchreExternalizable>> oldContentMap =
+         final Map<IsaacExternalizableObjectType, Set<IsaacExternalizable>> oldContentMap =
             differService.processVersion(this.oldVersionFile);
-         final Map<OchreExternalizableObjectType, Set<OchreExternalizable>> newContentMap =
+         final Map<IsaacExternalizableObjectType, Set<IsaacExternalizable>> newContentMap =
             differService.processVersion(this.newVersionFile);
-         final Map<ChangeType, List<OchreExternalizable>> changedComponents =
+         final Map<ChangeType, List<IsaacExternalizable>> changedComponents =
             differService.identifyVersionChanges(oldContentMap,
                                                  newContentMap);
 

@@ -42,12 +42,12 @@ package sh.isaac.provider.ibdf;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.OchreExternalizable;
-import sh.isaac.api.externalizable.OchreExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -61,7 +61,7 @@ public class OchreExternalizableUnparsed {
    private final ByteArrayDataBuffer data;
 
    /** The type. */
-   OchreExternalizableObjectType type;
+   IsaacExternalizableObjectType type;
 
    //~--- constructors --------------------------------------------------------
 
@@ -71,7 +71,7 @@ public class OchreExternalizableUnparsed {
     * @param type the type
     * @param data the data
     */
-   public OchreExternalizableUnparsed(OchreExternalizableObjectType type, ByteArrayDataBuffer data) {
+   public OchreExternalizableUnparsed(IsaacExternalizableObjectType type, ByteArrayDataBuffer data) {
       this.data = data;
       this.type = type;
    }
@@ -83,7 +83,7 @@ public class OchreExternalizableUnparsed {
     *
     * @return the ochre externalizable
     */
-   public OchreExternalizable parse() {
+   public IsaacExternalizable parse() {
       switch (this.type) {
       case CONCEPT:
          return ConceptChronologyImpl.make(this.data);

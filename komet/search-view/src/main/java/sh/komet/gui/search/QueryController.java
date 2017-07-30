@@ -619,7 +619,8 @@ public class QueryController
                  .addListener(
                      (obs, oldSelection, newSelection) -> {
                         if (newSelection != null) {
-                           manifold.setFocusedObject(Get.conceptService().getConcept(newSelection.getReferencedComponentNid()));
+                           manifold.setFocusedConceptChronology(
+                                   Get.conceptService().getConcept(newSelection.getReferencedComponentNid()));
                         }
                      });
    }

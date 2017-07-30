@@ -136,7 +136,7 @@ public class UpdateTaxonomyAfterCommitTask
                               if (this.commitRecord.getSememesInCommit()
                                     .contains(sememeSequence)) {
                                  this.updateMessage("Updating taxonomy for: " + sememeSequence);
-                                 this.taxonomyService.updateTaxonomy((SememeChronology<LogicGraphVersion>) Get.sememeService()
+                                 this.taxonomyService.updateTaxonomy((SememeChronology) Get.sememeService()
                                            .getSememe(sememeSequence));
                                  this.sememeSequencesForUnhandledChanges.remove(sememeSequence);
                               }
