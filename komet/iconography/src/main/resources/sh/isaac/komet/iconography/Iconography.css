@@ -263,3 +263,38 @@ limitations under the License.
    -glyph-size: 16pt;
    -icons-color: #0B5FFF;
 }
+
+
+  
+  .pin-slider-open{
+   -glyph-name: "PIN";
+   -glyph-size: 12pt;
+   -icons-color: #FFFFFF;
+}
+  .close_slider{
+   -glyph-name: "HIGHLIGHT_OFF";
+   -glyph-size: 16pt;
+   -icons-color: #FFFFFF;
+}
+  
+  .edit-pencil{
+   -glyph-name: "LEAD_PENCIL";
+   -glyph-size: 16pt;
+   -icons-color: #4CB709;
+}
+  .look-eye{
+   -glyph-name: "EYE";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+  .look-eye-2{
+   -glyph-name: "EYE";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+  
+  .drag-drop{
+   -glyph-name: "ARROWS";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}

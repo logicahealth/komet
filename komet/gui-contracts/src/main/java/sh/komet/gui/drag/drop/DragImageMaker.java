@@ -43,7 +43,7 @@ public class DragImageMaker implements DraggableWithImage {
 
       dragOffset = 0;
 
-      // The height difference and widh difference are to account for possible 
+      // The height difference and width difference are to account for possible 
       // changes in size of an object secondary to a hover (which might cause a 
       // -fx-effect:  dropshadow... or similar, whicn will create a diference in the 
       // tile pane height, but not cause a change in getLayoutBounds()...
@@ -61,7 +61,7 @@ public class DragImageMaker implements DraggableWithImage {
 
       dragOffset = node.getBoundsInParent()
               .getMinX() + widthAdjustment;
-      double width = node.getLayoutBounds().getWidth() - dragOffset;
+      double width = node.getLayoutBounds().getWidth();// - dragOffset;
       double height = node.getLayoutBounds().getHeight();
 
       try {
@@ -69,7 +69,7 @@ public class DragImageMaker implements DraggableWithImage {
       } catch (NonInvertibleTransformException ex) {
          throw new RuntimeException(ex);
       }
-      snapshotParameters.setViewport(new Rectangle2D(dragOffset - 2, 0, width, height));
+      snapshotParameters.setViewport(new Rectangle2D(0, 0, width, height));
       return node.snapshot(snapshotParameters, null);
    }
 

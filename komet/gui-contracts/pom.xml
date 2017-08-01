@@ -10,7 +10,7 @@
    <artifactId>gui-contracts</artifactId>
    <packaging>jar</packaging>
 
-   <name>ISAAC’s KOMET: GUI plugin contracts</name>
+   <name>ISAAC’s KOMET: GUI contracts &amp; capabilities</name>
    <description>
       Contracts for ISAAC's KOMET plugins.
    </description>

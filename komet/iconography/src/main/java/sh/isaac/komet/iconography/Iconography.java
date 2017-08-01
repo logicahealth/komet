@@ -18,13 +18,17 @@ package sh.isaac.komet.iconography;
 
 import de.jensd.fx.glyphs.emojione.EmojiOneView;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
+import de.jensd.fx.glyphs.icons525.Icons525View;
 import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
 import de.jensd.fx.glyphs.materialicons.MaterialIconView;
+import de.jensd.fx.glyphs.octicons.OctIconView;
 import javafx.scene.Node;
 import static sh.isaac.komet.iconography.Iconography.IconSource.EMOJI_ONE;
 import static sh.isaac.komet.iconography.Iconography.IconSource.FONT_AWSOME;
+import static sh.isaac.komet.iconography.Iconography.IconSource.ICONS_525;
 import static sh.isaac.komet.iconography.Iconography.IconSource.MATERIAL_DESIGNS_ICON;
 import static sh.isaac.komet.iconography.Iconography.IconSource.MATERIAL_DESIGNS_WEBFONT;
+import static sh.isaac.komet.iconography.Iconography.IconSource.OCT_ICON;
 import static sh.isaac.komet.iconography.Iconography.IconSource.SVG;
 
 /**
@@ -59,7 +63,18 @@ public enum Iconography {
    
   TREE_ASPECT_RATIO_LAYOUT(MATERIAL_DESIGNS_WEBFONT, "tree-aspect-ratio-layout"),
   CLASSIC_TREE_LAYOUT(MATERIAL_DESIGNS_WEBFONT, "classic-tree-layout"),
-  HIERARCHICAL_LAYOUT(MATERIAL_DESIGNS_WEBFONT, "hierarchical-layout")
+  HIERARCHICAL_LAYOUT(MATERIAL_DESIGNS_WEBFONT, "hierarchical-layout"),
+  
+  PIN(OCT_ICON, "pin-slider-open"),
+  PINNED_CLOSE(MATERIAL_DESIGNS_ICON, "close_slider"),
+
+  
+  
+  EDIT_PENCIL(MATERIAL_DESIGNS_WEBFONT, "edit-pencil"),
+  LOOK_EYE(ICONS_525, "look-eye"),
+  LOOK_EYE2(FONT_AWSOME, "look-eye-2"),
+  
+  DRAG_DROP_ICON(FONT_AWSOME, "drag-drop"),
    ;
 
    String cssClass;
@@ -82,6 +97,10 @@ public enum Iconography {
             return new MaterialIconView().setStyleClass(cssClass);
          case EMOJI_ONE:
             return new EmojiOneView().setStyleClass(cssClass);
+         case ICONS_525:
+            return new Icons525View().setStyleClass(cssClass);
+         case OCT_ICON:
+            return new OctIconView().setStyleClass(cssClass);
          default:
             throw new UnsupportedOperationException("Can't handle: " + source);
       }
@@ -89,7 +108,8 @@ public enum Iconography {
 
 
    enum IconSource {
-      MATERIAL_DESIGNS_WEBFONT, MATERIAL_DESIGNS_ICON, FONT_AWSOME, SVG, EMOJI_ONE
+      MATERIAL_DESIGNS_WEBFONT, MATERIAL_DESIGNS_ICON, FONT_AWSOME, SVG, EMOJI_ONE, 
+      ICONS_525, OCT_ICON,
    };
    
    public static String getStyleSheetStringUrl() {
