@@ -42,7 +42,6 @@ package sh.isaac.api.logic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
