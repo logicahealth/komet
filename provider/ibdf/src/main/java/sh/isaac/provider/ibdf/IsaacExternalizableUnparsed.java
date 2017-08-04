@@ -48,40 +48,54 @@ import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.externalizable.StampUniversal;
+import sh.isaac.api.identity.IdentifiedObject;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * {@link OchreExternalizableUnparsed}.
+ * {@link IsaacExternalizableUnparsed}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public class OchreExternalizableUnparsed {
-   /** The data. */
+public class IsaacExternalizableUnparsed {
+   /** The data for the unparsed object. */
    private final ByteArrayDataBuffer data;
 
-   /** The type. */
+   /** The type of the object. */
    IsaacExternalizableObjectType type;
 
    //~--- constructors --------------------------------------------------------
+   public IsaacExternalizableUnparsed(IsaacExternalizable externalizable) {
+      this.type = externalizable.getExternalizableObjectType();
+      this.data = new ByteArrayDataBuffer();
+      this.type.writeToByteArrayDataBuffer(data);
+      externalizable.putExternal(this.data);
+      this.data.trimToSize();
+      this.data.setPosition(1);
+   }
 
    /**
-    * Instantiates a new ochre externalizable unparsed.
+    * Instantiates a new isaac externalizable unparsed.
     *
     * @param type the type
     * @param data the data
     */
-   public OchreExternalizableUnparsed(IsaacExternalizableObjectType type, ByteArrayDataBuffer data) {
+   public IsaacExternalizableUnparsed(IsaacExternalizableObjectType type, ByteArrayDataBuffer data) {
       this.data = data;
       this.type = type;
    }
 
+   public IsaacExternalizableUnparsed(ByteArrayDataBuffer data) {
+      this.data = data;
+      this.type = IsaacExternalizableObjectType.fromByteArrayDataBuffer(data);
+   }
    //~--- methods -------------------------------------------------------------
 
    /**
-    * Parses the.
-    *
-    * @return the ochre externalizable
+    * Parses the IsaacExternalizable.
+    * 
+    * @return the Isaac externalizable object
     */
    public IsaacExternalizable parse() {
       switch (this.type) {
@@ -96,10 +110,17 @@ public class OchreExternalizableUnparsed {
 
       case STAMP_COMMENT:
          return new StampComment(this.data);
+         
+      case STAMP:
+         return new StampUniversal(data);
 
       default:
          throw new UnsupportedOperationException("Can't handle: " + this.type);
       }
+   }
+   
+   public byte[] getBytes() {
+      return this.data.getData();
    }
 }
 

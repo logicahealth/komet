@@ -46,19 +46,18 @@ import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
 
 import sh.isaac.api.State;
-import sh.isaac.api.chronicle.MutableStampedVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.identity.StampedVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
 /**
- * The Interface ObservableStampedVersion.
+ * The Interface ObservableVersion.
  *
  * @author kec
  */
-public interface ObservableStampedVersion
-        extends MutableStampedVersion {
+public interface ObservableVersion
+        extends Version {
    /**
     * Author sequence property.
     *
@@ -115,6 +114,7 @@ public interface ObservableStampedVersion
     *
     * @return the chronology
     */
+   @Override
    ObservableChronology getChronology();
 }
 

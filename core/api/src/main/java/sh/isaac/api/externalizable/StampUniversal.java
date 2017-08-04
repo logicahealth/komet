@@ -56,6 +56,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.State;
 import sh.isaac.api.commit.StampService;
+import sh.isaac.api.identity.StampedVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -64,7 +65,7 @@ import sh.isaac.api.commit.StampService;
  *
  * @author kec
  */
-public class StampUniversal {
+public class StampUniversal implements IsaacExternalizable {
    /** The status. */
    @XmlAttribute
    public State status;
@@ -98,6 +99,15 @@ public class StampUniversal {
       this.authorUuid = new UUID(in.getLong(), in.getLong());
       this.moduleUuid = new UUID(in.getLong(), in.getLong());
       this.pathUuid   = new UUID(in.getLong(), in.getLong());
+   }
+   
+   /**
+    * Instantiates a new stamp universal.
+    *
+    * @param version the version to create a stamp for
+    */
+   public StampUniversal(StampedVersion version) {
+      this(version.getStampSequence());
    }
 
    /**
@@ -218,6 +228,21 @@ public class StampUniversal {
     */
    public long getTime() {
       return this.time;
+   }
+
+   @Override
+   public void putExternal(ByteArrayDataBuffer out) {
+      this.writeExternal(out);
+   }
+
+   @Override
+   public byte getDataFormatVersion() {
+      return 0;
+   }
+
+   @Override
+   public IsaacExternalizableObjectType getExternalizableObjectType() {
+      return IsaacExternalizableObjectType.STAMP;
    }
 }
 

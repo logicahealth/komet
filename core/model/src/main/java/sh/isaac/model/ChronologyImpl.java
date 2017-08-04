@@ -65,6 +65,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.sememe.SememeChronology;
@@ -146,13 +147,13 @@ public abstract class ChronologyImpl
     * Data that has not yet been persisted. This data will need to be merged
     * with the written data when the chronicle is next serialized.
     */
-   private ConcurrentSkipListMap<Integer, StampedVersion> unwrittenData;
+   private ConcurrentSkipListMap<Integer, Version> unwrittenData;
 
    /**
     * Version data is stored in a soft reference after lazy instantiation, to
     * minimize unnecessary memory utilization.
     */
-   private SoftReference<ArrayList<? extends StampedVersion>> versionListReference;
+   private SoftReference<ArrayList<? extends Version>> versionListReference;
 
    //~--- constructors --------------------------------------------------------
 
@@ -216,7 +217,7 @@ public abstract class ChronologyImpl
          return false;
       }
 
-      final List<StampedVersion> versionList = (List<StampedVersion>) getVersionList();
+      final List<Version> versionList = (List<Version>) getVersionList();
 
       if (versionList.size() != that.getVersionList().size()) {
          return false;
@@ -373,7 +374,7 @@ public abstract class ChronologyImpl
     * @param <V>
     * @param version the version to add
     */
-   protected <V extends StampedVersion> void addVersion(V version) {
+   protected <V extends Version> void addVersion(V version) {
       if (this.unwrittenData == null) {
          final long lockStamp = getLock(this.nid).writeLock();
 
@@ -815,7 +816,7 @@ public abstract class ChronologyImpl
     * @return the latest version
     */
    @Override
-   public <V extends StampedVersion> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
+   public <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
       final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
 
       if (this.versionListReference != null) {
@@ -940,7 +941,7 @@ public abstract class ChronologyImpl
     * @return a list of all unwritten versions contained in this chronicle.
     */
    @Override
-   public <V extends StampedVersion> List<V> getUnwrittenVersionList() {
+   public <V extends Version> List<V> getUnwrittenVersionList() {
       final ArrayList<V> results = new ArrayList<>();
 
       if (this.unwrittenData != null) {
@@ -1025,7 +1026,7 @@ public abstract class ChronologyImpl
     * @return the version graph list
     */
    @Override
-   public <V extends StampedVersion> List<Graph<V>> getVersionGraphList() {
+   public <V extends Version> List<Graph<V>> getVersionGraphList() {
       final HashMap<StampPath, TreeSet<V>> versionMap = new HashMap<>();
 
       getVersionList().<V>forEach(
@@ -1085,7 +1086,7 @@ public abstract class ChronologyImpl
     * @return a list of all versions contained in this chronicle.
     */
    @Override
-   public <V extends StampedVersion> List<V> getVersionList() {
+   public <V extends Version> List<V> getVersionList() {
       ArrayList<V> results = null;
 
       if (this.versionListReference != null) {
@@ -1184,7 +1185,7 @@ public abstract class ChronologyImpl
     * @param <V>
     * @param versions the new versions
     */
-   public <V extends StampedVersion> void setVersions(Collection<V> versions) {
+   public <V extends Version> void setVersions(Collection<V> versions) {
       if (this.unwrittenData != null) {
          this.unwrittenData.clear();
       }

@@ -14,20 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.chronicle;
+package sh.isaac.api;
 
-import sh.isaac.api.commit.IdentifiedStampedVersion;
+import java.nio.ByteBuffer;
+import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.identity.IdentifiedObject;
 
 /**
  *
  * @author kec
  */
-public interface Version extends MutableStampedVersion, IdentifiedStampedVersion {
-  /**
-    * Gets the chronology.
-    *
-    * @return the chronology
-    */
-   Chronology getChronology();
-
+@Contract
+public interface SerializationService {
+   ByteBuffer toBytes(IdentifiedObject object);
+   IdentifiedObject toIdentifiedObject(ByteBuffer bytes);
+   
 }

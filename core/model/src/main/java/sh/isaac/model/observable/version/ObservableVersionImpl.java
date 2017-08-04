@@ -62,7 +62,7 @@ import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareLongProperty;
 import sh.isaac.model.observable.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.api.observable.ObservableStampedVersion;
+import sh.isaac.api.observable.ObservableVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -72,7 +72,7 @@ import sh.isaac.api.observable.ObservableStampedVersion;
  * @author kec
  */
 public class ObservableVersionImpl
-         implements ObservableStampedVersion, CommittableComponent {
+         implements ObservableVersion, CommittableComponent {
    /** The state property. */
    ObjectProperty<State> stateProperty;
 

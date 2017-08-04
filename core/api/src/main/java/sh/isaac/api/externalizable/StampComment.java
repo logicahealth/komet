@@ -124,7 +124,7 @@ public class StampComment
     * @return the data format version
     */
    @Override
-   public byte getDataFormatVersion() {
+   public final byte getDataFormatVersion() {
       return 0;
    }
 

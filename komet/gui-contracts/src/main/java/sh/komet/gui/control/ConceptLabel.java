@@ -41,6 +41,8 @@ package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.function.Consumer;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -48,11 +50,11 @@ import java.util.function.Consumer;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 
-import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
@@ -67,6 +69,7 @@ import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 import sh.komet.gui.contract.Manifold;
 import sh.komet.gui.drag.drop.DragImageMaker;
+import sh.komet.gui.drag.drop.IsaacClipboard;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -126,8 +129,19 @@ public class ConceptLabel
 
    private void handleDragEntered(DragEvent event) {
       System.out.println("Dragging entered: " + event );
-      BackgroundFill fill = new BackgroundFill(Color.AQUA, CornerRadii.EMPTY, Insets.EMPTY);
+      
       this.originalBackground = this.getBackground();
+
+      Color backgroundColor;
+      Set<DataFormat> contentTypes = event.getDragboard().getContentTypes();
+      if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.CONCEPT_TYPES)) {
+         backgroundColor = Color.AQUA;
+      } else if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.DESCRIPTION_TYPES)) {
+         backgroundColor = Color.OLIVEDRAB;
+      } else {
+         backgroundColor = Color.RED;
+      }
+      BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
       this.setBackground(new Background(fill));
    }
 
@@ -147,9 +161,7 @@ public class ConceptLabel
    }
 
    private void handleDragOver(DragEvent event) {
-      System.out.println("Dragging over: " + event );
-      BackgroundFill fill = new BackgroundFill(Color.ORANGE, CornerRadii.EMPTY, Insets.EMPTY);
-      this.setBackground(new Background(fill));
+      //System.out.println("Dragging over: " + event );
    }
 
    //~--- set methods ---------------------------------------------------------

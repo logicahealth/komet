@@ -81,7 +81,7 @@ public interface Chronology
     * @param coordinate the coordinate
     * @return the latest version
     */
-   <V extends StampedVersion> LatestVersion<V> getLatestVersion(StampCoordinate coordinate);
+   <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate);
 
    /**
     * Determine if the latest version is active, on a given stamp coordinate.  This method ignores the
@@ -128,7 +128,7 @@ public interface Chronology
     * @param <V>
     * @return a list of all unwritten versions of this object chronology, with no order guarantee.
     */
-   <V extends StampedVersion> List<V> getUnwrittenVersionList();
+   <V extends Version> List<V> getUnwrittenVersionList();
 
    /**
     * Gets the version graph list.
@@ -142,7 +142,7 @@ public interface Chronology
     * A version may be included in more than one graph if disconnected original versions are subsequently
     * merged onto commonly visible downstream paths.
     */
-   default <V extends StampedVersion> List<Graph<V>> getVersionGraphList() {
+   default <V extends Version> List<Graph<V>> getVersionGraphList() {
       throw new UnsupportedOperationException();
    }
 
@@ -152,7 +152,7 @@ public interface Chronology
     * @param <V>
     * @return a list of all versions of this object chronology, with no order guarantee. .
     */
-   <V extends StampedVersion> List<V> getVersionList();
+   <V extends Version> List<V> getVersionList();
 
    /**
     * Gets the version stamp sequences.

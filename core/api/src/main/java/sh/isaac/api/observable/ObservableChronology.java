@@ -114,7 +114,7 @@ public interface ObservableChronology
     *
     * @return the list property<? extends v>
     */
-   ListProperty<ObservableStampedVersion> versionListProperty();
+   ListProperty<ObservableVersion> versionListProperty();
 
    //~--- get methods ---------------------------------------------------------
 
@@ -125,7 +125,7 @@ public interface ObservableChronology
     * @param coordinate the coordinate
     * @return the latest version
     */
-   LatestVersion<? extends ObservableStampedVersion> getLatestVersion(Class<? extends StampedVersion> type,
+   LatestVersion<? extends ObservableVersion> getLatestVersion(Class<? extends StampedVersion> type,
                                                             StampCoordinate coordinate);
 
 }

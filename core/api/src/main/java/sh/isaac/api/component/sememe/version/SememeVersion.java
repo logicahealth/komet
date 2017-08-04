@@ -59,6 +59,7 @@ public interface SememeVersion
     *
     * @return the chronology
     */
+   @Override
    SememeChronology getChronology();
 }
 

@@ -48,6 +48,7 @@ import javafx.collections.ObservableList;
 
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.SememeVersion;
@@ -61,8 +62,8 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
 import sh.isaac.api.identity.StampedVersion;
-import sh.isaac.api.observable.ObservableStampedVersion;
 import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
+import sh.isaac.api.observable.ObservableVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -209,7 +210,7 @@ public class ObservableSememeChronologyImpl
     * @return the observable version list
     */
    @Override
-   protected <OV extends ObservableStampedVersion> ObservableList<OV> getObservableVersionList() {
+   protected <OV extends ObservableVersion> ObservableList<OV> getObservableVersionList() {
       final ObservableList<OV> observableList = FXCollections.observableArrayList();
 
       this.chronicledObjectLocal.getVersionList().stream().forEach((sememeVersion) -> {
@@ -274,7 +275,7 @@ public class ObservableSememeChronologyImpl
    }
 
    @Override
-   public <V extends StampedVersion> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
+   public <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
       return getSememeChronology().getLatestVersion(coordinate);
    }
 

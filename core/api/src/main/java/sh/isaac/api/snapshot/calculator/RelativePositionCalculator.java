@@ -77,7 +77,7 @@ import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.observable.ObservableStampedVersion;
+import sh.isaac.api.observable.ObservableVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -656,7 +656,7 @@ public class RelativePositionCalculator
     * @param chronicle the chronicle
     * @return the latest version
     */
-   public <V extends ObservableStampedVersion> LatestVersion<V> getLatestVersion(ObservableChronology chronicle) {
+   public <V extends ObservableVersion> LatestVersion<V> getLatestVersion(ObservableChronology chronicle) {
       final HashSet<V> latestVersionSet = new HashSet<>();
 
       chronicle.getVersionList()

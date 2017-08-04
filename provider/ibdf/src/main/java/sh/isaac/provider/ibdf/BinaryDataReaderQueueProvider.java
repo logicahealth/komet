@@ -79,7 +79,7 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
  */
 public class BinaryDataReaderQueueProvider
         extends TimedTaskWithProgressTracker<Integer>
-         implements BinaryDataReaderQueueService, Spliterator<OchreExternalizableUnparsed> {
+         implements BinaryDataReaderQueueService, Spliterator<IsaacExternalizableUnparsed> {
    /** The objects. */
    int objects = 0;
 
@@ -104,7 +104,7 @@ public class BinaryDataReaderQueueProvider
    /** The read data. */
 
    // Only one thread doing the reading from disk, give it lots of buffer space
-   private final BlockingQueue<OchreExternalizableUnparsed> readData = new ArrayBlockingQueue<>(5000);
+   private final BlockingQueue<IsaacExternalizableUnparsed> readData = new ArrayBlockingQueue<>(5000);
 
    /** The parsed data. */
 
@@ -204,7 +204,7 @@ public class BinaryDataReaderQueueProvider
     * @return true, if successful
     */
    @Override
-   public boolean tryAdvance(Consumer<? super OchreExternalizableUnparsed> action) {
+   public boolean tryAdvance(Consumer<? super IsaacExternalizableUnparsed> action) {
       try {
          final int                           startBytes        = this.input.available();
          final IsaacExternalizableObjectType type = IsaacExternalizableObjectType.fromDataStream(this.input);
@@ -218,7 +218,7 @@ public class BinaryDataReaderQueueProvider
 
          buffer.setExternalData(true);
          buffer.setObjectDataFormatVersion(dataFormatVersion);
-         action.accept(new OchreExternalizableUnparsed(type, buffer));
+         action.accept(new IsaacExternalizableUnparsed(type, buffer));
          this.objects++;
          completedUnitsOfWork(startBytes - this.input.available());
          return true;
@@ -236,7 +236,7 @@ public class BinaryDataReaderQueueProvider
     * @return the spliterator
     */
    @Override
-   public Spliterator<OchreExternalizableUnparsed> trySplit() {
+   public Spliterator<IsaacExternalizableUnparsed> trySplit() {
       return null;
    }
 
@@ -343,7 +343,7 @@ public class BinaryDataReaderQueueProvider
     *
     * @return the stream internal
     */
-   private Stream<OchreExternalizableUnparsed> getStreamInternal() {
+   private Stream<IsaacExternalizableUnparsed> getStreamInternal() {
       running();
       return StreamSupport.stream(this, false);
    }

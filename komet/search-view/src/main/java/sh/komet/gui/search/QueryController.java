@@ -68,7 +68,6 @@ import java.util.ResourceBundle;
 
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 
 import javafx.collections.ObservableList;
 
@@ -95,14 +94,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
-import javafx.util.Callback;
 
 
 //~--- JDK imports ------------------------------------------------------------
@@ -627,9 +619,6 @@ public class QueryController
 
    @Override
    public void setParent(BorderPane parent) {
-      anchorPane.setBorder(
-          new Border(
-              new BorderStroke(Color.LIMEGREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
       flowrAccordian.setExpandedPane(wherePane);
       parent.setCenter(anchorPane);
    }

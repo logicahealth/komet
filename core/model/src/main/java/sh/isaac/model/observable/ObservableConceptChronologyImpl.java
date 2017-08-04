@@ -53,6 +53,7 @@ import javafx.collections.ObservableList;
 
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -295,7 +296,7 @@ public class ObservableConceptChronologyImpl
    }
 
    @Override
-   public <V extends StampedVersion> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
+   public <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
       return getConceptChronology().getLatestVersion(coordinate);
    }
 

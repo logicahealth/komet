@@ -52,8 +52,8 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -161,7 +161,7 @@ public class ComponentReference {
       cr.nidProvider  = () -> object.getNid();
       cr.timeProvider = () -> {
                             @SuppressWarnings({ "unchecked" })
-                            final LatestVersion<StampedVersion> latest =
+                            final LatestVersion<Version> latest =
                                ((Chronology) object).getLatestVersion(IBDFCreationUtility.readBackStamp);
 
                             return latest.get()
@@ -184,7 +184,7 @@ public class ComponentReference {
       cr.nidProvider  = () -> concept.getNid();
       cr.timeProvider = () -> {
                             @SuppressWarnings({ "rawtypes", "unchecked" })
-                            final LatestVersion<StampedVersion> latest =
+                            final LatestVersion<Version> latest =
                                ((Chronology) concept).getLatestVersion(IBDFCreationUtility.readBackStamp);
 
                             return latest.get()

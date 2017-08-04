@@ -58,6 +58,7 @@ import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -136,7 +137,7 @@ public class Snapshot {
     * @param chronicle the chronicle
     * @return the visible
     */
-   public <V extends StampedVersion> Stream<V> getVisible(Chronology chronicle) {
+   public <V extends Version> Stream<V> getVisible(Chronology chronicle) {
       return chronicle.<V>getVersionList()
                       .stream()
                       .filter((V version) -> this.positionCalculator.onRoute(version));

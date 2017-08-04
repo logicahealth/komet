@@ -287,10 +287,12 @@ final public class MultiParentTreeCell
 
    private void removeExtraParents(MultiParentTreeItem treeItem,
                                    ObservableList<TreeItem<ConceptChronology>> siblings) {
-      for (MultiParentTreeItem extraParent: treeItem.getExtraParents()) {
+      treeItem.getExtraParents().stream().map((extraParent) -> {
          removeExtraParents(extraParent, siblings);
+         return extraParent;
+      }).forEachOrdered((extraParent) -> {
          siblings.remove(extraParent);
-      }
+      });
    }
 
    //~--- get methods ---------------------------------------------------------

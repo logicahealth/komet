@@ -711,7 +711,8 @@ public class CommitProvider
          break;
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + ochreExternalizable);
+         throw new UnsupportedOperationException("Can't handle: " + ochreExternalizable.getClass().getName() + 
+                 ": " + ochreExternalizable);
       }
    }
 

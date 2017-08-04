@@ -77,7 +77,12 @@ public enum IsaacExternalizableObjectType {
    /**
     * An external representation of a stamp alias.
     */
-   STAMP_ALIAS((byte) 5);
+   STAMP_ALIAS((byte) 5),
+
+   /**
+    * An external representation of a stamp.
+    */
+   STAMP((byte) 6);
 
    /** The token. */
    private final byte token;
@@ -105,25 +110,30 @@ public enum IsaacExternalizableObjectType {
    public static IsaacExternalizableObjectType fromDataStream(DataInput input)
             throws IOException {
       final byte token = input.readByte();
+      return fromToken(token);
+   }
 
+   public static IsaacExternalizableObjectType fromByteArrayDataBuffer(ByteArrayDataBuffer input) {
+      final byte token = input.getByte();
+      return fromToken(token);
+   }
+
+   public static IsaacExternalizableObjectType fromToken(final byte token) throws UnsupportedOperationException {
       switch (token) {
-      case 1:
-         return CONCEPT;
-
-      case 2:
-         return SEMEME;
-
-      case 3:
-         throw new UnsupportedOperationException("Commit record deprecated: " + token);
-
-      case 4:
-         return STAMP_COMMENT;
-
-      case 5:
-         return STAMP_ALIAS;
-
-      default:
-         throw new UnsupportedOperationException("Can't handle: " + token);
+         case 1:
+            return CONCEPT;
+         case 2:
+            return SEMEME;
+         case 3:
+            throw new UnsupportedOperationException("Commit record deprecated: " + token);
+         case 4:
+            return STAMP_COMMENT;
+         case 5:
+            return STAMP_ALIAS;
+         case 6:
+            return STAMP;
+         default:
+            throw new UnsupportedOperationException("Can't handle: " + token);
       }
    }
 
@@ -133,9 +143,13 @@ public enum IsaacExternalizableObjectType {
     * @param out the out
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public void toDataStream(DataOutput out)
+   public void writeToDataStream(DataOutput out)
             throws IOException {
       out.writeByte(this.token);
+   }
+
+   public void writeToByteArrayDataBuffer(ByteArrayDataBuffer out) {
+      out.putByte(this.token);
    }
 
    //~--- get methods ---------------------------------------------------------

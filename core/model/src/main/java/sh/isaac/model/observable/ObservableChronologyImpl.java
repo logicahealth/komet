@@ -76,9 +76,10 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.identity.StampedVersion;
-import sh.isaac.api.observable.ObservableStampedVersion;
+import sh.isaac.api.observable.ObservableVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -95,10 +96,10 @@ public abstract class ObservableChronologyImpl
    //~--- fields --------------------------------------------------------------
 
    /** The version list. */
-   private ObservableList<? extends ObservableStampedVersion> versionList = null;
+   private ObservableList<? extends ObservableVersion> versionList = null;
 
    /** The version list property. */
-   private ListProperty<ObservableStampedVersion> versionListProperty;
+   private ListProperty<ObservableVersion> versionListProperty;
 
    /** The nid property. */
    private IntegerProperty nidProperty;
@@ -119,7 +120,7 @@ public abstract class ObservableChronologyImpl
    protected Chronology chronicledObjectLocal;
 
    @Override
-   public <V extends StampedVersion> List<V> getUnwrittenVersionList() {
+   public <V extends Version> List<V> getUnwrittenVersionList() {
       return chronicledObjectLocal.getUnwrittenVersionList();
    }
 
@@ -305,7 +306,7 @@ public abstract class ObservableChronologyImpl
     * @return the list property<? extends O v>
     */
    @Override
-   public final ListProperty<ObservableStampedVersion> versionListProperty() {
+   public final ListProperty<ObservableVersion> versionListProperty() {
       if (this.versionListProperty == null) {
          this.versionListProperty = new SimpleListProperty<>(this,
                ObservableFields.VERSION_LIST_FOR_CHRONICLE.toExternalString(), 
@@ -324,12 +325,12 @@ public abstract class ObservableChronologyImpl
       this.chronicledObjectLocal = chronicledObjectLocal;
 
       if (this.versionList != null) {
-         final OpenShortObjectHashMap<ObservableStampedVersion> observableVersionMap = new OpenShortObjectHashMap<>(this.versionList.size());
+         final OpenShortObjectHashMap<ObservableVersion> observableVersionMap = new OpenShortObjectHashMap<>(this.versionList.size());
 
          this.versionList.stream()
                          .forEach((ov) -> observableVersionMap.put(((ObservableVersionImpl)ov).getVersionSequence(), ov));
          chronicledObjectLocal.getVersionList().stream().forEach((sv) -> {
-                                          final ObservableStampedVersion observableVersion =
+                                          final ObservableVersion observableVersion =
                                              observableVersionMap.get(((VersionImpl) sv).getVersionSequence());
 
                                           if (observableVersion == null) {
@@ -370,7 +371,7 @@ public abstract class ObservableChronologyImpl
     * @return the latest version
     */
    @Override
-   public LatestVersion<ObservableStampedVersion> getLatestVersion(Class<? extends StampedVersion> type, StampCoordinate coordinate) {
+   public LatestVersion<ObservableVersion> getLatestVersion(Class<? extends StampedVersion> type, StampCoordinate coordinate) {
       final RelativePositionCalculator calculator = RelativePositionCalculator.getCalculator(coordinate);
 
       return calculator.getLatestVersion(this);
@@ -406,7 +407,7 @@ public abstract class ObservableChronologyImpl
     * @param <OV>
     * @return the observable version list
     */
-   protected abstract <OV extends ObservableStampedVersion> 
+   protected abstract <OV extends ObservableVersion> 
         ObservableList<OV> getObservableVersionList();
 
    /**
@@ -449,7 +450,6 @@ public abstract class ObservableChronologyImpl
    /**
     * Gets the sememe list from assemblage of type.
     *
-    * @param <SV> the generic type
     * @param assemblageSequence the assemblage sequence
     * @param type the type
     * @return the sememe list from assemblage of type
@@ -478,7 +478,7 @@ public abstract class ObservableChronologyImpl
     * @return the version list
     */
    @Override
-   public final <V extends StampedVersion> ObservableList<V> getVersionList() {
+   public final <V extends Version> ObservableList<V> getVersionList() {
       if (this.versionListProperty != null) {
          return (ObservableList<V>) this.versionListProperty.get();
       }

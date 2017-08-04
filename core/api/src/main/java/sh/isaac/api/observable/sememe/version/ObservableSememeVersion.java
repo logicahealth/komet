@@ -43,7 +43,7 @@ package sh.isaac.api.observable.sememe.version;
 
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.observable.ObservableStampedVersion;
+import sh.isaac.api.observable.ObservableVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -53,7 +53,7 @@ import sh.isaac.api.observable.ObservableStampedVersion;
  * @author kec
  */
 public interface ObservableSememeVersion
-        extends ObservableStampedVersion, SememeVersion {
+        extends ObservableVersion, SememeVersion {
    /**
     * Gets the chronology.
     *

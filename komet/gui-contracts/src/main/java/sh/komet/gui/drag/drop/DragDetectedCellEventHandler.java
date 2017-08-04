@@ -40,17 +40,13 @@ package sh.komet.gui.drag.drop;
 import javafx.event.EventHandler;
 
 import javafx.scene.Node;
-import javafx.scene.control.Cell;
-import javafx.scene.control.IndexedCell;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeCell;
 import javafx.scene.image.Image;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
-import sh.isaac.api.component.concept.ConceptChronology;
 
 import sh.isaac.api.identity.IdentifiedObject;
 
@@ -127,9 +123,8 @@ public class DragDetectedCellEventHandler
                     .toString();
 
             if ((drag != null) && (drag.length() > 0)) {
-               ClipboardContent content = new ClipboardContent();
+               IsaacClipboard content = new IsaacClipboard(identifiedObject);
 
-               content.putString(drag);
                db.setContent(content);
                DragRegistry.dragStart();
                event.consume();

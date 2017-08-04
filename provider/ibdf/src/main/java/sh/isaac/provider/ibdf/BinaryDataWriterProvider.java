@@ -148,7 +148,7 @@ public class BinaryDataWriterProvider
     * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
-   public void configure(Path path)
+   public final void configure(Path path)
             throws IOException {
       if (this.output != null) {
          throw new RuntimeException("Reconfiguration is not supported");

@@ -81,7 +81,6 @@ import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.CoordinateFactory;
 import sh.isaac.api.externalizable.BinaryDataDifferService;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
@@ -191,6 +190,8 @@ public class Get
    private static ChangeSetWriterService changeSetWriterService;
    
    private static ObservableChronologyService observableChronologyService;
+   
+   private static SerializationService serializationService;
 
    //~--- constructors --------------------------------------------------------
 
@@ -618,6 +619,7 @@ public class Get
       postCommitService               = null;
       changeSetWriterService          = null;
       observableChronologyService     = null;
+      serializationService = null;
    }
 
    /**
@@ -646,6 +648,15 @@ public class Get
       return sememeService;
    }
 
+   public static SerializationService serializationService() {
+      if (serializationService == null) {
+         serializationService = getService(SerializationService.class);
+      }
+      return serializationService;
+   }
+
+   
+   
    /**
     * Sememe service available.
     *

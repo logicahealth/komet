@@ -60,11 +60,7 @@ import java.util.stream.StreamSupport;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
-import sh.isaac.api.externalizable.StampAlias;
-import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.model.concept.ConceptChronologyImpl;
-import sh.isaac.model.sememe.SememeChronologyImpl;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
@@ -165,32 +161,11 @@ public class BinaryDataReaderProvider
          final byte[]                        objectData        = new byte[recordSize];
 
          this.input.readFully(objectData);
-
-         final ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(objectData);
-
-         buffer.setExternalData(true);
-         buffer.setObjectDataFormatVersion(dataFormatVersion);
-
-         switch (type) {
-         case CONCEPT:
-            action.accept(ConceptChronologyImpl.make(buffer));
-            break;
-
-         case SEMEME:
-            action.accept(SememeChronologyImpl.make(buffer));
-            break;
-
-         case STAMP_ALIAS:
-            action.accept(new StampAlias(buffer));
-            break;
-
-         case STAMP_COMMENT:
-            action.accept(new StampComment(buffer));
-            break;
-
-         default:
-            throw new UnsupportedOperationException("Can't handle: " + type);
-         }
+         ByteArrayDataBuffer byteArrayDataBuffer = new ByteArrayDataBuffer(objectData);
+         byteArrayDataBuffer.setExternalData(true);
+         byteArrayDataBuffer.setObjectDataFormatVersion(dataFormatVersion);
+         IsaacExternalizableUnparsed unparsedObject = new IsaacExternalizableUnparsed(type, byteArrayDataBuffer);
+         action.accept(unparsedObject.parse());
 
          this.objects++;
          completedUnitsOfWork(startBytes - this.input.available());
