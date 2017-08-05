@@ -47,7 +47,7 @@ public class IsaacSerializableProvider implements SerializationService {
    }
 
    @Override
-   public IdentifiedObject toIdentifiedObject(ByteBuffer bytes) {
+   public <T extends IdentifiedObject> T  toObject(ByteBuffer bytes) {
       ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(bytes.array());
       IsaacExternalizableUnparsed unparsed = new IsaacExternalizableUnparsed(buffer);
       IsaacExternalizable parsed = unparsed.parse();
@@ -58,14 +58,14 @@ public class IsaacSerializableProvider implements SerializationService {
          Chronology chronology = (Chronology) unparsedTwo.parse();
          for (Version v: chronology.getVersionList()) {
             if (v.getStampSequence() == stampSequence) {
-               return v;
+               return (T) v;
             }
          }
          throw new IllegalStateException("Can't find specified version: " + 
                  stampUniversal + " \n in: " + chronology);
       }
       
-      return (IdentifiedObject) parsed;
+      return (T) parsed;
    }
 
 }

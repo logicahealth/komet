@@ -59,7 +59,7 @@ public class IconographyTest extends Application {
       iconsPane.getChildren().add(Iconography.RUN.getIconographic());
       iconsPane.getChildren().add(Iconography.LINK.getIconographic());
       iconsPane.getChildren().add(Iconography.LINK_BROKEN.getIconographic());
-      iconsPane.getChildren().add(Iconography.FL0WR_SEARCH.getIconographic());
+      iconsPane.getChildren().add(Iconography.FLOWR_SEARCH.getIconographic());
       iconsPane.getChildren().add(Iconography.SIMPLE_SEARCH.getIconographic());
       iconsPane.getChildren().add(Iconography.SETTINGS_GEAR.getIconographic());
       iconsPane.getChildren().add(Iconography.TREE_ASPECT_RATIO_LAYOUT.getIconographic());

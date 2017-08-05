@@ -125,6 +125,10 @@ public class KometStageController implements StatusMessageConsumer{
    private Label                                statusMessage;                    // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="vanityBox"
    private Button                               vanityBox;                        // Value injected by FXMLLoader
+   
+   private static final Manifold FLOWR_MANIFOLD = Manifold.make(Manifold.FLOWR_SEARCH_GROUP_NAME);
+   private static final Manifold SEARCH_MANIFOLD = Manifold.make(Manifold.SIMPLE_SEARCH_GROUP_NAME);
+   private static final Manifold TAXONOMY_MANIFOLD = Manifold.make(Manifold.TAXONOMY_GROUP_NAME);
 
    //~--- methods -------------------------------------------------------------
 
@@ -197,31 +201,31 @@ public class KometStageController implements StatusMessageConsumer{
          Tab tab = new Tab("Taxonomy");
          tab.setGraphic(Iconography.TAXONOMY_ICON.getIconographic());
 
-         Manifold.TAXONOMY.focusedConceptChronologyProperty()
+         FLOWR_MANIFOLD.focusedConceptChronologyProperty()
                       .addListener(
                           (ObservableValue<? extends IdentifiedObject> observable,
                            IdentifiedObject oldValue,
                            IdentifiedObject newValue) -> {
-                             FxGet.statusMessageService().reportSceneStatus(statusMessage.getScene(), Manifold.TAXONOMY.getName() + " selected: " + newValue.toUserString());
+                             FxGet.statusMessageService().reportSceneStatus(statusMessage.getScene(), FLOWR_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
                           });
 
-         Manifold.FLOWR_QUERY.focusedConceptChronologyProperty()
+         SEARCH_MANIFOLD.focusedConceptChronologyProperty()
                       .addListener(
                           (ObservableValue<? extends IdentifiedObject> observable,
                            IdentifiedObject oldValue,
                            IdentifiedObject newValue) -> {
-                             FxGet.statusMessageService().reportSceneStatus(statusMessage.getScene(), Manifold.FLOWR_QUERY.getName() + " selected: " + newValue.toUserString());
+                             FxGet.statusMessageService().reportSceneStatus(statusMessage.getScene(), SEARCH_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
                           });
 
-         Manifold.SIMPLE_SEARCH.focusedConceptChronologyProperty()
+         TAXONOMY_MANIFOLD.focusedConceptChronologyProperty()
                       .addListener(
                           (ObservableValue<? extends IdentifiedObject> observable,
                            IdentifiedObject oldValue,
                            IdentifiedObject newValue) -> {
-                             FxGet.statusMessageService().reportSceneStatus(statusMessage.getScene(), Manifold.SIMPLE_SEARCH.getName() + " selected: " + newValue.toUserString());
+                             FxGet.statusMessageService().reportSceneStatus(statusMessage.getScene(), TAXONOMY_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
                           });
 
-         MultiParentTreeView treeView = new MultiParentTreeView(Manifold.TAXONOMY);
+         MultiParentTreeView treeView = new MultiParentTreeView(TAXONOMY_MANIFOLD);
 
          treeViewList.add(treeView);
          tab.setContent(new BorderPane(treeView));
@@ -236,20 +240,20 @@ public class KometStageController implements StatusMessageConsumer{
       } else {
          if (tabPanelCount == 2) {
             for (DetailNodeFactory factory: Get.services(DetailNodeFactory.class)) {
-               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.TAXONOMY);
-               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.FLOWR_QUERY);
-               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.SIMPLE_SEARCH);
-               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.UNLINKED);
+               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.make(Manifold.TAXONOMY_GROUP_NAME));
+               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.make(Manifold.FLOWR_SEARCH_GROUP_NAME));
+               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.make(Manifold.SIMPLE_SEARCH_GROUP_NAME));
+               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.make(Manifold.UNLINKED_GROUP_NAME));
             }
          }
 
          if (tabPanelCount == 3) {
             Get.services(ExplorationNodeFactory.class).stream().map((factory) -> {
                Tab tab = new Tab("FLOWR Query");
-               tab.setGraphic(Iconography.FL0WR_SEARCH.getIconographic());
+               tab.setGraphic(Iconography.FLOWR_SEARCH.getIconographic());
                tab.setTooltip(new Tooltip("For, Let, Order, Where, Return query construction panel"));
                BorderPane searchPane = new BorderPane();
-               ExplorationNode explorationNode = factory.createExplorationNode(Manifold.FLOWR_QUERY, searchPane);
+               ExplorationNode explorationNode = factory.createExplorationNode(FLOWR_MANIFOLD, searchPane);
                tab.getTooltip()
                        .textProperty()
                        .bind(explorationNode.getToolTip());

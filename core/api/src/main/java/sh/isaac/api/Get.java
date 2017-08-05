@@ -49,6 +49,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Stream;
@@ -76,6 +77,7 @@ import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.PostCommitService;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptBuilderService;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -399,6 +401,14 @@ public class Get
 
       return conceptService;
    }
+   
+   public static ConceptChronology concept(int id) {
+      return conceptService.getConcept(id);
+   }
+
+   public static ConceptChronology concept(UUID uuid) {
+      return conceptService.getConcept(uuid);
+   }
 
    /**
     * Concept snapshot.
@@ -648,7 +658,7 @@ public class Get
       return sememeService;
    }
 
-   public static SerializationService serializationService() {
+   public static SerializationService serializer() {
       if (serializationService == null) {
          serializationService = getService(SerializationService.class);
       }

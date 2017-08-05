@@ -41,7 +41,6 @@ package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -51,8 +50,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
 
+import javafx.scene.control.Label;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
@@ -64,7 +63,10 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 
+import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 import sh.komet.gui.contract.Manifold;
@@ -79,10 +81,11 @@ import sh.komet.gui.drag.drop.IsaacClipboard;
  */
 public class ConceptLabel
         extends Label {
+   TransferMode[]                          transferMode = null;
    SimpleObjectProperty<ConceptChronology> conceptProperty;
    SimpleObjectProperty<Manifold>          manifoldProperty;
    Consumer<ConceptLabel>                  descriptionTextUpdater;
-   Background originalBackground;
+   Background                              originalBackground;
 
    //~--- constructors --------------------------------------------------------
 
@@ -104,19 +107,19 @@ public class ConceptLabel
       this.setOnDragExited(this::handleDragExited);
       this.setOnDragDropped(this::handleDragDropped);
       this.setOnDragDone(this::handleDragDone);
-      //this.setDisabled(false);
-      //this.setDisable(false);
+
+      // this.setDisabled(false);
+      // this.setDisable(false);
    }
 
    //~--- methods -------------------------------------------------------------
 
    private void handleDragDetected(MouseEvent event) {
       System.out.println("Drag detected: " + event);
-      
-      DragImageMaker dragImageMaker = new DragImageMaker(this);
 
-      Dragboard db = this.startDragAndDrop(TransferMode.COPY);
-      
+      DragImageMaker dragImageMaker = new DragImageMaker(this);
+      Dragboard      db             = this.startDragAndDrop(TransferMode.COPY);
+
       db.setDragView(dragImageMaker.getDragImage());
 
       /* put a string on dragboard */
@@ -127,41 +130,93 @@ public class ConceptLabel
       event.consume();
    }
 
-   private void handleDragEntered(DragEvent event) {
-      System.out.println("Dragging entered: " + event );
-      
-      this.originalBackground = this.getBackground();
-
-      Color backgroundColor;
-      Set<DataFormat> contentTypes = event.getDragboard().getContentTypes();
-      if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.CONCEPT_TYPES)) {
-         backgroundColor = Color.AQUA;
-      } else if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.DESCRIPTION_TYPES)) {
-         backgroundColor = Color.OLIVEDRAB;
-      } else {
-         backgroundColor = Color.RED;
-      }
-      BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
-      this.setBackground(new Background(fill));
+   private void handleDragDone(DragEvent event) {
+      System.out.println("Dragging done: " + event);
+      this.setBackground(originalBackground);
+      this.transferMode = null;
    }
 
    private void handleDragDropped(DragEvent event) {
-      System.out.println("Dragging dropped: " + event );
+      System.out.println("Dragging dropped: " + event);
+
+      if (!this.manifoldProperty.get()
+                                .getGroupName()
+                                .equals(Manifold.UNLINKED_GROUP_NAME)) {
+         this.manifoldProperty.get()
+                              .setGroupName(Manifold.UNLINKED_GROUP_NAME);
+      }
+
+      Dragboard db = event.getDragboard();
+
+      if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT)) {
+         ConceptChronology conceptChronology = Get.serializer()
+                                                  .toObject(db, IsaacClipboard.ISAAC_CONCEPT);
+
+         this.manifoldProperty.get()
+                              .setFocusedConceptChronology(conceptChronology);
+      } else if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT_VERSION)) {
+         ConceptVersion conceptVersion = Get.serializer()
+                                            .toObject(db, IsaacClipboard.ISAAC_CONCEPT_VERSION);
+
+         this.manifoldProperty.get()
+                              .setFocusedConceptChronology(conceptVersion.getChronology());
+      } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION)) {
+         SememeChronology sememeChronology = Get.serializer()
+                                                .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION);
+
+         this.manifoldProperty.get()
+                              .setFocusedConceptChronology(
+                                  Get.conceptService()
+                                     .getConcept(sememeChronology.getReferencedComponentNid()));
+      } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION_VERSION)) {
+         DescriptionVersion descriptionVersion = Get.serializer()
+                                                    .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION_VERSION);
+
+         this.manifoldProperty.get()
+                              .setFocusedConceptChronology(
+                                  Get.conceptService()
+                                     .getConcept(descriptionVersion.getReferencedComponentNid()));
+      }
+
       this.setBackground(originalBackground);
+   }
+
+   private void handleDragEntered(DragEvent event) {
+      System.out.println("Dragging entered: " + event);
+      this.originalBackground = this.getBackground();
+
+      Color           backgroundColor;
+      Set<DataFormat> contentTypes = event.getDragboard()
+                                          .getContentTypes();
+
+      if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.CONCEPT_TYPES)) {
+         backgroundColor   = Color.AQUA;
+         this.transferMode = TransferMode.COPY_OR_MOVE;
+      } else if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.DESCRIPTION_TYPES)) {
+         backgroundColor   = Color.OLIVEDRAB;
+         this.transferMode = TransferMode.COPY_OR_MOVE;
+      } else {
+         backgroundColor   = Color.RED;
+         this.transferMode = null;
+      }
+
+      BackgroundFill fill = new BackgroundFill(backgroundColor, CornerRadii.EMPTY, Insets.EMPTY);
+
+      this.setBackground(new Background(fill));
    }
 
    private void handleDragExited(DragEvent event) {
-      System.out.println("Dragging exited: " + event );
+      System.out.println("Dragging exited: " + event);
       this.setBackground(originalBackground);
-   }
-
-   private void handleDragDone(DragEvent event) {
-      System.out.println("Dragging done: " + event );
-      this.setBackground(originalBackground);
+      this.transferMode = null;
    }
 
    private void handleDragOver(DragEvent event) {
-      //System.out.println("Dragging over: " + event );
+      // System.out.println("Dragging over: " + event );
+      if (this.transferMode != null) {
+         event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+         event.consume();
+      }
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -173,21 +228,33 @@ public class ConceptLabel
    }
 
    private void setEmptyText() {
-      this.setText("empty");
+      setEmptyText(this);
+   }
+
+   private static void setEmptyText(Label label) {
+      label.setText("empty");
    }
 
    public static void setFullySpecifiedText(ConceptLabel label) {
-      label.conceptProperty.get()
-                           .getFullySpecifiedDescription(label.manifoldProperty.get())
-                           .ifPresent(label::setDescriptionText)
-                           .ifAbsent(label::setEmptyText);
+      if (label.conceptProperty.get() != null) {
+         label.conceptProperty.get()
+                              .getFullySpecifiedDescription(label.manifoldProperty.get())
+                              .ifPresent(label::setDescriptionText)
+                              .ifAbsent(label::setEmptyText);
+      } else {
+         setEmptyText(label);
+      }
    }
 
    public static void setPreferredText(ConceptLabel label) {
-      label.conceptProperty.get()
-                           .getPreferredDescription(label.manifoldProperty.get())
-                           .ifPresent(label::setDescriptionText)
-                           .ifAbsent(label::setEmptyText);
+      if (label.conceptProperty.get() != null) {
+         label.conceptProperty.get()
+                              .getPreferredDescription(label.manifoldProperty.get())
+                              .ifPresent(label::setDescriptionText)
+                              .ifAbsent(label::setEmptyText);
+      } else {
+         setEmptyText(label);
+      }
    }
 }
 

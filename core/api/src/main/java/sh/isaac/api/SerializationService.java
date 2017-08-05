@@ -17,6 +17,8 @@
 package sh.isaac.api;
 
 import java.nio.ByteBuffer;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.Dragboard;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.identity.IdentifiedObject;
 
@@ -27,6 +29,9 @@ import sh.isaac.api.identity.IdentifiedObject;
 @Contract
 public interface SerializationService {
    ByteBuffer toBytes(IdentifiedObject object);
-   IdentifiedObject toIdentifiedObject(ByteBuffer bytes);
+   <T extends IdentifiedObject> T toObject(ByteBuffer bytes);
+   default <T extends IdentifiedObject> T toObject(Dragboard db, DataFormat dataFormat) {
+      return toObject((ByteBuffer) db.getContent(dataFormat));
+   }
    
 }

@@ -1,9 +1,8 @@
-/*
- * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the 
-         US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
- *
+/* 
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ *
+ * You may not use this file except in compliance with the License.
+ *
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
@@ -11,33 +10,70 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * Contributions from 2013-2017 where performed either by US government 
+ * employees, or under US Veterans Health Administration contracts. 
+ *
+ * US Veterans Health Administration contributions by government employees
+ * are work of the U.S. Government and are not subject to copyright
+ * protection in the United States. Portions contributed by government 
+ * employees are USGovWork (17USC §105). Not subject to copyright. 
+ * 
+ * Contribution by contractors to the US Veterans Health Administration
+ * during this period are contractually contributed under the
+ * Apache License, Version 2.0.
+ *
+ * See: https://www.usa.gov/government-works
+ * 
+ * Contributions prior to 2013:
+ *
+ * Copyright (C) International Health Terminology Standards Development Organisation.
+ * Licensed under the Apache License, Version 2.0.
+ *
  */
+
+
+
 package sh.komet.gui.contract;
 
-import java.util.Collection;
+//~--- JDK imports ------------------------------------------------------------
+
+import java.util.HashMap;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.function.Supplier;
+
+//~--- non-JDK imports --------------------------------------------------------
+
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableMap;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WeakChangeListener;
+
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.coordinate.LanguageCoordinateProxy;
 import sh.isaac.api.coordinate.LogicCoordinateProxy;
+import sh.isaac.api.coordinate.ManifoldCoordinateProxy;
 import sh.isaac.api.coordinate.StampCoordinateProxy;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinateProxy;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.komet.iconography.Iconography;
+
+//~--- classes ----------------------------------------------------------------
 
 /**
  * Manifold: Uniting various features, in this case an object that contains a set of coordinates and selections that
@@ -52,126 +88,153 @@ import sh.isaac.komet.iconography.Iconography;
  *
  * @author kec
  */
-public class Manifold implements StampCoordinateProxy, LanguageCoordinateProxy, LogicCoordinateProxy, ManifoldCoordinateProxy {
+public class Manifold
+         implements StampCoordinateProxy, LanguageCoordinateProxy, LogicCoordinateProxy, ManifoldCoordinateProxy,
+                    ChangeListener<ConceptChronology> {
+   private static final WeakHashMap<Manifold, Object>   MANIFOLD_CHANGE_LISTENERS = new WeakHashMap<>();
+   public static final String                           UNLINKED_GROUP_NAME       = "unlinked";
+   public static final String                           SIMPLE_SEARCH_GROUP_NAME  = "search";
+   public static final String                           TAXONOMY_GROUP_NAME       = "taxonomy";
+   public static final String                           FLOWR_SEARCH_GROUP_NAME   = "flowr";
+   private static final HashMap<String, Supplier<Node>> ICONOGRAPHIC_SUPPLIER     = new HashMap();
 
-   private static final ObservableMap<String, Manifold> manifolds = FXCollections.observableHashMap();
-   public static final Manifold UNLINKED = newManifold(
-           "unlinked",
-           UUID.randomUUID(),
-           Get.configurationService().getDefaultManifoldCoordinate(),
-           Get.configurationService().getDefaultEditCoordinate(),
-           () -> new Label());
+   //~--- static initializers -------------------------------------------------
 
-   public static final Manifold TAXONOMY = newManifold(
-           "taxonomy",
-           UUID.randomUUID(),
-           Get.configurationService().getDefaultManifoldCoordinate(),
-           Get.configurationService().getDefaultEditCoordinate(),
-           () -> Iconography.TAXONOMY_ICON.getIconographic());
-
-   public static final Manifold SIMPLE_SEARCH = newManifold(
-           "search",
-           UUID.randomUUID(),
-           Get.configurationService().getDefaultManifoldCoordinate(),
-           Get.configurationService().getDefaultEditCoordinate(),
-           () -> Iconography.SIMPLE_SEARCH.getIconographic());
-
-   public static final Manifold FLOWR_QUERY = newManifold(
-           "flowr",
-           UUID.randomUUID(),
-           Get.configurationService().getDefaultManifoldCoordinate(),
-           Get.configurationService().getDefaultEditCoordinate(),
-           () -> Iconography.FL0WR_SEARCH.getIconographic());
-
-   public static Manifold newManifold(String name, UUID manifoldUuid, ObservableManifoldCoordinate observableManifoldCoordinate, ObservableEditCoordinate editCoordinate, Supplier<Node> iconSupplier) {
-      Manifold manifold = new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, iconSupplier);
-      manifolds.put(name, manifold);
-      return manifold;
+   static {
+      ICONOGRAPHIC_SUPPLIER.put(UNLINKED_GROUP_NAME, () -> new Label());
+      ICONOGRAPHIC_SUPPLIER.put(SIMPLE_SEARCH_GROUP_NAME, () -> Iconography.SIMPLE_SEARCH.getIconographic());
+      ICONOGRAPHIC_SUPPLIER.put(TAXONOMY_GROUP_NAME, () -> Iconography.TAXONOMY_ICON.getIconographic());
+      ICONOGRAPHIC_SUPPLIER.put(FLOWR_SEARCH_GROUP_NAME, () -> Iconography.FLOWR_SEARCH.getIconographic());
    }
 
-   public static Manifold newManifold(String name, UUID manifoldUuid, ObservableManifoldCoordinate observableManifoldCoordinate, ObservableEditCoordinate editCoordinate, Supplier<Node> iconSupplier, ConceptChronology focusedObject) {
-      Manifold manifold = new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, iconSupplier, focusedObject);
-      manifolds.put(name, manifold);
-      return manifold;
-   }
+   //~--- fields --------------------------------------------------------------
 
-   public static Manifold get(String name) {
-      return manifolds.get(name);
-   }
-
-   public static Collection<Manifold> getValues() {
-      return manifolds.values();
-   }
-
-   final SimpleStringProperty nameProperty;
-   final SimpleObjectProperty<UUID> manifoldUuidProperty;
-   final ObservableManifoldCoordinate observableManifoldCoordinate;
-   final ObservableEditCoordinate editCoordinate;
+   final SimpleStringProperty                    groupNameProperty;
+   final SimpleObjectProperty<UUID>              manifoldUuidProperty;
+   final ObservableManifoldCoordinate            observableManifoldCoordinate;
+   final ObservableEditCoordinate                editCoordinate;
    final SimpleObjectProperty<ConceptChronology> focusedConceptChronologyProperty;
-   final Supplier<Node> iconSupplier;
 
-   private Manifold(String name, UUID manifoldUuid, ObservableManifoldCoordinate observableManifoldCoordinate, ObservableEditCoordinate editCoordinate, Supplier<Node> iconSupplier) {
-      this(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, iconSupplier, null);
+   //~--- constructors --------------------------------------------------------
+
+   private Manifold(String name,
+                    UUID manifoldUuid,
+                    ObservableManifoldCoordinate observableManifoldCoordinate,
+                    ObservableEditCoordinate editCoordinate) {
+      this(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, null);
    }
 
-   private Manifold(String name, UUID manifoldUuid, ObservableManifoldCoordinate observableManifoldCoordinate, ObservableEditCoordinate editCoordinate, Supplier<Node> iconSupplier, ConceptChronology focusedObject) {
-      this.nameProperty = new SimpleStringProperty(name);
-      this.manifoldUuidProperty = new SimpleObjectProperty<>(manifoldUuid);
-      this.observableManifoldCoordinate = observableManifoldCoordinate;
-      this.editCoordinate = editCoordinate;
+   private Manifold(String group,
+                    UUID manifoldUuid,
+                    ObservableManifoldCoordinate observableManifoldCoordinate,
+                    ObservableEditCoordinate editCoordinate,
+                    ConceptChronology focusedObject) {
+      this.groupNameProperty                = new SimpleStringProperty(group);
+      this.manifoldUuidProperty             = new SimpleObjectProperty<>(manifoldUuid);
+      this.observableManifoldCoordinate     = observableManifoldCoordinate;
+      this.editCoordinate                   = editCoordinate;
       this.focusedConceptChronologyProperty = new SimpleObjectProperty<>(focusedObject);
-      this.iconSupplier = iconSupplier;
+      this.focusedConceptChronologyProperty.addListener(new WeakChangeListener<>(this));
+      MANIFOLD_CHANGE_LISTENERS.put(this, null);
+
+   }
+   
+   public ConceptChronology getConceptForGroup(String groupName) {
+      Optional<Manifold> optionalManifold = MANIFOLD_CHANGE_LISTENERS.keySet().stream().filter(manifold->manifold.getGroupName().equals(groupName)).findAny();
+      if (optionalManifold.isPresent()) {
+         return optionalManifold.get().getFocusedConceptChronology();
+      }
+      return null;
    }
 
-   public SimpleStringProperty getNameProperty() {
-      return nameProperty;
-   }
-
-   public String getName() {
-      return nameProperty.getValue();
-   }
-
-   public void setName(String name) {
-      this.nameProperty.setValue(name);
-   }
-
-   public SimpleObjectProperty<UUID> getManifoldUuidProperty() {
-      return manifoldUuidProperty;
-   }
-
-   public UUID getManifoldUuid() {
-      return manifoldUuidProperty.get();
-   }
-
-   public void setManifoldUuid(UUID manifoldUuid) {
-      this.manifoldUuidProperty.set(manifoldUuid);
-   }
+   //~--- methods -------------------------------------------------------------
 
    @Override
-   public ObservableManifoldCoordinate getManifoldCoordinate() {
-      return observableManifoldCoordinate;
-   }
-
-   public ObservableEditCoordinate getEditCoordinate() {
-      return editCoordinate;
+   public void changed(ObservableValue<? extends ConceptChronology> observable,
+                       ConceptChronology oldValue,
+                       ConceptChronology newValue) {
+      MANIFOLD_CHANGE_LISTENERS.forEach(
+          (manifold, u) -> {
+             if ((manifold != this) &&
+                 !manifold.getGroupName().equals(UNLINKED_GROUP_NAME) &&
+                 manifold.getGroupName().equals(this.getGroupName())) {
+                manifold.focusedConceptChronologyProperty().set(newValue);
+             }
+          });
    }
 
    public SimpleObjectProperty<ConceptChronology> focusedConceptChronologyProperty() {
       return focusedConceptChronologyProperty;
    }
 
-   public void setFocusedConceptChronology(ConceptChronology focusedObject) {
-      this.focusedConceptChronologyProperty.set(focusedObject);
+   /**
+    * Get a manifold for local use within a control group that *is not linked to the selection of other concept
+    * presentations.
+    *
+    * @param groupName
+    * @return a new manifold on each call.
+    */
+   public static final Manifold make(String groupName) {
+      return newManifold(
+          groupName,
+          UUID.randomUUID(),
+          Get.configurationService()
+             .getDefaultManifoldCoordinate(),
+          Get.configurationService()
+             .getDefaultEditCoordinate());
    }
+
+   public static Manifold newManifold(String name,
+                                      UUID manifoldUuid,
+                                      ObservableManifoldCoordinate observableManifoldCoordinate,
+                                      ObservableEditCoordinate editCoordinate) {
+      return new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, null);
+   }
+
+   public static Manifold newManifold(String name,
+                                      UUID manifoldUuid,
+                                      ObservableManifoldCoordinate observableManifoldCoordinate,
+                                      ObservableEditCoordinate editCoordinate,
+                                      ConceptChronology focusedObject) {
+      return new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, focusedObject);
+   }
+
+   //~--- get methods ---------------------------------------------------------
 
    public ConceptSnapshotService getConceptSnapshotService() {
-      return Get.conceptService().getSnapshot(observableManifoldCoordinate);
+      return Get.conceptService()
+                .getSnapshot(observableManifoldCoordinate);
    }
 
-   @Override
-   public ObservableStampCoordinate getStampCoordinate() {
-      return this.observableManifoldCoordinate.getStampCoordinate();
+   public ObservableEditCoordinate getEditCoordinate() {
+      return editCoordinate;
    }
+
+   //~--- set methods ---------------------------------------------------------
+
+   public void setFocusedConceptChronology(ConceptChronology newFocusedObject) {
+      this.focusedConceptChronologyProperty.set(newFocusedObject);
+   }
+
+   //~--- get methods ---------------------------------------------------------
+
+   public String getGroupName() {
+      return groupNameProperty.get();
+   }
+
+   public static Set<String> getGroupNames() {
+      return ICONOGRAPHIC_SUPPLIER.keySet();
+   }
+
+   public static Node getIconographic(String groupName) {
+      return ICONOGRAPHIC_SUPPLIER.get(groupName)
+                                  .get();
+   }
+   public Node getIconographic() {
+      return ICONOGRAPHIC_SUPPLIER.get(getGroupName())
+                                  .get();
+   }
+
 
    @Override
    public ObservableLanguageCoordinate getLanguageCoordinate() {
@@ -183,8 +246,46 @@ public class Manifold implements StampCoordinateProxy, LanguageCoordinateProxy, 
       return this.observableManifoldCoordinate.getLogicCoordinate();
    }
 
-   public Node getIconographic() {
-      return iconSupplier.get();
+   @Override
+   public ObservableManifoldCoordinate getManifoldCoordinate() {
+      return observableManifoldCoordinate;
    }
 
+   public UUID getManifoldUuid() {
+      return manifoldUuidProperty.get();
+   }
+
+   //~--- set methods ---------------------------------------------------------
+
+   public void setManifoldUuid(UUID manifoldUuid) {
+      this.manifoldUuidProperty.set(manifoldUuid);
+   }
+
+   //~--- get methods ---------------------------------------------------------
+
+   public SimpleObjectProperty<UUID> getManifoldUuidProperty() {
+      return manifoldUuidProperty;
+   }
+
+   //~--- set methods ---------------------------------------------------------
+
+   public void setGroupName(String name) {
+      this.groupNameProperty.setValue(name);
+   }
+
+   //~--- get methods ---------------------------------------------------------
+
+   public SimpleStringProperty groupNameProperty() {
+      return groupNameProperty;
+   }
+
+   @Override
+   public ObservableStampCoordinate getStampCoordinate() {
+      return this.observableManifoldCoordinate.getStampCoordinate();
+   }
+
+   public ConceptChronology getFocusedConceptChronology() {
+      return this.focusedConceptChronologyProperty.get();
+   }
 }
+
