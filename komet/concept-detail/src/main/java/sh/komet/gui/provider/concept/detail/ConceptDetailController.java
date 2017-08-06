@@ -33,6 +33,8 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
+import sh.komet.gui.cell.TreeTableConceptCellFactory;
+import sh.komet.gui.cell.TreeTableTimeCellFactory;
 import sh.komet.gui.manifold.Manifold;
 
 public class ConceptDetailController {
@@ -101,6 +103,8 @@ public class ConceptDetailController {
    private ScrollPane topScroller; 
 
    private Manifold manifold;
+   private TreeTableConceptCellFactory conceptCellFactory;
+   private TreeTableTimeCellFactory timeCellFactory = new TreeTableTimeCellFactory();
 
    public Manifold getManifold() {
       return manifold;
@@ -112,6 +116,24 @@ public class ConceptDetailController {
       }
       this.manifold = manifold;
       this.manifold.focusedConceptChronologyProperty().addListener(this::focusConceptChanged);
+      this.conceptCellFactory = new TreeTableConceptCellFactory(manifold);
+   //descWhatColumn; 
+
+   //descGeneralColumn; 
+   descStatusColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("state")); 
+
+   descTimeColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("time")); 
+   descTimeColumn.setCellFactory(this.timeCellFactory::call);
+   
+
+   descAuthorColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("authorSequence")); 
+   descAuthorColumn.setCellFactory(this.conceptCellFactory::call);
+   
+   descModuleColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("moduleSequence")); 
+   descModuleColumn.setCellFactory(this.conceptCellFactory::call);
+
+   descPathColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("pathSequence")); 
+   descPathColumn.setCellFactory(this.conceptCellFactory::call);
    }
 
    @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -138,19 +160,7 @@ public class ConceptDetailController {
       
       
       descriptionTreeTable.setTableMenuButtonVisible(true);
-   //descWhatColumn; 
 
-   //descGeneralColumn; 
-
-   descStatusColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("firstName")); 
-
-   descTimeColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("state")); 
-
-   descAuthorColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("authorSequence")); 
-
-   descModuleColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("moduleSequence")); 
-
-   descPathColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("pathSequence")); 
       
 
    }
