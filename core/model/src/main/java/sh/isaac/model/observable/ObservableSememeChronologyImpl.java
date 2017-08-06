@@ -61,7 +61,6 @@ import sh.isaac.api.component.sememe.version.MutableSememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 import sh.isaac.api.observable.ObservableVersion;
 
@@ -130,7 +129,6 @@ public class ObservableSememeChronologyImpl
    /**
     * Creates the mutable version.
     *
-    * @param type the type
     * @param status the status
     * @param ec the ec
     * @return the m
@@ -297,6 +295,11 @@ public class ObservableSememeChronologyImpl
    @Override
    public IsaacExternalizableObjectType getExternalizableObjectType() {
       return getSememeChronology().getExternalizableObjectType();
+   }
+
+   @Override
+   public String toString() {
+      return "ObservableSememeChronologyImpl{" +  getSememeChronology().toUserString() + '}';
    }
         
         

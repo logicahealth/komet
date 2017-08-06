@@ -166,6 +166,12 @@
          <type>jar</type>
       </dependency>
       <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>concept-detail</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
+      <dependency>
          <groupId>javafx-packager</groupId>
          <artifactId>javafx-packager</artifactId>
          <version>1.8.0_20</version>

@@ -18,7 +18,7 @@ package sh.komet.gui.interfaces;
 
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.scene.layout.BorderPane;
-import sh.komet.gui.contract.Manifold;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  * ExplorationNode: A node that enables traversal (a taxonomy view) of content 

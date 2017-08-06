@@ -84,6 +84,18 @@ public interface Chronology
    <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate);
 
    /**
+    * Gets the categorized versions.
+    *
+    * @param <V>
+    * @param coordinate the coordinate
+    * @return the latest version
+    */
+   default <V extends Version> CategorizedVersions<V> getCategorizedVersions(StampCoordinate coordinate) {
+      LatestVersion<V> latestVersion = getLatestVersion(coordinate);
+      return new CategorizedVersions(latestVersion, this);
+   }
+
+   /**
     * Determine if the latest version is active, on a given stamp coordinate.  This method ignores the
     * state attribute of the provided StampCoordinate - allowing all State types -
     * it returns true if the latest version is {@link State#ACTIVE}

@@ -199,7 +199,7 @@ public class ObservableConceptChronologyImpl
     * @return the concept description list
     */
    @Override
-   public ObservableList<ObservableSememeChronology> getConceptDescriptionList() {
+   public ObservableList<ObservableSememeChronology> getDescriptions() {
       return conceptDescriptionListProperty().get();
    }
 

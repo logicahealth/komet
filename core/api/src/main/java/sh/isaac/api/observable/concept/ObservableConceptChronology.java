@@ -125,7 +125,7 @@ public interface ObservableConceptChronology
     *
     * @return the concept description list
     */
-   ObservableList<ObservableSememeChronology> getConceptDescriptionList();
+   ObservableList<ObservableSememeChronology> getDescriptions();
 
    /**
     * Gets the concept sequence.

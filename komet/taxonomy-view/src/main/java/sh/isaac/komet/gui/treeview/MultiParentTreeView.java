@@ -18,7 +18,7 @@
  */
 package sh.isaac.komet.gui.treeview;
 
-import sh.komet.gui.contract.Manifold;
+import sh.komet.gui.manifold.Manifold;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

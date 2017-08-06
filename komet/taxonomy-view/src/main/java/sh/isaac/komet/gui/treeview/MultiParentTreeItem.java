@@ -288,6 +288,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
    /**
     * returns -2 when not yet started, -1 when started, but indeterminate otherwise, a value between 0 and 1 (1 when
     * complete)
+    * @return the percent load complete.
     */
    public DoubleProperty getChildLoadPercentComplete() {
       return childLoadPercentComplete;

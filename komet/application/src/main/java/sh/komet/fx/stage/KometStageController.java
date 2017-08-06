@@ -82,10 +82,11 @@ import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.contract.ExplorationNodeFactory;
-import sh.komet.gui.contract.Manifold;
+import sh.komet.gui.manifold.Manifold;
 
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.contract.DetailType;
 import sh.komet.gui.contract.StatusMessageConsumer;
 import sh.komet.gui.util.FxGet;
 
@@ -280,7 +281,9 @@ public class KometStageController implements StatusMessageConsumer{
       Tab tab = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
       tab.setTooltip(new Tooltip("A Square"));
       BorderPane graphPane = new BorderPane();
-      DetailNode detailNode = factory.createDetailNode(manifold, graphPane);
+      DetailNode detailNode = factory.createDetailNode(manifold, (theNewDetailNode) -> {
+         graphPane.setCenter(theNewDetailNode);
+      }, DetailType.Concept);
       tab.textProperty()
               .bind(detailNode.getTitle());
       tab.getTooltip()

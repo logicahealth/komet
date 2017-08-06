@@ -38,5 +38,6 @@
       <module>search-view</module>
       <module>css</module>
       <module>mavenproject1/dialog</module>
+      <module>concept-detail</module>
    </modules>
 </project> 

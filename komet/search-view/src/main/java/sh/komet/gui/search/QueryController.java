@@ -124,13 +124,14 @@ import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 
 import sh.komet.gui.action.ConceptAction;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.contract.Manifold;
+import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 
 import static sh.isaac.api.query.QueryBuilder.DEFAULT_MANIFOLD_COORDINATE_KEY;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.table.DescriptionTableCell;
+import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -213,7 +214,6 @@ public class QueryController
                                tableItems.add(latestDescription.get());
                             }
                          });
-      System.out.println("Results: " + tableItems);
    }
 
    @FXML
@@ -249,7 +249,7 @@ public class QueryController
 
       NidSet results = query.compute();
 
-      System.out.println("Result count: " + results.size());
+      FxGet.statusMessageService().reportSceneStatus(anchorPane.getScene(), "Query result count: " + results.size());
       displayResults(results);
    }
 

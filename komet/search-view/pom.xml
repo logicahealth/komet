@@ -10,7 +10,7 @@
     <artifactId>search-view</artifactId>
    <name>ISAAC’s KOMET: Search view</name>
    <description>
-      A search implemntation for ISAAC's KOMET.
+      A search implementation for ISAAC's KOMET.
    </description>
  
    <dependencies>

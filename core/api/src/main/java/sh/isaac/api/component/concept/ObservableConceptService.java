@@ -63,7 +63,7 @@ public interface ObservableConceptService
     * @return the list of descriptions.
     */
    default ObservableList<ObservableSememeChronology> getConceptDescriptions(int conceptId) {
-      return getConcept(conceptId).getConceptDescriptionList();
+      return getConcept(conceptId).getDescriptions();
    }
 
    /**

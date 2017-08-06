@@ -34,24 +34,24 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
-
+import java.util.Collection;
 import java.util.Set;
 import java.util.function.Consumer;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+
 
 import javafx.geometry.Insets;
 
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
@@ -63,44 +63,43 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 
+import javafx.stage.WindowEvent;
+
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
-import sh.komet.gui.contract.Manifold;
 import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.drag.drop.IsaacClipboard;
+import sh.komet.gui.manifold.HistoryRecord;
+import sh.komet.gui.manifold.Manifold;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  *
  * @author kec
  */
 public class ConceptLabel
         extends Label {
-   TransferMode[]                          transferMode = null;
-   SimpleObjectProperty<ConceptChronology> conceptProperty;
-   SimpleObjectProperty<Manifold>          manifoldProperty;
-   Consumer<ConceptLabel>                  descriptionTextUpdater;
-   Background                              originalBackground;
+
+   TransferMode[] transferMode = null;
+   Manifold manifold;
+   Consumer<ConceptLabel> descriptionTextUpdater;
+   Background originalBackground;
 
    //~--- constructors --------------------------------------------------------
-
-   public ConceptLabel(SimpleObjectProperty<ConceptChronology> conceptProperty,
-                       SimpleObjectProperty<Manifold> manifoldProperty,
-                       Consumer<ConceptLabel> descriptionTextUpdater) {
-      this.conceptProperty        = conceptProperty;
-      this.manifoldProperty       = manifoldProperty;
+   public ConceptLabel(Manifold manifold,
+           Consumer<ConceptLabel> descriptionTextUpdater) {
+      this.manifold = manifold;
       this.descriptionTextUpdater = descriptionTextUpdater;
-      this.conceptProperty.addListener(
-          (ObservableValue<? extends ConceptChronology> observable,
-           ConceptChronology oldValue,
-           ConceptChronology newValue) -> {
-             this.descriptionTextUpdater.accept(this);
-          });
+      this.manifold.focusedConceptChronologyProperty().addListener(
+              (ObservableValue<? extends ConceptChronology> observable,
+                      ConceptChronology oldValue,
+                      ConceptChronology newValue) -> {
+                 this.descriptionTextUpdater.accept(this);
+              });
       this.setOnDragOver(this::handleDragOver);
       this.setOnDragEntered(this::handleDragEntered);
       this.setOnDragDetected(this::handleDragDetected);
@@ -108,17 +107,65 @@ public class ConceptLabel
       this.setOnDragDropped(this::handleDragDropped);
       this.setOnDragDone(this::handleDragDone);
 
-      // this.setDisabled(false);
-      // this.setDisable(false);
+      ContextMenu contextMenu = new ContextMenu();
+
+      for (String manifoldGroupName : Manifold.getGroupNames()) {
+         MenuItem item = new MenuItem(manifoldGroupName + " history");
+
+         contextMenu.getItems()
+                 .add(item);
+      }
+
+      this.setContextMenu(contextMenu);
+      contextMenu.setOnShowing(this::handle);
    }
 
    //~--- methods -------------------------------------------------------------
+   private void handle(WindowEvent event) {
+      ContextMenu contextMenu = (ContextMenu) event.getSource();
+      contextMenu.getItems().clear();
+      Menu manifoldHistoryMenu = new Menu("history");
+      contextMenu.getItems().add(manifoldHistoryMenu);
+      Collection<HistoryRecord> historyCollection = this.manifold.getHistoryRecords();
+      
+      setupHistoryMenuItem(historyCollection, manifoldHistoryMenu);
+      
+      
+      for (String manifoldGroupName : Manifold.getGroupNames()) {
+         Menu groupHistory = new Menu(manifoldGroupName + " history");
+         contextMenu.getItems().add(groupHistory);
+         setupHistoryMenuItem(Manifold.getGroupHistory(manifoldGroupName), groupHistory);
+      }
+   }
+
+   private void setupHistoryMenuItem(Collection<HistoryRecord> historyCollection, Menu manifoldHistoryMenu) {
+      for (HistoryRecord historyRecord: historyCollection) {
+         MenuItem historyItem = new MenuItem(historyRecord.getComponentString());
+         historyItem.setUserData(historyRecord);
+         historyItem.setOnAction((ActionEvent actionEvent) -> {
+            unlink();
+            MenuItem historyMenuItem = (MenuItem) actionEvent.getSource();
+            HistoryRecord itemHistoryRecord = (HistoryRecord) historyItem.getUserData();
+            this.manifold.setFocusedConceptChronology(Get.concept(itemHistoryRecord.getComponentId()));
+         });
+         manifoldHistoryMenu.getItems().add(historyItem);
+      }
+   }
+
+   private void unlink() {
+      if (!this.manifold
+              .getGroupName()
+              .equals(Manifold.UNLINKED_GROUP_NAME)) {
+         this.manifold
+                 .setGroupName(Manifold.UNLINKED_GROUP_NAME);
+      }
+   }
 
    private void handleDragDetected(MouseEvent event) {
       System.out.println("Drag detected: " + event);
 
       DragImageMaker dragImageMaker = new DragImageMaker(this);
-      Dragboard      db             = this.startDragAndDrop(TransferMode.COPY);
+      Dragboard db = this.startDragAndDrop(TransferMode.COPY);
 
       db.setDragView(dragImageMaker.getDragImage());
 
@@ -139,43 +186,38 @@ public class ConceptLabel
    private void handleDragDropped(DragEvent event) {
       System.out.println("Dragging dropped: " + event);
 
-      if (!this.manifoldProperty.get()
-                                .getGroupName()
-                                .equals(Manifold.UNLINKED_GROUP_NAME)) {
-         this.manifoldProperty.get()
-                              .setGroupName(Manifold.UNLINKED_GROUP_NAME);
-      }
+      unlink();
 
       Dragboard db = event.getDragboard();
 
       if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT)) {
          ConceptChronology conceptChronology = Get.serializer()
-                                                  .toObject(db, IsaacClipboard.ISAAC_CONCEPT);
+                 .toObject(db, IsaacClipboard.ISAAC_CONCEPT);
 
-         this.manifoldProperty.get()
-                              .setFocusedConceptChronology(conceptChronology);
+         this.manifold
+                 .setFocusedConceptChronology(conceptChronology);
       } else if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT_VERSION)) {
          ConceptVersion conceptVersion = Get.serializer()
-                                            .toObject(db, IsaacClipboard.ISAAC_CONCEPT_VERSION);
+                 .toObject(db, IsaacClipboard.ISAAC_CONCEPT_VERSION);
 
-         this.manifoldProperty.get()
-                              .setFocusedConceptChronology(conceptVersion.getChronology());
+         this.manifold
+                 .setFocusedConceptChronology(conceptVersion.getChronology());
       } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION)) {
          SememeChronology sememeChronology = Get.serializer()
-                                                .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION);
+                 .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION);
 
-         this.manifoldProperty.get()
-                              .setFocusedConceptChronology(
-                                  Get.conceptService()
-                                     .getConcept(sememeChronology.getReferencedComponentNid()));
+         this.manifold
+                 .setFocusedConceptChronology(
+                         Get.conceptService()
+                                 .getConcept(sememeChronology.getReferencedComponentNid()));
       } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION_VERSION)) {
          DescriptionVersion descriptionVersion = Get.serializer()
-                                                    .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION_VERSION);
+                 .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION_VERSION);
 
-         this.manifoldProperty.get()
-                              .setFocusedConceptChronology(
-                                  Get.conceptService()
-                                     .getConcept(descriptionVersion.getReferencedComponentNid()));
+         this.manifold
+                 .setFocusedConceptChronology(
+                         Get.conceptService()
+                                 .getConcept(descriptionVersion.getReferencedComponentNid()));
       }
 
       this.setBackground(originalBackground);
@@ -185,18 +227,18 @@ public class ConceptLabel
       System.out.println("Dragging entered: " + event);
       this.originalBackground = this.getBackground();
 
-      Color           backgroundColor;
+      Color backgroundColor;
       Set<DataFormat> contentTypes = event.getDragboard()
-                                          .getContentTypes();
+              .getContentTypes();
 
       if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.CONCEPT_TYPES)) {
-         backgroundColor   = Color.AQUA;
+         backgroundColor = Color.AQUA;
          this.transferMode = TransferMode.COPY_OR_MOVE;
       } else if (IsaacClipboard.containsAny(contentTypes, IsaacClipboard.DESCRIPTION_TYPES)) {
-         backgroundColor   = Color.OLIVEDRAB;
+         backgroundColor = Color.OLIVEDRAB;
          this.transferMode = TransferMode.COPY_OR_MOVE;
       } else {
-         backgroundColor   = Color.RED;
+         backgroundColor = Color.RED;
          this.transferMode = null;
       }
 
@@ -220,7 +262,6 @@ public class ConceptLabel
    }
 
    //~--- set methods ---------------------------------------------------------
-
    private void setDescriptionText(DescriptionVersion latestDescriptionVersion) {
       if (latestDescriptionVersion != null) {
          this.setText(latestDescriptionVersion.getText());
@@ -236,25 +277,26 @@ public class ConceptLabel
    }
 
    public static void setFullySpecifiedText(ConceptLabel label) {
-      if (label.conceptProperty.get() != null) {
-         label.conceptProperty.get()
-                              .getFullySpecifiedDescription(label.manifoldProperty.get())
-                              .ifPresent(label::setDescriptionText)
-                              .ifAbsent(label::setEmptyText);
+      ConceptChronology focusedConcept = label.manifold.getFocusedConceptChronology();
+      if (focusedConcept != null) {
+         focusedConcept
+                 .getFullySpecifiedDescription(label.manifold)
+                 .ifPresent(label::setDescriptionText)
+                 .ifAbsent(label::setEmptyText);
       } else {
          setEmptyText(label);
       }
    }
 
    public static void setPreferredText(ConceptLabel label) {
-      if (label.conceptProperty.get() != null) {
-         label.conceptProperty.get()
-                              .getPreferredDescription(label.manifoldProperty.get())
-                              .ifPresent(label::setDescriptionText)
-                              .ifAbsent(label::setEmptyText);
+      ConceptChronology focusedConcept = label.manifold.getFocusedConceptChronology();
+      if (focusedConcept != null) {
+         focusedConcept
+                 .getPreferredDescription(label.manifold)
+                 .ifPresent(label::setDescriptionText)
+                 .ifAbsent(label::setEmptyText);
       } else {
          setEmptyText(label);
       }
    }
 }
-

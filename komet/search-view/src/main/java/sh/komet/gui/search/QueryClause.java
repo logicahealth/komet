@@ -20,7 +20,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javax.validation.constraints.NotNull;
 import sh.isaac.api.query.Clause;
-import sh.komet.gui.contract.Manifold;
+import sh.komet.gui.manifold.Manifold;
 
 //~--- inner classes -------------------------------------------------------
 public class QueryClause {

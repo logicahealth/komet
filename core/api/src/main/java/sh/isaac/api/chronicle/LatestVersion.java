@@ -47,13 +47,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import sh.isaac.api.collections.StampSequenceSet;
+import sh.isaac.api.identity.StampedVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -259,8 +260,12 @@ public final class LatestVersion<V> {
     * @param predicate a predicate to apply to the value, if present
     * @return an Optional describing the value of this Optional if a value is present and the value matches the given predicate, otherwise an empty Optional
     */
-   Optional<V>	filter(Predicate<? super V> predicate) {
-      return Optional.ofNullable(value).filter(predicate);
+   public LatestVersion<V> filter(Predicate<LatestVersion<V>> predicate) {
+      //throw new UnsupportedOperationException("not implemented yet...");
+      if (predicate.test(this)) {
+         return this;
+      }
+      return new LatestVersion<>();
    }
            
    /**
@@ -270,8 +275,8 @@ public final class LatestVersion<V> {
     * @param mapper a mapping function to apply to the value, if present
     * @return an Optional describing the result of applying a mapping function to the value of this Optional, if a value is present, otherwise an empty Optional
     */
-   public <U> Optional<U> map(Function<? super V,? extends U> mapper) {
-      return Optional.ofNullable(value).map(mapper);
+   public <U> LatestVersion<U> map(Function<? super LatestVersion<V>,? extends LatestVersion<U>> mapper) {
+      return mapper.apply(this);
    }
    
    /**
@@ -297,6 +302,16 @@ public final class LatestVersion<V> {
       }
 
       return builder.build();
+   }
+   
+   public StampSequenceSet getStamps() {
+      StampSequenceSet stampSequences = new StampSequenceSet();
+      versionStream().forEach((v) -> {
+         if (v instanceof StampedVersion) {
+            stampSequences.add(((StampedVersion) v).getStampSequence());
+         }
+      });
+      return stampSequences;
    }
 }
 

@@ -22,5 +22,4 @@ package sh.komet.gui.contract;
  */
 public interface StatusMessageConsumer {
       void reportStatus(String status);
-
 }
