@@ -64,7 +64,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
+import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.axioms.GraphToAxiomTranslator;
 
 //~--- classes ----------------------------------------------------------------
@@ -184,23 +184,23 @@ public class ClassifierData
 
          // only process if incremental is a possibility.
          if (this.incrementalAllowed) {
-            final LatestVersion<LogicGraphSememeImpl> optionalLatest =
+            final LatestVersion<LogicGraphVersionImpl> optionalLatest =
                sc.getLatestVersion(this.stampCoordinate);
 
             if (optionalLatest.isPresent()) {
-               final LatestVersion<LogicGraphSememeImpl> latest = optionalLatest;
+               final LatestVersion<LogicGraphVersionImpl> latest = optionalLatest;
 
                // get stampCoordinate for last classify.
                final StampCoordinate stampToCompare =
                   this.stampCoordinate.makeCoordinateAnalog(this.lastClassifyInstant.toEpochMilli());
 
                // See if there is a change in the optionalLatest vs the last classify.
-               final LatestVersion<LogicGraphSememeImpl> optionalPrevious =
+               final LatestVersion<LogicGraphVersionImpl> optionalPrevious =
                   sc.getLatestVersion(stampToCompare);
 
                if (optionalPrevious.isPresent()) {
                   // See if the change has deletions, if so then incremental is not allowed.
-                  final LatestVersion<LogicGraphSememeImpl> previous  = optionalPrevious;
+                  final LatestVersion<LogicGraphVersionImpl> previous  = optionalPrevious;
                   boolean                                   deletions = false;
 
                   if (latest.get()
@@ -270,7 +270,7 @@ public class ClassifierData
     *
     * @param lgs the lgs
     */
-   public void translate(LogicGraphSememeImpl lgs) {
+   public void translate(LogicGraphVersionImpl lgs) {
       this.allGraphsToAxiomTranslator.convertToAxiomsAndAdd(lgs);
    }
 

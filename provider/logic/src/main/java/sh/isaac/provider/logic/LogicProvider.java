@@ -70,7 +70,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.logic.LogicalExpressionImpl;
-import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
+import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierProvider;
 
 //~--- classes ----------------------------------------------------------------
@@ -154,14 +154,14 @@ public class LogicProvider
    public LatestVersion<? extends LogicalExpression> getLogicalExpression(int conceptId,
          int logicAssemblageId,
          StampCoordinate stampCoordinate) {
-      final SememeSnapshotService<LogicGraphSememeImpl> ssp = Get.sememeService()
-                                                                 .getSnapshot(LogicGraphSememeImpl.class,
+      final SememeSnapshotService<LogicGraphVersionImpl> ssp = Get.sememeService()
+                                                                 .getSnapshot(LogicGraphVersionImpl.class,
                                                                        stampCoordinate);
       
       final List<LatestVersion<LogicalExpression>> latestVersions =
          ssp.getLatestSememeVersionsForComponentFromAssemblage(conceptId,
                                                                logicAssemblageId)
-            .map((LatestVersion<LogicGraphSememeImpl> lgs) -> {
+            .map((LatestVersion<LogicGraphVersionImpl> lgs) -> {
                     final LogicalExpression expressionValue =
                        new LogicalExpressionImpl(lgs.get().getGraphData(),
                                                       DataSource.INTERNAL,
@@ -170,7 +170,7 @@ public class LogicProvider
                     final LatestVersion<LogicalExpression> latestExpressionValue =
                        new LatestVersion<>(expressionValue);
 
-                       lgs.contradictions().forEach((LogicGraphSememeImpl contradiction) -> {
+                       lgs.contradictions().forEach((LogicGraphVersionImpl contradiction) -> {
                                       final LogicalExpressionImpl contradictionValue =
                                          new LogicalExpressionImpl(contradiction.getGraphData(),
                                                                         DataSource.INTERNAL,

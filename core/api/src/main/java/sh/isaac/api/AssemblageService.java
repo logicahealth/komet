@@ -56,6 +56,7 @@ import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeConstraints;
 import sh.isaac.api.component.sememe.SememeServiceTyped;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
+import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
@@ -77,7 +78,7 @@ public interface AssemblageService
     * @param versionType the version type
     * @return the sememe service typed
     */
-   <V extends SememeVersion> SememeServiceTyped ofType(Class<V> versionType);
+   <V extends SememeVersion> SememeServiceTyped ofType(SememeType versionType);
 
    /**
     * Write a sememe to the sememe service. Will not overwrite a sememe if one already exists, rather it will

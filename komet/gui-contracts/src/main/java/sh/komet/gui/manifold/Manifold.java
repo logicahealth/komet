@@ -150,30 +150,32 @@ public class Manifold
    public void changed(ObservableValue<? extends ConceptChronology> observable,
                        ConceptChronology oldValue,
                        ConceptChronology newValue) {
-      MANIFOLD_CHANGE_LISTENERS.forEach(
-          (manifold, u) -> {
-             HistoryRecord historyRecord = new HistoryRecord(
-                                         newValue.getConceptSequence(),
-                                         manifold.getFullySpecifiedDescriptionText(newValue));
-             ArrayDeque<HistoryRecord> groupHistory = GROUP_HISTORY_MAP.computeIfAbsent(
-                                                          UNLINKED_GROUP_NAME,
-                                                                k -> new ArrayDeque<>());
-
-             addHistory(historyRecord, groupHistory);
-
-             if ((manifold != this) &&
-                 !manifold.getGroupName().equals(UNLINKED_GROUP_NAME) &&
-                manifold.getGroupName().equals(this.getGroupName())) {
-                manifold.focusedConceptChronologyProperty()
-                        .set(newValue);
-                addHistory(historyRecord, manifold.manifoldHistory);
-                groupHistory = GROUP_HISTORY_MAP.computeIfAbsent(
-                                                          manifold.getGroupName(),
-                                                                k -> new ArrayDeque<>());
-                addHistory(historyRecord, groupHistory);
-                
-             }
-          });
+      if (newValue != null) {
+         MANIFOLD_CHANGE_LISTENERS.forEach(
+                 (manifold, u) -> {
+                    HistoryRecord historyRecord = new HistoryRecord(
+                            newValue.getConceptSequence(),
+                            manifold.getFullySpecifiedDescriptionText(newValue));
+                    ArrayDeque<HistoryRecord> groupHistory = GROUP_HISTORY_MAP.computeIfAbsent(
+                            UNLINKED_GROUP_NAME,
+                            k -> new ArrayDeque<>());
+                    
+                    addHistory(historyRecord, groupHistory);
+                    
+                    if ((manifold != this) &&
+                            !manifold.getGroupName().equals(UNLINKED_GROUP_NAME) &&
+                            manifold.getGroupName().equals(this.getGroupName())) {
+                       manifold.focusedConceptChronologyProperty()
+                               .set(newValue);
+                       addHistory(historyRecord, manifold.manifoldHistory);
+                       groupHistory = GROUP_HISTORY_MAP.computeIfAbsent(
+                               manifold.getGroupName(),
+                               k -> new ArrayDeque<>());
+                       addHistory(historyRecord, groupHistory);
+                       
+                    }
+                 });
+      }
    }
 
    public SimpleObjectProperty<ConceptChronology> focusedConceptChronologyProperty() {

@@ -66,7 +66,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.model.logic.LogicalExpressionImpl;
-import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
+import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -150,18 +150,16 @@ public class GetConceptSequenceForExpressionTask
    protected Integer call()
             throws Exception {
       try {
-         final SememeSnapshotService<LogicGraphSememeImpl> sememeSnapshot = Get.sememeService()
-                                                                               .getSnapshot(
-                                                                                     LogicGraphSememeImpl.class,
+         final SememeSnapshotService<LogicGraphVersionImpl> sememeSnapshot = Get.sememeService()
+                                                                               .getSnapshot(LogicGraphVersionImpl.class,
                                                                                            this.stampCoordinate);
 
          updateMessage("Searching existing definitions...");
 
-         final LatestVersion<LogicGraphSememeImpl> match = sememeSnapshot.getLatestSememeVersionsFromAssemblage(
+         final LatestVersion<LogicGraphVersionImpl> match = sememeSnapshot.getLatestSememeVersionsFromAssemblage(
                                                                this.logicCoordinate.getStatedAssemblageSequence())
-                                                                         .filterVersion(
-                                                                               (LatestVersion<LogicGraphSememeImpl> t) -> {
-                  final LogicGraphSememeImpl lgs = t.get();
+                                                                         .filterVersion((LatestVersion<LogicGraphVersionImpl> t) -> {
+                  final LogicGraphVersionImpl lgs = t.get();
                   final LogicalExpressionImpl existingGraph = new LogicalExpressionImpl(
                                                                   lgs.getGraphData(),
                                                                         DataSource.INTERNAL);

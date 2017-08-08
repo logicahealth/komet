@@ -246,7 +246,7 @@ public class ObservableChronologyProvider
    public ObservableSememeChronology getObservableSememeChronology(int id) {
       if (id >= 0) {
          id = Get.identifierService()
-                 .getConceptNid(id);
+                 .getSememeNid(id);
       }
 
       ObservableSememeChronology observableSememeChronology = this.observableSememeMap.get(id);

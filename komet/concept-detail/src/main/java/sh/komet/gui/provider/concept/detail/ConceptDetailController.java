@@ -60,10 +60,11 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 
-
 import sh.isaac.api.Get;
+import sh.isaac.api.State;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
@@ -78,26 +79,28 @@ import sh.komet.gui.manifold.Manifold;
 
 public class ConceptDetailController {
    private final TreeTableTimeCellFactory timeCellFactory = new TreeTableTimeCellFactory();
+   @FXML // fx:id="conceptDetailRootPane"
+   private BorderPane                                                                  conceptDetailRootPane;
    @FXML  // ResourceBundle that was given to the FXMLLoader
    private ResourceBundle                                                              resources;
    @FXML  // URL location of the FXML file that was given to the FXMLLoader
    private URL                                                                         location;
    @FXML  // fx:id="conceptExtensionTreeTable"
    private TreeTableView<ObservableCategorizedVersion>                                 conceptExtensionTreeTable;
-   @FXML  // fx:id="conceptExtensionWhat"
-   private TreeTableColumn<?, ?>                                                       conceptExtensionWhat;
-   @FXML  // fx:id="conceptExtensionGeneral"
-   private TreeTableColumn<?, ?>                                                       conceptExtensionGeneral;
-   @FXML  // fx:id="conceptExtensionStatus"
-   private TreeTableColumn<?, ?>                                                       conceptExtensionStatus;
-   @FXML  // fx:id="conceptExtensionTime"
-   private TreeTableColumn<?, ?>                                                       conceptExtensionTime;
-   @FXML  // fx:id="conceptExtensionAuthor"
-   private TreeTableColumn<?, ?>                                                       conceptExtensionAuthor;
-   @FXML  // fx:id="conceptExtensionModule"
-   private TreeTableColumn<?, ?>                                                       conceptExtensionModule;
-   @FXML  // fx:id="conceptExtensionPath"
-   private TreeTableColumn<?, ?>                                                       conceptExtensionPath;
+   @FXML  // fx:id="conceptWhatColumn"
+   private TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> conceptWhatColumn;
+   @FXML  // fx:id="conceptGeneralColumn"
+   private TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> conceptGeneralColumn;
+   @FXML  // fx:id="conceptStatusColumn"
+   private TreeTableColumn<ObservableCategorizedVersion, State>                        conceptStatusColumn;
+   @FXML  // fx:id="conceptTimeColumn"
+   private TreeTableColumn<ObservableCategorizedVersion, Long>                         conceptTimeColumn;
+   @FXML  // fx:id="conceptAuthorColumn"
+   private TreeTableColumn<ObservableCategorizedVersion, Integer>                      conceptAuthorColumn;
+   @FXML  // fx:id="conceptModuleColumn"
+   private TreeTableColumn<ObservableCategorizedVersion, Integer>                      conceptModuleColumn;
+   @FXML  // fx:id="conceptPathColumn"
+   private TreeTableColumn<ObservableCategorizedVersion, Integer>                      conceptPathColumn;
    @FXML  // fx:id="descriptionTreeTable"
    private TreeTableView<ObservableCategorizedVersion>                                 descriptionTreeTable;
    @FXML  // fx:id="descWhatColumn"
@@ -105,7 +108,7 @@ public class ConceptDetailController {
    @FXML  // fx:id="descGeneralColumn"
    private TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> descGeneralColumn;
    @FXML  // fx:id="descStatusColumn"
-   private TreeTableColumn<ObservableCategorizedVersion, Integer>                      descStatusColumn;
+   private TreeTableColumn<ObservableCategorizedVersion, State>                        descStatusColumn;
    @FXML  // fx:id="descTimeColumn"
    private TreeTableColumn<ObservableCategorizedVersion, Long>                         descTimeColumn;
    @FXML  // fx:id="descAuthorColumn"
@@ -119,32 +122,30 @@ public class ConceptDetailController {
    @FXML  // fx:id="inferredParentPane"
    private BorderPane                                                                  inferredParentPane;
    @FXML  // fx:id="topScroller"
-   private ScrollPane                                                                  topScroller;
    private Manifold                                                                    manifold;
    private TreeTableConceptCellFactory                                                 conceptCellFactory;
    private TreeTableWhatCellFactory                                                    whatCellFactory;
-   private TreeTableGeneralCellFactory generalCellFactory;
+   private TreeTableGeneralCellFactory                                                 generalCellFactory;
 
    //~--- methods -------------------------------------------------------------
 
    @FXML  // This method is called by the FXMLLoader when initialization is complete
    void initialize() {
-      assert topScroller != null: "fx:id=\"topScroller\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
       assert conceptExtensionTreeTable != null:
              "fx:id=\"conceptExtensionTreeTable\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
-      assert conceptExtensionWhat != null:
+      assert conceptWhatColumn != null:
              "fx:id=\"conceptExtensionWhat\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
-      assert conceptExtensionGeneral != null:
+      assert conceptGeneralColumn != null:
              "fx:id=\"conceptExtensionGeneral\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
-      assert conceptExtensionStatus != null:
+      assert conceptStatusColumn != null:
              "fx:id=\"conceptExtensionStatus\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
-      assert conceptExtensionTime != null:
+      assert conceptTimeColumn != null:
              "fx:id=\"conceptExtensionTime\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
-      assert conceptExtensionAuthor != null:
+      assert conceptAuthorColumn != null:
              "fx:id=\"conceptExtensionAuthor\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
-      assert conceptExtensionModule != null:
+      assert conceptModuleColumn != null:
              "fx:id=\"conceptExtensionModule\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
-      assert conceptExtensionPath != null:
+      assert conceptPathColumn != null:
              "fx:id=\"conceptExtensionPath\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
       assert descriptionTreeTable != null:
              "fx:id=\"descriptionTreeTable\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
@@ -167,10 +168,11 @@ public class ConceptDetailController {
       assert inferredParentPane != null:
              "fx:id=\"inferredParentPane\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
       descriptionTreeTable.setTableMenuButtonVisible(true);
+      conceptExtensionTreeTable.setTableMenuButtonVisible(true);
    }
 
    private void addChildren(TreeItem<ObservableCategorizedVersion> parent,
-                            ObservableList<ObservableSememeChronology> children) {
+                            ObservableList<ObservableSememeChronology> children, boolean addSememes) {
       for (ObservableSememeChronology child: children) {
          TreeItem<ObservableCategorizedVersion>            parentToAddTo       = parent;
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(manifold);
@@ -198,6 +200,9 @@ public class ConceptDetailController {
                parentToAddTo.getChildren()
                             .add(historicTreeItem);
             }
+            if (addSememes) {
+               addChildren(childTreeItem, child.getObservableSememeList(), addSememes);
+            }
          }
       }
    }
@@ -214,14 +219,21 @@ public class ConceptDetailController {
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions =
             observableConceptChronology.getCategorizedVersions(
                 manifold);
-         TreeItem<ObservableCategorizedVersion> root = new TreeItem<>(categorizedVersions.getLatestVersion().get());
-
-         addChildren(root, observableConceptChronology.getDescriptions());
-         descriptionTreeTable.setRoot(root);
+         TreeItem<ObservableCategorizedVersion> descriptionRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
+         addChildren(descriptionRoot, observableConceptChronology.getDescriptions(), false);
+         descriptionTreeTable.setRoot(descriptionRoot);
+         
+         TreeItem<ObservableCategorizedVersion> conceptRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
+         addChildren(conceptRoot, observableConceptChronology.getObservableSememeList(), true);
+         conceptExtensionTreeTable.setRoot(conceptRoot);
       }
    }
 
    //~--- get methods ---------------------------------------------------------
+
+   public BorderPane getConceptDetailRootPane() {
+      return conceptDetailRootPane;
+   }
 
    public Manifold getManifold() {
       return manifold;
@@ -239,15 +251,24 @@ public class ConceptDetailController {
                    .addListener(this::focusConceptChanged);
       this.conceptCellFactory = new TreeTableConceptCellFactory(manifold);
       this.whatCellFactory    = new TreeTableWhatCellFactory(manifold);
-      generalCellFactory = new TreeTableGeneralCellFactory(manifold);
- 
-      
+      this.generalCellFactory = new TreeTableGeneralCellFactory(manifold);
+      conceptWhatColumn.setCellValueFactory(this.whatCellFactory::getCellValue);
+      conceptWhatColumn.setCellFactory(this.whatCellFactory::call);
+      conceptGeneralColumn.setCellValueFactory(this.generalCellFactory::getCellValue);
+      conceptGeneralColumn.setCellFactory(this.generalCellFactory::call);
+      conceptStatusColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("state"));
+      conceptTimeColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("time"));
+      conceptTimeColumn.setCellFactory(this.timeCellFactory::call);
+      conceptAuthorColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("authorSequence"));
+      conceptAuthorColumn.setCellFactory(this.conceptCellFactory::call);
+      conceptModuleColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("moduleSequence"));
+      conceptModuleColumn.setCellFactory(this.conceptCellFactory::call);
+      conceptPathColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("pathSequence"));
+      conceptPathColumn.setCellFactory(this.conceptCellFactory::call);
       descWhatColumn.setCellValueFactory(this.whatCellFactory::getCellValue);
       descWhatColumn.setCellFactory(this.whatCellFactory::call);
-
       descGeneralColumn.setCellValueFactory(this.generalCellFactory::getCellValue);
       descGeneralColumn.setCellFactory(this.generalCellFactory::call);
-      
       descStatusColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("state"));
       descTimeColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("time"));
       descTimeColumn.setCellFactory(this.timeCellFactory::call);
@@ -257,12 +278,6 @@ public class ConceptDetailController {
       descModuleColumn.setCellFactory(this.conceptCellFactory::call);
       descPathColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("pathSequence"));
       descPathColumn.setCellFactory(this.conceptCellFactory::call);
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   public ScrollPane getTopScroller() {
-      return topScroller;
    }
 }
 

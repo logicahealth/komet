@@ -53,13 +53,13 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
 import sh.isaac.model.ChronologyImpl;
-import sh.isaac.model.sememe.version.ComponentNidSememeImpl;
-import sh.isaac.model.sememe.version.DescriptionSememeImpl;
+import sh.isaac.model.sememe.version.ComponentNidVersionImpl;
+import sh.isaac.model.sememe.version.DescriptionVersionImpl;
 import sh.isaac.model.sememe.version.DynamicSememeImpl;
-import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
-import sh.isaac.model.sememe.version.LongSememeImpl;
+import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
+import sh.isaac.model.sememe.version.LongVersionImpl;
 import sh.isaac.model.sememe.version.SememeVersionImpl;
-import sh.isaac.model.sememe.version.StringSememeImpl;
+import sh.isaac.model.sememe.version.StringVersionImpl;
 import sh.isaac.api.component.sememe.version.MutableSememeVersion;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.identity.StampedVersion;
@@ -174,19 +174,19 @@ public class SememeChronologyImpl extends ChronologyImpl
          return new SememeVersionImpl(container, stampSequence, versionSequence);
 
       case COMPONENT_NID:
-         return new ComponentNidSememeImpl((SememeChronologyImpl) container,
+         return new ComponentNidVersionImpl((SememeChronologyImpl) container,
                                            stampSequence,
                                            versionSequence,
                                            bb);
 
       case LONG:
-         return new LongSememeImpl((SememeChronologyImpl) container,
+         return new LongVersionImpl((SememeChronologyImpl) container,
                                    stampSequence,
                                    versionSequence,
                                    bb);
 
       case LOGIC_GRAPH:
-         return new LogicGraphSememeImpl((SememeChronologyImpl) container,
+         return new LogicGraphVersionImpl((SememeChronologyImpl) container,
                                          stampSequence,
                                          versionSequence,
                                          bb);
@@ -198,13 +198,13 @@ public class SememeChronologyImpl extends ChronologyImpl
                                       bb);
 
       case STRING:
-         return new StringSememeImpl((SememeChronologyImpl) container,
+         return new StringVersionImpl((SememeChronologyImpl) container,
                                      stampSequence,
                                      versionSequence,
                                      bb);
 
       case DESCRIPTION:
-         return (new DescriptionSememeImpl((SememeChronologyImpl) container,
+         return (new DescriptionVersionImpl((SememeChronologyImpl) container,
                                            stampSequence,
                                            versionSequence,
                                            bb));
@@ -304,11 +304,11 @@ public class SememeChronologyImpl extends ChronologyImpl
             throws UnsupportedOperationException {
       switch (getSememeType()) {
       case COMPONENT_NID:
-            return (M) new ComponentNidSememeImpl((SememeChronology) this,
+            return (M) new ComponentNidVersionImpl((SememeChronology) this,
                   stampSequence,
                   versionSequence);
       case LONG:
-            return (M) new LongSememeImpl((SememeChronologyImpl) this, stampSequence, versionSequence);
+            return (M) new LongVersionImpl((SememeChronologyImpl) this, stampSequence, versionSequence);
 
       case DYNAMIC:
             return (M) new DynamicSememeImpl((SememeChronologyImpl) this,
@@ -316,12 +316,12 @@ public class SememeChronologyImpl extends ChronologyImpl
                                              versionSequence);
 
       case LOGIC_GRAPH:
-            return (M) new LogicGraphSememeImpl((SememeChronologyImpl) this,
+            return (M) new LogicGraphVersionImpl((SememeChronologyImpl) this,
                   stampSequence,
                   versionSequence);
 
       case STRING:
-            return (M) new StringSememeImpl((SememeChronology) this,
+            return (M) new StringVersionImpl((SememeChronology) this,
                                             stampSequence,
                                             versionSequence);
 
@@ -329,7 +329,7 @@ public class SememeChronologyImpl extends ChronologyImpl
             return (M) new SememeVersionImpl(this, stampSequence, versionSequence);
 
       case DESCRIPTION:
-            return (M) new DescriptionSememeImpl((SememeChronology) this,
+            return (M) new DescriptionVersionImpl((SememeChronology) this,
                   stampSequence,
                   versionSequence);
 

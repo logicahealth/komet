@@ -42,6 +42,7 @@ package sh.komet.gui.cell;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.value.ObservableValue;
+import javafx.scene.control.TreeTableCell;
 
 import javafx.scene.control.TreeTableColumn;
 
@@ -59,7 +60,7 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class TreeTableWhatCellFactory
          implements Callback<TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion>,
-                             TreeTableWhatCell> {
+                             TreeTableCell<ObservableCategorizedVersion, ObservableCategorizedVersion>> {
    private final Manifold manifold;
 
    //~--- constructors --------------------------------------------------------
@@ -71,7 +72,7 @@ public class TreeTableWhatCellFactory
    //~--- methods -------------------------------------------------------------
 
    @Override
-   public TreeTableWhatCell call(TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> param) {
+   public TreeTableCell<ObservableCategorizedVersion, ObservableCategorizedVersion> call(TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> param) {
       return new TreeTableWhatCell(this.manifold);
    }
 

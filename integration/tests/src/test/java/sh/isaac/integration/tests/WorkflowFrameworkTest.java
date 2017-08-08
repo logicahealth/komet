@@ -77,7 +77,7 @@ import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.coordinate.EditCoordinateImpl;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
-import sh.isaac.model.sememe.version.DescriptionSememeImpl;
+import sh.isaac.model.sememe.version.DescriptionVersionImpl;
 import sh.isaac.provider.workflow.BPMNInfo;
 import sh.isaac.provider.workflow.WorkflowProvider;
 import sh.isaac.provider.workflow.model.contents.AbstractStorableWorkflowContents;
@@ -218,7 +218,7 @@ public class WorkflowFrameworkTest {
                                                       .getText();
 
          // Modify Sememe Text
-         final DescriptionSememeImpl createdVersion = cloneVersion(descSem, State.ACTIVE);
+         final DescriptionVersionImpl createdVersion = cloneVersion(descSem, State.ACTIVE);
 
          createdVersion.setText("New Text");
          Get.commitService()
@@ -295,7 +295,7 @@ public class WorkflowFrameworkTest {
                  .addCommitRecordToWorkflow(processId, commitRecord);
 
          // Inactivate Sememe
-         final DescriptionSememeImpl createdVersion = cloneVersion(semChron, State.INACTIVE);
+         final DescriptionVersionImpl createdVersion = cloneVersion(semChron, State.INACTIVE);
 
          Get.commitService()
             .addUncommitted(semChron)
@@ -1503,7 +1503,7 @@ public class WorkflowFrameworkTest {
     * @throws InterruptedException the interrupted exception
     * @throws ExecutionException the execution exception
     */
-   private DescriptionSememeImpl cloneVersion(SememeChronologyImpl semChron,
+   private DescriptionVersionImpl cloneVersion(SememeChronologyImpl semChron,
          State state)
             throws InterruptedException,
                    ExecutionException {
@@ -1511,8 +1511,8 @@ public class WorkflowFrameworkTest {
          (DescriptionVersion) (semChron
                  .getLatestVersion(Get.configurationService()
                          .getDefaultStampCoordinate())).get();
-      final DescriptionSememeImpl createdVersion =
-         (DescriptionSememeImpl) semChron.createMutableVersion(state,
+      final DescriptionVersionImpl createdVersion =
+         (DescriptionVersionImpl) semChron.createMutableVersion(state,
                                                                this.defaultEditCoordinate);
 
       createdVersion.setCaseSignificanceConceptSequence(latestVersion.getCaseSignificanceConceptSequence());
@@ -1549,7 +1549,7 @@ public class WorkflowFrameworkTest {
       } else {
          final SememeChronologyImpl  semChron       = (SememeChronologyImpl) Get.sememeService()
                                                                                 .getSememe(semNid);
-         final DescriptionSememeImpl createdVersion = cloneVersion(semChron, State.ACTIVE);
+         final DescriptionVersionImpl createdVersion = cloneVersion(semChron, State.ACTIVE);
 
          Get.commitService()
             .addUncommitted(semChron)

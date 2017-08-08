@@ -34,38 +34,44 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.model.observable;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import javafx.beans.property.IntegerProperty;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.model.observable.version.ObservableDescriptionImpl;
-import sh.isaac.model.sememe.version.DescriptionSememeImpl;
+import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
+import sh.isaac.model.sememe.version.DescriptionVersionImpl;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.sememe.version.LongVersion;
 import sh.isaac.api.component.sememe.version.MutableSememeVersion;
+import sh.isaac.api.component.sememe.version.StringVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
 import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
+import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
+import sh.isaac.model.observable.version.ObservableLongVersionImpl;
+import sh.isaac.model.observable.version.ObservableSememeVersionImpl;
+import sh.isaac.model.observable.version.ObservableStringVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class ObservableSememeChronologyImpl.
  *
@@ -73,18 +79,26 @@ import sh.isaac.api.observable.ObservableVersion;
  */
 public class ObservableSememeChronologyImpl
         extends ObservableChronologyImpl
-         implements ObservableSememeChronology {
-   /** The sememe sequence property. */
+        implements ObservableSememeChronology {
+
+   private static final Logger LOG = LogManager.getLogger();
+
+   /**
+    * The sememe sequence property.
+    */
    private IntegerProperty sememeSequenceProperty;
 
-   /** The assemblage sequence property. */
+   /**
+    * The assemblage sequence property.
+    */
    private IntegerProperty assemblageSequenceProperty;
 
-   /** The referenced component nid property. */
+   /**
+    * The referenced component nid property.
+    */
    private IntegerProperty referencedComponentNidProperty;
 
    //~--- constructors --------------------------------------------------------
-
    /**
     * Instantiates a new observable sememe chronology impl.
     *
@@ -108,8 +122,8 @@ public class ObservableSememeChronologyImpl
    public IntegerProperty assemblageSequenceProperty() {
       if (this.assemblageSequenceProperty == null) {
          this.assemblageSequenceProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.ASSEMBLAGE_SEQUENCE_FOR_SEMEME_CHRONICLE.toExternalString(),
-               getAssemblageSequence());
+                 ObservableFields.ASSEMBLAGE_SEQUENCE_FOR_SEMEME_CHRONICLE.toExternalString(),
+                 getAssemblageSequence());
       }
 
       return this.assemblageSequenceProperty;
@@ -147,8 +161,8 @@ public class ObservableSememeChronologyImpl
    public IntegerProperty referencedComponentNidProperty() {
       if (this.referencedComponentNidProperty == null) {
          this.referencedComponentNidProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMEME_CHRONICLE.toExternalString(),
-               getReferencedComponentNid());
+                 ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMEME_CHRONICLE.toExternalString(),
+                 getReferencedComponentNid());
       }
 
       return this.referencedComponentNidProperty;
@@ -163,8 +177,8 @@ public class ObservableSememeChronologyImpl
    public IntegerProperty sememeSequenceProperty() {
       if (this.sememeSequenceProperty == null) {
          this.sememeSequenceProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.SEMEME_SEQUENCE_FOR_CHRONICLE.toExternalString(),
-               getSememeSequence());
+                 ObservableFields.SEMEME_SEQUENCE_FOR_CHRONICLE.toExternalString(),
+                 getSememeSequence());
       }
 
       return this.sememeSequenceProperty;
@@ -176,18 +190,43 @@ public class ObservableSememeChronologyImpl
     * @param sememeVersion the sememe version
     * @return the ov
     */
-   private <OV extends ObservableSememeVersion> 
-        OV wrapInObservable(SememeVersion sememeVersion) {
-      if (DescriptionVersion.class.isAssignableFrom(sememeVersion.getClass())) {
-         return (OV) new ObservableDescriptionImpl((DescriptionSememeImpl) sememeVersion,
-               (ObservableSememeChronology) this);
+   private <OV extends ObservableSememeVersion>
+           OV wrapInObservable(SememeVersion sememeVersion) {
+      switch (sememeVersion.getChronology().getSememeType()) {
+         case DESCRIPTION:
+            return (OV) new ObservableDescriptionVersionImpl((DescriptionVersionImpl) sememeVersion,
+                    (ObservableSememeChronology) this);
+         case COMPONENT_NID:
+            return (OV) new ObservableComponentNidVersionImpl((ComponentNidVersion) sememeVersion,
+                    (ObservableSememeChronology) this);
+         case MEMBER:
+            return (OV) new ObservableSememeVersionImpl(sememeVersion,
+                    (ObservableSememeChronology) this);
+         case LONG:
+            return (OV) new ObservableLongVersionImpl((LongVersion) sememeVersion,
+                    (ObservableSememeChronology) this);
+         case STRING:
+            return (OV) new ObservableStringVersionImpl((StringVersion) sememeVersion,
+                    (ObservableSememeChronology) this);
+         case LOGIC_GRAPH:
+            return (OV) new ObservableLogicGraphVersionImpl((LogicGraphVersion) sememeVersion,
+                    (ObservableSememeChronology) this);
+         case DYNAMIC:
+            LOG.warn("Incomplete implementation of dynamic sememe...");
+            return (OV) new ObservableSememeVersionImpl(sememeVersion,
+                    (ObservableSememeChronology) this);
+            
+           // fall through to default...
+         case UNKNOWN:
+         default:
+            throw new UnsupportedOperationException("Can't convert to observable "
+                    + sememeVersion.getChronology().getSememeType() + "from \n:    "
+                    + sememeVersion);
       }
 
-      throw new UnsupportedOperationException("Can't convert " + sememeVersion);
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the assemblage sequence.
     *
@@ -212,8 +251,8 @@ public class ObservableSememeChronologyImpl
       final ObservableList<OV> observableList = FXCollections.observableArrayList();
 
       this.chronicledObjectLocal.getVersionList().stream().forEach((sememeVersion) -> {
-                                            observableList.add(wrapInObservable((SememeVersion) sememeVersion));
-                                         });
+         observableList.add(wrapInObservable((SememeVersion) sememeVersion));
+      });
       return observableList;
    }
 
@@ -263,9 +302,9 @@ public class ObservableSememeChronologyImpl
     * @param type the type
     * @return the sv for ov
     */
-   private <M extends MutableSememeVersion, T> 
-        Class<T> getSvForOv(Class<M> type) {
-      if (type.isAssignableFrom(ObservableDescriptionImpl.class)) {
+   private <M extends MutableSememeVersion, T>
+           Class<T> getSvForOv(Class<M> type) {
+      if (type.isAssignableFrom(ObservableDescriptionVersionImpl.class)) {
          return (Class<T>) DescriptionVersion.class;
       }
 
@@ -299,9 +338,6 @@ public class ObservableSememeChronologyImpl
 
    @Override
    public String toString() {
-      return "ObservableSememeChronologyImpl{" +  getSememeChronology().toUserString() + '}';
+      return "ObservableSememeChronologyImpl{" + getSememeChronology().toUserString() + '}';
    }
-        
-        
 }
-

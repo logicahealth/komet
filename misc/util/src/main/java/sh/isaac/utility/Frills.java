@@ -132,12 +132,12 @@ import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.model.sememe.DynamicSememeUsageDescriptionImpl;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeStringImpl;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
-import sh.isaac.model.sememe.version.ComponentNidSememeImpl;
-import sh.isaac.model.sememe.version.DescriptionSememeImpl;
+import sh.isaac.model.sememe.version.ComponentNidVersionImpl;
+import sh.isaac.model.sememe.version.DescriptionVersionImpl;
 import sh.isaac.model.sememe.version.DynamicSememeImpl;
-import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
-import sh.isaac.model.sememe.version.LongSememeImpl;
-import sh.isaac.model.sememe.version.StringSememeImpl;
+import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
+import sh.isaac.model.sememe.version.LongVersionImpl;
+import sh.isaac.model.sememe.version.StringVersionImpl;
 
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
@@ -993,20 +993,19 @@ public class Frills
                                      .getDefaultStampCoordinate()
                                 : stamp)
             .getLatestSememeVersionsForComponentFromAssemblage(componentNid, assemblageConceptSequence)
-            .forEach(
-                latestSememe -> {
+            .forEach(latestSememe -> {
                    if (latestSememe.get()
                                    .getChronology()
                                    .getSememeType() == SememeType.STRING) {
-                      values.add(((StringSememeImpl) latestSememe.get()).getString());
+                      values.add(((StringVersionImpl) latestSememe.get()).getString());
                    } else if (latestSememe.get()
                                           .getChronology()
                                           .getSememeType() == SememeType.COMPONENT_NID) {
-                      values.add(((ComponentNidSememeImpl) latestSememe.get()).getComponentNid() + "");
+                      values.add(((ComponentNidVersionImpl) latestSememe.get()).getComponentNid() + "");
                    } else if (latestSememe.get()
                                           .getChronology()
                                           .getSememeType() == SememeType.LONG) {
-                      values.add(((LongSememeImpl) latestSememe.get()).getLongValue() + "");
+                      values.add(((LongVersionImpl) latestSememe.get()).getLongValue() + "");
                    } else if (latestSememe.get()
                                           .getChronology()
                                           .getSememeType() == SememeType.DYNAMIC) {
@@ -1676,9 +1675,8 @@ public class Frills
     */
    public static Optional<Long> getSctId(int componentNid, StampCoordinate stamp) {
       try {
-         final LatestVersion<StringSememeImpl> sememe = Get.sememeService()
-                                                           .getSnapshot(
-                                                                 StringSememeImpl.class,
+         final LatestVersion<StringVersionImpl> sememe = Get.sememeService()
+                                                           .getSnapshot(StringVersionImpl.class,
                                                                        (stamp == null) ? Get.configurationService()
                                                                              .getDefaultStampCoordinate()
                : stamp)
@@ -1836,22 +1834,22 @@ public class Frills
 
          switch (sememeChronology.getSememeType()) {
          case COMPONENT_NID:
-            return ComponentNidSememeImpl.class;
+            return ComponentNidVersionImpl.class;
 
          case DESCRIPTION:
-            return DescriptionSememeImpl.class;
+            return DescriptionVersionImpl.class;
 
          case DYNAMIC:
             return DynamicSememeImpl.class;
 
          case LOGIC_GRAPH:
-            return LogicGraphSememeImpl.class;
+            return LogicGraphVersionImpl.class;
 
          case LONG:
-            return LongSememeImpl.class;
+            return LongVersionImpl.class;
 
          case STRING:
-            return StringSememeImpl.class;
+            return StringVersionImpl.class;
 
          case UNKNOWN:
          case MEMBER:

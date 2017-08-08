@@ -50,11 +50,11 @@ import sh.isaac.api.component.sememe.version.StringVersion;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class StringSememeImpl.
+ * The Class StringVersionImpl.
  *
  * @author kec
  */
-public class StringSememeImpl
+public class StringVersionImpl
         extends SememeVersionImpl
          implements StringVersion, MutableStringVersion {
    /** The string. */
@@ -69,7 +69,7 @@ public class StringSememeImpl
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     */
-   public StringSememeImpl(SememeChronology container, int stampSequence, short versionSequence) {
+   public StringVersionImpl(SememeChronology container, int stampSequence, short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
@@ -81,7 +81,7 @@ public class StringSememeImpl
     * @param versionSequence the version sequence
     * @param data the data
     */
-   public StringSememeImpl(SememeChronology container,
+   public StringVersionImpl(SememeChronology container,
                            int stampSequence,
                            short versionSequence,
                            ByteArrayDataBuffer data) {

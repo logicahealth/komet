@@ -39,61 +39,52 @@
 
 package sh.isaac.model.sememe.version;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.util.Optional;
-
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.Get;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.sememe.SememeChronologyImpl;
-import sh.isaac.api.component.sememe.version.MutableComponentNidVersion;
+import sh.isaac.api.component.sememe.version.MutableLongVersion;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * Used for description dialect preferences.
- *
+ * Used for path origins by path manager.
  * @author kec
  */
-public class ComponentNidSememeImpl
+public class LongVersionImpl
         extends SememeVersionImpl
-         implements MutableComponentNidVersion {
-   /** The component nid. */
-   int componentNid = Integer.MAX_VALUE;
+         implements MutableLongVersion {
+   /** The long value. */
+   long longValue = Long.MAX_VALUE;
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new component nid sememe impl.
+    * Instantiates a new long sememe impl.
     *
     * @param container the container
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     */
-   public ComponentNidSememeImpl(SememeChronology container,
-                                 int stampSequence,
-                                 short versionSequence) {
+   public LongVersionImpl(SememeChronologyImpl container, int stampSequence, short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
    /**
-    * Instantiates a new component nid sememe impl.
+    * Instantiates a new long sememe impl.
     *
     * @param container the container
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     * @param data the data
     */
-   public ComponentNidSememeImpl(SememeChronologyImpl container,
-                                 int stampSequence,
-                                 short versionSequence,
-                                 ByteArrayDataBuffer data) {
+   public LongVersionImpl(SememeChronologyImpl container,
+                         int stampSequence,
+                         short versionSequence,
+                         ByteArrayDataBuffer data) {
       super(container, stampSequence, versionSequence);
-      this.componentNid = data.getNid();
+      this.longValue = data.getLong();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -107,39 +98,10 @@ public class ComponentNidSememeImpl
    public String toString() {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("{Component Nid≤");
-
-      switch (Get.identifierService()
-                 .getChronologyTypeForNid(this.componentNid)) {
-      case CONCEPT:
-         sb.append(Get.conceptDescriptionText(this.componentNid));
-         break;
-
-      case SEMEME:
-         final Optional<? extends SememeChronology> optionalSememe = Get.sememeService()
-                                                                                                    .getOptionalSememe(
-                                                                                                       this.componentNid);
-
-         if (optionalSememe.isPresent()) {
-            sb.append(optionalSememe.get()
-                                    .getSememeType());
-         } else {
-            sb.append("no such sememe: ")
-              .append(this.componentNid);
-         }
-
-         break;
-
-      default:
-         sb.append(Get.identifierService()
-                      .getChronologyTypeForNid(this.componentNid))
-           .append(" ")
-           .append(this.componentNid)
-           .append(" ");
-      }
-
+      sb.append("{Long≤");
+      sb.append(this.longValue);
       toString(sb);
-      sb.append("≥CN}");
+      sb.append("≥L}");
       return sb.toString();
    }
 
@@ -151,35 +113,35 @@ public class ComponentNidSememeImpl
    @Override
    protected void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
-      data.putNid(this.componentNid);
+      data.putLong(this.longValue);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the component nid.
+    * Gets the long value.
     *
-    * @return the component nid
+    * @return the long value
     */
    @Override
-   public int getComponentNid() {
-      return this.componentNid;
+   public long getLongValue() {
+      return this.longValue;
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the component nid.
+    * Sets the long value.
     *
-    * @param componentNid the new component nid
+    * @param time the new long value
     */
    @Override
-   public void setComponentNid(int componentNid) {
-      if (this.componentNid != Integer.MAX_VALUE) {
+   public void setLongValue(long time) {
+      if (this.longValue != Long.MAX_VALUE) {
          checkUncommitted();
       }
 
-      this.componentNid = componentNid;
+      this.longValue = time;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -191,7 +153,7 @@ public class ComponentNidSememeImpl
     */
    @Override
    public SememeType getSememeType() {
-      return SememeType.COMPONENT_NID;
+      return SememeType.LONG;
    }
 }
 

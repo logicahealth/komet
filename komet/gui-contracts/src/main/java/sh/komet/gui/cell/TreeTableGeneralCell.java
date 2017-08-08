@@ -17,10 +17,19 @@
 package sh.komet.gui.cell;
 
 import javafx.scene.control.TreeTableCell;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.sememe.version.LongVersion;
 import sh.isaac.api.component.sememe.version.SememeVersion;
+import sh.isaac.api.component.sememe.version.StringVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.manifold.Manifold;
 
@@ -29,6 +38,8 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 public class TreeTableGeneralCell extends TreeTableCell<ObservableCategorizedVersion, ObservableCategorizedVersion> {
+   
+   private static final Logger LOG = LogManager.getLogger();
    private final Manifold manifold;
 
    public TreeTableGeneralCell(Manifold manifold) {
@@ -49,6 +60,42 @@ public class TreeTableGeneralCell extends TreeTableCell<ObservableCategorizedVer
            case DESCRIPTION:
               DescriptionVersion description = version.unwrap();
               setText(description.getText());
+              break;
+           case COMPONENT_NID:
+              ComponentNidVersion componentNidVersion = version.unwrap();
+              
+              switch (Get.identifierService().getChronologyTypeForNid(componentNidVersion.getComponentNid())) {
+                 case CONCEPT:
+                    setText(manifold.getPreferredDescriptionText(componentNidVersion.getComponentNid()));
+                    break;
+                 case SEMEME:
+
+                    SememeChronology sememe = Get.sememeService().getSememe(componentNidVersion.getComponentNid());
+                    LatestVersion<SememeVersion> latest = sememe.getLatestVersion(manifold);
+                    if (latest.isPresent()) {
+                       setText(latest.get().toUserString());
+                    } else {
+                       setText("No latet");
+                    }
+                    break;
+                 case UNKNOWN_NID:
+                    LOG.warn("Unknown nid: " + componentNidVersion);
+                    break;
+              }
+              break;
+           case STRING:
+              StringVersion stringVersion = version.unwrap();
+              setText(stringVersion.getString());
+              break;
+           case LOGIC_GRAPH:
+              LogicGraphVersion logicGraphVersion = version.unwrap();
+              setText(logicGraphVersion.getLogicalExpression().toString());
+              break;
+           case MEMBER:
+              break;
+           case LONG:
+              LongVersion longVersion = version.unwrap();
+              setText(Long.toString(longVersion.getLongValue()));
               break;
            default: 
            setText("not implemented for type: " + sememeType);

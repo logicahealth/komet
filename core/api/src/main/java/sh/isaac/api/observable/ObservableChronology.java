@@ -48,12 +48,14 @@ import java.util.UUID;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.collections.ObservableList;
 
 
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitStates;
+import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
@@ -117,6 +119,33 @@ public interface ObservableChronology
    ListProperty<ObservableVersion> versionListProperty();
 
    //~--- get methods ---------------------------------------------------------
+
+   /**
+    * Gets the sememe list.
+    *
+    * @return a list of SememeChronology objects, where this object is the referenced component.
+    */
+   ObservableList<ObservableSememeChronology> getObservableSememeList();
+
+   /**
+    * Gets the sememe list from assemblage.
+    *
+    * @param assemblageSequence the assemblage sequence
+    * @return the sememe list from assemblage
+    */
+   ObservableList<ObservableSememeChronology> getObservableSememeListFromAssemblage(int assemblageSequence);
+
+   /**
+    * Gets the sememe list from assemblage of type.
+    *
+    * @param assemblageSequence the assemblage sequence
+    * @param type the type
+    * @return the sememe list from assemblage of type
+    */
+   ObservableList<ObservableSememeChronology> getObservableSememeListFromAssemblageOfType(
+           int assemblageSequence,
+           SememeType type);
+
 
    /**
     * Gets the latest version.

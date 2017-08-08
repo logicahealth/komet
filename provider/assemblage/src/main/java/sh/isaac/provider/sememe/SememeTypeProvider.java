@@ -49,9 +49,9 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeServiceTyped;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.AssemblageService;
+import sh.isaac.api.component.sememe.SememeType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -63,7 +63,7 @@ import sh.isaac.api.AssemblageService;
 public class SememeTypeProvider
          implements SememeServiceTyped {
    /** The type. */
-   Class<? extends SememeVersion> type;
+   SememeType type;
 
    /** The sememe provider. */
    AssemblageService sememeProvider;
@@ -76,7 +76,7 @@ public class SememeTypeProvider
     * @param type the type
     * @param sememeProvider the sememe provider
     */
-   public SememeTypeProvider(Class<? extends SememeVersion> type, AssemblageService sememeProvider) {
+   public SememeTypeProvider(SememeType type, AssemblageService sememeProvider) {
       this.type           = type;
       this.sememeProvider = sememeProvider;
    }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TreeTableColumn?>
 <?import javafx.scene.control.TreeTableView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -9,9 +8,10 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<ScrollPane fx:id="topScroller" fitToHeight="true" fitToWidth="true" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111" fx:controller="sh.komet.gui.provider.concept.detail.ConceptDetailController">
-   <content>
-      <GridPane prefHeight="398.0" prefWidth="598.0">
+
+<BorderPane fx:id="conceptDetailRootPane" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.provider.concept.detail.ConceptDetailController">
+   <center>
+      <GridPane prefHeight="398.0" prefWidth="598.0" BorderPane.alignment="CENTER">
         <columnConstraints>
           <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
@@ -31,20 +31,20 @@
             <Label text="Extensions:" GridPane.rowIndex="1" />
             <TreeTableView fx:id="conceptExtensionTreeTable" showRoot="false" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="SOMETIMES">
               <columns>
-                <TreeTableColumn fx:id="conceptExtensionWhat" prefWidth="75.0" text="what" />
-                <TreeTableColumn fx:id="conceptExtensionGeneral" prefWidth="75.0" text="general" />
-                  <TreeTableColumn fx:id="conceptExtensionStatus" prefWidth="75.0" text="status" />
-                  <TreeTableColumn fx:id="conceptExtensionTime" prefWidth="75.0" text="time" />
-                  <TreeTableColumn fx:id="conceptExtensionAuthor" prefWidth="75.0" text="author" />
-                  <TreeTableColumn fx:id="conceptExtensionModule" prefWidth="75.0" text="module" />
-                  <TreeTableColumn fx:id="conceptExtensionPath" prefWidth="75.0" text="path" />
+                <TreeTableColumn fx:id="conceptWhatColumn" prefWidth="75.0" />
+                <TreeTableColumn fx:id="conceptGeneralColumn" prefWidth="75.0" />
+                  <TreeTableColumn fx:id="conceptStatusColumn" prefWidth="75.0" text="status" />
+                  <TreeTableColumn fx:id="conceptTimeColumn" prefWidth="75.0" text="time" />
+                  <TreeTableColumn fx:id="conceptAuthorColumn" prefWidth="75.0" text="author" />
+                  <TreeTableColumn fx:id="conceptModuleColumn" prefWidth="75.0" text="module" />
+                  <TreeTableColumn fx:id="conceptPathColumn" prefWidth="75.0" text="path" />
               </columns>
             </TreeTableView>
             <Label prefHeight="22.0" prefWidth="114.0" text="Descriptions:" GridPane.rowIndex="3" GridPane.vgrow="NEVER" />
             <TreeTableView fx:id="descriptionTreeTable" showRoot="false" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4">
               <columns>
-                <TreeTableColumn fx:id="descWhatColumn" prefWidth="75.0" text="what" />
-                <TreeTableColumn fx:id="descGeneralColumn" text="general" />
+                <TreeTableColumn fx:id="descWhatColumn" prefWidth="75.0" />
+                <TreeTableColumn fx:id="descGeneralColumn" />
                   <TreeTableColumn fx:id="descStatusColumn" prefWidth="70.0" text="status" />
                   <TreeTableColumn fx:id="descTimeColumn" prefWidth="75.0" text="time" />
                   <TreeTableColumn fx:id="descAuthorColumn" prefWidth="75.0" text="author" />
@@ -58,5 +58,5 @@
             <BorderPane fx:id="inferredParentPane" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="8" GridPane.vgrow="SOMETIMES" />
          </children>
       </GridPane>
-   </content>
-</ScrollPane>
+   </center>
+</BorderPane>

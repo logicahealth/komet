@@ -101,7 +101,7 @@ public class MockSememeService
     * @return the sememe service typed
     */
    @Override
-   public <V extends SememeVersion> SememeServiceTyped ofType(Class<V> versionType) {
+   public <V extends SememeVersion> SememeServiceTyped ofType(SememeType versionType) {
       throw new UnsupportedOperationException();
    }
 

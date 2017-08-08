@@ -49,18 +49,18 @@ import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.sememe.version.DescriptionSememeImpl;
+import sh.isaac.model.sememe.version.DescriptionVersionImpl;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class ObservableDescriptionImpl.
+ * The Class ObservableDescriptionVersionImpl.
  *
  * @author kec
  */
-public class ObservableDescriptionImpl
+public class ObservableDescriptionVersionImpl
         extends ObservableSememeVersionImpl
          implements ObservableDescriptionVersion {
    /** The case significance concept sequence property. */
@@ -83,7 +83,7 @@ public class ObservableDescriptionImpl
     * @param stampedVersion the stamped version
     * @param chronology the chronology
     */
-   public ObservableDescriptionImpl(DescriptionVersion stampedVersion,
+   public ObservableDescriptionVersionImpl(DescriptionVersion stampedVersion,
                                     ObservableSememeChronology chronology) {
       super(stampedVersion, 
               chronology);
@@ -168,7 +168,7 @@ public class ObservableDescriptionImpl
          return this.caseSignificanceConceptSequenceProperty.get();
       }
 
-      return ((DescriptionSememeImpl) this.stampedVersion).getCaseSignificanceConceptSequence();
+      return ((DescriptionVersionImpl) this.stampedVersion).getCaseSignificanceConceptSequence();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -183,7 +183,7 @@ public class ObservableDescriptionImpl
       if (this.caseSignificanceConceptSequenceProperty != null) {
          this.caseSignificanceConceptSequenceProperty.set(caseSignificanceConceptSequence);
       } else {
-         ((DescriptionSememeImpl) this.stampedVersion).setCaseSignificanceConceptSequence(
+         ((DescriptionVersionImpl) this.stampedVersion).setCaseSignificanceConceptSequence(
              caseSignificanceConceptSequence);
       }
    }
@@ -201,7 +201,7 @@ public class ObservableDescriptionImpl
          return this.descriptionTypeConceptSequenceProperty.get();
       }
 
-      return ((DescriptionSememeImpl) this.stampedVersion).getDescriptionTypeConceptSequence();
+      return ((DescriptionVersionImpl) this.stampedVersion).getDescriptionTypeConceptSequence();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -217,7 +217,7 @@ public class ObservableDescriptionImpl
          this.descriptionTypeConceptSequenceProperty.set(descriptionTypeConceptSequence);
       }
 
-      ((DescriptionSememeImpl) this.stampedVersion).setDescriptionTypeConceptSequence(descriptionTypeConceptSequence);
+      ((DescriptionVersionImpl) this.stampedVersion).setDescriptionTypeConceptSequence(descriptionTypeConceptSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -233,7 +233,7 @@ public class ObservableDescriptionImpl
          return this.languageConceptSequenceProperty.get();
       }
 
-      return ((DescriptionSememeImpl) this.stampedVersion).getLanguageConceptSequence();
+      return ((DescriptionVersionImpl) this.stampedVersion).getLanguageConceptSequence();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -248,7 +248,7 @@ public class ObservableDescriptionImpl
       if (this.languageConceptSequenceProperty != null) {
          this.languageConceptSequenceProperty.set(languageConceptSequence);
       } else {
-         ((DescriptionSememeImpl) this.stampedVersion).setLanguageConceptSequence(languageConceptSequence);
+         ((DescriptionVersionImpl) this.stampedVersion).setLanguageConceptSequence(languageConceptSequence);
       }
    }
 
@@ -265,7 +265,7 @@ public class ObservableDescriptionImpl
          return this.textProperty.get();
       }
 
-      return ((DescriptionSememeImpl) this.stampedVersion).getText();
+      return ((DescriptionVersionImpl) this.stampedVersion).getText();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -281,7 +281,7 @@ public class ObservableDescriptionImpl
          this.textProperty.set(text);
       }
 
-      ((DescriptionSememeImpl) this.stampedVersion).setText(text);
+      ((DescriptionVersionImpl) this.stampedVersion).setText(text);
    }
 
    @Override

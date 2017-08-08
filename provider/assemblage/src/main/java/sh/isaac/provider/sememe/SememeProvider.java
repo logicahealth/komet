@@ -185,7 +185,7 @@ public class SememeProvider
     * @return the sememe service typed
     */
    @Override
-   public <V extends SememeVersion> SememeServiceTyped ofType(Class<V> versionType) {
+   public <V extends SememeVersion> SememeServiceTyped ofType(SememeType versionType) {
       return new SememeTypeProvider(versionType, this);
    }
 

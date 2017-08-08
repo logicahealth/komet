@@ -50,11 +50,11 @@ import sh.isaac.api.component.sememe.version.MutableDescriptionVersion;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class DescriptionSememeImpl.
+ * The Class DescriptionVersionImpl.
  *
  * @author kec
  */
-public class DescriptionSememeImpl
+public class DescriptionVersionImpl
         extends SememeVersionImpl
          implements MutableDescriptionVersion {
    /** The case significance concept sequence. */
@@ -78,7 +78,7 @@ public class DescriptionSememeImpl
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     */
-   public DescriptionSememeImpl(SememeChronology chronicle,
+   public DescriptionVersionImpl(SememeChronology chronicle,
                                 int stampSequence,
                                 short versionSequence) {
       super(chronicle, stampSequence, versionSequence);
@@ -92,7 +92,7 @@ public class DescriptionSememeImpl
     * @param versionSequence the version sequence
     * @param data the data
     */
-   public DescriptionSememeImpl(SememeChronology chronicle,
+   public DescriptionVersionImpl(SememeChronology chronicle,
                                 int stampSequence,
                                 short versionSequence,
                                 ByteArrayDataBuffer data) {

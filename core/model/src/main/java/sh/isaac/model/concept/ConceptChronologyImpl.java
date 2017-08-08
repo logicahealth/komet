@@ -67,7 +67,7 @@ import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.ChronologyImpl;
-import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
+import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -386,11 +386,11 @@ public class ConceptChronologyImpl
 
       if (definitionChronologyOptional.isPresent()) {
          
-         final List<LogicGraphSememeImpl> versions =
+         final List<LogicGraphVersionImpl> versions =
             definitionChronologyOptional.get().getVisibleOrderedVersionList(stampCoordinate);
 
 //       Collection<LogicGraphSememeImpl> versionsList = new ArrayList<>();
-//       for (LogicGraphSememeImpl lgs : definitionChronologyOptional.get().getVisibleOrderedVersionList(stampCoordinate)) {
+//       for (LogicGraphVersionImpl lgs : definitionChronologyOptional.get().getVisibleOrderedVersionList(stampCoordinate)) {
 //           
 //       }
          final StringBuilder builder = new StringBuilder();
@@ -406,7 +406,7 @@ public class ConceptChronologyImpl
          int               version         = 0;
          LogicalExpression previousVersion = null;
 
-         for (final LogicGraphSememeImpl lgmv: versions) {
+         for (final LogicGraphVersionImpl lgmv: versions) {
             final LogicalExpression lg = lgmv.getLogicalExpression();
 
             builder.append(" Version ")

@@ -42,7 +42,7 @@ package sh.isaac.api.observable.sememe.version;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.IntegerProperty;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
+import sh.isaac.api.component.sememe.version.MutableComponentNidVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -52,7 +52,7 @@ import sh.isaac.api.component.sememe.version.ComponentNidVersion;
  * @author kec
  */
 public interface ObservableComponentNidVersion
-        extends ObservableSememeVersion, ComponentNidVersion {
+        extends ObservableSememeVersion, MutableComponentNidVersion {
    /**
     * Component nid property.
     *

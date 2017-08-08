@@ -58,11 +58,11 @@ import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class LogicGraphSememeImpl.
+ * The Class LogicGraphVersionImpl.
  *
  * @author kec
  */
-public class LogicGraphSememeImpl
+public class LogicGraphVersionImpl
         extends SememeVersionImpl
          implements MutableLogicGraphVersion {
    /** The converter. */
@@ -82,7 +82,7 @@ public class LogicGraphSememeImpl
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     */
-   public LogicGraphSememeImpl(SememeChronologyImpl container,
+   public LogicGraphVersionImpl(SememeChronologyImpl container,
                                int stampSequence,
                                short versionSequence) {
       super(container, stampSequence, versionSequence);
@@ -96,7 +96,7 @@ public class LogicGraphSememeImpl
     * @param versionSequence the version sequence
     * @param data the data
     */
-   public LogicGraphSememeImpl(SememeChronologyImpl container,
+   public LogicGraphVersionImpl(SememeChronologyImpl container,
                                int stampSequence,
                                short versionSequence,
                                ByteArrayDataBuffer data) {

@@ -77,7 +77,7 @@ import sh.isaac.model.VersionImpl;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.component.sememe.version.SememeVersion;
+import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 
@@ -260,7 +260,7 @@ public abstract class ObservableChronologyImpl
    public final ListProperty<ObservableSememeChronology> sememeListProperty() {
       if (this.sememeListProperty == null) {
          final ObservableList<ObservableSememeChronology> sememeList =
-            FXCollections.emptyObservableList();
+            FXCollections.observableArrayList();
 
          Get.sememeService()
             .getSememeSequencesForComponent(getNid())
@@ -430,7 +430,7 @@ public abstract class ObservableChronologyImpl
     * @return the sememe list
     */
    @Override
-   public final ObservableList<? extends ObservableSememeChronology> getSememeList() {
+   public final ObservableList<ObservableSememeChronology> getSememeList() {
       return sememeListProperty().get();
    }
 
@@ -441,10 +441,11 @@ public abstract class ObservableChronologyImpl
     * @return the sememe list from assemblage
     */
    @Override
-   public List<? extends ObservableSememeChronology> getSememeListFromAssemblage(
+   public ObservableList<ObservableSememeChronology> getSememeListFromAssemblage(
            int assemblageSequence) {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      return getSememeList().filtered((observableSememeChronology) -> {
+         return observableSememeChronology.getAssemblageSequence() == assemblageSequence;
+      });
    }
 
    /**
@@ -455,13 +456,41 @@ public abstract class ObservableChronologyImpl
     * @return the sememe list from assemblage of type
     */
    @Override
-   public <V extends SememeChronology> List<V> getSememeListFromAssemblageOfType(
+   public ObservableList<ObservableSememeChronology> getSememeListFromAssemblageOfType(
            int assemblageSequence,
-           Class<? extends SememeVersion> type) {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+           SememeType type) {
+      return getSememeList().filtered((observableSememeChronology) -> {
+         return observableSememeChronology.getAssemblageSequence() == assemblageSequence &&
+                 observableSememeChronology.getSememeType() == type;
+      });
+   }
+   /**
+    * Gets the sememe list.
+    *
+    * @return the sememe list
+    */
+   @Override
+   public final ObservableList<ObservableSememeChronology> getObservableSememeList() {
+      return sememeListProperty().get();
    }
 
+   /**
+    * Gets the sememe list from assemblage.
+    *
+    * @param assemblageSequence the assemblage sequence
+    * @return the sememe list from assemblage
+    */
+   @Override
+   public ObservableList<ObservableSememeChronology> getObservableSememeListFromAssemblage(
+           int assemblageSequence) {
+      return getSememeListFromAssemblage(assemblageSequence);
+   }
+@Override
+   public ObservableList<ObservableSememeChronology> getObservableSememeListFromAssemblageOfType(
+           int assemblageSequence,
+           SememeType type) {
+      return getSememeListFromAssemblageOfType(assemblageSequence, type);
+   }
    /**
     * Gets the uuid list.
     *

@@ -57,6 +57,7 @@ import java.util.stream.IntStream;
 import sh.isaac.api.State;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.sememe.SememeChronology;
+import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.dag.Graph;
@@ -132,7 +133,7 @@ public interface Chronology
     */
    <V extends SememeChronology> List<V> getSememeListFromAssemblageOfType(
            int assemblageSequence,
-           Class<? extends SememeVersion> type);
+           SememeType type);
 
    /**
     * Gets the unwritten version list.

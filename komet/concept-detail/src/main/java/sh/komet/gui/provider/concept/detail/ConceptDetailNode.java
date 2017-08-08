@@ -43,8 +43,6 @@ package sh.komet.gui.provider.concept.detail;
 
 import java.io.IOException;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -103,7 +101,7 @@ public class ConceptDetailNode
          ConceptDetailController conceptDetailController = loader.getController();
          
          conceptDetailController.setManifold(conceptDetailManifold);
-         conceptDetailPane.setCenter(conceptDetailController.getTopScroller());
+         conceptDetailPane.setCenter(conceptDetailController.getConceptDetailRootPane());
       } catch (IOException ex) {
          throw new RuntimeException(ex);
       }
