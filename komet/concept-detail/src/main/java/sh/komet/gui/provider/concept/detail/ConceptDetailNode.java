@@ -54,6 +54,7 @@ import javafx.fxml.FXMLLoader;
 
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
+import sh.isaac.api.State;
 
 import sh.isaac.api.component.concept.ConceptChronology;
 
@@ -79,6 +80,7 @@ public class ConceptDetailNode
    public ConceptDetailNode(Manifold conceptDetailManifold, Consumer<Node> nodeConsumer) {
       try {
          this.conceptDetailManifold = conceptDetailManifold;
+         this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(State.INACTIVE);
          conceptDetailManifold.focusedConceptChronologyProperty()
                  .addListener(
                          (ObservableValue<? extends ConceptChronology> observable,
@@ -91,6 +93,7 @@ public class ConceptDetailNode
                                                     newValue));
                          });
          conceptDetailPane.setTop(ConceptLabelToolbar.make(conceptDetailManifold));
+         conceptDetailPane.getStyleClass().add("concept-detail-pane");
          nodeConsumer.accept(conceptDetailPane);
          
          FXMLLoader loader = new FXMLLoader(

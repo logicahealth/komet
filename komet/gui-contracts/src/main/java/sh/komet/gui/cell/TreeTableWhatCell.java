@@ -17,6 +17,7 @@
 package sh.komet.gui.cell;
 
 import javafx.scene.control.TreeTableCell;
+import javafx.scene.control.TreeTableRow;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.component.sememe.version.SememeVersion;
@@ -27,25 +28,21 @@ import sh.komet.gui.manifold.Manifold;
  *
  * @author kec
  */
-public class TreeTableWhatCell extends TreeTableCell<ObservableCategorizedVersion, ObservableCategorizedVersion> {
+public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedVersion> {
    private final Manifold manifold;
 
    public TreeTableWhatCell(Manifold manifold) {
       this.manifold = manifold;
+      getStyleClass().add("komet-version-what-cell");
+      getStyleClass().add("isaac-version");
    }
 
    @Override
-   protected void updateItem(ObservableCategorizedVersion version, boolean empty) {
-     super.updateItem(version, empty);
-
-     if (empty || version == null) {
-         setText(null);
-         setGraphic(null);
-     } else {
-        SememeVersion sememeVersion = version.unwrap();
+   protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion cellValue) {
+        SememeVersion sememeVersion = cellValue.unwrap();
         switch (sememeVersion.getChronology().getSememeType()) {
            case DESCRIPTION:
-              DescriptionVersion description = version.unwrap();
+              DescriptionVersion description = cellValue.unwrap();
               int descriptionType = description.getDescriptionTypeConceptSequence();
               if (descriptionType == TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence()) {
                  setText("FSN");
@@ -61,8 +58,6 @@ public class TreeTableWhatCell extends TreeTableCell<ObservableCategorizedVersio
            default: 
            setText(manifold.getPreferredDescriptionText(sememeVersion.getAssemblageSequence()));
         }
-         
-     }
    }
    
 }

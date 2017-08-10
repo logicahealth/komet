@@ -16,7 +16,7 @@
  */
 package sh.komet.gui.cell;
 
-import javafx.scene.control.TreeTableCell;
+import javafx.scene.control.TreeTableRow;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.manifold.Manifold;
 
@@ -24,23 +24,18 @@ import sh.komet.gui.manifold.Manifold;
  *
  * @author kec
  */
-public class TreeTableConceptCell extends TreeTableCell<ObservableCategorizedVersion, Integer> {
+public class TreeTableConceptCell extends KometTreeTableCell<Integer> {
    private final Manifold manifold;
 
    public TreeTableConceptCell(Manifold manifold) {
       this.manifold = manifold;
+      getStyleClass().add("komet-version-concept-cell");
+      getStyleClass().add("isaac-version");
    }
 
    @Override
-   protected void updateItem(Integer conceptId, boolean empty) {
-     super.updateItem(conceptId, empty);
-
-     if (empty || conceptId == null) {
-         setText(null);
-         setGraphic(null);
-     } else {
-         setText(manifold.getPreferredDescriptionText(conceptId));
-     }
+   protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, Integer cellValue) {
+         setText(manifold.getPreferredDescriptionText(cellValue));
    }
    
 }

@@ -18,6 +18,16 @@ limitations under the License.
     Created on : Jul 4, 2017, 12:37:24 PM
     Author     : kec
 */
+.root {
+   -komet-blue-color: #406AD1;
+   -komet-tab-background-color: #52646d;
+   -komet-panel-background-color: #c3cdd3;
+   -komet-concept-box-background-color: #eef1f3;
+   -komet-concept-version-color: #5ec200;
+   -komet-description-version-color: #ff9100;
+   -komet-definition-color: #009bff;
+   -komet-inactive-color: #b3b3b3;
+}
 
 .button {
     -fx-font-weight: bold;
@@ -66,5 +76,133 @@ limitations under the License.
 
 .and-clause-child {
    /* use circled plus? in Material Icons? */
+}
+
+
+
+.tab-header-area {
+    -fx-background-color: red;
+    -fx-border-color: blue;
+}
+
+.tab-header-background {
+    -fx-background-color: -komet-tab-background-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-border-width: 0 0 4 0;
+}
+
+/* barely visible behind the tabs themselves. Make them same as the background... */
+.headers-region {
+    -fx-background-color: -komet-tab-background-color; 
+}
+
+/* top refers to tabs that are layed out on the top of the pane, as opposed to side or bottom...*/
+.tab:top {
+    -fx-background-color: -komet-tab-background-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-border-width: 0 0 3 0;
+    
+}
+
+/* only one tab in a tab group is selected at a time. */
+.tab-pane > .tab-header-area > .headers-region > .tab:selected {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-border-radius: 5 5 0 0, 4 4 0 0;
+}
+/* since the selection is so different, the focus indicator is a distration, will make it same color */
+.tab-header-area * .tab:selected * .focus-indicator {
+    -fx-border-color: transparent;
+}
+
+    
+.tab-pane > .tab-header-area > .headers-region > .tab:selected > labeled {
+   -fx-text-fill: white;
+    -icons-color: white;
+}
+.tab-label {
+   -fx-text-fill: white;
+}
+
+/* glphy-icon inside of tabs will be white... */
+.tab  * .glyph-icon  {
+   -icons-color: white;
+}
+
+.concept-label-toolbar {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;   
+    -fx-border-color: -komet-panel-background-color;
+    -fx-border-width: 5 2 2 2;
+}
+
+.concept-label-toolbar * .menu-button {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;      
+}
+.concept-label-toolbar * .arrow {
+   -fx-mark-color: white;
+}
+
+.concept-label-toolbar * .menu-button * .glyph-icon { 
+   -icons-color: white;
+}
+.concept-label-toolbar >* .label { 
+      -fx-text-fill: white;
+}
+.komet-version-what-cell {
+   
+}
+
+.komet-version-what-cell:description-version {
+   -fx-border-color: -komet-description-version-color;
+   -fx-text-fill: -komet-description-version-color;
+   -fx-border-width: 0 0 0 5;
+   -fx-font-size:18;
+  /* -fx-font-weight: 900; does not seem to work? Add a bold font face... */
+}
+.komet-version-what-cell:description-version:inactive {
+   -fx-border-color: -komet-inactive-color;
+   -fx-text-fill: -komet-inactive-color;
+   -fx-border-width: 0 0 0 5;
+   -fx-font-size:18;
+  /* -fx-font-weight: 900; does not seem to work? Add a bold font face... */
+}
+
+
+.komet-version-what-cell:concept-version {
+   -fx-border-color: -komet-concept-version-color;
+   -fx-border-width: 0 0 0 5;
+   
+}
+
+.komet-version-what-cell:logical-definition-version {
+   -fx-border-color: -komet-definition-color;
+   -fx-border-width: 0 0 0 5;
+   
+}
+
+
+.komet-version-general-cell:inactive {
+   -fx-text-fill: -komet-inactive-color;
+   
+}
+.komet-version-author-time-cell {
+   -fx-text-alignment: center;
+}
+
+.komet-version-module-path-cell {
+   -fx-text-alignment: center;
+}
+
+.isaac-version {
+   /* -fx-border-color: -komet-panel-background-color; */
+   /* -fx-border-width: 0 0 0 5; */
+}
+
+/* .tree-table-view * .column-header * */
+
+.tree-table-view * .label {
+   -fx-text-alignment: center;
 }
 

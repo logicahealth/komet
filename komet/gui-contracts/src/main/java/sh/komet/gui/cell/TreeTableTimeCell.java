@@ -19,25 +19,24 @@ package sh.komet.gui.cell;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import javafx.scene.control.TreeTableCell;
+import javafx.scene.control.TreeTableRow;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 
 /**
  *
  * @author kec
  */
-public class TreeTableTimeCell  extends TreeTableCell<ObservableCategorizedVersion, Long> {
+public class TreeTableTimeCell  extends KometTreeTableCell<Long> {
    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
+   public TreeTableTimeCell() {
+      getStyleClass().add("komet-version-time-cell");
+      getStyleClass().add("isaac-version");
+   }
+
    @Override
-   protected void updateItem(Long time, boolean empty) {
-     super.updateItem(time, empty);
-     if (empty || time == null) {
-         setText(null);
-         setGraphic(null);
-     } else {
-         setText(formatter.format(Instant.ofEpochMilli(time).atZone(ZoneOffset.UTC)));
-     }
+   protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, Long cellValue) {
+         setText(formatter.format(Instant.ofEpochMilli(cellValue).atZone(ZoneOffset.UTC)));
    }
    
 }

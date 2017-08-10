@@ -93,7 +93,6 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
       manifoldLinkMenu.setGraphic(getNodeForManifold(manifold));
 
       barControls.add(manifoldLinkMenu);
-      barControls.add(new Separator());
       barControls.add(new ConceptLabel(manifold, ConceptLabel::setFullySpecifiedText));
       manifold.groupNameProperty().addListener(new WeakChangeListener<>(this));
 // History
@@ -104,6 +103,7 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
 
       ConceptLabelToolbar gctb = new ConceptLabelToolbar(manifold);
       ToolBar toolbar = new ToolBar(gctb.barControls.toArray(new Control[gctb.barControls.size()]));
+      toolbar.getStyleClass().add("concept-label-toolbar");
       toolbar.setUserData(gctb);
       return toolbar;
 
