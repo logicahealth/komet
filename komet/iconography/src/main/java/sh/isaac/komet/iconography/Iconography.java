@@ -75,6 +75,12 @@ public enum Iconography {
   LOOK_EYE2(FONT_AWSOME, "look-eye-2"),
   
   DRAG_DROP_ICON(FONT_AWSOME, "drag-drop"),
+  
+  MAGNIFY(MATERIAL_DESIGNS_WEBFONT, "magnify"),
+  MAGNIFY_PLUS(MATERIAL_DESIGNS_WEBFONT, "magnify-plus"),
+  MAGNIFY_MINUS(MATERIAL_DESIGNS_WEBFONT, "magnify-minus"),
+  ONE_TO_ONE(MATERIAL_DESIGNS_ICON, "one-to-one"),
+  ZOOM_TO_FIT(MATERIAL_DESIGNS_ICON, "zoom-to-fit"),
    ;
 
    String cssClass;

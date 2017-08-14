@@ -298,3 +298,36 @@ limitations under the License.
    -glyph-size: 16pt;
    -icons-color: #0B5FFF;
 }
+
+.magnify {
+   -glyph-name: "MAGNIFY";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+   
+}
+
+.magnify-plus {
+   -glyph-name: "MAGNIFY_PLUS";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+   
+}
+
+.magnify-minus {
+   -glyph-name: "MAGNIFY_MINUS";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+   
+}
+
+.zoom-to-fit {
+   -glyph-name: "FULLSCREEN";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+
+.one-to-one {
+   -glyph-name: "FULLSCREEN_EXIT";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}

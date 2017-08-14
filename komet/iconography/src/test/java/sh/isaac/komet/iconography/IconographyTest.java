@@ -73,6 +73,11 @@ public class IconographyTest extends Application {
       iconsPane.getChildren().add(Iconography.LOOK_EYE2.getIconographic());
       iconsPane.getChildren().add(Iconography.DRAG_DROP_ICON.getIconographic());
 
+      iconsPane.getChildren().add(Iconography.MAGNIFY.getIconographic());
+      iconsPane.getChildren().add(Iconography.MAGNIFY_MINUS.getIconographic());
+      iconsPane.getChildren().add(Iconography.MAGNIFY_PLUS.getIconographic());
+      iconsPane.getChildren().add(Iconography.ONE_TO_ONE.getIconographic());
+      iconsPane.getChildren().add(Iconography.ZOOM_TO_FIT.getIconographic());
       Scene scene = new Scene(new ScrollPane(iconsPane), 500, 500);
       stage.setScene(scene);
 
