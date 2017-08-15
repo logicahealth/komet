@@ -331,3 +331,290 @@ limitations under the License.
    -glyph-size: 16pt;
    -icons-color: #0B5FFF;
 }
+
+.circle-a {
+   -glyph-name: "REGIONAL_INDICATOR_A";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-b {
+   -glyph-name: "REGIONAL_INDICATOR_B";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-c {
+   -glyph-name: "REGIONAL_INDICATOR_C";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-d {
+   -glyph-name: "REGIONAL_INDICATOR_D";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-e {
+   -glyph-name: "REGIONAL_INDICATOR_E";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-f {
+   -glyph-name: "REGIONAL_INDICATOR_F";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-g {
+   -glyph-name: "REGIONAL_INDICATOR_G";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-h {
+   -glyph-name: "REGIONAL_INDICATOR_H";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-i {
+   -glyph-name: "REGIONAL_INDICATOR_I";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-j {
+   -glyph-name: "REGIONAL_INDICATOR_J";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-k {
+   -glyph-name: "REGIONAL_INDICATOR_K";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-l {
+   -glyph-name: "REGIONAL_INDICATOR_L";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-m {
+   -glyph-name: "REGIONAL_INDICATOR_M";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-n {
+   -glyph-name: "REGIONAL_INDICATOR_N";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-o {
+   -glyph-name: "REGIONAL_INDICATOR_O";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-p {
+   -glyph-name: "REGIONAL_INDICATOR_P";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-q {
+   -glyph-name: "REGIONAL_INDICATOR_Q";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-r {
+   -glyph-name: "REGIONAL_INDICATOR_R";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-s {
+   -glyph-name: "REGIONAL_INDICATOR_S";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-t {
+   -glyph-name: "REGIONAL_INDICATOR_T";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-u {
+   -glyph-name: "REGIONAL_INDICATOR_U";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-v {
+   -glyph-name: "REGIONAL_INDICATOR_V";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-w {
+   -glyph-name: "REGIONAL_INDICATOR_W";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-x {
+   -glyph-name: "REGIONAL_INDICATOR_A";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-y {
+   -glyph-name: "REGIONAL_INDICATOR_Y";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-z {
+   -glyph-name: "REGIONAL_INDICATOR_Z";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+
+.case-sensitive {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_caseSensitive.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-close {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_close.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-edit {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_edit.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-expand {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_expand.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-export {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_export.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-goto-link {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_goToLink.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.not-case-sensitive {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_notCaseSensitive.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-reload {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_reload.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-batch-edit {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_batchEdit.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-check-mark {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_checkMark_check_mark.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-classifier-1 {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_classfier_1.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-classifier-2 {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_classfier_2.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-classifier-3 {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_classfier_3.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-classifier-4 {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_classfier_4.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-link-to-search {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_linkToSearch.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-link-to-taxonomy {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_linkToTaxonomy.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-not-linked {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_nonLinked.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-settings-1 {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_settings_1.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-settings-2 {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_settings_2.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-settings-3 {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_settings_3.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-search {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/20x20/icon_search.png");
+   -my-height: 20;
+   -my-width: 20;
+}
+
+.icon-taxonomy {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/20x20/icon_taxonomy.png");
+   -my-height: 20;
+   -my-width: 20;
+}
+
+.icon-defined-arrow {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/color_icons/icon_defined_arrow.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-defined {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/color_icons/icon_defined.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-primitive {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/color_icons/icon-primitive.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-primitive-arrow {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/color_icons/icon-primitive-arrow.png");
+   -my-height: 16;
+   -my-width: 16;
+}

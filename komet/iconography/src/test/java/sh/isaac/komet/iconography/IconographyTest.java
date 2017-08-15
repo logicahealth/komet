@@ -23,6 +23,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
+import static sh.isaac.komet.iconography.Iconography.IconSource.SVG;
 
 /**
  *
@@ -78,6 +79,63 @@ public class IconographyTest extends Application {
       iconsPane.getChildren().add(Iconography.MAGNIFY_PLUS.getIconographic());
       iconsPane.getChildren().add(Iconography.ONE_TO_ONE.getIconographic());
       iconsPane.getChildren().add(Iconography.ZOOM_TO_FIT.getIconographic());
+
+      iconsPane.getChildren().add(Iconography.CIRCLE_A.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_B.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_C.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_D.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_E.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_F.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_G.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_H.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_I.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_J.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_K.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_L.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_M.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_N.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_O.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_P.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_Q.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_R.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_S.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_T.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_U.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_V.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_W.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_X.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_Y.getIconographic());
+      iconsPane.getChildren().add(Iconography.CIRCLE_Z.getIconographic());
+      
+
+      iconsPane.getChildren().add(Iconography.getImage("/sh/isaac/komet/iconography/svg_icons/14x14/icon_caseSensitive.png", 16));
+      iconsPane.getChildren().add(Iconography.CASE_SENSITIVE.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_CLOSE.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_EDIT.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_EXPAND.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_EXPORT.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_GO_TO_LINK.getIconographic());
+      iconsPane.getChildren().add(Iconography.CASE_SENSITIVE_NOT.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_RELOAD.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_BATCH_EDIT.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_CHECK_MARK.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_CLASSIFIER1.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_CLASSIFIER2.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_CLASSIFIER3.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_CLASSIFIER4.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_LINK_TO_SEARCH.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_LINK_TO_TAXONOMY.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_NOT_LINKED.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_SETTINGS1.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_SETTINGS2.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_SETTINGS3.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_SEARCH.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_TAXONOMY.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_DEFINED_ARROW.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_DEFINED.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_PRIMITIVE.getIconographic());
+      iconsPane.getChildren().add(Iconography.ICON_PRIMITIVE_ARROW.getIconographic());    
+      
       Scene scene = new Scene(new ScrollPane(iconsPane), 500, 500);
       stage.setScene(scene);
 

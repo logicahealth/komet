@@ -23,6 +23,7 @@ import de.jensd.fx.glyphs.materialdesignicons.MaterialDesignIconView;
 import de.jensd.fx.glyphs.materialicons.MaterialIconView;
 import de.jensd.fx.glyphs.octicons.OctIconView;
 import javafx.scene.Node;
+import javafx.scene.image.ImageView;
 import static sh.isaac.komet.iconography.Iconography.IconSource.EMOJI_ONE;
 import static sh.isaac.komet.iconography.Iconography.IconSource.FONT_AWSOME;
 import static sh.isaac.komet.iconography.Iconography.IconSource.ICONS_525;
@@ -81,6 +82,61 @@ public enum Iconography {
   MAGNIFY_MINUS(MATERIAL_DESIGNS_WEBFONT, "magnify-minus"),
   ONE_TO_ONE(MATERIAL_DESIGNS_ICON, "one-to-one"),
   ZOOM_TO_FIT(MATERIAL_DESIGNS_ICON, "zoom-to-fit"),
+  
+  CIRCLE_A(EMOJI_ONE, "circle-a"),
+  CIRCLE_B(EMOJI_ONE, "circle-b"),
+  CIRCLE_C(EMOJI_ONE, "circle-c"),
+  CIRCLE_D(EMOJI_ONE, "circle-d"),
+  CIRCLE_E(EMOJI_ONE, "circle-e"),
+  CIRCLE_F(EMOJI_ONE, "circle-f"),
+  CIRCLE_G(EMOJI_ONE, "circle-g"),
+  CIRCLE_H(EMOJI_ONE, "circle-h"),
+  CIRCLE_I(EMOJI_ONE, "circle-i"),
+  CIRCLE_J(EMOJI_ONE, "circle-j"),
+  CIRCLE_K(EMOJI_ONE, "circle-k"),
+  CIRCLE_L(EMOJI_ONE, "circle-l"),
+  CIRCLE_M(EMOJI_ONE, "circle-m"),
+  CIRCLE_N(EMOJI_ONE, "circle-n"),
+  CIRCLE_O(EMOJI_ONE, "circle-o"),
+  CIRCLE_P(EMOJI_ONE, "circle-p"),
+  CIRCLE_Q(EMOJI_ONE, "circle-q"),
+  CIRCLE_R(EMOJI_ONE, "circle-r"),
+  CIRCLE_S(EMOJI_ONE, "circle-s"),
+  CIRCLE_T(EMOJI_ONE, "circle-t"),
+  CIRCLE_U(EMOJI_ONE, "circle-u"),
+  CIRCLE_V(EMOJI_ONE, "circle-v"),
+  CIRCLE_W(EMOJI_ONE, "circle-w"),
+  CIRCLE_X(EMOJI_ONE, "circle-x"),
+  CIRCLE_Y(EMOJI_ONE, "circle-y"),
+  CIRCLE_Z(EMOJI_ONE, "circle-z"),
+  
+  CASE_SENSITIVE(SVG, "case-sensitive"),
+  ICON_CLOSE(SVG, "icon-close"),
+  ICON_EDIT(SVG, "icon-edit"),
+  ICON_EXPAND(SVG, "icon-expand"),
+  ICON_EXPORT(SVG, "icon-export"),
+  ICON_GO_TO_LINK(SVG, "icon-goto-link"),
+  CASE_SENSITIVE_NOT(SVG, "not-case-sensitive"),
+  ICON_RELOAD(SVG, "icon-reload"),
+  ICON_BATCH_EDIT(SVG, "icon-batch-edit"),
+  ICON_CHECK_MARK(SVG, "icon-check-mark"),
+  ICON_CLASSIFIER1(SVG, "icon-classifier-1"),
+  ICON_CLASSIFIER2(SVG, "icon-classifier-2"),
+  ICON_CLASSIFIER3(SVG, "icon-classifier-3"),
+  ICON_CLASSIFIER4(SVG, "icon-classifier-4"),
+  ICON_LINK_TO_SEARCH(SVG, "icon-link-to-search"),
+  ICON_LINK_TO_TAXONOMY(SVG, "icon-link-to-taxonomy"),
+  ICON_NOT_LINKED(SVG, "icon-not-linked"),
+  ICON_SETTINGS1(SVG, "icon-settings-1"),
+  ICON_SETTINGS2(SVG, "icon-settings-2"),
+  ICON_SETTINGS3(SVG, "icon-settings-3"),
+  ICON_SEARCH(SVG, "icon-search"),
+  ICON_TAXONOMY(SVG, "icon-taxonomy"),
+  ICON_DEFINED_ARROW(SVG, "icon-defined-arrow"),
+  ICON_DEFINED(SVG, "icon-defined"),
+  ICON_PRIMITIVE(SVG, "icon-primitive"),
+  ICON_PRIMITIVE_ARROW(SVG, "icon-primitive-arrow"),
+  
    ;
 
    String cssClass;
@@ -117,7 +173,16 @@ public enum Iconography {
       MATERIAL_DESIGNS_WEBFONT, MATERIAL_DESIGNS_ICON, FONT_AWSOME, SVG, EMOJI_ONE, 
       ICONS_525, OCT_ICON,
    };
+   public static ImageView getImage(String resourceLocation, int size) {
+      ImageView imageView = new ImageView(Iconography.class.getResource(resourceLocation).toString());
+      imageView.setPreserveRatio(true);
+      imageView.setFitHeight(size);
+      return imageView;
+   }
    
+   public static ImageView getImage(String resourceLocation) {
+      return new ImageView(Iconography.class.getResource(resourceLocation).toString());
+   }
    public static String getStyleSheetStringUrl() {
       return Iconography.class.getResource("/sh/isaac/komet/iconography/Iconography.css").toString();
    }
