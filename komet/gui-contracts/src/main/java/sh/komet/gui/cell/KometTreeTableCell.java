@@ -48,7 +48,7 @@ public abstract class KometTreeTableCell<C> extends TreeTableCell<ObservableCate
 
    /**
     * Provides handling of empty/null values, update of PseudoClasses, then calls
-    * updateItem(TreeTableRow<ObservableCategorizedVersion> row, C cellValue);.
+    * updateItem(TreeTableRow&lt;ObservableCategorizedVersion&gt; row, C cellValue);.
     *
     * @param cellValue
     * @param empty

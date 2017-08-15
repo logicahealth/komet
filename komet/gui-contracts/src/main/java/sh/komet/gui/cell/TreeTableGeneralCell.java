@@ -16,9 +16,7 @@
  */
 package sh.komet.gui.cell;
 
-import javafx.css.PseudoClass;
 import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableRow;
 import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;

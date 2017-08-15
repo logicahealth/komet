@@ -148,8 +148,8 @@ final public class MultiParentTreeCell
  
 
                if (!treeItem.isLeaf()) {
-               Node iv = treeItem.isExpanded() ? Iconography.TAXONOMY_CLOSED.getIconographic()
-                                               : Iconography.TAXONOMY_OPEN.getIconographic();
+               Node iv = treeItem.isExpanded() ? Iconography.TAXONOMY_CLICK_TO_CLOSE.getIconographic()
+                                               : Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic();
                   if (addProgressIndicator) {
                      StackPane progressStack = new StackPane();
 

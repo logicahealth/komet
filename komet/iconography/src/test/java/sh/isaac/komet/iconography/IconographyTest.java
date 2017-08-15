@@ -49,8 +49,8 @@ public class IconographyTest extends Application {
       iconsPane.getChildren().add(Iconography.TAXONOMY_PRIMITIVE_MULTIPARENT_CLOSED.getIconographic());
       iconsPane.getChildren().add(Iconography.TAXONOMY_PRIMITIVE_MULTIPARENT_OPEN.getIconographic());
       iconsPane.getChildren().add(Iconography.TAXONOMY_PRIMITIVE_SINGLE_PARENT.getIconographic());
-      iconsPane.getChildren().add(Iconography.TAXONOMY_OPEN.getIconographic());
-      iconsPane.getChildren().add(Iconography.TAXONOMY_CLOSED.getIconographic());
+      iconsPane.getChildren().add(Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic());
+      iconsPane.getChildren().add(Iconography.TAXONOMY_CLICK_TO_CLOSE.getIconographic());
       iconsPane.getChildren().add(Iconography.INFERRED_VIEW.getIconographic());
       iconsPane.getChildren().add(Iconography.STATED_VIEW.getIconographic());
       iconsPane.getChildren().add(Iconography.SHORT_TEXT.getIconographic());

@@ -68,6 +68,7 @@ import sh.komet.gui.cell.TreeTableGeneralCellFactory;
 import sh.komet.gui.cell.TreeTableModulePathCellFactory;
 import sh.komet.gui.cell.TreeTableTimeCellFactory;
 import sh.komet.gui.cell.TreeTableWhatCellFactory;
+import sh.komet.gui.control.ComponentPanel;
 import sh.komet.gui.manifold.Manifold;
 
 //~--- classes ----------------------------------------------------------------
@@ -246,5 +247,13 @@ public class ConceptDetailController {
       conceptPathColumn.setVisible(false);
       conceptPathColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("pathSequence"));
       conceptPathColumn.setCellFactory(this.conceptCellFactory::call);
+      
+      //inferredParentPane.setTop(new ComponentPanel(manifold, null));
+      inferredParentPane.setCenter(new ComponentPanel(manifold, null));
+      //inferredParentPane.setBottom(new ComponentPanel(manifold, null));
+      
+      //statedParentPane.setTop(new ComponentPanel(manifold, null));
+      statedParentPane.setCenter(new ComponentPanel(manifold, null));
+      //statedParentPane.setBottom(new ComponentPanel(manifold, null));
    }
 }

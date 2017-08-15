@@ -79,9 +79,7 @@ import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
@@ -104,7 +102,6 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
