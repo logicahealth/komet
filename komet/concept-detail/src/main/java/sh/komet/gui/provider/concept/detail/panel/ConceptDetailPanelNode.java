@@ -138,14 +138,14 @@ public class ConceptDetailPanelNode
    }
 
    //~--- methods -------------------------------------------------------------
-   public void addChronology(ObservableChronology observableConceptChronology, ParallelTransition parallelTransition) {
+   public void addChronology(ObservableChronology observableChronology, ParallelTransition parallelTransition) {
       StampCoordinate stampCoordinate
               = this.conceptDetailManifold.getStampCoordinate().makeCoordinateAnalog(State.ANY_STATE_SET);
       if (!historySwitch.isSelected()) {
          stampCoordinate = this.conceptDetailManifold.getStampCoordinate().makeCoordinateAnalog(State.ACTIVE);
       }
       CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
-              = observableConceptChronology.getCategorizedVersions(stampCoordinate);
+              = observableChronology.getCategorizedVersions(stampCoordinate);
       if (oscCategorizedVersions.getLatestVersion().isPresent()) {
          parallelTransition.getChildren().add(addComponent(oscCategorizedVersions));
       }

@@ -97,7 +97,7 @@ public final class ComponentPanel
    Text componentText = new Text();
    Node editControl = Iconography.EDIT_PENCIL.getIconographic();
    ArrayList<Node> badges = new ArrayList<>();
-   Node commitNode = Iconography.CIRCLE_A.getIconographic();
+   StampControl stampControl = new StampControl("", Iconography.CIRCLE_A.getIconographic());
    ExpandControl expandControl = new ExpandControl();
    int columns = 10;
    int wrappingWidth = 300;
@@ -158,6 +158,7 @@ public final class ComponentPanel
          setupOther(observableVersion);
       }
 
+      this.stampControl.setStampedVersion(version, manifold);
       this.widthProperty()
               .addListener(this::widthChanged);
    }
@@ -192,10 +193,10 @@ public final class ComponentPanel
               .add(componentType);  // next is 3
 
       gridpane.getChildren()
-              .remove(commitNode);
-      GridPane.setConstraints(commitNode, columns, 1, 1, 1, HPos.CENTER, VPos.CENTER, Priority.NEVER, Priority.NEVER);
+              .remove(stampControl);
+      GridPane.setConstraints(stampControl, columns, 1, 1, 1, HPos.CENTER, VPos.CENTER, Priority.NEVER, Priority.NEVER);
       gridpane.getChildren()
-              .add(commitNode);
+              .add(stampControl);
       gridpane.getChildren()
               .remove(editControl);
       GridPane.setConstraints(editControl, columns, 0, 1, 1, HPos.CENTER, VPos.TOP, Priority.NEVER, Priority.NEVER);
