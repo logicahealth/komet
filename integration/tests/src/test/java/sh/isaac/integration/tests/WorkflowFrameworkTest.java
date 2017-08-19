@@ -919,7 +919,7 @@ public class WorkflowFrameworkTest {
       this.defaultStampCoordinate = new StampCoordinateImpl(defaultSC.getStampPrecedence(),
             defaultSC.getStampPosition(),
             defaultSC.getModuleSequences(),
-            State.ANY_STATE_SET);
+            State.makeAnyStateSet());
       firstTestConceptNid  = MetaData.EL_PLUS_PLUS_INFERRED_FORM_ASSEMBLAGE____ISAAC.getNid();
       secondTestConceptNid = MetaData.ACCEPTABLE____ISAAC.getNid();
    }

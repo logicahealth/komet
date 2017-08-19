@@ -287,7 +287,10 @@ public class ObservableDescriptionVersionImpl
    @Override
    public String toString() {
       return "ObservableDescriptionImpl{text:" + getText() + ", case: " + Get.conceptDescriptionText(getCaseSignificanceConceptSequence())
-              + ", language:" + Get.conceptDescriptionText(getLanguageConceptSequence()) + ", type: " + Get.conceptDescriptionText(getDescriptionTypeConceptSequence()) + '}';
+              + ", language:" + Get.conceptDescriptionText(getLanguageConceptSequence()) + 
+              ", type: " + Get.conceptDescriptionText(getDescriptionTypeConceptSequence()) + 
+              " " + Get.stampService().describeStampSequence(getStampSequence()) +
+              '}';
    }
    
    

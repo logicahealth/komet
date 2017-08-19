@@ -709,8 +709,7 @@ public class RelativePositionCalculator
                            }
                         });
 
-      if (this.coordinate.getAllowedStates()
-                         .equals(State.ACTIVE_ONLY_SET)) {
+      if (State.isActiveOnlySet(this.coordinate.getAllowedStates())) {
          final HashSet<V> inactiveVersions = new HashSet<>();
 
          latestVersionSet.stream().forEach((version) -> {

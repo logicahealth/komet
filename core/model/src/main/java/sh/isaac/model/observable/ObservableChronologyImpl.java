@@ -528,5 +528,10 @@ public abstract class ObservableChronologyImpl
    public final IntStream getVersionStampSequences() {
       return this.chronicledObjectLocal.getVersionStampSequences();
    }
+
+   @Override
+   public String toString() {
+      return "ObservableChronologyImpl{"+ chronicledObjectLocal + '}';
+   }
 }
 

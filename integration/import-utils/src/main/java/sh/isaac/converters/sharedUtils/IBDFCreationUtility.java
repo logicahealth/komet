@@ -295,7 +295,7 @@ public class IBDFCreationUtility {
           StampPrecedence.PATH,
           stampPosition,
           ConceptSequenceSet.EMPTY,
-          State.ANY_STATE_SET);
+          State.makeAnyStateSet());
 
       final UUID moduleUUID = moduleToCreate.isPresent() ? UuidT5Generator.get(
                                   UuidT5Generator.PATH_ID_FROM_FS_DESC,

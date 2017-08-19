@@ -354,6 +354,11 @@ public class ObservableConceptChronologyImpl
    public Optional<String> getPreferedConceptDescriptionText() {
       return getConceptChronology().getPreferedConceptDescriptionText();
    }
+
+   @Override
+   public String toString() {
+      return "ObservableConceptChronologyImpl{" + getConceptChronology().toString() + '}';
+   }
    
    
 }
