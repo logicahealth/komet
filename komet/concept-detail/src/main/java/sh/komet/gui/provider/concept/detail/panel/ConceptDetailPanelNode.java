@@ -38,16 +38,15 @@ package sh.komet.gui.provider.concept.detail.panel;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.function.Consumer;
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
+import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 
 import javafx.geometry.Insets;
@@ -62,6 +61,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
@@ -90,6 +90,10 @@ import sh.komet.gui.style.StyleClasses;
 public class ConceptDetailPanelNode
         implements DetailNode {
 
+   private static final int TRANSITION_OFF_TIME = 250;
+   private static final int TRANSITION_ON_TIME = 750;
+
+   
    private final BorderPane conceptDetailPane = new BorderPane();
    private final SimpleStringProperty titleProperty = new SimpleStringProperty("detail graph");
    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("detail graph");
@@ -134,7 +138,7 @@ public class ConceptDetailPanelNode
    }
 
    //~--- methods -------------------------------------------------------------
-   public void addChronology(ObservableChronology observableConceptChronology) {
+   public void addChronology(ObservableChronology observableConceptChronology, ParallelTransition parallelTransition) {
       StampCoordinate stampCoordinate
               = this.conceptDetailManifold.getStampCoordinate().makeCoordinateAnalog(State.ANY_STATE_SET);
       if (!historySwitch.isSelected()) {
@@ -143,23 +147,38 @@ public class ConceptDetailPanelNode
       CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
               = observableConceptChronology.getCategorizedVersions(stampCoordinate);
       if (oscCategorizedVersions.getLatestVersion().isPresent()) {
-         addComponent(oscCategorizedVersions);
+         parallelTransition.getChildren().add(addComponent(oscCategorizedVersions));
       }
 
    }
 
-   private void addComponent(CategorizedVersions<ObservableCategorizedVersion> categorizedVersions) {
+   private Animation addComponent(CategorizedVersions<ObservableCategorizedVersion> categorizedVersions) {
       ComponentPanel panel = new ComponentPanel(conceptDetailManifold, categorizedVersions);
-
+      panel.setOpacity(0);
       VBox.setMargin(panel, new Insets(1, 5, 1, 5));
       componentPanelBox.getChildren()
               .add(panel);
+      FadeTransition ft =  new FadeTransition(Duration.millis(TRANSITION_ON_TIME), panel);
+      ft.setFromValue(0);
+      ft.setToValue(1);
+      return ft;
    }
 
    private void clearComponents() {
-      componentPanelBox.getChildren()
-              .clear();
-
+      
+      final ParallelTransition parallelTransition = new  ParallelTransition();
+      
+      componentPanelBox.getChildren().forEach((child) -> {
+         if (toolGrid != child) {
+         FadeTransition ft = new FadeTransition(Duration.millis(TRANSITION_OFF_TIME), child);
+         ft.setFromValue(1.0);
+         ft.setToValue(0.0);   
+         parallelTransition.getChildren().add(ft);
+         }
+      });
+      
+      parallelTransition.setOnFinished(this::clearAnimationComplete);
+      parallelTransition.play();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -173,6 +192,13 @@ public class ConceptDetailPanelNode
            ConceptChronology oldValue,
            ConceptChronology newValue) {
       clearComponents();
+   }
+   private void clearAnimationComplete(ActionEvent completeEvent) {
+      
+      componentPanelBox.getChildren()
+              .clear();
+      componentPanelBox.getChildren().add(toolGrid);
+      ConceptChronology newValue = this.conceptDetailManifold.getFocusedConceptChronology();
       if (newValue != null) {
          titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(newValue));
          toolTipProperty.set(
@@ -182,14 +208,22 @@ public class ConceptDetailPanelNode
                  .getObservableConceptChronology(
                          newValue.getConceptSequence());
 
-         // add back toolbar...
-         componentPanelBox.getChildren().add(toolGrid);
-         addChronology(observableConceptChronology);
+         final ParallelTransition parallelTransition = new  ParallelTransition();
+
+         addChronology(observableConceptChronology, parallelTransition);
 
          for (ObservableSememeChronology osc : observableConceptChronology.getObservableSememeList()) {
-            addChronology(osc);
+            addChronology(osc, parallelTransition);
          }
+         parallelTransition.play();
       }
+   }
+
+   private void setupFadeOnTransition(Node nodeToTransition, final ParallelTransition parallelTransition) {
+      FadeTransition ft = new FadeTransition(Duration.millis(TRANSITION_ON_TIME), nodeToTransition);
+      ft.setFromValue(0);
+      ft.setToValue(1);
+      parallelTransition.getChildren().add(ft);
    }
 
    //~--- get methods ---------------------------------------------------------
