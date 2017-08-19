@@ -18,6 +18,7 @@ package sh.isaac.api.observable.sememe.version;
 
 import javafx.beans.property.StringProperty;
 import sh.isaac.api.component.sememe.version.MutableStringVersion;
+import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 
 /**
  *
@@ -31,4 +32,8 @@ public interface ObservableStringVersion extends ObservableSememeVersion, Mutabl
     * @return the string property
     */
    StringProperty stringProperty();
+
+   @Override
+   public ObservableSememeChronology getChronology();
+   
 }

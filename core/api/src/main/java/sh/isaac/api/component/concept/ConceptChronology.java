@@ -125,7 +125,7 @@ public interface ConceptChronology
     * @param stampCoordinate the stamp coordinate
     * @return the fully specified description
     */
-   LatestVersion<DescriptionVersion> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate,
+   LatestVersion<? extends DescriptionVersion> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate,
          StampCoordinate stampCoordinate);
    
    /**
@@ -135,7 +135,7 @@ public interface ConceptChronology
     * coordinate.
     * @return the fully specified description
     */
-   default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(ManifoldCoordinate coordinate) {
+   default LatestVersion<? extends DescriptionVersion> getFullySpecifiedDescription(ManifoldCoordinate coordinate) {
       return getFullySpecifiedDescription(coordinate, coordinate);
    }
 
@@ -171,7 +171,7 @@ public interface ConceptChronology
     * @param stampCoordinate the stamp coordinate
     * @return the preferred description
     */
-   LatestVersion<DescriptionVersion> getPreferredDescription(LanguageCoordinate languageCoordinate,
+   LatestVersion<? extends DescriptionVersion> getPreferredDescription(LanguageCoordinate languageCoordinate,
          StampCoordinate stampCoordinate);
 
 
@@ -181,7 +181,7 @@ public interface ConceptChronology
     * @param coordinate the language coordinate and the stamp coordinate
     * @return the preferred description
     */
-   default LatestVersion<DescriptionVersion> getPreferredDescription(ManifoldCoordinate coordinate) {
+   default LatestVersion<? extends DescriptionVersion> getPreferredDescription(ManifoldCoordinate coordinate) {
       return getPreferredDescription(coordinate, coordinate);
    }
 

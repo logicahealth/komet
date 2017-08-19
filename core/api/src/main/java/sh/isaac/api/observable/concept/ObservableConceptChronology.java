@@ -51,6 +51,7 @@ import javafx.collections.ObservableList;
 
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
@@ -67,7 +68,7 @@ import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
  * @author kec
  */
 public interface ObservableConceptChronology
-        extends ObservableChronology {
+        extends ObservableChronology, ConceptChronology {
    /**
     * Concept description list property.
     *
@@ -142,6 +143,7 @@ public interface ObservableConceptChronology
     * @param stampCoordinate the stamp coordinate
     * @return the fully specified description
     */
+   @Override
    LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate);
@@ -152,6 +154,7 @@ public interface ObservableConceptChronology
     * @param manifoldCoordinate the language coordinate and the stamp coordinate
     * @return the fully specified description
     */
+   @Override
    default LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
            ManifoldCoordinate manifoldCoordinate) {
       return getFullySpecifiedDescription(manifoldCoordinate, manifoldCoordinate);
@@ -165,6 +168,7 @@ public interface ObservableConceptChronology
     * @param stampCoordinate the stamp coordinate
     * @return the preferred description
     */
+   @Override
    LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate);
@@ -174,6 +178,7 @@ public interface ObservableConceptChronology
     * @param manifoldCoordinate the language coordinate and the stamp coordinate
     * @return the preferred description
     */
+   @Override
    default LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            ManifoldCoordinate manifoldCoordinate) {
       return getPreferredDescription(manifoldCoordinate, manifoldCoordinate);

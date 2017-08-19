@@ -37,6 +37,8 @@ import static sh.isaac.komet.iconography.Iconography.IconSource.SVG;
  * @author kec
  */
 public enum Iconography {
+   
+   
 //TODO make Iconagraphy a service/provider 
    TAXONOMY_ICON(MATERIAL_DESIGNS_WEBFONT, "taxonomy-icon"),
    TAXONOMY_ROOT_ICON(MATERIAL_DESIGNS_WEBFONT, "taxonomy-root-icon"),
@@ -186,4 +188,6 @@ public enum Iconography {
    public static String getStyleSheetStringUrl() {
       return Iconography.class.getResource("/sh/isaac/komet/iconography/Iconography.css").toString();
    }
+   
+   static boolean  fontsLoaded = LoadFonts.load();
 }

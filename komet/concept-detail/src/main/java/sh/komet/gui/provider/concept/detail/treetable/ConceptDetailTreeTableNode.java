@@ -37,7 +37,7 @@
 
 
 
-package sh.komet.gui.provider.concept.detail;
+package sh.komet.gui.provider.concept.detail.treetable;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -61,6 +61,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.komet.gui.control.ConceptLabelToolbar;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.style.StyleClasses;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -68,7 +69,7 @@ import sh.komet.gui.manifold.Manifold;
  *
  * @author kec
  */
-public class ConceptDetailNode
+public class ConceptDetailTreeTableNode
          implements DetailNode {
    private final BorderPane           conceptDetailPane = new BorderPane();
    private final SimpleStringProperty titleProperty     = new SimpleStringProperty("detail graph");
@@ -77,7 +78,7 @@ public class ConceptDetailNode
 
    //~--- constructors --------------------------------------------------------
 
-   public ConceptDetailNode(Manifold conceptDetailManifold, Consumer<Node> nodeConsumer) {
+   public ConceptDetailTreeTableNode(Manifold conceptDetailManifold, Consumer<Node> nodeConsumer) {
       try {
          this.conceptDetailManifold = conceptDetailManifold;
          this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(State.INACTIVE);
@@ -93,7 +94,7 @@ public class ConceptDetailNode
                                                     newValue));
                          });
          conceptDetailPane.setTop(ConceptLabelToolbar.make(conceptDetailManifold));
-         conceptDetailPane.getStyleClass().add("concept-detail-pane");
+         conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
          nodeConsumer.accept(conceptDetailPane);
          
          FXMLLoader loader = new FXMLLoader(
@@ -101,7 +102,7 @@ public class ConceptDetailNode
          
          loader.load();
          
-         ConceptDetailController conceptDetailController = loader.getController();
+         ConceptDetailTreeTableController conceptDetailController = loader.getController();
          
          conceptDetailController.setManifold(conceptDetailManifold);
          conceptDetailPane.setCenter(conceptDetailController.getConceptDetailRootPane());

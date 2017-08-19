@@ -18,6 +18,7 @@ package sh.isaac.api.observable.sememe.version;
 
 import javafx.beans.property.ObjectProperty;
 import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
+import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 
 /**
  *
@@ -31,4 +32,8 @@ public interface ObservableLogicGraphVersion extends ObservableSememeVersion, Mu
     * @return the logic graph property
     */
    ObjectProperty<byte[][]> logicGraphProperty();
+
+   @Override
+   public ObservableSememeChronology getChronology();
+   
 }

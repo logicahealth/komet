@@ -58,7 +58,6 @@ import sh.isaac.api.State;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.identity.StampedVersion;

@@ -111,7 +111,7 @@ public class FullySpecifiedNameForConcept
          Get.conceptService()
             .getConceptChronologyStream(conceptSequenceSet)
             .forEach((conceptChronology) -> {
-                        final LatestVersion<DescriptionVersion> desc =
+                        final LatestVersion<? extends DescriptionVersion> desc =
                            conceptChronology.getFullySpecifiedDescription(languageCoordinate, stampCoordinate);
 
                         if (desc.isPresent()) {

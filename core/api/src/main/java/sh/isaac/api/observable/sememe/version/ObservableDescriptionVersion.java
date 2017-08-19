@@ -44,6 +44,7 @@ package sh.isaac.api.observable.sememe.version;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -121,5 +122,10 @@ public interface ObservableDescriptionVersion
     * @param text the new text
     */
    void setText(String text);
+
+   @Override
+   public ObservableSememeChronology getChronology();
+   
+   
 }
 

@@ -18,6 +18,7 @@ package sh.isaac.api.observable.sememe.version;
 
 import javafx.beans.property.LongProperty;
 import sh.isaac.api.component.sememe.version.MutableLongVersion;
+import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 
 /**
  *
@@ -31,4 +32,8 @@ public interface ObservableLongVersion extends ObservableSememeVersion, MutableL
     * @return the long property
     */
    LongProperty longValueProperty();
+
+   @Override
+   public ObservableSememeChronology getChronology();
+   
 }

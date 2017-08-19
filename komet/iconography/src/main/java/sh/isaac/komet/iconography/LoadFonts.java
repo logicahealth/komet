@@ -37,34 +37,41 @@
 
 
 
-package sh.isaac.api.observable.sememe.version;
+package sh.isaac.komet.iconography;
+
+//~--- JDK imports ------------------------------------------------------------
+
+import java.awt.GraphicsEnvironment;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.beans.property.IntegerProperty;
-import sh.isaac.api.component.sememe.version.MutableComponentNidVersion;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
+import javafx.scene.text.Font;
 
-//~--- interfaces -------------------------------------------------------------
+//~--- classes ----------------------------------------------------------------
 
 /**
- * The Interface ObservableComponentNidVersion.
  *
  * @author kec
  */
-public interface ObservableComponentNidVersion
-        extends ObservableSememeVersion, MutableComponentNidVersion {
-   /**
-    * Component nid property.
-    *
-    * @return the integer property
-    */
-   IntegerProperty componentNidProperty();
-
-   //~--- get methods ---------------------------------------------------------
-
-   @Override
-   public ObservableSememeChronology getChronology();
+public class LoadFonts {
+   public static boolean load() {
+      GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
+      Font.loadFont(getFontUrl("OpenSans-Bold.ttf"), 10);
+      Font.loadFont(getFontUrl("OpenSans-BoldItalic.ttf"), 10);
+      Font.loadFont(getFontUrl("OpenSans-ExtraBold.ttf"), 10);
+      Font.loadFont(getFontUrl("OpenSans-ExtraBoldItalic.ttf"), 10);
+      Font.loadFont(getFontUrl("OpenSans-Italic.ttf"), 10);
+      Font.loadFont(getFontUrl("OpenSans-Light.ttf"), 10);
+      Font.loadFont(getFontUrl("OpenSans-LightItalic.ttf"), 10);
+      Font.loadFont(getFontUrl("OpenSans-Regular.ttf"), 10);
+      Font.loadFont(getFontUrl("OpenSans-SemiBold.ttf"), 10);
+      Font.loadFont(getFontUrl("OpenSans-SemiBoldItalic.ttf"), 10);      
+      return true;
+   }
    
+   
+   public static String getFontUrl(String file) {
+      return LoadFonts.class.getResource("/sh/isaac/komet/fonts/" + file).toString();
+   }
 }
 

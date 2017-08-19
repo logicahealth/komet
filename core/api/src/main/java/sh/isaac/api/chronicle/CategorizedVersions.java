@@ -68,26 +68,38 @@ public class CategorizedVersions<V extends Version> {
 
    public CategorizedVersions(LatestVersion<V> latestVersion, Chronology chronology) {
       boolean observableWrap = false;
+
       if (chronology instanceof ObservableChronology) {
          observableWrap = true;
       }
-      this.allStampSequences = latestVersion.getStamps();
+
+      this.allStampSequences    = latestVersion.getStamps();
       this.latestStampSequences = new StampSequenceSet();
 
       if (latestVersion.isPresent()) {
          this.latestStampSequences.add(latestVersion.get()
                .getStampSequence());
-         latestVersion.contradictions().forEach(
-             (v) -> {
-                this.latestStampSequences.add(v.getStampSequence());
-             });
+         latestVersion.contradictions()
+                      .forEach(
+                          (v) -> {
+                             this.latestStampSequences.add(v.getStampSequence());
+                          });
       }
+
       this.latestVersion = wrap(chronology, observableWrap);
    }
-   
+
+   //~--- methods -------------------------------------------------------------
+
+   @Override
+   public String toString() {
+      return "CategorizedVersions{" + "historicVersions=\n" + historicVersions + ", latestVersion=\n" + latestVersion +
+             ", latestStampSequences=\n" + latestStampSequences + ", allStampSequences=\n" + allStampSequences + '}';
+   }
+
    private LatestVersion<V> wrap(Chronology chronology, boolean observableWrap) {
-      
       LatestVersion<V> wrappedLatestVersion = new LatestVersion();
+
       for (Version version: chronology.getVersionList()) {
          if (latestStampSequences.contains(version.getStampSequence())) {
             wrappedLatestVersion.addLatest(wrap(version, observableWrap));
@@ -95,13 +107,15 @@ public class CategorizedVersions<V extends Version> {
             historicVersions.add(wrap(version, observableWrap));
          }
       }
+
       return wrappedLatestVersion;
    }
-   
+
    private V wrap(Version version, boolean observableWrap) {
       if (observableWrap) {
          return (V) new ObservableCategorizedVersion((ObservableVersion) version, this);
-      } 
+      }
+
       return (V) new CategorizedVersion(version, this);
    }
 
@@ -117,15 +131,19 @@ public class CategorizedVersions<V extends Version> {
 
    public VersionCategory getVersionCategory(Version version) {
       int stampSequence = version.getStampSequence();
+
       if (latestStampSequences.contains(stampSequence)) {
          if (latestVersion.contradictions.isEmpty()) {
             return VersionCategory.UncontradictedLatest;
          }
+
          return VersionCategory.ContradictedLatest;
       }
+
       if (this.allStampSequences.contains(stampSequence)) {
          return VersionCategory.Prior;
       }
+
       return VersionCategory.Uncategorized;
    }
 }

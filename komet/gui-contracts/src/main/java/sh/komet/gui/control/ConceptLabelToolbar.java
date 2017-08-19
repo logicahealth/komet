@@ -25,8 +25,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Control;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.Separator;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -34,7 +32,6 @@ import javafx.scene.shape.Rectangle;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.control.ConceptLabel;
 
 /**
  *

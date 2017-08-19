@@ -110,7 +110,7 @@ public class PreferredNameForConcept
                                Get.conceptService()
                                   .getConceptChronologyStream(conceptSequenceSet)
                                   .forEach((conceptChronology) -> {
-                                              final LatestVersion<DescriptionVersion> desc =
+                                              final LatestVersion<? extends DescriptionVersion> desc =
                                                  conceptChronology.getPreferredDescription(
                                                     languageCoordinate, stampCoordinate);
 

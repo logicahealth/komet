@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.provider.concept.detail;
+package sh.komet.gui.provider.concept.detail.treetable;
 
 import java.util.EnumSet;
 import java.util.function.Consumer;
@@ -33,7 +33,7 @@ import sh.komet.gui.manifold.Manifold;
 @Service(name = "Concept Detail Provider")
 @RunLevel(value = 1)
 
-public class ConceptDetailProviderFactory implements DetailNodeFactory {
+public class ConceptDetailTreeTableProviderFactory implements DetailNodeFactory {
 
    @Override
    public EnumSet<DetailType> getSupportedTypes() {
@@ -45,7 +45,7 @@ public class ConceptDetailProviderFactory implements DetailNodeFactory {
       if (type != DetailType.Concept) {
          throw new UnsupportedOperationException("Can't handle: " + type); 
       }
-      return new ConceptDetailNode(manifold, nodeConsumer);
+      return new ConceptDetailTreeTableNode(manifold, nodeConsumer);
    }
    
 }

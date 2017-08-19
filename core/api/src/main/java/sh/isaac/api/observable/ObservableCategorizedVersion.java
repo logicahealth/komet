@@ -34,7 +34,7 @@ public class ObservableCategorizedVersion extends CategorizedVersion implements 
       super(delegate, categorizedVersions);
    }
       
-   protected ObservableVersion getObservableVersion() {
+   public ObservableVersion getObservableVersion() {
       return unwrap();
    }
 

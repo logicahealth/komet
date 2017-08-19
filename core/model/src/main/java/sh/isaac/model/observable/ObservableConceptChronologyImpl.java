@@ -44,6 +44,8 @@ package sh.isaac.model.observable;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.List;
+import java.util.Optional;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -56,6 +58,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -63,9 +66,11 @@ import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
@@ -228,7 +233,7 @@ public class ObservableConceptChronologyImpl
    public LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate) {
-      final LatestVersion<DescriptionVersion> optionalFsn =
+      final LatestVersion<? extends DescriptionVersion> optionalFsn =
          this.getConceptChronology().getFullySpecifiedDescription(languageCoordinate,
                                                                  stampCoordinate);
 
@@ -261,7 +266,7 @@ public class ObservableConceptChronologyImpl
    public LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate) {
-      final LatestVersion<DescriptionVersion> optionalPreferred =
+      final LatestVersion<? extends DescriptionVersion> optionalPreferred =
          this.getConceptChronology().getPreferredDescription(languageCoordinate,
                                                             stampCoordinate);
 
@@ -275,7 +280,7 @@ public class ObservableConceptChronologyImpl
     * @return the specified description
     */
    private LatestVersion<ObservableDescriptionVersion> getSpecifiedDescription(
-           LatestVersion<DescriptionVersion> description) {
+           LatestVersion<? extends DescriptionVersion> description) {
       if (description.isPresent()) {
          final int specifiedStampSequence = ((DescriptionVersion) description.get()).getStampSequence();
          final ObservableSememeChronology observableSpecified =
@@ -319,4 +324,36 @@ public class ObservableConceptChronologyImpl
    public IsaacExternalizableObjectType getExternalizableObjectType() {
       return getConceptChronology().getExternalizableObjectType();
    }
+
+   @Override
+   public boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate) {
+      return getConceptChronology().containsDescription(descriptionText, stampCoordinate);
+   }
+
+   @Override
+   public List<SememeChronology> getConceptDescriptionList() {
+      return getConceptChronology().getConceptDescriptionList();
+   }
+
+   @Override
+   public LatestVersion<LogicGraphVersion> getLogicalDefinition(StampCoordinate stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+      return getConceptChronology().getLogicalDefinition(stampCoordinate, premiseType, logicCoordinate);
+   }
+
+   @Override
+   public String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+      return getConceptChronology().getLogicalDefinitionChronologyReport(stampCoordinate, premiseType, logicCoordinate);
+   }
+
+   @Override
+   public String getFullySpecifiedConceptDescriptionText() {
+      return getConceptChronology().getFullySpecifiedConceptDescriptionText();
+   }
+
+   @Override
+   public Optional<String> getPreferedConceptDescriptionText() {
+      return getConceptChronology().getPreferedConceptDescriptionText();
+   }
+   
+   
 }

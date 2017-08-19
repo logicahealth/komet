@@ -27,6 +27,9 @@ limitations under the License.
    -komet-description-version-color: #ff9100;
    -komet-definition-color: #009bff;
    -komet-inactive-color: #b3b3b3;
+   -komet-box-border: #d1d1d1;
+   -fx-font-family: "Open Sans";
+
 }
 
 .button {
@@ -204,5 +207,91 @@ limitations under the License.
 
 .tree-table-view * .label {
    -fx-text-alignment: center;
+}
+
+.component-badge {
+   -icons-color: black;
+}
+
+.component-panel {
+   -fx-background-color: white;
+   -fx-grid-lines-visible: true;
+}
+
+.component-panel * .grid-pane{
+   -fx-grid-lines-visible: true;
+}
+
+
+
+.component-panel:description-version {
+   -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-description-version-color ;
+   -fx-text-fill: -komet-description-version-color;
+   -fx-border-width: 1 1 1 5;
+   -fx-border-insets: 0 0 0 -5;
+}
+
+
+
+.component-panel:description-version * .component-version-what-cell {
+   -fx-fill: -komet-description-version-color;
+   -fx-font-size:16;
+   -fx-font-weight: bold;
+}
+
+.component-panel:description-version * .component-text {
+   -fx-font-size:15; 
+   -fx-font-weight: normal;
+   -fx-fill: black;
+}
+
+.component-panel * .button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;      
+}
+
+.on-off-toggle-switch{
+    -thumb-move-animation-time: 200;
+}
+
+.on-off-toggle-switch .thumb {
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -20%), derive(-fx-text-box-border, -30%)),
+                            -fx-inner-border,
+                            white;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 0.1em; /* large value to make sure this remains circular */
+    -fx-padding: 0.7em;
+    -fx-alignment: CENTER;
+    -fx-content-display: center;
+    -fx-text-fill: -fx-text-base-color;
+    -fx-border-width: 0;      
+    
+}
+
+.on-off-toggle-switch .thumb-area{
+    -fx-background-radius: 0em;
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -20%), derive(-fx-text-box-border, -30%)), #C7CBCE;
+    -fx-background-insets: 0, 1;
+}
+
+.on-off-toggle-switch:hover .thumb{
+    -fx-color: -fx-hover-base
+}
+
+.on-off-toggle-switch:selected .thumb-area{
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -20%), derive(-fx-text-box-border, -30%)),
+                            linear-gradient(to bottom, derive(#45535C, 30%), #45535C);
+    -fx-background-insets: 0, 1;
+
+}
+
+.on-off-toggle-switch .thumb-area
+{
+    -fx-padding: 0em 1.6em 0em 1.6em; /* 7 16 7 16 */
+}
+
+.on-off-toggle-switch:disabled
+{
+    -fx-opacity: 0.4;
 }
 

@@ -41,7 +41,7 @@ package sh.isaac.api.observable.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.observable.ObservableVersion;
 
 //~--- interfaces -------------------------------------------------------------
@@ -51,7 +51,7 @@ import sh.isaac.api.observable.ObservableVersion;
  *
  */
 public interface ObservableConceptVersion
-        extends ObservableVersion, StampedVersion {
+        extends ObservableVersion, ConceptVersion {
    /**
     * Gets the chronology.
     *
