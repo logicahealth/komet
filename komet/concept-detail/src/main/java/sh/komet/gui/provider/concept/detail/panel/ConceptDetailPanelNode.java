@@ -56,6 +56,7 @@ import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -99,6 +100,7 @@ public class ConceptDetailPanelNode
    private final ExpandControl expandControl = new ExpandControl();
    private final OnOffToggleSwitch historySwitch = new OnOffToggleSwitch();
    private final Label expandControlLabel = new Label("Expand All", expandControl);
+   private final ScrollPane scrollPane; 
 
    {
       expandControlLabel.setGraphicTextGap(0);
@@ -122,12 +124,13 @@ public class ConceptDetailPanelNode
               .add(StyleClasses.COMPONENT_DETAIL_BACKGROUND.toString());
       componentPanelBox.setFillWidth(true);
       setupToolGrid();
-      nodeConsumer.accept(conceptDetailPane);
 
       historySwitch.selectedProperty().addListener(this::setShowHistory);
-
-      // TODO why does scroll pane squash contents to minimum width?
-      // nodeConsumer.accept(new ScrollPane(conceptDetailPane));
+      this.scrollPane = new ScrollPane(conceptDetailPane);
+      this.scrollPane.setFitToWidth(true);
+      this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+      this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+      nodeConsumer.accept(this.scrollPane);
    }
 
    //~--- methods -------------------------------------------------------------
