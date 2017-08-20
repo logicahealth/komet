@@ -23,8 +23,8 @@ limitations under the License.
    -komet-tab-background-color: #52646d;
    -komet-panel-background-color: #c3cdd3;
    -komet-concept-box-background-color: #eef1f3;
-   -komet-concept-version-color: #5ec200;
-   -komet-description-version-color: #ff9100;
+   -komet-concept-color: #5ec200;
+   -komet-description-color: #ff9100;
    -komet-definition-color: #009bff;
    -komet-inactive-color: #b3b3b3;
    -komet-box-border: #d1d1d1;
@@ -157,24 +157,8 @@ limitations under the License.
    
 }
 
-.komet-version-what-cell:description-version {
-   -fx-border-color: -komet-description-version-color;
-   -fx-text-fill: -komet-description-version-color;
-   -fx-border-width: 0 0 0 5;
-   -fx-font-size:18;
-  /* -fx-font-weight: 900; does not seem to work? Add a bold font face... */
-}
-.komet-version-what-cell:description-version:inactive {
-   -fx-border-color: -komet-inactive-color;
-   -fx-text-fill: -komet-inactive-color;
-   -fx-border-width: 0 0 0 5;
-   -fx-font-size:18;
-  /* -fx-font-weight: 900; does not seem to work? Add a bold font face... */
-}
-
-
 .komet-version-what-cell:concept-version {
-   -fx-border-color: -komet-concept-version-color;
+   -fx-border-color: -komet-concept-color;
    -fx-border-width: 0 0 0 5;
    
 }
@@ -223,23 +207,113 @@ limitations under the License.
 }
 
 
+.komet-version-what-cell:description-version {
+   -fx-border-color: -komet-description-color;
+   -fx-text-fill: -komet-description-color;
+   -fx-border-width: 0 0 0 5;
+   -fx-font-size:18;
+  /* -fx-font-weight: 900; does not seem to work? Add a bold font face... */
+}
+.komet-version-what-cell:description-version:inactive {
+   -fx-border-color: -komet-inactive-color;
+   -fx-text-fill: -komet-inactive-color;
+   -fx-border-width: 0 0 0 5;
+   -fx-font-size:18;
+  /* -fx-font-weight: 900; does not seem to work? Add a bold font face... */
+}
 
 .component-panel:description-version {
-   -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-description-version-color ;
-   -fx-text-fill: -komet-description-version-color;
+   -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-description-color ;
+   -fx-text-fill: red;
    -fx-border-width: 1 1 1 5;
    -fx-border-insets: 0 0 0 -5;
 }
 
+.component-panel:description-version:inactive {
+   -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-inactive-color;
+   -fx-text-fill: -komet-inactive-color;
+   -fx-border-width: 1 1 1 5;
+   -fx-border-insets: 0 0 0 -5;
+}
+
+.component-panel:description-version:inactive * .component-version-what-cell {
+   -fx-fill: -komet-inactive-color;
+   -fx-font-size:16;
+   -fx-font-weight: bold;
+}
 
 
 .component-panel:description-version * .component-version-what-cell {
-   -fx-fill: -komet-description-version-color;
+   -fx-fill: -komet-description-color;
    -fx-font-size:16;
    -fx-font-weight: bold;
 }
 
 .component-panel:description-version * .component-text {
+   -fx-font-size:15; 
+   -fx-font-weight: normal;
+   -fx-fill: black;
+}
+
+.component-panel:concept-version {
+   -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-concept-color ;
+   -fx-text-fill: -komet-concept-color;
+   -fx-border-width: 1 1 1 5;
+   -fx-border-insets: 0 0 0 -5;
+}
+
+.component-panel:concept-version:inactive {
+   -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-inactive-color;
+   -fx-text-fill: -komet-inactive-color;
+   -fx-border-width: 1 1 1 5;
+   -fx-border-insets: 0 0 0 -5;
+}
+
+.component-panel:concept-version:inactive * .component-version-what-cell {
+   -fx-fill: -komet-inactive-color;
+   -fx-font-size:16;
+   -fx-font-weight: bold;
+}
+
+.component-panel:concept-version * .component-version-what-cell {
+   -fx-fill: -komet-concept-color;
+   -fx-font-size:16;
+   -fx-font-weight: bold;
+}
+
+.component-panel:concept-version * .component-text {
+   -fx-font-size:15; 
+   -fx-font-weight: normal;
+   -fx-fill: black;
+}
+
+.component-panel:logical-definition-version {
+   -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-definition-color ;
+   -fx-text-fill: -komet-definition-color;
+   -fx-border-width: 1 1 1 5;
+   -fx-border-insets: 0 0 0 -5;
+}
+
+.component-panel:logical-definition-version:inactive {
+   -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-inactive-color;
+   -fx-text-fill: -komet-inactive-color;
+   -fx-border-width: 1 1 1 5;
+   -fx-border-insets: 0 0 0 -5;
+}
+
+.component-panel:logical-definition-version:inactive * .component-version-what-cell {
+   -fx-fill: -komet-inactive-color;
+   -fx-font-size:16;
+   -fx-font-weight: bold;
+}
+
+.component-panel:logical-definition-version * .component-version-what-cell {
+   -fx-fill: -komet-definition-color;
+   -fx-font-size:16;
+   -fx-font-weight: bold;
+}
+
+.component-panel:logical-definition-version * .component-text {
    -fx-font-size:15; 
    -fx-font-weight: normal;
    -fx-fill: black;

@@ -1,7 +1,9 @@
 package sh.komet.fx.stage;
 
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 import javafx.application.Application;
@@ -20,18 +22,18 @@ public class MainApp extends Application {
 // TODO add TaskProgressView
 // http://dlsc.com/2014/10/13/new-custom-control-taskprogressview/
 // http://fxexperience.com/controlsfx/features/   
-    public static final String SPLASH_IMAGE =
-            "prism-splash.png";
 
-    // Create drop label for identified components
-    // Create walker panel
-    // grow & shrink icons for tabs & tab panels...
-    // for each tab group, add a + control to create new tabs...
+   public static final String SPLASH_IMAGE
+           = "prism-splash.png";
+
+   // Create drop label for identified components
+   // Create walker panel
+   // grow & shrink icons for tabs & tab panels...
+   // for each tab group, add a + control to create new tabs...
    @Override
    public void start(Stage stage) throws Exception {
       //TODO have SvgImageLoaderFactory autoinstall as part of a HK2 service. 
       SvgImageLoaderFactory.install();
-            
 
       if (Files.exists(Paths.get("target", "data", "meta-db.data"))) {
          System.setProperty(DATA_STORE_ROOT_LOCATION_PROPERTY, "target/data/meta-db.data");
@@ -49,22 +51,20 @@ public class MainApp extends Application {
          throw new UnsupportedOperationException("Can't find data directory... Working dir: " + System.getProperty("user.dir"));
       }
 
-      if (Files.exists(Paths.get("target", "data", "user.css"))) {
-         System.setProperty(USER_CSS_LOCATION_PROPERTY, Paths.get("target", "data", "user.css").toUri().toURL().toString());
-
-      } else if (Files.exists(Paths.get("data", "user.css"))) {
-         System.setProperty(USER_CSS_LOCATION_PROPERTY, Paths.get("data", "user.css").toUri().toURL().toString());
-
-      } else if (Files.exists(Paths.get("user.css"))) {
-         System.setProperty(USER_CSS_LOCATION_PROPERTY, Paths.get("user.css").toUri().toURL().toString());
+      ///Users/kec/isaac/semiotic-history/isaac/komet/css/src/main/resources/user.css
+      if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("/Users", "kec", "isaac", "semiotic-history", 
+              "isaac", "komet", "css", "src", "main", "resources", "user.css"))) {
+      } else if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("target", "data", "user.css"))) {
+      } else if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("data", "user.css"))) {
+      } else if (setPropertyIfFileExists(USER_CSS_LOCATION_PROPERTY, Paths.get("user.css"))) {
       } else {
          throw new UnsupportedOperationException("Can't find user.css file... Working dir: " + System.getProperty("user.dir"));
       }
 
       LookupService.startupIsaac();
-      
+
       FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
-      
+
       Parent root = loader.load();
       KometStageController controller = loader.getController();
       root.setId(UUID.randomUUID().toString());
@@ -86,12 +86,24 @@ public class MainApp extends Application {
       // KOLDAC
       stage.setTitle("KOMET Reflector");
       stage.setScene(scene);
-      
+
       FxGet.statusMessageService().addScene(scene, controller::reportStatus);
 
       stage.show();
 
       //ScenicView.show(scene);
+   }
+
+   /**
+    *
+    * @return true if the file existed, and the property was set.
+    */
+   private boolean setPropertyIfFileExists(String property, Path filePath) throws MalformedURLException {
+      if (Files.exists(filePath)) {
+         System.setProperty(property, filePath.toUri().toURL().toString());
+         return true;
+      }
+      return false;
    }
 
    /**

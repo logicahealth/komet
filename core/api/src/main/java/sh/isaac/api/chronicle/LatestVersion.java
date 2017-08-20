@@ -313,5 +313,12 @@ public final class LatestVersion<V> {
       });
       return stampSequences;
    }
+
+   public boolean isContradicted() {
+      if (this.contradictions == null) {
+         return false;
+      }
+      return !this.contradictions.isEmpty();
+   }
 }
 

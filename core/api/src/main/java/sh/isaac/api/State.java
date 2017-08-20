@@ -119,6 +119,10 @@ public enum State {
       return EnumSet.of(ACTIVE);
    }
 
+   public static EnumSet<State> makeActiveAndInactiveSet() {
+      return EnumSet.of(ACTIVE, INACTIVE);
+   }
+
    public static EnumSet<State> makeAnyStateSet() {
       return EnumSet.allOf(State.class);
    }

@@ -140,6 +140,7 @@ public class KometStageController implements StatusMessageConsumer{
     */
    @FXML
    public void handleRefreshUserCss(ActionEvent event) {
+      
       vanityBox.getScene()
                .getStylesheets()
                .remove(System.getProperty(USER_CSS_LOCATION_PROPERTY));
