@@ -369,3 +369,26 @@ limitations under the License.
     -fx-opacity: 0.4;
 }
 
+
+.component-panel:concept-version * .header-panel {
+   -fx-border-color: -komet-concept-color;
+   -fx-text-fill: black;
+   -fx-border-width: 0 0 2 0;
+   -fx-border-insets: 0 0 0 0;   
+}
+
+
+.component-panel:description-version * .header-panel {
+   -fx-border-color: -komet-description-color;
+   -fx-text-fill: black;
+   -fx-border-width: 0 0 2 0;
+   -fx-border-insets: 0 0 0 0;   
+}
+
+
+.component-panel:logical-definition-version * .header-panel {
+   -fx-border-color: -komet-definition-color;
+   -fx-text-fill: black;
+   -fx-border-width: 0 0 2 0;
+   -fx-border-insets: 0 0 0 0;   
+}

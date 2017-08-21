@@ -36,32 +36,28 @@
  */
 package sh.komet.gui.control;
 
-//~--- JDK imports ------------------------------------------------------------
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+//~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.Get;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.VPos;
+import javafx.scene.Node;
+import javafx.scene.layout.AnchorPane;
 
-import sh.isaac.api.bootstrap.TermAux;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+
 import sh.isaac.api.chronicle.CategorizedVersions;
-import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
-import sh.isaac.api.component.sememe.version.LongVersion;
-import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.StringVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.StyleClasses;
 
 //~--- classes ----------------------------------------------------------------
@@ -72,16 +68,40 @@ import sh.komet.gui.style.StyleClasses;
 public final class ComponentPanel
         extends BadgedVersionPanel {
 
+   private int extraGridRows = 1;
    private final CategorizedVersions<ObservableCategorizedVersion> categorizedVersions;
-   private final ObservableList<VersionPanel> versionPanels = FXCollections.observableArrayList();
-   protected final ObservableList<ComponentPanel> extensionPanels = FXCollections.observableArrayList();
+   private final AnchorPane extensionHeaderPanel = setupHeaderPanel("Extensions:");
+   private final AnchorPane versionHeaderPanel = setupHeaderPanel("Change history:", "Revert");
 
+   private static AnchorPane setupHeaderPanel(String... strings) {
+      AnchorPane anchorPane = new AnchorPane();
+      anchorPane.getStyleClass().setAll("header-panel");
+      Text leftText = new Text(strings[0]);
+      AnchorPane.setLeftAnchor(leftText, 3.0);
+      AnchorPane.setTopAnchor(leftText, 3.0);
+      AnchorPane.setBottomAnchor(leftText, 3.0);
+      anchorPane.getChildren().add(leftText);
+      if (strings.length > 1) {
+         Text rightText = new Text(strings[1]);
+         AnchorPane.setRightAnchor(rightText, 3.0);
+      AnchorPane.setTopAnchor(rightText, 3.0);
+      AnchorPane.setBottomAnchor(rightText, 3.0);
+         anchorPane.getChildren().add(rightText);
+      }
+
+      return anchorPane;
+   }
    //~--- constructors --------------------------------------------------------
+
    public ComponentPanel(Manifold manifold, CategorizedVersions<ObservableCategorizedVersion> categorizedVersions) {
-      super(manifold, categorizedVersions.getLatestVersion().get());
-      if (categorizedVersions.getLatestVersion().isAbsent()) {
+      super(manifold, categorizedVersions.getLatestVersion()
+              .get());
+
+      if (categorizedVersions.getLatestVersion()
+              .isAbsent()) {
          throw new IllegalStateException("Must have a latest version: " + categorizedVersions);
       }
+
       this.categorizedVersions = categorizedVersions;
 
       // gridpane.gridLinesVisibleProperty().set(true);
@@ -89,151 +109,118 @@ public final class ComponentPanel
               .add(StyleClasses.COMPONENT_PANEL.toString());
 
       ObservableVersion observableVersion = getCategorizedVersion().getObservableVersion();
-      isContradiction.set(this.categorizedVersions.getLatestVersion().isContradicted());
-      if (observableVersion instanceof DescriptionVersion) {
-         isDescription.set(true);
-         setupDescription((DescriptionVersion) observableVersion);
-      } else if (observableVersion instanceof ConceptVersion) {
-         isConcept.set(true);
-         setupConcept((ConceptVersion) observableVersion);
-      } else if (observableVersion instanceof LogicGraphVersion) {
-         isLogicalDefinition.set(true);
-         setupDef((LogicGraphVersion) observableVersion);
-      } else {
-         setupOther(observableVersion);
+
+      isContradiction.set(this.categorizedVersions.getLatestVersion()
+              .isContradicted());
+
+      if (this.categorizedVersions.getLatestVersion()
+              .isContradicted()) {
+         this.categorizedVersions.getLatestVersion()
+                 .contradictions()
+                 .forEach(
+                         (contradiction) -> {
+                            versionPanels.add(new VersionPanel(manifold, contradiction));
+                         });
       }
 
-      if (this.categorizedVersions.getLatestVersion().isContradicted()) {
-         this.categorizedVersions.getLatestVersion().contradictions().forEach((contradiction) -> {
-            versionPanels.add(new VersionPanel(manifold, contradiction));
-         });
-      }
-      
-      this.categorizedVersions.getHistoricVersions().forEach((historicVersion) -> {
-         versionPanels.add(new VersionPanel(manifold, historicVersion));
-      });
-      
-      observableVersion.getChronology().getObservableSememeList().forEach((osc) -> {
-            switch (osc.getSememeType()) {
-               case DESCRIPTION:
-               case LOGIC_GRAPH:
-                  break; // Ignore, description and logic graph where already added as an independent panel
-               default: 
-                  addChronology(osc); 
-            }
-         
-      });
-      
+      this.categorizedVersions.getHistoricVersions()
+              .forEach(
+                      (historicVersion) -> {
+                         versionPanels.add(new VersionPanel(manifold, historicVersion));
+                      });
+      observableVersion.getChronology()
+              .getObservableSememeList()
+              .forEach(
+                      (osc) -> {
+                         switch (osc.getSememeType()) {
+                            case DESCRIPTION:
+                            case LOGIC_GRAPH:
+                               break;  // Ignore, description and logic graph where already added as an independent panel
+
+                            default:
+                               addChronology(osc);
+                         }
+                      });
       expandControl.setVisible(!versionPanels.isEmpty() || !extensionPanels.isEmpty());
    }
+
    //~--- methods -------------------------------------------------------------
-   //TODO add add show/hide actions.
+   @Override
+   public void addExtras() {
+      switch (expandControl.getExpandAction()) {
+         case HIDE_CHILDREN:
+            if (!versionPanels.isEmpty()) {
+               gridpane.getChildren()
+                               .remove(versionHeaderPanel);
+            }
+            versionPanels.forEach(
+                    (panel) -> {
+                       gridpane.getChildren()
+                               .remove(panel);
+                    });
+            if (!extensionPanels.isEmpty()) {
+               gridpane.getChildren()
+                               .remove(extensionHeaderPanel);
+            }
+            extensionPanels.forEach(
+                    (panel) -> {
+                       gridpane.getChildren()
+                               .remove(panel);
+                    });
+            break;
+
+         case SHOW_CHILDREN:
+            if (!versionPanels.isEmpty()) {
+               addPanel(versionHeaderPanel);
+            }
+            versionPanels.forEach(this::addPanel);
+            if (!extensionPanels.isEmpty()) {
+               addPanel(extensionHeaderPanel);
+            }
+            extensionPanels.forEach(this::addPanel);
+            break;
+
+         default:
+            throw new UnsupportedOperationException("Can't handle: " + expandControl.getExpandAction());
+      }
+   }
 
    private void addChronology(ObservableChronology observableChronology) {
-
-      CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions =
-         observableChronology.getCategorizedVersions(
-             getManifold());
+      CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
+              = observableChronology.getCategorizedVersions(
+                      getManifold());
 
       if (oscCategorizedVersions.getLatestVersion()
-                                .isPresent()) {
-         extensionPanels.add(new ComponentPanel(getManifold(), oscCategorizedVersions));
+              .isPresent()) {
+         ComponentPanel newPanel = new ComponentPanel(getManifold(), oscCategorizedVersions);
+
+         newPanel.setBackground(new Background(new BackgroundFill(Color.ORANGE, CornerRadii.EMPTY, Insets.EMPTY)));
+         extensionPanels.add(newPanel);
       }
    }
 
-
-   private void setupOther(Version version) {
-      if (version instanceof SememeVersion) {
-         SememeVersion sememeVersion = (SememeVersion) version;
-         SememeType sememeType = sememeVersion.getChronology().getSememeType();
-         componentType.setText(sememeType.toString());
-         switch (sememeType) {
-            case STRING:
-               componentType.setText("EXT");
-               componentText.setText(getManifold().getPreferredDescriptionText(sememeVersion.getAssemblageSequence()) + "\n"
-                       + ((StringVersion) sememeVersion).getString());
-               break;
-            case COMPONENT_NID:
-               componentType.setText("REF");
-               int nid = ((ComponentNidVersion) sememeVersion).getComponentNid();
-               switch (Get.identifierService().getChronologyTypeForNid(nid)) {
-                  case CONCEPT:
-                     componentText.setText(getManifold().getFullySpecifiedDescriptionText(nid));
-                     break;
-                  case SEMEME:
-                     SememeChronology sc = Get.sememeService().getSememe(nid);
-                     componentText.setText("References: " + sc.getSememeType().toString());
-                     break;
-                  case UNKNOWN_NID:
-                  default:
-                     componentText.setText(Get.identifierService().getChronologyTypeForNid(nid).toString());
-               }
-               break;
-            case LOGIC_GRAPH:
-               componentText.setText(((LogicGraphVersion) sememeVersion).getLogicalExpression().toString());
-               break;
-            case LONG:
-               componentText.setText(Long.toString(((LongVersion) sememeVersion).getLongValue()));
-               break;
-            case MEMBER:
-               componentText.setText("Member");
-               break;
-            case DYNAMIC:
-            case UNKNOWN:
-            case DESCRIPTION:
-            default:
-               throw new UnsupportedOperationException("Can't handle: " + sememeType);
-
-         }
-      } else {
-         componentText.setText(version.getClass().getSimpleName());
-      }
-
-   }
-
-
-   private void setupConcept(ConceptVersion conceptVersion) {
-      componentType.setText("Concept");
-      componentText.setText("");
-   }
-
-   private void setupDescription(DescriptionVersion description) {
-      componentText.setText(description.getText());
-
-      int descriptionType = description.getDescriptionTypeConceptSequence();
-
-      if (descriptionType == TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence()) {
-         componentType.setText("FSN");
-      } else if (descriptionType == TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence()) {
-         componentType.setText("SYN");
-      } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
-         componentType.setText("DEF");
-      } else {
-         componentType.setText(getManifold().getPreferredDescriptionText(descriptionType));
-      }
-      if (description.getCaseSignificanceConceptSequence() == TermAux.DESCRIPTION_CASE_SENSITIVE.getConceptSequence()) {
-         badges.add(Iconography.CASE_SENSITIVE.getIconographic());
-      } else if (description.getCaseSignificanceConceptSequence() == TermAux.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE.getConceptSequence()) {
-         // TODO get iconographic for initial character sensitive
-         badges.add(Iconography.CASE_SENSITIVE.getIconographic());
-      } else if (description.getCaseSignificanceConceptSequence() == TermAux.DESCRIPTION_NOT_CASE_SENSITIVE.getConceptSequence()) {
-         badges.add(Iconography.CASE_SENSITIVE_NOT.getIconographic());
-      }
-
-   }
-
-   private void setupDef(LogicGraphVersion logicGraphVersion) {
-      componentType.setText("DEF");
-      componentText.setText(logicGraphVersion.getLogicalExpression().toString());
-      if (getManifold().getLogicCoordinate().getInferredAssemblageSequence() == logicGraphVersion.getAssemblageSequence()) {
-         badges.add(Iconography.SETTINGS_GEAR.getIconographic());
-      } else if (getManifold().getLogicCoordinate().getStatedAssemblageSequence() == logicGraphVersion.getAssemblageSequence()) {
-         badges.add(Iconography.ICON_EXPORT.getIconographic());
-      }
+   private void addPanel(Node panel) {
+      extraGridRows++;
+      gridpane.getChildren()
+              .remove(panel);
+      GridPane.setConstraints(
+              panel,
+              1,
+              getRows() + extraGridRows,
+              getColumns() - 1,
+              1,
+              HPos.LEFT,
+              VPos.CENTER,
+              Priority.ALWAYS,
+              Priority.NEVER,
+              new Insets(2));
+      gridpane.getChildren()
+              .add(panel);
    }
 
    @Override
-   protected void expand(ObservableValue<? extends ExpandAction> observable, ExpandAction oldValue, ExpandAction newValue) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   protected boolean isLatestPanel() {
+      return true;
    }
+
 }
