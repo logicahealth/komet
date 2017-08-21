@@ -53,10 +53,10 @@ import javafx.concurrent.Task;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.progress.ActiveTasks;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -77,7 +77,7 @@ public class WriteConceptChronicle
    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
 
    /** The uncommitted tracking. */
-   private final BiConsumer<ObjectChronology, Boolean> uncommittedTracking;
+   private final BiConsumer<Chronology, Boolean> uncommittedTracking;
 
    //~--- constructors --------------------------------------------------------
 
@@ -94,7 +94,7 @@ public class WriteConceptChronicle
    public WriteConceptChronicle(ConceptChronology cc,
                                 Semaphore writeSemaphore,
                                 ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners,
-                                BiConsumer<ObjectChronology, Boolean> uncommittedTracking) {
+                                BiConsumer<Chronology, Boolean> uncommittedTracking) {
       this.cc                  = cc;
       this.writeSemaphore      = writeSemaphore;
       this.changeListeners     = changeListeners;

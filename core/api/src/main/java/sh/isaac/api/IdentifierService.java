@@ -112,7 +112,7 @@ public interface IdentifierService
     * @param stampCoordinate the stamp coordinate
     * @return the concept identifier for authority
     */
-   Optional<LatestVersion<String>> getConceptIdentifierForAuthority(int conceptId,
+   Optional<String> getConceptIdentifierForAuthority(int conceptId,
          UUID identifierAuthorityUuid,
          StampCoordinate stampCoordinate);
 
@@ -198,7 +198,7 @@ public interface IdentifierService
     * @param stampCoordinate the stamp coordinate
     * @return the identifier for authority
     */
-   Optional<LatestVersion<String>> getIdentifierForAuthority(int nid,
+   Optional<String> getIdentifierForAuthority(int nid,
          UUID identifierAuthorityUuid,
          StampCoordinate stampCoordinate);
 

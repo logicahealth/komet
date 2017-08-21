@@ -42,7 +42,6 @@ package sh.isaac.api;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
-import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -50,9 +49,9 @@ import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -141,8 +140,8 @@ public interface LanguageCoordinateService {
     * @param languageCoordinate Used to determine ranking of candidate matches.
     * @return the specified description
     */
-   Optional<LatestVersion<DescriptionSememe<?>>> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
+         List<SememeChronology> descriptionList,
          LanguageCoordinate languageCoordinate);
 
    /**
@@ -154,8 +153,8 @@ public interface LanguageCoordinateService {
     * @param languageCoordinate Used to determine ranking of candidate matches.
     * @return the specified description
     */
-   Optional<LatestVersion<DescriptionSememe<?>>> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
+         List<SememeChronology> descriptionList,
          int typeSequence,
          LanguageCoordinate languageCoordinate);
 

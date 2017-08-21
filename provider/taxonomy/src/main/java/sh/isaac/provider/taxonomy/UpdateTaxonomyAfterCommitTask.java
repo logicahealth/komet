@@ -54,8 +54,8 @@ import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomyService;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -136,8 +136,7 @@ public class UpdateTaxonomyAfterCommitTask
                               if (this.commitRecord.getSememesInCommit()
                                     .contains(sememeSequence)) {
                                  this.updateMessage("Updating taxonomy for: " + sememeSequence);
-                                 this.taxonomyService.updateTaxonomy(
-                                     (SememeChronology<LogicGraphSememe<?>>) Get.sememeService()
+                                 this.taxonomyService.updateTaxonomy((SememeChronology) Get.sememeService()
                                            .getSememe(sememeSequence));
                                  this.sememeSequencesForUnhandledChanges.remove(sememeSequence);
                               }

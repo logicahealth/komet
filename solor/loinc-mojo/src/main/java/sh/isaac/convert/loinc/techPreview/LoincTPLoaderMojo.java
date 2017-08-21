@@ -180,7 +180,7 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo {
             final Date releaseDate = dateReader.parse(loincData.getReleaseDate());
 
             this.importUtil = new IBDFCreationUtility(Optional.empty(),
-                                                      Optional.of(MetaData.LOINC_SOLOR_MODULES_ǁISAACǁ),
+                                                      Optional.of(MetaData.LOINC_SOLOR_MODULES____ISAAC),
                                                       this.outputDirectory,
                                                       this.converterOutputArtifactId,
                                                       this.converterOutputArtifactClassifier,
@@ -195,7 +195,7 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo {
                                                         "LOINC Tech Preview Metadata"
                                                         + IBDFCreationUtility.METADATA_SEMANTIC_TAG,
                                                         true,
-                                                        MetaData.SOLOR_CONTENT_METADATA_ǁISAACǁ.getPrimordialUuid()));
+                                                        MetaData.SOLOR_CONTENT_METADATA____ISAAC.getPrimordialUuid()));
 
             this.importUtil.loadTerminologyMetadataAttributes(metadata,
                                                               this.converterSourceArtifactVersion,
@@ -206,7 +206,7 @@ public class LoincTPLoaderMojo extends ConverterBaseMojo {
                                                               this.converterVersion);
             this.importUtil.addStaticStringAnnotation(metadata,
                                                       this.converterSourceLoincArtifactVersion,
-                                                      MetaData.SOURCE_ARTIFACT_VERSION_ǁISAACǁ.getPrimordialUuid(),
+                                                      MetaData.SOURCE_ARTIFACT_VERSION____ISAAC.getPrimordialUuid(),
                                                       State.ACTIVE);
 
             final PT_Refsets      refsets     = new PT_Refsets();

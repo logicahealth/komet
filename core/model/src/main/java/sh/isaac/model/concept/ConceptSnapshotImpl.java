@@ -54,7 +54,7 @@ import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSnapshot;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
@@ -62,6 +62,7 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -79,7 +80,7 @@ public class ConceptSnapshotImpl
    private final ManifoldCoordinate manifoldCoordinate;
 
    /** The snapshot version. */
-   private final LatestVersion<ConceptVersionImpl> snapshotVersion;
+   private final LatestVersion<ConceptVersion> snapshotVersion;
 
    //~--- constructors --------------------------------------------------------
 
@@ -94,11 +95,11 @@ public class ConceptSnapshotImpl
       this.conceptChronology  = conceptChronology;
       this.manifoldCoordinate    = manifoldCoordinate;
 
-      final Optional<LatestVersion<ConceptVersionImpl>> optionalVersion =
+      final LatestVersion<ConceptVersion> latestVersion =
          RelativePositionCalculator.getCalculator(manifoldCoordinate)
                                    .getLatestVersion(conceptChronology);
 
-      this.snapshotVersion = optionalVersion.get();
+      this.snapshotVersion = latestVersion;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -137,7 +138,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public int getAuthorSequence() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.get()
                                  .getAuthorSequence();
    }
 
@@ -158,7 +159,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public CommitStates getCommitState() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.get()
                                  .getCommitState();
    }
 
@@ -188,7 +189,7 @@ public class ConceptSnapshotImpl
     * @return the contradictions
     */
    @Override
-   public Optional<? extends Set<? extends StampedVersion>> getContradictions() {
+   public Set<? extends StampedVersion> getContradictions() {
       return this.snapshotVersion.contradictions();
    }
 
@@ -198,22 +199,20 @@ public class ConceptSnapshotImpl
     * @return the description
     */
    @Override
-   public DescriptionSememe<?> getDescription() {
-      final Optional<LatestVersion<DescriptionSememe<?>>> fsd = getFullySpecifiedDescription();
+   public DescriptionVersion getDescription() {
+      final LatestVersion<DescriptionVersion> fsd = getFullySpecifiedDescription();
 
       if (fsd.isPresent()) {
-         return fsd.get()
-                   .value();
+         return fsd.get();
       }
 
-      final Optional<LatestVersion<DescriptionSememe<?>>> pd = getPreferredDescription();
+      final LatestVersion<DescriptionVersion> pd = getPreferredDescription();
 
       if (pd.isPresent()) {
-         return pd.get()
-                  .value();
+         return pd.get();
       }
 
-      return Get.sememeService()
+      return (DescriptionVersion) Get.sememeService()
                 .getDescriptionsForComponent(getNid())
                 .findAny()
                 .get()
@@ -227,7 +226,7 @@ public class ConceptSnapshotImpl
     * @return the fully specified description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription() {
+   public LatestVersion<DescriptionVersion> getFullySpecifiedDescription() {
       return this.manifoldCoordinate.getFullySpecifiedDescription(Get.sememeService()
             .getDescriptionsForComponent(getNid())
             .collect(Collectors.toList()),
@@ -241,7 +240,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public int getModuleSequence() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.get()
                                  .getModuleSequence();
    }
 
@@ -252,7 +251,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public int getNid() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.get()
                                  .getNid();
    }
 
@@ -263,7 +262,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public int getPathSequence() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.get()
                                  .getPathSequence();
    }
 
@@ -273,7 +272,7 @@ public class ConceptSnapshotImpl
     * @return the preferred description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription() {
+   public LatestVersion<DescriptionVersion> getPreferredDescription() {
       return this.manifoldCoordinate.getPreferredDescription(Get.sememeService()
             .getDescriptionsForComponent(getNid())
             .collect(Collectors.toList()),
@@ -287,7 +286,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public UUID getPrimordialUuid() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.get()
                                  .getPrimordialUuid();
    }
 
@@ -298,7 +297,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public int getStampSequence() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.get()
                                  .getStampSequence();
    }
 
@@ -309,7 +308,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public State getState() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.get()
                                  .getState();
    }
 
@@ -320,7 +319,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public long getTime() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.get()
                                  .getTime();
    }
 
@@ -331,7 +330,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public List<UUID> getUuidList() {
-      return this.snapshotVersion.value()
+      return this.snapshotVersion.get()
                                  .getUuidList();
    }
    

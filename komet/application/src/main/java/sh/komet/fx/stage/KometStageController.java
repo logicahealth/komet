@@ -45,7 +45,6 @@ import java.net.URL;
 
 import java.util.ArrayList;
 import java.util.ResourceBundle;
-import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -53,7 +52,6 @@ import javafx.application.Platform;
 
 import javafx.beans.value.ObservableValue;
 
-import javafx.concurrent.Task;
 
 import javafx.event.ActionEvent;
 
@@ -68,18 +66,11 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
-import javafx.scene.paint.Color;
 
-import org.controlsfx.control.TaskProgressView;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.identity.IdentifiedObject;
@@ -87,17 +78,24 @@ import sh.isaac.komet.gui.treeview.MultiParentTreeView;
 
 import sh.komet.fx.tabpane.DndTabPaneFactory;
 import sh.komet.fx.tabpane.DndTabPaneFactory.FeedbackType;
-import sh.komet.gui.contract.DetailNode;
+import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.contract.DetailNodeFactory;
-import sh.komet.gui.contract.ExplorationNode;
+import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.contract.ExplorationNodeFactory;
-import sh.komet.gui.contract.Manifold;
+import sh.komet.gui.manifold.Manifold;
 
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
+import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.contract.DetailType;
+import sh.komet.gui.contract.StatusMessageConsumer;
+import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
-
-public class KometStageController {
+/**
+ * Root node of scene is given a UUID for unique identification. 
+ * @author kec
+ */
+public class KometStageController implements StatusMessageConsumer{
    private int                                  tabPanelCount = 0;
    private final ArrayList<MultiParentTreeView> treeViewList  = new ArrayList<>();
    @FXML  // ResourceBundle that was given to the FXMLLoader
@@ -128,7 +126,10 @@ public class KometStageController {
    private Label                                statusMessage;                    // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="vanityBox"
    private Button                               vanityBox;                        // Value injected by FXMLLoader
-   Manifold                                     manifold;
+   
+   private static final Manifold FLOWR_MANIFOLD = Manifold.make(Manifold.FLOWR_SEARCH_GROUP_NAME);
+   private static final Manifold SEARCH_MANIFOLD = Manifold.make(Manifold.SIMPLE_SEARCH_GROUP_NAME);
+   private static final Manifold TAXONOMY_MANIFOLD = Manifold.make(Manifold.TAXONOMY_GROUP_NAME);
 
    //~--- methods -------------------------------------------------------------
 
@@ -139,6 +140,7 @@ public class KometStageController {
     */
    @FXML
    public void handleRefreshUserCss(ActionEvent event) {
+      
       vanityBox.getScene()
                .getStylesheets()
                .remove(System.getProperty(USER_CSS_LOCATION_PROPERTY));
@@ -190,7 +192,7 @@ public class KometStageController {
       HBox.setHgrow(pane, Priority.ALWAYS);
       return pane;
    }
-
+   
    private TabPane setupTabPane(TabPane tabPane) {
       HBox.setHgrow(tabPane, Priority.ALWAYS);
       tabPanelCount++;
@@ -199,16 +201,33 @@ public class KometStageController {
 
       if (tabPanelCount == 1) {
          Tab tab = new Tab("Taxonomy");
+         tab.setGraphic(Iconography.TAXONOMY_ICON.getIconographic());
 
-         getManifold().focusedObjectProperty()
+         FLOWR_MANIFOLD.focusedConceptChronologyProperty()
                       .addListener(
                           (ObservableValue<? extends IdentifiedObject> observable,
                            IdentifiedObject oldValue,
                            IdentifiedObject newValue) -> {
-                             statusMessage.setText(getManifold().getName() + " selected: " + newValue.toUserString());
+                             FxGet.statusMessageService().reportSceneStatus(statusMessage.getScene(), FLOWR_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
                           });
 
-         MultiParentTreeView treeView = new MultiParentTreeView(manifold);
+         SEARCH_MANIFOLD.focusedConceptChronologyProperty()
+                      .addListener(
+                          (ObservableValue<? extends IdentifiedObject> observable,
+                           IdentifiedObject oldValue,
+                           IdentifiedObject newValue) -> {
+                             FxGet.statusMessageService().reportSceneStatus(statusMessage.getScene(), SEARCH_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
+                          });
+
+         TAXONOMY_MANIFOLD.focusedConceptChronologyProperty()
+                      .addListener(
+                          (ObservableValue<? extends IdentifiedObject> observable,
+                           IdentifiedObject oldValue,
+                           IdentifiedObject newValue) -> {
+                             FxGet.statusMessageService().reportSceneStatus(statusMessage.getScene(), TAXONOMY_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
+                          });
+
+         MultiParentTreeView treeView = new MultiParentTreeView(TAXONOMY_MANIFOLD);
 
          treeViewList.add(treeView);
          tab.setContent(new BorderPane(treeView));
@@ -216,56 +235,36 @@ public class KometStageController {
                 .add(tab);
 
          Tab searchTab = new Tab("Search");
+         searchTab.setGraphic(Iconography.SIMPLE_SEARCH.getIconographic());
 
          tabPane.getTabs()
                 .add(searchTab);
       } else {
          if (tabPanelCount == 2) {
             for (DetailNodeFactory factory: Get.services(DetailNodeFactory.class)) {
-               Tab tab = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
-
-               tab.setTooltip(new Tooltip("A Square"));
-
-               BorderPane graphPane = new BorderPane();
-
-               graphPane.setBorder(
-                   new Border(
-                       new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-
-               DetailNode detailNode = factory.createDetailNode(manifold, graphPane);
-
-               tab.textProperty()
-                  .bind(detailNode.getTitle());
-               tab.getTooltip()
-                  .textProperty()
-                  .bind(detailNode.getToolTip());
-               tab.setContent(graphPane);
-               tabPane.getTabs()
-                      .add(tab);
+               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.make(Manifold.TAXONOMY_GROUP_NAME));
+               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.make(Manifold.FLOWR_SEARCH_GROUP_NAME));
+               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.make(Manifold.SIMPLE_SEARCH_GROUP_NAME));
+               tabCountInPanel = setupConceptTab(tabCountInPanel, factory, tabPane, Manifold.make(Manifold.UNLINKED_GROUP_NAME));
             }
          }
 
          if (tabPanelCount == 3) {
-            for (ExplorationNodeFactory factory: Get.services(ExplorationNodeFactory.class)) {
+            Get.services(ExplorationNodeFactory.class).stream().map((factory) -> {
                Tab tab = new Tab("FLOWR Query");
-
-               tab.setTooltip(new Tooltip("Query view"));
-
+               tab.setGraphic(Iconography.FLOWR_SEARCH.getIconographic());
+               tab.setTooltip(new Tooltip("For, Let, Order, Where, Return query construction panel"));
                BorderPane searchPane = new BorderPane();
-
-               searchPane.setBorder(
-                   new Border(
-                       new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-
-               ExplorationNode explorationNode = factory.createExplorationNode(manifold, searchPane);
-
+               ExplorationNode explorationNode = factory.createExplorationNode(FLOWR_MANIFOLD, searchPane);
                tab.getTooltip()
-                  .textProperty()
-                  .bind(explorationNode.getToolTip());
+                       .textProperty()
+                       .bind(explorationNode.getToolTip());
                tab.setContent(searchPane);
+               return tab;
+            }).forEachOrdered((tab) -> {
                tabPane.getTabs()
-                      .add(tab);
-            }
+                       .add(tab);
+            });
 
             ProgressIndicator p1 = new ProgressIndicator();
             p1.setPrefSize(20, 20);
@@ -273,42 +272,33 @@ public class KometStageController {
             tabPane.getTabs()
                    .add(progressTab);
             progressTab.setGraphic(p1);
-         } else {
-            Tab tab1 = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
-
-            tab1.setContent(Cube.redContent());
-            tabPane.getTabs()
-                   .add(tab1);
-
-            Tab tab2 = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
-
-            tab2.setContent(Cube.orangeContent());
-            tabPane.getTabs()
-                   .add(tab2);
-
-            Tab tab3 = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
-
-            tab3.setContent(Cube.greenContent());
-            tabPane.getTabs()
-                   .add(tab3);
          }
       }
 
       return tabPane;
    }
 
-   //~--- get methods ---------------------------------------------------------
+   private int setupConceptTab(int tabCountInPanel, DetailNodeFactory factory, TabPane tabPane, Manifold manifold) {
+      Tab tab = new Tab("Tab " + tabPanelCount + "." + tabCountInPanel++);
+      tab.setTooltip(new Tooltip("A Square"));
+      BorderPane graphPane = new BorderPane();
+      DetailNode detailNode = factory.createDetailNode(manifold, (theNewDetailNode) -> {
+         graphPane.setCenter(theNewDetailNode);
+      }, DetailType.Concept);
+      tab.textProperty()
+              .bind(detailNode.getTitle());
+      tab.getTooltip()
+              .textProperty()
+              .bind(detailNode.getToolTip());
+      tab.setContent(graphPane);
+      tabPane.getTabs()
+              .add(tab);
+      return tabCountInPanel;
+   }
 
-   private Manifold getManifold() {
-      if (this.manifold == null) {
-         this.manifold = new Manifold(
-             "taxonomy",
-             UUID.randomUUID(),
-             Get.configurationService().getDefaultManifoldCoordinate(),
-             Get.configurationService().getDefaultEditCoordinate());
-      }
-
-      return this.manifold;
+   @Override
+   public void reportStatus(String status) {
+            statusMessage.setText(status);
    }
 }
 

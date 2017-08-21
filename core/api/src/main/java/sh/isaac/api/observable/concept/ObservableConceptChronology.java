@@ -41,7 +41,6 @@ package sh.isaac.api.observable.concept;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -52,12 +51,14 @@ import javafx.collections.ObservableList;
 
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionSememe;
+import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -65,17 +66,15 @@ import sh.isaac.api.observable.sememe.version.ObservableDescriptionSememe;
  * The Interface ObservableConceptChronology.
  *
  * @author kec
- * @param <V> the value type
  */
-public interface ObservableConceptChronology<V extends ObservableConceptVersion>
-        extends ObservableChronology<V> {
+public interface ObservableConceptChronology
+        extends ObservableChronology, ConceptChronology {
    /**
     * Concept description list property.
     *
-    * @param <T> the generic type
     * @return the list property
     */
-   <T extends ObservableDescriptionSememe<T>> ListProperty<ObservableSememeChronology<T>> conceptDescriptionListProperty();
+   ListProperty<ObservableSememeChronology> conceptDescriptionListProperty();
 
    /**
     * Concept sequence property.
@@ -107,7 +106,7 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
     * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version.
     * @return the mutable version
     */
-   V createMutableVersion(int stampSequence);
+   ObservableConceptVersion createMutableVersion(int stampSequence);
 
    /**
     * Create a mutable version with Long.MAX_VALUE as the time, indicating
@@ -118,17 +117,16 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
     * @param ec edit coordinate to provide the author, module, and path for the mutable version
     * @return the mutable version
     */
-   V createMutableVersion(State state, EditCoordinate ec);
+   ObservableConceptVersion createMutableVersion(State state, EditCoordinate ec);
 
    //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the concept description list.
     *
-    * @param <T> the generic type
     * @return the concept description list
     */
-   <T extends ObservableDescriptionSememe<T>> ObservableList<? extends ObservableSememeChronology<T>> getConceptDescriptionList();
+   ObservableList<ObservableSememeChronology> getDescriptions();
 
    /**
     * Gets the concept sequence.
@@ -145,20 +143,45 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
     * @param stampCoordinate the stamp coordinate
     * @return the fully specified description
     */
-   Optional<LatestVersion<ObservableDescriptionSememe<?>>> getFullySpecifiedDescription(
+   @Override
+   LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate);
 
    /**
+    * Gets the fully specified description.
+    *
+    * @param manifoldCoordinate the language coordinate and the stamp coordinate
+    * @return the fully specified description
+    */
+   @Override
+   default LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
+           ManifoldCoordinate manifoldCoordinate) {
+      return getFullySpecifiedDescription(manifoldCoordinate, manifoldCoordinate);
+      
+   }
+
+   /**
     * Gets the preferred description.
     *
-    * @param <T> the generic type
     * @param languageCoordinate the language coordinate
     * @param stampCoordinate the stamp coordinate
     * @return the preferred description
     */
-   <T extends ObservableDescriptionSememe<T>> Optional<LatestVersion<T>> getPreferredDescription(
+   @Override
+   LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate);
+   /**
+    * Gets the preferred description.
+    *
+    * @param manifoldCoordinate the language coordinate and the stamp coordinate
+    * @return the preferred description
+    */
+   @Override
+   default LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
+           ManifoldCoordinate manifoldCoordinate) {
+      return getPreferredDescription(manifoldCoordinate, manifoldCoordinate);
+   }
 }
-
+//~--- JDK imports ------------------------------------------------------------

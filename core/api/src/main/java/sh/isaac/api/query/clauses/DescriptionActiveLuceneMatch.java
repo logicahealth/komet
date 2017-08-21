@@ -51,14 +51,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -102,7 +101,7 @@ public class DescriptionActiveLuceneMatch
 
       getResultsCache().and(incomingComponents);
       incomingComponents.stream().forEach((nid) -> {
-                                    final Optional<? extends ObjectChronology<? extends StampedVersion>> chronology =
+                                    final Optional<? extends Chronology> chronology =
                                        Get.identifiedObjectService()
                                           .getIdentifiedObjectChronology(nid);
 

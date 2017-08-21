@@ -3,19 +3,19 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>sh.isaac</groupId>
    <artifactId>isaac</artifactId>
-   <version>4.17-SNAPSHOT</version>
+   <version>4.23-SNAPSHOT</version>
 
-   <name>ISAAC: (MMP) InformaticS Architecture ACceleration</name>
+   <name>ISAAC: (MMP) Informatics Analytic Architecture</name>
 
-   <description>ISAAC: InformaticS Architecture ACceleration. ISAAC is a project to support
+   <description>ISAAC: Informatics Analytic Architecture. ISAAC is a project to support
       tooling for a coherent informatics  architecture that builds on top of a description-logic terminology foundation.
       This ISAAC parent pom that standardizes common dependencies and plugins for ISAAC modules.
    </description>
-   
+
    <url>http://informatics-architecture.net/isaac</url>
 
    <organization>
-      <name>Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the 
+      <name>Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
          US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium. </name>
    </organization>
 
@@ -27,24 +27,24 @@
          <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
          <distribution>repo</distribution>
          <comments>
-            Contributions from 2013-2017 where performed either by US government 
-            employees, or under US Veterans Health Administration contracts. 
+            Contributions from 2013-2017 where performed either by US government
+            employees, or under US Veterans Health Administration contracts.
 
             US Veterans Health Administration contributions by government employees
             are work of the U.S. Government and are not subject to copyright
-            protection in the United States. Portions contributed by government 
-            employees are USGovWork (17USC §105). Not subject to copyright. 
-				
+            protection in the United States. Portions contributed by government
+            employees are USGovWork (17USC §105). Not subject to copyright.
+
             Contribution by contractors to the US Veterans Health Administration
             during this period are contractually contributed under the
             Apache License, Version 2.0.
-				
+
             See: https://www.usa.gov/government-works
-				 
+
             Contributions prior to 2013:
-				
+
             Copyright © International Health Terminology Standards Development Organisation.
-            
+
             Content packaged by SOLOR projects are subject to licenses specific to the content packaged.
          </comments>
       </license>
@@ -72,6 +72,7 @@
       <docbkx-maven-plugin.version>2.0.17</docbkx-maven-plugin.version>
       <enforcer-api.version>1.4.1</enforcer-api.version>
       <fortify.version>16.10</fortify.version>
+      <gitflow-maven-plugin-version>1.6.0</gitflow-maven-plugin-version>
       <guava.version>21.0</guava.version>
       <hk2.version>2.5.0-b36</hk2.version>
       <httpclient.version>4.5.3</httpclient.version>
@@ -120,6 +121,8 @@
       <plexus-io.version>2.7.1</plexus-io.version>
       <plexus-utils.version>3.0.24</plexus-utils.version>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
       <repackage-mojo.version>1.0</repackage-mojo.version>
       <sisu-guice.version>3.2.6</sisu-guice.version>
       <sisu-inject-plexus.version>2.6.0</sisu-inject-plexus.version>
@@ -378,11 +381,14 @@
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-enforcer-plugin</artifactId>
                <version>${maven-enforcer-plugin.version}</version>
-            </plugin>              
+            </plugin>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-resources-plugin</artifactId>
                <version>${maven-resources-plugin.version}</version>
+               <configuration>
+                  <encoding>UTF-8</encoding>
+               </configuration>
             </plugin>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
@@ -457,7 +463,7 @@
                         <goal>descriptor</goal>
                      </goals>
                   </execution>
-               </executions>          
+               </executions>
             </plugin>
             <plugin>
                <groupId>com.agilejava.docbkx</groupId>
@@ -526,7 +532,7 @@
                <configuration>
                   <locales>en</locales>
                </configuration>
-               
+
             </plugin>
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
@@ -640,15 +646,15 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jar-plugin</artifactId>
             <configuration>
-               <!--               If you need to define your own MANIFEST.MF file you can 
-               simply achieve that via Maven Archiver configuration like 
+               <!--               If you need to define your own MANIFEST.MF file you can
+               simply achieve that via Maven Archiver configuration like
                in the following example:
                <archive>
                   <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                </archive>               -->
             </configuration>
          </plugin>
-         <plugin>
+        <plugin>
             <groupId>external.atlassian.jgitflow</groupId>
             <artifactId>jgitflow-maven-plugin</artifactId>
             <version>${jgitflow-maven-plugin.version}</version>
@@ -664,12 +670,18 @@
             </configuration>
          </plugin>
          <plugin>
+            <groupId>com.amashchenko.maven.plugin</groupId>
+            <artifactId>gitflow-maven-plugin</artifactId>
+            <version>${gitflow-maven-plugin-version}</version>
+         </plugin>
+         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
             <version>${maven-compiler-plugin.version}</version>
             <configuration>
                <source>${javac.version}</source>
                <target>${javac.version}</target>
+               <encoding>UTF-8</encoding>
             </configuration>
          </plugin>
          <plugin>
@@ -687,7 +699,7 @@
                   </goals>
                </execution>
             </executions>
-         </plugin>        
+         </plugin>
          <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
@@ -695,10 +707,8 @@
                   <phase>post-site</phase>
                   <configuration>
                      <tasks>
-                        <replace token='div id="banner"' 
-                                 value='div id="banner" style="background-color:black;color:white;"' 
-                                 dir="${project.build.directory}/site/">
-                           <include name="**/*.html"/>
+                        <replace token="div id=&quot;banner&quot;" value="div id=&quot;banner&quot; style=&quot;background-color:black;color:white;&quot;" dir="${project.build.directory}/site/">
+                           <include name="**/*.html" />
                         </replace>
                      </tasks>
                   </configuration>
@@ -707,10 +717,10 @@
                   </goals>
                </execution>
             </executions>
-         </plugin>            
+         </plugin>
       </plugins>
    </build>
-   
+
    <reporting>
       <plugins>
          <plugin>
@@ -740,7 +750,7 @@
             <artifactId>maven-checkstyle-plugin</artifactId>
             <version>${maven-checkstyle-plugin.version}</version>
          </plugin>
-      </plugins>     
+      </plugins>
    </reporting>
 
    <modules>
@@ -800,34 +810,6 @@
          </reporting>
       </profile>
       <profile>
-         <id>sca-clean</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>com.hpe.security.fortify.maven.plugin</groupId>
-                  <artifactId>sca-maven-plugin</artifactId>
-                  <version>${fortify.version}</version>
-                  <configuration>
-                     <jre64>true</jre64>
-                     <buildId>isaac-fortify-build</buildId>
-                     <toplevelArtifactId>isaac-parent</toplevelArtifactId>
-                     <skipTests>true</skipTests>
-                  </configuration>
-                  <executions>
-                     <execution>
-                        <goals>
-                           <goal>clean</goal>
-                        </goals>
-                     </execution>
-                  </executions>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-      <profile>
          <id>sca-translate</id>
          <activation>
             <activeByDefault>false</activeByDefault>
@@ -855,33 +837,6 @@
                         </goals>
                      </execution>
                   </executions>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-      <profile>
-         <id>sca-scan</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>com.hpe.security.fortify.maven.plugin</groupId>
-                  <artifactId>sca-maven-plugin</artifactId>
-                  <version>${fortify.version}</version>
-                  <configuration>
-                     <jre64>true</jre64>
-                     <jreStack>8M</jreStack>
-                     <maxHeap>13000M</maxHeap>
-                     <verbose>true</verbose>
-                     <buildId>isaac-fortify-build</buildId>
-                     <toplevelArtifactId>isaac-parent</toplevelArtifactId>
-                     <failOnSCAError>true</failOnSCAError>
-                     <upload>false</upload>
-                     <projectName>ISAAC REST</projectName>
-                     <projectVersion>${project.version}</projectVersion>
-                  </configuration>
                </plugin>
             </plugins>
          </build>

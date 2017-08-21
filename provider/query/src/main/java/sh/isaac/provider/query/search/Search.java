@@ -46,7 +46,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -56,9 +55,9 @@ import java.util.function.Function;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -102,12 +101,10 @@ public class Search {
          filters.add(t -> {
                         final ArrayList<CompositeSearchResult> keep = new ArrayList<>();
 
-                        for (final CompositeSearchResult csr: t) {
-                           if (csr.getContainingConcept().isPresent() &&
-                               (csr.getContainingConcept().get().getPathSequence() == pathFilterSequence)) {
-                              keep.add(csr);
-                           }
-                        }
+                        t.stream().filter((csr) -> (csr.getContainingConcept().isPresent() &&
+                                (csr.getContainingConcept().get().getPathSequence() == pathFilterSequence))).forEachOrdered((csr) -> {
+                                   keep.add(csr);
+            });
 
                         return keep;
                      });
@@ -124,12 +121,10 @@ public class Search {
                                           refsetMembers.add(sememeC.getReferencedComponentNid());
                                        });
 
-                           for (final CompositeSearchResult csr: t) {
-                              if (csr.getContainingConcept().isPresent() &&
-                                  refsetMembers.contains(csr.getContainingConcept().get().getNid())) {
-                                 keep.add(csr);
-                              }
-                           }
+                           t.stream().filter((csr) -> (csr.getContainingConcept().isPresent() &&
+                                   refsetMembers.contains(csr.getContainingConcept().get().getNid()))).forEachOrdered((csr) -> {
+                                      keep.add(csr);
+                           });
 
                            return keep;
                         } catch (final Exception e) {
@@ -142,13 +137,11 @@ public class Search {
          filters.add(t -> {
                         final ArrayList<CompositeSearchResult> keep = new ArrayList<>();
 
-                        for (final CompositeSearchResult csr: t) {
-                           if (csr.getContainingConcept().isPresent() &&
-                               Get.taxonomyService().wasEverKindOf(csr.getContainingConcept().get().getNid(),
-                                     kindOfNid)) {
-                              keep.add(csr);
-                           }
-                        }
+                        t.stream().filter((csr) -> (csr.getContainingConcept().isPresent() &&
+                                Get.taxonomyService().wasEverKindOf(csr.getContainingConcept().get().getNid(),
+                                        kindOfNid))).forEachOrdered((csr) -> {
+                                           keep.add(csr);
+            });
 
                         return keep;
                      });
@@ -233,16 +226,14 @@ public class Search {
          .getDescriptionsForComponent(sourceConceptNid)
          .forEach(descriptionC -> {
                      @SuppressWarnings({ "rawtypes", "unchecked" })
-                     final Optional<LatestVersion<DescriptionSememe<?>>> latest =
-                        ((SememeChronology) descriptionC).getLatestVersion(DescriptionSememe.class,
-                                                                           (stampCoord == null)
+                     final LatestVersion<DescriptionVersion> latest =
+                        ((SememeChronology) descriptionC).getLatestVersion((stampCoord == null)
                                                                            ? Get.configurationService()
                                                                                  .getDefaultStampCoordinate()
                : stampCoord);
 
                      if (latest.isPresent()) {
                         searchString.append(latest.get()
-                              .value()
                               .getText());
                         searchString.append(" ");
                      }

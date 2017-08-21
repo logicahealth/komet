@@ -42,7 +42,6 @@ package sh.isaac.model.observable.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
-import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -65,12 +64,12 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.model.coordinate.LanguageCoordinateImpl;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -201,8 +200,8 @@ public final class ObservableLanguageCoordinateImpl
     * @return the description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(
-           List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   public LatestVersion<DescriptionVersion> getDescription(
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return this.languageCoordinate.getDescription(descriptionList, stampCoordinate);
    }
@@ -245,8 +244,8 @@ public final class ObservableLanguageCoordinateImpl
     * @return the fully specified description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
-           List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return this.languageCoordinate.getFullySpecifiedDescription(descriptionList, stampCoordinate);
    }
@@ -273,8 +272,8 @@ public final class ObservableLanguageCoordinateImpl
     * @return the preferred description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(
-           List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   public LatestVersion<DescriptionVersion> getPreferredDescription(
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return this.languageCoordinate.getPreferredDescription(descriptionList, stampCoordinate);
    }

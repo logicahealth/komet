@@ -21,23 +21,36 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 /**
  *
  * @author kec
  */
 public class QueryBuilder  {
-   
+   public static final String DEFAULT_MANIFOLD_COORDINATE_KEY = "DEFAULT_MANIFOLD_COORDINATE_KEY";
+   int sequence = 0;
+   ManifoldCoordinate manifoldCoordinate;
    ParentClause root;
    
-   List<Object> fromClauses = new ArrayList();
+   List<ComponentCollectionTypes> forClause = new ArrayList();
    Map<String, Object> letClauses = new HashMap<>();
    List<?> whereClauses = new ArrayList();
    List<Object> orderByClauses = new ArrayList();
    List<Object> returnClauses = new ArrayList();
+
+   public QueryBuilder(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
+      letClauses.put(DEFAULT_MANIFOLD_COORDINATE_KEY, manifoldCoordinate);
+   }
    
-   public QueryBuilder from(Object fromClause) {
-      fromClauses.add(fromClause);
+   /**
+    * From instead of for, since for is a reserved word...
+    * @param forClause
+    * @return 
+    */
+   public QueryBuilder from(ComponentCollectionTypes forClause) {
+      this.forClause.add(forClause);
       return this;
    }
    
@@ -66,26 +79,43 @@ public class QueryBuilder  {
       return this.root;
    }
    
-   public Clause addWhereClause(ParentClause parent, Clause child) {
-      parent.getChildren().add(child);
-      return child;
-   }
-   
   /**
    * Ordered list of return values
    * @param propertySpec properties to return
    * @return 
    */ 
    public QueryBuilder returnValues(Object... propertySpec) {
-      orderByClauses.addAll(Arrays.asList(propertySpec));
+      returnClauses.addAll(Arrays.asList(propertySpec));
       return this;
+   }
+   
+   public Query build() {
+      
+      QueryBuilderQuery query = new QueryBuilderQuery(this.manifoldCoordinate);
+      
+      
+      
+      return query;
+      
+   }
+   
+   public int getSequence() {
+      return sequence++;
    }
    
    class QueryBuilderQuery extends Query {
 
+
+      public QueryBuilderQuery(ManifoldCoordinate manifoldCoordinate) {
+         super(manifoldCoordinate);
+         getLetDeclarations().putAll(letClauses);
+      }
+      
+      
+
       @Override
       public void Let() {
-         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+         // TODO
       }
 
       @Override
@@ -94,9 +124,10 @@ public class QueryBuilder  {
       }
 
       @Override
-      protected sh.isaac.api.query.ForSetSpecification ForSetSpecification() {
-         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      protected ForSetSpecification ForSetSpecification() {
+         return new ForSetSpecification(forCollectionTypes.toArray(new ComponentCollectionTypes[forCollectionTypes.size()]));
       }
+      
       
    }
    

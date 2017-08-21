@@ -41,9 +41,9 @@ package sh.isaac.model.observable.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
-import sh.isaac.model.sememe.version.SememeVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -51,19 +51,19 @@ import sh.isaac.model.sememe.version.SememeVersionImpl;
  * The Class ObservableSememeVersionImpl.
  *
  * @author kec
- * @param <V> the value type
  */
-public class ObservableSememeVersionImpl<V extends ObservableSememeVersionImpl<V>>
-        extends ObservableVersionImpl<V, SememeVersionImpl<?>>
-         implements ObservableSememeVersion<V> {
+public class ObservableSememeVersionImpl
+        extends ObservableVersionImpl
+         implements ObservableSememeVersion {
    /**
     * Instantiates a new observable sememe version impl.
     *
     * @param stampedVersion the stamped version
     * @param chronology the chronology
     */
-   public ObservableSememeVersionImpl(SememeVersionImpl<?> stampedVersion, ObservableSememeChronology<V> chronology) {
-      super(stampedVersion, chronology);
+   public ObservableSememeVersionImpl(SememeVersion stampedVersion, ObservableSememeChronology chronology) {
+      super(stampedVersion, 
+              chronology);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -75,7 +75,7 @@ public class ObservableSememeVersionImpl<V extends ObservableSememeVersionImpl<V
     */
    @Override
    public int getAssemblageSequence() {
-      return this.stampedVersion.getAssemblageSequence();
+      return ((SememeVersion) this.stampedVersion).getAssemblageSequence();
    }
 
    /**
@@ -84,8 +84,8 @@ public class ObservableSememeVersionImpl<V extends ObservableSememeVersionImpl<V
     * @return the chronology
     */
    @Override
-   public ObservableSememeChronology<V> getChronology() {
-      return (ObservableSememeChronology<V>) this.chronology;
+   public ObservableSememeChronology getChronology() {
+      return (ObservableSememeChronology) this.chronology;
    }
 
    /**
@@ -95,7 +95,7 @@ public class ObservableSememeVersionImpl<V extends ObservableSememeVersionImpl<V
     */
    @Override
    public int getReferencedComponentNid() {
-      return this.stampedVersion.getReferencedComponentNid();
+      return ((SememeVersion) this.stampedVersion).getReferencedComponentNid();
    }
 
    /**
@@ -105,7 +105,7 @@ public class ObservableSememeVersionImpl<V extends ObservableSememeVersionImpl<V
     */
    @Override
    public int getSememeSequence() {
-      return this.stampedVersion.getSememeSequence();
+      return ((SememeVersion) this.stampedVersion).getSememeSequence();
    }
 }
 

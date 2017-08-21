@@ -58,8 +58,8 @@ import sh.isaac.api.collections.NidSet;
  * @author kec
  */
 public class QueryExample {
-   /** The q. */
-   Query q;
+   /** The query. */
+   Query query;
 
    //~--- constructors --------------------------------------------------------
 
@@ -68,7 +68,7 @@ public class QueryExample {
     */
    public QueryExample() {
       
-      this.q =
+      this.query =
          new Query(Get.coordinateFactory().createDefaultInferredManifoldCoordinate()) {
          @Override
          protected ForSetSpecification ForSetSpecification() {
@@ -103,7 +103,7 @@ public class QueryExample {
     */
    public NidSet getResults()
             throws IOException, Exception {
-      return this.q.compute();
+      return this.query.compute();
    }
 }
 

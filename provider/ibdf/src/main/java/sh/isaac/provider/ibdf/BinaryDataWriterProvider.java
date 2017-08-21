@@ -62,9 +62,9 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriterService;
-import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.util.TimeFlushBufferedOutputStream;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -148,7 +148,7 @@ public class BinaryDataWriterProvider
     * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
-   public void configure(Path path)
+   public final void configure(Path path)
             throws IOException {
       if (this.output != null) {
          throw new RuntimeException("Reconfiguration is not supported");
@@ -216,13 +216,13 @@ public class BinaryDataWriterProvider
     * @throws RuntimeException the runtime exception
     */
    @Override
-   public void put(OchreExternalizable ochreObject)
+   public void put(IsaacExternalizable ochreObject)
             throws RuntimeException {
       try {
          this.pauseBlock.acquireUninterruptibly();
          this.buffer.clear();
          ochreObject.putExternal(this.buffer);
-         this.output.writeByte(ochreObject.getOchreObjectType()
+         this.output.writeByte(ochreObject.getExternalizableObjectType()
                                           .getToken());
          this.output.writeByte(ochreObject.getDataFormatVersion());
          this.output.writeInt(this.buffer.getLimit());

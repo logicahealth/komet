@@ -56,17 +56,23 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableChronologyService;
+import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
+import sh.isaac.api.observable.concept.ObservableConceptVersion;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
+import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
+import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
+import sh.isaac.model.observable.ObservableConceptChronologyImpl;
+import sh.isaac.model.observable.ObservableSememeChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -79,8 +85,8 @@ import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 @RunLevel(value = 1)
 public class ObservableChronologyProvider
          implements ObservableChronologyService, ChronologyChangeListener {
-   /** The Constant log. */
-   private static final Logger log = LogManager.getLogger();
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
@@ -104,7 +110,7 @@ public class ObservableChronologyProvider
     */
    private ObservableChronologyProvider() {
       // for HK2
-      log.info("ObservableChronologyProvider constructed");
+      LOG.info("ObservableChronologyProvider constructed");
    }
 
    //~--- methods -------------------------------------------------------------
@@ -115,7 +121,7 @@ public class ObservableChronologyProvider
     * @param cc the cc
     */
    @Override
-   public void handleChange(ConceptChronology<? extends StampedVersion> cc) {
+   public void handleChange(ConceptChronology cc) {
       final ObservableConceptChronology occ = this.observableConceptMap.get(cc.getNid());
 
       if (occ != null) {
@@ -129,7 +135,7 @@ public class ObservableChronologyProvider
     * @param sc the sc
     */
    @Override
-   public void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
+   public void handleChange(SememeChronology sc) {
       final ObservableSememeChronology osc = this.observableSememeMap.get(sc.getNid());
 
       if (osc != null) {
@@ -173,7 +179,8 @@ public class ObservableChronologyProvider
     */
    @Override
    public void handleCommit(CommitRecord commitRecord) {
-      // TODO figure out what to do... Only effect is to change commit time...
+      // TODO implement handle commit...
+      LOG.error("Observable handleCommit() not implemented");
    }
 
    /**
@@ -181,7 +188,7 @@ public class ObservableChronologyProvider
     */
    @PostConstruct
    private void startMe() {
-      log.info("Starting ObservableChronologyProvider post-construct");
+      LOG.info("Starting ObservableChronologyProvider post-construct");
    }
 
    /**
@@ -189,7 +196,7 @@ public class ObservableChronologyProvider
     */
    @PreDestroy
    private void stopMe() {
-      log.info("Stopping ObservableChronologyProvider");
+      LOG.info("Stopping ObservableChronologyProvider");
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -217,13 +224,16 @@ public class ObservableChronologyProvider
                  .getConceptNid(id);
       }
 
-      final ObservableConceptChronology occ = this.observableConceptMap.get(id);
+      ObservableConceptChronology observableConceptChronology = this.observableConceptMap.get(id);
 
-      if (occ != null) {
-         return occ;
+      if (observableConceptChronology != null) {
+         return observableConceptChronology;
       }
-
-      throw new UnsupportedOperationException("Not supported yet.");
+      
+      ConceptChronology conceptChronology = Get.conceptService().getConcept(id);
+      observableConceptChronology = new ObservableConceptChronologyImpl(conceptChronology);
+      
+      return observableConceptMap.putIfAbsentReturnCurrentValue(id, observableConceptChronology);
    }
 
    /**
@@ -236,16 +246,45 @@ public class ObservableChronologyProvider
    public ObservableSememeChronology getObservableSememeChronology(int id) {
       if (id >= 0) {
          id = Get.identifierService()
-                 .getConceptNid(id);
+                 .getSememeNid(id);
       }
 
-      final ObservableSememeChronology osc = this.observableSememeMap.get(id);
+      ObservableSememeChronology observableSememeChronology = this.observableSememeMap.get(id);
 
-      if (osc != null) {
-         return osc;
+      if (observableSememeChronology != null) {
+         return observableSememeChronology;
+      }
+      
+      SememeChronology sememeChronology = Get.sememeService().getSememe(id);
+      observableSememeChronology = new ObservableSememeChronologyImpl(sememeChronology);
+      return observableSememeMap.putIfAbsentReturnCurrentValue(id, observableSememeChronology);
+   }
+
+   @Override
+   public ObservableSnapshotService getObservableSnapshotService(ManifoldCoordinate manifoldCoordinate) {
+      return new ObservableSnapshotServiceProvider(manifoldCoordinate);
+   }
+   
+   private class ObservableSnapshotServiceProvider implements ObservableSnapshotService {
+      final ManifoldCoordinate manifoldCoordinate;
+      final RelativePositionCalculator relativePositionCalculator;
+
+      public ObservableSnapshotServiceProvider(ManifoldCoordinate manifoldCoordinate) {
+         this.manifoldCoordinate = manifoldCoordinate;
+         this.relativePositionCalculator = new RelativePositionCalculator(manifoldCoordinate);
+      }
+      
+      @Override
+      public LatestVersion<ObservableConceptVersion> getObservableConceptVersion(int id) {
+         ObservableConceptChronology observableConceptChronology = getObservableConceptChronology(id);
+         return relativePositionCalculator.getLatestVersion(observableConceptChronology);
       }
 
-      throw new UnsupportedOperationException("Not supported yet.");
+      @Override
+      public LatestVersion<? extends ObservableSememeVersion> getObservableSememeVersion(int id) {
+         ObservableSememeChronology observableSememeChronology = getObservableSememeChronology(id);
+         return this.relativePositionCalculator.getLatestVersion(observableSememeChronology);
+      }
    }
 }
 

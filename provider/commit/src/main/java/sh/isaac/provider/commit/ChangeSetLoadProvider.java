@@ -76,11 +76,11 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.util.metainf.MetaInfReader;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
+import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -189,21 +189,19 @@ public class ChangeSetLoadProvider
     * @return the uuid
     */
    private UUID readSememeDbId() {
-      final Optional<SememeChronology<? extends SememeVersion<?>>> sdic = Get.sememeService()
+      final Optional<SememeChronology> sdic = Get.sememeService()
                                                                              .getSememesForComponentFromAssemblage(
                                                                                 TermAux.ISAAC_ROOT.getNid(),
                                                                                       TermAux.DATABASE_UUID.getConceptSequence())
                                                                              .findFirst();
 
       if (sdic.isPresent()) {
-         final Optional<LatestVersion<StringSememe>> sdi =
-            ((SememeChronology) sdic.get()).getLatestVersion(StringSememe.class,
-                                                             StampCoordinates.getDevelopmentLatest());
+         final LatestVersion<StringVersion> sdi =
+            ((SememeChronology) sdic.get()).getLatestVersion(StampCoordinates.getDevelopmentLatest());
 
          if (sdi.isPresent()) {
             try {
                return UUID.fromString(sdi.get()
-                                         .value()
                                          .getString());
             } catch (final Exception e) {
                LOG.warn("The Database UUID annotation on Isaac Root does not contain a valid UUID!", e);

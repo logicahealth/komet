@@ -59,13 +59,9 @@ import java.util.stream.StreamSupport;
 
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.OchreExternalizable;
-import sh.isaac.api.externalizable.OchreExternalizableObjectType;
-import sh.isaac.api.externalizable.StampAlias;
-import sh.isaac.api.externalizable.StampComment;
+import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.model.concept.ConceptChronologyImpl;
-import sh.isaac.model.sememe.SememeChronologyImpl;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -76,7 +72,7 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  */
 public class BinaryDataReaderProvider
         extends TimedTaskWithProgressTracker<Integer>
-         implements BinaryDataReaderService, Spliterator<OchreExternalizable> {
+         implements BinaryDataReaderService, Spliterator<IsaacExternalizable> {
    /** The objects. */
    int objects = 0;
 
@@ -156,41 +152,20 @@ public class BinaryDataReaderProvider
     * @return true, if successful
     */
    @Override
-   public boolean tryAdvance(Consumer<? super OchreExternalizable> action) {
+   public boolean tryAdvance(Consumer<? super IsaacExternalizable> action) {
       try {
          final int                           startBytes        = this.input.available();
-         final OchreExternalizableObjectType type = OchreExternalizableObjectType.fromDataStream(this.input);
+         final IsaacExternalizableObjectType type = IsaacExternalizableObjectType.fromDataStream(this.input);
          final byte                          dataFormatVersion = this.input.readByte();
          final int                           recordSize        = this.input.readInt();
          final byte[]                        objectData        = new byte[recordSize];
 
          this.input.readFully(objectData);
-
-         final ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(objectData);
-
-         buffer.setExternalData(true);
-         buffer.setObjectDataFormatVersion(dataFormatVersion);
-
-         switch (type) {
-         case CONCEPT:
-            action.accept(ConceptChronologyImpl.make(buffer));
-            break;
-
-         case SEMEME:
-            action.accept(SememeChronologyImpl.make(buffer));
-            break;
-
-         case STAMP_ALIAS:
-            action.accept(new StampAlias(buffer));
-            break;
-
-         case STAMP_COMMENT:
-            action.accept(new StampComment(buffer));
-            break;
-
-         default:
-            throw new UnsupportedOperationException("Can't handle: " + type);
-         }
+         ByteArrayDataBuffer byteArrayDataBuffer = new ByteArrayDataBuffer(objectData);
+         byteArrayDataBuffer.setExternalData(true);
+         byteArrayDataBuffer.setObjectDataFormatVersion(dataFormatVersion);
+         IsaacExternalizableUnparsed unparsedObject = new IsaacExternalizableUnparsed(type, byteArrayDataBuffer);
+         action.accept(unparsedObject.parse());
 
          this.objects++;
          completedUnitsOfWork(startBytes - this.input.available());
@@ -209,7 +184,7 @@ public class BinaryDataReaderProvider
     * @return the spliterator
     */
    @Override
-   public Spliterator<OchreExternalizable> trySplit() {
+   public Spliterator<IsaacExternalizable> trySplit() {
       return null;
    }
 
@@ -237,7 +212,7 @@ public class BinaryDataReaderProvider
     * @return the stream
     */
    @Override
-   public Stream<OchreExternalizable> getStream() {
+   public Stream<IsaacExternalizable> getStream() {
       running();
       return StreamSupport.stream(this, false);
    }

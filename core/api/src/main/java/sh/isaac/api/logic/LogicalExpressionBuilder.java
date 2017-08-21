@@ -99,7 +99,7 @@ public interface LogicalExpressionBuilder {
     * @param roleRestriction the role restriction
     * @return the all role
     */
-   static AllRole AllRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction) {
+   static AllRole AllRole(ConceptChronology roleTypeChronology, Assertion roleRestriction) {
       return roleRestriction.getBuilder()
                             .allRole(roleTypeChronology, roleRestriction);
    }
@@ -157,7 +157,7 @@ public interface LogicalExpressionBuilder {
     * @param builder the builder
     * @return the concept assertion
     */
-   static ConceptAssertion ConceptAssertion(ConceptChronology<?> conceptChronology, LogicalExpressionBuilder builder) {
+   static ConceptAssertion ConceptAssertion(ConceptChronology conceptChronology, LogicalExpressionBuilder builder) {
       return builder.conceptAssertion(conceptChronology);
    }
 
@@ -203,7 +203,7 @@ public interface LogicalExpressionBuilder {
     * @param builder the builder
     * @return the disjoint with
     */
-   static DisjointWith DisjointWith(ConceptChronology<?> conceptChronology, LogicalExpressionBuilder builder) {
+   static DisjointWith DisjointWith(ConceptChronology conceptChronology, LogicalExpressionBuilder builder) {
       return builder.disjointWith(conceptChronology);
    }
 
@@ -225,7 +225,7 @@ public interface LogicalExpressionBuilder {
     * @param literal the literal
     * @return the feature
     */
-   static Feature Feature(ConceptChronology<?> featureTypeChronology, LiteralAssertion literal) {
+   static Feature Feature(ConceptChronology featureTypeChronology, LiteralAssertion literal) {
       return literal.getBuilder()
                     .feature(featureTypeChronology, literal);
    }
@@ -340,7 +340,7 @@ public interface LogicalExpressionBuilder {
     * @param roleRestriction the role restriction
     * @return the some role
     */
-   static SomeRole SomeRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction) {
+   static SomeRole SomeRole(ConceptChronology roleTypeChronology, Assertion roleRestriction) {
       return roleRestriction.getBuilder()
                             .someRole(roleTypeChronology, roleRestriction);
    }
@@ -411,8 +411,8 @@ public interface LogicalExpressionBuilder {
     * @param builder the builder
     * @return the template
     */
-   static Template Template(ConceptChronology<?> templateConcept,
-                            ConceptChronology<?> assemblageToPopulateTemplateConcept,
+   static Template Template(ConceptChronology templateConcept,
+                            ConceptChronology assemblageToPopulateTemplateConcept,
                             LogicalExpressionBuilder builder) {
       return builder.template(templateConcept, assemblageToPopulateTemplateConcept);
    }
@@ -445,7 +445,7 @@ public interface LogicalExpressionBuilder {
     * @param roleRestriction the role restriction
     * @return the all role
     */
-   AllRole allRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction);
+   AllRole allRole(ConceptChronology roleTypeChronology, Assertion roleRestriction);
 
    /**
     * All role.
@@ -505,7 +505,7 @@ public interface LogicalExpressionBuilder {
     * @param conceptChronology the concept chronology
     * @return the concept assertion
     */
-   ConceptAssertion conceptAssertion(ConceptChronology<?> conceptChronology);
+   ConceptAssertion conceptAssertion(ConceptChronology conceptChronology);
 
    /**
     * Concept assertion.
@@ -537,7 +537,7 @@ public interface LogicalExpressionBuilder {
     * @param conceptChronology the concept chronology
     * @return the disjoint with
     */
-   DisjointWith disjointWith(ConceptChronology<?> conceptChronology);
+   DisjointWith disjointWith(ConceptChronology conceptChronology);
 
    /**
     * Disjoint with.
@@ -554,7 +554,7 @@ public interface LogicalExpressionBuilder {
     * @param literal the literal
     * @return the feature
     */
-   Feature feature(ConceptChronology<?> featureTypeChronology, LiteralAssertion literal);
+   Feature feature(ConceptChronology featureTypeChronology, LiteralAssertion literal);
 
    /**
     * Feature.
@@ -636,7 +636,7 @@ public interface LogicalExpressionBuilder {
     * @param roleRestriction the role restriction
     * @return the some role
     */
-   SomeRole someRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction);
+   SomeRole someRole(ConceptChronology roleTypeChronology, Assertion roleRestriction);
 
    /**
     * Some role.
@@ -687,7 +687,7 @@ public interface LogicalExpressionBuilder {
     * @param assemblageToPopulateTemplateConcept the assemblage to populate template concept
     * @return the template
     */
-   Template template(ConceptChronology<?> templateChronology, ConceptChronology<?> assemblageToPopulateTemplateConcept);
+   Template template(ConceptChronology templateChronology, ConceptChronology assemblageToPopulateTemplateConcept);
 
    /**
     * Template.

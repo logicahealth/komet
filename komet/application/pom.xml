@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>komet</artifactId>
-      <version>4.17-SNAPSHOT</version>
+      <version>4.23-SNAPSHOT</version>
    </parent>
    <groupId>sh.isaac.komet</groupId>
    <artifactId>application</artifactId>
@@ -124,6 +126,16 @@
          <version>${project.parent.version}</version>
       </dependency>
       <dependency>
+         <groupId>sh.isaac.provider</groupId>
+         <artifactId>query</artifactId>
+         <version>${project.parent.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.provider</groupId>
+         <artifactId>observable</artifactId>
+         <version>${project.parent.version}</version>
+      </dependency>
+      <dependency>
          <groupId>sh.isaac.komet</groupId>
          <artifactId>gui-contracts</artifactId>
          <version>${project.parent.version}</version>
@@ -144,6 +156,18 @@
       <dependency>
          <groupId>sh.isaac.komet</groupId>
          <artifactId>drag-tab</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>dialog</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>concept-detail</artifactId>
          <version>${project.parent.version}</version>
          <type>jar</type>
       </dependency>
@@ -384,13 +408,13 @@
             <dependency>
                <groupId>one.solor</groupId>
                <artifactId>solor-db</artifactId>
-               <version>1.2-SNAPSHOT</version>
+               <version>1.2</version>
                <type>cradle.zip</type>
             </dependency>
             <dependency>
                <groupId>one.solor</groupId>
                <artifactId>solor-db</artifactId>
-               <version>1.2-SNAPSHOT</version>
+               <version>1.2</version>
                <type>lucene.zip</type>
             </dependency>
          </dependencies>
@@ -411,13 +435,13 @@
                               <artifact>
                                  <groupId>one.solor</groupId>
                                  <artifactId>solor-db</artifactId>
-                                 <version>1.2-SNAPSHOT</version>
+                                 <version>1.2</version>
                                  <type>lucene.zip</type>
                               </artifact>
                               <artifact>
                                  <groupId>one.solor</groupId>
                                  <artifactId>solor-db</artifactId>
-                                 <version>1.2-SNAPSHOT</version>
+                                 <version>1.2</version>
                                  <type>cradle.zip</type>
                               </artifact>
                            </artifactItems>

@@ -49,6 +49,7 @@ import java.util.concurrent.ExecutionException;
 
 import javafx.concurrent.Task;
 
+import sh.isaac.MetaData;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -64,9 +65,8 @@ import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.util.WorkExecutors;
-import sh.isaac.MetaData;
 import sh.isaac.model.logic.LogicalExpressionImpl;
-import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
+import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -126,9 +126,10 @@ public class GetConceptSequenceForExpressionTask
    public static GetConceptSequenceForExpressionTask create(LogicalExpression expression,
          ClassifierProvider classifierProvider,
          EditCoordinate statedEditCoordinate) {
-      final GetConceptSequenceForExpressionTask task = new GetConceptSequenceForExpressionTask(expression,
-                                                                                               classifierProvider,
-                                                                                               statedEditCoordinate);
+      final GetConceptSequenceForExpressionTask task = new GetConceptSequenceForExpressionTask(
+                                                           expression,
+                                                                 classifierProvider,
+                                                                 statedEditCoordinate);
 
       LookupService.getService(ActiveTasks.class)
                    .get()
@@ -149,29 +150,29 @@ public class GetConceptSequenceForExpressionTask
    protected Integer call()
             throws Exception {
       try {
-         final SememeSnapshotService<LogicGraphSememeImpl> sememeSnapshot = Get.sememeService()
-                                                                               .getSnapshot(LogicGraphSememeImpl.class,
-                                                                                     this.stampCoordinate);
+         final SememeSnapshotService<LogicGraphVersionImpl> sememeSnapshot = Get.sememeService()
+                                                                               .getSnapshot(LogicGraphVersionImpl.class,
+                                                                                           this.stampCoordinate);
 
          updateMessage("Searching existing definitions...");
 
-         final Optional<LatestVersion<LogicGraphSememeImpl>> match =
-            sememeSnapshot.getLatestSememeVersionsFromAssemblage(this.logicCoordinate.getStatedAssemblageSequence()).filter((LatestVersion<LogicGraphSememeImpl> t) -> {
-                                     final LogicGraphSememeImpl lgs = t.value();
-                                     final LogicalExpressionImpl existingGraph =
-                                        new LogicalExpressionImpl(lgs.getGraphData(),
-                                                                       DataSource.INTERNAL);
+         final LatestVersion<LogicGraphVersionImpl> match = sememeSnapshot.getLatestSememeVersionsFromAssemblage(
+                                                               this.logicCoordinate.getStatedAssemblageSequence())
+                                                                         .filterVersion((LatestVersion<LogicGraphVersionImpl> t) -> {
+                  final LogicGraphVersionImpl lgs = t.get();
+                  final LogicalExpressionImpl existingGraph = new LogicalExpressionImpl(
+                                                                  lgs.getGraphData(),
+                                                                        DataSource.INTERNAL);
 
-                                     updateMessage("found existing definition");
-                                     return existingGraph.equals(this.expression);
-                                  }).findFirst();
+                  updateMessage("found existing definition");
+                  return existingGraph.equals(this.expression);
+               })
+                                                                         .findFirstVersion();
 
          if (match.isPresent()) {
-            final LogicGraphSememeImpl lgs = match.get()
-                                                  .value();
-
             return Get.identifierService()
-                      .getConceptSequence(lgs.getReferencedComponentNid());
+                      .getConceptSequence(match.get()
+                                               .getReferencedComponentNid());
          }
 
          updateMessage("Building new concept...");
@@ -179,13 +180,14 @@ public class GetConceptSequenceForExpressionTask
          final UUID                  uuidForNewConcept     = UUID.randomUUID();
          final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
-         conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE_ǁISAACǁ);
-         conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT_ǁISAACǁ);
+         conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____ISAAC);
+         conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____ISAAC);
          conceptBuilderService.setDefaultLogicCoordinate(this.logicCoordinate);
 
-         final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(uuidForNewConcept.toString(),
-                                                                                       "expression",
-                                                                                       this.expression);
+         final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(
+                                            uuidForNewConcept.toString(),
+                                            "expression",
+                                            this.expression);
          final ConceptChronology concept = builder.build(this.statedEditCoordinate, ChangeCheckerMode.INACTIVE)
                                                   .get();
 

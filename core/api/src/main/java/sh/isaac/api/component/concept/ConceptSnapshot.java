@@ -41,17 +41,15 @@ package sh.isaac.api.component.concept;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Optional;
 import java.util.Set;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.IdentifiedStampedVersion;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -78,14 +76,14 @@ public interface ConceptSnapshot
     *
     * @return the {@code ConceptChronology} that backs this snapshot.
     */
-   ConceptChronology<? extends StampedVersion> getChronology();
+   ConceptChronology getChronology();
 
    /**
     * Gets the contradictions.
     *
     * @return any contradictions that may exist for the given {@code StampCoordinate}.
     */
-   Optional<? extends Set<? extends StampedVersion>> getContradictions();
+   Set<? extends StampedVersion> getContradictions();
 
    /**
     * This method will try first to return the fully specified description,
@@ -94,7 +92,7 @@ public interface ConceptSnapshot
     * {@code LanguageCoordinate} of this snapshot.
     * @return a description for this concept.
     */
-   DescriptionSememe<?> getDescription();
+   DescriptionVersion getDescription();
 
    /**
     * Gets the fully specified description.
@@ -103,7 +101,7 @@ public interface ConceptSnapshot
     * there is not description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
-   Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription();
+   LatestVersion<DescriptionVersion> getFullySpecifiedDescription();
 
    /**
     * Gets the preferred description.
@@ -112,6 +110,6 @@ public interface ConceptSnapshot
     * there is not description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
-   Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription();
+   LatestVersion<DescriptionVersion> getPreferredDescription();
 }
 

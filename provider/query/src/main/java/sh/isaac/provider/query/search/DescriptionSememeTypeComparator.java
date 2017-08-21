@@ -48,18 +48,18 @@ import org.apache.logging.log4j.Logger;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * A {@link Comparator} for {@link DescriptionSememe} objects that compares the descriptions by their type.
+ * A {@link Comparator} for {@link DescriptionVersion} objects that compares the descriptions by their type.
  *
  * @author ocarlsen
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DescriptionSememeTypeComparator
-         implements Comparator<DescriptionSememe<?>> {
+         implements Comparator<DescriptionVersion> {
 
    //~--- methods -------------------------------------------------------------
 
@@ -71,7 +71,7 @@ public class DescriptionSememeTypeComparator
     * @return the int
     */
    @Override
-   public int compare(DescriptionSememe<?> o1, DescriptionSememe<?> o2) {
+   public int compare(DescriptionVersion o1, DescriptionVersion o2) {
       final String o1matchingComponentType = Get.conceptService()
                                                 .getOptionalConcept(o1.getDescriptionTypeConceptSequence())
                                                 .get()

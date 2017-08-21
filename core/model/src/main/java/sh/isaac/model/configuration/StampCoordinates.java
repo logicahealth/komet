@@ -70,7 +70,7 @@ public class StampCoordinates {
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
                                      ConceptSequenceSet.EMPTY,
-                                     State.ANY_STATE_SET);
+                                     State.makeAnyStateSet());
    }
 
    /**
@@ -85,7 +85,7 @@ public class StampCoordinates {
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
                                      ConceptSequenceSet.EMPTY,
-                                     State.ACTIVE_ONLY_SET);
+                                     State.makeActiveOnlySet());
    }
 
    /**
@@ -100,7 +100,7 @@ public class StampCoordinates {
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
                                      ConceptSequenceSet.EMPTY,
-                                     State.ANY_STATE_SET);
+                                     State.makeAnyStateSet());
    }
 
    /**
@@ -115,7 +115,7 @@ public class StampCoordinates {
       return new StampCoordinateImpl(StampPrecedence.PATH,
                                      stampPosition,
                                      ConceptSequenceSet.EMPTY,
-                                     State.ACTIVE_ONLY_SET);
+                                     State.makeActiveOnlySet());
    }
 }
 

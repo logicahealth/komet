@@ -53,15 +53,16 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 import sh.isaac.api.State;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.observable.ObservableChronology;
-import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.model.ObjectVersionImpl;
+import sh.isaac.model.VersionImpl;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareLongProperty;
 import sh.isaac.model.observable.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.api.observable.ObservableVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -69,10 +70,8 @@ import sh.isaac.model.observable.ObservableFields;
  * The Class ObservableVersionImpl.
  *
  * @author kec
- * @param <OV> the generic type
- * @param <V> the value type
  */
-public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V extends ObjectVersionImpl<?, ?>>
+public class ObservableVersionImpl
          implements ObservableVersion, CommittableComponent {
    /** The state property. */
    ObjectProperty<State> stateProperty;
@@ -99,10 +98,10 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
    IntegerProperty stampSequenceProperty;
 
    /** The stamped version. */
-   protected V stampedVersion;
+   protected Version stampedVersion;
 
    /** The chronology. */
-   protected ObservableChronology<OV> chronology;
+   protected final ObservableChronology chronology;
 
    //~--- constructors --------------------------------------------------------
 
@@ -112,7 +111,7 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
     * @param stampedVersion the stamped version
     * @param chronology the chronology
     */
-   public ObservableVersionImpl(V stampedVersion, ObservableChronology<OV> chronology) {
+   public ObservableVersionImpl(Version stampedVersion, ObservableChronology chronology) {
       this.stampedVersion = stampedVersion;
       this.chronology     = chronology;
    }
@@ -257,7 +256,7 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
     *
     * @param stampedVersion the stamped version
     */
-   public void updateVersion(V stampedVersion) {
+   public void updateVersion(Version stampedVersion) {
       this.stampedVersion = stampedVersion;
 
       if (this.stampSequenceProperty != null) {
@@ -325,7 +324,7 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
     * @return the chronology
     */
    @Override
-   public ObservableChronology<OV> getChronology() {
+   public ObservableChronology getChronology() {
       return this.chronology;
    }
 
@@ -386,7 +385,7 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
     */
    @Override
    public int getNid() {
-      return this.stampedVersion.getNid();
+      return ((VersionImpl) this.stampedVersion).getNid();
    }
 
    /**
@@ -428,7 +427,7 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
     */
    @Override
    public UUID getPrimordialUuid() {
-      return this.stampedVersion.getPrimordialUuid();
+      return ((VersionImpl) this.stampedVersion).getPrimordialUuid();
    }
 
    /**
@@ -508,7 +507,7 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
     */
    @Override
    public List<UUID> getUuidList() {
-      return this.stampedVersion.getUuidList();
+      return ((VersionImpl) this.stampedVersion).getUuidList();
    }
 
    /**
@@ -517,7 +516,7 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
     * @return the version sequence
     */
    public short getVersionSequence() {
-      return this.stampedVersion.getVersionSequence();
+      return ((VersionImpl) this.stampedVersion).getVersionSequence();
    }
 }
 

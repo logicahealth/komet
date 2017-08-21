@@ -65,13 +65,11 @@ import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.MutableDynamicSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
@@ -83,6 +81,7 @@ import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeArrayImpl;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeIntegerImpl;
 import sh.isaac.api.index.IndexStatusListener;
+import sh.isaac.api.component.sememe.version.MutableDynamicVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -120,13 +119,13 @@ public class SememeIndexerConfiguration {
     * @param assemblageNidOrSequence the assemblage nid or sequence
     * @param columnsToIndex the columns to index
     * @param skipReindex the skip reindex
-    * @return the sememe chronology<? extends dynamic sememe<?>>
+    * @return the sememe chronology<? extends dynamic sememe>
     * @throws RuntimeException the runtime exception
     * @throws InterruptedException the interrupted exception
     * @throws ExecutionException the execution exception
     */
    @SuppressWarnings("unchecked")
-   public static SememeChronology<? extends DynamicSememe<?>> buildAndConfigureColumnsToIndex(
+   public static SememeChronology buildAndConfigureColumnsToIndex(
            int assemblageNidOrSequence,
            Integer[] columnsToIndex,
            boolean skipReindex)
@@ -140,12 +139,12 @@ public class SememeIndexerConfiguration {
       final List<IndexStatusListener> islList = LookupService.get()
                                                                .getAllServices(IndexStatusListener.class);
 
-      for (final IndexStatusListener isl: islList) {
+      islList.forEach((isl) -> {
          isl.indexConfigurationChanged(LookupService.get()
-               .getService(SememeIndexer.class));
-      }
+                 .getService(SememeIndexer.class));
+      });
 
-      final ConceptChronology<? extends ConceptVersion<?>> referencedAssemblageConceptC = Get.conceptService()
+      final ConceptChronology referencedAssemblageConceptC = Get.conceptService()
                                                                                              .getConcept(
                                                                                                 assemblageNidOrSequence);
 
@@ -168,7 +167,7 @@ public class SememeIndexerConfiguration {
          throw new RuntimeException("It doesn't make sense to index a dynamic sememe without indexing any column data");
       }
 
-      final SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> sb = Get.sememeBuilderService()
+      final SememeBuilder<? extends SememeChronology> sb = Get.sememeBuilderService()
                                                                                           .getDynamicSememeBuilder(
                                                                                              Get.identifierService()
                                                                                                    .getConceptNid(
@@ -220,7 +219,7 @@ public class SememeIndexerConfiguration {
                .getService(SememeIndexer.class));
       }
 
-      final ConceptChronology<? extends ConceptVersion<?>> referencedAssemblageConceptC = Get.conceptService()
+      final ConceptChronology referencedAssemblageConceptC = Get.conceptService()
                                                                                              .getConcept(
                                                                                                 assemblageNidOrSequence);
 
@@ -243,7 +242,7 @@ public class SememeIndexerConfiguration {
          throw new RuntimeException("It doesn't make sense to index a dynamic sememe without indexing any column data");
       }
 
-      final SememeBuilder<? extends SememeChronology<? extends DynamicSememe<?>>> sb = Get.sememeBuilderService()
+      final SememeBuilder<? extends SememeChronology> sb = Get.sememeBuilderService()
                                                                                           .getDynamicSememeBuilder(
                                                                                              Get.identifierService()
                                                                                                    .getConceptNid(
@@ -276,7 +275,7 @@ public class SememeIndexerConfiguration {
             throws RuntimeException {
       LOG.info("Disabling index for dynamic sememe assemblage concept '" + assemblageConceptSequence + "'");
 
-      final DynamicSememe<?> rdv = findCurrentIndexConfigRefex(assemblageConceptSequence);
+      final DynamicSememe rdv = findCurrentIndexConfigRefex(assemblageConceptSequence);
 
       if ((rdv != null) && (rdv.getState() == State.ACTIVE)) {
          LookupService.get()
@@ -291,7 +290,7 @@ public class SememeIndexerConfiguration {
                   .getService(SememeIndexer.class));
          }
 
-         ((SememeChronology) rdv.getChronology()).createMutableVersion(MutableDynamicSememe.class,
+         ((SememeChronology) rdv.getChronology()).createMutableVersion(
                State.INACTIVE,
                EditCoordinates.getDefaultUserMetadata());
          Get.commitService()
@@ -350,10 +349,10 @@ public class SememeIndexerConfiguration {
     * Find current index config refex.
     *
     * @param indexedSememeId the indexed sememe id
-    * @return the dynamic sememe<? extends dynamic sememe<?>>
+    * @return the dynamic sememe<? extends dynamic sememe>
     * @throws RuntimeException the runtime exception
     */
-   private static DynamicSememe<? extends DynamicSememe<?>> findCurrentIndexConfigRefex(int indexedSememeId)
+   private static DynamicSememe<? extends DynamicSememe> findCurrentIndexConfigRefex(int indexedSememeId)
             throws RuntimeException {
       @SuppressWarnings("rawtypes")
       final SememeSnapshotService<DynamicSememe> sss = Get.sememeService()
@@ -368,9 +367,9 @@ public class SememeIndexerConfiguration {
       @SuppressWarnings("rawtypes")
       final Optional<LatestVersion<DynamicSememe>> ds = sememes.findAny();
 
-      if (ds.isPresent()) {
+      if (ds.isPresent() &&  ds.get().isPresent()) {
          return ds.get()
-                  .value();
+                  .get();
       }
 
       return null;
@@ -390,7 +389,7 @@ public class SememeIndexerConfiguration {
 
                try {
                   final HashMap<Integer, Integer[]> updatedWhatToIndex = new HashMap<>();
-                  final Stream<SememeChronology<? extends SememeVersion<?>>> sememeCs = Get.sememeService()
+                  final Stream<SememeChronology> sememeCs = Get.sememeService()
                                                                                            .getSememesFromAssemblage(
                                                                                               DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION
                                                                                                     .getSequence());
@@ -398,18 +397,15 @@ public class SememeIndexerConfiguration {
                   sememeCs.forEach(sememeC -> {
                                       if (sememeC.getSememeType() == SememeType.DYNAMIC) {
                                          @SuppressWarnings({ "unchecked", "rawtypes" })
-                                         final Optional<LatestVersion<DynamicSememe>> dsv =
-                                            ((SememeChronology) sememeC).getLatestVersion(DynamicSememe.class,
-                                                                                          StampCoordinates.getDevelopmentLatest());
+                                         final LatestVersion<DynamicSememe> dsv =
+                                            ((SememeChronology) sememeC).getLatestVersion(StampCoordinates.getDevelopmentLatest());
 
-                                         if (dsv.isPresent() && (dsv.get().value().getState() == State.ACTIVE)) {
+                                         if (dsv.isPresent() && (dsv.get().getState() == State.ACTIVE)) {
                                             final int assemblageToIndex = Get.identifierService()
                                                                              .getConceptSequence(dsv.get()
-                                                                                   .value()
                                                                                    .getReferencedComponentNid());
                                             Integer[]                 finalCols = new Integer[] {};
                                             final DynamicSememeData[] data      = dsv.get()
-                                                                                     .value()
                                                                                      .getData();
 
                                             if ((data != null) && (data.length > 0)) {

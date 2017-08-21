@@ -45,8 +45,7 @@ import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.MutableSememeVersion;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.model.ObjectVersionImpl;
-import sh.isaac.model.sememe.SememeChronologyImpl;
+import sh.isaac.model.VersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -54,11 +53,10 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  * The Class SememeVersionImpl.
  *
  * @author kec
- * @param <V> the value type
  */
-public class SememeVersionImpl<V extends SememeVersionImpl<V>>
-        extends ObjectVersionImpl<SememeChronologyImpl<V>, V>
-         implements MutableSememeVersion<V> {
+public class SememeVersionImpl
+        extends VersionImpl
+         implements MutableSememeVersion {
    /**
     * Instantiates a new sememe version impl.
     *
@@ -66,7 +64,7 @@ public class SememeVersionImpl<V extends SememeVersionImpl<V>>
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     */
-   public SememeVersionImpl(SememeChronologyImpl<V> container, int stampSequence, short versionSequence) {
+   public SememeVersionImpl(SememeChronology container, int stampSequence, short versionSequence) {
       super(container, stampSequence, versionSequence);
    }
 
@@ -100,8 +98,8 @@ public class SememeVersionImpl<V extends SememeVersionImpl<V>>
     * @return the assemblage sequence
     */
    @Override
-   public int getAssemblageSequence() {
-      return this.chronicle.getAssemblageSequence();
+   public final int getAssemblageSequence() {
+      return getChronology().getAssemblageSequence();
    }
 
    /**
@@ -110,8 +108,8 @@ public class SememeVersionImpl<V extends SememeVersionImpl<V>>
     * @return the chronology
     */
    @Override
-   public SememeChronology<V> getChronology() {
-      return this.chronicle;
+   public SememeChronology getChronology() {
+      return (SememeChronology) this.chronicle;
    }
 
    /**
@@ -121,7 +119,7 @@ public class SememeVersionImpl<V extends SememeVersionImpl<V>>
     */
    @Override
    public int getReferencedComponentNid() {
-      return this.chronicle.getReferencedComponentNid();
+      return getChronology().getReferencedComponentNid();
    }
 
    /**
@@ -131,7 +129,7 @@ public class SememeVersionImpl<V extends SememeVersionImpl<V>>
     */
    @Override
    public int getSememeSequence() {
-      return this.chronicle.getSememeSequence();
+      return getChronology().getSememeSequence();
    }
 
    /**

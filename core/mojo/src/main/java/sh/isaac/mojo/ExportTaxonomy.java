@@ -52,6 +52,8 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import java.nio.file.Path;
@@ -155,8 +157,8 @@ public class ExportTaxonomy
 
          bindingFile.getParentFile()
                     .mkdirs();
-
-         try (Writer javaWriter = new BufferedWriter(new FileWriter(bindingFile));) {
+                 
+         try (Writer javaWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(bindingFile), "UTF-8"));) {
             taxonomy.exportJavaBinding(javaWriter, this.bindingPackage, this.bindingClass);
          }
 

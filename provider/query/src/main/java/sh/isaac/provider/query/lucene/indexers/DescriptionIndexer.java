@@ -56,18 +56,16 @@ import java.util.function.Predicate;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.TextField;
 
 import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.constants.DynamicSememeConstants;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.MetaData;
@@ -75,6 +73,9 @@ import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 import sh.isaac.api.index.IndexService;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.identity.StampedVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -95,6 +96,9 @@ import sh.isaac.api.index.IndexService;
  *
  * Each of the columns above is also x2, as everything is indexed both with a
  * standard analyzer, and with a whitespace analyzer.
+ * 
+ * TODO: use IntPoint for description types, and other aspects of the search, rather than creating redundant
+ * columns. 
  *
  * @author aimeefurber
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
@@ -299,13 +303,13 @@ public class DescriptionIndexer
     */
    @SuppressWarnings("unchecked")
    @Override
-   protected void addFields(ObjectChronology<?> chronicle, Document doc) {
+   protected void addFields(Chronology chronicle, Document doc) {
       if (chronicle instanceof SememeChronology) {
-         final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
+         final SememeChronology sememeChronology = (SememeChronology) chronicle;
 
          if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
             indexDescription(doc,
-                             (SememeChronology<DescriptionSememe<? extends DescriptionSememe<?>>>) sememeChronology);
+                             (SememeChronology) sememeChronology);
             incrementIndexedItemCount("Description");
          }
       }
@@ -318,11 +322,11 @@ public class DescriptionIndexer
     * @return true, if successful
     */
    @Override
-   protected boolean indexChronicle(ObjectChronology<?> chronicle) {
+   protected boolean indexChronicle(Chronology chronicle) {
       setupNidConstants();
 
       if (chronicle instanceof SememeChronology) {
-         final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
+         final SememeChronology sememeChronology = (SememeChronology) chronicle;
 
          if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
             return true;
@@ -356,17 +360,16 @@ public class DescriptionIndexer
     * @param sememeChronology the sememe chronology
     */
    private void indexDescription(Document doc,
-                                 SememeChronology<DescriptionSememe<? extends DescriptionSememe<?>>> sememeChronology) {
-      doc.add(new TextField(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE,
-                            sememeChronology.getAssemblageSequence() + "",
-                            Field.Store.NO));
+                                 SememeChronology sememeChronology) {
+      doc.add(new IntPoint(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, sememeChronology.getAssemblageSequence()));
 
       String                      lastDescText     = null;
       String                      lastDescType     = null;
       final TreeMap<Long, String> uniqueTextValues = new TreeMap<>();
 
-      for (final DescriptionSememe<? extends DescriptionSememe<?>> descriptionVersion:
+      for (final StampedVersion stampedVersion:
             sememeChronology.getVersionList()) {
+         DescriptionVersion descriptionVersion = (DescriptionVersion) stampedVersion;
          final String descType = this.sequenceTypeMap.get(descriptionVersion.getDescriptionTypeConceptSequence());
 
          // No need to index if the text is the same as the previous version.
@@ -378,6 +381,7 @@ public class DescriptionIndexer
             addField(doc, FIELD_INDEXED_STRING_VALUE, descriptionVersion.getText(), true);
 
             // Add to the field that carries type-only text
+            // TODO using IntPoint with description type? 
             addField(doc, FIELD_INDEXED_STRING_VALUE + "_" + descType, descriptionVersion.getText(), true);
             uniqueTextValues.put(descriptionVersion.getTime(), descriptionVersion.getText());
             lastDescText = descriptionVersion.getText();
@@ -389,13 +393,14 @@ public class DescriptionIndexer
       String lastExtendedDescType = null;
       String lastValue            = null;
 
-      for (final SememeChronology<? extends SememeVersion<?>> sememeChronicle: sememeChronology.getSememeList()) {
+      for (final SememeChronology sememeChronicle: sememeChronology.getSememeList()) {
          if (sememeChronicle.getSememeType() == SememeType.DYNAMIC) {
             @SuppressWarnings("unchecked")
-            final SememeChronology<DynamicSememe<?>> sememeDynamicChronicle =
-               (SememeChronology<DynamicSememe<?>>) sememeChronicle;
+            final SememeChronology sememeDynamicChronicle =
+               (SememeChronology) sememeChronicle;
 
-            for (final DynamicSememe<?> sememeDynamic: sememeDynamicChronicle.getVersionList()) {
+            for (final StampedVersion sv: sememeDynamicChronicle.getVersionList()) {
+               DynamicSememe sememeDynamic = (DynamicSememe) sv;
                // If this sememe is the sememe recording a dynamic sememe extended type....
                if (sememeDynamic.getAssemblageSequence() == this.descExtendedTypeSequence) {
                   // this is a UUID, but we want to treat it as a string anyway
@@ -423,6 +428,7 @@ public class DescriptionIndexer
                      }
 
                      // This is a UUID, but we only do exact matches - indexing ints as strings is faster when doing exact-match only
+                     // TODO index UUIDs using InetAddressPoint which is 128 bits, or BigIntegerPoint which is also 128 bits
                      addField(doc,
                               FIELD_INDEXED_STRING_VALUE + "_" + extendedDescType,
                               value,
@@ -441,16 +447,17 @@ public class DescriptionIndexer
     */
    private void setupNidConstants() {
       // Can't put these in the start me, because if the database is not yet imported, then these calls will fail.
+      // TODO: could put them in service setup, if service levels are set properly. 
       if (!SEQUENCES_SETUP.get()) {
          SETUP_NIDS_SEMAPHORE.acquireUninterruptibly();
 
          try {
             if (!SEQUENCES_SETUP.get()) {
-               this.sequenceTypeMap.put(MetaData.FULLY_SPECIFIED_NAME_ǁISAACǁ.getConceptSequence(),
+               this.sequenceTypeMap.put(MetaData.FULLY_SPECIFIED_NAME____ISAAC.getConceptSequence(),
                                         LuceneDescriptionType.FSN.name());
-               this.sequenceTypeMap.put(MetaData.DEFINITION_DESCRIPTION_TYPE_ǁISAACǁ.getConceptSequence(),
+               this.sequenceTypeMap.put(MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC.getConceptSequence(),
                                         LuceneDescriptionType.DEFINITION.name());
-               this.sequenceTypeMap.put(MetaData.SYNONYM_ǁISAACǁ.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
+               this.sequenceTypeMap.put(MetaData.SYNONYM____ISAAC.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
                this.descExtendedTypeSequence = DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
                      .getConceptSequence();
             }

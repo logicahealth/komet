@@ -16,6 +16,8 @@
  */
 package sh.komet.gui.contract;
 
+import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.interfaces.ExplorationNode;
 import javafx.scene.layout.BorderPane;
 import org.jvnet.hk2.annotations.Contract;
 

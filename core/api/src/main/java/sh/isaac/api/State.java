@@ -71,14 +71,6 @@ public enum State {
     */
    CANCELED(false, "Canceled", "C");
 
-   /** The active only set. */
-   public static EnumSet<State> ACTIVE_ONLY_SET = EnumSet.of(State.ACTIVE);
-
-   /** The any state set. */
-   public static EnumSet<State> ANY_STATE_SET = EnumSet.allOf(State.class);
-
-   //~--- fields --------------------------------------------------------------
-
    /** The is active. */
    boolean isActive;
 
@@ -123,6 +115,18 @@ public enum State {
       }
    }
 
+   public static EnumSet<State> makeActiveOnlySet() {
+      return EnumSet.of(ACTIVE);
+   }
+
+   public static EnumSet<State> makeActiveAndInactiveSet() {
+      return EnumSet.of(ACTIVE, INACTIVE);
+   }
+
+   public static EnumSet<State> makeAnyStateSet() {
+      return EnumSet.allOf(State.class);
+   }
+
    /**
     * To string.
     *
@@ -151,6 +155,14 @@ public enum State {
     */
    public boolean isActive() {
       return this.isActive;
+   }
+
+   public static boolean isActiveOnlySet(EnumSet<State> setToTest) {
+      if (setToTest.size() != 1) {
+         return false;
+      }
+
+      return setToTest.contains(ACTIVE);
    }
 
    /**

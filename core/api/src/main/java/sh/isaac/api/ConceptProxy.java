@@ -85,7 +85,7 @@ public class ConceptProxy
     * @param conceptSequenceOrNid the concept sequence or nid
     */
    public ConceptProxy(int conceptSequenceOrNid) {
-      final ConceptChronology<?> cc = Get.conceptService()
+      final ConceptChronology cc = Get.conceptService()
                                          .getConcept(conceptSequenceOrNid);
 
       this.uuids       = cc.getUuidList()

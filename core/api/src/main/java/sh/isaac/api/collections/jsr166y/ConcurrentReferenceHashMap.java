@@ -682,6 +682,20 @@ public class ConcurrentReferenceHashMap<K, V>
       return segmentFor(hash).put(key, hash, value, true);
    }
 
+      public V putIfAbsentReturnCurrentValue(K key, V value) {
+      if (value == null) {
+         throw new NullPointerException();
+      }
+
+      final int hash = hashOf(key);
+
+      V existingValue = segmentFor(hash).put(key, hash, value, true);
+      if (existingValue != null) {
+         return existingValue;
+      }
+      return value;
+   }
+
    /**
     * Removes the key (and its corresponding value) from this map. This method does nothing if the key is not
     * in the map.

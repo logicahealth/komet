@@ -54,6 +54,7 @@ import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.State;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -98,6 +99,16 @@ public interface StampService
     * @return a textual representation of the stamp sequence.
     */
    String describeStampSequence(int stampSequence);
+
+   /**
+    * Describe stamp sequence for tooltip.
+    * Will create a String with 5 lines, one for each of S, T, A, M, and P. 
+    *
+    * @param stampSequence the stamp sequence
+    * @param manifoldCoordinate the manifold to get language, dialect, and current coordinate info from. 
+    * @return a textual representation of the stamp sequence.
+    */
+   String describeStampSequenceForTooltip(int stampSequence, ManifoldCoordinate manifoldCoordinate);
 
    /**
     * Use to compare if versions may be unnecessary duplicates. If their

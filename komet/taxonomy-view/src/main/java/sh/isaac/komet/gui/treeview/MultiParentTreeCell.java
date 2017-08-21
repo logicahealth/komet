@@ -45,7 +45,6 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.logging.Level;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -81,9 +80,10 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.komet.gui.KOMET;
 import sh.komet.gui.interfaces.DraggableWithImage;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
+import sh.komet.gui.drag.drop.DragDoneEventHandler;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -95,7 +95,7 @@ import sh.isaac.komet.iconography.Iconography;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 final public class MultiParentTreeCell
-        extends TreeCell<ConceptChronology<? extends ConceptVersion<?>>>
+        extends TreeCell<ConceptChronology>
          implements DraggableWithImage {
    /**
     * The Constant LOG.
@@ -109,7 +109,7 @@ final public class MultiParentTreeCell
 
    //~--- constructors --------------------------------------------------------
 
-   MultiParentTreeCell(TreeView<ConceptChronology<? extends ConceptVersion<?>>> treeView) {
+   MultiParentTreeCell(TreeView<ConceptChronology> treeView) {
       super();
       updateTreeView(treeView);
       setSkin(new MultiParentTreeCellSkin(this));
@@ -125,20 +125,16 @@ final public class MultiParentTreeCell
       setContextMenu(cm);
 
       // Allow drags
-      // TODO FixLeak...
-      KOMET.setupDragOnly(
-          this,
-              () -> {
-                 ConceptChronology<? extends ConceptVersion<?>> conceptChronicle = MultiParentTreeCell.this.getItem();
+      
+      this.setOnDragDetected(new DragDetectedCellEventHandler());
+      this.setOnDragDone(new DragDoneEventHandler());
 
-                 return conceptChronicle.getUuidList();
-              });
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
-   protected void updateItem(ConceptChronology<? extends ConceptVersion<?>> taxRef, boolean empty) {
+   protected void updateItem(ConceptChronology taxRef, boolean empty) {
       boolean addProgressIndicator = false;
 
       try {
@@ -152,8 +148,8 @@ final public class MultiParentTreeCell
  
 
                if (!treeItem.isLeaf()) {
-               Node iv = treeItem.isExpanded() ? Iconography.TAXONOMY_CLOSED.getIconographic()
-                                               : Iconography.TAXONOMY_OPEN.getIconographic();
+               Node iv = treeItem.isExpanded() ? Iconography.TAXONOMY_CLICK_TO_CLOSE.getIconographic()
+                                               : Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic();
                   if (addProgressIndicator) {
                      StackPane progressStack = new StackPane();
 
@@ -243,13 +239,13 @@ final public class MultiParentTreeCell
 
    private void openOrCloseParent(MultiParentTreeItem treeItem)
             throws IOException {
-      ConceptChronology<? extends ConceptVersion<?>> value = treeItem.getValue();
+      ConceptChronology value = treeItem.getValue();
 
       if (value != null) {
          treeItem.setValue(null);
 
          MultiParentTreeItem parentItem = (MultiParentTreeItem) treeItem.getParent();
-         ObservableList<TreeItem<ConceptChronology<? extends ConceptVersion<?>>>> siblings = parentItem.getChildren();
+         ObservableList<TreeItem<ConceptChronology>> siblings = parentItem.getChildren();
 
          if (treeItem.isSecondaryParentOpened()) {
             removeExtraParents(treeItem, siblings);
@@ -290,17 +286,20 @@ final public class MultiParentTreeCell
    }
 
    private void removeExtraParents(MultiParentTreeItem treeItem,
-                                   ObservableList<TreeItem<ConceptChronology<? extends ConceptVersion<?>>>> siblings) {
-      for (MultiParentTreeItem extraParent: treeItem.getExtraParents()) {
+                                   ObservableList<TreeItem<ConceptChronology>> siblings) {
+      treeItem.getExtraParents().stream().map((extraParent) -> {
          removeExtraParents(extraParent, siblings);
+         return extraParent;
+      }).forEachOrdered((extraParent) -> {
          siblings.remove(extraParent);
-      }
+      });
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public Image getDragImage() {
+      //TODO see if we can replace this method with DragImageMaker...
       SnapshotParameters snapshotParameters = new SnapshotParameters();
 
       dragOffset = 0;
@@ -309,19 +308,12 @@ final public class MultiParentTreeCell
       double height = this.getHeight();
 
       if (graphicTilePane != null) {
-         // The height difference and widh difference are to account for possible 
+         // The height difference and width difference are to account for possible 
          // changes in size of an object secondary to a hover (which might cause a 
-         // -fx-effect:  dropshadow... or similar, whicn will create a diference in the 
+         // -fx-effect:  dropshadow... or similar, whicn will create a difference in the 
          // tile pane height, but not cause a change in getLayoutBounds()...
          // I don't know if this is a workaround for a bug, or if this is expected
          // behaviour for some reason...
-         double layoutHeight     = graphicTilePane.getLayoutBounds()
-                                       .getHeight();
-         double heightDifference = graphicTilePane.getBoundsInParent()
-                                                  .getHeight() - layoutHeight;
-         if (heightDifference > 0) {
-            heightDifference = Math.rint(heightDifference);
-         }
 
          double layoutWidth     = graphicTilePane.getLayoutBounds()
                                        .getWidth();

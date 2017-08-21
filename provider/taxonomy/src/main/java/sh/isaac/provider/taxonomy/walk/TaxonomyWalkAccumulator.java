@@ -72,7 +72,7 @@ public class TaxonomyWalkAccumulator {
    public int parentConnections = 0;
 
    /** The watch concept. */
-   ConceptChronology<?> watchConcept = null;
+   ConceptChronology watchConcept = null;
 
    //~--- methods -------------------------------------------------------------
 

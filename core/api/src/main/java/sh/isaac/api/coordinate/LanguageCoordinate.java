@@ -42,7 +42,6 @@ package sh.isaac.api.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
-import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -50,7 +49,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -69,8 +68,8 @@ public interface LanguageCoordinate {
     * @return an optional latestDescription best matching the {@code LanguageCoordinate}
     * constraints.
     */
-   Optional<LatestVersion<DescriptionSememe<?>>> getDescription(
-           List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   LatestVersion<DescriptionVersion> getDescription(
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate);
 
    /**
@@ -113,8 +112,8 @@ public interface LanguageCoordinate {
     * @param stampCoordinate the stamp coordinate
     * @return the fully specified latestDescription
     */
-   Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
-           List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate);
    /**
     * Gets the fully specified latestDescription.
@@ -123,7 +122,7 @@ public interface LanguageCoordinate {
     * @param stampCoordinate the stamp coordinate
     * @return the fully specified latestDescription
     */
-   default Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
+   default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
            int conceptId,
            StampCoordinate stampCoordinate) {
       return getFullySpecifiedDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
@@ -139,10 +138,10 @@ public interface LanguageCoordinate {
    default String getFullySpecifiedDescriptionText(
            int conceptId,
            StampCoordinate stampCoordinate) {
-      Optional<LatestVersion<DescriptionSememe<?>>> latestDescription = 
+      LatestVersion<DescriptionVersion> latestDescription = 
               getFullySpecifiedDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
       if (latestDescription.isPresent()) {
-         return latestDescription.get().value().getText();
+         return latestDescription.get().getText();
       } else {
          return "No description for: " + conceptId;
       }
@@ -162,8 +161,8 @@ public interface LanguageCoordinate {
     * @param stampCoordinate the stamp coordinate
     * @return the preferred latestDescription
     */
-   Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(
-           List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   LatestVersion<DescriptionVersion> getPreferredDescription(
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate);
    
    /**
@@ -173,7 +172,7 @@ public interface LanguageCoordinate {
     * @param stampCoordinate the stamp coordinate
     * @return the fully specified latestDescription
     */
-   default Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(
+   default LatestVersion<DescriptionVersion> getPreferredDescription(
            int conceptId,
            StampCoordinate stampCoordinate) {
       return getPreferredDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
@@ -190,10 +189,10 @@ public interface LanguageCoordinate {
    default String getPreferredDescriptionText(
            int conceptId,
            StampCoordinate stampCoordinate) {
-      Optional<LatestVersion<DescriptionSememe<?>>> latestDescription = 
+      LatestVersion<DescriptionVersion> latestDescription = 
               getPreferredDescription(Get.conceptService().getConceptDescriptions(conceptId), stampCoordinate);
       if (latestDescription.isPresent()) {
-         return latestDescription.get().value().getText();
+         return latestDescription.get().getText();
       } else {
          return "No description for: " + conceptId;
       }

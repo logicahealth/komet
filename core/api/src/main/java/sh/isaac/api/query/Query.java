@@ -46,7 +46,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -228,15 +227,14 @@ public abstract class Query {
                         concept.createMutableVersion(concept.getNid());
 
                         final ConceptChronology cch = concept;
-                        final Optional<LatestVersion<ConceptVersion<?>>> latest =
-                           cch.getLatestVersion(ConceptVersion.class, this.manifoldCoordinate);
+                        final LatestVersion<ConceptVersion> latest =
+                           cch.getLatestVersion(this.manifoldCoordinate);
 
-                        // Optional<LatestVersion<ConceptVersion<?>>> latest
-                        // = ((ConceptChronology<ConceptVersion<?>>) concept).getLatestVersion(ConceptVersion.class, stampCoordinate);
+                        // Optional<LatestVersion<ConceptVersion>> latest
+                        // = ((ConceptChronology<ConceptVersion>) concept).getLatestVersion(ConceptVersion.class, stampCoordinate);
                         if (latest.isPresent()) {
                            this.rootClause[0].getChildren().stream().forEach((c) -> {
-                        c.getQueryMatches(latest.get()
-                                                .value());
+                        c.getQueryMatches(latest.get());
                      });
                         }
                      });

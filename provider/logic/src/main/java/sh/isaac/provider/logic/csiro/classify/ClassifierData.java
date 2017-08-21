@@ -43,7 +43,6 @@ package sh.isaac.provider.logic.csiro.classify;
 
 import java.time.Instant;
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -65,7 +64,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
+import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.axioms.GraphToAxiomTranslator;
 
 //~--- classes ----------------------------------------------------------------
@@ -185,29 +184,27 @@ public class ClassifierData
 
          // only process if incremental is a possibility.
          if (this.incrementalAllowed) {
-            final Optional<LatestVersion<LogicGraphSememeImpl>> optionalLatest =
-               sc.getLatestVersion(LogicGraphSememeImpl.class,
-                                   this.stampCoordinate);
+            final LatestVersion<LogicGraphVersionImpl> optionalLatest =
+               sc.getLatestVersion(this.stampCoordinate);
 
             if (optionalLatest.isPresent()) {
-               final LatestVersion<LogicGraphSememeImpl> latest = optionalLatest.get();
+               final LatestVersion<LogicGraphVersionImpl> latest = optionalLatest;
 
                // get stampCoordinate for last classify.
                final StampCoordinate stampToCompare =
                   this.stampCoordinate.makeCoordinateAnalog(this.lastClassifyInstant.toEpochMilli());
 
                // See if there is a change in the optionalLatest vs the last classify.
-               final Optional<LatestVersion<LogicGraphSememeImpl>> optionalPrevious =
-                  sc.getLatestVersion(LogicGraphSememeImpl.class,
-                                      stampToCompare);
+               final LatestVersion<LogicGraphVersionImpl> optionalPrevious =
+                  sc.getLatestVersion(stampToCompare);
 
                if (optionalPrevious.isPresent()) {
                   // See if the change has deletions, if so then incremental is not allowed.
-                  final LatestVersion<LogicGraphSememeImpl> previous  = optionalPrevious.get();
+                  final LatestVersion<LogicGraphVersionImpl> previous  = optionalPrevious;
                   boolean                                   deletions = false;
 
-                  if (latest.value()
-                            .getGraphData().length <= previous.value().getGraphData().length) {
+                  if (latest.get()
+                            .getGraphData().length <= previous.get().getGraphData().length) {
                      // If nodes where deleted, or an existing node was changed but the size remains the same assume deletions
                      deletions = true;
 
@@ -220,11 +217,11 @@ public class ClassifierData
                      this.reasoner = new SnorocketReasoner();
                   } else {
                      // Otherwise add axioms...
-                     this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value());
+                     this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.get());
                   }
                } else {
                   // Otherwise add axioms...
-                  this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.value());
+                  this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.get());
                }
             }
          }
@@ -273,7 +270,7 @@ public class ClassifierData
     *
     * @param lgs the lgs
     */
-   public void translate(LogicGraphSememeImpl lgs) {
+   public void translate(LogicGraphVersionImpl lgs) {
       this.allGraphsToAxiomTranslator.convertToAxiomsAndAdd(lgs);
    }
 

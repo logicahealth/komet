@@ -195,7 +195,15 @@ public enum ObservableFields
    SEMEME_LIST_FOR_CHRONICLE("sememe list for chronicle"),
 
    /** The description list for concept. */
-   DESCRIPTION_LIST_FOR_CONCEPT("description list for concept");
+   DESCRIPTION_LIST_FOR_CONCEPT("description list for concept"),
+   
+   STRING_VALUE_FOR_SEMEME("string value for sememe"),
+   
+   COMPONENT_NID_FOR_SEMEME("component nid for sememe"),
+   
+   LOGIC_GRAPH_FOR_SEMEME("logic graph for sememe"),
+   
+   LONG_VALUE_FOR_SEMEME("long value for sememe");
 
    /** The Constant namespace. */
    private static final UUID namespace = UUID.fromString("cbbd1e22-0cac-11e5-a6c0-1697f925ec7b");
@@ -277,5 +285,6 @@ public enum ObservableFields
    public Optional<String> getPreferedConceptDescriptionText() {
       return Optional.empty();
    }
+
 }
 

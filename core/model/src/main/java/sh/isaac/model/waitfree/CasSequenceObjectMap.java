@@ -76,7 +76,7 @@ import sh.isaac.api.memory.DiskSemaphore;
 import sh.isaac.api.memory.HoldInMemoryCache;
 import sh.isaac.api.memory.MemoryManagedReference;
 import sh.isaac.api.memory.WriteToDiskCache;
-import sh.isaac.model.ObjectChronologyImpl;
+import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.WaitFreeComparable;
 
 //~--- classes ----------------------------------------------------------------
@@ -271,8 +271,8 @@ public class CasSequenceObjectMap<T extends WaitFreeComparable> {
             this.objectByteList.get(segmentIndex)
                                .elementUpdated();
 
-            if ((originalValue != value) && (value instanceof ObjectChronologyImpl)) {
-               final ObjectChronologyImpl objc = (ObjectChronologyImpl) originalValue;
+            if ((originalValue != value) && (value instanceof ChronologyImpl)) {
+               final ChronologyImpl objc = (ChronologyImpl) originalValue;
 
                objc.setWrittenData(newDataBuffer.getData());
                objc.setWriteSequence(value.getWriteSequence());

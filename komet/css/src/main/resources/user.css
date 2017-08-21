@@ -18,6 +18,19 @@ limitations under the License.
     Created on : Jul 4, 2017, 12:37:24 PM
     Author     : kec
 */
+.root {
+   -komet-blue-color: #406AD1;
+   -komet-tab-background-color: #52646d;
+   -komet-panel-background-color: #c3cdd3;
+   -komet-concept-box-background-color: #eef1f3;
+   -komet-concept-color: #5ec200;
+   -komet-description-color: #ff9100;
+   -komet-definition-color: #009bff;
+   -komet-inactive-color: #b3b3b3;
+   -komet-box-border: #d1d1d1;
+   -fx-font-family: "Open Sans";
+
+}
 
 .button {
     -fx-font-weight: bold;
@@ -68,3 +81,314 @@ limitations under the License.
    /* use circled plus? in Material Icons? */
 }
 
+
+
+.tab-header-area {
+    -fx-background-color: red;
+    -fx-border-color: blue;
+}
+
+.tab-header-background {
+    -fx-background-color: -komet-tab-background-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-border-width: 0 0 4 0;
+}
+
+/* barely visible behind the tabs themselves. Make them same as the background... */
+.headers-region {
+    -fx-background-color: -komet-tab-background-color; 
+}
+
+/* top refers to tabs that are layed out on the top of the pane, as opposed to side or bottom...*/
+.tab:top {
+    -fx-background-color: -komet-tab-background-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-border-width: 0 0 3 0;
+    
+}
+
+/* only one tab in a tab group is selected at a time. */
+.tab-pane > .tab-header-area > .headers-region > .tab:selected {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;
+    -fx-border-radius: 5 5 0 0, 4 4 0 0;
+}
+/* since the selection is so different, the focus indicator is a distration, will make it same color */
+.tab-header-area * .tab:selected * .focus-indicator {
+    -fx-border-color: transparent;
+}
+
+    
+.tab-pane > .tab-header-area > .headers-region > .tab:selected > labeled {
+   -fx-text-fill: white;
+    -icons-color: white;
+}
+.tab-label {
+   -fx-text-fill: white;
+}
+
+/* glphy-icon inside of tabs will be white... */
+.tab  * .glyph-icon  {
+   -icons-color: white;
+}
+
+.concept-label-toolbar {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;   
+    -fx-border-color: -komet-panel-background-color;
+    -fx-border-width: 5 2 2 2;
+}
+
+.concept-label-toolbar * .menu-button {
+    -fx-background-color: -komet-blue-color;
+    -fx-border-color: -komet-blue-color;      
+}
+.concept-label-toolbar * .arrow {
+   -fx-mark-color: white;
+}
+
+.concept-label-toolbar * .menu-button * .glyph-icon { 
+   -icons-color: white;
+}
+.concept-label-toolbar >* .label { 
+      -fx-text-fill: white;
+}
+.komet-version-what-cell {
+   
+}
+
+.komet-version-what-cell:concept-version {
+   -fx-border-color: -komet-concept-color;
+   -fx-border-width: 0 0 0 5;
+   
+}
+
+.komet-version-what-cell:logical-definition-version {
+   -fx-border-color: -komet-definition-color;
+   -fx-border-width: 0 0 0 5;
+   
+}
+
+
+.komet-version-general-cell:inactive {
+   -fx-text-fill: -komet-inactive-color;
+   
+}
+.komet-version-author-time-cell {
+   -fx-text-alignment: center;
+}
+
+.komet-version-module-path-cell {
+   -fx-text-alignment: center;
+}
+
+.isaac-version {
+   /* -fx-border-color: -komet-panel-background-color; */
+   /* -fx-border-width: 0 0 0 5; */
+}
+
+/* .tree-table-view * .column-header * */
+
+.tree-table-view * .label {
+   -fx-text-alignment: center;
+}
+
+.component-badge {
+   -icons-color: black;
+}
+
+.component-panel {
+   -fx-background-color: white;
+   -fx-grid-lines-visible: true;
+}
+
+.component-panel * .grid-pane{
+   -fx-grid-lines-visible: true;
+}
+
+
+.komet-version-what-cell:description-version {
+   -fx-border-color: -komet-description-color;
+   -fx-text-fill: -komet-description-color;
+   -fx-border-width: 0 0 0 5;
+   -fx-font-size:18;
+  /* -fx-font-weight: 900; does not seem to work? Add a bold font face... */
+}
+.komet-version-what-cell:description-version:inactive {
+   -fx-border-color: -komet-inactive-color;
+   -fx-text-fill: -komet-inactive-color;
+   -fx-border-width: 0 0 0 5;
+   -fx-font-size:18;
+  /* -fx-font-weight: 900; does not seem to work? Add a bold font face... */
+}
+
+.component-panel:description-version {
+   -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-description-color ;
+   -fx-text-fill: red;
+   -fx-border-width: 1 1 1 5;
+   -fx-border-insets: 0 0 0 -5;
+}
+
+.component-panel:description-version:inactive {
+   -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-inactive-color;
+   -fx-text-fill: -komet-inactive-color;
+   -fx-border-width: 1 1 1 5;
+   -fx-border-insets: 0 0 0 -5;
+}
+
+.component-panel:description-version:inactive * .component-version-what-cell {
+   -fx-fill: -komet-inactive-color;
+   -fx-font-size:16;
+   -fx-font-weight: bold;
+}
+
+
+.component-panel:description-version * .component-version-what-cell {
+   -fx-fill: -komet-description-color;
+   -fx-font-size:16;
+   -fx-font-weight: bold;
+}
+
+.component-panel:description-version * .component-text {
+   -fx-font-size:15; 
+   -fx-font-weight: normal;
+   -fx-fill: black;
+}
+
+.component-panel:concept-version {
+   -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-concept-color ;
+   -fx-text-fill: -komet-concept-color;
+   -fx-border-width: 1 1 1 5;
+   -fx-border-insets: 0 0 0 -5;
+}
+
+.component-panel:concept-version:inactive {
+   -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-inactive-color;
+   -fx-text-fill: -komet-inactive-color;
+   -fx-border-width: 1 1 1 5;
+   -fx-border-insets: 0 0 0 -5;
+}
+
+.component-panel:concept-version:inactive * .component-version-what-cell {
+   -fx-fill: -komet-inactive-color;
+   -fx-font-size:16;
+   -fx-font-weight: bold;
+}
+
+.component-panel:concept-version * .component-version-what-cell {
+   -fx-fill: -komet-concept-color;
+   -fx-font-size:16;
+   -fx-font-weight: bold;
+}
+
+.component-panel:concept-version * .component-text {
+   -fx-font-size:15; 
+   -fx-font-weight: normal;
+   -fx-fill: black;
+}
+
+.component-panel:logical-definition-version {
+   -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-definition-color ;
+   -fx-text-fill: -komet-definition-color;
+   -fx-border-width: 1 1 1 5;
+   -fx-border-insets: 0 0 0 -5;
+}
+
+.component-panel:logical-definition-version:inactive {
+   -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-inactive-color;
+   -fx-text-fill: -komet-inactive-color;
+   -fx-border-width: 1 1 1 5;
+   -fx-border-insets: 0 0 0 -5;
+}
+
+.component-panel:logical-definition-version:inactive * .component-version-what-cell {
+   -fx-fill: -komet-inactive-color;
+   -fx-font-size:16;
+   -fx-font-weight: bold;
+}
+
+.component-panel:logical-definition-version * .component-version-what-cell {
+   -fx-fill: -komet-definition-color;
+   -fx-font-size:16;
+   -fx-font-weight: bold;
+}
+
+.component-panel:logical-definition-version * .component-text {
+   -fx-font-size:15; 
+   -fx-font-weight: normal;
+   -fx-fill: black;
+}
+
+.component-panel * .button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;      
+}
+
+.on-off-toggle-switch{
+    -thumb-move-animation-time: 200;
+}
+
+.on-off-toggle-switch .thumb {
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -20%), derive(-fx-text-box-border, -30%)),
+                            -fx-inner-border,
+                            white;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 0.1em; /* large value to make sure this remains circular */
+    -fx-padding: 0.7em;
+    -fx-alignment: CENTER;
+    -fx-content-display: center;
+    -fx-text-fill: -fx-text-base-color;
+    -fx-border-width: 0;      
+    
+}
+
+.on-off-toggle-switch .thumb-area{
+    -fx-background-radius: 0em;
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -20%), derive(-fx-text-box-border, -30%)), #C7CBCE;
+    -fx-background-insets: 0, 1;
+}
+
+.on-off-toggle-switch:hover .thumb{
+    -fx-color: -fx-hover-base
+}
+
+.on-off-toggle-switch:selected .thumb-area{
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-text-box-border, -20%), derive(-fx-text-box-border, -30%)),
+                            linear-gradient(to bottom, derive(#45535C, 30%), #45535C);
+    -fx-background-insets: 0, 1;
+
+}
+
+.on-off-toggle-switch .thumb-area
+{
+    -fx-padding: 0em 1.6em 0em 1.6em; /* 7 16 7 16 */
+}
+
+.on-off-toggle-switch:disabled
+{
+    -fx-opacity: 0.4;
+}
+
+
+.component-panel:concept-version * .header-panel {
+   -fx-border-color: -komet-concept-color;
+   -fx-text-fill: black;
+   -fx-border-width: 0 0 2 0;
+   -fx-border-insets: 0 0 0 0;   
+}
+
+
+.component-panel:description-version * .header-panel {
+   -fx-border-color: -komet-description-color;
+   -fx-text-fill: black;
+   -fx-border-width: 0 0 2 0;
+   -fx-border-insets: 0 0 0 0;   
+}
+
+
+.component-panel:logical-definition-version * .header-panel {
+   -fx-border-color: -komet-definition-color;
+   -fx-text-fill: black;
+   -fx-border-width: 0 0 2 0;
+   -fx-border-insets: 0 0 0 0;   
+}

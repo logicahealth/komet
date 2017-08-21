@@ -59,6 +59,6 @@ public interface BinaryDataReaderService
     *
     * @return the stream
     */
-   Stream<OchreExternalizable> getStream();
+   Stream<IsaacExternalizable> getStream();
 }
 

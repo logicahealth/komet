@@ -48,7 +48,6 @@ import java.util.UUID;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.identity.StampedVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -83,13 +82,13 @@ public interface ChronologyChangeListener {
     * Don't do work on or block the calling thread.
     * @param cc a ConceptChronology that has changed, but has not been committed.
     */
-   void handleChange(ConceptChronology<? extends StampedVersion> cc);
+   void handleChange(ConceptChronology cc);
 
    /**
     * Don't do work on or block the calling thread.
     * @param sc a SememeChronology that has changed, but has not been committed.
     */
-   void handleChange(SememeChronology<? extends SememeVersion<?>> sc);
+   void handleChange(SememeChronology sc);
 
    /**
     * Don't do work on or block the calling thread.

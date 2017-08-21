@@ -62,11 +62,6 @@ import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.chronicle.ObjectChronology;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.TaskCompleteCallback;
@@ -77,6 +72,8 @@ import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SememeIndexer;
 import sh.isaac.utility.Frills;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -189,7 +186,7 @@ public class SearchHandler {
                                   // If search query is an ID, look up concept and add the result.
                                   if (UUIDUtil.isUUID(localQuery) || NumericUtils.isLong(localQuery)) {
                                      throw new UnsupportedOperationException("Search for unknown identifier is not implemented.");
-//                                     final Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> temp =
+//                                     final Optional<? extends ConceptChronology> temp =
 //                                        Frills.getConceptForUnknownIdentifier(localQuery);
 //
 //                                     if (temp.isPresent()) {
@@ -235,7 +232,7 @@ public class SearchHandler {
                                            }
 
                                            // Get the description object.
-                                           final Optional<? extends ObjectChronology<? extends StampedVersion>> io =
+                                           final Optional<? extends Chronology> io =
                                               Get.identifiedObjectService()
                                                  .getIdentifiedObjectChronology(searchResult2.getNid());
 
@@ -252,8 +249,8 @@ public class SearchHandler {
                                            if (prefixSearch &&
                                                (csr.getBestScore() <= 1.0f) &&
                                                io.isPresent() &&
-                                               (io.get() instanceof DescriptionSememe<?>)) {
-                                              final String matchingString = ((DescriptionSememe<?>) io.get()).getText();
+                                               (io.get() instanceof DescriptionVersion)) {
+                                              final String matchingString = ((DescriptionVersion) io.get()).getText();
                                               float        adjustValue    = 0f;
 
                                               if (matchingString.toLowerCase(Locale.ENGLISH)
@@ -623,7 +620,7 @@ public class SearchHandler {
             }
 
             // Get the match object.
-            final Optional<? extends ObjectChronology<? extends StampedVersion>> io = Get.identifiedObjectService()
+            final Optional<? extends Chronology> io = Get.identifiedObjectService()
                                                                                          .getIdentifiedObjectChronology(
                                                                                             searchResult.getNid());
 
@@ -729,11 +726,11 @@ public class SearchHandler {
    private static Integer[] getDescriptionSememeAssemblages() {
       if (descriptionSememeAssemblagesCache == null) {
          final Set<Integer> descSememes =
-            Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_ASSEMBLAGE_ǁISAACǁ.getConceptSequence(),
+            Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_ASSEMBLAGE____ISAAC.getConceptSequence(),
                                            true,
                                            false);
 
-         descSememes.add(MetaData.DESCRIPTION_ASSEMBLAGE_ǁISAACǁ.getConceptSequence());
+         descSememes.add(MetaData.DESCRIPTION_ASSEMBLAGE____ISAAC.getConceptSequence());
          descriptionSememeAssemblagesCache = descSememes.toArray(new Integer[descSememes.size()]);
       }
 

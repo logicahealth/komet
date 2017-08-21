@@ -42,7 +42,6 @@ package sh.isaac.api.logic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -50,9 +49,10 @@ import java.util.stream.Stream;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -171,8 +171,17 @@ public interface LogicNode
     * @param languageCoordinate to determine the language and dialect.
     * @return the preferred description. 
     */
-   Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(StampCoordinate stampCoordinate, 
+   LatestVersion<DescriptionVersion> getPreferredDescription(StampCoordinate stampCoordinate, 
            LanguageCoordinate languageCoordinate);
+   
+   /**
+    * Gets the preferred description for this node.
+    * @param manifoldCoordinate to determine the current description, language, and dialect.
+    * @return the preferred description. 
+    */
+   default LatestVersion<DescriptionVersion> getPreferredDescription(ManifoldCoordinate manifoldCoordinate) {
+      return getPreferredDescription(manifoldCoordinate, manifoldCoordinate);
+   }
    
    /**
     * Get the concept sequence for the concept being defined by the logical expression for which this node is a part. 

@@ -53,7 +53,7 @@ import java.util.concurrent.CompletableFuture;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.DatabaseServices;
-import sh.isaac.api.chronicle.ObjectChronology;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -116,7 +116,7 @@ public interface IndexService
     * to make sure that the component's indexing is complete prior to performing
     * a search where the chronicle's results must be included.
     */
-   CompletableFuture<Long> index(ObjectChronology<?> chronicle);
+   CompletableFuture<Long> index(Chronology chronicle);
 
    /**
     * Locate the concept most closely tied to a search result, and merge them together, maintaining the best score.

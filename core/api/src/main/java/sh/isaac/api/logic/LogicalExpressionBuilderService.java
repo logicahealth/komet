@@ -43,7 +43,7 @@ package sh.isaac.api.logic;
 
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -60,7 +60,7 @@ public interface LogicalExpressionBuilderService {
     * @param sememe the sememe
     * @return the logical expression
     */
-   LogicalExpression fromSememe(LogicGraphSememe<?> sememe);
+   LogicalExpression fromSememe(LogicGraphVersion sememe);
 
    //~--- get methods ---------------------------------------------------------
 

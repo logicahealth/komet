@@ -74,7 +74,7 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.DataWriterService;
-import sh.isaac.api.externalizable.OchreExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.tree.Tree;
@@ -157,9 +157,9 @@ public class ImportExportTest {
             throws Exception {
       final LogicalExpressionBuilder defBuilder = this.builderProvider.getLogicalExpressionBuilder();
 
-      SufficientSet(And(SomeRole(MetaData.ROLE_GROUP_ǁISAACǁ,
-                                 And(Feature(MetaData.HAS_STRENGTH_ǁISAACǁ, FloatLiteral(1.2345F, defBuilder)),
-                                     ConceptAssertion(MetaData.MASTER_PATH_ǁISAACǁ, defBuilder)))));
+      SufficientSet(And(SomeRole(MetaData.ROLE_GROUP____ISAAC,
+                                 And(Feature(MetaData.HAS_STRENGTH____ISAAC, FloatLiteral(1.2345F, defBuilder)),
+                                     ConceptAssertion(MetaData.MASTER_PATH____ISAAC, defBuilder)))));
 
       final LogicalExpression              logicGraphDef    = defBuilder.build();
       final LogicByteArrayConverterService converter        = new LogicByteArrayConverterService();
@@ -194,7 +194,7 @@ public class ImportExportTest {
             .forEach((ochreExternalizable) -> {
                         writer.put(ochreExternalizable);
 
-                        if (ochreExternalizable.getOchreObjectType() == OchreExternalizableObjectType.STAMP_ALIAS) {
+                        if (ochreExternalizable.getExternalizableObjectType() == IsaacExternalizableObjectType.STAMP_ALIAS) {
                            LOG.info(ochreExternalizable);
                         }
                      });

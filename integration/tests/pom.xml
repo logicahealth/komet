@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>integration</artifactId>
-        <version>4.17-SNAPSHOT</version>
+        <version>4.23-SNAPSHOT</version>
     </parent>
     <groupId>sh.isaac.integration</groupId>
     <artifactId>tests</artifactId>
@@ -138,7 +138,7 @@
                     <useManifestOnlyJar>false</useManifestOnlyJar>
                     <argLine>-ea -d64 -Xmx12g -Djava.awt.headless=true</argLine>
 <!--                     <argLine>-Xmx8g -Xms8g -Djava.awt.headless=true -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine> -->
-                   <!-- debugForkedProcess>true</debugForkedProcess -->
+<!--                    <debugForkedProcess>true</debugForkedProcess>-->
                     <includes>
                         <!-- Let JUnit annotations decide -->
                         <include>**/*.class</include>

@@ -56,7 +56,7 @@ import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeConstraints;
 import sh.isaac.api.component.sememe.SememeServiceTyped;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
+import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
@@ -78,7 +78,7 @@ public interface AssemblageService
     * @param versionType the version type
     * @return the sememe service typed
     */
-   <V extends SememeVersion> SememeServiceTyped<V> ofType(Class<V> versionType);
+   <V extends SememeVersion> SememeServiceTyped ofType(SememeType versionType);
 
    /**
     * Write a sememe to the sememe service. Will not overwrite a sememe if one already exists, rather it will
@@ -91,7 +91,7 @@ public interface AssemblageService
     * @param sememeChronicle the sememe chronicle
     * @param constraints the constraints
     */
-   void writeSememe(SememeChronology<?> sememeChronicle, SememeConstraints... constraints);
+   void writeSememe(SememeChronology sememeChronicle, SememeConstraints... constraints);
 
    //~--- get methods ---------------------------------------------------------
 
@@ -108,7 +108,7 @@ public interface AssemblageService
     * @param componentNid the component nid
     * @return the descriptions for component
     */
-   Stream<SememeChronology<? extends DescriptionSememe<?>>> getDescriptionsForComponent(int componentNid);
+   Stream<SememeChronology> getDescriptionsForComponent(int componentNid);
 
    /**
     * Gets the optional sememe.
@@ -116,14 +116,14 @@ public interface AssemblageService
     * @param sememeId sequence or nid for a sememe
     * @return the identified {@code SememeChronology}
     */
-   Optional<? extends SememeChronology<? extends SememeVersion<?>>> getOptionalSememe(int sememeId);
+   Optional<? extends SememeChronology> getOptionalSememe(int sememeId);
 
    /**
     * Gets the parallel sememe stream.
     *
     * @return the parallel sememe stream
     */
-   Stream<SememeChronology<? extends SememeVersion<?>>> getParallelSememeStream();
+   Stream<SememeChronology> getParallelSememeStream();
 
    /**
     * Gets the sememe.
@@ -131,7 +131,7 @@ public interface AssemblageService
     * @param sememeId sequence or nid for a sememe
     * @return the identified {@code SememeChronology}
     */
-   SememeChronology<? extends SememeVersion<?>> getSememe(int sememeId);
+   SememeChronology getSememe(int sememeId);
 
    /**
     * Use in circumstances when not all sememes may have been loaded to find out if a sememe is present,
@@ -146,7 +146,7 @@ public interface AssemblageService
     *
     * @return the sememe chronology stream
     */
-   Stream<SememeChronology<? extends SememeVersion<?>>> getSememeChronologyStream();
+   Stream<SememeChronology> getSememeChronologyStream();
 
    /**
     * Gets the sememe count.
@@ -229,38 +229,42 @@ public interface AssemblageService
    /**
     * Gets the sememes for component.
     *
+    * @param <C>
     * @param componentNid the component nid
     * @return the sememes for component
     */
-   Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponent(int componentNid);
+   <C extends SememeChronology> Stream<C> getSememesForComponent(int componentNid);
 
    /**
     * Gets the sememes for component from assemblage.
     *
+    * @param <C>
     * @param componentNid the component nid
     * @param assemblageConceptSequence the assemblage concept sequence
     * @return the sememes for component from assemblage
     */
-   Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblage(int componentNid,
+   <C extends SememeChronology> Stream<C> getSememesForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence);
 
    /**
     * Gets the sememes for component from assemblages.
     *
+    * @param <C>
     * @param componentNid The component nid that the sememes must reference
     * @param allowedAssemblageSequences The (optional) set of assemblage types to limit the return to.  If empty or null, no assemblage filter is applied.
     * @return the sememes for component from assemblages
     */
-   Stream<SememeChronology<? extends SememeVersion<?>>> getSememesForComponentFromAssemblages(int componentNid,
+   <C extends SememeChronology> Stream<C> getSememesForComponentFromAssemblages(int componentNid,
          Set<Integer> allowedAssemblageSequences);
 
    /**
     * Gets the sememes from assemblage.
     *
+    * @param <C>
     * @param assemblageConceptSequence the assemblage concept sequence
     * @return the sememes from assemblage
     */
-   Stream<SememeChronology<? extends SememeVersion<?>>> getSememesFromAssemblage(int assemblageConceptSequence);
+   <C extends SememeChronology> Stream<C> getSememesFromAssemblage(int assemblageConceptSequence);
 
    /**
     * Gets the snapshot.

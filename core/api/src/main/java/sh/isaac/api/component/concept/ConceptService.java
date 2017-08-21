@@ -51,10 +51,8 @@ import java.util.stream.Stream;
 
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.DatabaseServices;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 
@@ -67,7 +65,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
  */
 @Contract
 public interface ConceptService
-        extends DatabaseServices {
+        extends SharedConceptService {
    /**
     * Write a concept to the concept service. Will not overwrite a concept if one already exists, rather it will
     * merge the written concept with the provided concept.
@@ -77,7 +75,7 @@ public interface ConceptService
     * of the underlying service.
     * @param concept to be written.
     */
-   void writeConcept(ConceptChronology<? extends ConceptVersion<?>> concept);
+   void writeConcept(ConceptChronology concept);
 
    //~--- get methods ---------------------------------------------------------
 
@@ -87,7 +85,7 @@ public interface ConceptService
     * @param conceptId either a concept sequence or a concept nid.
     * @return the concept chronology associated with the identifier.
     */
-   ConceptChronology<? extends ConceptVersion<?>> getConcept(int conceptId);
+   ConceptChronology getConcept(int conceptId);
    
    /**
     * Gets the list of descriptions for a concept.
@@ -95,7 +93,7 @@ public interface ConceptService
     * @param conceptId either a concept sequence or a concept nid.
     * @return the list of descriptions.
     */
-   default List<SememeChronology<? extends DescriptionSememe<?>>> getConceptDescriptions(int conceptId) {
+   default List<SememeChronology> getConceptDescriptions(int conceptId) {
       return getConcept(conceptId).getConceptDescriptionList();
    }
 
@@ -105,7 +103,7 @@ public interface ConceptService
     * @param conceptUuids a UUID that identifies a concept.
     * @return the concept chronology associated with the identifier.
     */
-   ConceptChronology<? extends ConceptVersion<?>> getConcept(UUID... conceptUuids);
+   ConceptChronology getConcept(UUID... conceptUuids);
 
    /**
     * Use in circumstances when not all concepts may have been loaded to find out if a concept is present,
@@ -129,7 +127,7 @@ public interface ConceptService
     *
     * @return the concept chronology stream
     */
-   Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream();
+   Stream<ConceptChronology> getConceptChronologyStream();
 
    /**
     * Gets the concept chronology stream.
@@ -137,7 +135,7 @@ public interface ConceptService
     * @param conceptSequences the concept sequences
     * @return the concept chronology stream
     */
-   Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream(
+   Stream<ConceptChronology> getConceptChronologyStream(
            ConceptSequenceSet conceptSequences);
 
    /**
@@ -173,7 +171,7 @@ public interface ConceptService
     * @param conceptId Either a nid or concept sequence
     * @return an Optional ConceptChronology.
     */
-   Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(int conceptId);
+   Optional<? extends ConceptChronology> getOptionalConcept(int conceptId);
 
    /**
     * Use in circumstances when not all concepts may have been loaded.
@@ -182,14 +180,14 @@ public interface ConceptService
     * This implementation should not have a side effect of adding the UUID to any indexes, if the UUID isn't yet present.
     * @return an Optional ConceptChronology.
     */
-   Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(UUID... conceptUuids);
+   Optional<? extends ConceptChronology> getOptionalConcept(UUID... conceptUuids);
 
    /**
     * Gets the parallel concept chronology stream.
     *
     * @return the parallel concept chronology stream
     */
-   Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream();
+   Stream<ConceptChronology> getParallelConceptChronologyStream();
 
    /**
     * Gets the parallel concept chronology stream.
@@ -197,14 +195,14 @@ public interface ConceptService
     * @param conceptSequences the concept sequences
     * @return the parallel concept chronology stream
     */
-   Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream(
+   Stream<ConceptChronology> getParallelConceptChronologyStream(
            ConceptSequenceSet conceptSequences);
 
    /**
     * Gets the snapshot.
     *
     * @param manifoldCoordinate the stamp coordinate
-    * @return the sh.isaac.api.component.concept.ConceptSnapshotService
+    * @return the ConceptSnapshotService
     */
    ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate);
 }

@@ -42,9 +42,9 @@ package sh.isaac.api.component.concept.description;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.IdentifiedComponentBuilder;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -55,7 +55,7 @@ import sh.isaac.api.identity.StampedVersion;
  * @param <T> the generic type
  * @param <V> the value type
  */
-public interface DescriptionBuilder<T extends ObjectChronology<?>, V extends StampedVersion>
+public interface DescriptionBuilder<T extends Chronology, V extends StampedVersion>
         extends IdentifiedComponentBuilder<T> {
    /**
     * Adds the acceptable in dialect assemblage.

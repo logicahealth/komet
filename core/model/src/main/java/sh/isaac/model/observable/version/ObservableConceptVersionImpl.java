@@ -41,9 +41,9 @@ package sh.isaac.model.observable.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
-import sh.isaac.model.concept.ConceptVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -53,17 +53,18 @@ import sh.isaac.model.concept.ConceptVersionImpl;
  * @author kec
  */
 public class ObservableConceptVersionImpl
-        extends ObservableVersionImpl<ObservableConceptVersionImpl, ConceptVersionImpl>
-         implements ObservableConceptVersion<ObservableConceptVersionImpl> {
+        extends ObservableVersionImpl
+         implements ObservableConceptVersion {
    /**
     * Instantiates a new observable concept version impl.
     *
     * @param stampedVersion the stamped version
     * @param chronology the chronology
     */
-   public ObservableConceptVersionImpl(ConceptVersionImpl stampedVersion,
-         ObservableConceptChronology<ObservableConceptVersionImpl> chronology) {
-      super(stampedVersion, chronology);
+   public ObservableConceptVersionImpl(ConceptVersion stampedVersion,
+         ObservableConceptChronology chronology) {
+      super(stampedVersion, 
+              chronology);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -74,8 +75,10 @@ public class ObservableConceptVersionImpl
     * @return the chronology
     */
    @Override
-   public ObservableConceptChronology<ObservableConceptVersionImpl> getChronology() {
-      return (ObservableConceptChronology<ObservableConceptVersionImpl>) this.chronology;
+   public ObservableConceptChronology getChronology() {
+      return (ObservableConceptChronology) this.chronology;
    }
+   
+   
 }
 

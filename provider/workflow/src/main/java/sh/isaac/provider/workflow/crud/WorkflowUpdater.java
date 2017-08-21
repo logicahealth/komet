@@ -65,19 +65,8 @@ import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.ComponentNidSememe;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
-import sh.isaac.api.component.sememe.version.LongSememe;
-import sh.isaac.api.component.sememe.version.MutableComponentNidSememe;
-import sh.isaac.api.component.sememe.version.MutableDescriptionSememe;
-import sh.isaac.api.component.sememe.version.MutableDynamicSememe;
-import sh.isaac.api.component.sememe.version.MutableLogicGraphSememe;
-import sh.isaac.api.component.sememe.version.MutableLongSememe;
-import sh.isaac.api.component.sememe.version.MutableStringSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.provider.workflow.BPMNInfo;
@@ -88,6 +77,18 @@ import sh.isaac.provider.workflow.model.contents.ProcessDetail;
 import sh.isaac.provider.workflow.model.contents.ProcessDetail.EndWorkflowType;
 import sh.isaac.provider.workflow.model.contents.ProcessDetail.ProcessStatus;
 import sh.isaac.provider.workflow.model.contents.ProcessHistory;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.ComponentNidVersion;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.sememe.version.LongVersion;
+import sh.isaac.api.component.sememe.version.MutableComponentNidVersion;
+import sh.isaac.api.component.sememe.version.MutableDescriptionVersion;
+import sh.isaac.api.component.sememe.version.MutableDynamicVersion;
+import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
+import sh.isaac.api.component.sememe.version.MutableLongVersion;
+import sh.isaac.api.component.sememe.version.MutableSememeVersion;
+import sh.isaac.api.component.sememe.version.MutableStringVersion;
+import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -383,12 +384,12 @@ public class WorkflowUpdater {
             // actualStampSeq
             if (Get.identifierService()
                    .getChronologyTypeForNid(compNid) == ObjectChronologyType.CONCEPT) {
-               final ConceptChronology<?> conceptChron = Get.conceptService()
+               final ConceptChronology conceptChron = Get.conceptService()
                                                             .getConcept(compNid);
 
                if (version != null) {
                   // conceptChron = ((ConceptVersion) version).getChronology();
-                  conceptChron.createMutableVersion(((ConceptVersion<?>) version).getState(), editCoordinate);
+                  conceptChron.createMutableVersion(((ConceptVersion) version).getState(), editCoordinate);
                } else {
                   conceptChron.createMutableVersion(State.INACTIVE, editCoordinate);
                }
@@ -399,21 +400,19 @@ public class WorkflowUpdater {
                   .commit("Reverting concept to how it was prior to workflow");
             } else if (Get.identifierService()
                           .getChronologyTypeForNid(compNid) == ObjectChronologyType.SEMEME) {
-               final SememeChronology<?> semChron = Get.sememeService()
+               final SememeChronology semChron = Get.sememeService()
                                                        .getSememe(compNid);
 
                if (version != null) {
-                  SememeVersion createdVersion = ((SememeChronology) semChron).createMutableVersion(version.getClass(),
-                                                                                                    ((SememeVersion<?>) version).getState(),
+                  MutableSememeVersion createdVersion = semChron.createMutableVersion(((SememeVersion) version).getState(),
                                                                                                     editCoordinate);
 
-                  createdVersion = populateData(createdVersion, (SememeVersion<?>) version);
+                  createdVersion = (MutableSememeVersion) populateData(createdVersion, (SememeVersion) version);
                } else {
                   final List<SememeVersion> list        = ((SememeChronology) semChron).getVersionList();
                   final SememeVersion       lastVersion = list.toArray(new SememeVersion[list.size()])[list.size() - 1];
                   SememeVersion createdVersion =
-                     ((SememeChronology) semChron).createMutableVersion(lastVersion.getClass(),
-                                                                        State.INACTIVE,
+                     ((SememeChronology) semChron).createMutableVersion(State.INACTIVE,
                                                                         editCoordinate);
 
                   createdVersion = populateData(createdVersion, lastVersion);
@@ -438,7 +437,7 @@ public class WorkflowUpdater {
     * @return the sememe version
     * @throws Exception the exception
     */
-   private SememeVersion<?> populateData(SememeVersion<?> newVer, SememeVersion<?> originalVersion)
+   private SememeVersion populateData(SememeVersion newVer, SememeVersion originalVersion)
             throws Exception {
       switch (newVer.getChronology()
                     .getSememeType()) {
@@ -446,34 +445,27 @@ public class WorkflowUpdater {
          return newVer;
 
       case COMPONENT_NID:
-         ((MutableComponentNidSememe<?>) newVer).setComponentNid(
-             ((ComponentNidSememe<?>) originalVersion).getComponentNid());
+         ((MutableComponentNidVersion) newVer).setComponentNid(((ComponentNidVersion) originalVersion).getComponentNid());
          return newVer;
 
       case DESCRIPTION:
-         ((MutableDescriptionSememe<?>) newVer).setText(((DescriptionSememe<?>) originalVersion).getText());
-         ((MutableDescriptionSememe<?>) newVer).setDescriptionTypeConceptSequence(
-             ((DescriptionSememe<?>) originalVersion).getDescriptionTypeConceptSequence());
-         ((MutableDescriptionSememe<?>) newVer).setCaseSignificanceConceptSequence(
-             ((DescriptionSememe<?>) originalVersion).getCaseSignificanceConceptSequence());
-         ((MutableDescriptionSememe<?>) newVer).setLanguageConceptSequence(
-             ((DescriptionSememe<?>) originalVersion).getLanguageConceptSequence());
+         ((MutableDescriptionVersion) newVer).setText(((DescriptionVersion) originalVersion).getText());
+         ((MutableDescriptionVersion) newVer).setDescriptionTypeConceptSequence(((DescriptionVersion) originalVersion).getDescriptionTypeConceptSequence());
+         ((MutableDescriptionVersion) newVer).setCaseSignificanceConceptSequence(((DescriptionVersion) originalVersion).getCaseSignificanceConceptSequence());
+         ((MutableDescriptionVersion) newVer).setLanguageConceptSequence(((DescriptionVersion) originalVersion).getLanguageConceptSequence());
          return newVer;
 
       case DYNAMIC:
-         ((MutableDynamicSememe<?>) newVer).setData(((DynamicSememe<?>) originalVersion).getData());
+         ((MutableDynamicVersion) newVer).setData(((DynamicSememe) originalVersion).getData());
          return newVer;
 
       case LONG:
-         ((MutableLongSememe<?>) newVer).setLongValue(((LongSememe<?>) originalVersion).getLongValue());
+         ((MutableLongVersion) newVer).setLongValue(((LongVersion) originalVersion).getLongValue());
          return newVer;
 
       case STRING:
-         ((MutableStringSememe<?>) newVer).setString(((StringSememe<?>) originalVersion).getString());
+         ((MutableStringVersion) newVer).setString(((StringVersion) originalVersion).getString());
          return newVer;
-
-      case RELATIONSHIP_ADAPTOR:
-         throw new Exception("Cannot handle Relationship adaptors at this time");
 
       /*
        * RelationshipVersionAdaptorImpl origRelVer =
@@ -488,7 +480,7 @@ public class WorkflowUpdater {
        * return new RelationshipVersionAdaptorImpl(key, inactiveStampSeq);
        */
       case LOGIC_GRAPH:
-         ((MutableLogicGraphSememe<?>) newVer).setGraphData(((LogicGraphSememe<?>) originalVersion).getGraphData());
+         ((MutableLogicGraphVersion) newVer).setGraphData(((LogicGraphVersion) originalVersion).getGraphData());
          return newVer;
 
       case UNKNOWN:

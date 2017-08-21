@@ -137,7 +137,7 @@ public class PT_Annotations
       addProperty("COMMENT");
 
       // Things that used to be IDs below here
-      addProperty(new Property(this, MetaData.LOINC_NUM_ǁISAACǁ));
+      addProperty(new Property(this, MetaData.LOINC_NUM____ISAAC));
 
       // Abbrev Codes used by axis and class
       addProperty("ABBREVIATION");
