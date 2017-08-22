@@ -60,7 +60,7 @@
       <site>
          <id>isaacs.website</id>
          <name>ISAAC website</name>
-         <url>file:/Library/WebServer/Documents/isaac.web</url>
+         <url>file:/Library/WebServer/Documents/isaac.web/</url>
       </site>
    </distributionManagement>
 
