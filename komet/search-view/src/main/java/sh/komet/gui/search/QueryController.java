@@ -125,6 +125,7 @@ import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.komet.gui.action.ConceptAction;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.search.control.LetPropertySheet;
 import sh.komet.gui.style.StyleClasses;
 
 import static sh.isaac.api.query.QueryBuilder.DEFAULT_MANIFOLD_COORDINATE_KEY;
@@ -193,6 +194,12 @@ public class QueryController
    private RadioButton                                        allSememes;
    private TreeItem<QueryClause>                              root;
    private Manifold                                           manifold;
+
+   @FXML
+   private AnchorPane                                          letAnchorPane;
+   private LetPropertySheet letPropertySheet;
+
+   
 
    //~--- methods -------------------------------------------------------------
 
@@ -615,6 +622,9 @@ public class QueryController
                                    Get.conceptService().getConcept(newSelection.getReferencedComponentNid()));
                         }
                      });
+
+      letPropertySheet = new LetPropertySheet();
+      letAnchorPane.getChildren().add(letPropertySheet.getPropertySheet());
    }
 
    @Override
