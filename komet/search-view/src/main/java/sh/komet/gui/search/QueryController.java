@@ -75,26 +75,11 @@ import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
 
-import javafx.scene.control.Accordion;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TitledPane;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableCell;
-import javafx.scene.control.TreeTableColumn;
-import javafx.scene.control.TreeTableRow;
-import javafx.scene.control.TreeTableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.*;
 
 
 //~--- JDK imports ------------------------------------------------------------
@@ -103,6 +88,7 @@ import javax.validation.constraints.NotNull;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
@@ -192,12 +178,13 @@ public class QueryController
    private RadioButton                                        allDescriptions;
    @FXML
    private RadioButton                                        allSememes;
+   @FXML
+   private AnchorPane                                         letAnchorPane;
    private TreeItem<QueryClause>                              root;
    private Manifold                                           manifold;
 
-   @FXML
-   private AnchorPane                                          letAnchorPane;
-   private LetPropertySheet letPropertySheet;
+   private LetPropertySheet                                   letPropertySheet;
+
 
    
 
@@ -623,8 +610,8 @@ public class QueryController
                         }
                      });
 
-      letPropertySheet = new LetPropertySheet();
-      letAnchorPane.getChildren().add(letPropertySheet.getPropertySheet());
+      letPropertySheet = new LetPropertySheet(this.manifold);
+      this.letAnchorPane.getChildren().add(letPropertySheet.getPropertySheet());
    }
 
    @Override

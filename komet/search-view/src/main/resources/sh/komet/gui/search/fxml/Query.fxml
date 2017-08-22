@@ -24,6 +24,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import org.controlsfx.control.PropertySheet?>
 <AnchorPane id="AnchorPane" fx:id="anchorPane" prefHeight="723.0" prefWidth="604.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.search.QueryController">
    <stylesheets>
       <URL value="@/styles/search.css" />
@@ -54,9 +55,13 @@
                               </VBox>
                            </content>
                       </TitledPane>
-                      <TitledPane fx:id="letPane" animated="false" text="Let">
+                      <TitledPane fx:id="letPane" animated="false" prefHeight="200.0" prefWidth="100.0" text="Let">
                         <content>
-                          <AnchorPane fx:id="letAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                          <AnchorPane fx:id="letAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="100.0"/>
+                                <!-- <children>
+                                     <PropertySheet fx:id="letPropertySheet" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" ></PropertySheet>
+                                 </children>-->
+                          <!--</AnchorPane>-->
                         </content>
                       </TitledPane>
                       <TitledPane fx:id="orderPane" animated="false" text="Order">
