@@ -59,8 +59,7 @@ import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
-import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
 
 //~--- classes ----------------------------------------------------------------
@@ -304,6 +303,11 @@ public class MockConceptService
    @Override
    public ConceptSnapshotService getSnapshot(sh.isaac.api.coordinate.ManifoldCoordinate manifoldCoordinate) {
       throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public ConceptChronology getConcept(ConceptSpecification conceptSpecification) {
+      return getConcept(conceptSpecification.getConceptSequence());
    }
 }
 

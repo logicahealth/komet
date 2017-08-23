@@ -540,6 +540,11 @@ public class ConceptProvider
       return new ConceptSnapshotProvider(manifoldCoordinate);
    }
 
+   @Override
+   public ConceptChronology getConcept(ConceptSpecification conceptSpecification) {
+      return getConcept(conceptSpecification.getConceptSequence());
+   }
+
    //~--- inner classes -------------------------------------------------------
 
    /**

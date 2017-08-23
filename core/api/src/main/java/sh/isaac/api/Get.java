@@ -403,11 +403,15 @@ public class Get
    }
    
    public static ConceptChronology concept(int id) {
-      return conceptService.getConcept(id);
+      return conceptService().getConcept(id);
    }
 
    public static ConceptChronology concept(UUID uuid) {
-      return conceptService.getConcept(uuid);
+      return conceptService().getConcept(uuid);
+   }
+
+   public static ConceptChronology concept(ConceptSpecification spec) {
+      return conceptService().getConcept(spec);
    }
 
    /**
