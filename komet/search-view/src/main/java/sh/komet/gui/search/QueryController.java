@@ -272,7 +272,7 @@ public class QueryController
       assert textColumn != null: "fx:id=\"textColumn\" was not injected: check your FXML file 'Query.fxml'.";
       assert typeColumn != null: "fx:id=\"typeColumn\" was not injected: check your FXML file 'Query.fxml'.";
       assert languageColumn != null: "fx:id=\"languageColumn\" was not injected: check your FXML file 'Query.fxml'.";
-      
+      assert letAnchorPane != null: "fx:id=\"letAnchorPane\" was not injected: check your FXML file 'Query.fxml'.";
       
       textColumn.setCellValueFactory((TableColumn.CellDataFeatures<ObservableDescriptionVersion, String> param) -> param.getValue().textProperty());
       textColumn.setCellFactory((TableColumn<ObservableDescriptionVersion, String> stringText) -> new DescriptionTableCell());
