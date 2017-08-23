@@ -113,6 +113,10 @@ public final class ObservableLanguageCoordinateImpl
     * @param languageCoordinate the language coordinate
     */
    public ObservableLanguageCoordinateImpl(LanguageCoordinate languageCoordinate) {
+      if (languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
+         throw new IllegalStateException("Trying to wrap an observable coordinate in an observable coordinate...");
+                 
+      }
       this.languageCoordinate = languageCoordinate;
       if (languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
          ObservableLanguageCoordinateImpl observableLanguageCoordinate = (ObservableLanguageCoordinateImpl) languageCoordinate;
