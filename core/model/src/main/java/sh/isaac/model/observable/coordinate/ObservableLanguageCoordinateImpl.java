@@ -154,9 +154,18 @@ public final class ObservableLanguageCoordinateImpl
          this.dialectAssemblagePreferenceListProperty = new SimpleObjectProperty<>(this,
                ObservableFields.DIALECT_ASSEMBLAGE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
                FXCollections.observableIntegerArray(getDialectAssemblagePreferenceList()));
-         addListenerReference(
+         
+         if (this.languageCoordinate instanceof LanguageCoordinateImpl) {
+            addListenerReference(
              ((LanguageCoordinateImpl) this.languageCoordinate).setDialectAssemblagePreferenceListProperty(
                  this.dialectAssemblagePreferenceListProperty));
+         } else if (this.languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
+            LanguageCoordinateImpl languageCoordinateImpl = 
+                    (LanguageCoordinateImpl) ((ObservableLanguageCoordinateImpl) this.languageCoordinate).languageCoordinate;
+            languageCoordinateImpl.setDialectAssemblagePreferenceListProperty(
+                 this.dialectAssemblagePreferenceListProperty);
+         }
+         
       }
 
       return this.dialectAssemblagePreferenceListProperty;
@@ -173,10 +182,17 @@ public final class ObservableLanguageCoordinateImpl
          this.languageConceptSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.LANGUAGE_SEQUENCE_FOR_LANGUAGE_COORDINATE.toExternalString(),
                getLanguageConceptSequence());
-         addListenerReference(
-             ((LanguageCoordinateImpl) this.languageCoordinate).setLanguageConceptSequenceProperty(this.languageConceptSequenceProperty));
+         if (this.languageCoordinate instanceof LanguageCoordinateImpl) {
+            addListenerReference(
+             ((LanguageCoordinateImpl) this.languageCoordinate).setLanguageConceptSequenceProperty(
+                 this.languageConceptSequenceProperty));
+         } else if (this.languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
+            LanguageCoordinateImpl languageCoordinateImpl = 
+                    (LanguageCoordinateImpl) ((ObservableLanguageCoordinateImpl) this.languageCoordinate).languageCoordinate;
+            languageCoordinateImpl.setLanguageConceptSequenceProperty(
+                 this.languageConceptSequenceProperty);
+         }
       }
-
       return this.languageConceptSequenceProperty;
    }
 
