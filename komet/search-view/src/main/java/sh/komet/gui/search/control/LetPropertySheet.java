@@ -10,10 +10,6 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.komet.gui.control.PropertySheetItemConceptWrapper;
 import sh.komet.gui.manifold.Manifold;
 
@@ -30,8 +26,8 @@ public class LetPropertySheet {
 
     private PropertySheet propertySheet;
     private ObservableList<PropertySheet.Item> items;
-    private Manifold manifold;
-    private Manifold originalManifoldDeepClone;
+    private Manifold manifoldForDisplay;
+    private Manifold manifoldForModification;
 
     private static final String PATH = "Path";
     private static final String LANGUAGE = "Language";
@@ -41,8 +37,8 @@ public class LetPropertySheet {
     private static final String DIALECT = "Dialect";
 
     public LetPropertySheet(Manifold manifold){
-        this.originalManifoldDeepClone = manifold.deepClone();
-        this.manifold = manifold;
+        this.manifoldForModification = manifold.deepClone();
+        this.manifoldForDisplay = manifold;
         items = FXCollections.observableArrayList();
 
         buildPropertySheetItems();
@@ -83,7 +79,7 @@ public class LetPropertySheet {
 
         Get.taxonomyService().getAllRelationshipOriginSequences(concept.getNid()).forEach(i -> {
             ConceptForControlWrapper propertySheetItemConceptWrapper = 
-                    new ConceptForControlWrapper(this.originalManifoldDeepClone, i);
+                    new ConceptForControlWrapper(this.manifoldForDisplay, i);
             collection.add(propertySheetItemConceptWrapper);
             //System.out.println(Get.concept(i));
         });
@@ -96,26 +92,26 @@ public class LetPropertySheet {
      */
     private void buildPropertySheetItems(){
         /**
-         * Debug for correct oberservable implementation
+         * Debug for correct observable implementation
          */
-        this.manifold.getLanguageCoordinate().languageConceptSequenceProperty().addListener((observable, oldValue, newValue) ->
-                System.out.println("Language Changed to: " + this.originalManifoldDeepClone.getPreferredDescriptionText(newValue.intValue()))
+        this.manifoldForModification.getLanguageCoordinate().languageConceptSequenceProperty().addListener((observable, oldValue, newValue) ->
+                System.out.println("Language Changed to: " + this.manifoldForDisplay.getPreferredDescriptionText(newValue.intValue()))
         );
         ///
 
 
-        this.items.add(new PropertySheetItemConceptWrapper(this.originalManifoldDeepClone,
-                this.manifold.getLanguageCoordinate().languageConceptSequenceProperty().get(),
+        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForModification, this.manifoldForDisplay,
+                this.manifoldForModification.getLanguageCoordinate().languageConceptSequenceProperty().get(),
                 LANGUAGE,
-                this.manifold.getLanguageCoordinate().languageConceptSequenceProperty()
+                this.manifoldForModification.getLanguageCoordinate().languageConceptSequenceProperty()
         ));
 
-        System.out.println(this.manifold);
+        System.out.println(this.manifoldForModification);
 
-        this.items.add(new PropertySheetItemConceptWrapper(this.originalManifoldDeepClone,
-                this.manifold.getLogicCoordinate().classifierSequenceProperty().get(),
+        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForModification, this.manifoldForDisplay,
+                this.manifoldForModification.getLogicCoordinate().classifierSequenceProperty().get(),
                 CLASSIFIER,
-                this.manifold.getLogicCoordinate().classifierSequenceProperty()
+                this.manifoldForModification.getLogicCoordinate().classifierSequenceProperty()
         ));
     }
 
@@ -124,7 +120,7 @@ public class LetPropertySheet {
     }
 
     public Manifold getManifold() {
-        return manifold;
+        return manifoldForModification;
     }
 
     public ObservableList<PropertySheet.Item> getItems() {

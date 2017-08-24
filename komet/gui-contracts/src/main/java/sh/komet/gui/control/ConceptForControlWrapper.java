@@ -34,13 +34,9 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.komet.gui.control;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -50,14 +46,14 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.komet.gui.manifold.Manifold;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  *
  * @author kec
  */
 public class ConceptForControlWrapper
-         implements ConceptSpecification {
-   private final Manifold  manifold;
+        implements ConceptSpecification {
+
+   private final Manifold manifold;
    private final int conceptSequence;
 
    public ConceptForControlWrapper(Manifold manifold, int conceptSequence) {
@@ -65,15 +61,15 @@ public class ConceptForControlWrapper
       this.conceptSequence = conceptSequence;
    }
 
-    @Override
-    public String getFullySpecifiedConceptDescriptionText() {
-        return this.manifold.getFullySpecifiedDescriptionText(this.conceptSequence);
-    }
+   @Override
+   public String getFullySpecifiedConceptDescriptionText() {
+      return this.manifold.getFullySpecifiedDescriptionText(this.conceptSequence);
+   }
 
-    @Override
-    public Optional<String> getPreferedConceptDescriptionText() {
-        return Optional.of(manifold.getPreferredDescriptionText(this.conceptSequence));
-    }
+   @Override
+   public Optional<String> getPreferedConceptDescriptionText() {
+      return Optional.of(manifold.getPreferredDescriptionText(this.conceptSequence));
+   }
 
    @Override
    public List<UUID> getUuidList() {
@@ -82,13 +78,12 @@ public class ConceptForControlWrapper
 
    @Override
    public String toString() {
-      Optional<String> description = getPreferedConceptDescriptionText();
-      if (description.isPresent()) {
-         return description.get();
+      if (this.conceptSequence <= 0) {
+         Optional<String> description = getPreferedConceptDescriptionText();
+         if (description.isPresent()) {
+            return description.get();
+         }
       }
       return "No description for: " + conceptSequence;
    }
-   
-   
 }
-

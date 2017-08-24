@@ -567,7 +567,9 @@ public class SememeProvider
    public SememeSequenceSet getSememeSequencesForComponentFromAssemblages(int componentNid,
          Set<Integer> allowedAssemblageSequences) {
       if (componentNid >= 0) {
-         throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
+         LOG.warn("Component identifiers must be negative. Found: " + componentNid);
+         //throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
+         return SememeSequenceSet.of();
       }
 
       final NavigableSet<ReferencedNidAssemblageSequenceSememeSequenceKey> assemblageSememeKeys =

@@ -13,29 +13,31 @@ import javafx.beans.property.IntegerProperty;
 
 public class PropertySheetItemConceptWrapper implements ConceptSpecification, PropertySheet.Item {
 
-    private final Manifold manifold;
+    private final Manifold manifoldForModification;
+    private final Manifold manifoldForDisplay;
     private final int conceptSequence;
     private final String name;
     private final SimpleObjectProperty<ConceptForControlWrapper> observableWrapper;
     private final IntegerProperty conceptSequenceProperty;
 
-    public PropertySheetItemConceptWrapper(Manifold manifold, int conceptSequence, String name, 
+    public PropertySheetItemConceptWrapper(Manifold manifoldForModification, Manifold manifoldForDisplay, int conceptSequence, String name, 
             IntegerProperty conceptSequenceProperty) {
-        this.manifold = manifold;
+        this.manifoldForModification = manifoldForModification;
+        this.manifoldForDisplay = manifoldForDisplay;
         this.conceptSequence = conceptSequence;
         this.name = name;
-        this.observableWrapper = new SimpleObjectProperty<>(new ConceptForControlWrapper(manifold, conceptSequence));
+        this.observableWrapper = new SimpleObjectProperty<>(new ConceptForControlWrapper(manifoldForDisplay, conceptSequence));
         this.conceptSequenceProperty = conceptSequenceProperty;
     }
 
     @Override
     public String getFullySpecifiedConceptDescriptionText() {
-        return this.manifold.getFullySpecifiedDescriptionText(this.conceptSequence);
+        return this.manifoldForDisplay.getFullySpecifiedDescriptionText(this.conceptSequence);
     }
 
     @Override
     public Optional<String> getPreferedConceptDescriptionText() {
-        return Optional.of(manifold.getPreferredDescriptionText(this.conceptSequence));
+        return Optional.of(manifoldForDisplay.getPreferredDescriptionText(this.conceptSequence));
     }
 
     @Override
