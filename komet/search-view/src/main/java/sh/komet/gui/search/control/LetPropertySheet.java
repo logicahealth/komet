@@ -22,6 +22,7 @@ import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
+import sh.komet.gui.control.PropertySheetItemConceptWrapper;
 import sh.komet.gui.manifold.Manifold;
 
 import java.util.ArrayList;
@@ -75,28 +76,15 @@ public class LetPropertySheet {
 
             return Editors.createTextEditor(param);
         });
-
-//        SimpleObjectProperty<Callback<PropertySheet.Item, PropertyEditor<?>>> propertyEditorFactory = new SimpleObjectProperty<>(this, "propertyEditor", new DefaultPropertyEditorFactory());
-//        this.propertySheet.setPropertyEditorFactory(getItemPropertyEditorCallback(propertyEditorFactory));
     }
 
-//    private Callback<PropertySheet.Item, PropertyEditor<?>> getItemPropertyEditorCallback(SimpleObjectProperty<Callback<PropertySheet.Item, PropertyEditor<?>>> propertyEditorFactory) {
-//        return param -> {
-//            PropertyEditor<?> editor = propertyEditorFactory.get().call(param);
-//
-//            //Add listeners to editor
-//            editor.getEditor().getUserData().addListener((observable, oldValue, newValue) -> System.out.println(newValue));
-//
-//            return editor;
-//        };
-//    }
-
     private PropertyEditor<?> createCustomChoiceEditor(ConceptSpecification conceptSpecification, PropertySheet.Item param){
-        Collection<Integer> collection = new ArrayList<>();
+        Collection<PropertySheetItemConceptWrapper> collection = new ArrayList<>();
         ConceptChronology concept = Get.concept(conceptSpecification.getConceptSequence());
 
         Get.taxonomyService().getAllRelationshipOriginSequences(concept.getNid()).forEach(i -> {
-            collection.add(i);
+            PropertySheetItemConceptWrapper propertySheetItemConceptWrapper = new PropertySheetItemConceptWrapper(this.originalManifoldDeepClone, i, "Test");
+            collection.add(propertySheetItemConceptWrapper);
             //System.out.println(Get.concept(i));
         });
 
@@ -196,10 +184,10 @@ public class LetPropertySheet {
         /**
          * Debug for correct oberservable implementation
          */
-
         observableLanguageCoordinate.languageConceptSequenceProperty().addListener((observable, oldValue, newValue) ->
-                System.out.println("Changed Lang to -> " + this.originalManifoldDeepClone.getPreferredDescriptionText((int)newValue)));
-
+            System.out.println("Language Changed to: " + this.originalManifoldDeepClone.getPreferredDescriptionText(newValue.intValue()))
+        );
+        ///
 
 //        this.items.add(new LetItem(
 //                "Language",
@@ -220,10 +208,10 @@ public class LetPropertySheet {
 //                Get.conceptDescriptionText(observableLanguageCoordinate.getDialectAssemblagePreferenceList()[0]),
 //                observableLanguageCoordinate.getClass(), observableLanguageCoordinate.dialectAssemblagePreferenceListProperty()));
 
-        this.items.add(new LetItem(
-                        "Language",
-                        observableLanguageCoordinate.languageConceptSequenceProperty()
-        ));
+
+        this.items.add(new PropertySheetItemConceptWrapper(this.originalManifoldDeepClone,
+                observableLanguageCoordinate.languageConceptSequenceProperty().get(),
+                  "Language"      ));
 
 
     }
@@ -239,56 +227,4 @@ public class LetPropertySheet {
     public ObservableList<PropertySheet.Item> getItems() {
         return items;
     }
-
-    private class LetItem implements PropertySheet.Item{
-
-        private String name;
-        private IntegerProperty value;
-
-        public LetItem(String name, IntegerProperty value) {
-            this.name = name;
-            this.value = value;
-        }
-
-        @Override
-        public Class<?> getType() {
-            return this.value.getClass();
-        }
-
-        @Override
-        public String getCategory() {
-            return "";
-        }
-
-        @Override
-        public String getName() {
-            return this.name;
-        }
-
-        @Override
-        public String getDescription() {
-            return "";
-        }
-
-        @Override
-        public Object getValue() {
-            return this.value.getValue();
-        }
-
-        @Override
-        public void setValue(Object value) {
-            this.value.set((int)value);
-        }
-
-        @Override
-        public Optional<ObservableValue<? extends Object>> getObservableValue() {
-            return Optional.of((ObservableValue)this.value);
-        }
-
-    }
-
-    private enum Test{
-        one, two, three;
-    }
-
 }
