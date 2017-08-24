@@ -454,5 +454,14 @@ public class StampCoordinateImpl
          return s;
       }
    }
+   
+   @Override
+   public StampCoordinateImpl deepClone() {
+      StampCoordinateImpl newCoordinate = new StampCoordinateImpl(stampPrecedence,
+                              stampPosition.deepClone(),
+                              new ConceptSequenceSet(moduleSequences.stream()),
+                              EnumSet.copyOf(allowedStates));
+      return newCoordinate;
+   }
 }
 

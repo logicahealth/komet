@@ -38,8 +38,10 @@ public class LetPropertySheet {
     private PropertySheet propertySheet;
     private ObservableList<PropertySheet.Item> items;
     private Manifold manifold;
+    private Manifold originalManifoldDeepClone;
 
     public LetPropertySheet(Manifold manifold){
+        this.originalManifoldDeepClone = manifold.deepClone();
         this.manifold = manifold;
         items = FXCollections.observableArrayList();
 
@@ -196,7 +198,7 @@ public class LetPropertySheet {
          */
 
         observableLanguageCoordinate.languageConceptSequenceProperty().addListener((observable, oldValue, newValue) ->
-                System.out.println("Changed Lang to -> " + this.manifold.getPreferredDescriptionText((int)newValue)));
+                System.out.println("Changed Lang to -> " + this.originalManifoldDeepClone.getPreferredDescriptionText((int)newValue)));
 
 
 //        this.items.add(new LetItem(

@@ -300,5 +300,14 @@ public class ObservableManifoldCoordinateImpl
    public UUID getCoordinateUuid() {
       return uuidProperty().get();
    }
+   
+   
+   
+   @Override
+   public ObservableManifoldCoordinateImpl deepClone() {
+      return new ObservableManifoldCoordinateImpl(manifoldCoordinate.deepClone());
+   }
+
+   
 }
 

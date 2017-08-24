@@ -186,5 +186,10 @@ public interface ManifoldCoordinate
       return getLanguageCoordinate().getFullySpecifiedDescriptionText(conceptSpec.getConceptSequence(), getStampCoordinate());
    }
 
+   @Override
+   public ManifoldCoordinate deepClone();
+   
+   
+
 }
 

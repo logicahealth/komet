@@ -242,7 +242,6 @@ limitations under the License.
    -fx-font-weight: bold;
 }
 
-
 .component-panel:description-version * .component-version-what-cell {
    -fx-fill: -komet-description-color;
    -fx-font-size:16;
@@ -250,6 +249,34 @@ limitations under the License.
 }
 
 .component-panel:description-version * .component-text {
+   -fx-font-size:15; 
+   -fx-font-weight: normal;
+   -fx-fill: black;
+}
+
+.component-panel:description-version:inactive  .component-text {
+   -fx-font-size:15; 
+   -fx-font-weight: normal;
+   -fx-fill: -komet-inactive-color;
+}
+
+.component-panel:inactive * .component-version-what-cell {
+   -fx-font-size:15; 
+   -fx-font-weight: normal;
+   -fx-fill: -komet-inactive-color;
+}
+.component-panel:inactive * .component-text {
+   -fx-font-size:15; 
+   -fx-font-weight: normal;
+   -fx-fill: -komet-inactive-color;
+}
+
+.component-panel * .version-panel:inactive * .component-text {
+   -fx-font-size:15; 
+   -fx-font-weight: normal;
+   -fx-fill: -komet-inactive-color;
+}
+.component-panel * .version-panel * .component-text {
    -fx-font-size:15; 
    -fx-font-weight: normal;
    -fx-fill: black;
@@ -391,4 +418,19 @@ limitations under the License.
    -fx-text-fill: black;
    -fx-border-width: 0 0 2 0;
    -fx-border-insets: 0 0 0 0;   
+}
+
+.header-panel:description-version {
+   -fx-border-color: -komet-description-color;
+   -fx-border-width: 0 0 2 0;
+   -fx-border-insets: 0 0 0 0;   
+   
+}
+
+
+.header-panel:description-version * .text {
+   -fx-fill: -komet-description-color;
+   -fx-border-width: 0 0 2 0;
+   -fx-border-insets: 0 0 0 0;   
+   
 }

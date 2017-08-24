@@ -70,6 +70,7 @@ import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -336,6 +337,14 @@ public class LanguageCoordinateImpl
                                          Get.languageCoordinateService()
                                                .getSynonymConceptSequence(),
                                          this);
+   }
+
+   @Override
+   public LanguageCoordinate deepClone() {
+      LanguageCoordinateImpl newCoordinate = new LanguageCoordinateImpl(languageConceptSequence,
+                                 dialectAssemblagePreferenceList.clone(),
+                                 descriptionTypePreferenceList.clone());
+      return newCoordinate;
    }
 }
 

@@ -249,5 +249,12 @@ public class StampPositionImpl
       timeProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
    }
+
+   @Override
+   public StampPosition deepClone() {
+      return new StampPositionImpl(time, stampPathSequence);
+   }
+   
+   
 }
 

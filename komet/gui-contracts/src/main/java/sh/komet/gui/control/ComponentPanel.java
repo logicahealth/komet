@@ -44,13 +44,9 @@ import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
@@ -59,6 +55,8 @@ import sh.isaac.api.observable.ObservableVersion;
 
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
+import static sh.komet.gui.util.FxUtils.makeBackground;
+import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -73,24 +71,6 @@ public final class ComponentPanel
    private final AnchorPane extensionHeaderPanel = setupHeaderPanel("Extensions:");
    private final AnchorPane versionHeaderPanel = setupHeaderPanel("Change history:", "Revert");
 
-   private static AnchorPane setupHeaderPanel(String... strings) {
-      AnchorPane anchorPane = new AnchorPane();
-      anchorPane.getStyleClass().setAll("header-panel");
-      Text leftText = new Text(strings[0]);
-      AnchorPane.setLeftAnchor(leftText, 3.0);
-      AnchorPane.setTopAnchor(leftText, 3.0);
-      AnchorPane.setBottomAnchor(leftText, 3.0);
-      anchorPane.getChildren().add(leftText);
-      if (strings.length > 1) {
-         Text rightText = new Text(strings[1]);
-         AnchorPane.setRightAnchor(rightText, 3.0);
-      AnchorPane.setTopAnchor(rightText, 3.0);
-      AnchorPane.setBottomAnchor(rightText, 3.0);
-         anchorPane.getChildren().add(rightText);
-      }
-
-      return anchorPane;
-   }
    //~--- constructors --------------------------------------------------------
 
    public ComponentPanel(Manifold manifold, CategorizedVersions<ObservableCategorizedVersion> categorizedVersions) {
@@ -194,7 +174,6 @@ public final class ComponentPanel
               .isPresent()) {
          ComponentPanel newPanel = new ComponentPanel(getManifold(), oscCategorizedVersions);
 
-         newPanel.setBackground(new Background(new BackgroundFill(Color.ORANGE, CornerRadii.EMPTY, Insets.EMPTY)));
          extensionPanels.add(newPanel);
       }
    }
@@ -205,7 +184,7 @@ public final class ComponentPanel
               .remove(panel);
       GridPane.setConstraints(
               panel,
-              1,
+              0,
               getRows() + extraGridRows,
               getColumns() - 1,
               1,

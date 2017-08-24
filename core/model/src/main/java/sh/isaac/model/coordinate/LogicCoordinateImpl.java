@@ -55,6 +55,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 
 //~--- classes ----------------------------------------------------------------
@@ -295,5 +296,15 @@ public class LogicCoordinateImpl
       statedAssemblageSequenceProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
    }
+   
+   @Override
+   public LogicCoordinateImpl deepClone() {
+      LogicCoordinateImpl newCoordinate = new LogicCoordinateImpl(statedAssemblageSequence,
+                              inferredAssemblageSequence,
+                              descriptionLogicProfileSequence,
+                              classifierSequence);
+      return newCoordinate;
+   }
+   
 }
 

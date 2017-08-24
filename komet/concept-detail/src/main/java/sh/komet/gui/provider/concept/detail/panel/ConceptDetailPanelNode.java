@@ -34,12 +34,18 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+
+
+
 package sh.komet.gui.provider.concept.detail.panel;
 
 //~--- JDK imports ------------------------------------------------------------
+
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 //~--- non-JDK imports --------------------------------------------------------
+
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -55,29 +61,35 @@ import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 import javafx.util.Duration;
-import sh.isaac.MetaData;
 
+import org.apache.mahout.math.list.IntArrayList;
+import org.apache.mahout.math.map.OpenIntObjectHashMap;
+
+import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.CategorizedVersions;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.control.ComponentPanel;
@@ -86,56 +98,65 @@ import sh.komet.gui.control.ExpandControl;
 import sh.komet.gui.control.OnOffToggleSwitch;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
+import static sh.komet.gui.util.FxUtils.makeBackground;
+
+import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 
 //~--- classes ----------------------------------------------------------------
+
 /**
  *
  * @author kec
  */
 public class ConceptDetailPanelNode
-        implements DetailNode {
-
+         implements DetailNode {
    private static final int TRANSITION_OFF_TIME = 250;
-   private static final int TRANSITION_ON_TIME = 750;
+   private static final int TRANSITION_ON_TIME  = 750;
 
    //~--- fields --------------------------------------------------------------
-   private final BorderPane conceptDetailPane = new BorderPane();
-   private final SimpleStringProperty titleProperty = new SimpleStringProperty("detail graph");
-   private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("detail graph");
-   private final VBox componentPanelBox = new VBox(8);
-   private final GridPane versionBrancheGrid = new GridPane();
-   private final GridPane toolGrid = new GridPane();
-   private final ExpandControl expandControl = new ExpandControl();
-   private final OnOffToggleSwitch historySwitch = new OnOffToggleSwitch();
-   private final Label expandControlLabel = new Label("Expand All", expandControl);
-   private final Manifold conceptDetailManifold;
-   private final ScrollPane scrollPane;
+
+   private final BorderPane                 conceptDetailPane    = new BorderPane();
+   private final SimpleStringProperty       titleProperty        = new SimpleStringProperty("detail graph");
+   private final SimpleStringProperty       toolTipProperty      = new SimpleStringProperty("detail graph");
+   private final VBox                       componentPanelBox    = new VBox(8);
+   private final GridPane                   versionBrancheGrid   = new GridPane();
+   private final GridPane                   toolGrid             = new GridPane();
+   private final ExpandControl              expandControl        = new ExpandControl();
+   private final OnOffToggleSwitch          historySwitch        = new OnOffToggleSwitch();
+   private final Label                      expandControlLabel   = new Label("Expand All", expandControl);
+   private final OpenIntObjectHashMap<Node> stampObjectHashMap   = new OpenIntObjectHashMap<>();
+   private final Button                     addDescriptionButton = new Button("+ Add");
+   private final Manifold                   conceptDetailManifold;
+   private final ScrollPane                 scrollPane;
 
    //~--- initializers --------------------------------------------------------
+
    {
       expandControlLabel.setGraphicTextGap(0);
    }
 
    //~--- constructors --------------------------------------------------------
+
    public ConceptDetailPanelNode(Manifold conceptDetailManifold, Consumer<Node> nodeConsumer) {
       this.conceptDetailManifold = conceptDetailManifold;
       historySwitch.setSelected(false);
       updateManifoldHistoryStates();
       conceptDetailManifold.focusedConceptChronologyProperty()
-              .addListener(this::setConcept);
+                           .addListener(this::setConcept);
       conceptDetailPane.setTop(ConceptLabelToolbar.make(conceptDetailManifold));
       conceptDetailPane.getStyleClass()
-              .add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
+                       .add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
       conceptDetailPane.setCenter(componentPanelBox);
       versionBrancheGrid.add(Iconography.CIRCLE_A.getIconographic(), 0, 0);
       conceptDetailPane.setRight(versionBrancheGrid);
       componentPanelBox.getStyleClass()
-              .add(StyleClasses.COMPONENT_DETAIL_BACKGROUND.toString());
+                       .add(StyleClasses.COMPONENT_DETAIL_BACKGROUND.toString());
       componentPanelBox.setFillWidth(true);
       setupToolGrid();
       historySwitch.selectedProperty()
-              .addListener(this::setShowHistory);
+                   .addListener(this::setShowHistory);
       this.scrollPane = new ScrollPane(conceptDetailPane);
       this.scrollPane.setFitToWidth(true);
       this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -143,27 +164,17 @@ public class ConceptDetailPanelNode
       nodeConsumer.accept(this.scrollPane);
    }
 
-   private void updateManifoldHistoryStates() {
-      if (historySwitch.isSelected()) {
-         this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().clear();
-         this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().addAll(State.makeActiveAndInactiveSet());
-      } else {
-         this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().clear();
-         this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().addAll(State.makeActiveOnlySet());
-      }
-   }
-
    //~--- methods -------------------------------------------------------------
-   private void addChronology(ObservableChronology observableChronology, ParallelTransition parallelTransition) {
 
-      CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
-              = observableChronology.getCategorizedVersions(
-                      this.conceptDetailManifold);
+   private void addChronology(ObservableChronology observableChronology, ParallelTransition parallelTransition) {
+      CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions =
+         observableChronology.getCategorizedVersions(
+             this.conceptDetailManifold);
 
       if (oscCategorizedVersions.getLatestVersion()
-              .isPresent()) {
+                                .isPresent()) {
          parallelTransition.getChildren()
-                 .add(addComponent(oscCategorizedVersions));
+                           .add(addComponent(oscCategorizedVersions));
       }
    }
 
@@ -173,7 +184,7 @@ public class ConceptDetailPanelNode
       panel.setOpacity(0);
       VBox.setMargin(panel, new Insets(1, 5, 1, 5));
       componentPanelBox.getChildren()
-              .add(panel);
+                       .add(panel);
 
       FadeTransition ft = new FadeTransition(Duration.millis(TRANSITION_ON_TIME), panel);
 
@@ -182,67 +193,105 @@ public class ConceptDetailPanelNode
       return ft;
    }
 
+   private Animation addNode(AnchorPane descriptionHeader) {
+      descriptionHeader.setOpacity(0);
+      VBox.setMargin(descriptionHeader, new Insets(1, 5, 1, 5));
+      componentPanelBox.getChildren()
+                       .add(descriptionHeader);
+
+      FadeTransition ft = new FadeTransition(Duration.millis(TRANSITION_ON_TIME), descriptionHeader);
+
+      ft.setFromValue(0);
+      ft.setToValue(1);
+      return ft;
+   }
+
    private void clearAnimationComplete(ActionEvent completeEvent) {
       componentPanelBox.getChildren()
-              .clear();
+                       .clear();
       componentPanelBox.getChildren()
-              .add(toolGrid);
+                       .add(toolGrid);
 
       ConceptChronology newValue = this.conceptDetailManifold.getFocusedConceptChronology();
 
       if (newValue != null) {
          titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(newValue));
          toolTipProperty.set(
-                 "concept details for: " + this.conceptDetailManifold.getFullySpecifiedDescriptionText(newValue));
+             "concept details for: " + this.conceptDetailManifold.getFullySpecifiedDescriptionText(newValue));
 
          ObservableConceptChronology observableConceptChronology = Get.observableChronologyService()
-                 .getObservableConceptChronology(
-                         newValue.getConceptSequence());
+                                                                      .getObservableConceptChronology(
+                                                                            newValue.getConceptSequence());
          final ParallelTransition parallelTransition = new ParallelTransition();
 
          addChronology(observableConceptChronology, parallelTransition);
 
-         // Sort them...
-         observableConceptChronology.getObservableSememeList().filtered((t) -> {
-            switch (t.getSememeType()) {
-               case DESCRIPTION:
-               case LOGIC_GRAPH:
-                  return true;
-               default:
-                  return false;
-            }
-         }).sorted((o1, o2) -> {
-            switch (o1.getSememeType()) {
-               case DESCRIPTION:
-                  if (o2.getSememeType() == SememeType.DESCRIPTION) {
-                     DescriptionVersion dv1 = (DescriptionVersion) o1.getVersionList().get(0);
-                     DescriptionVersion dv2 = (DescriptionVersion) o2.getVersionList().get(0);
-                     if (dv1.getDescriptionTypeConceptSequence() == dv2.getDescriptionTypeConceptSequence()) {
-                        return 0;
-                     }
-                     if (dv1.getDescriptionTypeConceptSequence() == MetaData.FULLY_SPECIFIED_NAME____ISAAC.getConceptSequence()) {
-                        return -1;
-                     }
-                     return 1;
-                  }
-                  return -1;
-               case LOGIC_GRAPH:
-                  if (o2.getSememeType() == SememeType.LOGIC_GRAPH) {
-                     if (o1.getAssemblageSequence() == o2.getAssemblageSequence()) {
-                        return 0;
-                     }
-                     if (o1.getAssemblageSequence() == conceptDetailManifold.getInferredAssemblageSequence()) {
-                        return -1;
-                     }
-                     return 1;
-                  }
-                  return 1;
-            }
-            return 0; // others already filtered out...
-         }).forEach((osc) -> {
-             addChronology(osc, parallelTransition);
-         });
+         AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton);
+         descriptionHeader.pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
 
+         parallelTransition.getChildren().add(addNode(descriptionHeader));
+
+         // Sort them...
+         observableConceptChronology.getObservableSememeList()
+                                    .filtered(
+                                        (t) -> {
+                                           switch (t.getSememeType()) {
+                                           case DESCRIPTION:
+                                           case LOGIC_GRAPH:
+                                              return true;
+
+                                           default:
+                                              return false;
+                                           }
+                                        })
+                                    .sorted(
+                                        (o1, o2) -> {
+                                           switch (o1.getSememeType()) {
+                                           case DESCRIPTION:
+                                              if (o2.getSememeType() == SememeType.DESCRIPTION) {
+                                                 DescriptionVersion dv1 = (DescriptionVersion) o1.getVersionList()
+                                                                                                 .get(0);
+                                                 DescriptionVersion dv2 = (DescriptionVersion) o2.getVersionList()
+                                                                                                 .get(0);
+
+                                                 if (dv1.getDescriptionTypeConceptSequence() ==
+                                                     dv2.getDescriptionTypeConceptSequence()) {
+                                                    return 0;
+                                                 }
+
+                                                 if (dv1.getDescriptionTypeConceptSequence() ==
+                                                     MetaData.FULLY_SPECIFIED_NAME____ISAAC.getConceptSequence()) {
+                                                    return -1;
+                                                 }
+
+                                                 return 1;
+                                              }
+
+                                              return -1;
+
+                                           case LOGIC_GRAPH:
+                                              if (o2.getSememeType() == SememeType.LOGIC_GRAPH) {
+                                                 if (o1.getAssemblageSequence() == o2.getAssemblageSequence()) {
+                                                    return 0;
+                                                 }
+
+                                                 if (o1.getAssemblageSequence() ==
+                                                     conceptDetailManifold.getInferredAssemblageSequence()) {
+                                                    return -1;
+                                                 }
+
+                                                 return 1;
+                                              }
+
+                                              return 1;
+                                           }
+
+                                           return 0;  // others already filtered out...
+                                        })
+                                    .forEach(
+                                        (osc) -> {
+                                           addChronology(osc, parallelTransition);
+                                        });
          parallelTransition.play();
       }
    }
@@ -251,89 +300,135 @@ public class ConceptDetailPanelNode
       final ParallelTransition parallelTransition = new ParallelTransition();
 
       componentPanelBox.getChildren()
-              .forEach(
-                      (child) -> {
-                         if (toolGrid != child) {
-                            FadeTransition ft = new FadeTransition(Duration.millis(TRANSITION_OFF_TIME), child);
+                       .forEach(
+                           (child) -> {
+                              if (toolGrid != child) {
+                                 FadeTransition ft = new FadeTransition(Duration.millis(TRANSITION_OFF_TIME), child);
 
-                            ft.setFromValue(1.0);
-                            ft.setToValue(0.0);
-                            parallelTransition.getChildren()
-                                    .add(ft);
-                         }
-                      });
+                                 ft.setFromValue(1.0);
+                                 ft.setToValue(0.0);
+                                 parallelTransition.getChildren()
+                                       .add(ft);
+                              }
+                           });
       parallelTransition.setOnFinished(this::clearAnimationComplete);
       parallelTransition.play();
    }
 
    private void setupToolGrid() {
       GridPane.setConstraints(
-              expandControlLabel,
-              0,
-              0,
-              1,
-              1,
-              HPos.LEFT,
-              VPos.CENTER,
-              Priority.NEVER,
-              Priority.NEVER,
-              new Insets(2));
+          expandControlLabel,
+          0,
+          0,
+          1,
+          1,
+          HPos.LEFT,
+          VPos.CENTER,
+          Priority.NEVER,
+          Priority.NEVER,
+          new Insets(2));
       this.toolGrid.getChildren()
-              .add(expandControlLabel);
+                   .add(expandControlLabel);
 
       Pane spacer = new Pane();
 
       GridPane.setConstraints(
-              spacer,
-              1,
-              0,
-              1,
-              1,
-              HPos.CENTER,
-              VPos.CENTER,
-              Priority.ALWAYS,
-              Priority.NEVER,
-              new Insets(2));
+          spacer,
+          1,
+          0,
+          1,
+          1,
+          HPos.CENTER,
+          VPos.CENTER,
+          Priority.ALWAYS,
+          Priority.NEVER,
+          new Insets(2));
       this.toolGrid.getChildren()
-              .add(spacer);
+                   .add(spacer);
 
       Label historySwitchWithLabel = new Label("History", historySwitch);
 
       historySwitchWithLabel.setContentDisplay(ContentDisplay.RIGHT);
       GridPane.setConstraints(
-              historySwitchWithLabel,
-              2,
-              0,
-              1,
-              1,
-              HPos.RIGHT,
-              VPos.CENTER,
-              Priority.NEVER,
-              Priority.NEVER,
-              new Insets(2));
+          historySwitchWithLabel,
+          2,
+          0,
+          1,
+          1,
+          HPos.RIGHT,
+          VPos.CENTER,
+          Priority.NEVER,
+          Priority.NEVER,
+          new Insets(2));
       this.toolGrid.getChildren()
-              .add(historySwitchWithLabel);
+                   .add(historySwitchWithLabel);
       componentPanelBox.getChildren()
-              .add(toolGrid);
+                       .add(toolGrid);
+   }
+
+   private void updateManifoldHistoryStates() {
+      if (historySwitch.isSelected()) {
+         this.conceptDetailManifold.getStampCoordinate()
+                                   .allowedStatesProperty()
+                                   .clear();
+         this.conceptDetailManifold.getStampCoordinate()
+                                   .allowedStatesProperty()
+                                   .addAll(State.makeActiveAndInactiveSet());
+      } else {
+         this.conceptDetailManifold.getStampCoordinate()
+                                   .allowedStatesProperty()
+                                   .clear();
+         this.conceptDetailManifold.getStampCoordinate()
+                                   .allowedStatesProperty()
+                                   .addAll(State.makeActiveOnlySet());
+      }
+   }
+
+   private void updateStampControls(Chronology chronology) {
+      chronology.getVersionStampSequences()
+                .forEach(
+                    (stampSequence) -> {
+                       stampObjectHashMap.put(stampSequence, null);
+                    });
+      chronology.getSememeList()
+                .forEach(
+                    (extension) -> {
+                       updateStampControls(extension);
+                    });
    }
 
    //~--- set methods ---------------------------------------------------------
+
    private void setConcept(ObservableValue<? extends ConceptChronology> observable,
-           ConceptChronology oldValue,
-           ConceptChronology newValue) {
+                           ConceptChronology oldValue,
+                           ConceptChronology newValue) {
+      stampObjectHashMap.clear();
+      updateStampControls(newValue);
+
+      IntArrayList       stampSequences       = stampObjectHashMap.keys();
+      ArrayList<Integer> sortedStampSequences = new ArrayList<>(stampSequences.toList());
+      StampService       stampService         = Get.stampService();
+
+      sortedStampSequences.sort(
+          (o1, o2) -> {
+             return stampService.getInstantForStamp(o1)
+                                .compareTo(stampService.getInstantForStamp(o2));
+          });
+      System.out.println("Unique stamps: " + sortedStampSequences.size() + " " + sortedStampSequences);
       updateManifoldHistoryStates();
       clearComponents();
    }
 
    private void setShowHistory(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
       setConcept(
-              conceptDetailManifold.focusedConceptChronologyProperty(),
-              null,
-              conceptDetailManifold.focusedConceptChronologyProperty()
-                      .get());
+          conceptDetailManifold.focusedConceptChronologyProperty(),
+          null,
+          conceptDetailManifold.focusedConceptChronologyProperty()
+                               .get());
    }
 
    //~--- get methods ---------------------------------------------------------
+
    @Override
    public ReadOnlyProperty<String> getTitle() {
       return this.titleProperty;
@@ -344,3 +439,4 @@ public class ConceptDetailPanelNode
       return this.toolTipProperty;
    }
 }
+

@@ -374,6 +374,11 @@ public class ConceptSnapshotImpl
    public LogicCoordinate getLogicCoordinate() {
       return this.manifoldCoordinate;
    }
+
+   @Override
+   public ConceptSnapshotImpl deepClone() {
+      throw new UnsupportedOperationException();
+   }
    
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the 
+ * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
          US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,22 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.style;
+package sh.isaac.api.coordinate;
 
 /**
  *
  * @author kec
  */
-public enum StyleClasses {
-   AND_CLAUSE, OR_CLAUSE, AND_CLAUSE_CHILD, OR_CLAUSE_CHILD,
-   COMPONENT_BADGE, COMPONENT_PANEL, CONCEPT_DETAIL_PANE,
-   COMPONENT_DETAIL_BACKGROUND, COMPONENT_VERSION_WHAT_CELL,
-   COMPONENT_TEXT, VERSION_PANEL, HEADER_PANEL, TEXT
-   
-   ;
-   
-   @Override   
-   public String toString() {
-      return name().toLowerCase().replace('_', '-');
-   }
+public interface Coordinate {
+   Coordinate deepClone();
 }

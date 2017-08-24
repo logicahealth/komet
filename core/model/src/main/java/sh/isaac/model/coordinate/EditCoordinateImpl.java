@@ -269,5 +269,11 @@ public class EditCoordinateImpl
       pathSequenceProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
    }
+
+   @Override
+   public EditCoordinate deepClone() {
+      EditCoordinateImpl newCoordinate = new EditCoordinateImpl(authorSequence, moduleSequence, pathSequence);
+      return newCoordinate;
+   }
 }
 

@@ -58,7 +58,7 @@ import sh.isaac.api.component.sememe.version.DescriptionVersion;
  *
  * Created by kec on 2/16/15.
  */
-public interface LanguageCoordinate {
+public interface LanguageCoordinate extends Coordinate {
    /**
     * Return the latestDescription according to the type and dialect preferences
  of this {@code LanguageCoordinate}.
@@ -197,5 +197,10 @@ public interface LanguageCoordinate {
          return "No description for: " + conceptId;
       }
    }
+   
+   
+   @Override
+   public LanguageCoordinate deepClone();
+   
 }
 

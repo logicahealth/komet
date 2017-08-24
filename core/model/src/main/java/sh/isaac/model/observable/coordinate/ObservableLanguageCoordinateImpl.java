@@ -70,6 +70,7 @@ import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.model.coordinate.LanguageCoordinateImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -297,5 +298,11 @@ public final class ObservableLanguageCoordinateImpl
            StampCoordinate stampCoordinate) {
       return this.languageCoordinate.getPreferredDescription(descriptionList, stampCoordinate);
    }
+
+   @Override
+   public ObservableLanguageCoordinateImpl deepClone() {
+      return new ObservableLanguageCoordinateImpl(languageCoordinate.deepClone());
+   }
+   
 }
 

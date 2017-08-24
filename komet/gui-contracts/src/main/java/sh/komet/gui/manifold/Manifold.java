@@ -116,7 +116,7 @@ public class Manifold
    final SimpleStringProperty                    groupNameProperty;
    final SimpleObjectProperty<UUID>              manifoldUuidProperty;
    final ObservableManifoldCoordinate            observableManifoldCoordinate;
-   final ObservableEditCoordinate                editCoordinate;
+   final ObservableEditCoordinate                observableEditCoordinate;
    final SimpleObjectProperty<ConceptChronology> focusedConceptChronologyProperty;
 
    //~--- constructors --------------------------------------------------------
@@ -136,7 +136,7 @@ public class Manifold
       this.groupNameProperty                = new SimpleStringProperty(group);
       this.manifoldUuidProperty             = new SimpleObjectProperty<>(manifoldUuid);
       this.observableManifoldCoordinate     = observableManifoldCoordinate;
-      this.editCoordinate                   = editCoordinate;
+      this.observableEditCoordinate                   = editCoordinate;
       this.focusedConceptChronologyProperty = new SimpleObjectProperty<>(focusedObject);
       this.focusedConceptChronologyProperty.addListener(new WeakChangeListener<>(this));
 
@@ -252,7 +252,7 @@ public class Manifold
    }
 
    public ObservableEditCoordinate getEditCoordinate() {
-      return editCoordinate;
+      return observableEditCoordinate;
    }
 
    public ConceptChronology getFocusedConceptChronology() {
@@ -346,7 +346,18 @@ public class Manifold
 
    @Override
    public String toString() {
-      return "Manifold{" + "groupNameProperty=" + groupNameProperty + ", manifoldUuidProperty=" + manifoldUuidProperty + ", observableManifoldCoordinate=" + observableManifoldCoordinate + ", editCoordinate=" + editCoordinate + ", focusedConceptChronologyProperty=" + focusedConceptChronologyProperty + '}';
+      return "Manifold{" + "groupNameProperty=" + groupNameProperty + ", manifoldUuidProperty=" + manifoldUuidProperty + ", observableManifoldCoordinate=" + observableManifoldCoordinate + ", editCoordinate=" + observableEditCoordinate + ", focusedConceptChronologyProperty=" + focusedConceptChronologyProperty + '}';
    }
+   
+   @Override
+   public Manifold deepClone() {
+      return new Manifold(groupNameProperty.get(),
+                    UUID.randomUUID(),
+                    observableManifoldCoordinate.deepClone(),
+                    observableEditCoordinate.deepClone(),
+                    focusedConceptChronologyProperty.get());
+   }
+   
+   
 }
 

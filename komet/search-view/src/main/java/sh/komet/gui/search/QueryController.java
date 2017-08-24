@@ -610,7 +610,7 @@ public class QueryController
                         }
                      });
 
-      letPropertySheet = new LetPropertySheet(this.manifold);
+      letPropertySheet = new LetPropertySheet(this.manifold.deepClone());
       this.letAnchorPane.getChildren().add(letPropertySheet.getPropertySheet());
    }
 

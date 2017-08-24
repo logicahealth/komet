@@ -108,7 +108,7 @@ public class ConceptSequenceSet
     *
     * @param memberStream the member stream
     */
-   protected ConceptSequenceSet(IntStream memberStream) {
+   public ConceptSequenceSet(IntStream memberStream) {
       super(memberStream);
    }
 

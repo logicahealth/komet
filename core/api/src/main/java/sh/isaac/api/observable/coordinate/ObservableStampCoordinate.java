@@ -86,5 +86,11 @@ public interface ObservableStampCoordinate
     * @return the object property
     */
    ObjectProperty<StampPrecedence> stampPrecedenceProperty();
+   
+   @Override
+   public ObservableStampCoordinate deepClone();
+   
+
+
 }
 

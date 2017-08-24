@@ -188,5 +188,12 @@ public class ObservableEditCoordinateImpl
 
       return this.editCoordinate.getPathSequence();
    }
+
+   @Override
+   public ObservableEditCoordinate deepClone() {
+      return new ObservableEditCoordinateImpl(editCoordinate.deepClone());
+   }
+   
+   
 }
 

@@ -19,7 +19,6 @@ package sh.komet.gui.control;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
-import javafx.scene.control.CheckBox;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
@@ -32,7 +31,6 @@ import sh.komet.gui.style.StyleClasses;
  */
 public final class VersionPanel  extends BadgedVersionPanel {
    
-   CheckBox revertCheckBox = new CheckBox();
    public VersionPanel(Manifold manifold, ObservableCategorizedVersion categorizedVersion) {
       super(manifold, categorizedVersion);
       revertCheckBox.setSelected(false);

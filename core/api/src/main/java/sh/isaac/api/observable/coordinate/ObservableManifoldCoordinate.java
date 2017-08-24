@@ -116,5 +116,10 @@ public interface ObservableManifoldCoordinate
    public ObservableLogicCoordinate getLogicCoordinate();
    
    
+   @Override
+   public ObservableManifoldCoordinate deepClone();
+   
+
+   
 }
 

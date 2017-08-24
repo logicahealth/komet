@@ -44,7 +44,7 @@ package sh.isaac.api.coordinate;
  *
  * Created by kec on 2/16/15.
  */
-public interface LogicCoordinate {
+public interface LogicCoordinate extends Coordinate {
    /**
     * Gets the classifier sequence.
     *
@@ -74,5 +74,12 @@ public interface LogicCoordinate {
     * of concept definition graphs are stored.
     */
    int getStatedAssemblageSequence();
+   
+
+   @Override
+   public LogicCoordinate deepClone();
+   
+   
+   
 }
 

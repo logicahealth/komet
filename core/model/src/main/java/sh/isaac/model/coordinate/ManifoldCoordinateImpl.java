@@ -41,6 +41,7 @@ package sh.isaac.model.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.EnumSet;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -54,6 +55,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
@@ -313,6 +315,15 @@ public class ManifoldCoordinateImpl
       public Object unmarshal(Object v) {
          return v;
       }
+   }
+   
+   @Override
+   public ManifoldCoordinateImpl deepClone() {
+      ManifoldCoordinateImpl newCoordinate = new ManifoldCoordinateImpl(taxonomyType,
+                                 stampCoordinate.deepClone(),
+                                 languageCoordinate.deepClone(),
+                                 logicCoordinate.deepClone());
+      return newCoordinate;
    }
 }
 
