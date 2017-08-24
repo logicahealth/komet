@@ -1,17 +1,9 @@
 package sh.komet.gui.search.control;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Callback;
 import org.controlsfx.control.PropertySheet;
-import org.controlsfx.property.editor.DefaultPropertyEditorFactory;
 import org.controlsfx.property.editor.Editors;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.MetaData;
@@ -27,7 +19,7 @@ import sh.komet.gui.manifold.Manifold;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
+import sh.komet.gui.control.ConceptForControlWrapper;
 
 /**
  *
@@ -79,11 +71,12 @@ public class LetPropertySheet {
     }
 
     private PropertyEditor<?> createCustomChoiceEditor(ConceptSpecification conceptSpecification, PropertySheet.Item param){
-        Collection<PropertySheetItemConceptWrapper> collection = new ArrayList<>();
+        Collection<ConceptForControlWrapper> collection = new ArrayList<>();
         ConceptChronology concept = Get.concept(conceptSpecification.getConceptSequence());
 
         Get.taxonomyService().getAllRelationshipOriginSequences(concept.getNid()).forEach(i -> {
-            PropertySheetItemConceptWrapper propertySheetItemConceptWrapper = new PropertySheetItemConceptWrapper(this.originalManifoldDeepClone, i, "Test");
+            ConceptForControlWrapper propertySheetItemConceptWrapper = 
+                    new ConceptForControlWrapper(this.originalManifoldDeepClone, i);
             collection.add(propertySheetItemConceptWrapper);
             //System.out.println(Get.concept(i));
         });
@@ -95,9 +88,9 @@ public class LetPropertySheet {
      * Add to the items Observable list of PropertySheet Items
      */
     private void buildPropertySheetItems(){
-        parseStampCoordinate(this.manifold.getStampCoordinate());
-        parseLogicCoordinate(this.manifold.getLogicCoordinate());
-        parseEditCoordinate(this.manifold.getEditCoordinate());
+        //parseStampCoordinate(this.manifold.getStampCoordinate());
+        //parseLogicCoordinate(this.manifold.getLogicCoordinate());
+        //parseEditCoordinate(this.manifold.getEditCoordinate());
         parseLanguageCoordinate(this.manifold.getLanguageCoordinate());
     }
 
@@ -211,7 +204,9 @@ public class LetPropertySheet {
 
         this.items.add(new PropertySheetItemConceptWrapper(this.originalManifoldDeepClone,
                 observableLanguageCoordinate.languageConceptSequenceProperty().get(),
-                  "Language"      ));
+                  "Language",
+                observableLanguageCoordinate.languageConceptSequenceProperty()
+        ));
 
 
     }

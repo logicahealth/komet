@@ -9,19 +9,23 @@ import sh.komet.gui.manifold.Manifold;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import javafx.beans.property.IntegerProperty;
 
 public class PropertySheetItemConceptWrapper implements ConceptSpecification, PropertySheet.Item {
 
-    private Manifold manifold;
+    private final Manifold manifold;
     private final int conceptSequence;
     private final String name;
-    private final SimpleObjectProperty<PropertySheetItemConceptWrapper> observableWrapper;
+    private final SimpleObjectProperty<ConceptForControlWrapper> observableWrapper;
+    private final IntegerProperty conceptSequenceProperty;
 
-    public PropertySheetItemConceptWrapper(Manifold manifold, int conceptSequence, String name) {
+    public PropertySheetItemConceptWrapper(Manifold manifold, int conceptSequence, String name, 
+            IntegerProperty conceptSequenceProperty) {
         this.manifold = manifold;
         this.conceptSequence = conceptSequence;
         this.name = name;
-        this.observableWrapper = new SimpleObjectProperty<>(this);
+        this.observableWrapper = new SimpleObjectProperty<>(new ConceptForControlWrapper(manifold, conceptSequence));
+        this.conceptSequenceProperty = conceptSequenceProperty;
     }
 
     @Override
@@ -56,26 +60,27 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
 
     @Override
     public String getDescription() {
-        return null;
+        return "Tooltip for the property sheet item we are editing. ";
     }
 
     @Override
-    public Object getValue() {
+    public ConceptForControlWrapper getValue() {
         return this.observableWrapper.get();
     }
 
     @Override
     public void setValue(Object value) {
-        this.observableWrapper.setValue((PropertySheetItemConceptWrapper) value);
+        this.observableWrapper.setValue((ConceptForControlWrapper) value);
+        this.conceptSequenceProperty.setValue(((ConceptForControlWrapper) value).getConceptSequence());
     }
 
     @Override
     public Optional<ObservableValue<? extends Object>> getObservableValue() {
-        return Optional.of(this.observableWrapper);
+        return Optional.of(this.conceptSequenceProperty);
     }
 
     @Override
     public String toString() {
-        return getPreferedConceptDescriptionText().get();
+        return "Property sheet item we are editing...";
     }
 }
