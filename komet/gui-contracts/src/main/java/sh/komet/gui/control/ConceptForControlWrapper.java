@@ -34,31 +34,62 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+
+
+
 package sh.komet.gui.control;
 
-//~--- non-JDK imports --------------------------------------------------------
+//~--- JDK imports ------------------------------------------------------------
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+//~--- non-JDK imports --------------------------------------------------------
+
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
 import sh.komet.gui.manifold.Manifold;
 
 //~--- classes ----------------------------------------------------------------
+
 /**
  *
  * @author kec
  */
 public class ConceptForControlWrapper
-        implements ConceptSpecification {
-
+         implements ConceptSpecification {
    private final Manifold manifold;
-   private final int conceptSequence;
+   private final int      conceptSequence;
+
+   //~--- constructors --------------------------------------------------------
 
    public ConceptForControlWrapper(Manifold manifold, int conceptSequence) {
-      this.manifold = manifold;
+      this.manifold        = manifold;
       this.conceptSequence = conceptSequence;
+   }
+
+   //~--- methods -------------------------------------------------------------
+
+   @Override
+   public String toString() {
+      if (this.conceptSequence <= 0) {
+         Optional<String> description = getPreferedConceptDescriptionText();
+
+         if (description.isPresent()) {
+            return description.get();
+         }
+      }
+
+      return "No description for: " + conceptSequence;
+   }
+
+   //~--- get methods ---------------------------------------------------------
+
+   @Override
+   public int getConceptSequence() {
+      return conceptSequence;
    }
 
    @Override
@@ -73,17 +104,8 @@ public class ConceptForControlWrapper
 
    @Override
    public List<UUID> getUuidList() {
-      return Get.concept(conceptSequence).getUuidList();
-   }
-
-   @Override
-   public String toString() {
-      if (this.conceptSequence <= 0) {
-         Optional<String> description = getPreferedConceptDescriptionText();
-         if (description.isPresent()) {
-            return description.get();
-         }
-      }
-      return "No description for: " + conceptSequence;
+      return Get.concept(conceptSequence)
+                .getUuidList();
    }
 }
+
