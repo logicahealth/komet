@@ -33,6 +33,13 @@ public class LetPropertySheet {
     private Manifold manifold;
     private Manifold originalManifoldDeepClone;
 
+    private static final String PATH = "Path";
+    private static final String LANGUAGE = "Language";
+    private static final String CLASSIFIER = "Classifier";
+    private static final String DESCRIPTION_LOGIC = "Description Logic";
+    private static final String DESCRIPTION_TYPE = "Description Type";
+    private static final String DIALECT = "Dialect";
+
     public LetPropertySheet(Manifold manifold){
         this.originalManifoldDeepClone = manifold.deepClone();
         this.manifold = manifold;
@@ -52,17 +59,17 @@ public class LetPropertySheet {
 
         this.propertySheet.setPropertyEditorFactory(param -> {
             switch (param.getName()){
-                case "Path":
+                case PATH:
                     return createCustomChoiceEditor(MetaData.PATH____ISAAC, param);
-                case "Language":
+                case LANGUAGE:
                     return createCustomChoiceEditor(MetaData.LANGUAGE____ISAAC, param);
-                case "Classifier":
+                case CLASSIFIER:
                     return createCustomChoiceEditor(MetaData.DESCRIPTION_LOGIC_CLASSIFIER____ISAAC, param);
-                case "Description Logic":
+                case DESCRIPTION_LOGIC:
                     return createCustomChoiceEditor(MetaData.DESCRIPTION_LOGIC_PROFILE____ISAAC, param);
-                case "Description Type":
+                case DESCRIPTION_TYPE:
                     return createCustomChoiceEditor(MetaData.DESCRIPTION_TYPE____ISAAC, param);
-                case "Dialect":
+                case DIALECT:
                     return createCustomChoiceEditor(MetaData.DIALECT_ASSEMBLAGE____ISAAC, param);
             }
 
@@ -88,127 +95,28 @@ public class LetPropertySheet {
      * Add to the items Observable list of PropertySheet Items
      */
     private void buildPropertySheetItems(){
-        //parseStampCoordinate(this.manifold.getStampCoordinate());
-        //parseLogicCoordinate(this.manifold.getLogicCoordinate());
-        //parseEditCoordinate(this.manifold.getEditCoordinate());
-        parseLanguageCoordinate(this.manifold.getLanguageCoordinate());
-    }
-
-    /**
-     *
-     * @param observableStampCoordinate
-     */
-    private void parseStampCoordinate(ObservableStampCoordinate observableStampCoordinate){
-
-    }
-
-    /**
-     *
-     * @param observableLogicCoordinate
-     */
-    private void parseLogicCoordinate(ObservableLogicCoordinate observableLogicCoordinate){
-//        this.items.add(new LetItem(
-//                "Inferred",
-//                "",
-//                "Logic Coordinate",
-//                Get.conceptDescriptionText(observableLogicCoordinate.getInferredAssemblageSequence()),
-//                observableLogicCoordinate.getClass()));
-//        this.items.add(new LetItem(
-//                "Stated",
-//                "",
-//                "Logic Coordinate",
-//                Get.conceptDescriptionText(observableLogicCoordinate.getStatedAssemblageSequence()),
-//                observableLogicCoordinate.getClass()));
-
-//        LetItem classifierItem = new LetItem(
-//                "Classifier",
-//                "",
-//                "Logic Coordinate",
-//                Get.conceptDescriptionText(observableLogicCoordinate.getClassifierSequence()),
-//                observableLogicCoordinate.getClass(), observableLogicCoordinate.classifierSequenceProperty());
-//
-//        this.items.add(classifierItem);
-//
-//        classifierItem.getObservableValue().get().addListener(new ChangeListener<Object>() {
-//            @Override
-//            public void changed(ObservableValue<?> observable, Object oldValue, Object newValue) {
-//                System.out.println("New:" + newValue.toString());
-//            }
-//        });
-//
-//        this.items.add(new LetItem(
-//                "Description Logic",
-//                "",
-//                "Logic Coordinate",
-//                Get.conceptDescriptionText(observableLogicCoordinate.getDescriptionLogicProfileSequence()),
-//                observableLogicCoordinate.getClass(), observableLogicCoordinate.descriptionLogicProfileSequenceProperty()));
-    }
-
-    /**
-     *
-     * @param observableEditCoordinate
-     */
-    private void parseEditCoordinate(ObservableEditCoordinate observableEditCoordinate){
-//        this.items.add(new LetItem(
-//                "Module",
-//                "",
-//                "Edit Coordinate",
-//                Get.conceptDescriptionText(observableEditCoordinate.getModuleSequence()),
-//                observableEditCoordinate.getClass()));
-//        this.items.add(new LetItem(
-//                "Path",
-//                "",
-//                "Edit Coordinate",
-//                Get.conceptDescriptionText(observableEditCoordinate.getPathSequence()),
-//                observableEditCoordinate.getClass(), observableEditCoordinate.pathSequenceProperty()));
-//        this.items.add(new LetItem(
-//                "Author",
-//                "",
-//                "Edit Coordinate",
-//                Get.conceptDescriptionText(observableEditCoordinate.getAuthorSequence()),
-//                observableEditCoordinate.getClass()));
-    }
-
-    /**
-     *
-     * @param observableLanguageCoordinate
-     */
-    private void parseLanguageCoordinate(ObservableLanguageCoordinate observableLanguageCoordinate){
         /**
          * Debug for correct oberservable implementation
          */
-        observableLanguageCoordinate.languageConceptSequenceProperty().addListener((observable, oldValue, newValue) ->
-            System.out.println("Language Changed to: " + this.originalManifoldDeepClone.getPreferredDescriptionText(newValue.intValue()))
+        this.manifold.getLanguageCoordinate().languageConceptSequenceProperty().addListener((observable, oldValue, newValue) ->
+                System.out.println("Language Changed to: " + this.originalManifoldDeepClone.getPreferredDescriptionText(newValue.intValue()))
         );
         ///
 
-//        this.items.add(new LetItem(
-//                "Language",
-//                "",
-//                "Language Coordinate",
-//                Get.conceptDescriptionText(observableLanguageCoordinate.getLanguageConceptSequence()),
-//                observableLanguageCoordinate.getClass(), observableLanguageCoordinate.languageConceptSequenceProperty()));
-//        this.items.add(new LetItem(
-//                "Description Type",
-//                "",
-//                "Language Coordinate",
-//                Get.conceptDescriptionText(observableLanguageCoordinate.getDescriptionTypePreferenceList()[0]),
-//                observableLanguageCoordinate.getClass(), observableLanguageCoordinate.descriptionTypePreferenceListProperty()));
-//        this.items.add(new LetItem(
-//                "Dialect",
-//                "",
-//                "Language Coordinate",
-//                Get.conceptDescriptionText(observableLanguageCoordinate.getDialectAssemblagePreferenceList()[0]),
-//                observableLanguageCoordinate.getClass(), observableLanguageCoordinate.dialectAssemblagePreferenceListProperty()));
-
 
         this.items.add(new PropertySheetItemConceptWrapper(this.originalManifoldDeepClone,
-                observableLanguageCoordinate.languageConceptSequenceProperty().get(),
-                  "Language",
-                observableLanguageCoordinate.languageConceptSequenceProperty()
+                this.manifold.getLanguageCoordinate().languageConceptSequenceProperty().get(),
+                LANGUAGE,
+                this.manifold.getLanguageCoordinate().languageConceptSequenceProperty()
         ));
 
+        System.out.println(this.manifold);
 
+        this.items.add(new PropertySheetItemConceptWrapper(this.originalManifoldDeepClone,
+                this.manifold.getLogicCoordinate().classifierSequenceProperty().get(),
+                CLASSIFIER,
+                this.manifold.getLogicCoordinate().classifierSequenceProperty()
+        ));
     }
 
     public PropertySheet getPropertySheet() {
