@@ -66,6 +66,9 @@ public class ConceptForControlWrapper
    //~--- constructors --------------------------------------------------------
 
    public ConceptForControlWrapper(Manifold manifold, int conceptSequence) {
+      if (conceptSequence == Integer.MAX_VALUE) {
+         throw new IllegalStateException("Integer.MAX_VALUE for concept sequence.");
+      }
       this.manifold        = manifold;
       this.conceptSequence = conceptSequence;
    }
@@ -74,7 +77,7 @@ public class ConceptForControlWrapper
 
    @Override
    public String toString() {
-      if (this.conceptSequence <= 0) {
+      if (this.conceptSequence > 0) {
          Optional<String> description = getPreferedConceptDescriptionText();
 
          if (description.isPresent()) {

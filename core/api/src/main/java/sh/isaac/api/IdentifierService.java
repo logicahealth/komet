@@ -56,7 +56,6 @@ import java.util.stream.IntStream;
 
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;

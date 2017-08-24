@@ -429,6 +429,7 @@ public class CasSequenceObjectMap<T extends WaitFreeComparable> {
     * @return the segment
     */
    protected SerializedAtomicReferenceArray getSegment(int segmentIndex) {
+      
       SerializedAtomicReferenceArray referenceArray = this.objectByteList.get(segmentIndex)
                                                                          .get();
 

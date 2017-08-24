@@ -86,7 +86,6 @@ import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.sememe.version.StringVersion;
 

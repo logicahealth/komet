@@ -70,16 +70,16 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 public class LogicCoordinateImpl
          implements LogicCoordinate {
    /** The stated assemblage sequence. */
-   int statedAssemblageSequence;
+   protected int statedAssemblageSequence;
 
    /** The inferred assemblage sequence. */
-   int inferredAssemblageSequence;
+   protected int inferredAssemblageSequence;
 
    /** The description logic profile sequence. */
-   int descriptionLogicProfileSequence;
+   protected int descriptionLogicProfileSequence;
 
    /** The classifier sequence. */
-   int classifierSequence;
+   protected int classifierSequence;
 
    //~--- constructors --------------------------------------------------------
 
@@ -102,6 +102,7 @@ public class LogicCoordinateImpl
                               int inferredAssemblageSequence,
                               int descriptionLogicProfileSequence,
                               int classifierSequence) {
+      
       this.statedAssemblageSequence        = statedAssemblageSequence;
       this.inferredAssemblageSequence      = inferredAssemblageSequence;
       this.descriptionLogicProfileSequence = descriptionLogicProfileSequence;
@@ -299,10 +300,10 @@ public class LogicCoordinateImpl
    
    @Override
    public LogicCoordinateImpl deepClone() {
-      LogicCoordinateImpl newCoordinate = new LogicCoordinateImpl(statedAssemblageSequence,
-                              inferredAssemblageSequence,
-                              descriptionLogicProfileSequence,
-                              classifierSequence);
+      LogicCoordinateImpl newCoordinate = new LogicCoordinateImpl(getStatedAssemblageSequence(),
+                              getInferredAssemblageSequence(),
+                              getDescriptionLogicProfileSequence(),
+                              getClassifierSequence());
       return newCoordinate;
    }
    
