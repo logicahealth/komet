@@ -55,7 +55,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 
 //~--- classes ----------------------------------------------------------------
@@ -122,7 +121,9 @@ public class LogicCoordinateImpl
       if (obj == null) {
          return false;
       }
-
+      if (obj instanceof LogicCoordinate) {
+         return false;
+      }
       // Do not compare object classes, a LogicCoordinateImpl from one impl should be able to be equal to another impl...
       final LogicCoordinate other = (LogicCoordinate) obj;
 
