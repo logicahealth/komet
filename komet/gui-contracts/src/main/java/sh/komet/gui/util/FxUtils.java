@@ -63,15 +63,21 @@ import javafx.scene.text.Text;
 
 import com.sun.javafx.tk.FontLoader;
 import com.sun.javafx.tk.Toolkit;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.VPos;
+import javafx.scene.control.Button;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import sh.komet.gui.style.StyleClasses;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import static sh.komet.gui.style.StyleClasses.HEADER_PANEL;
-import static sh.komet.gui.style.StyleClasses.TEXT;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -246,7 +252,7 @@ public class FxUtils {
 
       if (strings.length > 1) {
          Text rightText = new Text(strings[1]);
-         rightText.getStyleClass().setAll(TEXT.toString());
+         rightText.getStyleClass().setAll(StyleClasses.HEADER_TEXT.toString());
 
          AnchorPane.setRightAnchor(rightText, 3.0);
          AnchorPane.setTopAnchor(rightText, 3.0);
@@ -258,26 +264,66 @@ public class FxUtils {
       return anchorPane;
    }
 
-   public static AnchorPane setupHeaderPanel(String leftString, Node rightNode) {
+   public static AnchorPane setupHeaderPanel(String leftString, Button rightNode) {
       AnchorPane anchorPane = new AnchorPane();
-
+      GridPane headerGrid = new GridPane();
+      AnchorPane.setLeftAnchor(headerGrid, 1.0);
+      AnchorPane.setTopAnchor(headerGrid, 1.0);
+      AnchorPane.setBottomAnchor(headerGrid, 1.0);
+      AnchorPane.setRightAnchor(headerGrid, 1.0);
+      anchorPane.getChildren().add(headerGrid);
+      
       anchorPane.getStyleClass()
                 .setAll(HEADER_PANEL.toString());
 
       Text leftText = new Text(leftString);
-      leftText.getStyleClass().setAll(TEXT.toString());
+      leftText.getStyleClass().setAll(StyleClasses.HEADER_TEXT.toString());
+      GridPane.setConstraints(
+              leftText,
+              0,
+              0,
+              1,
+              1,
+              HPos.LEFT,
+              VPos.BOTTOM,
+              Priority.NEVER,
+              Priority.NEVER,
+              new Insets(2));
+      headerGrid.getChildren()
+              .add(leftText);
+      
+      Pane fillerPane = new Pane();
+      GridPane.setConstraints(
+              fillerPane,
+              1,
+              0,
+              1,
+              1,
+              HPos.CENTER,
+              VPos.BOTTOM,
+              Priority.ALWAYS,
+              Priority.NEVER,
+              new Insets(2));
+      headerGrid.getChildren()
+              .add(fillerPane);
+      
+      GridPane.setConstraints(
+              rightNode,
+              2,
+              0,
+              1,
+              1,
+              HPos.RIGHT,
+              VPos.BOTTOM,
+              Priority.NEVER,
+              Priority.NEVER,
+              new Insets(2));
+      headerGrid.getChildren()
+              .add(rightNode);
+      
+      rightNode.setBorder(Border.EMPTY);
+      rightNode.setBackground(makeBackground(Color.WHITE));
 
-      AnchorPane.setLeftAnchor(leftText, 3.0);
-      AnchorPane.setTopAnchor(leftText, 3.0);
-      AnchorPane.setBottomAnchor(leftText, 3.0);
-      anchorPane.getChildren()
-                .add(leftText);
-
-      AnchorPane.setRightAnchor(rightNode, 3.0);
-      AnchorPane.setTopAnchor(rightNode, 3.0);
-      AnchorPane.setBottomAnchor(rightNode, 3.0);
-      anchorPane.getChildren()
-                .add(rightNode);
       return anchorPane;
    }
    

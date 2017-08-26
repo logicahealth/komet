@@ -71,7 +71,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 import javafx.util.Duration;
 
@@ -100,7 +99,7 @@ import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
-import static sh.komet.gui.util.FxUtils.makeBackground;
+import static sh.komet.gui.style.StyleClasses.ADD_BUTTON;
 
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 
@@ -227,6 +226,7 @@ public class ConceptDetailPanelNode
          addChronology(observableConceptChronology, parallelTransition);
 
          AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton);
+         addDescriptionButton.getStyleClass().setAll(ADD_BUTTON.toString());
          descriptionHeader.pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
 
          parallelTransition.getChildren().add(addNode(descriptionHeader));

@@ -46,7 +46,6 @@ import javafx.scene.layout.AnchorPane;
 
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.paint.Color;
 
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
@@ -55,7 +54,6 @@ import sh.isaac.api.observable.ObservableVersion;
 
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
-import static sh.komet.gui.util.FxUtils.makeBackground;
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 
 //~--- classes ----------------------------------------------------------------

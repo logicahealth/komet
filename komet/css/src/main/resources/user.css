@@ -424,13 +424,27 @@ limitations under the License.
    -fx-border-color: -komet-description-color;
    -fx-border-width: 0 0 2 0;
    -fx-border-insets: 0 0 0 0;   
-   
 }
 
 
 .header-panel:description-version * .text {
    -fx-fill: -komet-description-color;
+   -fx-text-fill: -komet-description-color;
    -fx-border-width: 0 0 2 0;
-   -fx-border-insets: 0 0 0 0;   
-   
+   -fx-border-insets: 0 0 0 0;    
+}
+
+.header-panel:description-version .header-text {
+   -fx-fill: -komet-description-color;
+   -fx-text-origin: baseline;
+}
+
+.header-panel:description-version .button {
+   -fx-fill: black;
+   -fx-border-width: 0 0 2 0;
+   -fx-text-origin: baseline;
+}
+
+.header-panel:description-version .add-button {
+   -fx-padding: 2 4 0 4;
 }

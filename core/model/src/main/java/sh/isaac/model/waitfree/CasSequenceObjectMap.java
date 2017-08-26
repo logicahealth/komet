@@ -179,7 +179,7 @@ public class CasSequenceObjectMap<T extends WaitFreeComparable> {
 
       // Identify number of files with fileSuffix
       final int numberOfSegmentFiles =
-         segmentDirectory.list((dir, name) -> (name.endsWith(CasSequenceObjectMap.this.fileSuffix.toString()))).length;
+         segmentDirectory.list((dir, name) -> (name.endsWith(CasSequenceObjectMap.this.fileSuffix))).length;
 
       // While initializing, if cannot find expected *.fileSuffix file sequentially, database is corrupt.
       while (segmentIndex < numberOfSegmentFiles) {
