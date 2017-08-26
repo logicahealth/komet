@@ -50,10 +50,10 @@ public final class VersionPanel  extends BadgedVersionPanel {
               .remove(stampControl);
       gridpane.getChildren()
               .remove(revertCheckBox);
-      GridPane.setConstraints(stampControl, columns, 0, 1, 1, HPos.LEFT, VPos.BASELINE, Priority.NEVER, Priority.NEVER);
+      GridPane.setConstraints(stampControl, 0, 0, 1, 1, HPos.LEFT, VPos.BASELINE, Priority.NEVER, Priority.NEVER);
       gridpane.getChildren()
               .add(stampControl);
-      GridPane.setConstraints(revertCheckBox, columns+1, 0, 1, 1, HPos.RIGHT, VPos.BASELINE, Priority.NEVER, Priority.NEVER, new Insets(0,4,1,0));
+      GridPane.setConstraints(revertCheckBox, columns, 0, 1, 1, HPos.RIGHT, VPos.BASELINE, Priority.NEVER, Priority.NEVER, new Insets(0,4,1,0));
       gridpane.getChildren()
               .add(revertCheckBox);
    }

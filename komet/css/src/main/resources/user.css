@@ -448,3 +448,10 @@ limitations under the License.
 .header-panel:description-version .add-button {
    -fx-padding: 2 4 0 4;
 }
+
+.add-sememe {
+   -fx-content-display: right;
+   -fx-font-size:18;
+   -fx-text-fill: black;
+   -fx-graphic-text-gap:-4;
+}

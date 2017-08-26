@@ -149,7 +149,7 @@ public class ConceptDetailPanelNode
                        .add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
       conceptDetailPane.setCenter(componentPanelBox);
       versionBrancheGrid.add(Iconography.CIRCLE_A.getIconographic(), 0, 0);
-      conceptDetailPane.setRight(versionBrancheGrid);
+      conceptDetailPane.setLeft(versionBrancheGrid);
       componentPanelBox.getStyleClass()
                        .add(StyleClasses.COMPONENT_DETAIL_BACKGROUND.toString());
       componentPanelBox.setFillWidth(true);

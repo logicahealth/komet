@@ -58,6 +58,7 @@ import javafx.geometry.VPos;
 
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -86,6 +87,7 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
+import static sh.komet.gui.style.StyleClasses.ADD_SEMEME;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -101,6 +103,7 @@ public abstract class BadgedVersionPanel
    protected final Text                           componentText       = new Text();
    protected final Text                           componentType       = new Text();
    protected final Node                           editControl         = Iconography.EDIT_PENCIL.getIconographic();
+   protected final Label addSememeControl = new Label("+", Iconography.PAPERCLIP.getIconographic());
    protected final ExpandControl                  expandControl       = new ExpandControl();
    protected final GridPane                       gridpane            = new GridPane();
    protected final SimpleBooleanProperty          isConcept           = new SimpleBooleanProperty(false);
@@ -109,8 +112,8 @@ public abstract class BadgedVersionPanel
    protected final SimpleBooleanProperty          isInactive          = new SimpleBooleanProperty(false);
    protected final SimpleBooleanProperty          isLogicalDefinition = new SimpleBooleanProperty(false);
    protected final int                            rowHeight           = 25;
-   StampControl stampControl = new StampControl("", Iconography.CIRCLE_A.getIconographic());
-   int                                            wrappingWidth       = 300;
+   protected final StampControl stampControl = new StampControl("", Iconography.CIRCLE_A.getIconographic());
+   protected int                                  wrappingWidth       = 300;
    protected final ObservableList<ComponentPanel> extensionPanels     = FXCollections.observableArrayList();
    protected final ObservableList<VersionPanel>   versionPanels       = FXCollections.observableArrayList();
    protected final CheckBox                       revertCheckBox      = new CheckBox();
@@ -147,11 +150,12 @@ public abstract class BadgedVersionPanel
                    .addListener(this::textLayoutChanged);
       isInactive.set(this.categorizedVersion.getState() != State.ACTIVE);
       this.stampControl.setStampedVersion(categorizedVersion, manifold);
+      badges.add(this.stampControl);
       this.widthProperty()
           .addListener(this::widthChanged);
 
       ObservableVersion observableVersion = categorizedVersion.getObservableVersion();
-
+      addSememeControl.getStyleClass().setAll(ADD_SEMEME.toString());
       if (observableVersion instanceof DescriptionVersion) {
          isDescription.set(true);
          setupDescription((DescriptionVersion) observableVersion, isLatestPanel());
@@ -317,6 +321,7 @@ public abstract class BadgedVersionPanel
             } else {
                componentType.setText("");
             }
+
             componentText.setText(Long.toString(((LongVersion) sememeVersion).getLongValue()));
             break;
 
@@ -386,9 +391,9 @@ public abstract class BadgedVersionPanel
       gridpane.getChildren()
               .add(componentType);  // next is 3
       gridpane.getChildren()
-              .remove(stampControl);
+              .remove(addSememeControl);
       GridPane.setConstraints(
-          stampControl,
+          addSememeControl,
           columns,
           1,
           1,
@@ -399,7 +404,7 @@ public abstract class BadgedVersionPanel
           Priority.NEVER,
           new Insets(0, 4, 1, 0));
       gridpane.getChildren()
-              .add(stampControl);
+              .add(addSememeControl);
       gridpane.getChildren()
               .remove(editControl);
       GridPane.setConstraints(
@@ -436,6 +441,7 @@ public abstract class BadgedVersionPanel
       gridpane.getRowConstraints()
               .add(new RowConstraints(rowHeight));  // add row zero...
 
+      boolean firstBadgeAdded = false;
       for (int i = 0; i < badges.size(); ) {
          for (int row = 1; i < badges.size(); row++) {
             this.rows = row;
@@ -443,11 +449,19 @@ public abstract class BadgedVersionPanel
                     .add(new RowConstraints(rowHeight));
 
             if (row + 1 <= rowsOfText) {
-               for (int column = 1; (column < 3) && (i < badges.size()); column++) {
+               for (int column = 0; (column < 3) && (i < badges.size()); column++) {
+                  if (firstBadgeAdded && column == 0) {
+                     column = 1;
+                     firstBadgeAdded = true;
+                  }
                   setupBadge(badges.get(i++), column, row);
                }
             } else {
-               for (int column = 1; (column < columns) && (i < badges.size()); column++) {
+               for (int column = 0; (column < columns) && (i < badges.size()); column++) {
+                  if (firstBadgeAdded && column == 0) {
+                     column = 1;
+                     firstBadgeAdded = true;
+                  }
                   setupBadge(badges.get(i++), column, row);
                }
             }

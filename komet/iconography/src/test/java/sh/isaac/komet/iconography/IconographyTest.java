@@ -23,7 +23,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
-import static sh.isaac.komet.iconography.Iconography.IconSource.SVG;
 
 /**
  *
@@ -135,6 +134,7 @@ public class IconographyTest extends Application {
       iconsPane.getChildren().add(Iconography.ICON_DEFINED.getIconographic());
       iconsPane.getChildren().add(Iconography.ICON_PRIMITIVE.getIconographic());
       iconsPane.getChildren().add(Iconography.ICON_PRIMITIVE_ARROW.getIconographic());    
+      iconsPane.getChildren().add(Iconography.PAPERCLIP.getIconographic());    
       
       Scene scene = new Scene(new ScrollPane(iconsPane), 500, 500);
       stage.setScene(scene);

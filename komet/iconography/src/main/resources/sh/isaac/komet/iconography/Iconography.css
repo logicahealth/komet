@@ -618,3 +618,10 @@ limitations under the License.
    -my-height: 16;
    -my-width: 16;
 }
+
+.paperclip {
+   -glyph-name: "PAPERCLIP"; 
+   -fx-rotate: 45;
+   -glyph-size: 15pt;
+   -icons-color: black;
+}

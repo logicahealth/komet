@@ -184,7 +184,7 @@ public final class ComponentPanel
               panel,
               0,
               getRows() + extraGridRows,
-              getColumns() - 1,
+              getColumns(),
               1,
               HPos.LEFT,
               VPos.CENTER,

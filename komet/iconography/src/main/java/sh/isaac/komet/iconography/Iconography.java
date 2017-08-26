@@ -138,7 +138,9 @@ public enum Iconography {
   ICON_DEFINED(SVG, "icon-defined"),
   ICON_PRIMITIVE(SVG, "icon-primitive"),
   ICON_PRIMITIVE_ARROW(SVG, "icon-primitive-arrow"),
-  
+  PAPERCLIP(FONT_AWSOME, "paperclip");
+  // FontAwesomeIcon.PAPERCLIP
+  //MaterialDesignIcon.PAPERCLIP (up and down)
    ;
 
    String cssClass;
