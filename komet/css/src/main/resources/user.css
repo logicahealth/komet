@@ -455,3 +455,30 @@ limitations under the License.
    -fx-text-fill: black;
    -fx-graphic-text-gap:-4;
 }
+
+.stamp-indicator {
+   -fx-border-width: 2;
+   -fx-border-color: -komet-tab-background-color;
+   -fx-border-insets: 6;    
+   -fx-border-radius: 5;
+   -fx-font-size:12; 
+   -fx-font-weight: normal;
+   -fx-fill: black;
+   -fx-alignment: center;
+   -fx-text-alignment: center;
+   -fx-content-display: text-only;
+}
+
+.version-graph-toggle {
+   -fx-border-width: 4,0,4,8;
+   -fx-border-color: transparent;
+}
+.version-graph-toggle:selected .branch-1 {
+   -glyph-size: 24;
+   -icons-color: -komet-tab-background-color;
+}
+
+.version-graph-toggle .branch-1 {
+   -glyph-size: 24;
+   -icons-color: -komet-inactive-color;
+}

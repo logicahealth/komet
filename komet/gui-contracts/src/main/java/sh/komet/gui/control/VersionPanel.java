@@ -21,6 +21,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
@@ -31,8 +32,9 @@ import sh.komet.gui.style.StyleClasses;
  */
 public final class VersionPanel  extends BadgedVersionPanel {
    
-   public VersionPanel(Manifold manifold, ObservableCategorizedVersion categorizedVersion) {
-      super(manifold, categorizedVersion);
+   public VersionPanel(Manifold manifold, ObservableCategorizedVersion categorizedVersion, 
+           OpenIntIntHashMap stampOrderHashMap) {
+      super(manifold, categorizedVersion, stampOrderHashMap);
       revertCheckBox.setSelected(false);
       this.getStyleClass()
               .add(StyleClasses.VERSION_PANEL.toString());

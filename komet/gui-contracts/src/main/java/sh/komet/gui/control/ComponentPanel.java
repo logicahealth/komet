@@ -46,6 +46,7 @@ import javafx.scene.layout.AnchorPane;
 
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import org.apache.mahout.math.map.OpenIntIntHashMap;
 
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
@@ -53,6 +54,7 @@ import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.StyleClasses;
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 
@@ -71,9 +73,10 @@ public final class ComponentPanel
 
    //~--- constructors --------------------------------------------------------
 
-   public ComponentPanel(Manifold manifold, CategorizedVersions<ObservableCategorizedVersion> categorizedVersions) {
+   public ComponentPanel(Manifold manifold, CategorizedVersions<ObservableCategorizedVersion> categorizedVersions,
+           OpenIntIntHashMap stampOrderHashMap) {
       super(manifold, categorizedVersions.getLatestVersion()
-              .get());
+              .get(), stampOrderHashMap);
 
       if (categorizedVersions.getLatestVersion()
               .isAbsent()) {
@@ -97,14 +100,14 @@ public final class ComponentPanel
                  .contradictions()
                  .forEach(
                          (contradiction) -> {
-                            versionPanels.add(new VersionPanel(manifold, contradiction));
+                            versionPanels.add(new VersionPanel(manifold, contradiction, stampOrderHashMap));
                          });
       }
 
       this.categorizedVersions.getHistoricVersions()
               .forEach(
                       (historicVersion) -> {
-                         versionPanels.add(new VersionPanel(manifold, historicVersion));
+                         versionPanels.add(new VersionPanel(manifold, historicVersion, stampOrderHashMap));
                       });
       observableVersion.getChronology()
               .getObservableSememeList()
@@ -116,7 +119,7 @@ public final class ComponentPanel
                                break;  // Ignore, description and logic graph where already added as an independent panel
 
                             default:
-                               addChronology(osc);
+                               addChronology(osc, stampOrderHashMap);
                          }
                       });
       expandControl.setVisible(!versionPanels.isEmpty() || !extensionPanels.isEmpty());
@@ -163,14 +166,14 @@ public final class ComponentPanel
       }
    }
 
-   private void addChronology(ObservableChronology observableChronology) {
+   private void addChronology(ObservableChronology observableChronology, OpenIntIntHashMap stampOrderHashMap) {
       CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
               = observableChronology.getCategorizedVersions(
                       getManifold());
 
       if (oscCategorizedVersions.getLatestVersion()
               .isPresent()) {
-         ComponentPanel newPanel = new ComponentPanel(getManifold(), oscCategorizedVersions);
+         ComponentPanel newPanel = new ComponentPanel(getManifold(), oscCategorizedVersions, stampOrderHashMap);
 
          extensionPanels.add(newPanel);
       }
@@ -199,5 +202,4 @@ public final class ComponentPanel
    protected boolean isLatestPanel() {
       return true;
    }
-
 }

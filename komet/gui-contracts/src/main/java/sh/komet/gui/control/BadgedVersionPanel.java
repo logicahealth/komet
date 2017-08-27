@@ -66,6 +66,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.text.Text;
 
+import org.apache.mahout.math.map.OpenIntIntHashMap;
+
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
@@ -87,6 +89,7 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
+
 import static sh.komet.gui.style.StyleClasses.ADD_SEMEME;
 
 //~--- classes ----------------------------------------------------------------
@@ -97,6 +100,10 @@ import static sh.komet.gui.style.StyleClasses.ADD_SEMEME;
  */
 public abstract class BadgedVersionPanel
         extends Pane {
+   public static final int FIRST_COLUMN_WIDTH = 32;
+
+   //~--- fields --------------------------------------------------------------
+
    protected final int                            badgeWidth          = 25;
    protected final ArrayList<Node>                badges              = new ArrayList<>();
    protected int                                  columns             = 10;
@@ -112,7 +119,7 @@ public abstract class BadgedVersionPanel
    protected final SimpleBooleanProperty          isInactive          = new SimpleBooleanProperty(false);
    protected final SimpleBooleanProperty          isLogicalDefinition = new SimpleBooleanProperty(false);
    protected final int                            rowHeight           = 25;
-   protected final StampControl stampControl = new StampControl("", Iconography.CIRCLE_A.getIconographic());
+   protected final StampControl                   stampControl        = new StampControl();
    protected int                                  wrappingWidth       = 300;
    protected final ObservableList<ComponentPanel> extensionPanels     = FXCollections.observableArrayList();
    protected final ObservableList<VersionPanel>   versionPanels       = FXCollections.observableArrayList();
@@ -133,7 +140,9 @@ public abstract class BadgedVersionPanel
 
    //~--- constructors --------------------------------------------------------
 
-   public BadgedVersionPanel(Manifold manifold, ObservableCategorizedVersion categorizedVersion) {
+   public BadgedVersionPanel(Manifold manifold,
+                             ObservableCategorizedVersion categorizedVersion,
+                             OpenIntIntHashMap stampOrderHashMap) {
       this.manifold           = manifold;
       this.categorizedVersion = categorizedVersion;
       isInactive.set(categorizedVersion.getState() == State.INACTIVE);
@@ -149,13 +158,19 @@ public abstract class BadgedVersionPanel
       componentText.boundsInLocalProperty()
                    .addListener(this::textLayoutChanged);
       isInactive.set(this.categorizedVersion.getState() != State.ACTIVE);
-      this.stampControl.setStampedVersion(categorizedVersion, manifold);
+      this.stampControl.setStampedVersion(
+          categorizedVersion.getStampSequence(),
+          manifold,
+          stampOrderHashMap.get(categorizedVersion.getStampSequence()));
       badges.add(this.stampControl);
       this.widthProperty()
           .addListener(this::widthChanged);
 
       ObservableVersion observableVersion = categorizedVersion.getObservableVersion();
-      addSememeControl.getStyleClass().setAll(ADD_SEMEME.toString());
+
+      addSememeControl.getStyleClass()
+                      .setAll(ADD_SEMEME.toString());
+
       if (observableVersion instanceof DescriptionVersion) {
          isDescription.set(true);
          setupDescription((DescriptionVersion) observableVersion, isLatestPanel());
@@ -171,6 +186,11 @@ public abstract class BadgedVersionPanel
    }
 
    //~--- methods -------------------------------------------------------------
+
+   public void doExpandAllAction(ExpandAction action) {
+      expandControl.setExpandAction(action);
+      extensionPanels.forEach((panel) -> panel.doExpandAllAction(action));
+   }
 
    protected abstract void addExtras();
 
@@ -442,6 +462,7 @@ public abstract class BadgedVersionPanel
               .add(new RowConstraints(rowHeight));  // add row zero...
 
       boolean firstBadgeAdded = false;
+
       for (int i = 0; i < badges.size(); ) {
          for (int row = 1; i < badges.size(); row++) {
             this.rows = row;
@@ -450,18 +471,20 @@ public abstract class BadgedVersionPanel
 
             if (row + 1 <= rowsOfText) {
                for (int column = 0; (column < 3) && (i < badges.size()); column++) {
-                  if (firstBadgeAdded && column == 0) {
-                     column = 1;
+                  if (firstBadgeAdded && (column == 0)) {
+                     column          = 1;
                      firstBadgeAdded = true;
                   }
+
                   setupBadge(badges.get(i++), column, row);
                }
             } else {
                for (int column = 0; (column < columns) && (i < badges.size()); column++) {
-                  if (firstBadgeAdded && column == 0) {
-                     column = 1;
+                  if (firstBadgeAdded && (column == 0)) {
+                     column          = 1;
                      firstBadgeAdded = true;
                   }
+
                   setupBadge(badges.get(i++), column, row);
                }
             }
@@ -507,8 +530,13 @@ public abstract class BadgedVersionPanel
                  .clear();
 
          for (int i = 0; i < this.columns; i++) {
-            gridpane.getColumnConstraints()
-                    .add(new ColumnConstraints(badgeWidth));
+            if (i == 0) {
+               gridpane.getColumnConstraints()
+                       .add(new ColumnConstraints(FIRST_COLUMN_WIDTH));
+            } else {
+               gridpane.getColumnConstraints()
+                       .add(new ColumnConstraints(badgeWidth));
+            }
          }
       }
    }

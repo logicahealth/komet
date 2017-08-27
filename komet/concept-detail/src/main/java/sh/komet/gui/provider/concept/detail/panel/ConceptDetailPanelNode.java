@@ -42,6 +42,8 @@ package sh.komet.gui.provider.concept.detail.panel;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -65,6 +67,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -75,7 +78,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import org.apache.mahout.math.list.IntArrayList;
-import org.apache.mahout.math.map.OpenIntObjectHashMap;
+import org.apache.mahout.math.map.OpenIntIntHashMap;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
@@ -95,12 +98,14 @@ import sh.komet.gui.control.ComponentPanel;
 import sh.komet.gui.control.ConceptLabelToolbar;
 import sh.komet.gui.control.ExpandControl;
 import sh.komet.gui.control.OnOffToggleSwitch;
+import sh.komet.gui.control.StampControl;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
-import static sh.komet.gui.style.StyleClasses.ADD_BUTTON;
 
+import static sh.komet.gui.style.StyleClasses.ADD_BUTTON;
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 
 //~--- classes ----------------------------------------------------------------
@@ -116,19 +121,22 @@ public class ConceptDetailPanelNode
 
    //~--- fields --------------------------------------------------------------
 
-   private final BorderPane                 conceptDetailPane    = new BorderPane();
-   private final SimpleStringProperty       titleProperty        = new SimpleStringProperty("detail graph");
-   private final SimpleStringProperty       toolTipProperty      = new SimpleStringProperty("detail graph");
-   private final VBox                       componentPanelBox    = new VBox(8);
-   private final GridPane                   versionBrancheGrid   = new GridPane();
-   private final GridPane                   toolGrid             = new GridPane();
-   private final ExpandControl              expandControl        = new ExpandControl();
-   private final OnOffToggleSwitch          historySwitch        = new OnOffToggleSwitch();
-   private final Label                      expandControlLabel   = new Label("Expand All", expandControl);
-   private final OpenIntObjectHashMap<Node> stampObjectHashMap   = new OpenIntObjectHashMap<>();
-   private final Button                     addDescriptionButton = new Button("+ Add");
-   private final Manifold                   conceptDetailManifold;
-   private final ScrollPane                 scrollPane;
+   private final BorderPane           conceptDetailPane    = new BorderPane();
+   private final SimpleStringProperty titleProperty        = new SimpleStringProperty("detail graph");
+   private final SimpleStringProperty toolTipProperty      = new SimpleStringProperty("detail graph");
+   private final VBox                 componentPanelBox    = new VBox(8);
+   private final GridPane             versionBrancheGrid   = new GridPane();
+   private final GridPane             toolGrid             = new GridPane();
+   private final ExpandControl        expandControl        = new ExpandControl();
+   private final OnOffToggleSwitch    historySwitch        = new OnOffToggleSwitch();
+   private final Label                expandControlLabel   = new Label("Expand All", expandControl);
+   private final OpenIntIntHashMap    stampOrderHashMap    = new OpenIntIntHashMap();
+   private final Button               addDescriptionButton = new Button("+ Add");
+   private final ToggleButton versionGraphToggle = new ToggleButton("", Iconography.SOURCE_BRANCH_1.getIconographic());
+   private ArrayList<Integer>         sortedStampSequences = new ArrayList<>();
+   private final List<ComponentPanel> componentPanels      = new ArrayList<>();
+   private final Manifold             conceptDetailManifold;
+   private final ScrollPane           scrollPane;
 
    //~--- initializers --------------------------------------------------------
 
@@ -148,7 +156,11 @@ public class ConceptDetailPanelNode
       conceptDetailPane.getStyleClass()
                        .add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
       conceptDetailPane.setCenter(componentPanelBox);
-      versionBrancheGrid.add(Iconography.CIRCLE_A.getIconographic(), 0, 0);
+      versionBrancheGrid.add(versionGraphToggle, 0, 0);
+      versionGraphToggle.getStyleClass()
+                        .setAll(StyleClasses.VERSION_GRAPH_TOGGLE.toString());
+      versionGraphToggle.selectedProperty()
+                        .addListener(this::toggleVersionGraph);
       conceptDetailPane.setLeft(versionBrancheGrid);
       componentPanelBox.getStyleClass()
                        .add(StyleClasses.COMPONENT_DETAIL_BACKGROUND.toString());
@@ -161,6 +173,8 @@ public class ConceptDetailPanelNode
       this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
       this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
       nodeConsumer.accept(this.scrollPane);
+      expandControl.expandActionProperty()
+                   .addListener(this::expandAllAction);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -178,8 +192,9 @@ public class ConceptDetailPanelNode
    }
 
    private Animation addComponent(CategorizedVersions<ObservableCategorizedVersion> categorizedVersions) {
-      ComponentPanel panel = new ComponentPanel(conceptDetailManifold, categorizedVersions);
+      ComponentPanel panel = new ComponentPanel(conceptDetailManifold, categorizedVersions, stampOrderHashMap);
 
+      componentPanels.add(panel);
       panel.setOpacity(0);
       VBox.setMargin(panel, new Insets(1, 5, 1, 5));
       componentPanelBox.getChildren()
@@ -206,6 +221,7 @@ public class ConceptDetailPanelNode
    }
 
    private void clearAnimationComplete(ActionEvent completeEvent) {
+      populateVersionBranchGrid();
       componentPanelBox.getChildren()
                        .clear();
       componentPanelBox.getChildren()
@@ -226,10 +242,12 @@ public class ConceptDetailPanelNode
          addChronology(observableConceptChronology, parallelTransition);
 
          AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton);
-         addDescriptionButton.getStyleClass().setAll(ADD_BUTTON.toString());
-         descriptionHeader.pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
 
-         parallelTransition.getChildren().add(addNode(descriptionHeader));
+         addDescriptionButton.getStyleClass()
+                             .setAll(ADD_BUTTON.toString());
+         descriptionHeader.pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
+         parallelTransition.getChildren()
+                           .add(addNode(descriptionHeader));
 
          // Sort them...
          observableConceptChronology.getObservableSememeList()
@@ -311,8 +329,41 @@ public class ConceptDetailPanelNode
                                        .add(ft);
                               }
                            });
+      versionBrancheGrid.getChildren()
+                        .forEach(
+                            (child) -> {
+                               if (versionGraphToggle != child) {
+                                  FadeTransition ft = new FadeTransition(Duration.millis(TRANSITION_OFF_TIME), child);
+
+                                  ft.setFromValue(1.0);
+                                  ft.setToValue(0.0);
+                                  parallelTransition.getChildren()
+                                        .add(ft);
+                               }
+                            });
       parallelTransition.setOnFinished(this::clearAnimationComplete);
       parallelTransition.play();
+   }
+
+   private void expandAllAction(ObservableValue<? extends ExpandAction> observable,
+                                ExpandAction oldValue,
+                                ExpandAction newValue) {
+      componentPanels.forEach((panel) -> panel.doExpandAllAction(newValue));
+   }
+
+   private void populateVersionBranchGrid() {
+      versionBrancheGrid.getChildren()
+                        .clear();
+      versionBrancheGrid.add(versionGraphToggle, 0, 0);
+
+      if (versionGraphToggle.isSelected()) {
+         for (int stampOrder = 0; stampOrder < sortedStampSequences.size(); stampOrder++) {
+            StampControl stampControl = new StampControl();
+
+            stampControl.setStampedVersion(sortedStampSequences.get(stampOrder), conceptDetailManifold, stampOrder + 1);
+            versionBrancheGrid.add(stampControl, 0, stampOrder + 2);
+         }
+      }
    }
 
    private void setupToolGrid() {
@@ -366,6 +417,14 @@ public class ConceptDetailPanelNode
                        .add(toolGrid);
    }
 
+   private void toggleVersionGraph(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+      setConcept(
+          conceptDetailManifold.focusedConceptChronologyProperty(),
+          null,
+          conceptDetailManifold.focusedConceptChronologyProperty()
+                               .get());
+   }
+
    private void updateManifoldHistoryStates() {
       if (historySwitch.isSelected()) {
          this.conceptDetailManifold.getStampCoordinate()
@@ -388,7 +447,14 @@ public class ConceptDetailPanelNode
       chronology.getVersionStampSequences()
                 .forEach(
                     (stampSequence) -> {
-                       stampObjectHashMap.put(stampSequence, null);
+                       if (historySwitch.isSelected()) {
+                          stampOrderHashMap.put(stampSequence, 0);
+                       } else {
+                          if (Get.stampService()
+                                 .getStatusForStamp(stampSequence) == State.ACTIVE) {
+                             stampOrderHashMap.put(stampSequence, 0);
+                          }
+                       }
                     });
       chronology.getSememeList()
                 .forEach(
@@ -402,19 +468,36 @@ public class ConceptDetailPanelNode
    private void setConcept(ObservableValue<? extends ConceptChronology> observable,
                            ConceptChronology oldValue,
                            ConceptChronology newValue) {
-      stampObjectHashMap.clear();
+      stampOrderHashMap.clear();
       updateStampControls(newValue);
+      componentPanels.clear();
 
-      IntArrayList       stampSequences       = stampObjectHashMap.keys();
-      ArrayList<Integer> sortedStampSequences = new ArrayList<>(stampSequences.toList());
-      StampService       stampService         = Get.stampService();
+      IntArrayList stampSequences = stampOrderHashMap.keys();
+
+      sortedStampSequences = new ArrayList<>(stampSequences.toList());
+
+      StampService stampService = Get.stampService();
 
       sortedStampSequences.sort(
           (o1, o2) -> {
              return stampService.getInstantForStamp(o1)
                                 .compareTo(stampService.getInstantForStamp(o2));
           });
-      System.out.println("Unique stamps: " + sortedStampSequences.size() + " " + sortedStampSequences);
+
+      final AtomicInteger stampOrder = new AtomicInteger(sortedStampSequences.size());
+
+      sortedStampSequences.forEach(
+          (stampSequence) -> {
+             if (historySwitch.isSelected()) {
+                stampOrderHashMap.put(stampSequence, stampOrder.getAndDecrement());
+             } else {
+                if (Get.stampService()
+                       .getStatusForStamp(stampSequence) == State.ACTIVE) {
+                   stampOrderHashMap.put(stampSequence, stampOrder.getAndDecrement());
+                }
+             }
+          });
+      populateVersionBranchGrid();
       updateManifoldHistoryStates();
       clearComponents();
    }

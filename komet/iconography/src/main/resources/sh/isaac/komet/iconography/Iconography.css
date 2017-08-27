@@ -625,3 +625,17 @@ limitations under the License.
    -glyph-size: 15pt;
    -icons-color: black;
 }
+
+.branch {
+   -glyph-name: "GIT_BRANCH"; 
+   -glyph-size: 16;
+   -icons-color: black;
+}
+
+.branch-1 {
+   -glyph-name: "SOURCE_BRANCH"; 
+   -glyph-size: 20;
+   -icons-color: black;
+}
+
+

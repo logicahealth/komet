@@ -102,7 +102,7 @@ public final class ExpandControl
       super.fire();
    }
 
-   ReadOnlyObjectProperty<ExpandAction> expandActionProperty() {
+   public ReadOnlyObjectProperty<ExpandAction> expandActionProperty() {
       return this.expandActionProperty;
    }
 
