@@ -100,11 +100,6 @@ public class ConceptDetailTreeTableController {
    private TreeTableColumn<ObservableCategorizedVersion, Integer> conceptModuleColumn;
    @FXML  // fx:id="conceptPathColumn"
    private TreeTableColumn<ObservableCategorizedVersion, Integer> conceptPathColumn;
-   @FXML  // fx:id="statedParentPane"
-   private BorderPane statedParentPane;
-   @FXML  // fx:id="inferredParentPane"
-   private BorderPane inferredParentPane;
-   @FXML  // fx:id="topScroller"
    private Manifold manifold;
    private TreeTableConceptCellFactory conceptCellFactory;
    private TreeTableWhatCellFactory whatCellFactory;
@@ -133,10 +128,6 @@ public class ConceptDetailTreeTableController {
               "fx:id=\"conceptExtensionModule\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
       assert conceptPathColumn != null :
               "fx:id=\"conceptExtensionPath\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
-      assert statedParentPane != null :
-              "fx:id=\"statedParentPane\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
-      assert inferredParentPane != null :
-              "fx:id=\"inferredParentPane\" was not injected: check your FXML file 'ConceptDetail.fxml'.";
       conceptAuthorTimeColumn.setText("author\ntime");
       conceptModulePathColumn.setText("module\npath");
       conceptExtensionTreeTable.setTableMenuButtonVisible(true);

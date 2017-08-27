@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TreeTableColumn?>
 <?import javafx.scene.control.TreeTableView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -10,7 +9,7 @@
 
 <BorderPane fx:id="conceptDetailRootPane" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.provider.concept.detail.treetable.ConceptDetailTreeTableController">
    <center>
-      <GridPane prefHeight="398.0" prefWidth="598.0" BorderPane.alignment="CENTER">
+      <GridPane prefWidth="598.0" BorderPane.alignment="CENTER">
         <columnConstraints>
           <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
@@ -24,7 +23,7 @@
             <RowConstraints vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <TreeTableView fx:id="conceptExtensionTreeTable" showRoot="false" tableMenuButtonVisible="true" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="SOMETIMES">
+            <TreeTableView fx:id="conceptExtensionTreeTable" showRoot="false" tableMenuButtonVisible="true" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
               <columns>
                 <TreeTableColumn fx:id="conceptWhatColumn" minWidth="50.0" prefWidth="-1.0" />
                 <TreeTableColumn fx:id="conceptGeneralColumn" minWidth="300.0" prefWidth="-1.0" />
@@ -40,10 +39,6 @@
                   <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                </columnResizePolicy>
             </TreeTableView>
-            <Label prefHeight="17.0" prefWidth="54.0" text="Stated:" GridPane.rowIndex="2" GridPane.vgrow="NEVER" />
-            <Label prefHeight="17.0" prefWidth="69.0" text="Inferred:" GridPane.rowIndex="4" />
-            <BorderPane fx:id="statedParentPane" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="3" GridPane.vgrow="SOMETIMES" />
-            <BorderPane fx:id="inferredParentPane" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="5" GridPane.vgrow="SOMETIMES" />
          </children>
       </GridPane>
    </center>

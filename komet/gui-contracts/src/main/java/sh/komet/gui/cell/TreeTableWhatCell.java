@@ -16,7 +16,6 @@
  */
 package sh.komet.gui.cell;
 
-import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableRow;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
