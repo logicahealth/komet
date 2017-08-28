@@ -58,6 +58,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.komet.iconography.Iconography;
+import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
 
 /**
  * A {@link TreeView} for browsing the SNOMED CT taxonomy.
@@ -115,6 +116,7 @@ public class MultiParentTreeView extends BorderPane {
     
     public MultiParentTreeView(Manifold manifold) {
         long startTime = System.currentTimeMillis();
+        getStyleClass().setAll(MULTI_PARENT_TREE_NODE.toString());
         
         this.manifoldProperty.set(manifold);
         treeView = new TreeView<>();

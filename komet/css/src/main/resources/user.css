@@ -147,8 +147,27 @@ limitations under the License.
    -fx-mark-color: white;
 }
 
-.concept-label-toolbar * .menu-button * .glyph-icon { 
+.concept-label-toolbar * .menu-button .glyph-icon { 
    -icons-color: white;
+}
+.concept-label-toolbar * .menu-button .menu-item .glyph-icon { 
+   -icons-color: -komet-blue-color;
+}
+.concept-label-toolbar * .menu-button .menu-item .label { 
+   -fx-text-fill: -komet-blue-color;
+}
+.concept-label-toolbar * .menu-button .menu-item:focused .glyph-icon { 
+   -icons-color: white;
+}
+.concept-label-toolbar * .menu-button .menu-item:focused .label { 
+   -fx-text-fill: white;
+}
+.concept-label-toolbar * .menu-button .menu-item:focused { 
+   -fx-background-color: -komet-blue-color;
+}
+
+.menu-item:focused { 
+   -fx-background-color: -komet-blue-color;
 }
 .concept-label-toolbar >* .label { 
       -fx-text-fill: white;
@@ -481,4 +500,63 @@ limitations under the License.
 .version-graph-toggle .branch-1 {
    -glyph-size: 24;
    -icons-color: -komet-inactive-color;
+}
+.tab-pane .tab-header-area {
+    -fx-padding: 0 0 0 34;
+}
+
+.add-tab-menu-button .plus {
+   -glyph-name: "PLUS"; 
+   -glyph-size: 16;
+   -icons-color: #41525c;
+}
+.add-tab-menu-button {
+    -fx-background-color: #c3cdd3;
+    -fx-border-color: -komet-tab-background-color;      
+    -fx-border-radius: 0;    
+    -fx-border-width: 1 2 2 1;
+    -fx-background-radius: 0;
+    -fx-graphic-text-gap: -5;
+    -fx-label-padding: 0;
+    -fx-content-display: graphic-only;
+}
+.add-tab-menu-button * .arrow {
+   -fx-mark-color: #41525c;
+}
+
+.add-tab-menu-button .label {
+   -fx-background-color: #c3cdd3;
+   -fx-border-color: #c3cdd3;      
+   -fx-padding: 4 0 5 2;
+} 
+
+.add-tab-menu-button .arrow-button {
+   -fx-background-color: #c3cdd3;
+   -fx-border-color: #c3cdd3;      
+   -fx-padding: 4 4 5 1;
+}
+
+.add-tab-menu-button .arrow-button .arrow {
+   /* padding is 2.2 4.3 2.2 4.3 */
+}
+
+.multi-parent-tree-node .tool-bar {
+   -fx-background-color: #c3cdd3;
+}
+
+.menu-item .label {
+   -fx-background-color: white;
+   -fx-border-width:0;
+}
+
+.menu-item .label .glyph-icon {
+   -icons-color: black;
+   -fx-background-color: red;
+}
+.menu-item:focused .label .glyph-icon {
+   -icons-color: red;
+}
+.menu-item:focused .label {
+   -fx-background-color: transparent;
+   -fx-border-width:0;
 }

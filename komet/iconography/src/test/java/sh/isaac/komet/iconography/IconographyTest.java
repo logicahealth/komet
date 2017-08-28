@@ -137,6 +137,7 @@ public class IconographyTest extends Application {
       iconsPane.getChildren().add(Iconography.PAPERCLIP.getIconographic());    
       iconsPane.getChildren().add(Iconography.SOURCE_BRANCH.getIconographic());    
       iconsPane.getChildren().add(Iconography.SOURCE_BRANCH_1.getIconographic());    
+      iconsPane.getChildren().add(Iconography.PLUS.getIconographic());    
       
       Scene scene = new Scene(new ScrollPane(iconsPane), 500, 500);
       stage.setScene(scene);

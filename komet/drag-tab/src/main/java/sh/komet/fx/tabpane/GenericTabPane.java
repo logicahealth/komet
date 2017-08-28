@@ -16,7 +16,7 @@ package sh.komet.fx.tabpane;
  */
 public interface GenericTabPane {
 	/**
-	 * Get the index of the tab inde
+	 * Get the index of the tab
 	 * 
 	 * @param t
 	 *            the tab

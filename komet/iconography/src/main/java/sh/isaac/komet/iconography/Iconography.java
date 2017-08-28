@@ -141,8 +141,8 @@ public enum Iconography {
   PAPERCLIP(FONT_AWSOME, "paperclip"),
   SOURCE_BRANCH(OCT_ICON, "branch"),
   SOURCE_BRANCH_1(MATERIAL_DESIGNS_WEBFONT, "branch-1"),
-  // OctIcon.GIT_BRANCH
-  // MaterialDesignIcon.SOURCE_BRANCH
+  PLUS(OCT_ICON, "plus"),
+  // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
    ;
 
    String cssClass;

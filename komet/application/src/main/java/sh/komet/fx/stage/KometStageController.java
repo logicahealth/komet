@@ -56,10 +56,12 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
@@ -88,6 +90,7 @@ import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.DetailType;
 import sh.komet.gui.contract.StatusMessageConsumer;
+import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
@@ -174,6 +177,9 @@ public class KometStageController implements StatusMessageConsumer{
       assert statusMessage != null:
              "fx:id=\"statusMessage\" was not injected: check your FXML file 'KometStageScene.fxml'.";
       assert vanityBox != null: "fx:id=\"vanityBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+
+      
+      
       leftBorderBox.getChildren()
                    .add(createWrappedTabPane());
       editorLeftPane.getChildren()
@@ -185,14 +191,24 @@ public class KometStageController implements StatusMessageConsumer{
              treeViewList.forEach(treeView -> treeView.init());
           });
    }
+   
+   ArrayList<TabPane> tabPanes = new ArrayList();
 
    private Pane createWrappedTabPane() {
       Pane pane = DndTabPaneFactory.createDefaultDnDPane(FeedbackType.OUTLINE, true, this::setupTabPane);
-
-      HBox.setHgrow(pane, Priority.ALWAYS);
-      return pane;
+      TabPane tabPane = (TabPane) pane.getChildren().get(0);
+      tabPanes.add(tabPane);
+      ArrayList<MenuItem> menuItems = new ArrayList<>();
+      
+      addSimpleSearch(tabPane, menuItems);
+      addMultiParentTreeViewTab(tabPane, menuItems);
+      
+      
+      Pane wrapped = TabWrapper.wrap(pane, menuItems.toArray(new MenuItem[menuItems.size()]));
+      HBox.setHgrow(wrapped, Priority.ALWAYS);
+      return wrapped;
    }
-   
+
    private TabPane setupTabPane(TabPane tabPane) {
       HBox.setHgrow(tabPane, Priority.ALWAYS);
       tabPanelCount++;
@@ -200,8 +216,6 @@ public class KometStageController implements StatusMessageConsumer{
       int tabCountInPanel = 1;
 
       if (tabPanelCount == 1) {
-         Tab tab = new Tab("Taxonomy");
-         tab.setGraphic(Iconography.TAXONOMY_ICON.getIconographic());
 
          FLOWR_MANIFOLD.focusedConceptChronologyProperty()
                       .addListener(
@@ -227,18 +241,8 @@ public class KometStageController implements StatusMessageConsumer{
                              FxGet.statusMessageService().reportSceneStatus(statusMessage.getScene(), TAXONOMY_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
                           });
 
-         MultiParentTreeView treeView = new MultiParentTreeView(TAXONOMY_MANIFOLD);
-
-         treeViewList.add(treeView);
-         tab.setContent(new BorderPane(treeView));
-         tabPane.getTabs()
-                .add(tab);
-
-         Tab searchTab = new Tab("Search");
-         searchTab.setGraphic(Iconography.SIMPLE_SEARCH.getIconographic());
-
-         tabPane.getTabs()
-                .add(searchTab);
+         addMultiParentTreeViewTab(tabPane);
+         addSimpleSearchTab(tabPane);
       } else {
          if (tabPanelCount == 2) {
             for (DetailNodeFactory factory: Get.services(DetailNodeFactory.class)) {
@@ -276,6 +280,40 @@ public class KometStageController implements StatusMessageConsumer{
       }
 
       return tabPane;
+   }
+
+ private void addSimpleSearch(TabPane tabPane, ArrayList<MenuItem> menuItems) {
+      MenuItem simpleSearchItem = new MenuItem("Add simple search tab");
+      simpleSearchItem.setOnAction((event) -> {
+         addSimpleSearchTab(tabPane);
+      });
+      menuItems.add(simpleSearchItem);
+   }
+
+ private void addSimpleSearchTab(TabPane tabPane) {
+      Tab searchTab = new Tab("Search");
+      searchTab.setGraphic(Iconography.SIMPLE_SEARCH.getIconographic());
+      
+      tabPane.getTabs()
+              .add(searchTab);
+   }
+ private void addMultiParentTreeViewTab(TabPane tabPane, ArrayList<MenuItem> menuItems) {
+      MenuItem item = new MenuItem("Add multi-parent tree view");
+      item.setOnAction((event) -> {
+         addMultiParentTreeViewTab(tabPane);
+      });
+      menuItems.add(item);
+   }
+
+   private void addMultiParentTreeViewTab(TabPane tabPane) {
+         Tab tab = new Tab("Taxonomy");
+         tab.setGraphic(Iconography.TAXONOMY_ICON.getIconographic());
+      MultiParentTreeView treeView = new MultiParentTreeView(TAXONOMY_MANIFOLD);
+      
+      treeViewList.add(treeView);
+      tab.setContent(new BorderPane(treeView));
+      tabPane.getTabs()
+              .add(tab);
    }
 
    private int setupConceptTab(int tabCountInPanel, DetailNodeFactory factory, TabPane tabPane, Manifold manifold) {

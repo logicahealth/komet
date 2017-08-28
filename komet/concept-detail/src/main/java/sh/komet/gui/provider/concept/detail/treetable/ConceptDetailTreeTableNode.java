@@ -87,11 +87,18 @@ public class ConceptDetailTreeTableNode
                          (ObservableValue<? extends ConceptChronology> observable,
                                  ConceptChronology oldValue,
                                  ConceptChronology newValue) -> {
+                            if (newValue == null) {
+                            titleProperty.set("empty");
+                            toolTipProperty.set(
+                                    "concept details for: empty");
+                            } else {
                             titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(newValue));
                             toolTipProperty.set(
                                     "concept details for: " +
                                             this.conceptDetailManifold.getFullySpecifiedDescriptionText(
                                                     newValue));
+                               
+                            }
                          });
          conceptDetailPane.setTop(ConceptLabelToolbar.make(conceptDetailManifold));
          conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());

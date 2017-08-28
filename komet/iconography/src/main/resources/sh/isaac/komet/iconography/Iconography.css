@@ -638,4 +638,8 @@ limitations under the License.
    -icons-color: black;
 }
 
-
+.plus {
+   -glyph-name: "PLUS"; 
+   -glyph-size: 20;
+   -icons-color: white;
+}
