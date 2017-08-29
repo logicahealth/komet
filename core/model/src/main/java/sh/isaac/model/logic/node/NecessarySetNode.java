@@ -108,7 +108,7 @@ public class NecessarySetNode
    }
    @Override
    public String toSimpleString() {
-      return "Necessary" +  super.toSimpleString();
+      return "Necessary " +  super.toSimpleString();
    }
 
 

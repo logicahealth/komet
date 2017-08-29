@@ -107,7 +107,7 @@ public class OrNode
    }
    @Override
    public String toSimpleString() {
-      return "Or" +  super.toSimpleString();
+      return "Or " +  super.toSimpleString();
    }
 
 
