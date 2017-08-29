@@ -571,7 +571,7 @@ limitations under the License.
 
 .multi-parent-tree-node .tool-bar {
    -fx-background-color: #c3cdd3;
-   -fx-padding: 6;
+   -fx-padding: 6 4 5 4;
 }
 
 .menu-item .label {
