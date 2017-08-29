@@ -30,8 +30,10 @@ import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -58,16 +60,17 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.interfaces.ExplorationNode;
 import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
 
 /**
- * A {@link TreeView} for browsing the SNOMED CT taxonomy.
+ * A {@link TreeView} for browsing the taxonomy.
  *
  * @author kec
  * @author ocarlsen
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a> 
  */
-public class MultiParentTreeView extends BorderPane {
+public class MultiParentTreeView extends BorderPane implements ExplorationNode {
 
    /**
     * The Constant LOG.
@@ -86,6 +89,7 @@ public class MultiParentTreeView extends BorderPane {
     // Methods requiring that init() be completed must run init() if count > 1 and block on await()
     private final CountDownLatch initializationCountDownLatch = new CountDownLatch(2);
 
+    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("Multi-parent taxonomy view");
     private final StackPane stackPane;
     private final ToolBar toolBar = new ToolBar();
     private MultiParentTreeItem rootTreeItem;
@@ -637,4 +641,19 @@ public class MultiParentTreeView extends BorderPane {
             scrollTo.set(item);
         }
     }
+
+   @Override
+   public Manifold getManifold() {
+      return this.manifoldProperty.get();
+   }
+
+   @Override
+   public Node getNode() {
+      return this;
+   }
+
+   @Override
+   public ReadOnlyProperty<String> getToolTip() {
+      return toolTipProperty;
+   }
 }

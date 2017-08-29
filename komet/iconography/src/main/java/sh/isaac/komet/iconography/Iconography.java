@@ -142,6 +142,9 @@ public enum Iconography {
   SOURCE_BRANCH(OCT_ICON, "branch"),
   SOURCE_BRANCH_1(MATERIAL_DESIGNS_WEBFONT, "branch-1"),
   PLUS(OCT_ICON, "plus"),
+  CONCEPT_DETAILS(MATERIAL_DESIGNS_ICON, "concept-details"),
+  CONCEPT_TABLE(MATERIAL_DESIGNS_WEBFONT, "concept-table"),
+  KOMET(EMOJI_ONE, "komet"),
   // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
    ;
 

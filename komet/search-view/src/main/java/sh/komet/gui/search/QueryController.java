@@ -74,6 +74,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -615,9 +616,9 @@ public class QueryController
    }
 
    @Override
-   public void setParent(BorderPane parent) {
+   public Node getNode() {
       flowrAccordian.setExpandedPane(wherePane);
-      parent.setCenter(anchorPane);
+      return anchorPane;
    }
 
    //~--- get methods ---------------------------------------------------------

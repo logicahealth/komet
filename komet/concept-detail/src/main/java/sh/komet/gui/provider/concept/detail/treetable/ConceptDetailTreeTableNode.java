@@ -72,8 +72,8 @@ import sh.komet.gui.style.StyleClasses;
 public class ConceptDetailTreeTableNode
          implements DetailNode {
    private final BorderPane           conceptDetailPane = new BorderPane();
-   private final SimpleStringProperty titleProperty     = new SimpleStringProperty("detail graph");
-   private final SimpleStringProperty toolTipProperty   = new SimpleStringProperty("detail graph");
+   private final SimpleStringProperty titleProperty     = new SimpleStringProperty("empty");
+   private final SimpleStringProperty toolTipProperty   = new SimpleStringProperty("empty");
    private final Manifold             conceptDetailManifold;
 
    //~--- constructors --------------------------------------------------------

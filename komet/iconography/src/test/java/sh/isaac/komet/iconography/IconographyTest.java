@@ -138,6 +138,9 @@ public class IconographyTest extends Application {
       iconsPane.getChildren().add(Iconography.SOURCE_BRANCH.getIconographic());    
       iconsPane.getChildren().add(Iconography.SOURCE_BRANCH_1.getIconographic());    
       iconsPane.getChildren().add(Iconography.PLUS.getIconographic());    
+      iconsPane.getChildren().add(Iconography.CONCEPT_DETAILS.getIconographic());    
+      iconsPane.getChildren().add(Iconography.CONCEPT_TABLE.getIconographic());    
+      iconsPane.getChildren().add(Iconography.KOMET.getIconographic());    
       
       Scene scene = new Scene(new ScrollPane(iconsPane), 500, 500);
       stage.setScene(scene);

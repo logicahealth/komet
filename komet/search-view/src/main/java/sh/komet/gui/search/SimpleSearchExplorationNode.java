@@ -14,23 +14,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.contract;
+package sh.komet.gui.search;
 
-import org.jvnet.hk2.annotations.Contract;
-import sh.komet.gui.interfaces.DetailAspectNode;
+import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 
 /**
  *
  * @author kec
  */
-@Contract
-public interface DetailAspectFactory extends NodeFactory {
-   /**
-    * 
-    * @param manifold the manifold that determines the current coordinates and focus. 
-    * @return the detail node, after it has been added to the parent. 
-    */
-   DetailAspectNode createDetailAspectNode(Manifold manifold);
+public class SimpleSearchExplorationNode implements ExplorationNode {
+   Label node = new Label("Not yet implemented");
+   SimpleStringProperty toolTipText = new SimpleStringProperty("Simple Search Panel");
+   final Manifold manifold;
+
+   public SimpleSearchExplorationNode(Manifold manifold) {
+      this.manifold = manifold;
+   }
    
+   
+
+   @Override
+   public Manifold getManifold() {
+      return manifold; 
+   }
+
+   @Override
+   public Node getNode() {
+      return node;
+   }
+
+   @Override
+   public ReadOnlyProperty<String> getToolTip() {
+      return toolTipText;
+   }
 }

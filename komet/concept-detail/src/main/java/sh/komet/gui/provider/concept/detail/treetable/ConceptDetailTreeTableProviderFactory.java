@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import javafx.scene.Node;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
 import sh.komet.gui.interfaces.DetailNode;
@@ -46,6 +47,23 @@ public class ConceptDetailTreeTableProviderFactory implements DetailNodeFactory 
          throw new UnsupportedOperationException("Can't handle: " + type); 
       }
       return new ConceptDetailTreeTableNode(manifold, nodeConsumer);
+   }
+   @Override
+   public String getMenuText() {
+      return "Concept Details Table"; 
+   }
+
+   @Override
+   public Node getMenuIcon() {
+      // FontAwesomeIcon.COLUMNS
+      // FontAwesomeIcon.TABLE
+      // FontAwesomeIcon.LIST
+      // Icons525.MENU
+      // Icons525.ARCHIVE rotate 90°?
+      // MaterialDesignIcon.VIEW_DAY
+      // MaterialIcon.VIEW_WEEK rotate 90°
+      // FontAwesomeIcon.NAVICON
+      return Iconography.CONCEPT_TABLE.getIconographic();
    }
    
 }

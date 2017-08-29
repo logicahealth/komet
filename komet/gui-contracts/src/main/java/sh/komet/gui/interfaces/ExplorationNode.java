@@ -17,7 +17,7 @@
 package sh.komet.gui.interfaces;
 
 import javafx.beans.property.ReadOnlyProperty;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.Node;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -36,10 +36,10 @@ public interface ExplorationNode {
    Manifold getManifold();
    
    /**
-    * Set the parent view for this node. 
-    * @param parent 
+    *  
+    * @return the Node that presents the UI. 
     */
-   void setParent(BorderPane parent);
+   Node getNode();
    
    /**
     * Tool tip text to explain this node in more detail that a title would. 

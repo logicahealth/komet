@@ -29,7 +29,7 @@ import org.jvnet.hk2.annotations.Contract;
  * @author kec
  */
 @Contract
-public interface DetailNodeFactory {
+public interface DetailNodeFactory extends NodeFactory {
    
    EnumSet<DetailType> getSupportedTypes();
    

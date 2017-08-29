@@ -643,3 +643,21 @@ limitations under the License.
    -glyph-size: 20;
    -icons-color: white;
 }
+
+.concept-details {
+   -glyph-name: "VIEW_WEEK"; 
+   -glyph-size: 20;
+   -fx-rotate: 90;
+
+}
+
+.concept-table {
+   -glyph-name: "TABLE"; 
+   -glyph-size: 20;
+}
+
+.komet {
+   -glyph-name: "COMET"; 
+   -glyph-size: 20;
+   -fx-rotate: 180;
+}

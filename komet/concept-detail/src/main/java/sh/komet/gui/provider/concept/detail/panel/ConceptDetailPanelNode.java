@@ -122,8 +122,8 @@ public class ConceptDetailPanelNode
    //~--- fields --------------------------------------------------------------
 
    private final BorderPane           conceptDetailPane    = new BorderPane();
-   private final SimpleStringProperty titleProperty        = new SimpleStringProperty("detail graph");
-   private final SimpleStringProperty toolTipProperty      = new SimpleStringProperty("detail graph");
+   private final SimpleStringProperty titleProperty        = new SimpleStringProperty("empty");
+   private final SimpleStringProperty toolTipProperty      = new SimpleStringProperty("empty");
    private final VBox                 componentPanelBox    = new VBox(8);
    private final GridPane             versionBrancheGrid   = new GridPane();
    private final GridPane             toolGrid             = new GridPane();
@@ -480,8 +480,8 @@ public class ConceptDetailPanelNode
 
       sortedStampSequences.sort(
           (o1, o2) -> {
-             return stampService.getInstantForStamp(o1)
-                                .compareTo(stampService.getInstantForStamp(o2));
+             return stampService.getInstantForStamp(o2)
+                                .compareTo(stampService.getInstantForStamp(o1));
           });
 
       final AtomicInteger stampOrder = new AtomicInteger(sortedStampSequences.size());

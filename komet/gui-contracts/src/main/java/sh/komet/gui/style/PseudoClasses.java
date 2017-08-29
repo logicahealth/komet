@@ -36,4 +36,5 @@ public class PseudoClasses {
    public static final PseudoClass LOGICAL_DEFINITION_PSEUDO_CLASS = PseudoClass.getPseudoClass("logical-definition-version");
    public static final PseudoClass DESCRIPTION_PSEUDO_CLASS = PseudoClass.getPseudoClass("description-version");
    public static final PseudoClass CONCEPT_PSEUDO_CLASS = PseudoClass.getPseudoClass("concept-version");
+   public static final PseudoClass OTHER_PSEUDO_CLASS = PseudoClass.getPseudoClass("other-version");
 }

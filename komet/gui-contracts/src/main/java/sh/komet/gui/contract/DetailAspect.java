@@ -21,5 +21,7 @@ package sh.komet.gui.contract;
  * @author kec
  */
 public enum DetailAspect {
-   LogicalDefinition, LocalTaxonomy, Sememes, Descriptions  
+   LogicalDefinition, LocalTaxonomy, Sememes, Descriptions 
+   
+   // LocalTaxnomy = FontAwesomeIcon.SITEMAP ?
 }
