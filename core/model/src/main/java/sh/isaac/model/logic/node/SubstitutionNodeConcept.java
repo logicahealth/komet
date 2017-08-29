@@ -106,6 +106,10 @@ public class SubstitutionNodeConcept
    public String toString(String nodeIdSuffix) {
       return "Concept substitution[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
+  @Override
+   public String toSimpleString() {
+      return "Concept substitution:" +  super.toSimpleString();
+   }
 
    /**
     * Inits the node uuid.

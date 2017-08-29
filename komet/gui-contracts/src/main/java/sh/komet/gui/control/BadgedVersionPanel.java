@@ -232,7 +232,7 @@ public abstract class BadgedVersionPanel
       }
 
       componentText.setText(logicGraphVersion.getLogicalExpression()
-            .toString());
+            .toSimpleString());
    }
 
    protected void setupDescription(DescriptionVersion description, boolean latest) {

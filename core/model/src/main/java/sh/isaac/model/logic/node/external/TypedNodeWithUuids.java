@@ -185,6 +185,11 @@ public abstract class TypedNodeWithUuids
       return " " + Get.conceptService().getConcept(this.typeConceptUuid).toUserString();
    }
 
+   @Override
+   public String toSimpleString() {
+      return " " + Get.conceptService().getConcept(this.typeConceptUuid).toUserString();
+   }
+
    /**
     * Write node data.
     *

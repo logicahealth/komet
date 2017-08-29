@@ -242,6 +242,11 @@ public abstract class AbstractLogicNode
       return "";
    }
 
+   @Override
+   public String toSimpleString() {
+      return "";
+   }
+
    /**
     * Compare fields.
     *

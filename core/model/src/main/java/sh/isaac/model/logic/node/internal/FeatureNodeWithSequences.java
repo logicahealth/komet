@@ -201,6 +201,12 @@ public final class FeatureNodeWithSequences
             + super.toString(nodeIdSuffix);
    }
 
+   @Override
+   public String toSimpleString() {
+      return this.operator +
+             super.toSimpleString();
+   }
+
    /**
     * Write node data.
     *

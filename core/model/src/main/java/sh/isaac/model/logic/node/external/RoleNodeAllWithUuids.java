@@ -128,6 +128,10 @@ public class RoleNodeAllWithUuids
    public String toString(String nodeIdSuffix) {
       return "RoleNodeAll[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return toString("");
+   }
 
    /**
     * Write node data.

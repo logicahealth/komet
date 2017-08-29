@@ -105,6 +105,11 @@ public class RootNode
    public String toString(String nodeIdSuffix) {
       return "Root[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return "";
+   }
+
 
    /**
     * Compare node fields.

@@ -185,6 +185,10 @@ public class ConceptNodeWithUuids
       return "ConceptNode[" + getNodeIndex() + nodeIdSuffix + "] \"" +
              Get.conceptService().getConcept(this.conceptUuid).toUserString() + "\"" + super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return toString("");
+   }
 
    /**
     * Write node data.

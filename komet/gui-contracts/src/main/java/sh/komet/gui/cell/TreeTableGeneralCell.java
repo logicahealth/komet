@@ -94,7 +94,7 @@ public class TreeTableGeneralCell extends KometTreeTableCell<ObservableCategoriz
             break;
          case LOGIC_GRAPH:
             LogicGraphVersion logicGraphVersion = version.unwrap();
-            setText(logicGraphVersion.getLogicalExpression().toString());
+            setText(logicGraphVersion.getLogicalExpression().toSimpleString());
             break;
          case MEMBER:
             break;

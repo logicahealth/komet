@@ -188,5 +188,7 @@ public interface LogicNode
     * @return the concept sequence. 
     */
    int getSequenceForConceptBeingDefined();
+
+   String toSimpleString();
 }
 

@@ -106,6 +106,11 @@ public class NecessarySetNode
    public String toString(String nodeIdSuffix) {
       return "Necessary[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return "Necessary" +  super.toSimpleString();
+   }
+
 
    /**
     * Compare node fields.

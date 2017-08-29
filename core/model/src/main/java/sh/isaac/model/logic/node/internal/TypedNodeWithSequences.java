@@ -182,6 +182,10 @@ public abstract class TypedNodeWithSequences
       return " " + Get.conceptDescriptionText(this.typeConceptSequence) + " <" +
              Get.identifierService().getConceptSequence(this.typeConceptSequence) + ">" + super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return " " + Get.defaultCoordinate().getPreferredDescriptionText(this.typeConceptSequence) + super.toString();
+   }
 
    /**
     * Compare node fields.

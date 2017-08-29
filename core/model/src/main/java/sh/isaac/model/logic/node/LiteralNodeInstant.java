@@ -155,6 +155,11 @@ public class LiteralNodeInstant
       return "Instant literal[" + getNodeIndex() + nodeIdSuffix + "]" + this.literalValue +
              super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return this.literalValue +  super.toSimpleString();
+   }
+
 
    /**
     * Compare fields.

@@ -211,6 +211,14 @@ public abstract class ConnectorNode
 
       return "";
    }
+   @Override
+   public String toSimpleString() {
+      if ((this.childIndices != null) &&!this.childIndices.isEmpty()) {
+         return "➞";
+      }
+
+      return "";
+   }
 
    /**
     * Compare fields.

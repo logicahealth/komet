@@ -205,6 +205,10 @@ public class TemplateNodeWithUuids
              Get.conceptService().getConcept(this.assemblageConceptUuid).toUserString() + ", template: " +
              Get.conceptService().getConcept(this.templateConceptUuid).toUserString() + super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return toString("");
+   }
 
    /**
     * Write node data.
