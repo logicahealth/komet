@@ -67,6 +67,8 @@ import sh.komet.gui.manifold.Manifold;
 @RunLevel(value = 1)
 public class TaskProgressNodeFactory
          implements ExplorationNodeFactory {
+   
+   public static final String TITLE_BASE = "Activities";
    @Override
    public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
       TaskProgressNode taskProgressNode = new TaskProgressNode(manifold);
@@ -84,7 +86,7 @@ public class TaskProgressNodeFactory
 
    @Override
    public String getMenuText() {
-      return "Activity";
+      return TITLE_BASE;
    }
 }
 

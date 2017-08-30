@@ -74,14 +74,13 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.*;
-
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -89,7 +88,6 @@ import javax.validation.constraints.NotNull;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
@@ -110,16 +108,16 @@ import sh.isaac.api.query.QueryBuilder;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 
 import sh.komet.gui.action.ConceptAction;
+import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
+import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.search.control.LetPropertySheet;
 import sh.komet.gui.style.StyleClasses;
-
-import static sh.isaac.api.query.QueryBuilder.DEFAULT_MANIFOLD_COORDINATE_KEY;
-import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
-import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.table.DescriptionTableCell;
 import sh.komet.gui.util.FxGet;
+
+import static sh.isaac.api.query.QueryBuilder.DEFAULT_MANIFOLD_COORDINATE_KEY;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -131,6 +129,7 @@ public class QueryController
    //~--- fields --------------------------------------------------------------
 
    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("FLOWR query view");
+   private final SimpleStringProperty titleProperty   = new SimpleStringProperty(QueryViewFactory.MENU_TEXT);
    @FXML  // ResourceBundle that was given to the FXMLLoader
    private ResourceBundle                                     resources;
    @FXML  // URL location of the FXML file that was given to the FXMLLoader
@@ -183,11 +182,7 @@ public class QueryController
    private AnchorPane                                         letAnchorPane;
    private TreeItem<QueryClause>                              root;
    private Manifold                                           manifold;
-
    private LetPropertySheet                                   letPropertySheet;
-
-
-   
 
    //~--- methods -------------------------------------------------------------
 
@@ -244,7 +239,8 @@ public class QueryController
 
       NidSet results = query.compute();
 
-      FxGet.statusMessageService().reportSceneStatus(anchorPane.getScene(), "Query result count: " + results.size());
+      FxGet.statusMessageService()
+           .reportSceneStatus(anchorPane.getScene(), "Query result count: " + results.size());
       displayResults(results);
    }
 
@@ -274,12 +270,13 @@ public class QueryController
       assert typeColumn != null: "fx:id=\"typeColumn\" was not injected: check your FXML file 'Query.fxml'.";
       assert languageColumn != null: "fx:id=\"languageColumn\" was not injected: check your FXML file 'Query.fxml'.";
       assert letAnchorPane != null: "fx:id=\"letAnchorPane\" was not injected: check your FXML file 'Query.fxml'.";
-      
-      textColumn.setCellValueFactory((TableColumn.CellDataFeatures<ObservableDescriptionVersion, String> param) -> param.getValue().textProperty());
-      textColumn.setCellFactory((TableColumn<ObservableDescriptionVersion, String> stringText) -> new DescriptionTableCell());
+      textColumn.setCellValueFactory(
+          (TableColumn.CellDataFeatures<ObservableDescriptionVersion, String> param) -> param.getValue()
+                .textProperty());
+      textColumn.setCellFactory(
+          (TableColumn<ObservableDescriptionVersion, String> stringText) -> new DescriptionTableCell());
       resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
       resultTable.setOnDragDone(new DragDoneEventHandler());
-
    }
 
    private void addChildClause(ActionEvent event, TreeTableRow<QueryClause> rowValue) {
@@ -371,14 +368,19 @@ public class QueryController
       } else {
          ParentClause parent = (ParentClause) clause;
 
-         itemToProcess.getChildren().stream().map((child) -> {
-            parent.getChildren()
-                    .add(child.getValue()
-                            .getClause());
-            return child;
-         }).forEachOrdered((child) -> {
-            processQueryTreeItem(child, queryBuilder);
-         });
+         itemToProcess.getChildren()
+                      .stream()
+                      .map(
+                          (child) -> {
+                             parent.getChildren()
+                                   .add(child.getValue()
+                                             .getClause());
+                             return child;
+                          })
+                      .forEachOrdered(
+                          (child) -> {
+                             processQueryTreeItem(child, queryBuilder);
+                          });
       }
    }
 
@@ -607,13 +609,16 @@ public class QueryController
                      (obs, oldSelection, newSelection) -> {
                         if (newSelection != null) {
                            manifold.setFocusedConceptChronology(
-                                   Get.conceptService().getConcept(newSelection.getReferencedComponentNid()));
+                               Get.conceptService()
+                                  .getConcept(newSelection.getReferencedComponentNid()));
                         }
                      });
-
       letPropertySheet = new LetPropertySheet(this.manifold.deepClone());
-      this.letAnchorPane.getChildren().add(letPropertySheet.getPropertySheet());
+      this.letAnchorPane.getChildren()
+                        .add(letPropertySheet.getPropertySheet());
    }
+
+   //~--- get methods ---------------------------------------------------------
 
    @Override
    public Node getNode() {
@@ -621,7 +626,10 @@ public class QueryController
       return anchorPane;
    }
 
-   //~--- get methods ---------------------------------------------------------
+   @Override
+   public ReadOnlyProperty<String> getTitle() {
+      return titleProperty;
+   }
 
    @Override
    public ReadOnlyProperty<String> getToolTip() {

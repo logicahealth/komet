@@ -590,3 +590,22 @@ limitations under the License.
    -fx-background-color: transparent;
    -fx-border-width:0;
 }
+
+.task-title {
+   -fx-wrap-text:true;
+   -fx-text-fill: red;
+}
+
+.task-message {
+   -fx-wrap-text:true;
+   -fx-text-fill: greenyellow;
+   
+}
+
+.task-progress-bar {
+   
+}
+
+.task-cancel-button {
+   
+}

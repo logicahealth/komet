@@ -28,6 +28,7 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 public class SimpleSearchExplorationNode implements ExplorationNode {
+   private final SimpleStringProperty titleProperty = new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
    Label node = new Label("Not yet implemented");
    SimpleStringProperty toolTipText = new SimpleStringProperty("Simple Search Panel");
    final Manifold manifold;
@@ -51,5 +52,10 @@ public class SimpleSearchExplorationNode implements ExplorationNode {
    @Override
    public ReadOnlyProperty<String> getToolTip() {
       return toolTipText;
+   }
+
+   @Override
+   public ReadOnlyProperty<String> getTitle() {
+      return titleProperty;
    }
 }

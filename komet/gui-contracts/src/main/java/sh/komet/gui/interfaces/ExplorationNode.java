@@ -46,4 +46,10 @@ public interface ExplorationNode {
     * @return the read-only property for the tool-tip text.
     */
    ReadOnlyProperty<String> getToolTip(); 
+
+   /**
+    * Title for this node. 
+    * @return the read-only property for the title text.
+    */
+   ReadOnlyProperty<String> getTitle(); 
 }

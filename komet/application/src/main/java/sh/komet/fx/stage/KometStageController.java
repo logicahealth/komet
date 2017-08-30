@@ -56,12 +56,10 @@ import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
 
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -289,8 +287,7 @@ public class KometStageController
                   borderPaneForTab.setCenter(theNewDetailNode);
                });
 
-             tab.textProperty()
-                .set(factory.getMenuText());
+             tab.textProperty().bind(explorationNode.getTitle());
              tab.getTooltip()
                 .textProperty()
                 .bind(explorationNode.getToolTip());
@@ -435,6 +432,7 @@ public class KometStageController
                      activityPane.setCenter(theNewExplorationNode);
                   });
             tab.setContent(activityPane);
+            tab.textProperty().bind(activityNode.getTitle());
             tab.setTooltip(new Tooltip("Activity panel"));
             tab.getTooltip()
                .textProperty()

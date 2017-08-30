@@ -36,6 +36,7 @@ import sh.komet.gui.manifold.Manifold;
 @Service(name = "Simple Search Provider")
 @RunLevel(value = 1)
 public class SimpleSearchViewFactory implements ExplorationNodeFactory {
+   public static final String MENU_TEXT  = "Search";
 
    @Override
    public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
@@ -46,7 +47,7 @@ public class SimpleSearchViewFactory implements ExplorationNodeFactory {
 
    @Override
    public String getMenuText() {
-      return "Search";
+      return MENU_TEXT;
    }
 
    @Override

@@ -58,6 +58,7 @@ public class GetMultiParentTreeItemConceptCallable extends Task<Boolean> {
         this.treeItem = treeItem;
         this.concept = treeItem != null ? treeItem.getValue() : null;
         this.addChildren = addChildren;
+        updateTitle("Fetching chilren for: " + treeItem.toString());
         if (addChildren) {
             treeItem.childLoadStarts();
         }
@@ -141,6 +142,8 @@ public class GetMultiParentTreeItemConceptCallable extends Task<Boolean> {
         }
         finally
         {
+         Get.activeTasks().remove(this);
+
             if (!MultiParentTreeView.wasGlobalShutdownRequested() && !treeItem.isCancelRequested()) 
             {
                 treeItem.childLoadComplete();

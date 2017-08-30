@@ -35,6 +35,7 @@ import sh.komet.gui.manifold.Manifold;
 @RunLevel(value = 1)
 public class QueryViewFactory implements ExplorationNodeFactory {
 
+   public static final String MENU_TEXT  = "FLOWR Query";
    @Override
    public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
       try {
@@ -51,7 +52,7 @@ public class QueryViewFactory implements ExplorationNodeFactory {
 
    @Override
    public String getMenuText() {
-      return "FLOWR Query";
+      return MENU_TEXT;
    }
 
    @Override

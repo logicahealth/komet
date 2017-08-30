@@ -15,6 +15,7 @@
  */
 package sh.komet.fx.stage;
 
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.SetChangeListener;
@@ -36,6 +37,7 @@ public class TaskProgressNode implements ExplorationNode {
    final Manifold manifold;
    final TaskProgressView<Task<?>> taskProgressView = new TaskProgressView<>();
    final SimpleStringProperty activeTasksTooltip = new SimpleStringProperty("No active tasks...");
+   final SimpleStringProperty title = new SimpleStringProperty("No active tasks...");
    final ScrollPane scrollPane;
    final AnchorPane anchorPane = new AnchorPane();
 
@@ -45,16 +47,21 @@ public class TaskProgressNode implements ExplorationNode {
       
       activeTasks.get().addListener((SetChangeListener.Change<? extends Task<?>> change) -> {
          if (change.wasAdded()) {
-            taskProgressView.getTasks().add(change.getElementAdded());
+            Platform.runLater(() -> taskProgressView.getTasks().add(change.getElementAdded()));
+         } else if (change.wasRemoved()) {
+            Platform.runLater(() -> taskProgressView.getTasks().remove(change.getElementRemoved()));
          }
-         if (change.wasRemoved()) {
-            taskProgressView.getTasks().remove(change.getElementRemoved());
-         }
-         
-         switch (change.getSet().size()) {
-            case 0: activeTasksTooltip.set("No active tasks");
-            break;
-            default: activeTasksTooltip.set(change.getSet().size() + " active tasks");
+         if (change.getSet().isEmpty()) {
+            Platform.runLater(() -> {
+               activeTasksTooltip.set("No active tasks");
+               title.set(TaskProgressNodeFactory.TITLE_BASE);
+                    });
+         } else {
+            Platform.runLater(() -> {
+               int taskCount = change.getSet().size();
+               activeTasksTooltip.set(taskCount + " active tasks");
+               title.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE);
+                  });
          }
       });
       scrollPane = new ScrollPane(taskProgressView);
@@ -86,4 +93,11 @@ public class TaskProgressNode implements ExplorationNode {
    public ReadOnlyProperty<String> getToolTip() {
       return activeTasksTooltip;
    }
+
+   @Override
+   public ReadOnlyProperty<String> getTitle() {
+      return title;
+   }
+   
+   
 }

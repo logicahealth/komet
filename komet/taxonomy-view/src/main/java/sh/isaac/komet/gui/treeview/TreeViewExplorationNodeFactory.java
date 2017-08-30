@@ -35,6 +35,7 @@ import sh.komet.gui.manifold.Manifold;
 
 public class TreeViewExplorationNodeFactory 
         implements ExplorationNodeFactory {
+   public static final String MENU_TEXT  = "Taxonomy";
 
    @Override
    public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
@@ -46,7 +47,7 @@ public class TreeViewExplorationNodeFactory
 
    @Override
    public String getMenuText() {
-      return "Taxonomy";
+      return MENU_TEXT;
    }
 
    @Override

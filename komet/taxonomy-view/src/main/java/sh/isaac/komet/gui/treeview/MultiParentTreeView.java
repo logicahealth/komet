@@ -59,6 +59,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.tree.Tree;
+import static sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory.MENU_TEXT;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.interfaces.ExplorationNode;
 import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
@@ -71,6 +72,7 @@ import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a> 
  */
 public class MultiParentTreeView extends BorderPane implements ExplorationNode {
+   private final SimpleStringProperty titleProperty = new SimpleStringProperty(MENU_TEXT);
 
    /**
     * The Constant LOG.
@@ -655,5 +657,10 @@ public class MultiParentTreeView extends BorderPane implements ExplorationNode {
    @Override
    public ReadOnlyProperty<String> getToolTip() {
       return toolTipProperty;
+   }
+
+   @Override
+   public ReadOnlyProperty<String> getTitle() {
+      return titleProperty;
    }
 }
