@@ -37,78 +37,54 @@
 
 
 
-package sh.isaac.provider.progress;
+package sh.komet.fx.stage;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.concurrent.ConcurrentHashMap;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
+import java.util.function.Consumer;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.concurrent.Task;
+import javafx.scene.Node;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import javax.inject.Singleton;
-
-//~--- non-JDK imports --------------------------------------------------------
+import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
-import sh.isaac.api.progress.ActiveTasks;
+import sh.isaac.komet.iconography.Iconography;
+
+import sh.komet.gui.contract.ExplorationNodeFactory;
+import sh.komet.gui.interfaces.ExplorationNode;
+import sh.komet.gui.manifold.Manifold;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * Created by kec on 1/2/16.
+ *
+ * @author kec
  */
-@Service
-@Singleton
-public class ActiveTasksProvider
-         implements ActiveTasks {
-   /** The task set. */
-   ObservableSet<Task<?>> taskSet = FXCollections.observableSet(ConcurrentHashMap.newKeySet());
-
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Adds the task to the active tasks set.
-    *
-    * @param task the task
-    */
+@Service(name = "Activity panel factory")
+@RunLevel(value = 1)
+public class TaskProgressNodeFactory
+         implements ExplorationNodeFactory {
    @Override
-   public void add(Task<?> task) {
-      if (Platform.isFxApplicationThread()) {
-         this.taskSet.add(task);
-      } else {
-         Platform.runLater(() -> this.taskSet.add(task));
-      }
-      
-   }
+   public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
+      TaskProgressNode taskProgressNode = new TaskProgressNode(manifold);
 
-   /**
-    * Removes the task from the active tasks set.
-    *
-    * @param task the task
-    */
-   @Override
-   public void remove(Task<?> task) {
-      this.taskSet.remove(task);
+      nodeConsumer.accept(taskProgressNode.getNode());
+      return taskProgressNode;
    }
 
    //~--- get methods ---------------------------------------------------------
 
-   /**
-    * Gets the observable task set.
-    *
-    * @return the set
-    */
    @Override
-   public ObservableSet<Task<?>> get() {
-      return this.taskSet;
+   public Node getMenuIcon() {
+      return Iconography.SPINNER.getIconographic();
+   }
+
+   @Override
+   public String getMenuText() {
+      return "Activity";
    }
 }
 

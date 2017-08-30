@@ -145,6 +145,7 @@ public enum Iconography {
   CONCEPT_DETAILS(MATERIAL_DESIGNS_ICON, "concept-details"),
   CONCEPT_TABLE(MATERIAL_DESIGNS_WEBFONT, "concept-table"),
   KOMET(EMOJI_ONE, "komet"),
+  SPINNER(ICONS_525, "spinner"),
   // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
    ;
 

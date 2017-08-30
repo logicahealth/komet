@@ -405,12 +405,12 @@ public class KometStageController
          }
 
          if (tabPanelCount == 3) {
-            // add FLOWR query tab 
+            // add FLOWR query flowrTab 
             QueryViewFactory queryViewFactory = new QueryViewFactory();
-            Tab              tab              = new Tab(queryViewFactory.getMenuText());
+            Tab              flowrTab              = new Tab(queryViewFactory.getMenuText());
 
-            tab.setGraphic(queryViewFactory.getMenuIcon());
-            tab.setTooltip(new Tooltip("For, Let, Order, Where, Return query construction panel"));
+            flowrTab.setGraphic(queryViewFactory.getMenuIcon());
+            flowrTab.setTooltip(new Tooltip("For, Let, Order, Where, Return query construction panel"));
 
             BorderPane searchPane = new BorderPane();
             ExplorationNode explorationNode = queryViewFactory.createExplorationNode(
@@ -419,22 +419,28 @@ public class KometStageController
                      searchPane.setCenter(theNewExplorationNode);
                   });
 
-            tab.getTooltip()
+            flowrTab.getTooltip()
                .textProperty()
                .bind(explorationNode.getToolTip());
-            tab.setContent(searchPane);
+            flowrTab.setContent(searchPane);
+            tabPane.getTabs()
+                   .add(flowrTab);
+            // Add progress flowrTab
+            TaskProgressNodeFactory factory = new TaskProgressNodeFactory();
+            Tab              tab              = new Tab(factory.getMenuText());
+            tab.setGraphic(factory.getMenuIcon());
+
+            BorderPane activityPane = new BorderPane();
+            ExplorationNode activityNode = factory.createExplorationNode(FLOWR_MANIFOLD, (theNewExplorationNode) -> {
+                     activityPane.setCenter(theNewExplorationNode);
+                  });
+            tab.setContent(activityPane);
+            tab.setTooltip(new Tooltip("Activity panel"));
+            tab.getTooltip()
+               .textProperty()
+               .bind(activityNode.getToolTip());
             tabPane.getTabs()
                    .add(tab);
-            // Add progress tab
-            ProgressIndicator p1 = new ProgressIndicator();
-
-            p1.setPrefSize(20, 20);
-
-            Tab progressTab = TaskProgressTabFactory.create();
-
-            tabPane.getTabs()
-                   .add(progressTab);
-            progressTab.setGraphic(p1);
          }
       }
 

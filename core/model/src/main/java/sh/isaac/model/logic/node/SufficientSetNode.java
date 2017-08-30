@@ -108,7 +108,7 @@ public class SufficientSetNode
    }
    @Override
    public String toSimpleString() {
-      return "Sufficient" +  super.toSimpleString();
+      return "Sufficient " +  super.toSimpleString();
    }
 
    /**

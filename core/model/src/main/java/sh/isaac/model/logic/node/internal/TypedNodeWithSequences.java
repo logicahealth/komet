@@ -184,7 +184,7 @@ public abstract class TypedNodeWithSequences
    }
    @Override
    public String toSimpleString() {
-      return " " + Get.defaultCoordinate().getPreferredDescriptionText(this.typeConceptSequence) + super.toString();
+      return " " + Get.defaultCoordinate().getPreferredDescriptionText(this.typeConceptSequence) + " " + super.toSimpleString();
    }
 
    /**

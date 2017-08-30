@@ -27,9 +27,9 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sh.isaac.api.Get;
 
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptVersion;
 
 /**
  * A concrete {@link Callable} for fetching concepts.
@@ -61,6 +61,7 @@ public class GetMultiParentTreeItemConceptCallable extends Task<Boolean> {
         if (addChildren) {
             treeItem.childLoadStarts();
         }
+        Get.activeTasks().add(this);
     }
 
     @Override

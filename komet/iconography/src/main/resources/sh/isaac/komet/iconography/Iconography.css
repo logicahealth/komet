@@ -661,3 +661,9 @@ limitations under the License.
    -glyph-size: 20;
    -fx-rotate: 180;
 }
+
+.spinner {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 20;
+   
+}
