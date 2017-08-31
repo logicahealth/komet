@@ -37,11 +37,10 @@
 
 
 
-package sh.isaac.provider.sememe;
+package sh.isaac.provider.assemblage;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 import sh.isaac.model.waitfree.WaitFreeMergeSerializer;
@@ -49,11 +48,11 @@ import sh.isaac.model.waitfree.WaitFreeMergeSerializer;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class SememeSerializer.
+ * The Class AssemblageSerializer.
  *
  * @author kec
  */
-public class SememeSerializer
+public class AssemblageSerializer
          implements WaitFreeMergeSerializer<SememeChronologyImpl> {
    /**
     * Deserialize.

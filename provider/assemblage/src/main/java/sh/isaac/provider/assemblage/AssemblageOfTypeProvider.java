@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.provider.sememe;
+package sh.isaac.provider.assemblage;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -56,11 +56,11 @@ import sh.isaac.api.component.sememe.SememeType;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class SememeTypeProvider.
+ * The Class AssemblageOfTypeProvider.
  *
  * @author kec
  */
-public class SememeTypeProvider
+public class AssemblageOfTypeProvider
          implements SememeServiceTyped {
    /** The type. */
    SememeType type;
@@ -76,7 +76,7 @@ public class SememeTypeProvider
     * @param type the type
     * @param sememeProvider the sememe provider
     */
-   public SememeTypeProvider(SememeType type, AssemblageService sememeProvider) {
+   public AssemblageOfTypeProvider(SememeType type, AssemblageService sememeProvider) {
       this.type           = type;
       this.sememeProvider = sememeProvider;
    }

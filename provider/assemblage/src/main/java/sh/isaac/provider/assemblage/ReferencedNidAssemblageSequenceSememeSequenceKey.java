@@ -37,15 +37,21 @@
 
 
 
-package sh.isaac.provider.sememe;
+package sh.isaac.provider.assemblage;
+
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 /**
- * The Class AssemblageSememeKey.
- *
- * @author kec
+ * Created by kec on 12/18/14.
  */
-public class AssemblageSememeKey
-         implements Comparable<AssemblageSememeKey> {
+public class ReferencedNidAssemblageSequenceSememeSequenceKey
+         implements Comparable<ReferencedNidAssemblageSequenceSememeSequenceKey>, Externalizable {
+   /** The referenced nid. */
+   int referencedNid;
+
    /** The assemblage sequence. */
    int assemblageSequence;
 
@@ -54,14 +60,19 @@ public class AssemblageSememeKey
 
    //~--- constructors --------------------------------------------------------
 
+   public ReferencedNidAssemblageSequenceSememeSequenceKey() {
+   }
+
    /**
-    * Instantiates a new assemblage sememe key.
+    * Instantiates a new referenced nid assemblage sequence sememe sequence key.
     *
-    * @param assemblageKey the assemblage key
+    * @param referencedNid the referenced nid
+    * @param assemblageSequence the assemblage sequence
     * @param sememeSequence the sememe sequence
     */
-   public AssemblageSememeKey(int assemblageKey, int sememeSequence) {
-      this.assemblageSequence = assemblageKey;
+   public ReferencedNidAssemblageSequenceSememeSequenceKey(int referencedNid, int assemblageSequence, int sememeSequence) {
+      this.referencedNid      = referencedNid;
+      this.assemblageSequence = assemblageSequence;
       this.sememeSequence     = sememeSequence;
    }
 
@@ -74,7 +85,15 @@ public class AssemblageSememeKey
     * @return the int
     */
    @Override
-   public int compareTo(AssemblageSememeKey o) {
+   public int compareTo(ReferencedNidAssemblageSequenceSememeSequenceKey o) {
+      if (this.referencedNid != o.referencedNid) {
+         if (this.referencedNid < o.referencedNid) {
+            return -1;
+         }
+
+         return 1;
+      }
+
       if (this.assemblageSequence != o.assemblageSequence) {
          if (this.assemblageSequence < o.assemblageSequence) {
             return -1;
@@ -110,13 +129,18 @@ public class AssemblageSememeKey
          return false;
       }
 
-      final AssemblageSememeKey otherKey = (AssemblageSememeKey) o;
+      final ReferencedNidAssemblageSequenceSememeSequenceKey sememeKey =
+         (ReferencedNidAssemblageSequenceSememeSequenceKey) o;
 
-      if (this.assemblageSequence != otherKey.assemblageSequence) {
+      if (this.referencedNid != sememeKey.referencedNid) {
          return false;
       }
 
-      return this.sememeSequence == otherKey.sememeSequence;
+      if (this.assemblageSequence != sememeKey.assemblageSequence) {
+         return false;
+      }
+
+      return this.sememeSequence == sememeKey.sememeSequence;
    }
 
    /**
@@ -126,8 +150,9 @@ public class AssemblageSememeKey
     */
    @Override
    public int hashCode() {
-      int result = this.assemblageSequence;
+      int result = this.referencedNid;
 
+      result = 31 * result + this.assemblageSequence;
       result = 31 * result + this.sememeSequence;
       return result;
    }
@@ -139,8 +164,8 @@ public class AssemblageSememeKey
     */
    @Override
    public String toString() {
-      return "AssemblageSememeKey{" + "assemblageSequence=" + this.assemblageSequence + ", sememeSequence=" +
-             this.sememeSequence + '}';
+      return "Key{" + "referencedNid=" + this.referencedNid + ", assemblageSequence=" + this.assemblageSequence +
+             ", sememeSequence=" + this.sememeSequence + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -155,6 +180,15 @@ public class AssemblageSememeKey
    }
 
    /**
+    * Gets the referenced nid.
+    *
+    * @return the referenced nid
+    */
+   public int getReferencedNid() {
+      return this.referencedNid;
+   }
+
+   /**
     * Gets the sememe sequence.
     *
     * @return the sememe sequence
@@ -162,5 +196,21 @@ public class AssemblageSememeKey
    public int getSememeSequence() {
       return this.sememeSequence;
    }
+   
+
+   @Override
+   public void writeExternal(ObjectOutput out) throws IOException {
+      out.writeInt(assemblageSequence);
+      out.writeInt(referencedNid);
+      out.writeInt(sememeSequence);
+   }
+
+   @Override
+   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+      assemblageSequence = in.readInt();
+      referencedNid = in.readInt();
+      sememeSequence = in.readInt();
+   }
+   
 }
 

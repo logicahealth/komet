@@ -59,8 +59,6 @@ import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 
-import javafx.util.Duration;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.komet.iconography.Iconography;

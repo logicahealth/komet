@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.provider.sememe;
+package sh.isaac.provider.assemblage;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -65,12 +65,12 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class SememeSnapshotProvider.
+ * The Class AssemblageSnapshotProvider.
  *
  * @author kec
  * @param <V> the value type
  */
-public class SememeSnapshotProvider<V extends SememeVersion>
+public class AssemblageSnapshotProvider<V extends SememeVersion>
          implements SememeSnapshotService<V> {
    /**
     * The version type.
@@ -101,7 +101,7 @@ public class SememeSnapshotProvider<V extends SememeVersion>
     * @param stampCoordinate the stamp coordinate
     * @param sememeProvider the sememe provider
     */
-   public SememeSnapshotProvider(Class<V> versionType,
+   public AssemblageSnapshotProvider(Class<V> versionType,
                                  StampCoordinate stampCoordinate,
                                  AssemblageService sememeProvider) {
       this.versionType     = versionType;

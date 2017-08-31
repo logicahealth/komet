@@ -37,36 +37,40 @@
 
 
 
-package sh.isaac.provider.sememe;
+package sh.isaac.provider.assemblage;
+
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 /**
- * Created by kec on 12/18/14.
+ * The Class AssemblageSememeKey.
+ *
+ * @author kec
  */
-public class ReferencedNidAssemblageSequenceSememeSequenceKey
-         implements Comparable<ReferencedNidAssemblageSequenceSememeSequenceKey> {
-   /** The referenced nid. */
-   int referencedNid;
-
+public class AssemblageSememeKey
+         implements Comparable<AssemblageSememeKey>, Externalizable {
    /** The assemblage sequence. */
    int assemblageSequence;
 
    /** The sememe sequence. */
    int sememeSequence;
 
+   
    //~--- constructors --------------------------------------------------------
 
+   public AssemblageSememeKey() {
+   }
+
    /**
-    * Instantiates a new referenced nid assemblage sequence sememe sequence key.
+    * Instantiates a new assemblage sememe key.
     *
-    * @param referencedNid the referenced nid
-    * @param assemblageSequence the assemblage sequence
+    * @param assemblageKey the assemblage key
     * @param sememeSequence the sememe sequence
     */
-   public ReferencedNidAssemblageSequenceSememeSequenceKey(int referencedNid,
-         int assemblageSequence,
-         int sememeSequence) {
-      this.referencedNid      = referencedNid;
-      this.assemblageSequence = assemblageSequence;
+   public AssemblageSememeKey(int assemblageKey, int sememeSequence) {
+      this.assemblageSequence = assemblageKey;
       this.sememeSequence     = sememeSequence;
    }
 
@@ -79,15 +83,7 @@ public class ReferencedNidAssemblageSequenceSememeSequenceKey
     * @return the int
     */
    @Override
-   public int compareTo(ReferencedNidAssemblageSequenceSememeSequenceKey o) {
-      if (this.referencedNid != o.referencedNid) {
-         if (this.referencedNid < o.referencedNid) {
-            return -1;
-         }
-
-         return 1;
-      }
-
+   public int compareTo(AssemblageSememeKey o) {
       if (this.assemblageSequence != o.assemblageSequence) {
          if (this.assemblageSequence < o.assemblageSequence) {
             return -1;
@@ -123,18 +119,13 @@ public class ReferencedNidAssemblageSequenceSememeSequenceKey
          return false;
       }
 
-      final ReferencedNidAssemblageSequenceSememeSequenceKey sememeKey =
-         (ReferencedNidAssemblageSequenceSememeSequenceKey) o;
+      final AssemblageSememeKey otherKey = (AssemblageSememeKey) o;
 
-      if (this.referencedNid != sememeKey.referencedNid) {
+      if (this.assemblageSequence != otherKey.assemblageSequence) {
          return false;
       }
 
-      if (this.assemblageSequence != sememeKey.assemblageSequence) {
-         return false;
-      }
-
-      return this.sememeSequence == sememeKey.sememeSequence;
+      return this.sememeSequence == otherKey.sememeSequence;
    }
 
    /**
@@ -144,9 +135,8 @@ public class ReferencedNidAssemblageSequenceSememeSequenceKey
     */
    @Override
    public int hashCode() {
-      int result = this.referencedNid;
+      int result = this.assemblageSequence;
 
-      result = 31 * result + this.assemblageSequence;
       result = 31 * result + this.sememeSequence;
       return result;
    }
@@ -158,8 +148,8 @@ public class ReferencedNidAssemblageSequenceSememeSequenceKey
     */
    @Override
    public String toString() {
-      return "Key{" + "referencedNid=" + this.referencedNid + ", assemblageSequence=" + this.assemblageSequence +
-             ", sememeSequence=" + this.sememeSequence + '}';
+      return "AssemblageSememeKey{" + "assemblageSequence=" + this.assemblageSequence + ", sememeSequence=" +
+             this.sememeSequence + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -174,21 +164,24 @@ public class ReferencedNidAssemblageSequenceSememeSequenceKey
    }
 
    /**
-    * Gets the referenced nid.
-    *
-    * @return the referenced nid
-    */
-   public int getReferencedNid() {
-      return this.referencedNid;
-   }
-
-   /**
     * Gets the sememe sequence.
     *
     * @return the sememe sequence
     */
    public int getSememeSequence() {
       return this.sememeSequence;
+   }
+
+   @Override
+   public void writeExternal(ObjectOutput out) throws IOException {
+      out.writeInt(assemblageSequence);
+      out.writeInt(sememeSequence);
+   }
+
+   @Override
+   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+      assemblageSequence = in.readInt();
+      sememeSequence = in.readInt();
    }
 }
 
