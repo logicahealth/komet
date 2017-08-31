@@ -39,5 +39,6 @@
       <module>css</module>
       <module>mavenproject1/dialog</module>
       <module>concept-detail</module>
+      <module>progress-view</module>
    </modules>
 </project> 

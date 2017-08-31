@@ -37,7 +37,7 @@
 
 
 
-package sh.komet.fx.stage;
+package sh.komet.progress.view;
 
 //~--- JDK imports ------------------------------------------------------------
 

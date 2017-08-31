@@ -178,6 +178,12 @@
          <scope>system</scope>
          <systemPath>${java.home}/../lib/ant-javafx.jar</systemPath>
       </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>progress-view</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
    </dependencies>
    <build>
       <plugins>

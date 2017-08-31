@@ -52,4 +52,11 @@ public interface ExplorationNode {
     * @return the read-only property for the title text.
     */
    ReadOnlyProperty<String> getTitle(); 
+   
+      /**
+    * 
+    * @return icon to display in relationship to this node
+    */
+   ReadOnlyProperty<Node> getIcon();
+
 }

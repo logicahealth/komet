@@ -25,11 +25,14 @@ import java.util.concurrent.CountDownLatch;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.scene.Node;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.interfaces.IconProvider;
 
 /**
  * A concrete {@link Callable} for fetching concepts.
@@ -38,7 +41,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a> 
  */
-public class GetMultiParentTreeItemConceptCallable extends Task<Boolean> {
+public class GetMultiParentTreeItemConceptCallable extends Task<Boolean> implements IconProvider {
    /**
     * The Constant LOG.
     */
@@ -58,16 +61,20 @@ public class GetMultiParentTreeItemConceptCallable extends Task<Boolean> {
         this.treeItem = treeItem;
         this.concept = treeItem != null ? treeItem.getValue() : null;
         this.addChildren = addChildren;
-        updateTitle("Fetching chilren for: " + treeItem.toString());
+        updateTitle("Fetching children");
+        updateMessage(treeItem.toString());
         if (addChildren) {
             treeItem.childLoadStarts();
         }
+        this.updateProgress(0, 3);
         Get.activeTasks().add(this);
+        
     }
 
     @Override
     public Boolean call() throws Exception {
-        try
+       this.updateProgress(1, 3);
+         try
         {    
             // TODO is current value == old value.getRelationshipVersion()?
             if (treeItem == null || treeItem.getValue() == null)
@@ -119,7 +126,8 @@ public class GetMultiParentTreeItemConceptCallable extends Task<Boolean> {
     
             Platform.runLater(() -> 
             {
-                ConceptChronology itemValue = treeItem.getValue();
+                  this.updateProgress(2, 3);
+                 ConceptChronology itemValue = treeItem.getValue();
 
                 treeItem.setValue(null);
                 if (addChildren)
@@ -132,7 +140,7 @@ public class GetMultiParentTreeItemConceptCallable extends Task<Boolean> {
                 temp.countDown();
             });
             temp.await();
-            
+            this.updateProgress(3, 3);
             return true;
         }
         catch (InterruptedException e)
@@ -142,7 +150,8 @@ public class GetMultiParentTreeItemConceptCallable extends Task<Boolean> {
         }
         finally
         {
-         Get.activeTasks().remove(this);
+          this.updateProgress(3, 3);
+          Get.activeTasks().remove(this);
 
             if (!MultiParentTreeView.wasGlobalShutdownRequested() && !treeItem.isCancelRequested()) 
             {
@@ -150,4 +159,11 @@ public class GetMultiParentTreeItemConceptCallable extends Task<Boolean> {
             }
         }
     }
+
+   @Override
+   public Node getIcon() {
+      return Iconography.TAXONOMY_ICON.getIconographic();
+   }
+    
+    
 }

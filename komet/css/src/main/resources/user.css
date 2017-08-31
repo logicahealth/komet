@@ -593,17 +593,21 @@ limitations under the License.
 
 .task-title {
    -fx-wrap-text:true;
-   -fx-text-fill: red;
+   -fx-text-fill: #666666;
+   -fx-font-size:10; 
+   -fx-font-weight: bold;
 }
 
 .task-message {
    -fx-wrap-text:true;
-   -fx-text-fill: greenyellow;
-   
+   -fx-text-fill: #666666;
+   -fx-font-size:10; 
+   -fx-border-width:0 0 1 0;
+   -fx-border-color: -komet-blue-color;   
 }
 
 .task-progress-bar {
-   
+   -fx-accent: -komet-blue-color;
 }
 
 .task-cancel-button {

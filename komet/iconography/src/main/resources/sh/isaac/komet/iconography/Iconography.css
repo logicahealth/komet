@@ -664,6 +664,54 @@ limitations under the License.
 
 .spinner {
    -glyph-name: "SPINNER"; 
+   -glyph-size: 20; 
+}
+.spinner-1 {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 20; 
+   -fx-rotate: 45;
+}
+.spinner-2 {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 20; 
+   -fx-rotate: 90;
+}
+.spinner-3 {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 20; 
+   -fx-rotate: 135;
+}
+.spinner-4 {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 20; 
+   -fx-rotate: 180;
+}
+.spinner-5 {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 20; 
+   -fx-rotate: 225;
+}
+.spinner-6 {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 270; 
+}
+.spinner-7 {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 315; 
+}
+.stop-circle {
+   -glyph-name: "STOP_CIRCLE";
    -glyph-size: 20;
-   
+   -icons-color: red;
+}
+.stop-square {
+   -glyph-name: "STOP";
+   -glyph-size: 20;
+   -icons-color: red;
+}
+
+.stop-sign {
+   -glyph-name: "STOP_SIGN";
+   -glyph-size: 24;
+   -icons-color: red;
 }

@@ -146,6 +146,17 @@ public enum Iconography {
   CONCEPT_TABLE(MATERIAL_DESIGNS_WEBFONT, "concept-table"),
   KOMET(EMOJI_ONE, "komet"),
   SPINNER(ICONS_525, "spinner"),
+  SPINNER0(ICONS_525, "spinner"),
+  SPINNER1(ICONS_525, "spinner-1"),
+  SPINNER2(ICONS_525, "spinner-2"),
+  SPINNER3(ICONS_525, "spinner-3"),
+  SPINNER4(ICONS_525, "spinner-4"),
+  SPINNER5(ICONS_525, "spinner-5"),
+  SPINNER6(ICONS_525, "spinner-6"),
+  SPINNER7(ICONS_525, "spinner-7"),
+  STOP_CIRCLE(FONT_AWSOME, "stop-circle"),
+  STOP_STOP(ICONS_525, "stop-sign"),
+  STOP_SQUARE(MATERIAL_DESIGNS_ICON, "stop-square"),
   // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
    ;
 

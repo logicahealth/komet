@@ -67,6 +67,7 @@ import java.util.ResourceBundle;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 import javafx.collections.ObservableList;
@@ -106,6 +107,7 @@ import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.QueryBuilder;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
+import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.action.ConceptAction;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
@@ -130,6 +132,8 @@ public class QueryController
 
    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("FLOWR query view");
    private final SimpleStringProperty titleProperty   = new SimpleStringProperty(QueryViewFactory.MENU_TEXT);
+   private SimpleObjectProperty<Node> iconProperty = new SimpleObjectProperty<>(
+                                                         Iconography.FLOWR_SEARCH.getIconographic());
    @FXML  // ResourceBundle that was given to the FXMLLoader
    private ResourceBundle                                     resources;
    @FXML  // URL location of the FXML file that was given to the FXMLLoader
@@ -516,6 +520,11 @@ public class QueryController
    }
 
    //~--- get methods ---------------------------------------------------------
+
+   @Override
+   public ReadOnlyProperty<Node> getIcon() {
+      return iconProperty;
+   }
 
    @Override
    public Manifold getManifold() {

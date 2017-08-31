@@ -41,6 +41,7 @@ package sh.komet.fx.stage;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.komet.progress.view.TaskProgressNodeFactory;
 import java.net.URL;
 
 import java.util.ArrayList;
@@ -277,7 +278,6 @@ public class KometStageController
           (event) -> {
              Tab tab = new Tab(factory.getMenuText(), factory.getMenuIcon());
 
-             tab.setGraphic(factory.getMenuIcon());
              tab.setTooltip(new Tooltip(""));
 
              BorderPane borderPaneForTab = new BorderPane();
@@ -286,7 +286,8 @@ public class KometStageController
                                                          (theNewDetailNode) -> {
                   borderPaneForTab.setCenter(theNewDetailNode);
                });
-
+             
+             tab.graphicProperty().bind(explorationNode.getIcon());
              tab.textProperty().bind(explorationNode.getTitle());
              tab.getTooltip()
                 .textProperty()
@@ -425,12 +426,14 @@ public class KometStageController
             // Add progress flowrTab
             TaskProgressNodeFactory factory = new TaskProgressNodeFactory();
             Tab              tab              = new Tab(factory.getMenuText());
-            tab.setGraphic(factory.getMenuIcon());
-
+ 
             BorderPane activityPane = new BorderPane();
             ExplorationNode activityNode = factory.createExplorationNode(FLOWR_MANIFOLD, (theNewExplorationNode) -> {
                      activityPane.setCenter(theNewExplorationNode);
                   });
+            
+            tab.graphicProperty().bind(activityNode.getIcon());
+           
             tab.setContent(activityPane);
             tab.textProperty().bind(activityNode.getTitle());
             tab.setTooltip(new Tooltip("Activity panel"));
