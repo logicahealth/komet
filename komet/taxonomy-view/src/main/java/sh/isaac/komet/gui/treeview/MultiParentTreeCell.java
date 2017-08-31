@@ -106,7 +106,8 @@ final public class MultiParentTreeCell
 
    private double   dragOffset = 0;
    private TilePane graphicTilePane;
-
+   private String conceptDescriptionText; // Cached to speed up updates 
+   
    //~--- constructors --------------------------------------------------------
 
    MultiParentTreeCell(TreeView<ConceptChronology> treeView) {
@@ -142,10 +143,11 @@ final public class MultiParentTreeCell
 
          if (empty) {
             setText("");
+            conceptDescriptionText = null;
             setGraphic(null);
          } else {
             final MultiParentTreeItem treeItem = (MultiParentTreeItem) getTreeItem();
- 
+            conceptDescriptionText = treeItem.toString();
 
                if (!treeItem.isLeaf()) {
                Node iv = treeItem.isExpanded() ? Iconography.TAXONOMY_CLICK_TO_CLOSE.getIconographic()
@@ -167,16 +169,13 @@ final public class MultiParentTreeCell
                                                                     .getConceptSnapshotService();
 
             if (taxRef != null) {
-               ConceptSnapshot conceptSnapshot = conceptSnapshotService.getConceptSnapshot(taxRef.getConceptSequence());
-
                if (conceptSnapshotService.isConceptActive(taxRef.getConceptSequence())) {
                   setFont(Font.font(getFont().getFamily(), FontPosture.REGULAR, getFont().getSize()));
                } else {
                   setFont(Font.font(getFont().getFamily(), FontPosture.ITALIC, getFont().getSize()));
                }
 
-               setText(conceptSnapshot.getDescription()
-                                      .getText());
+               setText(conceptDescriptionText);
 
                if (getGraphic() == null) {
                   graphicTilePane = new TilePane();
@@ -370,5 +369,16 @@ final public class MultiParentTreeCell
          }
       }
    }
+
+   @Override
+   public String toString() {
+      if (conceptDescriptionText == null) {
+         MultiParentTreeItem treeItem = (MultiParentTreeItem) getTreeItem();
+         conceptDescriptionText = treeItem.toString();
+      }
+      return conceptDescriptionText;
+   }
+   
+   
 }
 

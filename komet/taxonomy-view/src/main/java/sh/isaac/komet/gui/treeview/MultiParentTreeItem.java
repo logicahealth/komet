@@ -33,7 +33,8 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.util.AlphanumComparator;
+import sh.isaac.api.util.NaturalOrder;
+import sh.komet.gui.task.SequentialAggregateTaskWithIcon;
 
 /**
  * A {@link TreeItem} for modeling nodes in ISAAC taxonomies.
@@ -64,6 +65,8 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
    private int multiParentDepth = 0;
    private boolean secondaryParentOpened = false;
    private MultiParentTreeView treeView;
+   private String conceptDescriptionText; // Cached to speed up comparisons with toString method. 
+   private final int nid;
 
    public MultiParentTreeView getTreeView() {
       return treeView;
@@ -89,6 +92,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
    MultiParentTreeItem(ConceptChronology conceptChronology, MultiParentTreeView treeView, Node graphic) {
       super(conceptChronology, graphic);
       this.treeView = treeView;
+      this.nid = conceptChronology.getNid();
    }
 
    MultiParentTreeItemDisplayPolicies getDisplayPolicies() {
@@ -129,10 +133,11 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
                getChildren().addAll(childrenToAdd);
             });
             //This loads the children of this child
-            childrenToProcess.forEach((child) -> {
-               Get.workExecutors().getPotentiallyBlockingExecutor().execute(child);
-            });
-
+            if (!childrenToProcess.isEmpty()) {
+               SequentialAggregateTaskWithIcon aggregateTask = new SequentialAggregateTaskWithIcon("Fetching children", childrenToProcess);
+               Get.activeTasks().add(aggregateTask);
+               Get.workExecutors().getPotentiallyBlockingExecutor().execute(aggregateTask);
+            }
          }
       } catch (Exception e) {
          LOG.error("Unexpected error computing children and/or grandchildren", e);
@@ -206,9 +211,11 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
             }
 
             //This loads the childrens children
-            grandChildrenToProcess.forEach((childsChild) -> {
-               Get.workExecutors().getPotentiallyBlockingExecutor().execute(childsChild);
-            });
+            if (!grandChildrenToProcess.isEmpty()) {
+               SequentialAggregateTaskWithIcon aggregateTask = new SequentialAggregateTaskWithIcon("Fetching grandchildren", grandChildrenToProcess);
+               Get.activeTasks().add(aggregateTask);
+               Get.workExecutors().getPotentiallyBlockingExecutor().execute(aggregateTask);
+            }
          }
       } catch (InterruptedException e) {
          LOG.error("Unexpected error computing children and/or grandchildren", e);
@@ -219,7 +226,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
 
    @Override
    public int compareTo(MultiParentTreeItem o) {
-      return AlphanumComparator.compare(this.toString(), o.toString(), true);
+      return NaturalOrder.compareStrings(this.toString(), o.toString());
    }
 
    public UUID getConceptUuid() {
@@ -267,7 +274,10 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
    public String toString() {
       try {
          if (this.getValue() != null) {
-            return treeView.manifoldProperty.get().getConceptSnapshotService().conceptDescriptionText(this.getValue().getNid());
+            if (conceptDescriptionText == null) {
+               this.conceptDescriptionText = treeView.manifoldProperty.get().getConceptSnapshotService().conceptDescriptionText(nid);
+            }
+            return this.conceptDescriptionText;
          }
          return "root";
       } catch (RuntimeException | Error re) {

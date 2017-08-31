@@ -65,7 +65,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
 import javafx.util.Callback;
+
 import sh.isaac.komet.iconography.Iconography;
+
 import sh.komet.gui.interfaces.IconProvider;
 
 //~--- classes ----------------------------------------------------------------
@@ -216,7 +218,9 @@ public class KometProgressSkin<T extends Task<?>>
       public void layoutNodes(Node graphic) {
          cellGrid.getChildren()
                  .clear();
-         Insets insets = new Insets(1,4,1,4);
+
+         Insets insets = new Insets(1, 4, 1, 4);
+
          /*
           * Node child,
           * int columnIndex,
@@ -228,23 +232,73 @@ public class KometProgressSkin<T extends Task<?>>
           * Priority hgrow,
           * Priority vgrow
           */
-         GridPane.setConstraints(titleText, 0, 0, 3, 1, HPos.LEFT, VPos.BASELINE, Priority.ALWAYS, Priority.NEVER, insets);
+         GridPane.setConstraints(
+             titleText,
+             0,
+             0,
+             3,
+             1,
+             HPos.LEFT,
+             VPos.BASELINE,
+             Priority.ALWAYS,
+             Priority.NEVER,
+             insets);
          cellGrid.getChildren()
                  .add(titleText);
 
-         
          if (graphic != null) {
-            GridPane.setConstraints(graphic, 0, 1, 1, 1, HPos.LEFT, VPos.BASELINE, Priority.NEVER, Priority.NEVER, insets);
+            GridPane.setConstraints(
+                graphic,
+                0,
+                1,
+                1,
+                1,
+                HPos.LEFT,
+                VPos.BASELINE,
+                Priority.NEVER,
+                Priority.NEVER,
+                insets);
             cellGrid.getChildren()
                     .add(graphic);
          }
-         GridPane.setConstraints(progressBar, 1, 1, 1, 1, HPos.LEFT, VPos.CENTER, Priority.ALWAYS, Priority.NEVER, insets);
+
+         GridPane.setConstraints(
+             progressBar,
+             1,
+             1,
+             1,
+             1,
+             HPos.LEFT,
+             VPos.CENTER,
+             Priority.ALWAYS,
+             Priority.NEVER,
+             insets);
          cellGrid.getChildren()
                  .add(progressBar);
-         GridPane.setConstraints(cancelButton, 2, 1, 1, 1, HPos.LEFT, VPos.CENTER, Priority.NEVER, Priority.NEVER, insets);
+         GridPane.setConstraints(
+             cancelButton,
+             2,
+             1,
+             1,
+             1,
+             HPos.LEFT,
+             VPos.CENTER,
+             Priority.NEVER,
+             Priority.NEVER,
+             insets);
          cellGrid.getChildren()
                  .add(cancelButton);
-         GridPane.setConstraints(messageText, 0, 2, 3, 1, HPos.LEFT, VPos.CENTER, Priority.ALWAYS, Priority.NEVER, insets);
+         GridPane.setConstraints(
+             messageText,
+             0,
+             2,
+             3,
+             1,
+             HPos.LEFT,
+             VPos.CENTER,
+             Priority.ALWAYS,
+             Priority.NEVER,
+             insets);
          cellGrid.getChildren()
                  .add(messageText);
       }
@@ -265,37 +319,40 @@ public class KometProgressSkin<T extends Task<?>>
 
       @Override
       protected void updateItem(T task, boolean empty) {
-         super.updateItem(task, empty);
-         this.task = task;
+         if (task != this.task) {
+            super.updateItem(task, empty);
+            this.task = task;
 
-         if (empty || (task == null)) {
-            getStyleClass().setAll("task-list-cell-empty");
-            setGraphic(null);
-         } else {
-            getStyleClass().setAll("task-list-cell");
-            progressBar.progressProperty()
-                       .bind(task.progressProperty());
-            titleText.textProperty()
-                     .bind(task.titleProperty());
-            messageText.textProperty()
-                       .bind(task.messageProperty());
-            cancelButton.disableProperty()
-                        .bind(Bindings.not(task.runningProperty()));
-
-            Callback<T, Node> factory = getSkinnable().getGraphicFactory();
-
-            if (factory != null) {
-               Node graphic = factory.call(task);
-               layoutNodes(graphic);
+            if (empty || (task == null)) {
+               getStyleClass().setAll("task-list-cell-empty");
+               setGraphic(null);
             } else {
-               if (task instanceof IconProvider) {
-                  layoutNodes(((IconProvider)task).getIcon());
-               } else {
-                  layoutNodes(null);
-               }
-            }
+               getStyleClass().setAll("task-list-cell");
+               progressBar.progressProperty()
+                          .bind(task.progressProperty());
+               titleText.textProperty()
+                        .bind(task.titleProperty());
+               messageText.textProperty()
+                          .bind(task.messageProperty());
+               cancelButton.disableProperty()
+                           .bind(Bindings.not(task.runningProperty()));
 
-            setGraphic(cellGrid);
+               Callback<T, Node> factory = getSkinnable().getGraphicFactory();
+
+               if (factory != null) {
+                  Node graphic = factory.call(task);
+
+                  layoutNodes(graphic);
+               } else {
+                  if (task instanceof IconProvider) {
+                     layoutNodes(((IconProvider) task).getIcon());
+                  } else {
+                     layoutNodes(null);
+                  }
+               }
+
+               setGraphic(cellGrid);
+            }
          }
       }
    }

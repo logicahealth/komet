@@ -16,7 +16,6 @@
  */
 package sh.komet.progress.view;
 
-import impl.org.controlsfx.skin.TaskProgressViewSkin;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -82,10 +81,11 @@ import javafx.util.Callback;
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
- * 
+ * @param <T> The type of the Task.
  * @author kec
  */
 public class KometProgressView <T extends Task<?>> extends Control {
+   
 
     /**
      * Constructs a new task progress view.
@@ -104,23 +104,20 @@ public class KometProgressView <T extends Task<?>> extends Control {
             }
         };
 
-        getTasks().addListener(new ListChangeListener<Task<?>>() {
-            @Override
-            public void onChanged(ListChangeListener.Change<? extends Task<?>> c) {
-                while (c.next()) {
-                    if (c.wasAdded()) {
-                        for (Task<?> task : c.getAddedSubList()) {
-                            task.addEventHandler(WorkerStateEvent.ANY,
-                                    taskHandler);
-                        }
-                    } else if (c.wasRemoved()) {
-                        for (Task<?> task : c.getRemoved()) {
-                            task.removeEventHandler(WorkerStateEvent.ANY,
-                                    taskHandler);
-                        }
-                    }
-                }
-            }
+        getTasks().addListener((ListChangeListener.Change<? extends Task<?>> c) -> {
+           while (c.next()) {
+              if (c.wasAdded()) {
+                 for (Task<?> task : c.getAddedSubList()) {
+                    task.addEventHandler(WorkerStateEvent.ANY,
+                            taskHandler);
+                 }
+              } else if (c.wasRemoved()) {
+                 for (Task<?> task : c.getRemoved()) {
+                    task.removeEventHandler(WorkerStateEvent.ANY,
+                            taskHandler);
+                 }
+              }
+           }
         });
     }
     

@@ -87,6 +87,7 @@ import sh.isaac.komet.iconography.Iconography;
  * context menus, etc.
  *
  * TODO: Move to general API when better refined.
+ * TODO: Handle clearing the concept snapshot if any dependent fields are invalidated.  
  *
  * @author kec
  */
@@ -112,12 +113,13 @@ public class Manifold
 
    //~--- fields --------------------------------------------------------------
 
-   final ArrayDeque<HistoryRecord>               manifoldHistory = new ArrayDeque<>();
-   final SimpleStringProperty                    groupNameProperty;
-   final SimpleObjectProperty<UUID>              manifoldUuidProperty;
-   final ObservableManifoldCoordinate            observableManifoldCoordinate;
-   final ObservableEditCoordinate                observableEditCoordinate;
-   final SimpleObjectProperty<ConceptChronology> focusedConceptChronologyProperty;
+   private final SimpleObjectProperty<ConceptSnapshotService> conceptSnapshotProperty = new SimpleObjectProperty<>();
+   final ArrayDeque<HistoryRecord>                            manifoldHistory         = new ArrayDeque<>();
+   final SimpleStringProperty                                 groupNameProperty;
+   final SimpleObjectProperty<UUID>                           manifoldUuidProperty;
+   final ObservableManifoldCoordinate                         observableManifoldCoordinate;
+   final ObservableEditCoordinate                             observableEditCoordinate;
+   final SimpleObjectProperty<ConceptChronology>              focusedConceptChronologyProperty;
 
    //~--- constructors --------------------------------------------------------
 
@@ -136,7 +138,7 @@ public class Manifold
       this.groupNameProperty                = new SimpleStringProperty(group);
       this.manifoldUuidProperty             = new SimpleObjectProperty<>(manifoldUuid);
       this.observableManifoldCoordinate     = observableManifoldCoordinate;
-      this.observableEditCoordinate                   = editCoordinate;
+      this.observableEditCoordinate         = editCoordinate;
       this.focusedConceptChronologyProperty = new SimpleObjectProperty<>(focusedObject);
       this.focusedConceptChronologyProperty.addListener(new WeakChangeListener<>(this));
 
@@ -152,30 +154,37 @@ public class Manifold
                        ConceptChronology newValue) {
       if (newValue != null) {
          MANIFOLD_CHANGE_LISTENERS.forEach(
-                 (manifold, u) -> {
-                    HistoryRecord historyRecord = new HistoryRecord(
-                            newValue.getConceptSequence(),
-                            manifold.getFullySpecifiedDescriptionText(newValue));
-                    ArrayDeque<HistoryRecord> groupHistory = GROUP_HISTORY_MAP.computeIfAbsent(
-                            UNLINKED_GROUP_NAME,
-                            k -> new ArrayDeque<>());
-                    
-                    addHistory(historyRecord, groupHistory);
-                    
-                    if ((manifold != this) &&
-                            !manifold.getGroupName().equals(UNLINKED_GROUP_NAME) &&
-                            manifold.getGroupName().equals(this.getGroupName())) {
-                       manifold.focusedConceptChronologyProperty()
-                               .set(newValue);
-                       addHistory(historyRecord, manifold.manifoldHistory);
-                       groupHistory = GROUP_HISTORY_MAP.computeIfAbsent(
-                               manifold.getGroupName(),
-                               k -> new ArrayDeque<>());
-                       addHistory(historyRecord, groupHistory);
-                       
-                    }
-                 });
+             (manifold, u) -> {
+                HistoryRecord historyRecord = new HistoryRecord(
+                                                  newValue.getConceptSequence(),
+                                                        manifold.getFullySpecifiedDescriptionText(newValue));
+                ArrayDeque<HistoryRecord> groupHistory = GROUP_HISTORY_MAP.computeIfAbsent(
+                                                             UNLINKED_GROUP_NAME,
+                                                                   k -> new ArrayDeque<>());
+
+                addHistory(historyRecord, groupHistory);
+
+                if ((manifold != this) &&
+                    !manifold.getGroupName().equals(UNLINKED_GROUP_NAME) &&
+                    manifold.getGroupName().equals(this.getGroupName())) {
+                   manifold.focusedConceptChronologyProperty()
+                           .set(newValue);
+                   addHistory(historyRecord, manifold.manifoldHistory);
+                   groupHistory = GROUP_HISTORY_MAP.computeIfAbsent(manifold.getGroupName(), k -> new ArrayDeque<>());
+                   addHistory(historyRecord, groupHistory);
+                }
+             });
       }
+   }
+
+   @Override
+   public Manifold deepClone() {
+      return new Manifold(
+          groupNameProperty.get(),
+          UUID.randomUUID(),
+          observableManifoldCoordinate.deepClone(),
+          observableEditCoordinate.deepClone(),
+          focusedConceptChronologyProperty.get());
    }
 
    public SimpleObjectProperty<ConceptChronology> focusedConceptChronologyProperty() {
@@ -218,6 +227,14 @@ public class Manifold
       return new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate, focusedObject);
    }
 
+   @Override
+   public String toString() {
+      return "Manifold{" + "groupNameProperty=" + groupNameProperty + ", manifoldUuidProperty=" +
+             manifoldUuidProperty + ", observableManifoldCoordinate=" + observableManifoldCoordinate +
+             ", editCoordinate=" + observableEditCoordinate + ", focusedConceptChronologyProperty=" +
+             focusedConceptChronologyProperty + '}';
+   }
+
    private static void addHistory(HistoryRecord history, ArrayDeque<HistoryRecord> historyDequeue) {
       if (historyDequeue.isEmpty() ||!historyDequeue.peekFirst().equals(history)) {
          historyDequeue.push(history);
@@ -247,8 +264,11 @@ public class Manifold
    }
 
    public ConceptSnapshotService getConceptSnapshotService() {
-      return Get.conceptService()
-                .getSnapshot(observableManifoldCoordinate);
+      if (conceptSnapshotProperty.getValue() == null) {
+         conceptSnapshotProperty.set(Get.conceptService()
+                .getSnapshot(observableManifoldCoordinate));
+      }
+      return conceptSnapshotProperty.get();
    }
 
    public ObservableEditCoordinate getEditCoordinate() {
@@ -264,11 +284,12 @@ public class Manifold
    public void setFocusedConceptChronology(ConceptChronology newFocusedObject) {
       if (newFocusedObject != null) {
          HistoryRecord history = new HistoryRecord(
-                                  newFocusedObject.getConceptSequence(),
-                                  getFullySpecifiedDescriptionText(newFocusedObject));
+                                     newFocusedObject.getConceptSequence(),
+                                     getFullySpecifiedDescriptionText(newFocusedObject));
 
          addHistory(history, this.manifoldHistory);
       }
+
       this.focusedConceptChronologyProperty.set(newFocusedObject);
    }
 
@@ -343,21 +364,5 @@ public class Manifold
    public ObservableStampCoordinate getStampCoordinate() {
       return this.observableManifoldCoordinate.getStampCoordinate();
    }
-
-   @Override
-   public String toString() {
-      return "Manifold{" + "groupNameProperty=" + groupNameProperty + ", manifoldUuidProperty=" + manifoldUuidProperty + ", observableManifoldCoordinate=" + observableManifoldCoordinate + ", editCoordinate=" + observableEditCoordinate + ", focusedConceptChronologyProperty=" + focusedConceptChronologyProperty + '}';
-   }
-   
-   @Override
-   public Manifold deepClone() {
-      return new Manifold(groupNameProperty.get(),
-                    UUID.randomUUID(),
-                    observableManifoldCoordinate.deepClone(),
-                    observableEditCoordinate.deepClone(),
-                    focusedConceptChronologyProperty.get());
-   }
-   
-   
 }
 
