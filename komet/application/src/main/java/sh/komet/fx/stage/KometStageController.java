@@ -41,10 +41,10 @@ package sh.komet.fx.stage;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import sh.komet.progress.view.TaskProgressNodeFactory;
 import java.net.URL;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -54,12 +54,15 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 
 import javafx.event.ActionEvent;
+import javafx.event.EventType;
 
 import javafx.fxml.FXML;
+
 
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
@@ -67,11 +70,13 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.komet.gui.treeview.MultiParentTreeView;
 import sh.isaac.komet.iconography.Iconography;
@@ -89,8 +94,10 @@ import sh.komet.gui.search.QueryViewFactory;
 import sh.komet.gui.search.SimpleSearchViewFactory;
 import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.util.FxGet;
+import sh.komet.progress.view.TaskProgressNodeFactory;
 
 import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
+import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -114,10 +121,6 @@ public class KometStageController
    private ResourceBundle                       resources;
    @FXML  // URL location of the FXML file that was given to the FXMLLoader
    private URL                                  location;
-   @FXML                                                                          // fx:id="topBorderPane"
-   BorderPane                                   topBorderPane;
-   @FXML                                                                          // fx:id="topToolBar"
-   private ToolBar                              topToolBar;                       // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="bottomBorderBox"
    private HBox                                 bottomBorderBox;                  // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="verticalEditorSplitPane"
@@ -138,6 +141,10 @@ public class KometStageController
    private Label                                statusMessage;                    // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="vanityBox"
    private Button                               vanityBox;                        // Value injected by FXMLLoader
+   @FXML                                                                          // fx:id="topGridPane"
+   private GridPane                             topGridPane;                      // Value injected by FXMLLoader
+   @FXML                                                                          // fx:id="classifierMenuButton"
+   private MenuButton                           classifierMenuButton;             // Value injected by FXMLLoader
 
    //~--- methods -------------------------------------------------------------
 
@@ -164,9 +171,6 @@ public class KometStageController
 
    @FXML  // This method is called by the FXMLLoader when initialization is complete
    void initialize() {
-      assert topBorderPane != null:
-             "fx:id=\"topBorderPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-      assert topToolBar != null: "fx:id=\"topToolBar\" was not injected: check your FXML file 'KometStageScene.fxml'.";
       assert bottomBorderBox != null:
              "fx:id=\"bottomBorderBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
       assert verticalEditorSplitPane != null:
@@ -186,16 +190,36 @@ public class KometStageController
       assert statusMessage != null:
              "fx:id=\"statusMessage\" was not injected: check your FXML file 'KometStageScene.fxml'.";
       assert vanityBox != null: "fx:id=\"vanityBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+      assert topGridPane != null:
+             "fx:id=\"topGridPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+      assert classifierMenuButton != null:
+             "fx:id=\"classifierMenuButton\" was not injected: check your FXML file 'KometStageScene.fxml'.";
       leftBorderBox.getChildren()
                    .add(createWrappedTabPane());
       editorLeftPane.getChildren()
                     .add(createWrappedTabPane());
       rightBorderBox.getChildren()
                     .add(createWrappedTabPane());
+      classifierMenuButton.setGraphic(Iconography.ICON_CLASSIFIER1.getIconographic());
+      classifierMenuButton.getItems().clear();
+      classifierMenuButton.getItems().addAll(getClassifyMenuItems());
       Platform.runLater(
           () -> {
              treeViewList.forEach(treeView -> treeView.init());
           });
+   }
+   
+   private List<MenuItem> getClassifyMenuItems() {
+      ArrayList<MenuItem> items = new ArrayList<>();
+      MenuItem completeClassify = new MenuItem("Complete classify");
+      completeClassify.setOnAction((ActionEvent event) -> {
+         //TODO change how we get the edit coordinate. 
+         EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
+         ClassifierService classifierService = Get.logicService().getClassifierService(SEARCH_MANIFOLD, editCoordinate);
+         classifierService.classify();
+      });
+      items.add(completeClassify);
+      return items;
    }
 
    private void addMultiParentTreeViewTab(TabPane tabPane) {
@@ -286,9 +310,11 @@ public class KometStageController
                                                          (theNewDetailNode) -> {
                   borderPaneForTab.setCenter(theNewDetailNode);
                });
-             
-             tab.graphicProperty().bind(explorationNode.getIcon());
-             tab.textProperty().bind(explorationNode.getTitle());
+
+             tab.graphicProperty()
+                .bind(explorationNode.getIcon());
+             tab.textProperty()
+                .bind(explorationNode.getTitle());
              tab.getTooltip()
                 .textProperty()
                 .bind(explorationNode.getToolTip());
@@ -308,19 +334,22 @@ public class KometStageController
 
       ArrayList<MenuItem> menuItems = new ArrayList<>();
 
-      Get.services(ExplorationNodeFactory.class).forEach((factory) -> {
-         addTabFactory(factory, tabPane, menuItems);
-      });
-
+      Get.services(ExplorationNodeFactory.class)
+         .forEach(
+             (factory) -> {
+                addTabFactory(factory, tabPane, menuItems);
+             });
       Get.services(DetailNodeFactory.class)
          .forEach(
              (factory) -> {
                 addTabFactory(factory, tabPane, menuItems);
              });
+      menuItems.sort(
+          (o1, o2) -> {
+             return o1.getText()
+                      .compareTo(o2.getText());
+          });
 
-      menuItems.sort((o1, o2) -> {
-         return o1.getText().compareTo(o2.getText());
-      });
       Pane wrapped = TabWrapper.wrap(pane, menuItems.toArray(new MenuItem[menuItems.size()]));
 
       HBox.setHgrow(wrapped, Priority.ALWAYS);
@@ -403,9 +432,9 @@ public class KometStageController
          }
 
          if (tabPanelCount == 3) {
-            // add FLOWR query flowrTab 
+            // add FLOWR query flowrTab
             QueryViewFactory queryViewFactory = new QueryViewFactory();
-            Tab              flowrTab              = new Tab(queryViewFactory.getMenuText());
+            Tab              flowrTab         = new Tab(queryViewFactory.getMenuText());
 
             flowrTab.setGraphic(queryViewFactory.getMenuIcon());
             flowrTab.setTooltip(new Tooltip("For, Let, Order, Where, Return query construction panel"));
@@ -418,24 +447,27 @@ public class KometStageController
                   });
 
             flowrTab.getTooltip()
-               .textProperty()
-               .bind(explorationNode.getToolTip());
+                    .textProperty()
+                    .bind(explorationNode.getToolTip());
             flowrTab.setContent(searchPane);
             tabPane.getTabs()
                    .add(flowrTab);
+
             // Add progress flowrTab
-            TaskProgressNodeFactory factory = new TaskProgressNodeFactory();
-            Tab              tab              = new Tab(factory.getMenuText());
- 
-            BorderPane activityPane = new BorderPane();
-            ExplorationNode activityNode = factory.createExplorationNode(FLOWR_MANIFOLD, (theNewExplorationNode) -> {
+            TaskProgressNodeFactory factory      = new TaskProgressNodeFactory();
+            Tab                     tab          = new Tab(factory.getMenuText());
+            BorderPane              activityPane = new BorderPane();
+            ExplorationNode activityNode = factory.createExplorationNode(
+                                               FLOWR_MANIFOLD,
+                                                     (theNewExplorationNode) -> {
                      activityPane.setCenter(theNewExplorationNode);
                   });
-            
-            tab.graphicProperty().bind(activityNode.getIcon());
-           
+
+            tab.graphicProperty()
+               .bind(activityNode.getIcon());
             tab.setContent(activityPane);
-            tab.textProperty().bind(activityNode.getTitle());
+            tab.textProperty()
+               .bind(activityNode.getTitle());
             tab.setTooltip(new Tooltip("Activity panel"));
             tab.getTooltip()
                .textProperty()

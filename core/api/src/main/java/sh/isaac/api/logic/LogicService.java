@@ -50,6 +50,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
@@ -72,6 +73,11 @@ public interface LogicService {
    ClassifierService getClassifierService(StampCoordinate stampCoordinate,
          LogicCoordinate logicCoordinate,
          EditCoordinate editCoordinate);
+   
+   default ClassifierService getClassifierService(ManifoldCoordinate coordinate,
+         EditCoordinate editCoordinate) {
+      return getClassifierService(coordinate, coordinate, editCoordinate);
+   }
 
    /**
     * Gets the logical expression.
