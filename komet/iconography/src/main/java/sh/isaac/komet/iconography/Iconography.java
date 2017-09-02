@@ -24,6 +24,7 @@ import de.jensd.fx.glyphs.materialicons.MaterialIconView;
 import de.jensd.fx.glyphs.octicons.OctIconView;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import static sh.isaac.komet.iconography.Iconography.IconSource.EMOJI_ONE;
 import static sh.isaac.komet.iconography.Iconography.IconSource.FONT_AWSOME;
 import static sh.isaac.komet.iconography.Iconography.IconSource.ICONS_525;
@@ -206,6 +207,15 @@ public enum Iconography {
    }
    public static String getStyleSheetStringUrl() {
       return Iconography.class.getResource("/sh/isaac/komet/iconography/Iconography.css").toString();
+   }
+   
+   public static Node combine(Iconography... icons) {
+      HBox hbox = new HBox(1);
+      hbox.getStyleClass().add("hbox");
+      for (Iconography icon: icons) {
+         hbox.getChildren().add(icon.getIconographic());
+      }
+      return hbox;
    }
    
    static boolean  fontsLoaded = LoadFonts.load();

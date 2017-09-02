@@ -54,7 +54,6 @@ import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.StyleClasses;
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 

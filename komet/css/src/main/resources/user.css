@@ -160,6 +160,7 @@ limitations under the License.
 }
 .concept-label-toolbar * .menu-button .menu-item .label { 
    -fx-text-fill: -komet-blue-color;
+   -fx-font-size:15;
 }
 .concept-label-toolbar * .menu-button .menu-item:focused .glyph-icon { 
    -icons-color: white;
@@ -475,15 +476,8 @@ limitations under the License.
    -fx-text-origin: baseline;
 }
 
-.header-panel:description-version .add-button {
+.header-panel:description-version .add-description-button {
    -fx-padding: 2 4 0 4;
-}
-
-.add-sememe {
-   -fx-content-display: right;
-   -fx-font-size:18;
-   -fx-text-fill: black;
-   -fx-graphic-text-gap:-4;
 }
 
 .stamp-indicator {
@@ -530,6 +524,7 @@ limitations under the License.
     -fx-graphic-text-gap: -5;
     -fx-label-padding: 0;
     -fx-content-display: graphic-only;
+    
 }
 .add-tab-menu-button * .arrow {
    -fx-mark-color: white;
@@ -557,6 +552,7 @@ limitations under the License.
 }
 .add-tab-menu-button .menu-item .label { 
    -fx-text-fill: -komet-blue-color;
+   -fx-font-size:15;
 }
 .add-tab-menu-button .menu-item:focused .glyph-icon { 
    -icons-color: white;
@@ -622,4 +618,36 @@ limitations under the License.
    -fx-background-color: white;
    -fx-border-color: black;   
    -fx-border-radius: 4;    
+}
+
+.add-attachment {
+   -fx-content-display: right;
+   -fx-font-size:15;
+   -fx-text-fill: black;
+}
+
+.edit-component-button {
+   -fx-content-display: right;
+   -fx-font-size:15;
+   -fx-text-fill: black;
+   -fx-padding: 3 0 0 0;
+   
+}
+.add-attachment * .plus {
+    -icons-color: -komet-tab-background-color;
+    -glyph-size: 12;
+}
+
+.add-attachment * .paperclip {
+    -icons-color: -komet-tab-background-color;
+    -glyph-size: 20;
+}
+
+.add-attachment .hbox {
+    -fx-alignment: center;
+    -fx-spacing: -5;
+}
+
+.edit-component-button * .glyph-icon {
+    -icons-color: -komet-tab-background-color;
 }

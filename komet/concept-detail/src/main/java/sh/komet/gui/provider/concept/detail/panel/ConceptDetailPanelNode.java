@@ -105,8 +105,8 @@ import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 
-import static sh.komet.gui.style.StyleClasses.ADD_BUTTON;
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
+import static sh.komet.gui.style.StyleClasses.ADD_DESCRIPTION_BUTTON;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -244,7 +244,7 @@ public class ConceptDetailPanelNode
          AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton);
 
          addDescriptionButton.getStyleClass()
-                             .setAll(ADD_BUTTON.toString());
+                             .setAll(ADD_DESCRIPTION_BUTTON.toString());
          descriptionHeader.pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
          parallelTransition.getChildren()
                            .add(addNode(descriptionHeader));

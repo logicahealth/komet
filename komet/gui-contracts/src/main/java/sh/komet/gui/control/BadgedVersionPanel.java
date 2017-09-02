@@ -42,6 +42,7 @@ package sh.komet.gui.control;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
+import java.util.List;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -58,7 +59,9 @@ import javafx.geometry.VPos;
 
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -90,7 +93,7 @@ import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 
-import static sh.komet.gui.style.StyleClasses.ADD_SEMEME;
+import static sh.komet.gui.style.StyleClasses.ADD_ATTACHMENT;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -109,8 +112,8 @@ public abstract class BadgedVersionPanel
    protected int                                  columns             = 10;
    protected final Text                           componentText       = new Text();
    protected final Text                           componentType       = new Text();
-   protected final Node                           editControl         = Iconography.EDIT_PENCIL.getIconographic();
-   protected final Label addSememeControl = new Label("+", Iconography.PAPERCLIP.getIconographic());
+   protected final MenuButton                     editControl         = new MenuButton("", Iconography.EDIT_PENCIL.getIconographic());
+   protected final MenuButton addAttachmentControl = new MenuButton("", Iconography.combine(Iconography.PLUS, Iconography.PAPERCLIP));
    protected final ExpandControl                  expandControl       = new ExpandControl();
    protected final GridPane                       gridpane            = new GridPane();
    protected final SimpleBooleanProperty          isConcept           = new SimpleBooleanProperty(false);
@@ -168,8 +171,12 @@ public abstract class BadgedVersionPanel
 
       ObservableVersion observableVersion = categorizedVersion.getObservableVersion();
 
-      addSememeControl.getStyleClass()
-                      .setAll(ADD_SEMEME.toString());
+      addAttachmentControl.getStyleClass()
+                      .setAll(ADD_ATTACHMENT.toString());
+      addAttachmentControl.getItems().addAll(getAttachmentMenuItems());
+      editControl.getStyleClass()
+                      .setAll(StyleClasses.EDIT_COMPONENT_BUTTON.toString());
+      editControl.getItems().addAll(getEditMenuItems());
 
       if (observableVersion instanceof DescriptionVersion) {
          isDescription.set(true);
@@ -186,6 +193,22 @@ public abstract class BadgedVersionPanel
    }
 
    //~--- methods -------------------------------------------------------------
+   
+   public List<MenuItem> getAttachmentMenuItems() {
+      ArrayList<MenuItem> items = new ArrayList<>();
+      MenuItem dummyDroolsItem = new MenuItem("Dummy drools item");
+      items.add(dummyDroolsItem);
+      return items;
+   }
+
+   public List<MenuItem> getEditMenuItems() {
+      ArrayList<MenuItem> items = new ArrayList<>();
+      MenuItem dummyDroolsItem = new MenuItem("Dummy drools item");
+      items.add(dummyDroolsItem);
+      MenuItem editInPropertySheetItem = new MenuItem("edit property sheet");
+      items.add(editInPropertySheetItem);
+      return items;
+   }
 
    public void doExpandAllAction(ExpandAction action) {
       expandControl.setExpandAction(action);
@@ -398,7 +421,7 @@ public abstract class BadgedVersionPanel
             .getWidth());
       setupColumns();
       wrappingWidth = (int) (layoutBoundsProperty().get()
-            .getWidth() - (4 * badgeWidth));
+            .getWidth() - (5 * badgeWidth));
       componentText.setWrappingWidth(wrappingWidth);
       gridpane.getChildren()
               .remove(expandControl);
@@ -411,12 +434,11 @@ public abstract class BadgedVersionPanel
       gridpane.getChildren()
               .add(componentType);  // next is 3
       gridpane.getChildren()
-              .remove(addSememeControl);
-      GridPane.setConstraints(
-          addSememeControl,
+              .remove(addAttachmentControl);
+      GridPane.setConstraints(addAttachmentControl,
           columns,
           1,
-          1,
+          2,
           1,
           HPos.RIGHT,
           VPos.CENTER,
@@ -424,14 +446,14 @@ public abstract class BadgedVersionPanel
           Priority.NEVER,
           new Insets(0, 4, 1, 0));
       gridpane.getChildren()
-              .add(addSememeControl);
+              .add(addAttachmentControl);
       gridpane.getChildren()
               .remove(editControl);
       GridPane.setConstraints(
           editControl,
           columns,
           0,
-          1,
+          2,
           1,
           HPos.RIGHT,
           VPos.TOP,
