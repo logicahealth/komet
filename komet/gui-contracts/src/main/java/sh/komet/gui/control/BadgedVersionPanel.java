@@ -43,6 +43,7 @@ package sh.komet.gui.control;
 
 import java.util.ArrayList;
 import java.util.List;
+import javafx.application.Platform;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -159,8 +160,9 @@ public abstract class BadgedVersionPanel
       componentText.getStyleClass()
                    .add(StyleClasses.COMPONENT_TEXT.toString());
       componentText.setWrappingWidth(wrappingWidth);
-      componentText.boundsInLocalProperty()
+      componentText.layoutBoundsProperty()
                    .addListener(this::textLayoutChanged);
+      componentText.layoutBoundsProperty().addListener(this::debugTextLayoutListener);
       isInactive.set(this.categorizedVersion.getState() != State.ACTIVE);
       this.stampControl.setStampedVersion(
           categorizedVersion.getStampSequence(),
@@ -193,6 +195,18 @@ public abstract class BadgedVersionPanel
       }
    }
 
+   public void debugTextLayoutListener(ObservableValue<? extends Bounds> bounds, Bounds oldBounds, Bounds newBounds) {
+      if (this.getParent() != null && componentText.getText().startsWith("SNOMED CT has been")) {
+         System.out.println("SCT has been layout: " + newBounds + "\n panel bounds: " + this.getLayoutBounds());
+         if (newBounds.getHeight() >= this.getLayoutBounds().getHeight()) {
+            this.setMinHeight(newBounds.getHeight());
+            this.setPrefHeight(newBounds.getHeight());
+            this.setHeight(newBounds.getHeight());
+            Platform.runLater(() -> this.getParent().requestLayout());
+            System.out.println("Requested layout ");
+         }
+      }
+   }
    //~--- methods -------------------------------------------------------------
    
    public List<MenuItem> getAttachmentMenuItems() {

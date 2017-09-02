@@ -67,7 +67,7 @@ public enum ObjectChronologyType {
    UNKNOWN_NID("Unknown");
 
    /** The nice name. */
-   private String niceName;
+   private final String niceName;
 
    //~--- constructors --------------------------------------------------------
 
