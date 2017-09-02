@@ -94,6 +94,7 @@ import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 
 import static sh.komet.gui.style.StyleClasses.ADD_ATTACHMENT;
+import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -195,19 +196,11 @@ public abstract class BadgedVersionPanel
    //~--- methods -------------------------------------------------------------
    
    public List<MenuItem> getAttachmentMenuItems() {
-      ArrayList<MenuItem> items = new ArrayList<>();
-      MenuItem dummyDroolsItem = new MenuItem("Dummy drools item");
-      items.add(dummyDroolsItem);
-      return items;
+      return FxGet.rulesDrivenKometService().getAttachmentMenuItems(manifold, this);
    }
 
    public List<MenuItem> getEditMenuItems() {
-      ArrayList<MenuItem> items = new ArrayList<>();
-      MenuItem dummyDroolsItem = new MenuItem("Dummy drools item");
-      items.add(dummyDroolsItem);
-      MenuItem editInPropertySheetItem = new MenuItem("edit property sheet");
-      items.add(editInPropertySheetItem);
-      return items;
+      return FxGet.rulesDrivenKometService().getEditMenuItems(manifold, this);
    }
 
    public void doExpandAllAction(ExpandAction action) {

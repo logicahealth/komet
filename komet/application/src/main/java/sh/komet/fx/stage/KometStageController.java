@@ -54,7 +54,6 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 
 import javafx.event.ActionEvent;
-import javafx.event.EventType;
 
 import javafx.fxml.FXML;
 
@@ -264,35 +263,36 @@ public class KometStageController
    }
 
    private void addTabFactory(DetailNodeFactory factory, TabPane tabPane, ArrayList<MenuItem> menuItems) {
-      for (DetailType type: factory.getSupportedTypes()) {
+      factory.getSupportedTypes().stream().map((type) -> {
          MenuItem tabFactoryMenuItem = new MenuItem(factory.getMenuText(), factory.getMenuIcon());
-
          tabFactoryMenuItem.setOnAction(
-             (event) -> {
-                Tab tab = new Tab(factory.getMenuText(), factory.getMenuIcon());
-
-                tab.setGraphic(factory.getMenuIcon());
-                tab.setTooltip(new Tooltip(""));
-
-                BorderPane borderPaneForTab = new BorderPane();
-                DetailNode detailNode = factory.createDetailNode(
-                                            TAXONOMY_MANIFOLD,
-                                                  (theNewDetailNode) -> {
-                     borderPaneForTab.setCenter(theNewDetailNode);
-                  },
-                                            type);
-
-                tab.textProperty()
-                   .bind(detailNode.getTitle());
-                tab.getTooltip()
-                   .textProperty()
-                   .bind(detailNode.getToolTip());
-                tab.setContent(borderPaneForTab);
-                tabPane.getTabs()
-                       .add(tab);
-             });
+                 (event) -> {
+                    Tab tab = new Tab(factory.getMenuText(), factory.getMenuIcon());
+                    
+                    tab.setGraphic(factory.getMenuIcon());
+                    tab.setTooltip(new Tooltip(""));
+                    
+                    BorderPane borderPaneForTab = new BorderPane();
+                    DetailNode detailNode = factory.createDetailNode(
+                            TAXONOMY_MANIFOLD,
+                            (theNewDetailNode) -> {
+                               borderPaneForTab.setCenter(theNewDetailNode);
+                            },
+                            type);
+                    
+                    tab.textProperty()
+                            .bind(detailNode.getTitle());
+                    tab.getTooltip()
+                            .textProperty()
+                            .bind(detailNode.getToolTip());
+                    tab.setContent(borderPaneForTab);
+                    tabPane.getTabs()
+                            .add(tab);
+                 });
+         return tabFactoryMenuItem;
+      }).forEachOrdered((tabFactoryMenuItem) -> {
          menuItems.add(tabFactoryMenuItem);
-      }
+      });
    }
 
    private void addTabFactory(ExplorationNodeFactory factory, TabPane tabPane, ArrayList<MenuItem> menuItems) {

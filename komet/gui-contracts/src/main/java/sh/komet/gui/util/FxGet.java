@@ -18,6 +18,7 @@ package sh.komet.gui.util;
 
 import sh.isaac.api.Get;
 import sh.komet.gui.contract.DialogService;
+import sh.komet.gui.contract.RulesDrivenKometService;
 import sh.komet.gui.contract.StatusMessageService;
 import sh.komet.gui.provider.StatusMessageProvider;
 
@@ -27,6 +28,7 @@ import sh.komet.gui.provider.StatusMessageProvider;
  */
 public class FxGet {
    private static DialogService DIALOG_SERVICE = null;
+   private static RulesDrivenKometService RULES_DRIVEN_KOMET_SERVICE = null;
    private static final StatusMessageProvider STATUS_MESSAGE_PROVIDER = new StatusMessageProvider();
    public static DialogService dialogs() {
       if (DIALOG_SERVICE == null) {
@@ -39,4 +41,11 @@ public class FxGet {
       return STATUS_MESSAGE_PROVIDER;
    }
    
+   public static RulesDrivenKometService rulesDrivenKometService() {
+      if (RULES_DRIVEN_KOMET_SERVICE == null) {
+         RULES_DRIVEN_KOMET_SERVICE = Get.service(RulesDrivenKometService.class);
+      }
+      return RULES_DRIVEN_KOMET_SERVICE;
+   }
+  
 }
