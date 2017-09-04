@@ -2,6 +2,9 @@ package sh.komet.gui.search.control;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.Editors;
@@ -36,6 +39,7 @@ public class LetPropertySheet {
     private static final String DESCRIPTION_TYPE = "Description Type";
     private static final String DIALECT = "Dialect";
 
+
     public LetPropertySheet(Manifold manifold){
         this.manifoldForModification = manifold.deepClone();
         this.manifoldForDisplay = manifold;
@@ -64,9 +68,38 @@ public class LetPropertySheet {
                 case DESCRIPTION_LOGIC:
                     return createCustomChoiceEditor(MetaData.DESCRIPTION_LOGIC_PROFILE____ISAAC, param);
                 case DESCRIPTION_TYPE:
-                    return createCustomChoiceEditor(MetaData.DESCRIPTION_TYPE____ISAAC, param);
                 case DIALECT:
-                    return createCustomChoiceEditor(MetaData.DIALECT_ASSEMBLAGE____ISAAC, param);
+                    PropertyEditor<?> preferencePropertyEditor = new PropertyEditor<Object>() {
+                        ListView<ConceptForControlWrapper> listView = new ListView<>();
+
+                        @Override
+                        public Node getEditor() {
+                            listView.setItems(((PropertySheetItemPreferenceWrapper)param).getList());
+                            double maxHeight = (((PropertySheetItemPreferenceWrapper) param).getList().size() * 26) + 2;
+                            listView.setPrefHeight(maxHeight);
+
+                            listView.setCellFactory(cell -> new CellConceptForControlWrapper());
+
+                            return listView;
+                        }
+
+                        @Override
+                        public Object getValue() {
+                            return "Value ";
+                        }
+
+                        @Override
+                        public void setValue(Object value) {
+                            //this.listView = (ListView<String>) value;
+                        }
+
+
+                    };
+
+                    return preferencePropertyEditor;
+
+
+                    //return createCustomChoiceEditor(MetaData.DIALECT_ASSEMBLAGE____ISAAC, param);
             }
 
             return Editors.createTextEditor(param);
@@ -91,14 +124,12 @@ public class LetPropertySheet {
      * Add to the items Observable list of PropertySheet Items
      */
     private void buildPropertySheetItems(){
-        /**
-         * Debug for correct observable implementation
-         */
-        this.manifoldForModification.getLanguageCoordinate().languageConceptSequenceProperty().addListener((observable, oldValue, newValue) ->
-                System.out.println("Language Changed to: " + this.manifoldForDisplay.getPreferredDescriptionText(newValue.intValue()))
-        );
-        ///
 
+        //Lang Dialect Listner
+        this.manifoldForModification.getLanguageCoordinate().dialectAssemblagePreferenceListProperty()
+                .addListener((observable, oldValue, newValue) -> {
+                System.out.println("Dialect Changed: " + newValue.toString());
+        });
 
         this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForModification, this.manifoldForDisplay,
                 this.manifoldForModification.getLanguageCoordinate().languageConceptSequenceProperty().get(),
@@ -106,13 +137,21 @@ public class LetPropertySheet {
                 this.manifoldForModification.getLanguageCoordinate().languageConceptSequenceProperty()
         ));
 
-        System.out.println(this.manifoldForModification);
-
         this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForModification, this.manifoldForDisplay,
                 this.manifoldForModification.getLogicCoordinate().classifierSequenceProperty().get(),
                 CLASSIFIER,
                 this.manifoldForModification.getLogicCoordinate().classifierSequenceProperty()
         ));
+
+        this.items.add(new PropertySheetItemPreferenceWrapper(
+                this.manifoldForModification.getLanguageCoordinate().dialectAssemblagePreferenceListProperty(),
+                DIALECT,
+                this.manifoldForDisplay));
+        this.items.add(new PropertySheetItemPreferenceWrapper(
+                this.manifoldForModification.getLanguageCoordinate().descriptionTypePreferenceListProperty(),
+                DESCRIPTION_TYPE,
+                this.manifoldForDisplay));
+
     }
 
     public PropertySheet getPropertySheet() {
