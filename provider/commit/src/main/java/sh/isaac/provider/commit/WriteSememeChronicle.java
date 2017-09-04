@@ -119,7 +119,7 @@ public class WriteSememeChronicle
    public Void call()
             throws Exception {
       try {
-         Get.sememeService()
+         Get.assemblageService()
             .writeSememe(this.sc);
          this.uncommittedTracking.accept(this.sc, false);
          updateProgress(1, 2);

@@ -34,20 +34,15 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.provider.observable;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -73,9 +68,9 @@ import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.observable.ObservableConceptChronologyImpl;
 import sh.isaac.model.observable.ObservableSememeChronologyImpl;
+import sh.isaac.model.observable.ObservableSememeChronologyWeakRefImpl;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class ObservableChronologyProvider.
  *
@@ -84,37 +79,46 @@ import sh.isaac.model.observable.ObservableSememeChronologyImpl;
 @Service
 @RunLevel(value = 1)
 public class ObservableChronologyProvider
-         implements ObservableChronologyService, ChronologyChangeListener {
-   /** The Constant LOG. */
+        implements ObservableChronologyService, ChronologyChangeListener {
+
+   /**
+    * The Constant LOG.
+    */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
-
-   /** The listener uuid. */
+   /**
+    * The listener uuid.
+    */
    private final UUID listenerUuid = UUID.randomUUID();
 
-   /** The observable concept map. */
-   ConcurrentReferenceHashMap<Integer, ObservableConceptChronology> observableConceptMap =
-      new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
-                                       ConcurrentReferenceHashMap.ReferenceType.WEAK);
+   /**
+    * The observable concept map.
+    */
+   ConcurrentReferenceHashMap<Integer, ObservableConceptChronology> observableConceptMap
+           = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
+                   ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
-   /** The observable sememe map. */
-   ConcurrentReferenceHashMap<Integer, ObservableSememeChronology> observableSememeMap =
-      new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
-                                       ConcurrentReferenceHashMap.ReferenceType.WEAK);
+   /**
+    * The observable sememe map.
+    */
+   ConcurrentReferenceHashMap<Integer, ObservableSememeChronology> observableSememeMap
+           = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
+                   ConcurrentReferenceHashMap.ReferenceType.WEAK);
+   
+   final ObservableChronologyConcreteClassProvider concreteProvider;
 
    //~--- constructors --------------------------------------------------------
-
    /**
     * Instantiates a new observable chronology provider.
     */
    private ObservableChronologyProvider() {
       // for HK2
       LOG.info("ObservableChronologyProvider constructed");
+      this.concreteProvider = new ObservableChronologyConcreteClassProvider();
    }
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * Handle change.
     *
@@ -151,20 +155,20 @@ public class ObservableChronologyProvider
       // handle referenced component
       // Concept, description, or sememe
       final ObjectChronologyType oct = Get.identifierService()
-                                          .getChronologyTypeForNid(sc.getReferencedComponentNid());
-      ChronologyChangeListener   referencedComponent = null;
+              .getChronologyTypeForNid(sc.getReferencedComponentNid());
+      ChronologyChangeListener referencedComponent = null;
 
       switch (oct) {
-      case CONCEPT:
-         referencedComponent = this.observableConceptMap.get(sc.getReferencedComponentNid());
-         break;
+         case CONCEPT:
+            referencedComponent = this.observableConceptMap.get(sc.getReferencedComponentNid());
+            break;
 
-      case SEMEME:
-         referencedComponent = this.observableSememeMap.get(sc.getReferencedComponentNid());
-         break;
+         case SEMEME:
+            referencedComponent = this.observableSememeMap.get(sc.getReferencedComponentNid());
+            break;
 
-      default:
-         throw new UnsupportedOperationException("Can't handle: " + oct);
+         default:
+            throw new UnsupportedOperationException("Can't handle: " + oct);
       }
 
       if (referencedComponent != null) {
@@ -200,7 +204,6 @@ public class ObservableChronologyProvider
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the listener uuid.
     *
@@ -219,6 +222,7 @@ public class ObservableChronologyProvider
     */
    @Override
    public ObservableConceptChronology getObservableConceptChronology(int id) {
+      //TODO consider implementing weak reference for concepts like done for observable sememe...
       if (id >= 0) {
          id = Get.identifierService()
                  .getConceptNid(id);
@@ -229,10 +233,10 @@ public class ObservableChronologyProvider
       if (observableConceptChronology != null) {
          return observableConceptChronology;
       }
-      
+
       ConceptChronology conceptChronology = Get.conceptService().getConcept(id);
       observableConceptChronology = new ObservableConceptChronologyImpl(conceptChronology);
-      
+
       return observableConceptMap.putIfAbsentReturnCurrentValue(id, observableConceptChronology);
    }
 
@@ -244,28 +248,16 @@ public class ObservableChronologyProvider
     */
    @Override
    public ObservableSememeChronology getObservableSememeChronology(int id) {
-      if (id >= 0) {
-         id = Get.identifierService()
-                 .getSememeNid(id);
-      }
-
-      ObservableSememeChronology observableSememeChronology = this.observableSememeMap.get(id);
-
-      if (observableSememeChronology != null) {
-         return observableSememeChronology;
-      }
-      
-      SememeChronology sememeChronology = Get.sememeService().getSememe(id);
-      observableSememeChronology = new ObservableSememeChronologyImpl(sememeChronology);
-      return observableSememeMap.putIfAbsentReturnCurrentValue(id, observableSememeChronology);
-   }
+      return new ObservableSememeChronologyWeakRefImpl(id, concreteProvider);
+    }
 
    @Override
    public ObservableSnapshotService getObservableSnapshotService(ManifoldCoordinate manifoldCoordinate) {
       return new ObservableSnapshotServiceProvider(manifoldCoordinate);
    }
-   
+
    private class ObservableSnapshotServiceProvider implements ObservableSnapshotService {
+
       final ManifoldCoordinate manifoldCoordinate;
       final RelativePositionCalculator relativePositionCalculator;
 
@@ -273,7 +265,7 @@ public class ObservableChronologyProvider
          this.manifoldCoordinate = manifoldCoordinate;
          this.relativePositionCalculator = new RelativePositionCalculator(manifoldCoordinate);
       }
-      
+
       @Override
       public LatestVersion<ObservableConceptVersion> getObservableConceptVersion(int id) {
          ObservableConceptChronology observableConceptChronology = getObservableConceptChronology(id);
@@ -286,5 +278,50 @@ public class ObservableChronologyProvider
          return this.relativePositionCalculator.getLatestVersion(observableSememeChronology);
       }
    }
-}
 
+   class ObservableChronologyConcreteClassProvider implements ObservableChronologyService {
+
+      @Override
+      public ObservableConceptChronology getObservableConceptChronology(int id) {
+         if (id >= 0) {
+            id = Get.identifierService()
+                    .getConceptNid(id);
+         }
+
+         ObservableConceptChronology observableConceptChronology = ObservableChronologyProvider.this.observableConceptMap.get(id);
+
+         if (observableConceptChronology != null) {
+            return observableConceptChronology;
+         }
+
+         ConceptChronology conceptChronology = Get.conceptService().getConcept(id);
+         observableConceptChronology = new ObservableConceptChronologyImpl(conceptChronology);
+
+         return observableConceptMap.putIfAbsentReturnCurrentValue(id, observableConceptChronology);
+      }
+
+      @Override
+      public ObservableSememeChronology getObservableSememeChronology(int id) {
+         if (id >= 0) {
+            id = Get.identifierService()
+                    .getSememeNid(id);
+         }
+
+         ObservableSememeChronology observableSememeChronology = ObservableChronologyProvider.this.observableSememeMap.get(id);
+
+         if (observableSememeChronology != null) {
+            return observableSememeChronology;
+         }
+
+         SememeChronology sememeChronology = Get.assemblageService().getSememe(id);
+         observableSememeChronology = new ObservableSememeChronologyImpl(sememeChronology);
+         return observableSememeMap.putIfAbsentReturnCurrentValue(id, observableSememeChronology);
+      }
+
+      @Override
+      public ObservableSnapshotService getObservableSnapshotService(ManifoldCoordinate manifoldCoordinate) {
+         return new ObservableSnapshotServiceProvider(manifoldCoordinate);
+      }
+
+   }
+}

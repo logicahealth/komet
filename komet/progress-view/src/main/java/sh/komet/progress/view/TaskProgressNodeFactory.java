@@ -69,6 +69,7 @@ public class TaskProgressNodeFactory
          implements ExplorationNodeFactory {
    
    public static final String TITLE_BASE = "Activities";
+   public static final String TITLE_BASE_SINGULAR = "Activity";
    @Override
    public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
       TaskProgressNode taskProgressNode = new TaskProgressNode(manifold);

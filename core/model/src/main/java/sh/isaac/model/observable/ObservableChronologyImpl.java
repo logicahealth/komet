@@ -262,7 +262,7 @@ public abstract class ObservableChronologyImpl
          final ObservableList<ObservableSememeChronology> sememeList =
             FXCollections.observableArrayList();
 
-         Get.sememeService()
+         Get.assemblageService()
             .getSememeSequencesForComponent(getNid())
             .stream()
             .forEach((sememeSequence) -> sememeList.add(ocs.getObservableSememeChronology(sememeSequence)));

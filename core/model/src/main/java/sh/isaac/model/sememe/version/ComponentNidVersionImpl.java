@@ -116,7 +116,7 @@ public class ComponentNidVersionImpl
          break;
 
       case SEMEME:
-         final Optional<? extends SememeChronology> optionalSememe = Get.sememeService()
+         final Optional<? extends SememeChronology> optionalSememe = Get.assemblageService()
                                                                                                     .getOptionalSememe(
                                                                                                        this.componentNid);
 

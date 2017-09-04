@@ -146,7 +146,7 @@ public class DynamicSememeUsageDescriptionImpl
             final DescriptionVersion ds = (DescriptionVersion) descriptionVersion.get();
 
             if (ds.getDescriptionTypeConceptSequence() == TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
-               final Optional<SememeChronology> nestesdSememe = Get.sememeService()
+               final Optional<SememeChronology> nestesdSememe = Get.assemblageService()
                                                                                                .getSememesForComponentFromAssemblage(
                                                                                                   ds.getNid(),
                                                                                                         DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION
@@ -178,7 +178,7 @@ public class DynamicSememeUsageDescriptionImpl
              "DynamicSememe.DYNAMIC_SEMEME_DEFINITION_DESCRIPTION");
       }
 
-      Get.sememeService()
+      Get.assemblageService()
          .getSememesForComponent(assemblageConcept.getNid())
          .forEach(sememe -> {
                      if (sememe.getSememeType() == SememeType.DYNAMIC) {

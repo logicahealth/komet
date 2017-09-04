@@ -415,7 +415,7 @@ public enum DynamicSememeValidatorType {
             if ((expectedCT == ObjectChronologyType.SEMEME) && (valData.length == 2)) {
                // they specified a specific sememe type.  Verify.
                final SememeType st = SememeType.parse(valData[1].getDataString(), false);
-               final SememeChronology sememe = Get.sememeService()
+               final SememeChronology sememe = Get.assemblageService()
                                                                               .getSememe(nid);
 
                if (sememe.getSememeType() != st) {

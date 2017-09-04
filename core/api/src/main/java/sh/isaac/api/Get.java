@@ -510,7 +510,7 @@ public class Get
     */
    public static Optional<SememeChronology> inferredDefinitionChronology(int conceptId) {
       conceptId = identifierService().getConceptNid(conceptId);
-      return sememeService().getSememesForComponentFromAssemblage(conceptId,
+      return assemblageService().getSememesForComponentFromAssemblage(conceptId,
             configurationService().getDefaultLogicCoordinate()
                                   .getInferredAssemblageSequence())
                             .findAny();
@@ -654,7 +654,7 @@ public class Get
     *
     * @return the sememe service
     */
-   public static AssemblageService sememeService() {
+   public static AssemblageService assemblageService() {
       if (sememeService == null) {
          sememeService = getService(AssemblageService.class);
       }
@@ -730,7 +730,7 @@ public class Get
     */
    public static Optional<SememeChronology> statedDefinitionChronology(int conceptId) {
       conceptId = identifierService().getConceptNid(conceptId);
-      return sememeService().getSememesForComponentFromAssemblage(conceptId,
+      return assemblageService().getSememesForComponentFromAssemblage(conceptId,
             configurationService().getDefaultLogicCoordinate()
                                   .getStatedAssemblageSequence())
                             .findAny();

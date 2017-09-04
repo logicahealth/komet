@@ -43,6 +43,7 @@ package sh.komet.gui.provider.concept.detail.panel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -95,6 +96,7 @@ import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.control.ComponentPanel;
+import sh.komet.gui.control.ConceptLabel;
 import sh.komet.gui.control.ConceptLabelToolbar;
 import sh.komet.gui.control.ExpandControl;
 import sh.komet.gui.control.OnOffToggleSwitch;
@@ -137,6 +139,7 @@ public class ConceptDetailPanelNode
    private final List<ComponentPanel> componentPanels      = new ArrayList<>();
    private final Manifold             conceptDetailManifold;
    private final ScrollPane           scrollPane;
+   private ConceptLabel titleLabel = null;
 
    //~--- initializers --------------------------------------------------------
 
@@ -230,7 +233,9 @@ public class ConceptDetailPanelNode
       ConceptChronology newValue = this.conceptDetailManifold.getFocusedConceptChronology();
 
       if (newValue != null) {
-         titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(newValue));
+         if (titleLabel == null) {
+            titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(newValue));
+         }
          toolTipProperty.set(
              "concept details for: " + this.conceptDetailManifold.getFullySpecifiedDescriptionText(newValue));
 
@@ -515,6 +520,16 @@ public class ConceptDetailPanelNode
    @Override
    public ReadOnlyProperty<String> getTitle() {
       return this.titleProperty;
+   }
+
+   @Override
+   public Optional<Node> getTitleNode() {
+      if (titleLabel == null) {
+         this.titleLabel = new ConceptLabel(conceptDetailManifold, ConceptLabel::setPreferredText);
+         this.titleLabel.setGraphic(Iconography.CONCEPT_DETAILS.getIconographic());
+         this.titleProperty.set("");
+      }
+      return Optional.of(titleLabel);
    }
 
    @Override

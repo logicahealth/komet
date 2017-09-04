@@ -313,7 +313,7 @@ public abstract class LuceneIndexer
                }
 
                commitRecord.getSememesInCommit().stream().forEach(sememeId -> {
-                                       final SememeChronology sc = Get.sememeService()
+                                       final SememeChronology sc = Get.assemblageService()
                                                                          .getSememe(sememeId);
 
                                        index(sc);

@@ -400,7 +400,7 @@ public class WorkflowUpdater {
                   .commit("Reverting concept to how it was prior to workflow");
             } else if (Get.identifierService()
                           .getChronologyTypeForNid(compNid) == ObjectChronologyType.SEMEME) {
-               final SememeChronology semChron = Get.sememeService()
+               final SememeChronology semChron = Get.assemblageService()
                                                        .getSememe(compNid);
 
                if (version != null) {

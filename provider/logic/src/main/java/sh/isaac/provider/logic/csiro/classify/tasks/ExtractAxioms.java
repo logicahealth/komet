@@ -119,7 +119,7 @@ public class ExtractAxioms
          LogicCoordinate logicCoordinate,
          ClassifierData cd,
          AtomicInteger logicGraphMembers) {
-      final SememeSnapshotService<LogicGraphVersionImpl> sememeSnapshot = Get.sememeService()
+      final SememeSnapshotService<LogicGraphVersionImpl> sememeSnapshot = Get.assemblageService()
                                                                             .getSnapshot(LogicGraphVersionImpl.class,
                                                                                   stampCoordinate);
 

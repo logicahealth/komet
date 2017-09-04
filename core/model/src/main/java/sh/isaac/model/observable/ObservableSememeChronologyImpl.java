@@ -212,7 +212,8 @@ public class ObservableSememeChronologyImpl
             return (OV) new ObservableLogicGraphVersionImpl((LogicGraphVersion) sememeVersion,
                     (ObservableSememeChronology) this);
          case DYNAMIC:
-            LOG.warn("Incomplete implementation of dynamic sememe...");
+            LOG.warn("Incomplete implementation of dynamic sememe: " + 
+                    sememeVersion.getClass().getSimpleName() + " " + sememeVersion);
             return (OV) new ObservableSememeVersionImpl(sememeVersion,
                     (ObservableSememeChronology) this);
             

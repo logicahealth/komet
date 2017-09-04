@@ -75,6 +75,7 @@ import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.drag.drop.IsaacClipboard;
 import sh.komet.gui.manifold.HistoryRecord;
 import sh.komet.gui.manifold.Manifold;
+import static sh.komet.gui.style.StyleClasses.CONCEPT_LABEL;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -100,18 +101,19 @@ public class ConceptLabel
                       ConceptChronology newValue) -> {
                  this.descriptionTextUpdater.accept(this);
               });
+      this.getStyleClass().add(CONCEPT_LABEL.toString());
       this.setOnDragOver(this::handleDragOver);
       this.setOnDragEntered(this::handleDragEntered);
       this.setOnDragDetected(this::handleDragDetected);
       this.setOnDragExited(this::handleDragExited);
       this.setOnDragDropped(this::handleDragDropped);
       this.setOnDragDone(this::handleDragDone);
+      this.setMinWidth(100);
 
       ContextMenu contextMenu = new ContextMenu();
 
       for (String manifoldGroupName : Manifold.getGroupNames()) {
          MenuItem item = new MenuItem(manifoldGroupName + " history");
-
          contextMenu.getItems()
                  .add(item);
       }

@@ -148,7 +148,7 @@ public class UpdateInferredFormsTask
    protected Integer call()
             throws Exception {
       try {
-         final SememeSnapshotService<LogicGraphVersion> sememeSnapshot = Get.sememeService()
+         final SememeSnapshotService<LogicGraphVersion> sememeSnapshot = Get.assemblageService()
                                                                            .getSnapshot(LogicGraphVersion.class,
                                                                                  this.stampCoordinate);
 

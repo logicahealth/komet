@@ -34,18 +34,14 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.komet.gui.provider.concept.detail.treetable;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -57,6 +53,8 @@ import javafx.scene.layout.BorderPane;
 import sh.isaac.api.State;
 
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.ConceptLabel;
 
 import sh.komet.gui.control.ConceptLabelToolbar;
 import sh.komet.gui.interfaces.DetailNode;
@@ -64,20 +62,20 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  *
  * @author kec
  */
 public class ConceptDetailTreeTableNode
-         implements DetailNode {
-   private final BorderPane           conceptDetailPane = new BorderPane();
-   private final SimpleStringProperty titleProperty     = new SimpleStringProperty("empty");
-   private final SimpleStringProperty toolTipProperty   = new SimpleStringProperty("empty");
-   private final Manifold             conceptDetailManifold;
+        implements DetailNode {
+
+   private final BorderPane conceptDetailPane = new BorderPane();
+   private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
+   private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
+   private final Manifold conceptDetailManifold;
+   private ConceptLabel titleLabel = null;
 
    //~--- constructors --------------------------------------------------------
-
    public ConceptDetailTreeTableNode(Manifold conceptDetailManifold, Consumer<Node> nodeConsumer) {
       try {
          this.conceptDetailManifold = conceptDetailManifold;
@@ -87,30 +85,34 @@ public class ConceptDetailTreeTableNode
                          (ObservableValue<? extends ConceptChronology> observable,
                                  ConceptChronology oldValue,
                                  ConceptChronology newValue) -> {
-                            if (newValue == null) {
-                            titleProperty.set("empty");
-                            toolTipProperty.set(
-                                    "concept details for: empty");
-                            } else {
-                            titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(newValue));
-                            toolTipProperty.set(
-                                    "concept details for: " +
-                                            this.conceptDetailManifold.getFullySpecifiedDescriptionText(
-                                                    newValue));
-                               
+                            if (titleLabel == null) {
+                               if (newValue == null) {
+                                  titleProperty.set("empty");
+                                  toolTipProperty.set(
+                                          "concept details for: empty");
+                               } else {
+                                  titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(newValue));
+                                  toolTipProperty.set(
+                                          "concept details for: "
+                                          + this.conceptDetailManifold.getFullySpecifiedDescriptionText(
+                                                  newValue));
+                               }
                             }
+
                          });
          conceptDetailPane.setTop(ConceptLabelToolbar.make(conceptDetailManifold));
          conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
-         nodeConsumer.accept(conceptDetailPane);
-         
+         if (nodeConsumer != null) {
+            nodeConsumer.accept(conceptDetailPane);
+         }
+
          FXMLLoader loader = new FXMLLoader(
                  getClass().getResource("/sh/komet/gui/provider/concept/detail/ConceptDetail.fxml"));
-         
+
          loader.load();
-         
+
          ConceptDetailTreeTableController conceptDetailController = loader.getController();
-         
+
          conceptDetailController.setManifold(conceptDetailManifold);
          conceptDetailPane.setCenter(conceptDetailController.getConceptDetailRootPane());
       } catch (IOException ex) {
@@ -119,10 +121,19 @@ public class ConceptDetailTreeTableNode
    }
 
    //~--- get methods ---------------------------------------------------------
-
    @Override
    public ReadOnlyProperty<String> getTitle() {
       return this.titleProperty;
+   }
+
+   @Override
+   public Optional<Node> getTitleNode() {
+      if (titleLabel == null) {
+         this.titleLabel = new ConceptLabel(conceptDetailManifold, ConceptLabel::setPreferredText);
+         this.titleLabel.setGraphic(Iconography.CONCEPT_TABLE.getIconographic());
+         this.titleProperty.set("");
+      }
+      return Optional.of(titleLabel);
    }
 
    @Override
@@ -130,4 +141,3 @@ public class ConceptDetailTreeTableNode
       return this.toolTipProperty;
    }
 }
-

@@ -630,7 +630,7 @@ public class ConceptProvider
          final int conceptNid = Get.identifierService()
                                    .getConceptNid(conceptId);
 
-         return Get.sememeService()
+         return Get.assemblageService()
                    .getDescriptionsForComponent(conceptNid)
                    .collect(Collectors.toList());
       }

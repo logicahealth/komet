@@ -638,7 +638,7 @@ public class CommitProvider
             sememesInCommit.add(sememeChronology.getSememeSequence());
             this.uncommittedSememesWithChecksSequenceSet.remove(sememeChronology.getSememeSequence());
             this.uncommittedSememesNoChecksSequenceSet.remove(sememeChronology.getSememeSequence());
-            Get.sememeService()
+            Get.assemblageService()
                .writeSememe(sememeChronology);
          }
 
@@ -689,7 +689,7 @@ public class CommitProvider
       case SEMEME:
          final SememeChronology sememeChronology = (SememeChronology) ochreExternalizable;
 
-         Get.sememeService()
+         Get.assemblageService()
             .writeSememe(sememeChronology);
 
          if (sememeChronology.getSememeType() == SememeType.LOGIC_GRAPH) {
@@ -739,7 +739,7 @@ public class CommitProvider
          for (final int nid: nids) {
             if (ObjectChronologyType.SEMEME.equals(Get.identifierService()
                   .getChronologyTypeForNid(nid))) {
-               final SememeChronology sc = Get.sememeService()
+               final SememeChronology sc = Get.assemblageService()
                                               .getSememe(nid);
 
                if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {

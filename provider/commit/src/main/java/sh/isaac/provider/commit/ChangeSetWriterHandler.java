@@ -275,7 +275,7 @@ public class ChangeSetWriterHandler
     */
    private void sequenceSetChange(SememeSequenceSet sememeSequenceSet) {
       sememeSequenceSet.stream().forEach((sememeSequence) -> {
-                                   final SememeChronology sememe = Get.sememeService()
+                                   final SememeChronology sememe = Get.assemblageService()
                                                                                                   .getSememe(
                                                                                                      sememeSequence);
 

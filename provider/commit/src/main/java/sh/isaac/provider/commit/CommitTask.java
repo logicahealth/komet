@@ -197,7 +197,7 @@ public class CommitTask
                                           }
                                        });
          this.sememesToCommit.stream().forEach((sememeSequence) -> {
-                                         final SememeChronology sc = Get.sememeService()
+                                         final SememeChronology sc = Get.assemblageService()
                                                                         .getSememe(sememeSequence);
 
                                          if (this.sememesToCheck.contains(sememeSequence)) {

@@ -470,7 +470,7 @@ public class CoordinateFactoryProvider
          List<SememeChronology> descriptionList,
          int typeSequence,
          LanguageCoordinate languageCoordinate) {
-      final SememeSnapshotService<ComponentNidVersion> acceptabilitySnapshot = Get.sememeService()
+      final SememeSnapshotService<ComponentNidVersion> acceptabilitySnapshot = Get.assemblageService()
                                                                                  .getSnapshot(ComponentNidVersion.class,
                                                                                              stampCoordinate);
       final List<DescriptionVersion> descriptionsForLanguageOfType = new ArrayList<>();

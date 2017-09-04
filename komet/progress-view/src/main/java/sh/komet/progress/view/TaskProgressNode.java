@@ -34,17 +34,10 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.komet.progress.view;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-
+import java.util.Optional;
 import javafx.application.Platform;
 
 import javafx.beans.property.ReadOnlyProperty;
@@ -56,6 +49,7 @@ import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
 
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 
@@ -67,67 +61,80 @@ import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  *
  * @author kec
  */
 public class TaskProgressNode
-         implements ExplorationNode {
-   final KometProgressView<Task<?>> taskProgressView   = new KometProgressView<>();
-   final SimpleStringProperty       activeTasksTooltip = new SimpleStringProperty("No active tasks...");
-   final SimpleStringProperty       title              = new SimpleStringProperty(TaskProgressNodeFactory.TITLE_BASE);
-   final AnchorPane                 anchorPane         = new AnchorPane();
-   int                              currentIcon        = 0;
-   final Node[]                     progressIcons      = new Node[] {
+        implements ExplorationNode {
+
+   final KometProgressView<Task<?>> taskProgressView = new KometProgressView<>();
+   final SimpleStringProperty activeTasksTooltip = new SimpleStringProperty("No active tasks...");
+   final SimpleStringProperty title = new SimpleStringProperty(TaskProgressNodeFactory.TITLE_BASE);
+   final SimpleStringProperty titledNodeTitle = new SimpleStringProperty(TaskProgressNodeFactory.TITLE_BASE);
+   final AnchorPane anchorPane = new AnchorPane();
+   int currentIcon = 0;
+   final Node[] progressIcons = new Node[]{
       Iconography.SPINNER0.getIconographic(), Iconography.SPINNER1.getIconographic(),
       Iconography.SPINNER2.getIconographic(), Iconography.SPINNER3.getIconographic(),
       Iconography.SPINNER4.getIconographic(), Iconography.SPINNER5.getIconographic(),
-      Iconography.SPINNER6.getIconographic(), Iconography.SPINNER7.getIconographic(),
-   };
+      Iconography.SPINNER6.getIconographic(), Iconography.SPINNER7.getIconographic(),};
    final SimpleObjectProperty<Node> progressIcon = new SimpleObjectProperty<>(progressIcons[0]);
-   final Manifold                   manifold;
-   final ScrollPane                 scrollPane;
+   final Manifold manifold;
+   final ScrollPane scrollPane;
+   private Label titleLabel = null;
 
    //~--- constructors --------------------------------------------------------
-
    public TaskProgressNode(Manifold manifold) {
       this.manifold = manifold;
 
       ActiveTasks activeTasks = Get.activeTasks();
 
       activeTasks.get()
-                 .addListener(
-                     (SetChangeListener.Change<? extends Task<?>> change) -> {
+              .addListener(
+                      (SetChangeListener.Change<? extends Task<?>> change) -> {
 
-                        if (change.wasAdded()) {
-                           Platform.runLater(() -> taskProgressView.getTasks()
-                                 .add(change.getElementAdded()));
-                        } else if (change.wasRemoved()) {
-                           Platform.runLater(() -> taskProgressView.getTasks()
-                                 .remove(change.getElementRemoved()));
-                        }
+                         if (change.wasAdded()) {
+                            Platform.runLater(() -> taskProgressView.getTasks()
+                            .add(change.getElementAdded()));
+                         } else if (change.wasRemoved()) {
+                            Platform.runLater(() -> taskProgressView.getTasks()
+                            .remove(change.getElementRemoved()));
+                         }
 
-                        if (change.getSet()
-                                  .isEmpty()) {
-                           Platform.runLater(
-                               () -> {
-                                  activeTasksTooltip.set("No active tasks");
-                                  title.set(TaskProgressNodeFactory.TITLE_BASE);
-                                  //nextIcon();
-                               });
-                        } else {
-                           Platform.runLater(
-                               () -> {
-                                  int taskCount = change.getSet()
-                                                        .size();
-
-                                  activeTasksTooltip.set(taskCount + " active tasks");
-                                  title.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE);
-                                  //nextIcon();
-                               });
-                        }
-                     });
+                         if (change.getSet()
+                                 .isEmpty()) {
+                            Platform.runLater(
+                                    () -> {
+                                       activeTasksTooltip.set("No active tasks");
+                                       if (titleLabel == null) {
+                                          title.set(TaskProgressNodeFactory.TITLE_BASE);
+                                       }
+                                       titledNodeTitle.set(TaskProgressNodeFactory.TITLE_BASE);
+                                       //nextIcon();
+                                    });
+                         } else {
+                            Platform.runLater(
+                                    () -> {
+                                       int taskCount = change.getSet()
+                                               .size();
+                                       if (taskCount == 1) {
+                                          activeTasksTooltip.set(taskCount + " active task");
+                                          if (titleLabel == null) {
+                                             title.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE_SINGULAR);
+                                          }
+                                          titledNodeTitle.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE_SINGULAR);
+                                       } else {
+                                          activeTasksTooltip.set(taskCount + " active tasks");
+                                          if (titleLabel == null) {
+                                             title.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE);
+                                          }
+                                          titledNodeTitle.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE);
+                                       }
+                                       //nextIcon();
+                                    });
+                         }
+                      });
       scrollPane = new ScrollPane(taskProgressView);
       scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
       AnchorPane.setBottomAnchor(scrollPane, 1.0);
@@ -135,23 +142,22 @@ public class TaskProgressNode
       AnchorPane.setRightAnchor(scrollPane, 1.0);
       AnchorPane.setTopAnchor(scrollPane, 1.0);
       anchorPane.getChildren()
-                .add(scrollPane);
+              .add(scrollPane);
       anchorPane.setMaxHeight(2000);
       anchorPane.layoutBoundsProperty()
-                .addListener(
-                    (observable, oldValue, newValue) -> {
-                       System.out.println("Progress anchorPane pane: " + newValue);
-                       taskProgressView.setMinWidth(newValue.getWidth());
-                       taskProgressView.setPrefWidth(newValue.getWidth());
-                       taskProgressView.setMaxWidth(newValue.getWidth());
-                       taskProgressView.setMinHeight(newValue.getHeight());
-                       taskProgressView.setPrefHeight(newValue.getHeight());
-                       taskProgressView.setMaxHeight(Double.MAX_VALUE);
-                    });
+              .addListener(
+                      (observable, oldValue, newValue) -> {
+                         System.out.println("Progress anchorPane pane: " + newValue);
+                         taskProgressView.setMinWidth(newValue.getWidth());
+                         taskProgressView.setPrefWidth(newValue.getWidth());
+                         taskProgressView.setMaxWidth(newValue.getWidth());
+                         taskProgressView.setMinHeight(newValue.getHeight());
+                         taskProgressView.setPrefHeight(newValue.getHeight());
+                         taskProgressView.setMaxHeight(Double.MAX_VALUE);
+                      });
    }
 
    //~--- methods -------------------------------------------------------------
-
    public void nextIcon() {
       currentIcon++;
 
@@ -163,10 +169,13 @@ public class TaskProgressNode
    }
 
    //~--- get methods ---------------------------------------------------------
-
    @Override
-   public ReadOnlyProperty<Node> getIcon() {
-      return progressIcon;
+   public Optional<Node> getTitleNode() {
+      titleLabel = new Label();
+      titleLabel.graphicProperty().bind(progressIcon);
+      titleLabel.textProperty().bind(titledNodeTitle);
+      title.setValue("");
+      return Optional.of(titleLabel);
    }
 
    @Override
@@ -189,4 +198,3 @@ public class TaskProgressNode
       return activeTasksTooltip;
    }
 }
-

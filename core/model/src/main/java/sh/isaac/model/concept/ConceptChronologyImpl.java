@@ -105,7 +105,7 @@ public class ConceptChronologyImpl
     */
    @Override
    public boolean containsDescription(String descriptionText) {
-      return Get.sememeService()
+      return Get.assemblageService()
                 .getDescriptionsForComponent(getNid())
                 .anyMatch(
                     (desc) -> desc.getVersionList()
@@ -124,7 +124,7 @@ public class ConceptChronologyImpl
     */
    @Override
    public boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate) {
-      return Get.sememeService()
+      return Get.assemblageService()
                 .getSnapshot(DescriptionVersion.class, stampCoordinate)
                 .getLatestDescriptionVersionsForComponent(getNid())
                 .anyMatch(
@@ -281,7 +281,7 @@ public class ConceptChronologyImpl
    @Override
    public List<SememeChronology> getConceptDescriptionList() {
       if (Get.sememeServiceAvailable()) {
-         return Get.sememeService()
+         return Get.assemblageService()
                    .getDescriptionsForComponent(getNid())
                    .collect(Collectors.toList());
       } else {
@@ -352,7 +352,7 @@ public class ConceptChronologyImpl
          assemblageSequence = logicCoordinate.getStatedAssemblageSequence();
       }
 
-      return Get.sememeService()
+      return Get.assemblageService()
                 .getSnapshot(LogicGraphVersion.class, stampCoordinate)
                 .getLatestSememeVersionsForComponentFromAssemblage(getNid(), assemblageSequence)
                 .findFirstVersion();
@@ -378,7 +378,7 @@ public class ConceptChronologyImpl
          assemblageSequence = logicCoordinate.getStatedAssemblageSequence();
       }
 
-      final Optional<SememeChronology> definitionChronologyOptional = Get.sememeService()
+      final Optional<SememeChronology> definitionChronologyOptional = Get.assemblageService()
                                                                          .getSememesForComponentFromAssemblage(
                                                                                getNid(),
                                                                                      assemblageSequence)

@@ -231,7 +231,7 @@ public class ConceptSuite {
             Get.conceptService()
                .writeConcept((ConceptChronology) obj);
          } else if (obj instanceof SememeChronologyImpl) {
-            Get.sememeService()
+            Get.assemblageService()
                .writeSememe((SememeChronology) obj);
          } else {
             throw new UnsupportedOperationException("Can't handle: " + obj);

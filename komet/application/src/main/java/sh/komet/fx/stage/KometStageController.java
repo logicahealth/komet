@@ -223,25 +223,15 @@ public class KometStageController
 
    private void addMultiParentTreeViewTab(TabPane tabPane) {
       Tab tab = new Tab("Taxonomy");
+      MultiParentTreeView treeView = new MultiParentTreeView(TAXONOMY_MANIFOLD);
 
       tab.setGraphic(Iconography.TAXONOMY_ICON.getIconographic());
 
-      MultiParentTreeView treeView = new MultiParentTreeView(TAXONOMY_MANIFOLD);
 
       treeViewList.add(treeView);
       tab.setContent(new BorderPane(treeView));
       tabPane.getTabs()
              .add(tab);
-   }
-
-   private void addMultiParentTreeViewTab(TabPane tabPane, ArrayList<MenuItem> menuItems) {
-      MenuItem item = new MenuItem("Add multi-parent tree view");
-
-      item.setOnAction(
-          (event) -> {
-             addMultiParentTreeViewTab(tabPane);
-          });
-      menuItems.add(item);
    }
 
    private void addSimpleSearchTab(TabPane tabPane) {
@@ -311,8 +301,8 @@ public class KometStageController
                   borderPaneForTab.setCenter(theNewDetailNode);
                });
 
-             tab.graphicProperty()
-                .bind(explorationNode.getIcon());
+             explorationNode.getTitleNode().ifPresent((titleNode) -> tab.graphicProperty().set(titleNode));
+             
              tab.textProperty()
                 .bind(explorationNode.getTitle());
              tab.getTooltip()
@@ -372,6 +362,7 @@ public class KometStageController
 
       tab.textProperty()
          .bind(detailNode.getTitle());
+      detailNode.getTitleNode().ifPresent((titleNode) -> tab.graphicProperty().set(titleNode));
       tab.getTooltip()
          .textProperty()
          .bind(detailNode.getToolTip());
@@ -434,7 +425,7 @@ public class KometStageController
          if (tabPanelCount == 3) {
             // add FLOWR query flowrTab
             QueryViewFactory queryViewFactory = new QueryViewFactory();
-            Tab              flowrTab         = new Tab(queryViewFactory.getMenuText());
+            Tab              flowrTab         = new Tab();
 
             flowrTab.setGraphic(queryViewFactory.getMenuIcon());
             flowrTab.setTooltip(new Tooltip("For, Let, Order, Where, Return query construction panel"));
@@ -446,6 +437,8 @@ public class KometStageController
                      searchPane.setCenter(theNewExplorationNode);
                   });
 
+            explorationNode.getTitleNode().ifPresent((titleNode) -> flowrTab.graphicProperty().set(titleNode));
+            flowrTab.textProperty().bind(explorationNode.getTitle());
             flowrTab.getTooltip()
                     .textProperty()
                     .bind(explorationNode.getToolTip());
@@ -453,21 +446,20 @@ public class KometStageController
             tabPane.getTabs()
                    .add(flowrTab);
 
-            // Add progress flowrTab
+            // Add progress
             TaskProgressNodeFactory factory      = new TaskProgressNodeFactory();
-            Tab                     tab          = new Tab(factory.getMenuText());
+            Tab                     tab          = new Tab();
             BorderPane              activityPane = new BorderPane();
             ExplorationNode activityNode = factory.createExplorationNode(
                                                FLOWR_MANIFOLD,
                                                      (theNewExplorationNode) -> {
                      activityPane.setCenter(theNewExplorationNode);
                   });
-
-            tab.graphicProperty()
-               .bind(activityNode.getIcon());
+ 
             tab.setContent(activityPane);
             tab.textProperty()
                .bind(activityNode.getTitle());
+            activityNode.getTitleNode().ifPresent((titleNode) -> tab.graphicProperty().set(titleNode));
             tab.setTooltip(new Tooltip("Activity panel"));
             tab.getTooltip()
                .textProperty()

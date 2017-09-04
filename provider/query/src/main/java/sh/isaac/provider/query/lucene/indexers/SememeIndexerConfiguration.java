@@ -355,7 +355,7 @@ public class SememeIndexerConfiguration {
    private static DynamicSememe<? extends DynamicSememe> findCurrentIndexConfigRefex(int indexedSememeId)
             throws RuntimeException {
       @SuppressWarnings("rawtypes")
-      final SememeSnapshotService<DynamicSememe> sss = Get.sememeService()
+      final SememeSnapshotService<DynamicSememe> sss = Get.assemblageService()
                                                           .getSnapshot(DynamicSememe.class,
                                                                 StampCoordinates.getDevelopmentLatest());
       @SuppressWarnings("rawtypes")
@@ -389,7 +389,7 @@ public class SememeIndexerConfiguration {
 
                try {
                   final HashMap<Integer, Integer[]> updatedWhatToIndex = new HashMap<>();
-                  final Stream<SememeChronology> sememeCs = Get.sememeService()
+                  final Stream<SememeChronology> sememeCs = Get.assemblageService()
                                                                                            .getSememesFromAssemblage(
                                                                                               DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION
                                                                                                     .getSequence());

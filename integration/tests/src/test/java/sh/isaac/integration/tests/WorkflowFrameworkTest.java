@@ -240,7 +240,7 @@ public class WorkflowFrameworkTest {
                                   "Canceling Workflow for Testing",
                                   this.defaultEditCoordinate);
 
-         final SememeChronology semChron = Get.sememeService()
+         final SememeChronology semChron = Get.assemblageService()
                                                                           .getSememe(descSem.getNid());
 
          latestDescVersion = ((SememeChronology) semChron).getLatestVersion(Get.configurationService()
@@ -276,7 +276,7 @@ public class WorkflowFrameworkTest {
                                                    .iterator()
                                                    .next()
                                                    .getNid();
-         final SememeChronologyImpl  semChron = (SememeChronologyImpl) Get.sememeService()
+         final SememeChronologyImpl  semChron = (SememeChronologyImpl) Get.assemblageService()
                                                                           .getSememe(semNid);
 
          verifyState(con, semChron, State.ACTIVE);
@@ -1547,7 +1547,7 @@ public class WorkflowFrameworkTest {
                    .commit("Inactivating concept for Testing")
                    .get();
       } else {
-         final SememeChronologyImpl  semChron       = (SememeChronologyImpl) Get.sememeService()
+         final SememeChronologyImpl  semChron       = (SememeChronologyImpl) Get.assemblageService()
                                                                                 .getSememe(semNid);
          final DescriptionVersionImpl createdVersion = cloneVersion(semChron, State.ACTIVE);
 
@@ -1733,7 +1733,7 @@ public class WorkflowFrameworkTest {
       Assert.assertEquals(latestConVersion.get()
             .getState(), state);
 
-      final SememeChronology semChron = Get.sememeService()
+      final SememeChronology semChron = Get.assemblageService()
                                                                        .getSememe(descSem.getNid());
       final LatestVersion<DescriptionVersion> latestDescVersion =
          ((SememeChronology) semChron).getLatestVersion(this.defaultStampCoordinate);

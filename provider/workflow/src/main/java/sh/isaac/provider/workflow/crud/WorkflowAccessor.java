@@ -289,7 +289,7 @@ public class WorkflowAccessor {
             case CONCEPT:
                return formatStringConceptInformation(nid, stampCoord, langCoord);
             case SEMEME:
-               final SememeChronology sememe = Get.sememeService()
+               final SememeChronology sememe = Get.assemblageService()
                        .getSememe(nid);
                
                switch (sememe.getSememeType()) {
@@ -579,7 +579,7 @@ public class WorkflowAccessor {
                        .getConcept(compNid);
                break;
             case SEMEME:
-               objChron = Get.sememeService()
+               objChron = Get.assemblageService()
                        .getSememe(compNid);
                break;
             default:

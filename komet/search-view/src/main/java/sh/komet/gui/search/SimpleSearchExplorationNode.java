@@ -41,6 +41,7 @@ package sh.komet.gui.search;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.Optional;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -77,10 +78,13 @@ public class SimpleSearchExplorationNode
    //~--- get methods ---------------------------------------------------------
 
    @Override
-   public ReadOnlyProperty<Node> getIcon() {
-      return iconProperty;
+   public Optional<Node> getTitleNode() {
+      Label titleLabel = new Label();
+      titleLabel.graphicProperty().bind(iconProperty);
+      titleLabel.textProperty().bind(titleProperty);
+      return Optional.of(titleLabel);
    }
-
+ 
    @Override
    public Manifold getManifold() {
       return manifold;

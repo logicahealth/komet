@@ -332,7 +332,7 @@ public class CompositeSearchResult {
             case CONCEPT:
                return Optional.ofNullable(Get.defaultConceptSnapshotService().getConceptSnapshot(componentNid));
             case SEMEME:
-               return locateContainingConcept(Get.sememeService()
+               return locateContainingConcept(Get.assemblageService()
                        .getSememe(componentNid)
                        .getReferencedComponentNid());
             default:

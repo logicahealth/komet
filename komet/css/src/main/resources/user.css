@@ -132,6 +132,13 @@ limitations under the License.
    -icons-color: white;
 }
 
+.tab .concept-label {
+    -fx-text-fill: white;
+}
+.tab .label {
+    -fx-text-fill: white;
+}
+
 .concept-label-toolbar {
     -fx-background-color: -komet-blue-color;
     -fx-border-color: -komet-blue-color;   
@@ -140,7 +147,7 @@ limitations under the License.
     -fx-padding: 1 0 5 4;
 }
 
-.concept-label-toolbar * .menu-button {
+.concept-label-toolbar .menu-button {
     -fx-background-color: -komet-blue-color;
     -fx-border-color: -komet-blue-color;  
     -fx-border-insets: 0;
@@ -148,34 +155,34 @@ limitations under the License.
     -fx-padding:0 0 0 -12;
 }
 
-.concept-label-toolbar * .arrow {
+.concept-label-toolbar .arrow {
    -fx-mark-color: white;
 }
 
-.concept-label-toolbar * .menu-button .glyph-icon { 
+.concept-label-toolbar .menu-button .glyph-icon { 
    -icons-color: white;
 }
-.concept-label-toolbar * .menu-button .menu-item .glyph-icon { 
+.concept-label-toolbar .menu-button .menu-item .glyph-icon { 
    -icons-color: -komet-blue-color;
 }
-.concept-label-toolbar * .menu-button .menu-item .label { 
+.concept-label-toolbar .menu-button .menu-item .label { 
    -fx-text-fill: -komet-blue-color;
    -fx-font-size:15;
 }
-.concept-label-toolbar * .menu-button .menu-item:focused .glyph-icon { 
+.concept-label-toolbar .menu-button .menu-item:focused .glyph-icon { 
    -icons-color: white;
 }
-.concept-label-toolbar * .menu-button .menu-item:focused .label { 
+.concept-label-toolbar .menu-button .menu-item:focused .label { 
    -fx-text-fill: white;
 }
-.concept-label-toolbar * .menu-button .menu-item:focused { 
+.concept-label-toolbar .menu-button .menu-item:focused { 
    -fx-background-color: -komet-blue-color;
 }
 
 .menu-item:focused { 
    -fx-background-color: -komet-blue-color;
 }
-.concept-label-toolbar >* .label { 
+.concept-label-toolbar  .concept-label { 
       -fx-text-fill: white;
 }
 .komet-version-what-cell {
@@ -197,13 +204,10 @@ limitations under the License.
 .komet-version-what-cell:logical-definition-version {
    -fx-border-color: -komet-definition-color;
    -fx-border-width: 0 0 0 5;
-   
 }
-
 
 .komet-version-general-cell:inactive {
    -fx-text-fill: -komet-inactive-color;
-   
 }
 .komet-version-author-time-cell {
    -fx-text-alignment: center;

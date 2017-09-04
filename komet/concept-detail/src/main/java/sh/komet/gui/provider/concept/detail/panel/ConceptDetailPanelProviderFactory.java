@@ -51,7 +51,7 @@ public class ConceptDetailPanelProviderFactory implements DetailNodeFactory {
 
    @Override
    public String getMenuText() {
-      return "Concept Details Panel"; 
+      return "Concept Details"; 
    }
 
    @Override

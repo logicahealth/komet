@@ -62,6 +62,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -132,6 +133,7 @@ public class QueryController
 
    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("FLOWR query view");
    private final SimpleStringProperty titleProperty   = new SimpleStringProperty(QueryViewFactory.MENU_TEXT);
+   private final SimpleStringProperty titleNodeProperty = new SimpleStringProperty(QueryViewFactory.MENU_TEXT);
    private SimpleObjectProperty<Node> iconProperty = new SimpleObjectProperty<>(
                                                          Iconography.FLOWR_SEARCH.getIconographic());
    @FXML  // ResourceBundle that was given to the FXMLLoader
@@ -522,9 +524,14 @@ public class QueryController
    //~--- get methods ---------------------------------------------------------
 
    @Override
-   public ReadOnlyProperty<Node> getIcon() {
-      return iconProperty;
+   public Optional<Node> getTitleNode() {
+      Label titleLabel = new Label();
+      titleLabel.graphicProperty().bind(iconProperty);
+      titleLabel.textProperty().bind(titleNodeProperty);
+      titleProperty.set("");
+      return Optional.of(titleLabel);
    }
+   
 
    @Override
    public Manifold getManifold() {

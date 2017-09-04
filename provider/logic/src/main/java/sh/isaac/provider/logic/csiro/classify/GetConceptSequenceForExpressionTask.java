@@ -150,7 +150,7 @@ public class GetConceptSequenceForExpressionTask
    protected Integer call()
             throws Exception {
       try {
-         final SememeSnapshotService<LogicGraphVersionImpl> sememeSnapshot = Get.sememeService()
+         final SememeSnapshotService<LogicGraphVersionImpl> sememeSnapshot = Get.assemblageService()
                                                                                .getSnapshot(LogicGraphVersionImpl.class,
                                                                                            this.stampCoordinate);
 

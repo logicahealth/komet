@@ -335,7 +335,7 @@ public abstract class BadgedVersionPanel
                break;
 
             case SEMEME:
-               SememeChronology sc = Get.sememeService()
+               SememeChronology sc = Get.assemblageService()
                                         .getSememe(nid);
 
                componentText.setText(

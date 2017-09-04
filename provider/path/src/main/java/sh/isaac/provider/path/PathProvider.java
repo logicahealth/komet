@@ -133,7 +133,7 @@ public class PathProvider
 
          try {
             this.pathMap = new ConcurrentHashMap<>();
-            Get.sememeService()
+            Get.assemblageService()
                .getSememesFromAssemblage(TermAux.PATH_ASSEMBLAGE.getConceptSequence())
                .forEach((pathSememe) -> {
                            final int pathSequence = Get.identifierService()
@@ -175,7 +175,7 @@ public class PathProvider
     * @return the from disk
     */
    private Optional<StampPath> getFromDisk(int stampPathSequence) {
-      return Get.sememeService().getSememesForComponentFromAssemblage(stampPathSequence, TermAux.PATH_ASSEMBLAGE.getConceptSequence()).map((sememeChronicle) -> {
+      return Get.assemblageService().getSememesForComponentFromAssemblage(stampPathSequence, TermAux.PATH_ASSEMBLAGE.getConceptSequence()).map((sememeChronicle) -> {
                         int pathId = sememeChronicle.getReferencedComponentNid();
 
                         pathId = Get.identifierService()
@@ -215,7 +215,7 @@ public class PathProvider
     * @return the path origins from db
     */
    private List<StampPosition> getPathOriginsFromDb(int nid) {
-      return Get.sememeService()
+      return Get.assemblageService()
                 .getSememesForComponentFromAssemblage(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getConceptSequence())
                 .map((pathOrigin) -> {
                         final long time = ((LongVersion) pathOrigin.getVersionList()
@@ -233,7 +233,7 @@ public class PathProvider
     */
    @Override
    public Collection<? extends StampPath> getPaths() {
-      return Get.sememeService().getSememesFromAssemblage(TermAux.PATH_ASSEMBLAGE.getConceptSequence()).map((sememeChronicle) -> {
+      return Get.assemblageService().getSememesFromAssemblage(TermAux.PATH_ASSEMBLAGE.getConceptSequence()).map((sememeChronicle) -> {
                         int pathId = sememeChronicle.getReferencedComponentNid();
 
                         pathId = Get.identifierService()

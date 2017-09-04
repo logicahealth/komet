@@ -69,7 +69,7 @@ public class IsaacExternalizableSpliterator
    public IsaacExternalizableSpliterator() {
       this.streams.add(Get.conceptService()
                           .getConceptChronologyStream());
-      this.streams.add(Get.sememeService()
+      this.streams.add(Get.assemblageService()
                           .getSememeChronologyStream());
       this.streams.add(Get.commitService()
                           .getStampAliasStream());

@@ -189,7 +189,7 @@ public class ChangeSetLoadProvider
     * @return the uuid
     */
    private UUID readSememeDbId() {
-      final Optional<SememeChronology> sdic = Get.sememeService()
+      final Optional<SememeChronology> sdic = Get.assemblageService()
                                                                              .getSememesForComponentFromAssemblage(
                                                                                 TermAux.ISAAC_ROOT.getNid(),
                                                                                       TermAux.DATABASE_UUID.getConceptSequence())

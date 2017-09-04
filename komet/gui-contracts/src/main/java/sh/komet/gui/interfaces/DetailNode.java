@@ -16,7 +16,9 @@
  */
 package sh.komet.gui.interfaces;
 
+import java.util.Optional;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.scene.Node;
 
 /**
  *
@@ -28,6 +30,16 @@ public interface DetailNode {
     * @return the read-only property for the title.  
     */
    ReadOnlyProperty<String> getTitle(); 
+   
+   /**
+    * An optional node to use in addition the title. If the DetailNode wishes to 
+    * support drag and drop within a tab or other titled control, use this option. 
+    * The optional node may include the text of the current focused concept. If duplicate 
+    * display of the concept text may result, make the title property display an empty
+    * string if the titleNode has been constructed. 
+    * @return a Node to represent the title of this DetailNode. 
+    */
+   Optional<Node> getTitleNode();
    
    /**
     * Tool tip text to explain this node in more detail that a title would. 

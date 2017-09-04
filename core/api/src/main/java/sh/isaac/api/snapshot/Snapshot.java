@@ -116,7 +116,7 @@ public class Snapshot {
     * @return the sememe snapshot service
     */
    public <V extends SememeVersion> SememeSnapshotService<V> getSememeSnapshotService(Class<V> type) {
-      return Get.sememeService()
+      return Get.assemblageService()
                 .getSnapshot(type, this.stampCoordinate);
    }
 

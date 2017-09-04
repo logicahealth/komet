@@ -135,7 +135,7 @@ public class WriteAndCheckSememeChronicle
    public Void call()
             throws Exception {
       try {
-         Get.sememeService()
+         Get.assemblageService()
             .writeSememe(this.sc);
          this.uncommittedTracking.accept(this.sc, true);
          updateProgress(1, 3);

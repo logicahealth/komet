@@ -502,7 +502,7 @@ public class Frills
          return IS_ASSOCIATION_CLASS.get(conceptSequence);
       }
 
-      final boolean temp = Get.sememeService()
+      final boolean temp = Get.assemblageService()
                               .getSememesForComponentFromAssemblage(
                                   Get.identifierService()
                                      .getConceptNid(conceptSequence),
@@ -535,7 +535,7 @@ public class Frills
          return IS_MAPPING_CLASS.get(conceptSequence);
       }
 
-      final boolean temp = Get.sememeService()
+      final boolean temp = Get.assemblageService()
                               .getSememesForComponentFromAssemblage(
                                   Get.identifierService()
                                      .getConceptNid(conceptSequence),
@@ -774,7 +774,7 @@ public class Frills
             throws RuntimeException {
       final Map<Integer, Integer> dialectSequenceToAcceptabilityNidMap = new ConcurrentHashMap<>();
 
-      Get.sememeService()
+      Get.assemblageService()
          .getSememesForComponent(descriptionSememeNid)
          .forEach(
              nestedSememe -> {
@@ -938,7 +938,7 @@ public class Frills
 
       allowedAssemblages.add(assemblageConceptId);
 
-      final Set<SememeChronology> sememeSet = Get.sememeService()
+      final Set<SememeChronology> sememeSet = Get.assemblageService()
                                                                           .getSememesForComponentFromAssemblages(
                                                                                 componentNid,
                                                                                       allowedAssemblages)
@@ -986,7 +986,7 @@ public class Frills
          final int assemblageConceptSequence = Get.identifierService()
                                                   .getConceptSequenceForUuids(assemblageConceptUuid.get());
 
-         Get.sememeService()
+         Get.assemblageService()
             .getSnapshot(
                 SememeVersion.class,
                 (stamp == null) ? Get.configurationService()
@@ -1075,7 +1075,7 @@ public class Frills
     * @return the optional
     */
    public static Optional<Boolean> isConceptFullyDefined(int conceptNid, boolean stated) {
-      final Optional<SememeChronology> sememe = Get.sememeService()
+      final Optional<SememeChronology> sememe = Get.assemblageService()
                                                                             .getSememesForComponentFromAssemblage(
                                                                                   conceptNid,
                                                                                         (stated
@@ -1216,7 +1216,7 @@ public class Frills
       final AtomicReference<Boolean> answer = new AtomicReference<>();
 
       // Ignore the language annotation... treat preferred in any language as good enough for our purpose here...
-      Get.sememeService()
+      Get.assemblageService()
          .getSememesForComponent(descriptionSememeNid)
          .forEach(
              nestedSememe -> {
@@ -1276,7 +1276,7 @@ public class Frills
          StampCoordinate stamp) {
       final ArrayList<DescriptionVersion> results = new ArrayList<>();
 
-      Get.sememeService()
+      Get.assemblageService()
          .getSememesForComponent(conceptNid)
          .forEach(
              descriptionC -> {
@@ -1472,7 +1472,7 @@ public class Frills
          LogicCoordinate logicCoordinate) {
       conceptId = Get.identifierService()
                      .getConceptNid(conceptId);
-      return Get.sememeService()
+      return Get.assemblageService()
                 .getSememesForComponentFromAssemblage(conceptId, logicCoordinate.getInferredAssemblageSequence())
                 .findAny();
    }
@@ -1621,7 +1621,7 @@ public class Frills
                                                      Long.MIN_VALUE);
 
          if (result.size() > 0) {
-            return Optional.of(Get.sememeService()
+            return Optional.of(Get.assemblageService()
                                   .getSememe(result.get(0)
                                         .getNid())
                                   .getReferencedComponentNid());
@@ -1653,7 +1653,7 @@ public class Frills
                                                      Long.MIN_VALUE);
 
          if (result.size() > 0) {
-            return Optional.of(Get.sememeService()
+            return Optional.of(Get.assemblageService()
                                   .getSememe(result.get(0)
                                         .getNid())
                                   .getReferencedComponentNid());
@@ -1675,7 +1675,7 @@ public class Frills
     */
    public static Optional<Long> getSctId(int componentNid, StampCoordinate stamp) {
       try {
-         final LatestVersion<StringVersionImpl> sememe = Get.sememeService()
+         final LatestVersion<StringVersionImpl> sememe = Get.assemblageService()
                                                            .getSnapshot(StringVersionImpl.class,
                                                                        (stamp == null) ? Get.configurationService()
                                                                              .getDefaultStampCoordinate()
@@ -1814,7 +1814,7 @@ public class Frills
          LogicCoordinate logicCoordinate) {
       conceptId = Get.identifierService()
                      .getConceptNid(conceptId);
-      return Get.sememeService()
+      return Get.assemblageService()
                 .getSememesForComponentFromAssemblage(conceptId, logicCoordinate.getStatedAssemblageSequence())
                 .findAny();
    }
@@ -1899,7 +1899,7 @@ public class Frills
       try {
          final ArrayList<Long> vuids = new ArrayList<>(1);
 
-         Get.sememeService()
+         Get.assemblageService()
             .getSnapshot(
                 SememeVersion.class,
                 (stamp == null) ? Get.configurationService()

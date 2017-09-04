@@ -1899,12 +1899,12 @@ public class RxNormMojo
     */
    private void prepareSCTMaps()
             throws SQLException {
-      Get.sememeService()
+      Get.assemblageService()
          .getSememeSequencesFromAssemblage(MetaData.SCTID____ISAAC.getConceptSequence())
          .stream()
          .forEach(sememe -> {
                 @SuppressWarnings({ "unchecked", "rawtypes" })
-                final LatestVersion<StringVersion> lv = ((SememeChronology) Get.sememeService()
+                final LatestVersion<StringVersion> lv = ((SememeChronology) Get.assemblageService()
                                                                               .getSememe(
                                                                                     sememe)).getLatestVersion(StampCoordinates.getDevelopmentLatest());
                 final StringVersion ss    = lv.get();

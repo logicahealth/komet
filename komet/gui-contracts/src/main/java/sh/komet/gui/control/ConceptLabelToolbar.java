@@ -15,18 +15,19 @@
  */
 package sh.komet.gui.control;
 
-import java.util.ArrayList;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.geometry.HPos;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.Control;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ToolBar;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -40,7 +41,7 @@ import sh.komet.gui.manifold.Manifold;
 public class ConceptLabelToolbar implements ChangeListener<String> {
 
    final MenuButton manifoldLinkMenu = new MenuButton();
-   final ArrayList<Control> barControls = new ArrayList();
+   final ConceptLabel conceptLabel;
    final Manifold manifold;
 
    public void manifoldEventHandler(Event event) {
@@ -76,6 +77,7 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
 
    private ConceptLabelToolbar(Manifold manifold) {
       this.manifold = manifold;
+      this.conceptLabel = new ConceptLabel(manifold, ConceptLabel::setFullySpecifiedText);
 
       // Manifold
       Manifold.getGroupNames().stream().map((m) -> {
@@ -88,22 +90,22 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
       });
 
       manifoldLinkMenu.setGraphic(getNodeForManifold(manifold));
-
-      barControls.add(manifoldLinkMenu);
-      barControls.add(new ConceptLabel(manifold, ConceptLabel::setFullySpecifiedText));
       manifold.groupNameProperty().addListener(new WeakChangeListener<>(this));
 // History
 // 
    }
 
-   public static ToolBar make(Manifold manifold) {
+   public static Node make(Manifold manifold) {
 
       ConceptLabelToolbar gctb = new ConceptLabelToolbar(manifold);
-      ToolBar toolbar = new ToolBar(gctb.barControls.toArray(new Control[gctb.barControls.size()]));
-      toolbar.getStyleClass().add("concept-label-toolbar");
-      toolbar.setUserData(gctb);
-      return toolbar;
-
+      GridPane toolBarGrid = new GridPane();
+      GridPane.setConstraints(gctb.manifoldLinkMenu, 0, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.NEVER, Priority.NEVER);
+      toolBarGrid.getChildren().add(gctb.manifoldLinkMenu);
+      GridPane.setConstraints(gctb.conceptLabel, 1, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.ALWAYS, Priority.NEVER);
+      toolBarGrid.getChildren().add(gctb.conceptLabel);
+      
+      toolBarGrid.getStyleClass().add("concept-label-toolbar");
+      return toolBarGrid;
    }
 
    @Override

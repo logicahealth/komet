@@ -18,11 +18,7 @@ package sh.komet.gui.contract;
 
 import java.util.List;
 import javafx.scene.control.MenuItem;
-import javafx.util.Callback;
-import org.controlsfx.control.PropertySheet;
-import org.controlsfx.property.editor.PropertyEditor;
 import org.jvnet.hk2.annotations.Contract;
-import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.control.BadgedVersionPanel;
 import sh.komet.gui.manifold.Manifold;
 
@@ -32,7 +28,6 @@ import sh.komet.gui.manifold.Manifold;
  */
 @Contract
 public interface RulesDrivenKometService {
-   Callback<PropertySheet.Item, PropertyEditor<?>> getPropertyEditorFactory();
    List<MenuItem> getEditMenuItems(Manifold manifold, BadgedVersionPanel panel);
    List<MenuItem> getAttachmentMenuItems(Manifold manifold, BadgedVersionPanel panel);
 }

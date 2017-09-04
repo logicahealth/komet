@@ -188,7 +188,7 @@ public interface LanguageCoordinate extends Coordinate {
                // returned below
                break;
             case SEMEME:
-               return Get.sememeService().getSememe(conceptId).getSememeType().toString();
+               return Get.assemblageService().getSememe(conceptId).getSememeType().toString();
             case UNKNOWN_NID:
                return "unknown for nid: " + conceptId;
             default:

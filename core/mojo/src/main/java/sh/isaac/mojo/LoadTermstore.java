@@ -267,7 +267,7 @@ public class LoadTermstore
                            SememeChronology sc = (SememeChronology) object;
 
                            if (sc.getAssemblageSequence() == statedSequence) {
-                              final SememeSequenceSet sequences = Get.sememeService()
+                              final SememeSequenceSet sequences = Get.assemblageService()
                                                                      .getSememeSequencesForComponentFromAssemblage(
                                                                         sc.getReferencedComponentNid(),
                                                                               statedSequence);
@@ -281,7 +281,7 @@ public class LoadTermstore
                                  sequences.stream()
                                           .forEach(
                                               (sememeSequence) -> listToMerge.add(
-                                                  getLatestLogicalExpression(Get.sememeService()
+                                                  getLatestLogicalExpression(Get.assemblageService()
                                                         .getSememe(sememeSequence))));
                                  getLog().info("Duplicates: " + listToMerge);
 
@@ -296,7 +296,7 @@ public class LoadTermstore
 
                                  getLog().info("Isomorphic results: " + isomorphicResults);
 
-                                 final SememeChronology existingChronology = Get.sememeService()
+                                 final SememeChronology existingChronology = Get.assemblageService()
                                                                                 .getSememe(sequences.findFirst()
                                                                                       .getAsInt());
                                  final ConceptProxy moduleProxy = new ConceptProxy("SOLOR overlay module",
@@ -330,7 +330,7 @@ public class LoadTermstore
                            if (!this.sememeTypesToSkip.contains(sc.getSememeType()) &&
                                  (!this.activeOnly ||
                                   (isActive(sc) &&!this.skippedItems.contains(sc.getReferencedComponentNid())))) {
-                              Get.sememeService()
+                              Get.assemblageService()
                                  .writeSememe(sc);
 
                               if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {
@@ -419,7 +419,7 @@ public class LoadTermstore
          for (final int nid: deferredActionNids) {
             if (ObjectChronologyType.SEMEME.equals(Get.identifierService()
                   .getChronologyTypeForNid(nid))) {
-               final SememeChronology sc = Get.sememeService()
+               final SememeChronology sc = Get.assemblageService()
                                               .getSememe(nid);
 
                if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {

@@ -259,7 +259,7 @@ public class SememeChronologyImpl extends ChronologyImpl
 
       case SEMEME:
          builder.append("SEMEME: ")
-                .append(Get.sememeService()
+                .append(Get.assemblageService()
                            .getSememe(this.referencedComponentNid));
          break;
 

@@ -244,7 +244,7 @@ public class ProcessClassificationResults
     * @return the optional
     */
    private Optional<CommitRecord> writeBackInferred(Ontology inferredAxioms, ConceptSequenceSet affectedConcepts) {
-      final AssemblageService sememeService = Get.sememeService();
+      final AssemblageService sememeService = Get.assemblageService();
       final IdentifierService idService = Get.identifierService();
       final AtomicInteger sufficientSets = new AtomicInteger();
       final LogicalExpressionBuilderService logicalExpressionBuilderService = Get.logicalExpressionBuilderService();
@@ -271,7 +271,7 @@ public class ProcessClassificationResults
                     statedSememeSequences,
                     sememeService);
 
-            // SememeChronology<LogicGraphSememe> statedChronology = (SememeChronology<LogicGraphSememe>) sememeService.getSememe(statedSememeSequences.stream().findFirst().getAsInt());
+            // SememeChronology<LogicGraphSememe> statedChronology = (SememeChronology<LogicGraphSememe>) assemblageService.getSememe(statedSememeSequences.stream().findFirst().getAsInt());
             final SememeChronology rawStatedChronology
                     = sememeService.getSememe(statedSememeSequences.stream()
                             .findFirst()

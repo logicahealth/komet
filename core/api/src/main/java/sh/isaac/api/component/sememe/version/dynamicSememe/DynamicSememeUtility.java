@@ -177,7 +177,7 @@ public interface DynamicSememeUtility {
                (dsud.getReferencedComponentTypeSubRestriction() != null) &&
                (dsud.getReferencedComponentTypeSubRestriction() != SememeType.UNKNOWN)) {
             final SememeType requiredSememeType = dsud.getReferencedComponentTypeSubRestriction();
-            final SememeType foundSememeType    = Get.sememeService()
+            final SememeType foundSememeType    = Get.assemblageService()
                                                      .getSememe(referencedComponentNid)
                                                      .getSememeType();
 

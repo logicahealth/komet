@@ -40,5 +40,6 @@
       <module>mavenproject1/dialog</module>
       <module>concept-detail</module>
       <module>progress-view</module>
+      <module>assemblage-view</module>
    </modules>
 </project> 

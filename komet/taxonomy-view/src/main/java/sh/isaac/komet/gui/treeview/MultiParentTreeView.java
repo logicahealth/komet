@@ -70,6 +70,7 @@ import javafx.geometry.Pos;
 
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.ToolBar;
@@ -734,10 +735,13 @@ public class MultiParentTreeView
    //~--- get methods ---------------------------------------------------------
 
    @Override
-   public ReadOnlyProperty<Node> getIcon() {
-      return iconProperty;
+   public Optional<Node> getTitleNode() {
+      Label titleLabel = new Label();
+      titleLabel.graphicProperty().bind(iconProperty);
+      titleLabel.textProperty().bind(titleProperty);
+      return Optional.of(titleLabel);
    }
-
+ 
    @Override
    public Manifold getManifold() {
       return this.manifoldProperty.get();

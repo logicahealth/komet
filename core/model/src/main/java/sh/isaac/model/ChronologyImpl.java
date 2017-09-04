@@ -900,7 +900,7 @@ public abstract class ChronologyImpl
     */
    @Override
    public <V extends SememeChronology> List<V> getSememeList() {
-      return Get.sememeService()
+      return Get.assemblageService()
                 .<V>getSememesForComponent(this.nid)
                 .collect(Collectors.toList());
    }
@@ -913,7 +913,7 @@ public abstract class ChronologyImpl
     */
    @Override
    public <V extends SememeChronology> List<V> getSememeListFromAssemblage(int assemblageSequence) {
-      return Get.sememeService()
+      return Get.assemblageService()
                 .<V>getSememesForComponentFromAssemblage(this.nid, assemblageSequence)
                 .collect(Collectors.toList());
    }
@@ -928,7 +928,7 @@ public abstract class ChronologyImpl
    @Override
    public <V extends SememeChronology> List<V> getSememeListFromAssemblageOfType(int assemblageSequence,
          SememeType type) {
-      final List<V> results = Get.sememeService()
+      final List<V> results = Get.assemblageService()
                                  .ofType(type)
                                  .<V>getSememesForComponentFromAssemblage(this.nid, assemblageSequence)
                                  .collect(Collectors.toList());

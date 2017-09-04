@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.interfaces;
 
+import java.util.Optional;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.scene.Node;
 import sh.komet.gui.manifold.Manifold;
@@ -53,10 +54,15 @@ public interface ExplorationNode {
     */
    ReadOnlyProperty<String> getTitle(); 
    
-      /**
-    * 
-    * @return icon to display in relationship to this node
+   
+   /**
+    * An optional node to use in addition the title. If the DetailNode wishes to 
+    * support drag and drop within a tab or other titled control, use this option. 
+    * The optional node may include the text of the current focused concept. If duplicate 
+    * display of the concept text may result, make the title property display an empty
+    * string if the titleNode has been constructed. 
+    * @return a Node to represent the title of this DetailNode. 
     */
-   ReadOnlyProperty<Node> getIcon();
+   Optional<Node> getTitleNode();
 
 }

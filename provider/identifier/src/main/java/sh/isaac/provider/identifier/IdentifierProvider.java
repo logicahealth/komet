@@ -217,7 +217,7 @@ public class IdentifierProvider
                             .parallel()
                             .forEach(
                                 (sememeSequence) -> {
-                                   if (!Get.sememeService()
+                                   if (!Get.assemblageService()
                                            .hasSememe(sememeSequence)) {
                                       final int nid = this.sememeSequenceMap.getNid(sememeSequence)
                                                                             .getAsInt();
@@ -500,7 +500,7 @@ public class IdentifierProvider
                    .getOptionalConcept(nid);
 
       case SEMEME:
-         return Get.sememeService()
+         return Get.assemblageService()
                    .getOptionalSememe(nid);
 
       case UNKNOWN_NID:
@@ -527,7 +527,7 @@ public class IdentifierProvider
       }
 
       final int authoritySequence = getConceptSequenceForUuids(identifierAuthorityUuid);
-      final SememeSnapshotService<StringVersion> snapshot = Get.sememeService()
+      final SememeSnapshotService<StringVersion> snapshot = Get.assemblageService()
                                                               .getSnapshot(StringVersion.class, stampCoordinate);
 
       return snapshot.getLatestSememeVersionsForComponentFromAssemblage(nid, authoritySequence)

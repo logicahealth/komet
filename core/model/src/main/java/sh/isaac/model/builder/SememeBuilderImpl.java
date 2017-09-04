@@ -157,9 +157,9 @@ public class SememeBuilderImpl<C extends SememeChronology>
       final int            sememeNid = Get.identifierService()
                                           .getNidForUuids(this.getUuids());
 
-      if (Get.sememeService()
+      if (Get.assemblageService()
              .hasSememe(sememeNid)) {
-         sememeChronicle = (SememeChronologyImpl) Get.sememeService()
+         sememeChronicle = (SememeChronologyImpl) Get.assemblageService()
                .getSememe(sememeNid);
 
          if ((sememeChronicle.getSememeType() != this.sememeType) ||
@@ -265,9 +265,9 @@ public class SememeBuilderImpl<C extends SememeChronology>
       final int            sememeNid = Get.identifierService()
                                           .getNidForUuids(this.getUuids());
 
-      if (Get.sememeService()
+      if (Get.assemblageService()
              .hasSememe(sememeNid)) {
-         sememeChronicle = (SememeChronologyImpl) Get.sememeService()
+         sememeChronicle = (SememeChronologyImpl) Get.assemblageService()
                .getSememe(sememeNid);
 
          if ((sememeChronicle.getSememeType() != this.sememeType) ||

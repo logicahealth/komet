@@ -154,7 +154,7 @@ public class LogicProvider
    public LatestVersion<? extends LogicalExpression> getLogicalExpression(int conceptId,
          int logicAssemblageId,
          StampCoordinate stampCoordinate) {
-      final SememeSnapshotService<LogicGraphVersionImpl> ssp = Get.sememeService()
+      final SememeSnapshotService<LogicGraphVersionImpl> ssp = Get.assemblageService()
                                                                  .getSnapshot(LogicGraphVersionImpl.class,
                                                                        stampCoordinate);
       

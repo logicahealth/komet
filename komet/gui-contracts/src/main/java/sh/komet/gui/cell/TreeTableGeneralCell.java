@@ -75,7 +75,7 @@ public class TreeTableGeneralCell extends KometTreeTableCell<ObservableCategoriz
                   break;
                case SEMEME:
 
-                  SememeChronology sememe = Get.sememeService().getSememe(componentNidVersion.getComponentNid());
+                  SememeChronology sememe = Get.assemblageService().getSememe(componentNidVersion.getComponentNid());
                   LatestVersion<SememeVersion> latest = sememe.getLatestVersion(manifold);
                   if (latest.isPresent()) {
                      setText(latest.get().toUserString());

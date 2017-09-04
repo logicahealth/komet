@@ -116,7 +116,7 @@ public class Search {
                            final ArrayList<CompositeSearchResult> keep          = new ArrayList<>();
                            final HashSet<Integer>                 refsetMembers = new HashSet<>();
 
-                           Get.sememeService().getSememesFromAssemblage(Get.identifierService()
+                           Get.assemblageService().getSememesFromAssemblage(Get.identifierService()
                                  .getSememeSequence(memberOfRefsetNid)).forEach(sememeC -> {
                                           refsetMembers.add(sememeC.getReferencedComponentNid());
                                        });
@@ -222,7 +222,7 @@ public class Search {
       StringBuilder searchString;
 
       searchString = new StringBuilder();
-      Get.sememeService()
+      Get.assemblageService()
          .getDescriptionsForComponent(sourceConceptNid)
          .forEach(descriptionC -> {
                      @SuppressWarnings({ "rawtypes", "unchecked" })

@@ -212,7 +212,7 @@ public class ConceptSnapshotImpl
          return pd.get();
       }
 
-      return (DescriptionVersion) Get.sememeService()
+      return (DescriptionVersion) Get.assemblageService()
                 .getDescriptionsForComponent(getNid())
                 .findAny()
                 .get()
@@ -227,7 +227,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getFullySpecifiedDescription() {
-      return this.manifoldCoordinate.getFullySpecifiedDescription(Get.sememeService()
+      return this.manifoldCoordinate.getFullySpecifiedDescription(Get.assemblageService()
             .getDescriptionsForComponent(getNid())
             .collect(Collectors.toList()),
             this.manifoldCoordinate);
@@ -273,7 +273,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getPreferredDescription() {
-      return this.manifoldCoordinate.getPreferredDescription(Get.sememeService()
+      return this.manifoldCoordinate.getPreferredDescription(Get.assemblageService()
             .getDescriptionsForComponent(getNid())
             .collect(Collectors.toList()),
             this.manifoldCoordinate);
