@@ -393,6 +393,7 @@ public abstract class BadgedVersionPanel
    }
 
    protected void textLayoutChanged(ObservableValue<? extends Bounds> bounds, Bounds oldBounds, Bounds newBounds) {
+      
       redoLayout();
    }
 
@@ -415,6 +416,10 @@ public abstract class BadgedVersionPanel
    }
 
    private void redoLayout() {
+      if (getParent() != null) {
+         getParent().applyCss();
+         getParent().layout();
+      }
       double doubleRows = componentText.boundsInLocalProperty()
                                        .get()
                                        .getHeight() / rowHeight;

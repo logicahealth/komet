@@ -37,5 +37,11 @@
          <version>${project.parent.version}</version>
          <type>jar</type>
       </dependency>
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>metadata</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
    </dependencies>
 </project>

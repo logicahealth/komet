@@ -19,7 +19,6 @@ package sh.komet.assemblage.view;
 import java.io.IOException;
 import java.util.Optional;
 import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
@@ -68,8 +67,10 @@ public class AssemblageViewProvider implements ExplorationNode {
    private void focusConceptChanged(ObservableValue<? extends ConceptChronology> observable,
            ConceptChronology oldValue,
            ConceptChronology newValue) {
-      if (titleProperty == null) {
+      if (titleLabel == null) {
          titleProperty.set(manifold.getPreferredDescriptionText(newValue));
+      } else {
+         titleLabel.setText("Members of: " + manifold.getPreferredDescriptionText(newValue));
       }
       toolTipProperty.set("View of all " + manifold.getPreferredDescriptionText(newValue) + " assemblage members");
    }

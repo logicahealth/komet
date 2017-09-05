@@ -655,3 +655,17 @@ limitations under the License.
 .edit-component-button * .glyph-icon {
     -icons-color: -komet-tab-background-color;
 }
+
+.assemblage-name-text {
+   -fx-fill: -komet-inactive-color;
+   -fx-font-size:12;
+}
+
+.definition-text {
+   -fx-fill: black;
+   -fx-font-size:15;
+}
+
+.tree-table-view {
+   -fx-padding: 0;
+}

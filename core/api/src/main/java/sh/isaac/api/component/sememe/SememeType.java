@@ -69,37 +69,40 @@ import sh.isaac.api.observable.sememe.version.ObservableComponentNidVersion;
  */
 public enum SememeType {
    /** The member. */
-   MEMBER((byte) 0, "Member"),
+   MEMBER((byte) 0, "Member", "MEMBER"),
 
    /** The component nid. */
-   COMPONENT_NID((byte) 1, "Component Nid"),
+   COMPONENT_NID((byte) 1, "Component Nid", "COMPONENT"),
 
    /** The long. */
-   LONG((byte) 2, "Long"),
+   LONG((byte) 2, "Long", "INT"),
 
    /** The logic graph. */
-   LOGIC_GRAPH((byte) 4, "Logic Graph"),
+   LOGIC_GRAPH((byte) 4, "Logic Graph", "DEF"),
 
    /** The string. */
-   STRING((byte) 5, "String"),
+   STRING((byte) 5, "String", "STR"),
 
    /** The dynamic. */
-   DYNAMIC((byte) 6, "Dynamic Sememe"),
+   DYNAMIC((byte) 6, "Dynamic Sememe", "DYNAMIC"),
 
    /** The description. */
-   DESCRIPTION((byte) 7, "Description"),
+   DESCRIPTION((byte) 7, "Description", "DESC"),
 
    /** The relationship adaptor. */
    //RELATIONSHIP_ADAPTOR((byte) 8, "Relationship Adapter"),
 
    /** The unknown. */
-   UNKNOWN(Byte.MAX_VALUE, "Unknown");
+   UNKNOWN(Byte.MAX_VALUE, "Unknown", "UNKNOWN");
 
    /** The sememe token. */
    final byte sememeToken;
 
    /** The nice name. */
    final String niceName;
+
+   /** The what name for use in the what column of tables. */
+   final String whatName;
 
    //~--- constructors --------------------------------------------------------
 
@@ -109,12 +112,17 @@ public enum SememeType {
     * @param sememeToken the sememe token
     * @param niceName the nice name
     */
-   private SememeType(byte sememeToken, String niceName) {
+   private SememeType(byte sememeToken, String niceName, String whatName) {
       this.sememeToken = sememeToken;
       this.niceName   = niceName;
+      this.whatName   = whatName;
    }
 
    //~--- methods -------------------------------------------------------------
+
+   public String getWhatName() {
+      return whatName;
+   }
 
    /**
     * Parses the.
@@ -129,16 +137,16 @@ public enum SememeType {
       }
 
       final String clean = nameOrEnumId.toLowerCase(Locale.ENGLISH)
-                                       .trim();
-
+              .trim();
+      
       if (StringUtils.isBlank(clean)) {
          return null;
       }
 
       for (final SememeType ct: values()) {
          if (ct.name().toLowerCase(Locale.ENGLISH).equals(clean) ||
-               ct.niceName.toLowerCase(Locale.ENGLISH).equals(clean) ||
-               (ct.ordinal() + "").equals(clean)) {
+                 ct.niceName.toLowerCase(Locale.ENGLISH).equals(clean) ||
+                 (ct.ordinal() + "").equals(clean)) {
             return ct;
          }
       }

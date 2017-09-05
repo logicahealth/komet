@@ -17,6 +17,7 @@
 package sh.komet.gui.cell;
 
 import javafx.scene.control.TreeTableRow;
+import sh.isaac.MetaData;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.component.sememe.version.SememeVersion;
@@ -55,7 +56,12 @@ public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedV
               
               break;
            default: 
-           setText(manifold.getPreferredDescriptionText(sememeVersion.getAssemblageSequence()));
+              if (sememeVersion.getNid() == MetaData.PATH____ISAAC.getNid()) {
+                 setText("PATH");
+              } else {
+                 setText(sememeVersion.getChronology().getSememeType().getWhatName());
+              }
+           
         }
    }
    
