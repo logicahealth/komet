@@ -197,7 +197,7 @@ public class QueryController
 
       tableItems.clear();
 
-      ObservableSnapshotService snapshot = Get.observableSnapshotService(manifold);
+      ObservableSnapshotService snapshot = Get.observableSnapshotService(this.letPropertySheet.getManifold());
 
       descriptionNids.stream()
                      .forEach(
@@ -214,7 +214,7 @@ public class QueryController
 
    @FXML
    void executeQuery(ActionEvent event) {
-      QueryBuilder queryBuilder = new QueryBuilder(this.manifold);
+      QueryBuilder queryBuilder = new QueryBuilder(this.letPropertySheet.getManifold());
 
       if (allComponents.isSelected()) {
          queryBuilder.from(ComponentCollectionTypes.ALL_COMPONENTS);
@@ -629,6 +629,7 @@ public class QueryController
                                   .getConcept(newSelection.getReferencedComponentNid()));
                         }
                      });
+
       letPropertySheet = new LetPropertySheet(this.manifold.deepClone());
       this.letAnchorPane.getChildren()
                         .add(letPropertySheet.getPropertySheet());

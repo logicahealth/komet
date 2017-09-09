@@ -1,19 +1,21 @@
 package sh.komet.gui.search.control;
 
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import org.controlsfx.control.PropertySheet;
+import org.controlsfx.property.editor.AbstractPropertyEditor;
 import org.controlsfx.property.editor.Editors;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.komet.gui.control.CellConceptForControlWrapper;
 import sh.komet.gui.control.PropertySheetItemConceptWrapper;
+import sh.komet.gui.control.PropertySheetItemPreferenceWrapper;
 import sh.komet.gui.manifold.Manifold;
 
 import java.util.ArrayList;
@@ -32,13 +34,16 @@ public class LetPropertySheet {
     private Manifold manifoldForDisplay;
     private Manifold manifoldForModification;
 
-    private static final String PATH = "Path";
     private static final String LANGUAGE = "Language";
     private static final String CLASSIFIER = "Classifier";
     private static final String DESCRIPTION_LOGIC = "Description Logic";
     private static final String DESCRIPTION_TYPE = "Description Type";
     private static final String DIALECT = "Dialect";
-
+    private static final String STATE = "State";
+    private static final String TIME = "Time";
+    private static final String AUTHOR = "Author";
+    private static final String MODULE = "Module";
+    private static final String PATH = "Path";
 
     public LetPropertySheet(Manifold manifold){
         this.manifoldForModification = manifold.deepClone();
@@ -57,56 +62,54 @@ public class LetPropertySheet {
         AnchorPane.setLeftAnchor(this.propertySheet, 0.0);
         AnchorPane.setRightAnchor(this.propertySheet, 0.0);
 
-        this.propertySheet.setPropertyEditorFactory(param -> {
-            switch (param.getName()){
+        this.propertySheet.setPropertyEditorFactory(prop -> {
+            switch (prop.getName()){
                 case PATH:
-                    return createCustomChoiceEditor(MetaData.PATH____ISAAC, param);
+                    return createCustomChoiceEditor(MetaData.PATH____ISAAC, prop);
                 case LANGUAGE:
-                    return createCustomChoiceEditor(MetaData.LANGUAGE____ISAAC, param);
+                    return createCustomChoiceEditor(MetaData.LANGUAGE____ISAAC, prop);
                 case CLASSIFIER:
-                    return createCustomChoiceEditor(MetaData.DESCRIPTION_LOGIC_CLASSIFIER____ISAAC, param);
+                    return createCustomChoiceEditor(MetaData.DESCRIPTION_LOGIC_CLASSIFIER____ISAAC, prop);
                 case DESCRIPTION_LOGIC:
-                    return createCustomChoiceEditor(MetaData.DESCRIPTION_LOGIC_PROFILE____ISAAC, param);
+                    return createCustomChoiceEditor(MetaData.DESCRIPTION_LOGIC_PROFILE____ISAAC, prop);
+                case MODULE:
                 case DESCRIPTION_TYPE:
                 case DIALECT:
-                    PropertyEditor<?> preferencePropertyEditor = new PropertyEditor<Object>() {
-                        ListView<ConceptForControlWrapper> listView = new ListView<>();
+                    PropertySheetItemPreferenceWrapper preferenceWrapper = ((PropertySheetItemPreferenceWrapper) prop);
+                    PropertyEditor<?> preferencePropertyEditor = new AbstractPropertyEditor<ObservableList<ConceptForControlWrapper>,
+                            ListView<ConceptForControlWrapper>>(prop, new ListView<>()) {
 
-                        @Override
-                        public Node getEditor() {
-                            listView.setItems(((PropertySheetItemPreferenceWrapper)param).getList());
-                            double maxHeight = (((PropertySheetItemPreferenceWrapper) param).getList().size() * 26) + 2;
-                            listView.setPrefHeight(maxHeight);
-
-                            listView.setCellFactory(cell -> new CellConceptForControlWrapper());
-
-                            return listView;
+                        {
+                            super.getEditor().setItems(((PropertySheetItemPreferenceWrapper) prop).getList());
+                            double maxHeight = (((PropertySheetItemPreferenceWrapper) prop).getList().size() * 26) + 2;
+                            super.getEditor().setPrefHeight(maxHeight);
+                            super.getEditor().setCellFactory(cell -> new CellConceptForControlWrapper());
                         }
 
                         @Override
-                        public Object getValue() {
-                            return "Value ";
+                        public ListView<ConceptForControlWrapper> getEditor() {
+                            return super.getEditor();
                         }
 
                         @Override
-                        public void setValue(Object value) {
-                            //this.listView = (ListView<String>) value;
+                        protected ObservableValue<ObservableList<ConceptForControlWrapper>> getObservableValue() {
+                            return preferenceWrapper.observableWrapperProperty();
                         }
 
-
+                        @Override
+                        public void setValue(ObservableList<ConceptForControlWrapper> value) {
+                            getEditor().setItems(value);
+                        }
                     };
 
                     return preferencePropertyEditor;
-
-
-                    //return createCustomChoiceEditor(MetaData.DIALECT_ASSEMBLAGE____ISAAC, param);
             }
 
-            return Editors.createTextEditor(param);
+            return Editors.createTextEditor(prop);
         });
     }
 
-    private PropertyEditor<?> createCustomChoiceEditor(ConceptSpecification conceptSpecification, PropertySheet.Item param){
+    private PropertyEditor<?> createCustomChoiceEditor(ConceptSpecification conceptSpecification, PropertySheet.Item prop){
         Collection<ConceptForControlWrapper> collection = new ArrayList<>();
         ConceptChronology concept = Get.concept(conceptSpecification.getConceptSequence());
 
@@ -117,7 +120,7 @@ public class LetPropertySheet {
             //System.out.println(Get.concept(i));
         });
 
-        return Editors.createChoiceEditor(param, collection);
+        return Editors.createChoiceEditor(prop, collection);
     }
 
     /**
@@ -125,32 +128,49 @@ public class LetPropertySheet {
      */
     private void buildPropertySheetItems(){
 
-        //Lang Dialect Listner
-        this.manifoldForModification.getLanguageCoordinate().dialectAssemblagePreferenceListProperty()
-                .addListener((observable, oldValue, newValue) -> {
-                System.out.println("Dialect Changed: " + newValue.toString());
-        });
-
+        //Langauge Coordinate
         this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForModification, this.manifoldForDisplay,
                 this.manifoldForModification.getLanguageCoordinate().languageConceptSequenceProperty().get(),
                 LANGUAGE,
                 this.manifoldForModification.getLanguageCoordinate().languageConceptSequenceProperty()
         ));
+        this.items.add(new PropertySheetItemPreferenceWrapper(
+                this.manifoldForModification.getLanguageCoordinate().dialectAssemblagePreferenceListProperty().get(),
+                DIALECT,
+                this.manifoldForDisplay));
+        this.items.add(new PropertySheetItemPreferenceWrapper(
+                this.manifoldForModification.getLanguageCoordinate().descriptionTypePreferenceListProperty().get(),
+                DESCRIPTION_TYPE,
+                this.manifoldForDisplay));
+        ////
 
+        //Logic Coordinate
         this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForModification, this.manifoldForDisplay,
                 this.manifoldForModification.getLogicCoordinate().classifierSequenceProperty().get(),
                 CLASSIFIER,
                 this.manifoldForModification.getLogicCoordinate().classifierSequenceProperty()
         ));
+        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForModification, this.manifoldForDisplay,
+                this.manifoldForModification.getLogicCoordinate().descriptionLogicProfileSequenceProperty().get(),
+                DESCRIPTION_LOGIC,
+                this.manifoldForModification.getLogicCoordinate().descriptionLogicProfileSequenceProperty()
+        ));
 
-        this.items.add(new PropertySheetItemPreferenceWrapper(
-                this.manifoldForModification.getLanguageCoordinate().dialectAssemblagePreferenceListProperty(),
-                DIALECT,
-                this.manifoldForDisplay));
-        this.items.add(new PropertySheetItemPreferenceWrapper(
-                this.manifoldForModification.getLanguageCoordinate().descriptionTypePreferenceListProperty(),
-                DESCRIPTION_TYPE,
-                this.manifoldForDisplay));
+
+        //STAMP Coordinate
+        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForModification, this.manifoldForDisplay,
+                this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().stampPathSequenceProperty().get(),
+                PATH,
+                this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().stampPathSequenceProperty()
+        ));
+        //Needs Checkboxes to select which on - Blank is wildcard/all
+//        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForModification, this.manifoldForDisplay,
+//                this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().get().get().stampPathSequenceProperty().get(),
+//                PATH,
+//                this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().stampPathSequenceProperty()
+//        ));
+
+
 
     }
 

@@ -1,5 +1,6 @@
-package sh.komet.gui.search.control;
+package sh.komet.gui.control;
 
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.ContentDisplay;
@@ -76,9 +77,6 @@ public class CellConceptForControlWrapper extends ListCell<ConceptForControlWrap
                 items.set(sourceIndex, target);
 
                 success = true;
-                System.out.println("Source: " + getConceptFromSequence(sourceSequence)
-                        + " --> Target: " + getConceptFromSequence(targetSequence));
-
             }
             event.setDropCompleted(success);
             event.consume();
