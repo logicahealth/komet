@@ -16,7 +16,9 @@
  */
 package sh.isaac.model.observable.version;
 
+import java.util.List;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.Property;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
@@ -106,5 +108,12 @@ public class ObservableComponentNidVersionImpl
    public String toString() {
       return "ObservableComponentNidVersionImpl{component:" + Get.conceptDescriptionText(getComponentNid()) + '}';
    }
+
+   @Override
+   public List<Property<?>> getProperties() {
+      List<Property<?>> properties = super.getProperties();
+      properties.add(componentNidProperty());
+      return properties;
+   }  
 }
    

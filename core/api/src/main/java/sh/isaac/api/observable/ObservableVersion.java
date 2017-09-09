@@ -41,9 +41,11 @@ package sh.isaac.api.observable;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.Version;
@@ -116,5 +118,11 @@ public interface ObservableVersion
     */
    @Override
    ObservableChronology getChronology();
+   
+   /**
+    * 
+    * @return a list of properties for this observable version
+    */
+   List<Property<?>> getProperties();
 }
 

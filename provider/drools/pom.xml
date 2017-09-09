@@ -49,4 +49,18 @@
          <artifactId>drools-core</artifactId>
       </dependency>
    </dependencies>
+<!--    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>META-INF/kmodule.xml</include>
+                    <include>sh/isaac/provider/drools/AddAttachmentRules.drl</include>
+                    <include>sh/isaac/provider/drools/EditVersionRules.drl</include>
+                </includes>
+                <targetPath>.</targetPath>
+            </resource>
+        </resources>
+    </build>-->
 </project>

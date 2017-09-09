@@ -16,7 +16,9 @@
  */
 package sh.isaac.model.observable.version;
 
+import java.util.List;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
 import sh.isaac.api.logic.LogicalExpression;
@@ -67,6 +69,13 @@ public class ObservableLogicGraphVersionImpl
       return this.graphProperty;
    }
 
+
+   @Override
+   public List<Property<?>> getProperties() {
+      List<Property<?>> properties = super.getProperties();
+      properties.add(logicGraphProperty());
+      return properties;
+   }  
 
    //~--- get methods ---------------------------------------------------------
 

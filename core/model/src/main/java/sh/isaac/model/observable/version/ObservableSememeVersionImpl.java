@@ -41,9 +41,14 @@ package sh.isaac.model.observable.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.List;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.Property;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
+import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.ObservableFields;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -55,6 +60,13 @@ import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 public class ObservableSememeVersionImpl
         extends ObservableVersionImpl
          implements ObservableSememeVersion {
+
+   /** The author sequence property. */
+   IntegerProperty assemblageSequenceProperty;
+
+   /** The module sequence property. */
+   IntegerProperty referencedComponentNidProperty;
+
    /**
     * Instantiates a new observable sememe version impl.
     *
@@ -64,6 +76,45 @@ public class ObservableSememeVersionImpl
    public ObservableSememeVersionImpl(SememeVersion stampedVersion, ObservableSememeChronology chronology) {
       super(stampedVersion, 
               chronology);
+   }
+
+   /**
+    * Module sequence property.
+    *
+    * @return the integer property
+    */
+   @Override
+   public final IntegerProperty assemblageSequenceProperty() {
+      if (this.assemblageSequenceProperty == null) {
+         this.assemblageSequenceProperty = new CommitAwareIntegerProperty(this,
+               ObservableFields.ASSEMBLAGE_SEQUENCE_FOR_SEMEME_CHRONICLE.toExternalString(),
+               getModuleSequence());
+      }
+
+      return this.assemblageSequenceProperty;
+   }
+
+   /**
+    * Path sequence property.
+    *
+    * @return the integer property
+    */
+   @Override
+   public final IntegerProperty referencedComponentNidProperty() {
+      if (this.referencedComponentNidProperty == null) {
+         this.referencedComponentNidProperty = new CommitAwareIntegerProperty(this,
+               ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMEME_CHRONICLE.toExternalString(),
+               getPathSequence());
+      }
+
+      return this.referencedComponentNidProperty;
+   }
+   @Override
+   public List<Property<?>> getProperties() {
+      List<Property<?>> properties = super.getProperties();
+      properties.add(assemblageSequenceProperty());
+      properties.add(referencedComponentNidProperty());
+      return properties;
    }
 
    //~--- get methods ---------------------------------------------------------

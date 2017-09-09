@@ -14,22 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.contract;
+package sh.isaac.provider.drools;
 
-import java.util.List;
-import java.util.function.Consumer;
-import javafx.scene.control.MenuItem;
-import org.controlsfx.control.PropertySheet;
-import org.jvnet.hk2.annotations.Contract;
-import sh.isaac.api.observable.ObservableCategorizedVersion;
+import javafx.beans.property.Property;
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.komet.gui.manifold.Manifold;
 
 /**
  *
  * @author kec
  */
-@Contract
-public interface RulesDrivenKometService {
-   List<MenuItem> getEditMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheet> propertySheetConsumer);
-   List<MenuItem> getAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheet> propertySheetConsumer);
+public class IsaacProperty {
+   final Property<?> property;
+   final Manifold manifold;
+
+   public IsaacProperty(Property<?> property, Manifold manifold) {
+      this.property = property;
+      this.manifold = manifold;
+   }
+   
+   public ConceptSpecification getPropertySpecification() {
+      return new ConceptProxy(property.getName());
+   }
+   
+   public String getPreferredText() {
+      return manifold.getPreferredDescriptionText(getPropertySpecification());
+   }
 }

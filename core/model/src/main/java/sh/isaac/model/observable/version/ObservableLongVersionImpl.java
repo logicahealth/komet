@@ -16,7 +16,9 @@
  */
 package sh.isaac.model.observable.version;
 
+import java.util.List;
 import javafx.beans.property.LongProperty;
+import javafx.beans.property.Property;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.sememe.version.LongVersion;
 import sh.isaac.api.component.sememe.version.MutableLongVersion;
@@ -67,6 +69,12 @@ public class ObservableLongVersionImpl
       return this.longProperty;
    }
 
+   @Override
+   public List<Property<?>> getProperties() {
+      List<Property<?>> properties = super.getProperties();
+      properties.add(longValueProperty());
+      return properties;
+   }  
 
    //~--- get methods ---------------------------------------------------------
 

@@ -84,8 +84,8 @@ limitations under the License.
 
 
 .tab-header-area {
-    -fx-background-color: red;
-    -fx-border-color: blue;
+    -fx-background-color: greenyellow;
+    -fx-border-color: -komet-blue-color;
 }
 
 .tab-header-background {
@@ -584,7 +584,7 @@ limitations under the License.
    -fx-background-color: red;
 }
 .menu-item:focused .label .glyph-icon {
-   -icons-color: red;
+   -icons-color: white;
 }
 .menu-item:focused .label {
    -fx-background-color: transparent;
@@ -661,11 +661,35 @@ limitations under the License.
    -fx-font-size:12;
 }
 
+.concept-text {
+   -fx-fill: -komet-blue-color;
+   -fx-font-size:15;
+}
+.sememe-text {
+   -fx-fill: black;
+   -fx-font-size:15;
+}
+.error-text {
+   -fx-fill: orangered;
+   -fx-font-size:15;
+}
+.date-text {
+   -fx-fill: mediumspringgreen;
+   -fx-font-size:15;
+}
 .definition-text {
    -fx-fill: black;
    -fx-font-size:15;
 }
+.concept-component-reference {
+   -fx-fill: -komet-blue-color;
+   -fx-font-size:12;
+}
 
+.sememe-component-reference {
+   -fx-fill: black;
+   -fx-font-size:12;
+}
 .tree-table-view {
    -fx-padding: 0;
 }

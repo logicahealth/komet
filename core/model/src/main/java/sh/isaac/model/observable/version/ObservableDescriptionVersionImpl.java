@@ -41,7 +41,10 @@ package sh.isaac.model.observable.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.Arrays;
+import java.util.List;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import sh.isaac.api.Get;
 
@@ -291,6 +294,16 @@ public class ObservableDescriptionVersionImpl
               ", type: " + Get.conceptDescriptionText(getDescriptionTypeConceptSequence()) + 
               " " + Get.stampService().describeStampSequence(getStampSequence()) +
               '}';
+   }
+
+   @Override
+   public List<Property<?>> getProperties() {
+      List<Property<?>> properties = super.getProperties();
+      properties.add(textProperty());
+      properties.add(languageConceptSequenceProperty());
+      properties.add(descriptionTypeConceptSequenceProperty());
+      properties.add(caseSignificanceConceptSequenceProperty());
+      return properties;
    }
    
    

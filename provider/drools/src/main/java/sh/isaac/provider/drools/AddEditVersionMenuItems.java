@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.komet.gui.contract;
+package sh.isaac.provider.drools;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import javafx.beans.property.Property;
 import javafx.scene.control.MenuItem;
 import org.controlsfx.control.PropertySheet;
-import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.manifold.Manifold;
 
@@ -28,8 +29,28 @@ import sh.komet.gui.manifold.Manifold;
  *
  * @author kec
  */
-@Contract
-public interface RulesDrivenKometService {
-   List<MenuItem> getEditMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheet> propertySheetConsumer);
-   List<MenuItem> getAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheet> propertySheetConsumer);
+public class AddEditVersionMenuItems {
+   final List<MenuItem> menuItems = new ArrayList<>();
+   final Manifold manifold;
+   final ObservableCategorizedVersion categorizedVersion;
+   final Consumer<PropertySheet> propertySheetConsumer;
+
+   public AddEditVersionMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheet> propertySheetConsumer) {
+      this.manifold = manifold;
+      this.categorizedVersion = categorizedVersion;
+      this.propertySheetConsumer = propertySheetConsumer;
+   }
+
+   public Manifold getManifold() {
+      return manifold;
+   }
+
+   public List<MenuItem> getMenuItems() {
+      return menuItems;
+   }
+   
+   public List<Property<?>> getProperties() {
+      return categorizedVersion.getProperties();
+   }
+   
 }

@@ -16,9 +16,11 @@
  */
 package sh.isaac.api.observable;
 
+import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.CategorizedVersion;
 import sh.isaac.api.chronicle.CategorizedVersions;
@@ -77,4 +79,11 @@ public class ObservableCategorizedVersion extends CategorizedVersion implements 
    public ObservableChronology getChronology() {
       return getObservableVersion().getChronology();
    }
+
+   @Override
+   public List<Property<?>> getProperties() {
+      return getObservableVersion().getProperties();
+   }
+   
+   
 }

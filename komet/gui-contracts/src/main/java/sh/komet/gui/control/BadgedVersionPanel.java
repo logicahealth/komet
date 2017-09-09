@@ -210,11 +210,15 @@ public abstract class BadgedVersionPanel
    //~--- methods -------------------------------------------------------------
    
    public List<MenuItem> getAttachmentMenuItems() {
-      return FxGet.rulesDrivenKometService().getAttachmentMenuItems(manifold, this);
+      return FxGet.rulesDrivenKometService().getAttachmentMenuItems(manifold, this.categorizedVersion,  (t) -> {
+         throw new UnsupportedOperationException();
+      });
    }
 
    public List<MenuItem> getEditMenuItems() {
-      return FxGet.rulesDrivenKometService().getEditMenuItems(manifold, this);
+      return FxGet.rulesDrivenKometService().getEditMenuItems(manifold, this.categorizedVersion, (t) -> {
+         throw new UnsupportedOperationException();
+      });
    }
 
    public void doExpandAllAction(ExpandAction action) {

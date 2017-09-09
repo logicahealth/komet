@@ -16,6 +16,8 @@
  */
 package sh.isaac.model.observable.version;
 
+import java.util.List;
+import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import sh.isaac.api.component.sememe.version.MutableStringVersion;
 import sh.isaac.api.component.sememe.version.StringVersion;
@@ -66,6 +68,13 @@ public class ObservableStringVersionImpl
 
       return this.stringProperty;
    }
+
+   @Override
+   public List<Property<?>> getProperties() {
+      List<Property<?>> properties = super.getProperties();
+      properties.add(stringProperty());
+      return properties;
+   }  
 
    //~--- get methods ---------------------------------------------------------
 

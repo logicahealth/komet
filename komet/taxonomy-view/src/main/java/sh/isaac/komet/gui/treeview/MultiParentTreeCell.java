@@ -77,13 +77,13 @@ import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.komet.gui.interfaces.DraggableWithImage;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
+import sh.komet.gui.manifold.Manifold;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -120,10 +120,6 @@ final public class MultiParentTreeCell
 
       setOnMouseClicked(eventHandler);
 
-      // Handle right-clicks.7c21b6c5-cf11-5af9-893b-743f004c97f5
-      ContextMenu cm = buildContextMenu();
-
-      setContextMenu(cm);
 
       // Allow drags
       
@@ -135,11 +131,14 @@ final public class MultiParentTreeCell
    //~--- methods -------------------------------------------------------------
 
    @Override
-   protected void updateItem(ConceptChronology taxRef, boolean empty) {
+   protected void updateItem(ConceptChronology concept, boolean empty) {
       boolean addProgressIndicator = false;
+      // Handle right-clicks.7c21b6c5-cf11-5af9-893b-743f004c97f5
+
+      setContextMenu(buildContextMenu(concept));
 
       try {
-         super.updateItem(taxRef, empty);
+         super.updateItem(concept, empty);
 
          if (empty) {
             setText("");
@@ -164,12 +163,10 @@ final public class MultiParentTreeCell
                   }
                }
 
-               ConceptSnapshotService conceptSnapshotService = treeItem.getTreeView().manifoldProperty
-                                                                    .get()
-                                                                    .getConceptSnapshotService();
+               ConceptSnapshotService conceptSnapshotService = treeItem.getTreeView().getManifold().getConceptSnapshotService();
 
-            if (taxRef != null) {
-               if (conceptSnapshotService.isConceptActive(taxRef.getConceptSequence())) {
+            if (concept != null) {
+               if (conceptSnapshotService.isConceptActive(concept.getConceptSequence())) {
                   setFont(Font.font(getFont().getFamily(), FontPosture.REGULAR, getFont().getSize()));
                } else {
                   setFont(Font.font(getFont().getFamily(), FontPosture.ITALIC, getFont().getSize()));
@@ -216,13 +213,24 @@ final public class MultiParentTreeCell
       // StackPane.setMargin(pi, new Insets(0, 10, 0, 0));
    }
 
-   private ContextMenu buildContextMenu() {
+   private ContextMenu buildContextMenu(ConceptChronology concept) {
+      if (concept != null) {
+         MultiParentTreeItem treeItem = (MultiParentTreeItem) getTreeItem();
+         MultiParentTreeView treeView = treeItem.getTreeView();
+         Manifold menuManifold = treeView.getManifold();
+         
       ContextMenu cm    = new ContextMenu();
-      MenuItem    item1 = new MenuItem("About");
+      MenuItem    item1 = new MenuItem("About " + menuManifold.getPreferredDescriptionText(concept));
 
       item1.setOnAction(
           (ActionEvent e) -> {
-             System.out.println("About");
+             int conceptNid = ((MultiParentTreeItem) getTreeItem()).getConceptNid();
+             Manifold manifold = ((MultiParentTreeItem) getTreeItem()).getTreeView().getManifold();
+             treeItem.getValue();
+             Get.taxonomyService().getAllRelationshipDestinationSequences(conceptNid)
+                     .forEach((conceptSequence)->System.out.println("Parent: " + menuManifold.getPreferredDescriptionText(conceptSequence)));
+             Get.taxonomyService().getAllRelationshipOriginSequences(conceptNid)
+                     .forEach((conceptSequence)->System.out.println("Child: " + menuManifold.getPreferredDescriptionText(conceptSequence)));
           });
 
       MenuItem item2 = new MenuItem("Preferences");
@@ -234,6 +242,8 @@ final public class MultiParentTreeCell
       cm.getItems()
         .addAll(item1, item2);
       return cm;
+      }
+      return null;
    }
 
    private void openOrCloseParent(MultiParentTreeItem treeItem)

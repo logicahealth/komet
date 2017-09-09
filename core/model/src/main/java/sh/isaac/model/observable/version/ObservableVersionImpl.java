@@ -41,6 +41,8 @@ package sh.isaac.model.observable.version;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,6 +52,7 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 
 import sh.isaac.api.State;
@@ -57,12 +60,12 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.observable.ObservableChronology;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareLongProperty;
 import sh.isaac.model.observable.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.api.observable.ObservableVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -126,9 +129,10 @@ public class ObservableVersionImpl
    @Override
    public final IntegerProperty authorSequenceProperty() {
       if (this.authorSequenceProperty == null) {
-         this.authorSequenceProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.AUTHOR_SEQUENCE_FOR_VERSION.toExternalString(),
-               getAuthorSequence());
+         this.authorSequenceProperty = new CommitAwareIntegerProperty(
+             this,
+             ObservableFields.AUTHOR_SEQUENCE_FOR_VERSION.toExternalString(),
+             getAuthorSequence());
       }
 
       return this.authorSequenceProperty;
@@ -152,9 +156,10 @@ public class ObservableVersionImpl
                return CommitStates.COMMITTED;
             }
          };
-         this.commitStateProperty = new SimpleObjectProperty(this,
-               ObservableFields.COMMITTED_STATE_FOR_VERSION.toExternalString(),
-               this.commitStateBinding.get());
+         this.commitStateProperty = new SimpleObjectProperty(
+             this,
+             ObservableFields.COMMITTED_STATE_FOR_VERSION.toExternalString(),
+             this.commitStateBinding.get());
          this.commitStateProperty.bind(this.commitStateBinding);
       }
 
@@ -169,9 +174,10 @@ public class ObservableVersionImpl
    @Override
    public final IntegerProperty moduleSequenceProperty() {
       if (this.moduleSequenceProperty == null) {
-         this.moduleSequenceProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.MODULE_SEQUENCE_FOR_VERSION.toExternalString(),
-               getModuleSequence());
+         this.moduleSequenceProperty = new CommitAwareIntegerProperty(
+             this,
+             ObservableFields.MODULE_SEQUENCE_FOR_VERSION.toExternalString(),
+             getModuleSequence());
       }
 
       return this.moduleSequenceProperty;
@@ -185,9 +191,10 @@ public class ObservableVersionImpl
    @Override
    public final IntegerProperty pathSequenceProperty() {
       if (this.pathSequenceProperty == null) {
-         this.pathSequenceProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.PATH_SEQUENCE_FOR_VERSION.toExternalString(),
-               getPathSequence());
+         this.pathSequenceProperty = new CommitAwareIntegerProperty(
+             this,
+             ObservableFields.PATH_SEQUENCE_FOR_VERSION.toExternalString(),
+             getPathSequence());
       }
 
       return this.pathSequenceProperty;
@@ -201,9 +208,10 @@ public class ObservableVersionImpl
    @Override
    public final IntegerProperty stampSequenceProperty() {
       if (this.stampSequenceProperty == null) {
-         this.stampSequenceProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.STAMP_SEQUENCE_FOR_VERSION.toExternalString(),
-               getStampSequence());
+         this.stampSequenceProperty = new CommitAwareIntegerProperty(
+             this,
+             ObservableFields.STAMP_SEQUENCE_FOR_VERSION.toExternalString(),
+             getStampSequence());
       }
 
       return this.stampSequenceProperty;
@@ -217,9 +225,10 @@ public class ObservableVersionImpl
    @Override
    public final ObjectProperty<State> stateProperty() {
       if (this.stateProperty == null) {
-         this.stateProperty = new CommitAwareObjectProperty<>(this,
-               ObservableFields.STATUS_FOR_VERSION.toExternalString(),
-               getState());
+         this.stateProperty = new CommitAwareObjectProperty<>(
+             this,
+             ObservableFields.STATUS_FOR_VERSION.toExternalString(),
+             getState());
       }
 
       return this.stateProperty;
@@ -233,9 +242,10 @@ public class ObservableVersionImpl
    @Override
    public final LongProperty timeProperty() {
       if (this.timeProperty == null) {
-         this.timeProperty = new CommitAwareLongProperty(this,
-               ObservableFields.TIME_FOR_VERSION.toExternalString(),
-               getTime());
+         this.timeProperty = new CommitAwareLongProperty(
+             this,
+             ObservableFields.TIME_FOR_VERSION.toExternalString(),
+             getTime());
       }
 
       return this.timeProperty;
@@ -428,6 +438,15 @@ public class ObservableVersionImpl
    @Override
    public UUID getPrimordialUuid() {
       return ((VersionImpl) this.stampedVersion).getPrimordialUuid();
+   }
+
+   @Override
+   public List<Property<?>> getProperties() {
+      return new ArrayList(Arrays.asList(
+          new Property[] {
+         stateProperty(), timeProperty(), authorSequenceProperty(), moduleSequenceProperty(), pathSequenceProperty(),
+         commitStateProperty(), stampSequenceProperty(),
+      }));
    }
 
    /**

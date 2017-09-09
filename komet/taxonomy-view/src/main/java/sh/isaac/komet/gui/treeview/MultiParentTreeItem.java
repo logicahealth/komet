@@ -275,7 +275,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
       try {
          if (this.getValue() != null) {
             if (conceptDescriptionText == null) {
-               this.conceptDescriptionText = treeView.manifoldProperty.get().getConceptSnapshotService().conceptDescriptionText(nid);
+               this.conceptDescriptionText = treeView.getManifold().getConceptSnapshotService().conceptDescriptionText(nid);
             }
             return this.conceptDescriptionText;
          }

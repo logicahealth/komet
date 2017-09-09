@@ -41,6 +41,8 @@ package sh.isaac.model.observable.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.List;
+import javafx.beans.property.Property;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
@@ -77,8 +79,6 @@ public class ObservableConceptVersionImpl
    @Override
    public ObservableConceptChronology getChronology() {
       return (ObservableConceptChronology) this.chronology;
-   }
-   
-   
+   }   
 }
 

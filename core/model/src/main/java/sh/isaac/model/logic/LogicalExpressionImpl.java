@@ -1093,6 +1093,7 @@ public class LogicalExpressionImpl
             builder.append(logicNode.toSimpleString());
             builder.append("\n");
          }});
+      builder.deleteCharAt(builder.length() - 1);
       return builder.toString();
    }
 

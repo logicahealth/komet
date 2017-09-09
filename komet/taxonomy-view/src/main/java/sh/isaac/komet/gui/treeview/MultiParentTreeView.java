@@ -52,14 +52,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javafx.application.Platform;
 
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 
 import javafx.concurrent.Task;
 
@@ -70,6 +69,7 @@ import javafx.geometry.Pos;
 
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SelectionMode;
@@ -143,7 +143,7 @@ public class MultiParentTreeView
    private Optional<UUID>                    selectedItem      = Optional.empty();
    private final ArrayList<UUID>             expandedUUIDs     = new ArrayList<>();
    private BooleanProperty                   displayFSN        = new SimpleBooleanProperty();
-   SimpleObjectProperty<Manifold>            manifoldProperty  = new SimpleObjectProperty<>();
+   private final Manifold            manifold;
    private Tree                              taxonomyTree      = null;
    private final StackPane                   stackPane;
    private MultiParentTreeItem               rootTreeItem;
@@ -155,7 +155,11 @@ public class MultiParentTreeView
       long startTime = System.currentTimeMillis();
 
       getStyleClass().setAll(MULTI_PARENT_TREE_NODE.toString());
-      this.manifoldProperty.set(manifold);
+      this.manifold = manifold;
+      manifold.getManifoldCoordinate().premiseTypeProperty().addListener((observable) -> {
+         this.taxonomyTree = null;
+         refresh();
+      });
       treeView = new TreeView<>();
 
       // treeView.setSkin(new MultiParentTreeViewSkin<>(treeView));
@@ -197,55 +201,13 @@ public class MultiParentTreeView
           });
       toolBar.getItems()
              .add(descriptionType);
-
-      Button taxonomyViewMode = new Button();
-
-      taxonomyViewMode.setPadding(new Insets(2.0));
-
-      Node taxonomyInferred = Iconography.INFERRED_VIEW.getIconographic();
-
-      taxonomyInferred.visibleProperty()
-                      .bind(
-                          new BooleanBinding() {
-                             {
-                                super.bind(manifold.getManifoldCoordinate()
-                                      .premiseTypeProperty());
-                             }
-                             @Override
-                             protected boolean computeValue() {
-                                return manifold.getTaxonomyType() == PremiseType.INFERRED;
-                             }
-                          });
-      Tooltip.install(
-          taxonomyInferred,
-          new Tooltip("Displaying the Inferred view- click to display the Inferred then Stated view"));
-
-      Node taxonomyStated = Iconography.STATED_VIEW.getIconographic();
-
-      taxonomyStated.visibleProperty()
-                    .bind(
-                        new BooleanBinding() {
-                           {
-                              super.bind(manifold.getManifoldCoordinate()
-                                    .premiseTypeProperty());
-                           }
-                           @Override
-                           protected boolean computeValue() {
-                              return manifold.getTaxonomyType() == PremiseType.STATED;
-                           }
-                        });
-      Tooltip.install(taxonomyStated, new Tooltip("Displaying the Stated view- click to display the Inferred view"));
-      taxonomyViewMode.setGraphic(new StackPane(taxonomyInferred, taxonomyStated));
-      taxonomyViewMode.setOnAction(
-          (ActionEvent event) -> {
-             ObjectProperty<PremiseType> premiseProperty = manifold.getManifoldCoordinate()
-                                                                   .premiseTypeProperty();
-
-             premiseProperty.set(premiseProperty.get()
-                   .next());
-          });
+      
+      ChoiceBox<PremiseType> premiseChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(PremiseType.values()));
+      premiseChoiceBox.setValue(PremiseType.INFERRED);      
+      premiseChoiceBox.valueProperty().addListener(this::taxonomyPremiseChanged);
+      
       toolBar.getItems()
-             .add(taxonomyViewMode);
+             .add(premiseChoiceBox);
       this.setTop(toolBar);
       stackPane = new StackPane();
       this.setCenter(stackPane);
@@ -264,6 +226,9 @@ public class MultiParentTreeView
 
    //~--- methods -------------------------------------------------------------
 
+   private void taxonomyPremiseChanged(ObservableValue<? extends PremiseType> observable, PremiseType oldValue, PremiseType newValue) {
+      this.manifold.getManifoldCoordinate().premiseTypeProperty().set(newValue);
+   }
    /**
     * Convenience method for other code to add buttons, etc to the tool bar displayed above
     * the tree view
@@ -744,7 +709,7 @@ public class MultiParentTreeView
  
    @Override
    public Manifold getManifold() {
-      return this.manifoldProperty.get();
+      return this.manifold;
    }
 
    @Override
@@ -759,7 +724,7 @@ public class MultiParentTreeView
    protected Tree getTaxonomyTree() {
       if (taxonomyTree == null) {
          taxonomyTree = Get.taxonomyService()
-                           .getTaxonomyTree(manifoldProperty.getValue());
+                           .getTaxonomyTree(manifold);
       }
 
       return taxonomyTree;
