@@ -47,8 +47,10 @@ import java.util.UUID;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.sememe.version.MutableSememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
@@ -60,7 +62,6 @@ import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
 import sh.isaac.model.sememe.version.LongVersionImpl;
 import sh.isaac.model.sememe.version.SememeVersionImpl;
 import sh.isaac.model.sememe.version.StringVersionImpl;
-import sh.isaac.api.component.sememe.version.MutableSememeVersion;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.identity.StampedVersion;
 
@@ -116,15 +117,13 @@ public class SememeChronologyImpl extends ChronologyImpl
    /**
     * Creates the mutable version.
     *
-    * @param <M> the generic type
-    * @param type the type
+    * @param <V> the generic type
     * @param stampSequence the stamp sequence
     * @return the m
     */
    @Override
-   public <M extends MutableSememeVersion> M createMutableVersion(int stampSequence) {
-      final M version = createMutableVersionInternal(stampSequence, nextVersionSequence());
-
+   public <V extends Version> V createMutableVersion(int stampSequence) {
+      final V version = createMutableVersionInternal(stampSequence, nextVersionSequence());
       addVersion(version);
       return version;
    }
@@ -132,21 +131,20 @@ public class SememeChronologyImpl extends ChronologyImpl
    /**
     * Creates the mutable version.
     *
-    * @param <M> the generic type
-    * @param type the type
+    * @param <V> the generic type
     * @param status the status
     * @param ec the ec
     * @return the m
     */
    @Override
-   public <M extends MutableSememeVersion> M createMutableVersion(State status, EditCoordinate ec) {
+   public <V extends Version> V  createMutableVersion(State status, EditCoordinate ec) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(status,
                                          Long.MAX_VALUE,
                                          ec.getAuthorSequence(),
                                          ec.getModuleSequence(),
                                          ec.getPathSequence());
-      final M version = createMutableVersionInternal(stampSequence, nextVersionSequence());
+      final V version = createMutableVersionInternal(stampSequence, nextVersionSequence());
 
       addVersion(version);
       return version;

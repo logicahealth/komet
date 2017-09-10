@@ -57,6 +57,7 @@ import java.util.stream.IntStream;
 import sh.isaac.api.State;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.sememe.SememeChronology;
+import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.identity.StampedVersion;
@@ -73,6 +74,29 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
  */
 public interface Chronology
         extends IsaacExternalizable, CommittableComponent {
+   /**
+    * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
+    * add persist the chronicle when changes to the mutable version are complete .
+    *
+    * @param <V> the mutable version type
+    * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version.
+    * @return the mutable version
+    */
+   <V extends Version> V createMutableVersion(int stampSequence);
+   
+   /**
+    * Create a mutable version with Long.MAX_VALUE as the time, indicating
+    * the version is uncommitted. It is the responsibility of the caller to
+    * add the mutable version to the commit manager when changes are complete
+    * prior to committing the component.
+    *
+    * @param <V> the mutable version type
+    * @param state state of the created mutable version
+    * @param ec edit coordinate to provide the author, module, and path for the mutable version
+    * @return the mutable version
+    */
+   <V extends Version> V createMutableVersion(State state, EditCoordinate ec);
+
    /**
     * Gets the latest version.
     *

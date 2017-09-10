@@ -41,7 +41,6 @@ package sh.isaac.api.component.sememe.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.chronicle.MutableStampedVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
 
 //~--- interfaces -------------------------------------------------------------
@@ -52,7 +51,7 @@ import sh.isaac.api.component.sememe.SememeChronology;
  * @author kec
  */
 public interface MutableSememeVersion
-        extends MutableStampedVersion, SememeVersion {
+        extends SememeVersion {
 
    @Override
    public SememeChronology getChronology();

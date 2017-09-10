@@ -136,7 +136,7 @@ public class ObservableSememeChronologyImpl
     * @return the m
     */
    @Override
-   public <V extends MutableSememeVersion> V createMutableVersion(int stampSequence) {
+   public <V extends Version> V createMutableVersion(int stampSequence) {
       return (V) wrapInObservable(getSememeChronology().createMutableVersion(stampSequence));
    }
 
@@ -148,7 +148,7 @@ public class ObservableSememeChronologyImpl
     * @return the m
     */
    @Override
-   public <V extends MutableSememeVersion> V createMutableVersion(State status, EditCoordinate ec) {
+   public <V extends Version> V createMutableVersion(State status, EditCoordinate ec) {
       return (V) wrapInObservable(getSememeChronology().createMutableVersion(status, ec));
    }
 

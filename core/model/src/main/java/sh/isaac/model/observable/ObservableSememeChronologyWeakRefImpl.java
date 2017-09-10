@@ -23,9 +23,7 @@ import java.util.stream.IntStream;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
-import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -35,7 +33,6 @@ import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.sememe.version.MutableSememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.dag.Graph;
@@ -145,12 +142,12 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    }
 
    @Override
-   public <V extends MutableSememeVersion> V createMutableVersion(int stampSequence) {
+   public <V extends Version> V createMutableVersion(int stampSequence) {
       return getChronology().createMutableVersion(stampSequence);
    }
 
    @Override
-   public <V extends MutableSememeVersion> V createMutableVersion(State state, EditCoordinate ec) {
+   public <V extends Version> V createMutableVersion(State state, EditCoordinate ec) {
       return getChronology().createMutableVersion(state, ec);
    }
 
