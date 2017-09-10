@@ -20,9 +20,12 @@ import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.version.ComponentNidVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.observable.sememe.version.ObservableComponentNidVersion;
+import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.sememe.version.ComponentNidVersionImpl;
@@ -49,6 +52,15 @@ public class ObservableComponentNidVersionImpl
                                     ObservableSememeChronology chronology) {
       super(version, 
               chronology);
+   }
+
+   @Override
+   public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      ComponentNidVersion newVersion = this.stampedVersion.makeAnalog(ec);
+      ObservableComponentNidVersionImpl newObservableVersion = 
+              new ObservableComponentNidVersionImpl(newVersion, (ObservableSememeChronology) chronology);
+      ((ChronologyImpl) chronology).addVersion(newObservableVersion);
+      return (V) newObservableVersion;
    }
 
    //~--- methods -------------------------------------------------------------

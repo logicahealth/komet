@@ -75,7 +75,7 @@ import sh.isaac.model.observable.ObservableFields;
  *
  * @author kec
  */
-public class ObservableVersionImpl
+public abstract class ObservableVersionImpl
          implements ObservableVersion, CommittableComponent {
    /** The state property. */
    ObjectProperty<State> stateProperty;

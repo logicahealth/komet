@@ -24,6 +24,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import javafx.scene.control.MenuItem;
 import org.controlsfx.control.PropertySheet;
+import sh.isaac.api.State;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;

@@ -17,6 +17,7 @@
 package sh.isaac.api.chronicle;
 
 import sh.isaac.api.commit.IdentifiedStampedVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
 
 /**
  *
@@ -31,4 +32,19 @@ public interface Version extends MutableStampedVersion, IdentifiedStampedVersion
    Chronology getChronology();
    
    VersionType getVersionType();
+   
+   /**
+    * Create a analog version with Long.MAX_VALUE as the time, indicating
+    * the version is uncommitted. It is the responsibility of the caller to
+    * add the mutable version to the commit manager when changes are complete
+    * prior to committing the component. Values for all properties except author,
+    * time, and path (which are provided by the edit coordinate) will be copied 
+    * from this version. 
+    *
+    * @param <V> the mutable version type
+    * @param ec edit coordinate to provide the author, module, and path for the mutable version
+    * @return the mutable version
+    */
+   <V extends Version> V makeAnalog(EditCoordinate ec);
+
 }

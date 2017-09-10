@@ -41,8 +41,11 @@ package sh.isaac.model.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.model.VersionImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -76,6 +79,23 @@ public class ConceptVersionImpl
    @Override
    public ConceptChronology getChronology() {
       return (ConceptChronology) this.chronicle;
+   }
+
+   @Override
+   public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      final int stampSequence = Get.stampService()
+                                   .getStampSequence(
+                                       this.getState(),
+                                       Long.MAX_VALUE,
+                                       ec.getAuthorSequence(),
+                                       this.getModuleSequence(),
+                                       ec.getPathSequence());
+      ConceptChronologyImpl chronologyImpl = (ConceptChronologyImpl) this.chronicle;
+      final ConceptVersionImpl newVersion = new ConceptVersionImpl(chronologyImpl, stampSequence, 
+              chronologyImpl.nextVersionSequence());
+
+      chronologyImpl.addVersion(newVersion);
+      return (V) newVersion;   
    }
 }
 

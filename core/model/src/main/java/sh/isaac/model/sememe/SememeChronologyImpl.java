@@ -290,7 +290,6 @@ public class SememeChronologyImpl extends ChronologyImpl
     * Creates the mutable version internal.
     *
     * @param <M> the generic type
-    * @param type the type
     * @param stampSequence the stamp sequence
     * @param versionSequence the version sequence
     * @return the m

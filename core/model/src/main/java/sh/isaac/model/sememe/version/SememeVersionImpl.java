@@ -41,11 +41,15 @@ package sh.isaac.model.sememe.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.MutableSememeVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.VersionImpl;
+import sh.isaac.model.sememe.SememeChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -66,6 +70,28 @@ public class SememeVersionImpl
     */
    public SememeVersionImpl(SememeChronology container, int stampSequence, short versionSequence) {
       super(container, stampSequence, versionSequence);
+   }
+   
+
+   private SememeVersionImpl(SememeVersionImpl other, int stampSequence, short versionSequence) {
+      super(other.getChronology(), stampSequence, versionSequence);
+   }
+
+   @Override
+   public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      final int stampSequence = Get.stampService()
+                                   .getStampSequence(
+                                       this.getState(),
+                                       Long.MAX_VALUE,
+                                       ec.getAuthorSequence(),
+                                       this.getModuleSequence(),
+                                       ec.getPathSequence());
+      SememeChronologyImpl chronologyImpl = (SememeChronologyImpl) this.chronicle;
+      final SememeVersionImpl newVersion = new SememeVersionImpl(this, stampSequence, 
+              chronologyImpl.nextVersionSequence());
+
+      chronologyImpl.addVersion(newVersion);
+      return (V) newVersion;   
    }
 
    //~--- methods -------------------------------------------------------------

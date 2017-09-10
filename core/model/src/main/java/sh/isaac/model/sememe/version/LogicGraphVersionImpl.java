@@ -47,6 +47,7 @@ import sh.isaac.api.DataSource;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicalExpression;
@@ -54,6 +55,7 @@ import sh.isaac.api.logic.LogicalExpressionByteArrayConverter;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -118,6 +120,31 @@ public class LogicGraphVersionImpl
          this.graphData = getExternalDataConverter().convertLogicGraphForm(this.graphData, DataTarget.INTERNAL);
       }
    }
+   private LogicGraphVersionImpl(LogicGraphVersionImpl other, int stampSequence, short versionSequence) {
+      super(other.getChronology(), stampSequence, versionSequence);
+      this.graphData = new byte[other.graphData.length][];
+      for (int i = 0; i < this.graphData.length; i++) {
+         this.graphData[i] = other.graphData[i].clone();
+      }
+   }
+
+   @Override
+   public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      final int stampSequence = Get.stampService()
+                                   .getStampSequence(
+                                       this.getState(),
+                                       Long.MAX_VALUE,
+                                       ec.getAuthorSequence(),
+                                       this.getModuleSequence(),
+                                       ec.getPathSequence());
+      SememeChronologyImpl chronologyImpl = (SememeChronologyImpl) this.chronicle;
+      final LogicGraphVersionImpl newVersion = new LogicGraphVersionImpl(this, stampSequence, 
+              chronologyImpl.nextVersionSequence());
+
+      chronologyImpl.addVersion(newVersion);
+      return (V) newVersion;   
+   }
+
 
    //~--- methods -------------------------------------------------------------
 

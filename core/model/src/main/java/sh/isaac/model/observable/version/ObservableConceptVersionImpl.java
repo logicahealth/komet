@@ -41,11 +41,12 @@ package sh.isaac.model.observable.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import java.util.List;
-import javafx.beans.property.Property;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
+import sh.isaac.model.ChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -68,6 +69,16 @@ public class ObservableConceptVersionImpl
       super(stampedVersion, 
               chronology);
    }
+
+   @Override
+   public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      ConceptVersion newVersion = this.stampedVersion.makeAnalog(ec);
+      ObservableConceptVersionImpl newObservableVersion = 
+              new ObservableConceptVersionImpl(newVersion, (ObservableConceptChronology) chronology);
+      ((ChronologyImpl) chronology).addVersion(newObservableVersion);
+      return (V) newObservableVersion;
+   }
+
 
    //~--- get methods ---------------------------------------------------------
 

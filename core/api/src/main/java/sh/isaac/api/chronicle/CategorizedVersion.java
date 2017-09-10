@@ -48,6 +48,7 @@ import java.util.UUID;
 
 import sh.isaac.api.State;
 import sh.isaac.api.commit.CommitStates;
+import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -68,29 +69,28 @@ public class CategorizedVersion
    }
 
    //~--- methods -------------------------------------------------------------
-   
-   public <V extends Version> V unwrap() {
-      return (V) delegate;
-   }
-   
-   public VersionCategory getVersionCategory() {
-      return categorizedVersions.getVersionCategory(this);
-   }
 
    @Override
    public boolean equals(Object obj) {
       if (obj == null) {
          return false;
       }
+
       if (this.getClass() != obj.getClass()) {
          return false;
       }
+
       return delegate.equals(obj);
    }
 
    @Override
    public int hashCode() {
       return delegate.hashCode();
+   }
+
+   @Override
+   public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      return delegate.makeAnalog(ec);
    }
 
    @Override
@@ -101,6 +101,10 @@ public class CategorizedVersion
    @Override
    public String toUserString() {
       return delegate.toUserString();
+   }
+
+   public <V extends Version> V unwrap() {
+      return (V) delegate;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -206,10 +210,13 @@ public class CategorizedVersion
       return delegate.getUuids();
    }
 
+   public VersionCategory getVersionCategory() {
+      return categorizedVersions.getVersionCategory(this);
+   }
+
    @Override
    public VersionType getVersionType() {
       return delegate.getVersionType();
    }
-   
 }
 

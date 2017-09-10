@@ -41,11 +41,15 @@ package sh.isaac.model.sememe.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.component.sememe.version.MutableStringVersion;
 import sh.isaac.api.component.sememe.version.StringVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.model.sememe.SememeChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -87,6 +91,28 @@ public class StringVersionImpl
                            ByteArrayDataBuffer data) {
       super(container, stampSequence, versionSequence);
       this.string = data.readUTF();
+   }
+   
+   private StringVersionImpl(StringVersionImpl other, int stampSequence, short versionSequence) {
+      super(other.getChronology(), stampSequence, versionSequence);
+      this.string = other.getString();
+   }
+
+   @Override
+   public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      final int stampSequence = Get.stampService()
+                                   .getStampSequence(
+                                       this.getState(),
+                                       Long.MAX_VALUE,
+                                       ec.getAuthorSequence(),
+                                       this.getModuleSequence(),
+                                       ec.getPathSequence());
+      SememeChronologyImpl chronologyImpl = (SememeChronologyImpl) this.chronicle;
+      final StringVersionImpl newVersion = new StringVersionImpl(this, stampSequence, 
+              chronologyImpl.nextVersionSequence());
+
+      chronologyImpl.addVersion(newVersion);
+      return (V) newVersion;   
    }
 
    //~--- methods -------------------------------------------------------------
@@ -155,5 +181,6 @@ public class StringVersionImpl
 
       this.string = string;
    }
+   
 }
 

@@ -46,11 +46,13 @@ import java.util.Optional;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 import sh.isaac.api.component.sememe.version.MutableComponentNidVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -95,6 +97,28 @@ public class ComponentNidVersionImpl
       super(container, stampSequence, versionSequence);
       this.componentNid = data.getNid();
    }
+   private ComponentNidVersionImpl(ComponentNidVersionImpl other, int stampSequence, short versionSequence) {
+      super(other.getChronology(), stampSequence, versionSequence);
+      this.componentNid = other.componentNid;
+   }
+
+   @Override
+   public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      final int stampSequence = Get.stampService()
+                                   .getStampSequence(
+                                       this.getState(),
+                                       Long.MAX_VALUE,
+                                       ec.getAuthorSequence(),
+                                       this.getModuleSequence(),
+                                       ec.getPathSequence());
+      SememeChronologyImpl chronologyImpl = (SememeChronologyImpl) this.chronicle;
+      final ComponentNidVersionImpl newVersion = new ComponentNidVersionImpl(this, stampSequence, 
+              chronologyImpl.nextVersionSequence());
+
+      chronologyImpl.addVersion(newVersion);
+      return (V) newVersion;   
+   }
+
 
    //~--- methods -------------------------------------------------------------
 

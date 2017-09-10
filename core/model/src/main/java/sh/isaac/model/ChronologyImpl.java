@@ -374,7 +374,7 @@ public abstract class ChronologyImpl
     * @param <V>
     * @param version the version to add
     */
-   protected <V extends Version> void addVersion(V version) {
+   public <V extends Version> void addVersion(V version) {
       if (this.unwrittenData == null) {
          final long lockStamp = getLock(this.nid).writeLock();
 
@@ -486,7 +486,7 @@ public abstract class ChronologyImpl
     *
     * @return the short
     */
-   protected short nextVersionSequence() {
+   public short nextVersionSequence() {
       return this.versionSequence++;
    }
 

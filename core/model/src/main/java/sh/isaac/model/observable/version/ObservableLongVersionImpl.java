@@ -20,10 +20,14 @@ import java.util.List;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.Property;
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 import sh.isaac.api.component.sememe.version.LongVersion;
 import sh.isaac.api.component.sememe.version.MutableLongVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.observable.sememe.version.ObservableLongVersion;
+import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.observable.CommitAwareLongProperty;
 import sh.isaac.model.observable.ObservableFields;
 
@@ -50,6 +54,16 @@ public class ObservableLongVersionImpl
       super(version, 
               chronology);
    }
+
+   @Override
+   public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      LongVersion newVersion = this.stampedVersion.makeAnalog(ec);
+      ObservableLongVersionImpl newObservableVersion = 
+              new ObservableLongVersionImpl(newVersion, (ObservableSememeChronology) chronology);
+      ((ChronologyImpl) chronology).addVersion(newObservableVersion);
+      return (V) newObservableVersion;
+   }
+
 
    //~--- methods -------------------------------------------------------------
 

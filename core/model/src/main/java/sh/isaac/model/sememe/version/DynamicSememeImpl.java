@@ -50,6 +50,7 @@ import javax.naming.InvalidNameException;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
@@ -64,6 +65,7 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeNidImpl;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeTypeToClassUtility;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
 import sh.isaac.api.component.sememe.version.MutableDynamicVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -144,6 +146,29 @@ public class DynamicSememeImpl
          }
       }
    }
+   private DynamicSememeImpl(DynamicSememeImpl other, int stampSequence, short versionSequence) {
+      super(other.getChronology(), stampSequence, versionSequence);
+      this.data = new DynamicSememeData[other.data.length];
+      System.arraycopy(other.data, 0, this.data, 0, this.data.length);
+   }
+
+   @Override
+   public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      final int stampSequence = Get.stampService()
+                                   .getStampSequence(
+                                       this.getState(),
+                                       Long.MAX_VALUE,
+                                       ec.getAuthorSequence(),
+                                       this.getModuleSequence(),
+                                       ec.getPathSequence());
+      SememeChronologyImpl chronologyImpl = (SememeChronologyImpl) this.chronicle;
+      final DynamicSememeImpl newVersion = new DynamicSememeImpl(this, stampSequence, 
+              chronologyImpl.nextVersionSequence());
+
+      chronologyImpl.addVersion(newVersion);
+      return (V) newVersion;   
+   }
+
 
    //~--- methods -------------------------------------------------------------
 
