@@ -62,7 +62,7 @@ import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeConstraints;
 import sh.isaac.api.component.sememe.SememeServiceTyped;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
@@ -101,7 +101,7 @@ public class MockSememeService
     * @return the sememe service typed
     */
    @Override
-   public <V extends SememeVersion> SememeServiceTyped ofType(SememeType versionType) {
+   public <V extends SememeVersion> SememeServiceTyped ofType(VersionType versionType) {
       throw new UnsupportedOperationException();
    }
 
@@ -173,7 +173,7 @@ public class MockSememeService
          set.stream().forEach((sememeSequence) -> {
                         final SememeChronology sememeChronology = this.sememeMap.get(sememeSequence);
 
-                        if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
+                        if (sememeChronology.getSememeType() == VersionType.DESCRIPTION) {
                            builder.accept(sememeChronology);
                         }
                      });

@@ -56,7 +56,8 @@ import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeConstraints;
 import sh.isaac.api.component.sememe.SememeServiceTyped;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
@@ -78,7 +79,7 @@ public interface AssemblageService
     * @param versionType the version type
     * @return the sememe service typed
     */
-   <V extends SememeVersion> SememeServiceTyped ofType(SememeType versionType);
+   <V extends SememeVersion> SememeServiceTyped ofType(VersionType versionType);
 
    /**
     * Write a sememe to the sememe service. Will not overwrite a sememe if one already exists, rather it will
@@ -266,6 +267,27 @@ public interface AssemblageService
     */
    <C extends SememeChronology> Stream<C> getSememesFromAssemblage(int assemblageConceptSequence);
 
+   /**
+    * Gets the referenced component nids from assemblage.
+    *
+    * @param conceptSpecification the assemblage concept specification
+    * @return the referenced component nids as an IntStream
+    */
+   default IntStream getReferencedComponentNidStreamFromAssemblage(ConceptSpecification conceptSpecification) {
+      return getReferencedComponentNidStreamFromAssemblage(conceptSpecification.getConceptSequence());
+   }
+   
+   /**
+    * Gets the referenced component nids from assemblage.
+    *
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the referenced component nids as an IntStream
+    */
+   default IntStream getReferencedComponentNidStreamFromAssemblage(int assemblageConceptSequence) {
+      return getSememesFromAssemblage(assemblageConceptSequence).mapToInt((sememe) -> sememe.getReferencedComponentNid());
+   }
+   
+   
    /**
     * Gets the snapshot.
     *

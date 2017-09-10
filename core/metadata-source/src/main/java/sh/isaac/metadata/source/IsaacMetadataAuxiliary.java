@@ -278,6 +278,7 @@ public class IsaacMetadataAuxiliary
          popParent();
          createConcept("Rule assemblage");
          pushParent(current());
+         createConcept("module assemblage");
          createConcept("QA rule assemblage");
          createConcept("Automation rule assemblage");
          popParent();

@@ -25,6 +25,7 @@ import javafx.scene.Scene;
  */
 public interface StatusMessageService {
    void reportSceneStatus(Scene scene, String status);
+   void reportStatus(String status);
    void addScene(Scene scene, Consumer<String> messageConsumer);
    void removeScene(Scene scene);
 }

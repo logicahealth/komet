@@ -47,7 +47,7 @@ import sh.isaac.api.DataSource;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionByteArrayConverter;
@@ -237,8 +237,8 @@ public class LogicGraphVersionImpl
     * @return the sememe type
     */
    @Override
-   public SememeType getSememeType() {
-      return SememeType.LOGIC_GRAPH;
+   public VersionType getSememeType() {
+      return VersionType.LOGIC_GRAPH;
    }
 }
 

@@ -42,6 +42,7 @@ package sh.isaac.api.component.sememe.version;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.Sememe;
 
@@ -61,5 +62,10 @@ public interface SememeVersion
     */
    @Override
    SememeChronology getChronology();
+
+   @Override
+   default VersionType getVersionType() {
+      return VersionType.MEMBER;
+   }
 }
 

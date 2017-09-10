@@ -39,6 +39,8 @@
 
 package sh.isaac.api.component.sememe.version;
 
+import sh.isaac.api.chronicle.VersionType;
+
 /**
  * The Interface LongVersion.
  *
@@ -52,5 +54,10 @@ public interface LongVersion
     * @return the long value
     */
    long getLongValue();
+
+   @Override
+   default VersionType getVersionType() {
+      return VersionType.LONG;
+   }
 }
 

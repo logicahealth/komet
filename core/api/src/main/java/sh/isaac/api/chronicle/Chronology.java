@@ -57,7 +57,6 @@ import java.util.stream.IntStream;
 import sh.isaac.api.State;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.identity.StampedVersion;
@@ -132,7 +131,7 @@ public interface Chronology
     */
    <V extends SememeChronology> List<V> getSememeListFromAssemblageOfType(
            int assemblageSequence,
-           SememeType type);
+           VersionType type);
 
    /**
     * Gets the unwritten version list.
@@ -209,6 +208,14 @@ public interface Chronology
       sortedLogicGraphs.addAll(getVersionList());
       return sortedLogicGraphs.stream()
                               .collect(Collectors.toList());
+   }
+   
+   default VersionType getVersionType() {
+      List<? extends Version> versions = getVersionList();
+      if (versions.isEmpty()) {
+         return VersionType.UNKNOWN;
+      }
+      return versions.get(0).getVersionType();
    }
 }
 

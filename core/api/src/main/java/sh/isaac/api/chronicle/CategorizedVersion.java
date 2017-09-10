@@ -205,5 +205,11 @@ public class CategorizedVersion
    public UUID[] getUuids() {
       return delegate.getUuids();
    }
+
+   @Override
+   public VersionType getVersionType() {
+      return delegate.getVersionType();
+   }
+   
 }
 

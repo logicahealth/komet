@@ -54,7 +54,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
@@ -120,12 +120,10 @@ public class AssemblageSnapshotProvider<V extends SememeVersion>
     */
    @Override
    public Stream<LatestVersion<V>> getLatestDescriptionVersionsForComponent(int componentNid) {
-      return getLatestSememeVersions(
-          this.sememeProvider.getSememeSequencesForComponent(componentNid)
+      return getLatestSememeVersions(this.sememeProvider.getSememeSequencesForComponent(componentNid)
                              .parallelStream()
-                             .filter(
-                                 sememeSequence -> (this.sememeProvider.getSememe(sememeSequence)
-                                       .getSememeType() == SememeType.DESCRIPTION)));
+                             .filter(sememeSequence -> (this.sememeProvider.getSememe(sememeSequence)
+                                       .getSememeType() == VersionType.DESCRIPTION)));
    }
 
    /**

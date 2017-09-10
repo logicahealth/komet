@@ -39,6 +39,8 @@
 
 package sh.isaac.api.component.sememe.version;
 
+import sh.isaac.api.chronicle.VersionType;
+
 /**
  * The Interface ComponentNidVersion.
  *
@@ -52,5 +54,10 @@ public interface ComponentNidVersion
     * @return the component nid
     */
    int getComponentNid();
+   
+   @Override
+   default VersionType getVersionType() {
+      return VersionType.COMPONENT_NID;
+   }
 }
 

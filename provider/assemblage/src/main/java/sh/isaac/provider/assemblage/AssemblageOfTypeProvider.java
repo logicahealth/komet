@@ -51,7 +51,7 @@ import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeServiceTyped;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.AssemblageService;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -63,7 +63,7 @@ import sh.isaac.api.component.sememe.SememeType;
 public class AssemblageOfTypeProvider
          implements SememeServiceTyped {
    /** The type. */
-   SememeType type;
+   VersionType type;
 
    /** The sememe provider. */
    AssemblageService sememeProvider;
@@ -76,7 +76,7 @@ public class AssemblageOfTypeProvider
     * @param type the type
     * @param sememeProvider the sememe provider
     */
-   public AssemblageOfTypeProvider(SememeType type, AssemblageService sememeProvider) {
+   public AssemblageOfTypeProvider(VersionType type, AssemblageService sememeProvider) {
       this.type           = type;
       this.sememeProvider = sememeProvider;
    }

@@ -76,7 +76,7 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
@@ -151,7 +151,7 @@ public class SememeIndexer
 
    /**
     * Search for matches to the specified nid. Note that in the current implementation, you will only find matches to sememes
-    * of type {@link SememeType#COMPONENT_NID} or {@link SememeType#LOGIC_GRAPH}.
+    * of type {@link VersionType#COMPONENT_NID} or {@link VersionType#LOGIC_GRAPH}.
     *
     * This only supports nids, not sequences.
     *
@@ -403,11 +403,11 @@ public class SememeIndexer
       if (chronicle instanceof SememeChronology) {
          final SememeChronology sememeChronology = (SememeChronology) chronicle;
 
-         if ((sememeChronology.getSememeType() == SememeType.DYNAMIC) ||
-               (sememeChronology.getSememeType() == SememeType.STRING) ||
-               (sememeChronology.getSememeType() == SememeType.LONG) ||
-               (sememeChronology.getSememeType() == SememeType.COMPONENT_NID) ||
-               (sememeChronology.getSememeType() == SememeType.LOGIC_GRAPH)) {
+         if ((sememeChronology.getSememeType() == VersionType.DYNAMIC) ||
+               (sememeChronology.getSememeType() == VersionType.STRING) ||
+               (sememeChronology.getSememeType() == VersionType.LONG) ||
+               (sememeChronology.getSememeType() == VersionType.COMPONENT_NID) ||
+               (sememeChronology.getSememeType() == VersionType.LOGIC_GRAPH)) {
             return true;
          }
       }

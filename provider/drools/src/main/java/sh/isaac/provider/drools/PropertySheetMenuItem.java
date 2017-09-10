@@ -16,24 +16,26 @@
  */
 package sh.isaac.provider.drools;
 
-import javafx.util.Callback;
 import org.controlsfx.control.PropertySheet;
-import org.controlsfx.property.editor.PropertyEditor;
-import sh.isaac.api.observable.ObservableCategorizedVersion;
+import org.controlsfx.control.PropertySheet.Item;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  *
  * @author kec
  */
-public class DroolsPropertyEditorFactory implements Callback<PropertySheet.Item, PropertyEditor<?>> {
-   final ObservableCategorizedVersion version;
+public class PropertySheetMenuItem {
+   PropertySheet propertySheet = new PropertySheet();
 
-   public DroolsPropertyEditorFactory(ObservableCategorizedVersion version) {
-      this.version = version;
-   }
-   @Override
-   public PropertyEditor<?> call(PropertySheet.Item param) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   public PropertySheetMenuItem(Manifold manifold) {
+      this.propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(manifold));
+      this.propertySheet.setMode(PropertySheet.Mode.NAME);
+      this.propertySheet.setSearchBoxVisible(false);
+      this.propertySheet.setModeSwitcherVisible(false);
    }
    
+   public Item addItem(Item item) {
+      propertySheet.getItems().add(item);
+      return item;
+   }
 }

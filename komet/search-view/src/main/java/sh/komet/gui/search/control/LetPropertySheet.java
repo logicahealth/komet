@@ -129,8 +129,7 @@ public class LetPropertySheet {
     private void buildPropertySheetItems(){
 
         //Langauge Coordinate
-        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForModification, this.manifoldForDisplay,
-                this.manifoldForModification.getLanguageCoordinate().languageConceptSequenceProperty().get(),
+        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
                 LANGUAGE,
                 this.manifoldForModification.getLanguageCoordinate().languageConceptSequenceProperty()
         ));
@@ -145,21 +144,18 @@ public class LetPropertySheet {
         ////
 
         //Logic Coordinate
-        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForModification, this.manifoldForDisplay,
-                this.manifoldForModification.getLogicCoordinate().classifierSequenceProperty().get(),
+        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
                 CLASSIFIER,
                 this.manifoldForModification.getLogicCoordinate().classifierSequenceProperty()
         ));
-        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForModification, this.manifoldForDisplay,
-                this.manifoldForModification.getLogicCoordinate().descriptionLogicProfileSequenceProperty().get(),
+        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
                 DESCRIPTION_LOGIC,
                 this.manifoldForModification.getLogicCoordinate().descriptionLogicProfileSequenceProperty()
         ));
 
 
         //STAMP Coordinate
-        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForModification, this.manifoldForDisplay,
-                this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().stampPathSequenceProperty().get(),
+        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
                 PATH,
                 this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().stampPathSequenceProperty()
         ));

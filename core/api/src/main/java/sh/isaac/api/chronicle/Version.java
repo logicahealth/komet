@@ -29,5 +29,6 @@ public interface Version extends MutableStampedVersion, IdentifiedStampedVersion
     * @return the chronology
     */
    Chronology getChronology();
-
+   
+   VersionType getVersionType();
 }

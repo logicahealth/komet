@@ -48,7 +48,7 @@ import java.util.UUID;
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
@@ -99,7 +99,7 @@ public class SememeChronologyImpl extends ChronologyImpl
     * @param referencedComponentNid the referenced component nid
     * @param containerSequence the container sequence
     */
-   public SememeChronologyImpl(SememeType sememeType,
+   public SememeChronologyImpl(VersionType sememeType,
                                UUID primordialUuid,
                                int nid,
                                int assemblageSequence,
@@ -167,7 +167,7 @@ public class SememeChronologyImpl extends ChronologyImpl
          int stampSequence,
          short versionSequence,
          ByteArrayDataBuffer bb) {
-      final SememeType st = SememeType.getFromToken(token);
+      final VersionType st = VersionType.getFromToken(token);
 
       switch (st) {
       case MEMBER:
@@ -241,7 +241,7 @@ public class SememeChronologyImpl extends ChronologyImpl
       if (this.sememeTypeToken == -1) {
          builder.append("SememeType token not initialized");
       } else {
-         builder.append(SememeType.getFromToken(this.sememeTypeToken));
+         builder.append(VersionType.getFromToken(this.sememeTypeToken));
       }
 
       builder.append("\n assemblage:")
@@ -444,8 +444,8 @@ public class SememeChronologyImpl extends ChronologyImpl
     * @return the sememe type
     */
    @Override
-   public SememeType getSememeType() {
-      return SememeType.getFromToken(this.sememeTypeToken);
+   public VersionType getSememeType() {
+      return VersionType.getFromToken(this.sememeTypeToken);
    }
 }
 

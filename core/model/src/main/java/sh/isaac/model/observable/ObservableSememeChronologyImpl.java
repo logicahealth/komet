@@ -48,7 +48,7 @@ import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -291,7 +291,7 @@ public class ObservableSememeChronologyImpl
     * @return the sememe type
     */
    @Override
-   public SememeType getSememeType() {
+   public VersionType getSememeType() {
       return getSememeChronology().getSememeType();
    }
 

@@ -50,7 +50,7 @@ import javax.naming.InvalidNameException;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
@@ -312,8 +312,8 @@ public class DynamicSememeImpl
     * @return the sememe type
     */
    @Override
-   public SememeType getSememeType() {
-      return SememeType.DYNAMIC;
+   public VersionType getSememeType() {
+      return VersionType.DYNAMIC;
    }
 }
 

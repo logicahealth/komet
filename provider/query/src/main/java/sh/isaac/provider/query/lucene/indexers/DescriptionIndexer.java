@@ -64,7 +64,7 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.constants.DynamicSememeConstants;
 import sh.isaac.api.index.SearchResult;
@@ -307,7 +307,7 @@ public class DescriptionIndexer
       if (chronicle instanceof SememeChronology) {
          final SememeChronology sememeChronology = (SememeChronology) chronicle;
 
-         if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
+         if (sememeChronology.getSememeType() == VersionType.DESCRIPTION) {
             indexDescription(doc,
                              (SememeChronology) sememeChronology);
             incrementIndexedItemCount("Description");
@@ -328,7 +328,7 @@ public class DescriptionIndexer
       if (chronicle instanceof SememeChronology) {
          final SememeChronology sememeChronology = (SememeChronology) chronicle;
 
-         if (sememeChronology.getSememeType() == SememeType.DESCRIPTION) {
+         if (sememeChronology.getSememeType() == VersionType.DESCRIPTION) {
             return true;
          }
       }
@@ -394,7 +394,7 @@ public class DescriptionIndexer
       String lastValue            = null;
 
       for (final SememeChronology sememeChronicle: sememeChronology.getSememeList()) {
-         if (sememeChronicle.getSememeType() == SememeType.DYNAMIC) {
+         if (sememeChronicle.getSememeType() == VersionType.DYNAMIC) {
             @SuppressWarnings("unchecked")
             final SememeChronology sememeDynamicChronicle =
                (SememeChronology) sememeChronicle;

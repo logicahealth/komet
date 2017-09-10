@@ -42,7 +42,7 @@ package sh.isaac.converters.sharedUtils.propertyTypes;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.ObjectChronologyType;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import sh.isaac.api.constants.DynamicSememeConstants;
@@ -61,7 +61,7 @@ public class PropertyAssociation
    private final ObjectChronologyType associationComponentTypeRestriction;
 
    /** The association component type sub restriction. */
-   private final SememeType associationComponentTypeSubRestriction;
+   private final VersionType associationComponentTypeSubRestriction;
 
    //~--- constructors --------------------------------------------------------
 
@@ -110,7 +110,7 @@ public class PropertyAssociation
                               String associationDescription,
                               boolean disabled,
                               ObjectChronologyType associationComponentTypeRestriction,
-                              SememeType associationComponentTypeSubRestriction) {
+                              VersionType associationComponentTypeSubRestriction) {
       super(owner,
             sourcePropertyNameFSN,
             sourcePropertyAltName,
@@ -144,7 +144,7 @@ public class PropertyAssociation
     *
     * @return the association component type sub restriction
     */
-   public SememeType getAssociationComponentTypeSubRestriction() {
+   public VersionType getAssociationComponentTypeSubRestriction() {
       return this.associationComponentTypeSubRestriction;
    }
 

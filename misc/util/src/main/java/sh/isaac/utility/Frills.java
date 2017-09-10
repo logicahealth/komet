@@ -89,7 +89,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
@@ -280,7 +280,7 @@ public class Frills
          DynamicSememeColumnInfo[] columns,
          Integer parentConceptNidOrSequence,
          ObjectChronologyType referencedComponentRestriction,
-         SememeType referencedComponentSubRestriction,
+         VersionType referencedComponentSubRestriction,
          EditCoordinate editCoord) {
       try {
          final EditCoordinate localEditCoord = ((editCoord == null) ? Get.configurationService()
@@ -464,7 +464,7 @@ public class Frills
          DynamicSememeColumnInfo[] columns,
          Integer parentConceptNidOrSequence,
          ObjectChronologyType referencedComponentRestriction,
-         SememeType referencedComponentSubRestriction,
+         VersionType referencedComponentSubRestriction,
          EditCoordinate editCoord) {
       final ConceptChronology newDynamicSememeUsageDescriptionConcept =
          buildUncommittedNewDynamicSememeUsageDescription(
@@ -776,9 +776,8 @@ public class Frills
 
       Get.assemblageService()
          .getSememesForComponent(descriptionSememeNid)
-         .forEach(
-             nestedSememe -> {
-                if (nestedSememe.getSememeType() == SememeType.COMPONENT_NID) {
+         .forEach(nestedSememe -> {
+                if (nestedSememe.getSememeType() == VersionType.COMPONENT_NID) {
                    final int dialectSequence = nestedSememe.getAssemblageSequence();
                    @SuppressWarnings({ "rawtypes", "unchecked" })
                    final LatestVersion<ComponentNidVersion> latest = ((SememeChronology) nestedSememe).getLatestVersion(
@@ -996,19 +995,19 @@ public class Frills
             .forEach(latestSememe -> {
                    if (latestSememe.get()
                                    .getChronology()
-                                   .getSememeType() == SememeType.STRING) {
+                                   .getSememeType() == VersionType.STRING) {
                       values.add(((StringVersionImpl) latestSememe.get()).getString());
                    } else if (latestSememe.get()
                                           .getChronology()
-                                          .getSememeType() == SememeType.COMPONENT_NID) {
+                                          .getSememeType() == VersionType.COMPONENT_NID) {
                       values.add(((ComponentNidVersionImpl) latestSememe.get()).getComponentNid() + "");
                    } else if (latestSememe.get()
                                           .getChronology()
-                                          .getSememeType() == SememeType.LONG) {
+                                          .getSememeType() == VersionType.LONG) {
                       values.add(((LongVersionImpl) latestSememe.get()).getLongValue() + "");
                    } else if (latestSememe.get()
                                           .getChronology()
-                                          .getSememeType() == SememeType.DYNAMIC) {
+                                          .getSememeType() == VersionType.DYNAMIC) {
                       final DynamicSememeData[] data = ((DynamicSememeImpl) latestSememe.get()).getData();
 
                       if (data.length > 0) {
@@ -1218,9 +1217,8 @@ public class Frills
       // Ignore the language annotation... treat preferred in any language as good enough for our purpose here...
       Get.assemblageService()
          .getSememesForComponent(descriptionSememeNid)
-         .forEach(
-             nestedSememe -> {
-                if (nestedSememe.getSememeType() == SememeType.COMPONENT_NID) {
+         .forEach(nestedSememe -> {
+                if (nestedSememe.getSememeType() == VersionType.COMPONENT_NID) {
                    @SuppressWarnings({ "rawtypes", "unchecked" })
                    final LatestVersion<ComponentNidVersion> latest = ((SememeChronology) nestedSememe).getLatestVersion(
                                                                                (stamp == null)
@@ -1278,9 +1276,8 @@ public class Frills
 
       Get.assemblageService()
          .getSememesForComponent(conceptNid)
-         .forEach(
-             descriptionC -> {
-                if (descriptionC.getSememeType() == SememeType.DESCRIPTION) {
+         .forEach(descriptionC -> {
+                if (descriptionC.getSememeType() == VersionType.DESCRIPTION) {
                    @SuppressWarnings({ "unchecked", "rawtypes" })
                    final LatestVersion<DescriptionVersion> latest = ((SememeChronology) descriptionC).getLatestVersion(
                                                                               (stamp == null)
@@ -1908,19 +1905,18 @@ public class Frills
             .getLatestSememeVersionsForComponentFromAssemblage(
                 componentNid,
                 MetaData.VUID____ISAAC.getConceptSequence())
-            .forEach(
-                latestSememe -> {
+            .forEach(latestSememe -> {
             // expected path
                    if (latestSememe.get()
                                    .getChronology()
-                                   .getSememeType() == SememeType.STRING) {
+                                   .getSememeType() == VersionType.STRING) {
                       vuids.add(Long.parseLong(((StringVersion) latestSememe.get()).getString()));
                    }
 
                    // Data model bug path (can go away, after bug is fixed)
                    else if (latestSememe.get()
                                         .getChronology()
-                                        .getSememeType() == SememeType.DYNAMIC) {
+                                        .getSememeType() == VersionType.DYNAMIC) {
                       vuids.add(Long.parseLong(((DynamicSememe) latestSememe.get()).getData()[0]
                             .dataToString()));
                    }

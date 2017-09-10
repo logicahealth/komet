@@ -55,7 +55,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
@@ -144,7 +144,7 @@ public interface ObservableChronology
     */
    ObservableList<ObservableSememeChronology> getObservableSememeListFromAssemblageOfType(
            int assemblageSequence,
-           SememeType type);
+           VersionType type);
 
 
    /**

@@ -29,9 +29,9 @@ import sh.isaac.provider.drools.AddAttachmentMenuItems;
  *
  * @author kec
  */
-rule "Add hello world attachent"
+rule "Add comment attachment"
 when
    $addAttachmentToVersion : AddAttachmentMenuItems()
 then
-   $addAttachmentToVersion.getMenuItems().add(new MenuItem("Hello World Attachment"));
+   $addAttachmentToVersion.getMenuItems().add(new MenuItem("Add comment"));
 end

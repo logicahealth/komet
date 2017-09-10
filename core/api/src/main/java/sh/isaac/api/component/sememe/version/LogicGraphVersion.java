@@ -41,6 +41,7 @@ package sh.isaac.api.component.sememe.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.logic.LogicalExpression;
 
 //~--- interfaces -------------------------------------------------------------
@@ -72,5 +73,10 @@ public interface LogicGraphVersion
     * @return the logical expression
     */
    LogicalExpression getLogicalExpression();
+
+   @Override
+   default VersionType getVersionType() {
+      return VersionType.LOGIC_GRAPH;
+   }
 }
 

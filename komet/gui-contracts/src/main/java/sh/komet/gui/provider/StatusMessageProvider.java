@@ -45,5 +45,10 @@ public class StatusMessageProvider implements StatusMessageService {
          consumerMap.get(scene.getRoot().getId()).accept(status);
       }
    }
+
+   @Override
+   public void reportStatus(String status) {
+      consumerMap.values().forEach((consumer) -> consumer.accept(status));
+   }
    
 }

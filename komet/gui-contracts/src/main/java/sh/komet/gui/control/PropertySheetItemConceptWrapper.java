@@ -10,79 +10,96 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javafx.beans.property.IntegerProperty;
+import org.controlsfx.tools.Platform;
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.komet.gui.util.FxGet;
 
 public class PropertySheetItemConceptWrapper implements ConceptSpecification, PropertySheet.Item {
 
-    private final Manifold manifoldForModification;
-    private final Manifold manifoldForDisplay;
-    private final int conceptSequence;
-    private final String name;
-    private final SimpleObjectProperty<ConceptForControlWrapper> observableWrapper;
-    private final IntegerProperty conceptSequenceProperty;
+   private final Manifold manifoldForDisplay;
+   private final String name;
+   private final SimpleObjectProperty<ConceptForControlWrapper> observableWrapper;
+   private final IntegerProperty conceptSequenceProperty;
+   private final ConceptSequenceSet allowedValues = new ConceptSequenceSet();
 
-    public PropertySheetItemConceptWrapper(Manifold manifoldForModification, Manifold manifoldForDisplay, int conceptSequence, String name, 
-            IntegerProperty conceptSequenceProperty) {
-        this.manifoldForModification = manifoldForModification;
-        this.manifoldForDisplay = manifoldForDisplay;
-        this.conceptSequence = conceptSequence;
-        this.name = name;
-        this.observableWrapper = new SimpleObjectProperty<>(new ConceptForControlWrapper(manifoldForDisplay, conceptSequence));
-        this.conceptSequenceProperty = conceptSequenceProperty;
-    }
+   public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay, String name,
+           IntegerProperty conceptSequenceProperty) {
+      this.manifoldForDisplay = manifoldForDisplay;
+      this.name = name;
+      this.observableWrapper = new SimpleObjectProperty<>(new ConceptForControlWrapper(manifoldForDisplay, conceptSequenceProperty.get()));
+      this.conceptSequenceProperty = conceptSequenceProperty;
+   }
 
-    @Override
-    public String getFullySpecifiedConceptDescriptionText() {
-        return this.manifoldForDisplay.getFullySpecifiedDescriptionText(this.conceptSequence);
-    }
+   @Override
+   public String getFullySpecifiedConceptDescriptionText() {
+      return this.manifoldForDisplay.getFullySpecifiedDescriptionText(conceptSequenceProperty.get());
+   }
 
-    @Override
-    public Optional<String> getPreferedConceptDescriptionText() {
-        return Optional.of(manifoldForDisplay.getPreferredDescriptionText(this.conceptSequence));
-    }
+   @Override
+   public Optional<String> getPreferedConceptDescriptionText() {
+      return Optional.of(manifoldForDisplay.getPreferredDescriptionText(conceptSequenceProperty.get()));
+   }
 
-    @Override
-    public List<UUID> getUuidList() {
-        return null;
-    }
+   @Override
+   public List<UUID> getUuidList() {
+      return new ConceptProxy(conceptSequenceProperty.getName()).getUuidList();
+   }
 
-    @Override
-    public Class<?> getType() {
-        return null;
-    }
+   @Override
+   public Class<?> getType() {
+      return ConceptForControlWrapper.class;
+   }
 
-    @Override
-    public String getCategory() {
-        return null;
-    }
+   @Override
+   public String getCategory() {
+      return null;
+   }
 
-    @Override
-    public String getName() {
-        return this.name;
-    }
+   public ConceptSequenceSet getAllowedValues() {
+      return allowedValues;
+   }
 
-    @Override
-    public String getDescription() {
-        return "Tooltip for the property sheet item we are editing. ";
-    }
+   @Override
+   public String getName() {
+      return this.name;
+   }
 
-    @Override
-    public ConceptForControlWrapper getValue() {
-        return this.observableWrapper.get();
-    }
+   @Override
+   public String getDescription() {
+      return "Tooltip for the property sheet item we are editing. ";
+   }
 
-    @Override
-    public void setValue(Object value) {
-        this.observableWrapper.setValue((ConceptForControlWrapper) value);
-        this.conceptSequenceProperty.setValue(((ConceptForControlWrapper) value).getConceptSequence());
-    }
+   @Override
+   public ConceptForControlWrapper getValue() {
+      return this.observableWrapper.get();
+   }
 
-    @Override
-    public Optional<ObservableValue<? extends Object>> getObservableValue() {
-        return Optional.of(this.conceptSequenceProperty);
-    }
+   @Override
+   public void setValue(Object value) {
+      try {
+         // Concept sequence property may throw a runtime exception if it cannot be changed
+         this.conceptSequenceProperty.setValue(((ConceptForControlWrapper) value).getConceptSequence());
+         // only change the observableWrapper if no exception is thrown. 
+         this.observableWrapper.setValue((ConceptForControlWrapper) value);
+      } catch (RuntimeException ex) {
+         FxGet.statusMessageService().reportStatus(ex.getMessage());
+         this.observableWrapper.setValue(new ConceptForControlWrapper(manifoldForDisplay, this.conceptSequenceProperty.get()));
+      }
+   }
 
-    @Override
-    public String toString() {
-        return "Property sheet item we are editing...";
-    }
+   @Override
+   public Optional<ObservableValue<? extends Object>> getObservableValue() {
+      return Optional.of(this.conceptSequenceProperty);
+   }
+  
+   public ConceptSpecification getPropertySpecification() {
+      return new ConceptProxy(this.conceptSequenceProperty.getName());
+   }
+
+   @Override
+   public String toString() {
+      return "Property sheet item for "
+              + manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(conceptSequenceProperty.getName()));
+   }
 }

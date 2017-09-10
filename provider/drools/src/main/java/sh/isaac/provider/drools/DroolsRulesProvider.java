@@ -92,7 +92,7 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
            Consumer<PropertySheet> propertySheetConsumer, MenuItem editPropertySheetItem) {
 
       PropertySheet propertySheet = new PropertySheet();
-      propertySheet.setPropertyEditorFactory(new DroolsPropertyEditorFactory(categorizedVersion));
+      propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(manifold));
       // add status and module items...
       IntegerProperty moduleSequenceProperty = categorizedVersion.moduleSequenceProperty();
       // the name of the property is the external string of the concept that specifies the semantics of this field. 

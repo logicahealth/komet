@@ -18,17 +18,23 @@ package sh.isaac.provider.drools;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import javafx.scene.control.MenuItem;
 import org.controlsfx.control.PropertySheet;
+import org.controlsfx.control.PropertySheet.Item;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.provider.drools.AddEditVersionMenuItems;
-import sh.isaac.provider.drools.IsaacProperty;
+import sh.isaac.provider.drools.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
 import javafx.beans.property.Property;
 import sh.isaac.MetaData;
+import sh.isaac.api.chronicle.VersionCategory;
+import sh.isaac.api.chronicle.VersionType;
+import sh.komet.gui.control.PropertySheetItemConceptWrapper;
 
 /**
  *
@@ -37,27 +43,46 @@ import sh.isaac.MetaData;
 rule "Given a AddEditVersionMenuItems, add the properties for further rule evaluation"
    lock-on-active true
 when
-   $addEditVersion : AddEditVersionMenuItems()
+   $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.CONCEPT);
 then
-   for (Property property: $addEditVersion.getProperties()) {
-      insert(new IsaacProperty(property, $addEditVersion.getManifold()));
-   }
+   PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit concept");
+ 
+   Item pathProperty = $addEditVersion.getConceptProperty(MetaData.PATH_SEQUENCE_FOR_VERSION____ISAAC, "path");
+   insert(propertySheetMenuItem.addItem(pathProperty));
+   
+   Item moduleProperty = $addEditVersion.getConceptProperty(MetaData.MODULE_SEQUENCE_FOR_VERSION____ISAAC, "module");
+   insert(propertySheetMenuItem.addItem(moduleProperty));
+   
+   //PropertySheetItemConceptWrapper statusProperty = $addEditVersion.getProperty(MetaData.STATUS_FOR_VERSION____ISAAC);
+   //insert(propertySheetMenuItem.addItem(statusProperty));
 end
 
-rule "is property MetaData.STATUS_FOR_VERSION____ISAAC?"
+
+rule "if property specification is PATH_SEQUENCE_FOR_VERSION____ISAAC then"
 
 when
-   $property: IsaacProperty(getPropertySpecification() == MetaData.STATUS_FOR_VERSION____ISAAC)
-   $addEditVersion: AddEditVersionMenuItems()
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.PATH_SEQUENCE_FOR_VERSION____ISAAC)
 then
-   $addEditVersion.getMenuItems().add(new MenuItem($property.getPreferredText()));
+   $property.getAllowedValues().addAll(
+      Get.assemblageService().getReferencedComponentNidStreamFromAssemblage(MetaData.PATHS_ASSEMBLAGE____ISAAC)
+   );
 end
 
-rule "is property MetaData.MODULE_SEQUENCE_FOR_VERSION____ISAAC?"
+
+rule "if property specification is STATUS_FOR_VERSION____ISAAC then"
 
 when
-   $property: IsaacProperty(getPropertySpecification() == MetaData.MODULE_SEQUENCE_FOR_VERSION____ISAAC)
-   $addEditVersion: AddEditVersionMenuItems()
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.STATUS_FOR_VERSION____ISAAC)
 then
-   $addEditVersion.getMenuItems().add(new MenuItem($property.getPreferredText()));
+   System.out.println("Add status capability");
+end
+
+rule "if property specification is MODULE_SEQUENCE_FOR_VERSION____ISAAC then "
+
+when
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.MODULE_SEQUENCE_FOR_VERSION____ISAAC)
+then
+   $property.getAllowedValues().add(MetaData.ISAAC_MODULE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.SOLOR_OVERLAY_MODULE____ISAAC.getConceptSequence());
+   
 end

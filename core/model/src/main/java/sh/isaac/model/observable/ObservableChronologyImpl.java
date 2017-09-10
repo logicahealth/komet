@@ -77,7 +77,7 @@ import sh.isaac.model.VersionImpl;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 
@@ -458,7 +458,7 @@ public abstract class ObservableChronologyImpl
    @Override
    public ObservableList<ObservableSememeChronology> getSememeListFromAssemblageOfType(
            int assemblageSequence,
-           SememeType type) {
+           VersionType type) {
       return getSememeList().filtered((observableSememeChronology) -> {
          return observableSememeChronology.getAssemblageSequence() == assemblageSequence &&
                  observableSememeChronology.getSememeType() == type;
@@ -488,7 +488,7 @@ public abstract class ObservableChronologyImpl
 @Override
    public ObservableList<ObservableSememeChronology> getObservableSememeListFromAssemblageOfType(
            int assemblageSequence,
-           SememeType type) {
+           VersionType type) {
       return getSememeListFromAssemblageOfType(assemblageSequence, type);
    }
    /**

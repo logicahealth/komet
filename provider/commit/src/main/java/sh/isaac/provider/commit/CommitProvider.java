@@ -118,7 +118,7 @@ import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.UncommittedStamp;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
@@ -692,7 +692,7 @@ public class CommitProvider
          Get.assemblageService()
             .writeSememe(sememeChronology);
 
-         if (sememeChronology.getSememeType() == SememeType.LOGIC_GRAPH) {
+         if (sememeChronology.getSememeType() == VersionType.LOGIC_GRAPH) {
             deferNidAction(sememeChronology.getNid());
          }
 
@@ -742,7 +742,7 @@ public class CommitProvider
                final SememeChronology sc = Get.assemblageService()
                                               .getSememe(nid);
 
-               if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {
+               if (sc.getSememeType() == VersionType.LOGIC_GRAPH) {
                   Get.taxonomyService()
                      .updateTaxonomy(sc);
                } else {

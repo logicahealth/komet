@@ -47,7 +47,7 @@ import java.util.Optional;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 import sh.isaac.api.component.sememe.version.MutableComponentNidVersion;
@@ -190,8 +190,8 @@ public class ComponentNidVersionImpl
     * @return the sememe type
     */
    @Override
-   public SememeType getSememeType() {
-      return SememeType.COMPONENT_NID;
+   public VersionType getSememeType() {
+      return VersionType.COMPONENT_NID;
    }
 }
 

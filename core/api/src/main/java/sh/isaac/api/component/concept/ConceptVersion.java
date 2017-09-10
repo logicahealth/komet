@@ -42,6 +42,7 @@ package sh.isaac.api.component.concept;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -58,5 +59,10 @@ public interface ConceptVersion
     */
    @Override
    ConceptChronology getChronology();
+   
+   @Override
+   default VersionType getVersionType() {
+      return VersionType.CONCEPT;
+   }
 }
 

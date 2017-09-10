@@ -209,6 +209,9 @@ public class ConceptProxy
     */
    @Override
    public int hashCode() {
+      if (Get.identifierService() != null) {
+         return Long.hashCode(this.getNid());
+      }
       int hash = 5;
 
       hash = 79 * hash + Arrays.deepHashCode(this.uuids);

@@ -57,6 +57,7 @@ import javafx.beans.property.SimpleObjectProperty;
 
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.observable.ObservableChronology;
@@ -537,5 +538,12 @@ public class ObservableVersionImpl
    public short getVersionSequence() {
       return ((VersionImpl) this.stampedVersion).getVersionSequence();
    }
+
+   @Override
+   public VersionType getVersionType() {
+      return ((VersionImpl) this.stampedVersion).getVersionType();
+   }
+   
+   
 }
 

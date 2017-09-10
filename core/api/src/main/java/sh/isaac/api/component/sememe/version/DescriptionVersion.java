@@ -39,6 +39,8 @@
 
 package sh.isaac.api.component.sememe.version;
 
+import sh.isaac.api.chronicle.VersionType;
+
 /**
  * Describes the referenced component in a way appropriate for the type and
  * language specified by the sememe.
@@ -75,5 +77,11 @@ public interface DescriptionVersion
     * @return the text
     */
    String getText();
+
+   @Override
+   default VersionType getVersionType() {
+      return VersionType.DESCRIPTION;
+   }
+   
 }
 

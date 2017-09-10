@@ -110,5 +110,18 @@ public class ConceptForControlWrapper
       return Get.concept(conceptSequence)
                 .getUuidList();
    }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (obj instanceof ConceptSpecification) {
+         return this.conceptSequence == ((ConceptSpecification) obj).getConceptSequence();
+      }
+      return false;
+   }
+
+   @Override
+   public int hashCode() {
+      return Long.hashCode(this.getNid());
+   }
 }
 

@@ -69,8 +69,7 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.SememeVersion;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.dag.Graph;
@@ -235,7 +234,7 @@ public abstract class ChronologyImpl
     */
    @Override
    public int hashCode() {
-      return this.nid;
+      return Long.hashCode(this.nid);
    }
 
    /**
@@ -927,7 +926,7 @@ public abstract class ChronologyImpl
     */
    @Override
    public <V extends SememeChronology> List<V> getSememeListFromAssemblageOfType(int assemblageSequence,
-         SememeType type) {
+         VersionType type) {
       final List<V> results = Get.assemblageService()
                                  .ofType(type)
                                  .<V>getSememesForComponentFromAssemblage(this.nid, assemblageSequence)

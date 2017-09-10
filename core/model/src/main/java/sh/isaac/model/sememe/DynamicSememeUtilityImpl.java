@@ -52,7 +52,7 @@ import javax.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.chronicle.ObjectChronologyType;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
@@ -186,12 +186,12 @@ public class DynamicSememeUtilityImpl
     */
    @Override
    public DynamicSememeData[] configureDynamicSememeRestrictionData(ObjectChronologyType referencedComponentRestriction,
-         SememeType referencedComponentSubRestriction) {
+         VersionType referencedComponentSubRestriction) {
       if ((referencedComponentRestriction != null) &&
             (ObjectChronologyType.UNKNOWN_NID != referencedComponentRestriction)) {
          int size = 1;
 
-         if ((referencedComponentSubRestriction != null) && (SememeType.UNKNOWN != referencedComponentSubRestriction)) {
+         if ((referencedComponentSubRestriction != null) && (VersionType.UNKNOWN != referencedComponentSubRestriction)) {
             size = 2;
          }
 

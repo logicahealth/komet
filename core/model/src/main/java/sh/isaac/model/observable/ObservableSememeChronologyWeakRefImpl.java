@@ -34,7 +34,7 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.MutableSememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -135,7 +135,7 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    }
 
    @Override
-   public ObservableList<ObservableSememeChronology> getObservableSememeListFromAssemblageOfType(int assemblageSequence, SememeType type) {
+   public ObservableList<ObservableSememeChronology> getObservableSememeListFromAssemblageOfType(int assemblageSequence, VersionType type) {
       return getChronology().getObservableSememeListFromAssemblageOfType(assemblageSequence, type);
    }
 
@@ -155,7 +155,7 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    }
 
    @Override
-   public SememeType getSememeType() {
+   public VersionType getSememeType() {
       return getChronology().getSememeType();
    }
 
@@ -185,7 +185,7 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    }
 
    @Override
-   public <V extends SememeChronology> List<V> getSememeListFromAssemblageOfType(int assemblageSequence, SememeType type) {
+   public <V extends SememeChronology> List<V> getSememeListFromAssemblageOfType(int assemblageSequence, VersionType type) {
       return getChronology().getSememeListFromAssemblageOfType(assemblageSequence, type);
    }
 

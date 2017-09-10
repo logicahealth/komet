@@ -55,7 +55,7 @@ import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
@@ -91,7 +91,7 @@ public class SememeBuilderImpl<C extends SememeChronology>
    int assemblageConceptSequence;
 
    /** The sememe type. */
-   SememeType sememeType;
+   VersionType sememeType;
 
    /** The parameters. */
    Object[] parameters;
@@ -108,7 +108,7 @@ public class SememeBuilderImpl<C extends SememeChronology>
     */
    public SememeBuilderImpl(IdentifiedComponentBuilder referencedComponentBuilder,
                             int assemblageConceptSequence,
-                            SememeType sememeType,
+                            VersionType sememeType,
                             Object... paramaters) {
       this.referencedComponentBuilder = referencedComponentBuilder;
       this.assemblageConceptSequence  = assemblageConceptSequence;
@@ -126,7 +126,7 @@ public class SememeBuilderImpl<C extends SememeChronology>
     */
    public SememeBuilderImpl(int referencedComponentNid,
                             int assemblageConceptSequence,
-                            SememeType sememeType,
+                            VersionType sememeType,
                             Object... paramaters) {
       this.referencedComponentNid    = referencedComponentNid;
       this.assemblageConceptSequence = assemblageConceptSequence;

@@ -41,7 +41,7 @@ package sh.isaac.model.sememe.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 import sh.isaac.api.component.sememe.version.MutableLongVersion;
@@ -152,8 +152,8 @@ public class LongVersionImpl
     * @return the sememe type
     */
    @Override
-   public SememeType getSememeType() {
-      return SememeType.LONG;
+   public VersionType getSememeType() {
+      return VersionType.LONG;
    }
 }
 

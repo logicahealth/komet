@@ -57,7 +57,7 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.component.sememe.version.LogicGraphVersion;
@@ -131,7 +131,7 @@ public class TreeTableGeneralCell
       setWrapText(false);
 
       SememeVersion sememeVersion = version.unwrap();
-      SememeType sememeType = sememeVersion.getChronology()
+      VersionType sememeType = sememeVersion.getChronology()
               .getSememeType();
 
       this.setGraphic(null);

@@ -93,7 +93,7 @@ import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -251,7 +251,7 @@ public class TaxonomyProvider
     */
    @Override
    public void handleChange(SememeChronology sc) {
-      if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {
+      if (sc.getSememeType() == VersionType.LOGIC_GRAPH) {
          this.sememeSequencesForUnhandledChanges.add(sc.getSememeSequence());
       }
    }

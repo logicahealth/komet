@@ -60,7 +60,7 @@ import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.LruCache;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
@@ -107,7 +107,7 @@ public class DynamicSememeUsageDescriptionImpl
    ObjectChronologyType referencedComponentTypeRestriction;
 
    /** The referenced component type sub restriction. */
-   SememeType referencedComponentTypeSubRestriction;
+   VersionType referencedComponentTypeSubRestriction;
 
    //~--- constructors --------------------------------------------------------
 
@@ -181,7 +181,7 @@ public class DynamicSememeUsageDescriptionImpl
       Get.assemblageService()
          .getSememesForComponent(assemblageConcept.getNid())
          .forEach(sememe -> {
-                     if (sememe.getSememeType() == SememeType.DYNAMIC) {
+                     if (sememe.getSememeType() == VersionType.DYNAMIC) {
                         @SuppressWarnings("rawtypes")
                         final LatestVersion<? extends DynamicSememe> sememeVersion =
                            ((SememeChronology) sememe).getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
@@ -327,11 +327,11 @@ public class DynamicSememeUsageDescriptionImpl
                               // col 1 is an optional Referenced component sub-restriction information - as a string.
                               if ((refexDefinitionData.length > 1) && (refexDefinitionData[1] != null)) {
                                  try {
-                                    final SememeType type = SememeType.parse(refexDefinitionData[1].getDataObject()
+                                    final VersionType type = VersionType.parse(refexDefinitionData[1].getDataObject()
                                                                                                    .toString(),
                                                                              false);
 
-                                    if (type == SememeType.UNKNOWN) {
+                                    if (type == VersionType.UNKNOWN) {
                                        // just ignore - it shouldn't have been saved that way anyway.
                                     } else {
                                        this.referencedComponentTypeSubRestriction = type;
@@ -618,7 +618,7 @@ public class DynamicSememeUsageDescriptionImpl
     *     @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription#getReferencedComponentTypeSubRestriction()
     */
    @Override
-   public SememeType getReferencedComponentTypeSubRestriction() {
+   public VersionType getReferencedComponentTypeSubRestriction() {
       return this.referencedComponentTypeSubRestriction;
    }
 }

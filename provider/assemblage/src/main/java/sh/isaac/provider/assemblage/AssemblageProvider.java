@@ -86,7 +86,7 @@ import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeConstraints;
 import sh.isaac.api.component.sememe.SememeServiceTyped;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
@@ -198,7 +198,7 @@ public class AssemblageProvider
     * @return the sememe service typed
     */
    @Override
-   public <V extends SememeVersion> SememeServiceTyped ofType(SememeType versionType) {
+   public <V extends SememeVersion> SememeServiceTyped ofType(VersionType versionType) {
       return new AssemblageOfTypeProvider(versionType, this);
    }
 
@@ -474,11 +474,10 @@ public class AssemblageProvider
       final IntFunction<SememeChronology> mapper = (int sememeSequence) -> (SememeChronology) getSememe(sememeSequence);
 
       return sequences.stream()
-              .filter(
-                      (int sememeSequence) -> {
+              .filter((int sememeSequence) -> {
                          final Optional<? extends SememeChronology> sememe = getOptionalSememe(sememeSequence);
 
-                         return sememe.isPresent() && (sememe.get().getSememeType() == SememeType.DESCRIPTION);
+                         return sememe.isPresent() && (sememe.get().getSememeType() == VersionType.DESCRIPTION);
                       })
               .mapToObj(mapper);
    }

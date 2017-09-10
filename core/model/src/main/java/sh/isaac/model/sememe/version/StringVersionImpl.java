@@ -42,7 +42,7 @@ package sh.isaac.model.sememe.version;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.component.sememe.version.MutableStringVersion;
 import sh.isaac.api.component.sememe.version.StringVersion;
@@ -126,8 +126,8 @@ public class StringVersionImpl
     * @return the sememe type
     */
    @Override
-   public SememeType getSememeType() {
-      return SememeType.STRING;
+   public VersionType getSememeType() {
+      return VersionType.STRING;
    }
 
    /**

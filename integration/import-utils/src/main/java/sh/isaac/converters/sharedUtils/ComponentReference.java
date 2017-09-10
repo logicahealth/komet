@@ -51,7 +51,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 
@@ -134,9 +134,9 @@ public class ComponentReference {
                                      () -> Get.identifierService()
                                            .getSememeSequence(object.getNid()));
          cr.typeLabelSupplier = () -> {
-                                    if (((SememeChronology) object).getSememeType() == SememeType.DESCRIPTION) {
+                                    if (((SememeChronology) object).getSememeType() == VersionType.DESCRIPTION) {
                                        return "Description";
-                                    } else if (((SememeChronology) object).getSememeType() == SememeType.LOGIC_GRAPH) {
+                                    } else if (((SememeChronology) object).getSememeType() == VersionType.LOGIC_GRAPH) {
                                        return "Graph";
                                     }
 

@@ -75,7 +75,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
@@ -1289,7 +1289,7 @@ public class IBDFCreationUtility {
          String refexDescription,
          DynamicSememeColumnInfo[] columns,
          ObjectChronologyType referencedComponentTypeRestriction,
-         SememeType referencedComponentTypeSubRestriction) {
+         VersionType referencedComponentTypeSubRestriction) {
       if (refexDescription == null) {
          throw new RuntimeException("Refex description is required");
       }

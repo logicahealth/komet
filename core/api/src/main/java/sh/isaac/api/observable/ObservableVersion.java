@@ -41,15 +41,19 @@ package sh.isaac.api.observable;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
+import sh.isaac.api.ConceptProxy;
 
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -124,5 +128,11 @@ public interface ObservableVersion
     * @return a list of properties for this observable version
     */
    List<Property<?>> getProperties();
+   
+   default Map<ConceptSpecification, Property<?>> getPropertyMap() {
+      Map<ConceptSpecification, Property<?>> propertyMap = new HashMap<>();
+      getProperties().forEach((property) -> propertyMap.put(new ConceptProxy(property.getName()), property));
+      return propertyMap;
+   }
 }
 

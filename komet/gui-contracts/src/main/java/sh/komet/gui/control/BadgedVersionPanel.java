@@ -34,19 +34,15 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javafx.application.Platform;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 
@@ -60,7 +56,6 @@ import javafx.geometry.VPos;
 
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.ColumnConstraints;
@@ -71,6 +66,7 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.text.Text;
 
 import org.apache.mahout.math.map.OpenIntIntHashMap;
+import org.controlsfx.control.PropertySheet;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
@@ -78,7 +74,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.component.sememe.version.LogicGraphVersion;
@@ -98,43 +94,42 @@ import static sh.komet.gui.style.StyleClasses.ADD_ATTACHMENT;
 import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  *
  * @author kec
  */
 public abstract class BadgedVersionPanel
         extends Pane {
+
    public static final int FIRST_COLUMN_WIDTH = 32;
 
    //~--- fields --------------------------------------------------------------
-
-   protected final int                            badgeWidth          = 25;
-   protected final ArrayList<Node>                badges              = new ArrayList<>();
-   protected int                                  columns             = 10;
-   protected final Text                           componentText       = new Text();
-   protected final Text                           componentType       = new Text();
-   protected final MenuButton                     editControl         = new MenuButton("", Iconography.EDIT_PENCIL.getIconographic());
+   protected final int badgeWidth = 25;
+   protected final ArrayList<Node> badges = new ArrayList<>();
+   protected int columns = 10;
+   protected final Text componentText = new Text();
+   protected final Text componentType = new Text();
+   protected final MenuButton editControl = new MenuButton("", Iconography.EDIT_PENCIL.getIconographic());
    protected final MenuButton addAttachmentControl = new MenuButton("", Iconography.combine(Iconography.PLUS, Iconography.PAPERCLIP));
-   protected final ExpandControl                  expandControl       = new ExpandControl();
-   protected final GridPane                       gridpane            = new GridPane();
-   protected final SimpleBooleanProperty          isConcept           = new SimpleBooleanProperty(false);
-   protected final SimpleBooleanProperty          isContradiction     = new SimpleBooleanProperty(false);
-   protected final SimpleBooleanProperty          isDescription       = new SimpleBooleanProperty(false);
-   protected final SimpleBooleanProperty          isInactive          = new SimpleBooleanProperty(false);
-   protected final SimpleBooleanProperty          isLogicalDefinition = new SimpleBooleanProperty(false);
-   protected final int                            rowHeight           = 25;
-   protected final StampControl                   stampControl        = new StampControl();
-   protected int                                  wrappingWidth       = 300;
-   protected final ObservableList<ComponentPanel> extensionPanels     = FXCollections.observableArrayList();
-   protected final ObservableList<VersionPanel>   versionPanels       = FXCollections.observableArrayList();
-   protected final CheckBox                       revertCheckBox      = new CheckBox();
-   private final ObservableCategorizedVersion     categorizedVersion;
-   private final Manifold                         manifold;
-   protected int                                  rows;
+   protected final ExpandControl expandControl = new ExpandControl();
+   protected final GridPane gridpane = new GridPane();
+   protected final SimpleBooleanProperty isConcept = new SimpleBooleanProperty(false);
+   protected final SimpleBooleanProperty isContradiction = new SimpleBooleanProperty(false);
+   protected final SimpleBooleanProperty isDescription = new SimpleBooleanProperty(false);
+   protected final SimpleBooleanProperty isInactive = new SimpleBooleanProperty(false);
+   protected final SimpleBooleanProperty isLogicalDefinition = new SimpleBooleanProperty(false);
+   protected final int rowHeight = 25;
+   protected final StampControl stampControl = new StampControl();
+   protected int wrappingWidth = 300;
+   protected final ObservableList<ComponentPanel> extensionPanels = FXCollections.observableArrayList();
+   protected final ObservableList<VersionPanel> versionPanels = FXCollections.observableArrayList();
+   protected final CheckBox revertCheckBox = new CheckBox();
+   private final ObservableCategorizedVersion categorizedVersion;
+   private final Manifold manifold;
+   protected int rows;
+   private Optional<PropertySheet> optionalPropertySheet = Optional.empty();
 
    //~--- initializers --------------------------------------------------------
-
    {
       isDescription.addListener(this::pseudoStateChanged);
       isInactive.addListener(this::pseudoStateChanged);
@@ -144,54 +139,55 @@ public abstract class BadgedVersionPanel
    }
 
    //~--- constructors --------------------------------------------------------
-
    public BadgedVersionPanel(Manifold manifold,
-                             ObservableCategorizedVersion categorizedVersion,
-                             OpenIntIntHashMap stampOrderHashMap) {
-      this.manifold           = manifold;
+           ObservableCategorizedVersion categorizedVersion,
+           OpenIntIntHashMap stampOrderHashMap) {
+      this.manifold = manifold;
       this.categorizedVersion = categorizedVersion;
       isInactive.set(categorizedVersion.getState() == State.INACTIVE);
       expandControl.expandActionProperty()
-                   .addListener(this::expand);
+              .addListener(this::expand);
       this.getChildren()
-          .add(gridpane);
+              .add(gridpane);
       componentType.getStyleClass()
-                   .add(StyleClasses.COMPONENT_VERSION_WHAT_CELL.toString());
+              .add(StyleClasses.COMPONENT_VERSION_WHAT_CELL.toString());
       componentText.getStyleClass()
-                   .add(StyleClasses.COMPONENT_TEXT.toString());
+              .add(StyleClasses.COMPONENT_TEXT.toString());
       componentText.setWrappingWidth(wrappingWidth);
       componentText.layoutBoundsProperty()
-                   .addListener(this::textLayoutChanged);
+              .addListener(this::textLayoutChanged);
       componentText.layoutBoundsProperty().addListener(this::debugTextLayoutListener);
       isInactive.set(this.categorizedVersion.getState() != State.ACTIVE);
       this.stampControl.setStampedVersion(
-          categorizedVersion.getStampSequence(),
-          manifold,
-          stampOrderHashMap.get(categorizedVersion.getStampSequence()));
+              categorizedVersion.getStampSequence(),
+              manifold,
+              stampOrderHashMap.get(categorizedVersion.getStampSequence()));
       badges.add(this.stampControl);
       this.widthProperty()
-          .addListener(this::widthChanged);
+              .addListener(this::widthChanged);
 
       ObservableVersion observableVersion = categorizedVersion.getObservableVersion();
 
       addAttachmentControl.getStyleClass()
-                      .setAll(ADD_ATTACHMENT.toString());
+              .setAll(ADD_ATTACHMENT.toString());
       addAttachmentControl.getItems().addAll(getAttachmentMenuItems());
+      addAttachmentControl.setVisible(!addAttachmentControl.getItems().isEmpty());
       editControl.getStyleClass()
-                      .setAll(StyleClasses.EDIT_COMPONENT_BUTTON.toString());
+              .setAll(StyleClasses.EDIT_COMPONENT_BUTTON.toString());
       editControl.getItems().addAll(getEditMenuItems());
+      editControl.setVisible(!editControl.getItems().isEmpty());
 
       if (observableVersion instanceof DescriptionVersion) {
          isDescription.set(true);
-         setupDescription((DescriptionVersion) observableVersion, isLatestPanel());
+         setupDescription((DescriptionVersion) observableVersion);
       } else if (observableVersion instanceof ConceptVersion) {
          isConcept.set(true);
-         setupConcept((ConceptVersion) observableVersion, isLatestPanel());
+         setupConcept((ConceptVersion) observableVersion);
       } else if (observableVersion instanceof LogicGraphVersion) {
          isLogicalDefinition.set(true);
-         setupDef((LogicGraphVersion) observableVersion, isLatestPanel());
+         setupDef((LogicGraphVersion) observableVersion);
       } else {
-         setupOther(observableVersion, isLatestPanel());
+         setupOther(observableVersion);
       }
    }
 
@@ -208,17 +204,23 @@ public abstract class BadgedVersionPanel
       }
    }
    //~--- methods -------------------------------------------------------------
-   
-   public List<MenuItem> getAttachmentMenuItems() {
-      return FxGet.rulesDrivenKometService().getAttachmentMenuItems(manifold, this.categorizedVersion,  (t) -> {
+
+   public final List<MenuItem> getAttachmentMenuItems() {
+      return FxGet.rulesDrivenKometService().getAttachmentMenuItems(manifold, this.categorizedVersion, (t) -> {
          throw new UnsupportedOperationException();
       });
    }
 
-   public List<MenuItem> getEditMenuItems() {
-      return FxGet.rulesDrivenKometService().getEditMenuItems(manifold, this.categorizedVersion, (t) -> {
-         throw new UnsupportedOperationException();
+   public final List<MenuItem> getEditMenuItems() {
+      return FxGet.rulesDrivenKometService().getEditMenuItems(manifold, this.categorizedVersion, (propertySheet) -> {
+         addEditingPropertySheet(propertySheet);
       });
+   }
+
+   private void addEditingPropertySheet(PropertySheet propertySheet) {
+      editControl.setVisible(false);
+      this.optionalPropertySheet = Optional.of(propertySheet);
+      redoLayout();
    }
 
    public void doExpandAllAction(ExpandAction action) {
@@ -229,36 +231,36 @@ public abstract class BadgedVersionPanel
    protected abstract void addExtras();
 
    protected final void expand(ObservableValue<? extends ExpandAction> observable,
-                               ExpandAction oldValue,
-                               ExpandAction newValue) {
+           ExpandAction oldValue,
+           ExpandAction newValue) {
       redoLayout();
    }
 
-   protected void setupConcept(ConceptVersion conceptVersion, boolean latest) {
-      if (latest) {
+   protected final void setupConcept(ConceptVersion conceptVersion) {
+      if (isLatestPanel()) {
          componentType.setText("Concept");
          componentText.setText(
-             "\n" + conceptVersion.getState() + " in " + getManifold().getPreferredDescriptionText(
+                 "\n" + conceptVersion.getState() + " in " + getManifold().getPreferredDescriptionText(
                  conceptVersion.getModuleSequence()) + " on " + getManifold().getPreferredDescriptionText(
-                     conceptVersion.getPathSequence()));
+                 conceptVersion.getPathSequence()));
       } else {
          componentType.setText("");
          componentText.setText(
-             conceptVersion.getState() + " in " + getManifold().getPreferredDescriptionText(
+                 conceptVersion.getState() + " in " + getManifold().getPreferredDescriptionText(
                  conceptVersion.getModuleSequence()) + " on " + getManifold().getPreferredDescriptionText(
-                     conceptVersion.getPathSequence()));
+                 conceptVersion.getPathSequence()));
       }
    }
 
-   protected void setupDef(LogicGraphVersion logicGraphVersion, boolean latest) {
-      if (latest) {
+   protected final void setupDef(LogicGraphVersion logicGraphVersion) {
+      if (isLatestPanel()) {
          componentType.setText("DEF");
 
          if (getManifold().getLogicCoordinate()
-                          .getInferredAssemblageSequence() == logicGraphVersion.getAssemblageSequence()) {
+                 .getInferredAssemblageSequence() == logicGraphVersion.getAssemblageSequence()) {
             badges.add(Iconography.SETTINGS_GEAR.getIconographic());
          } else if (getManifold().getLogicCoordinate()
-                                 .getStatedAssemblageSequence() == logicGraphVersion.getAssemblageSequence()) {
+                 .getStatedAssemblageSequence() == logicGraphVersion.getAssemblageSequence()) {
             badges.add(Iconography.ICON_EXPORT.getIconographic());
          }
       } else {
@@ -266,13 +268,13 @@ public abstract class BadgedVersionPanel
       }
 
       componentText.setText(logicGraphVersion.getLogicalExpression()
-            .toSimpleString());
+              .toSimpleString());
    }
 
-   protected void setupDescription(DescriptionVersion description, boolean latest) {
+   protected final void setupDescription(DescriptionVersion description) {
       componentText.setText(description.getText());
 
-      if (latest) {
+      if (isLatestPanel()) {
          int descriptionType = description.getDescriptionTypeConceptSequence();
 
          if (descriptionType == TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence()) {
@@ -290,114 +292,113 @@ public abstract class BadgedVersionPanel
 
       if (description.getCaseSignificanceConceptSequence() == TermAux.DESCRIPTION_CASE_SENSITIVE.getConceptSequence()) {
          badges.add(Iconography.CASE_SENSITIVE.getIconographic());
-      } else if (description.getCaseSignificanceConceptSequence() ==
-                 TermAux.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE.getConceptSequence()) {
+      } else if (description.getCaseSignificanceConceptSequence()
+              == TermAux.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE.getConceptSequence()) {
          // TODO get iconographic for initial character sensitive
          badges.add(Iconography.CASE_SENSITIVE.getIconographic());
-      } else if (description.getCaseSignificanceConceptSequence() ==
-                 TermAux.DESCRIPTION_NOT_CASE_SENSITIVE.getConceptSequence()) {
+      } else if (description.getCaseSignificanceConceptSequence()
+              == TermAux.DESCRIPTION_NOT_CASE_SENSITIVE.getConceptSequence()) {
          badges.add(Iconography.CASE_SENSITIVE_NOT.getIconographic());
       }
    }
 
-   protected void setupOther(Version version, boolean latest) {
+   protected final void setupOther(Version version) {
       if (version instanceof SememeVersion) {
          SememeVersion sememeVersion = (SememeVersion) version;
-         SememeType    sememeType    = sememeVersion.getChronology()
-                                                    .getSememeType();
+         VersionType sememeType = sememeVersion.getChronology()
+                 .getSememeType();
 
          componentType.setText(sememeType.toString());
 
          switch (sememeType) {
-         case STRING:
-            if (latest) {
-               componentType.setText("STR");
-            } else {
-               componentType.setText("");
-            }
+            case STRING:
+               if (isLatestPanel()) {
+                  componentType.setText("STR");
+               } else {
+                  componentType.setText("");
+               }
 
-            componentText.setText(
-                getManifold().getPreferredDescriptionText(
-                    sememeVersion.getAssemblageSequence()) + "\n" + ((StringVersion) sememeVersion).getString());
-            break;
+               componentText.setText(
+                       getManifold().getPreferredDescriptionText(
+                               sememeVersion.getAssemblageSequence()) + "\n" + ((StringVersion) sememeVersion).getString());
+               break;
 
-         case COMPONENT_NID:
-            if (latest) {
-               componentType.setText("REF");
-            } else {
-               componentType.setText("");
-            }
+            case COMPONENT_NID:
+               if (isLatestPanel()) {
+                  componentType.setText("REF");
+               } else {
+                  componentType.setText("");
+               }
 
-            int nid = ((ComponentNidVersion) sememeVersion).getComponentNid();
+               int nid = ((ComponentNidVersion) sememeVersion).getComponentNid();
 
-            switch (Get.identifierService()
+               switch (Get.identifierService()
                        .getChronologyTypeForNid(nid)) {
-            case CONCEPT:
-               componentText.setText(
-                   getManifold().getPreferredDescriptionText(
-                       sememeVersion.getAssemblageSequence()) + "\n" + getManifold().getPreferredDescriptionText(nid));
+                  case CONCEPT:
+                     componentText.setText(
+                             getManifold().getPreferredDescriptionText(
+                                     sememeVersion.getAssemblageSequence()) + "\n" + getManifold().getPreferredDescriptionText(nid));
+                     break;
+
+                  case SEMEME:
+                     SememeChronology sc = Get.assemblageService()
+                             .getSememe(nid);
+
+                     componentText.setText(
+                             getManifold().getPreferredDescriptionText(
+                                     sememeVersion.getAssemblageSequence()) + "\nReferences: " + sc.getSememeType().toString());
+                     break;
+
+                  case UNKNOWN_NID:
+                  default:
+                     componentText.setText(
+                             getManifold().getPreferredDescriptionText(
+                                     sememeVersion.getAssemblageSequence()) + "\nReferences:"
+                             + Get.identifierService().getChronologyTypeForNid(
+                                     nid).toString());
+               }
+
                break;
 
-            case SEMEME:
-               SememeChronology sc = Get.assemblageService()
-                                        .getSememe(nid);
+            case LOGIC_GRAPH:
+               if (isLatestPanel()) {
+                  componentType.setText("DEF");
+               } else {
+                  componentType.setText("");
+               }
 
-               componentText.setText(
-                   getManifold().getPreferredDescriptionText(
-                       sememeVersion.getAssemblageSequence()) + "\nReferences: " + sc.getSememeType().toString());
+               componentText.setText(((LogicGraphVersion) sememeVersion).getLogicalExpression()
+                       .toString());
                break;
 
-            case UNKNOWN_NID:
+            case LONG:
+               if (isLatestPanel()) {
+                  componentType.setText("INT");
+               } else {
+                  componentType.setText("");
+               }
+
+               componentText.setText(Long.toString(((LongVersion) sememeVersion).getLongValue()));
+               break;
+
+            case MEMBER:
+               componentText.setText(
+                       getManifold().getPreferredDescriptionText(sememeVersion.getAssemblageSequence()) + "\nMember");
+               break;
+
+            case DYNAMIC:
+            case UNKNOWN:
+            case DESCRIPTION:
             default:
-               componentText.setText(
-                   getManifold().getPreferredDescriptionText(
-                       sememeVersion.getAssemblageSequence()) + "\nReferences:" +
-                       Get.identifierService().getChronologyTypeForNid(
-                           nid).toString());
-            }
-
-            break;
-
-         case LOGIC_GRAPH:
-            if (latest) {
-               componentType.setText("DEF");
-            } else {
-               componentType.setText("");
-            }
-
-            componentText.setText(((LogicGraphVersion) sememeVersion).getLogicalExpression()
-                  .toString());
-            break;
-
-         case LONG:
-            if (latest) {
-               componentType.setText("INT");
-            } else {
-               componentType.setText("");
-            }
-
-            componentText.setText(Long.toString(((LongVersion) sememeVersion).getLongValue()));
-            break;
-
-         case MEMBER:
-            componentText.setText(
-                getManifold().getPreferredDescriptionText(sememeVersion.getAssemblageSequence()) + "\nMember");
-            break;
-
-         case DYNAMIC:
-         case UNKNOWN:
-         case DESCRIPTION:
-         default:
-            throw new UnsupportedOperationException("Can't handle: " + sememeType);
+               throw new UnsupportedOperationException("Can't handle: " + sememeType);
          }
       } else {
          componentText.setText(version.getClass()
-                                      .getSimpleName());
+                 .getSimpleName());
       }
    }
 
    protected void textLayoutChanged(ObservableValue<? extends Bounds> bounds, Bounds oldBounds, Bounds newBounds) {
-      
       redoLayout();
    }
 
@@ -425,134 +426,169 @@ public abstract class BadgedVersionPanel
          getParent().layout();
       }
       double doubleRows = componentText.boundsInLocalProperty()
-                                       .get()
-                                       .getHeight() / rowHeight;
-      int    rowsOfText = (int) doubleRows + 1;
-
-      gridpane.setMinWidth(layoutBoundsProperty().get()
-            .getWidth());
-      gridpane.setPrefWidth(layoutBoundsProperty().get()
-            .getWidth());
-      gridpane.setMaxWidth(layoutBoundsProperty().get()
-            .getWidth());
-      setupColumns();
-      wrappingWidth = (int) (layoutBoundsProperty().get()
-            .getWidth() - (5 * badgeWidth));
-      componentText.setWrappingWidth(wrappingWidth);
-      gridpane.getChildren()
-              .remove(expandControl);
-      GridPane.setConstraints(expandControl, 0, 0, 1, 1, HPos.CENTER, VPos.TOP, Priority.NEVER, Priority.NEVER);
-      gridpane.getChildren()
-              .add(expandControl);  // next is 1
-      gridpane.getChildren()
-              .remove(componentType);
-      GridPane.setConstraints(componentType, 1, 0, 2, 1, HPos.LEFT, VPos.TOP, Priority.NEVER, Priority.NEVER);
-      gridpane.getChildren()
-              .add(componentType);  // next is 3
-      gridpane.getChildren()
-              .remove(addAttachmentControl);
-      GridPane.setConstraints(addAttachmentControl,
-          columns,
-          1,
-          2,
-          1,
-          HPos.RIGHT,
-          VPos.CENTER,
-          Priority.SOMETIMES,
-          Priority.NEVER,
-          new Insets(0, 4, 1, 0));
-      gridpane.getChildren()
-              .add(addAttachmentControl);
-      gridpane.getChildren()
-              .remove(editControl);
-      GridPane.setConstraints(
-          editControl,
-          columns,
-          0,
-          2,
-          1,
-          HPos.RIGHT,
-          VPos.TOP,
-          Priority.SOMETIMES,
-          Priority.NEVER,
-          new Insets(1, 4, 0, 0));
-      gridpane.getChildren()
-              .add(editControl);
-      componentText.getLayoutBounds()
-                   .getHeight();
-      gridpane.getChildren()
-              .remove(componentText);
-      GridPane.setConstraints(
-          componentText,
-          3,
-          0,
-          columns - 4,
-          (int) rowsOfText,
-          HPos.LEFT,
-          VPos.TOP,
-          Priority.ALWAYS,
-          Priority.ALWAYS);
-      gridpane.getChildren()
-              .add(componentText);
+              .get()
+              .getHeight() / rowHeight;
+      int rowsOfText = (int) doubleRows + 1;
       gridpane.getRowConstraints()
               .clear();
-      gridpane.getRowConstraints()
-              .add(new RowConstraints(rowHeight));  // add row zero...
 
-      boolean firstBadgeAdded = false;
-
-      for (int i = 0; i < badges.size(); ) {
-         for (int row = 1; i < badges.size(); row++) {
-            this.rows = row;
+      gridpane.setMinWidth(layoutBoundsProperty().get()
+              .getWidth());
+      gridpane.setPrefWidth(layoutBoundsProperty().get()
+              .getWidth());
+      gridpane.setMaxWidth(layoutBoundsProperty().get()
+              .getWidth());
+      setupColumns();
+      wrappingWidth = (int) (layoutBoundsProperty().get()
+              .getWidth() - (5 * badgeWidth));
+      if (componentText.getWrappingWidth() != wrappingWidth) {
+         componentText.setWrappingWidth(wrappingWidth);
+         // will call redoLayout, so should not continue to layout...
+      } else {
+         
+         gridpane.getChildren()
+                 .remove(expandControl);
+         GridPane.setConstraints(expandControl, 0, 0, 1, 1, HPos.CENTER, VPos.TOP, Priority.NEVER, Priority.NEVER);
+         gridpane.getChildren()
+                 .add(expandControl);  // next is 1
+         gridpane.getChildren()
+                 .remove(componentType);
+         GridPane.setConstraints(componentType, 1, 0, 2, 1, HPos.LEFT, VPos.TOP, Priority.NEVER, Priority.NEVER);
+         gridpane.getChildren()
+                 .add(componentType);  // next is 3
+         gridpane.getChildren()
+                 .remove(addAttachmentControl);
+         GridPane.setConstraints(addAttachmentControl,
+                 columns,
+                 1,
+                 2,
+                 1,
+                 HPos.RIGHT,
+                 VPos.CENTER,
+                 Priority.SOMETIMES,
+                 Priority.NEVER,
+                 new Insets(0, 4, 1, 0));
+         gridpane.getChildren()
+                 .add(addAttachmentControl);
+         gridpane.getChildren()
+                 .remove(editControl);
+         GridPane.setConstraints(
+                 editControl,
+                 columns,
+                 0,
+                 2,
+                 1,
+                 HPos.RIGHT,
+                 VPos.TOP,
+                 Priority.SOMETIMES,
+                 Priority.NEVER,
+                 new Insets(1, 4, 0, 0));
+         gridpane.getChildren()
+                 .add(editControl);
+         int gridRow = 0;
+         if (optionalPropertySheet.isPresent()) {
+            PropertySheet propertySheet = optionalPropertySheet.get();
+            gridpane.getChildren()
+                    .remove(propertySheet);
+            gridRow = 1;
             gridpane.getRowConstraints()
-                    .add(new RowConstraints(rowHeight));
+                    .add(new RowConstraints(rowHeight));  // add row zero...
+            RowConstraints propertyRowConstraints = new RowConstraints();
+            propertyRowConstraints.setVgrow(Priority.NEVER);
 
-            if (row + 1 <= rowsOfText) {
-               for (int column = 0; (column < 3) && (i < badges.size()); column++) {
-                  if (firstBadgeAdded && (column == 0)) {
-                     column          = 1;
-                     firstBadgeAdded = true;
+            gridpane.getRowConstraints()
+                    .add(propertyRowConstraints);  // add row one...
+
+            GridPane.setConstraints(
+                    propertySheet,
+                    0,
+                    gridRow++,
+                    columns - 1,
+                    1,
+                    HPos.LEFT,
+                    VPos.TOP,
+                    Priority.ALWAYS,
+                    Priority.NEVER);
+
+            gridpane.getChildren()
+                    .add(propertySheet);
+         }
+
+         componentText.getLayoutBounds()
+                 .getHeight();
+         gridpane.getChildren()
+                 .remove(componentText);
+         GridPane.setConstraints(
+                 componentText,
+                 3,
+                 gridRow++,
+                 columns - 4,
+                 (int) rowsOfText,
+                 HPos.LEFT,
+                 VPos.TOP,
+                 Priority.ALWAYS,
+                 Priority.NEVER);
+         gridpane.getChildren()
+                 .add(componentText);
+         gridpane.getRowConstraints()
+                 .add(new RowConstraints(rowHeight));
+
+         boolean firstBadgeAdded = false;
+
+         for (int i = 0; i < badges.size();) {
+            for (int row = gridRow; i < badges.size(); row++) {
+               this.rows = row;
+               gridpane.getRowConstraints()
+                       .add(new RowConstraints(rowHeight));
+
+               if (row + 1 <= rowsOfText) {
+                  for (int column = 0; (column < 3) && (i < badges.size()); column++) {
+                     if (firstBadgeAdded && (column == 0)) {
+                        column = 1;
+                        firstBadgeAdded = true;
+                     }
+
+                     setupBadge(badges.get(i++), column, row);
                   }
+               } else {
+                  for (int column = 0; (column < columns) && (i < badges.size()); column++) {
+                     if (firstBadgeAdded && (column == 0)) {
+                        column = 1;
+                        firstBadgeAdded = true;
+                     }
 
-                  setupBadge(badges.get(i++), column, row);
-               }
-            } else {
-               for (int column = 0; (column < columns) && (i < badges.size()); column++) {
-                  if (firstBadgeAdded && (column == 0)) {
-                     column          = 1;
-                     firstBadgeAdded = true;
+                     setupBadge(badges.get(i++), column, row);
                   }
-
-                  setupBadge(badges.get(i++), column, row);
                }
             }
          }
+
+         addExtras();
       }
 
-      addExtras();
    }
 
    private void setupBadge(Node badge, int column, int row) {
       gridpane.getChildren()
               .remove(badge);
       GridPane.setConstraints(
-          badge,
-          column,
-          row,
-          1,
-          1,
-          HPos.CENTER,
-          VPos.CENTER,
-          Priority.NEVER,
-          Priority.NEVER,
-          new Insets(2));
+              badge,
+              column,
+              row,
+              1,
+              1,
+              HPos.CENTER,
+              VPos.CENTER,
+              Priority.NEVER,
+              Priority.NEVER,
+              new Insets(2));
       gridpane.getChildren()
               .add(badge);
 
       if (!badge.getStyleClass()
-                .contains(StyleClasses.COMPONENT_BADGE.toString())) {
+              .contains(StyleClasses.COMPONENT_BADGE.toString())) {
          badge.getStyleClass()
-              .add(StyleClasses.COMPONENT_BADGE.toString());
+                 .add(StyleClasses.COMPONENT_BADGE.toString());
       }
    }
 
@@ -580,7 +616,6 @@ public abstract class BadgedVersionPanel
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * @return the categorizedVersion
     */
@@ -610,4 +645,3 @@ public abstract class BadgedVersionPanel
       return rows;
    }
 }
-

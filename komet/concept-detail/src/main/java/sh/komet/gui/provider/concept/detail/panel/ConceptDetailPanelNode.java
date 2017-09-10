@@ -88,7 +88,7 @@ import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
@@ -267,11 +267,10 @@ public class ConceptDetailPanelNode
                                               return false;
                                            }
                                         })
-                                    .sorted(
-                                        (o1, o2) -> {
+                                    .sorted((o1, o2) -> {
                                            switch (o1.getSememeType()) {
                                            case DESCRIPTION:
-                                              if (o2.getSememeType() == SememeType.DESCRIPTION) {
+                                              if (o2.getSememeType() == VersionType.DESCRIPTION) {
                                                  DescriptionVersion dv1 = (DescriptionVersion) o1.getVersionList()
                                                                                                  .get(0);
                                                  DescriptionVersion dv2 = (DescriptionVersion) o2.getVersionList()
@@ -293,7 +292,7 @@ public class ConceptDetailPanelNode
                                               return -1;
 
                                            case LOGIC_GRAPH:
-                                              if (o2.getSememeType() == SememeType.LOGIC_GRAPH) {
+                                              if (o2.getSememeType() == VersionType.LOGIC_GRAPH) {
                                                  if (o1.getAssemblageSequence() == o2.getAssemblageSequence()) {
                                                     return 0;
                                                  }

@@ -43,7 +43,7 @@ package sh.isaac.model.sememe.version;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.component.sememe.version.MutableDescriptionVersion;
 
@@ -233,8 +233,8 @@ public class DescriptionVersionImpl
     * @return the sememe type
     */
    @Override
-   public SememeType getSememeType() {
-      return SememeType.DESCRIPTION;
+   public VersionType getSememeType() {
+      return VersionType.DESCRIPTION;
    }
 
    /**

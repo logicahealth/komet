@@ -77,7 +77,7 @@ import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
@@ -124,7 +124,7 @@ public class LoadTermstore
    private int duplicatesToPrint = 20;
 
    /** The sememe types to skip. */
-   private final HashSet<SememeType> sememeTypesToSkip = new HashSet<>();
+   private final HashSet<VersionType> sememeTypesToSkip = new HashSet<>();
 
    /** The skipped items. */
    private final HashSet<Integer> skippedItems = new HashSet<>();
@@ -333,7 +333,7 @@ public class LoadTermstore
                               Get.assemblageService()
                                  .writeSememe(sc);
 
-                              if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {
+                              if (sc.getSememeType() == VersionType.LOGIC_GRAPH) {
                                  deferredActionNids.add(sc.getNid());
                               }
 
@@ -422,7 +422,7 @@ public class LoadTermstore
                final SememeChronology sc = Get.assemblageService()
                                               .getSememe(nid);
 
-               if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {
+               if (sc.getSememeType() == VersionType.LOGIC_GRAPH) {
                   Get.taxonomyService()
                      .updateTaxonomy(sc);
                } else {
@@ -461,7 +461,7 @@ public class LoadTermstore
     *
     * @param types the types
     */
-   public void skipSememeTypes(Collection<SememeType> types) {
+   public void skipSememeTypes(Collection<VersionType> types) {
       this.sememeTypesToSkip.addAll(types);
    }
 

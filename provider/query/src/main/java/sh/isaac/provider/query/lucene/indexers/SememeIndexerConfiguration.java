@@ -68,7 +68,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
@@ -395,7 +395,7 @@ public class SememeIndexerConfiguration {
                                                                                                     .getSequence());
 
                   sememeCs.forEach(sememeC -> {
-                                      if (sememeC.getSememeType() == SememeType.DYNAMIC) {
+                                      if (sememeC.getSememeType() == VersionType.DYNAMIC) {
                                          @SuppressWarnings({ "unchecked", "rawtypes" })
                                          final LatestVersion<DynamicSememe> dsv =
                                             ((SememeChronology) sememeC).getLatestVersion(StampCoordinates.getDevelopmentLatest());

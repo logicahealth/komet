@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.api.component.sememe;
+package sh.isaac.api.chronicle;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -63,36 +63,39 @@ import sh.isaac.api.observable.sememe.version.ObservableComponentNidVersion;
 //~--- enums ------------------------------------------------------------------
 
 /**
- * The Enum SememeType.
+ * The Enum VersionType.
  *
  * @author kec
  */
-public enum SememeType {
+public enum VersionType {
    /** The member. */
    MEMBER((byte) 0, "Member", "MEMBER"),
 
-   /** The component nid. */
+   /** A component nid version*/
    COMPONENT_NID((byte) 1, "Component Nid", "COMPONENT"),
 
-   /** The long. */
+   /** A long version. */
    LONG((byte) 2, "Long", "INT"),
 
-   /** The logic graph. */
+   /** A logic graph version. */
    LOGIC_GRAPH((byte) 4, "Logic Graph", "DEF"),
 
-   /** The string. */
+   /** A string version. */
    STRING((byte) 5, "String", "STR"),
 
-   /** The dynamic. */
+   /** A dynamic version. */
    DYNAMIC((byte) 6, "Dynamic Sememe", "DYNAMIC"),
 
-   /** The description. */
+   /** A description version. */
    DESCRIPTION((byte) 7, "Description", "DESC"),
 
-   /** The relationship adaptor. */
+   /* A relationship adaptor version -- deprecated/removed. */
    //RELATIONSHIP_ADAPTOR((byte) 8, "Relationship Adapter"),
+   
+   /** A concept version */
+   CONCEPT((byte) 9, "Concept", "CONCEPT"),
 
-   /** The unknown. */
+   /** An unknown type of version. */
    UNKNOWN(Byte.MAX_VALUE, "Unknown", "UNKNOWN");
 
    /** The sememe token. */
@@ -112,7 +115,7 @@ public enum SememeType {
     * @param sememeToken the sememe token
     * @param niceName the nice name
     */
-   private SememeType(byte sememeToken, String niceName, String whatName) {
+   private VersionType(byte sememeToken, String niceName, String whatName) {
       this.sememeToken = sememeToken;
       this.niceName   = niceName;
       this.whatName   = whatName;
@@ -131,7 +134,7 @@ public enum SememeType {
     * @param exceptionOnParseFail the exception on parse fail
     * @return the sememe type
     */
-   public static SememeType parse(String nameOrEnumId, boolean exceptionOnParseFail) {
+   public static VersionType parse(String nameOrEnumId, boolean exceptionOnParseFail) {
       if (nameOrEnumId == null) {
          return null;
       }
@@ -143,7 +146,7 @@ public enum SememeType {
          return null;
       }
 
-      for (final SememeType ct: values()) {
+      for (final VersionType ct: values()) {
          if (ct.name().toLowerCase(Locale.ENGLISH).equals(clean) ||
                  ct.niceName.toLowerCase(Locale.ENGLISH).equals(clean) ||
                  (ct.ordinal() + "").equals(clean)) {
@@ -176,7 +179,7 @@ public enum SememeType {
     * @param token the token
     * @return the from token
     */
-   public static SememeType getFromToken(byte token) {
+   public static VersionType getFromToken(byte token) {
       switch (token) {
       case 0:
          return MEMBER;

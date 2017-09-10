@@ -39,6 +39,8 @@
 
 package sh.isaac.api.component.sememe.version;
 
+import sh.isaac.api.chronicle.VersionType;
+
 /**
  * The Interface StringVersion.
  *
@@ -52,5 +54,10 @@ public interface StringVersion
     * @return the string
     */
    String getString();
+
+   @Override
+   default VersionType getVersionType() {
+      return VersionType.STRING;
+   }
 }
 

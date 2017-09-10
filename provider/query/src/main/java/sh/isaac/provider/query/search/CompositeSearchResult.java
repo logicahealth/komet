@@ -59,7 +59,7 @@ import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.chronicle.Chronology;
@@ -380,7 +380,7 @@ public class CompositeSearchResult {
       final Set<SememeChronology> setToReturn = new HashSet<>();
 
       this.matchingComponents.stream().filter((comp) -> ((comp instanceof SememeChronology) &&
-              ((SememeChronology) comp).getSememeType() == SememeType.DESCRIPTION)).forEachOrdered((comp) -> {
+              ((SememeChronology) comp).getSememeType() == VersionType.DESCRIPTION)).forEachOrdered((comp) -> {
                  setToReturn.add(((SememeChronology) comp));
       });
 
@@ -412,7 +412,7 @@ public class CompositeSearchResult {
             strings.add(iol.getPrimordialUuid()
                     .toString());
          } else if ((iol instanceof SememeChronology) &&
-                 ((SememeChronology) iol).getSememeType() == SememeType.DESCRIPTION) {
+                 ((SememeChronology) iol).getSememeType() == VersionType.DESCRIPTION) {
             final LatestVersion<DescriptionVersion> ds =
                     ((SememeChronology) iol).getLatestVersion(stampCoord.orElse(Get.configurationService()
                             .getDefaultStampCoordinate()));
@@ -424,7 +424,7 @@ public class CompositeSearchResult {
                strings.add("No description available on stamp coordinate!");
             }
          } else if ((iol instanceof SememeChronology) &&
-                 ((SememeChronology) iol).getSememeType() == SememeType.STRING) {
+                 ((SememeChronology) iol).getSememeType() == VersionType.STRING) {
             final LatestVersion<StringVersion> ds =
                     ((SememeChronology) iol).getLatestVersion(stampCoord.orElse(Get.configurationService()
                             .getDefaultStampCoordinate()));
@@ -436,7 +436,7 @@ public class CompositeSearchResult {
                strings.add("No sememe available on stamp coordinate!");
             }
          } else if ((iol instanceof SememeChronology) &&
-                 ((SememeChronology) iol).getSememeType() == SememeType.DYNAMIC) {
+                 ((SememeChronology) iol).getSememeType() == VersionType.DYNAMIC) {
             final LatestVersion<DynamicSememe> ds =
                     ((SememeChronology) iol).getLatestVersion(stampCoord.orElse(Get.configurationService()
                             .getDefaultStampCoordinate()));
