@@ -27,6 +27,7 @@ import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.observable.sememe.version.ObservableComponentNidVersion;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.sememe.version.ComponentNidVersionImpl;
 
@@ -59,7 +60,7 @@ public class ObservableComponentNidVersionImpl
       ComponentNidVersion newVersion = this.stampedVersion.makeAnalog(ec);
       ObservableComponentNidVersionImpl newObservableVersion = 
               new ObservableComponentNidVersionImpl(newVersion, (ObservableSememeChronology) chronology);
-      ((ChronologyImpl) chronology).addVersion(newObservableVersion);
+      ((ObservableChronologyImpl) chronology).getObservableVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
    }
 

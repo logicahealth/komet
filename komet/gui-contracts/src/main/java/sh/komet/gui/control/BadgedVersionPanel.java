@@ -218,6 +218,7 @@ public abstract class BadgedVersionPanel
    }
 
    private void addEditingPropertySheet(PropertySheet propertySheet) {
+      pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, true);
       editControl.setVisible(false);
       this.optionalPropertySheet = Optional.of(propertySheet);
       redoLayout();

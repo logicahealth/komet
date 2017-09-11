@@ -16,19 +16,15 @@
  */
 package sh.isaac.provider.drools;
 
+import sh.komet.gui.control.PropertySheetMenuItem;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import javafx.scene.control.MenuItem;
 import org.controlsfx.control.PropertySheet;
-import sh.isaac.api.State;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
-import sh.komet.gui.control.PropertySheetItemConceptWrapper;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -40,8 +36,6 @@ public class AddEditVersionMenuItems {
    final Manifold manifold;
    final ObservableCategorizedVersion categorizedVersion;
    final Consumer<PropertySheet> propertySheetConsumer;
-   
-   Map<ConceptSpecification, Property<?>> propertyMap;
 
    public AddEditVersionMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheet> propertySheetConsumer) {
       this.manifold = manifold;
@@ -64,24 +58,12 @@ public class AddEditVersionMenuItems {
    public VersionType getVersionType() {
       return categorizedVersion.getVersionType();
    }
-   
-   public Map<ConceptSpecification, Property<?>> getPropertyMap() {
-      if (propertyMap == null) {
-         propertyMap = categorizedVersion.getPropertyMap();
-      }
-      return propertyMap;
-   }
-   
-   public PropertySheetItemConceptWrapper getConceptProperty(ConceptSpecification propertyConceptSpecification, String nameForProperty) {
-      return new PropertySheetItemConceptWrapper(
-              manifold, nameForProperty, (IntegerProperty) getPropertyMap().get(propertyConceptSpecification));
-   }
-   
    public PropertySheetMenuItem makePropertySheetMenuItem(String menuText) {
-      PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold);
+      PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion, true);
       MenuItem menuItem = new MenuItem(menuText);
       menuItem.setOnAction((event) -> {
-         propertySheetConsumer.accept(propertySheetMenuItem.propertySheet);
+         propertySheetMenuItem.prepareToExecute();
+         propertySheetConsumer.accept(propertySheetMenuItem.getPropertySheet());
       });
       menuItems.add(menuItem);
       return propertySheetMenuItem;

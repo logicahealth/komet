@@ -248,7 +248,7 @@ public class ObservableSememeChronologyImpl
     * @return the observable version list
     */
    @Override
-   protected <OV extends ObservableVersion> ObservableList<OV> getObservableVersionList() {
+   public <OV extends ObservableVersion> ObservableList<OV> getObservableVersionList() {
       final ObservableList<OV> observableList = FXCollections.observableArrayList();
 
       this.chronicledObjectLocal.getVersionList().stream().forEach((sememeVersion) -> {

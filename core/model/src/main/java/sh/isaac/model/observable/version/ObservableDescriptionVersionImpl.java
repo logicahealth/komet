@@ -41,14 +41,12 @@ package sh.isaac.model.observable.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import java.util.Arrays;
 import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
@@ -59,6 +57,7 @@ import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 import sh.isaac.model.ChronologyImpl;
+import sh.isaac.model.observable.ObservableChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -101,7 +100,7 @@ public class ObservableDescriptionVersionImpl
       DescriptionVersion newVersion = this.stampedVersion.makeAnalog(ec);
       ObservableDescriptionVersionImpl newObservableVersion = 
               new ObservableDescriptionVersionImpl(newVersion, (ObservableSememeChronology) chronology);
-      ((ChronologyImpl) chronology).addVersion(newObservableVersion);
+      ((ObservableChronologyImpl) chronology).getObservableVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
    }
 

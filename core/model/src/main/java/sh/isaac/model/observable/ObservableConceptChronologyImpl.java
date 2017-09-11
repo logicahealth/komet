@@ -246,7 +246,7 @@ public class ObservableConceptChronologyImpl
     * @return the observable version list
     */
    @Override
-   protected ObservableList<ObservableConceptVersionImpl> getObservableVersionList() {
+   public ObservableList<ObservableConceptVersionImpl> getObservableVersionList() {
       final ObservableList<ObservableConceptVersionImpl> observableList = FXCollections.observableArrayList();
 
       this.chronicledObjectLocal.getVersionList().stream().forEach((conceptVersion) -> {

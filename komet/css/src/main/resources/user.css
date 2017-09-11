@@ -29,7 +29,8 @@ limitations under the License.
    -komet-inactive-color: #b3b3b3;
    -komet-box-border: #d1d1d1;
    -fx-font-family: "Open Sans";
-
+   -komet-uncommitted-fill: #f5f6cb;
+   -komet-uncommitted-border: #ffef00;
 }
 
 .button {
@@ -693,3 +694,20 @@ limitations under the License.
 .tree-table-view {
    -fx-padding: 0;
 }
+
+.property-sheet {
+/*        -fx-border-color: black;   */
+}
+
+.property-pane {
+   -fx-background-color: white;
+}
+
+.component-panel:uncommitted {
+   -fx-background-color: -komet-uncommitted-fill;
+}
+
+.component-panel:uncommitted * .property-pane {
+   -fx-background-color: -komet-uncommitted-fill;
+}
+

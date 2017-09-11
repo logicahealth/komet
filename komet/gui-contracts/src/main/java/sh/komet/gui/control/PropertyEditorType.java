@@ -14,28 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.provider.drools;
-
-import org.controlsfx.control.PropertySheet;
-import org.controlsfx.control.PropertySheet.Item;
-import sh.komet.gui.manifold.Manifold;
+package sh.komet.gui.control;
 
 /**
  *
  * @author kec
  */
-public class PropertySheetMenuItem {
-   PropertySheet propertySheet = new PropertySheet();
-
-   public PropertySheetMenuItem(Manifold manifold) {
-      this.propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(manifold));
-      this.propertySheet.setMode(PropertySheet.Mode.NAME);
-      this.propertySheet.setSearchBoxVisible(false);
-      this.propertySheet.setModeSwitcherVisible(false);
-   }
-   
-   public Item addItem(Item item) {
-      propertySheet.getItems().add(item);
-      return item;
-   }
+public enum PropertyEditorType {
+   CONCEPT;
 }

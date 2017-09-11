@@ -28,14 +28,14 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.provider.drools.AddEditVersionMenuItems;
-import sh.isaac.provider.drools.PropertySheetMenuItem;
+import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
 import javafx.beans.property.Property;
 import sh.isaac.MetaData;
 import sh.isaac.api.chronicle.VersionCategory;
 import sh.isaac.api.chronicle.VersionType;
 import sh.komet.gui.control.PropertySheetItemConceptWrapper;
-
+import sh.komet.gui.control.PropertyEditorType;
 /**
  *
  * @author kec
@@ -46,17 +46,19 @@ when
    $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.CONCEPT);
 then
    PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit concept");
- 
-   Item pathProperty = $addEditVersion.getConceptProperty(MetaData.PATH_SEQUENCE_FOR_VERSION____ISAAC, "path");
-   insert(propertySheetMenuItem.addItem(pathProperty));
-   
-   Item moduleProperty = $addEditVersion.getConceptProperty(MetaData.MODULE_SEQUENCE_FOR_VERSION____ISAAC, "module");
-   insert(propertySheetMenuItem.addItem(moduleProperty));
-   
-   //PropertySheetItemConceptWrapper statusProperty = $addEditVersion.getProperty(MetaData.STATUS_FOR_VERSION____ISAAC);
-   //insert(propertySheetMenuItem.addItem(statusProperty));
+   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_SEQUENCE_FOR_VERSION____ISAAC, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_SEQUENCE_FOR_VERSION____ISAAC, PropertyEditorType.CONCEPT);
 end
 
+rule "Given a property set, populate the choice items"
+   lock-on-active true
+when
+   $propertySheetMenuItem: PropertySheetMenuItem()
+then
+   for (Item item: $propertySheetMenuItem.getPropertySheetItems()) {
+      insert(item);
+   }
+end
 
 rule "if property specification is PATH_SEQUENCE_FOR_VERSION____ISAAC then"
 

@@ -16,6 +16,7 @@
  */
 package sh.isaac.provider.drools;
 
+import sh.komet.gui.control.IsaacPropertyEditorFactory;
 import java.util.List;
 import java.util.function.Consumer;
 import javafx.beans.property.IntegerProperty;
@@ -37,6 +38,7 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.State;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.contract.RulesDrivenKometService;
+import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -86,6 +88,11 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
       AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(manifold, categorizedVersion, propertySheetConsumer);
       this.kSession.execute(executionItem);
       return executionItem.menuItems;
+   }
+
+   @Override
+   public void populatePropertySheetEditors(PropertySheetMenuItem propertySheetMenuItem) {
+      this.kSession.execute(propertySheetMenuItem);
    }
 
    private void addPropertySheetEditorAction(Manifold manifold, ObservableCategorizedVersion categorizedVersion,

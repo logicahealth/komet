@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javafx.beans.property.IntegerProperty;
-import org.controlsfx.tools.Platform;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.komet.gui.util.FxGet;

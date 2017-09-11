@@ -20,7 +20,6 @@ import java.util.List;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -29,6 +28,7 @@ import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.observable.sememe.version.ObservableLogicGraphVersion;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.observable.CommitAwareObjectProperty;
+import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 
 /**
@@ -60,7 +60,7 @@ public class ObservableLogicGraphVersionImpl
       LogicGraphVersion newVersion = this.stampedVersion.makeAnalog(ec);
       ObservableLogicGraphVersionImpl newObservableVersion = 
               new ObservableLogicGraphVersionImpl(newVersion, (ObservableSememeChronology) chronology);
-      ((ChronologyImpl) chronology).addVersion(newObservableVersion);
+      ((ObservableChronologyImpl) chronology).getObservableVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
    }
 

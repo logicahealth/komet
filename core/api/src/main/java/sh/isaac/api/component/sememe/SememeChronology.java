@@ -42,10 +42,7 @@ package sh.isaac.api.component.sememe;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.State;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.sememe.version.MutableSememeVersion;
 
 //~--- interfaces -------------------------------------------------------------
 

@@ -46,7 +46,7 @@ import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
-import sh.isaac.model.ChronologyImpl;
+import sh.isaac.model.observable.ObservableChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -75,7 +75,7 @@ public class ObservableConceptVersionImpl
       ConceptVersion newVersion = this.stampedVersion.makeAnalog(ec);
       ObservableConceptVersionImpl newObservableVersion = 
               new ObservableConceptVersionImpl(newVersion, (ObservableConceptChronology) chronology);
-      ((ChronologyImpl) chronology).addVersion(newObservableVersion);
+      ((ObservableChronologyImpl) chronology).getObservableVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
    }
 

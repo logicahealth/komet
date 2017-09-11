@@ -45,13 +45,12 @@ import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
-import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 
 //~--- classes ----------------------------------------------------------------
@@ -87,7 +86,7 @@ public class ObservableSememeVersionImpl
       SememeVersion newVersion = this.stampedVersion.makeAnalog(ec);
       ObservableSememeVersionImpl newObservableVersion = 
               new ObservableSememeVersionImpl(newVersion, (ObservableSememeChronology) chronology);
-      ((ChronologyImpl) chronology).addVersion(newObservableVersion);
+      ((ObservableChronologyImpl) chronology).getObservableVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
    }
 

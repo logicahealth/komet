@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.provider.drools;
+package sh.komet.gui.control;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,8 +22,6 @@ import javafx.util.Callback;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.Editors;
 import org.controlsfx.property.editor.PropertyEditor;
-import sh.komet.gui.control.ConceptForControlWrapper;
-import sh.komet.gui.control.PropertySheetItemConceptWrapper;
 import sh.komet.gui.manifold.Manifold;
 
 /**

@@ -407,7 +407,7 @@ public abstract class ObservableChronologyImpl
     * @param <OV>
     * @return the observable version list
     */
-   protected abstract <OV extends ObservableVersion> 
+   public abstract <OV extends ObservableVersion> 
         ObservableList<OV> getObservableVersionList();
 
    /**
