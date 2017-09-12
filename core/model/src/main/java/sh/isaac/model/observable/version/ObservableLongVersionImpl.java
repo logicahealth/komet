@@ -18,17 +18,17 @@ package sh.isaac.model.observable.version;
 
 import java.util.List;
 import javafx.beans.property.LongProperty;
-import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.version.LongVersion;
 import sh.isaac.api.component.sememe.version.MutableLongVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.observable.sememe.version.ObservableLongVersion;
-import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.observable.CommitAwareLongProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.sememe.version.LongVersionImpl;
 
 /**
  *
@@ -77,14 +77,17 @@ public class ObservableLongVersionImpl
          this.longProperty = new CommitAwareLongProperty(this,
                ObservableFields.LONG_VALUE_FOR_SEMEME.toExternalString(),
                getLongValue());
+         this.longProperty.addListener((observable, oldValue, newValue) -> {
+            ((LongVersionImpl) this.stampedVersion).setLongValue(newValue.longValue());
+         });
       }
 
       return this.longProperty;
    }
 
    @Override
-   public List<Property<?>> getProperties() {
-      List<Property<?>> properties = super.getProperties();
+   public List<ReadOnlyProperty<?>> getProperties() {
+      List<ReadOnlyProperty<?>> properties = super.getProperties();
       properties.add(longValueProperty());
       return properties;
    }  
@@ -108,17 +111,16 @@ public class ObservableLongVersionImpl
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Sets the case significance concept sequence.
+    * Sets the long value.
     *
-    * @param componentNid the new case significance concept sequence
+    * @param longValue the new long value
     */
    @Override
    public void setLongValue(long longValue) {
       if (this.longProperty != null) {
          this.longProperty.set(longValue);
-      } else {
-         ((MutableLongVersion) this.stampedVersion).setLongValue(longValue);
       }
+      ((MutableLongVersion) this.stampedVersion).setLongValue(longValue);
    }
 
    //~--- get methods ---------------------------------------------------------

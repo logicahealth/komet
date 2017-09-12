@@ -167,18 +167,33 @@ public class UncommittedStamp {
     */
    @Override
    public String toString() {
+      
+      try {
       final StringBuilder sb = new StringBuilder();
-
-      sb.append("UncommittedStamp{s:");
-      sb.append(this.status);
-      sb.append(", a:");
-      sb.append(Get.conceptDescriptionText(this.authorSequence));
-      sb.append(", m:");
-      sb.append(Get.conceptDescriptionText(this.moduleSequence));
-      sb.append(", p: ");
-      sb.append(Get.conceptDescriptionText(this.pathSequence));
-      sb.append('}');
-      return sb.toString();
+         sb.append("UncommittedStamp{s:");
+         sb.append(this.status);
+         sb.append(", a:");
+         sb.append(Get.conceptDescriptionText(this.authorSequence));
+         sb.append(", m:");
+         sb.append(Get.conceptDescriptionText(this.moduleSequence));
+         sb.append(", p: ");
+         sb.append(Get.conceptDescriptionText(this.pathSequence));
+         sb.append('}');
+         return sb.toString();
+      } catch (RuntimeException e) {
+         e.printStackTrace();
+      final StringBuilder sb = new StringBuilder();
+          sb.append("UncommittedStamp{s:");
+         sb.append(this.status);
+         sb.append(", a:");
+         sb.append(this.authorSequence);
+         sb.append(", m:");
+         sb.append(this.moduleSequence);
+         sb.append(", p: ");
+         sb.append(this.pathSequence);
+         sb.append('}');
+         return sb.toString();
+     }
    }
 
    /**

@@ -193,6 +193,11 @@ public class CategorizedVersion
       delegate.setTime(time);
    }
 
+   @Override
+   public void setStatus(State state) {
+      delegate.setStatus(state);
+   }
+
    //~--- get methods ---------------------------------------------------------
 
    @Override

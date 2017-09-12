@@ -271,6 +271,21 @@ public abstract class VersionImpl
                                     moduleSequence,
                                     getPathSequence());
    }
+   /**
+    * Sets the state.
+    *
+    * @param state the new state
+    */
+   @Override
+   public void setStatus(State state) {
+      checkUncommitted();
+      this.stampSequence = Get.stampService()
+                              .getStampSequence(state,
+                                    getTime(),
+                                    getAuthorSequence(),
+                                    getModuleSequence(),
+                                    getPathSequence());
+   }
 
    //~--- get methods ---------------------------------------------------------
 

@@ -20,7 +20,8 @@ import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.CategorizedVersion;
 import sh.isaac.api.chronicle.CategorizedVersions;
@@ -61,7 +62,7 @@ public class ObservableCategorizedVersion extends CategorizedVersion implements 
    }
 
    @Override
-   public IntegerProperty stampSequenceProperty() {
+   public ReadOnlyIntegerProperty stampSequenceProperty() {
       return getObservableVersion().stampSequenceProperty();
    }
 
@@ -81,7 +82,7 @@ public class ObservableCategorizedVersion extends CategorizedVersion implements 
    }
 
    @Override
-   public List<Property<?>> getProperties() {
+   public List<ReadOnlyProperty<?>> getProperties() {
       return getObservableVersion().getProperties();
    }
    

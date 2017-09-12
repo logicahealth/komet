@@ -91,6 +91,7 @@ import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.model.observable.ObservableConceptChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -246,6 +247,9 @@ public class ConceptProvider
     */
    @Override
    public void writeConcept(ConceptChronology concept) {
+      if (concept instanceof ObservableConceptChronologyImpl) {
+         concept = ((ObservableConceptChronologyImpl) concept).getConceptChronology();
+      }
       this.conceptMap.put(concept.getConceptSequence(), (ConceptChronologyImpl) concept);
    }
 

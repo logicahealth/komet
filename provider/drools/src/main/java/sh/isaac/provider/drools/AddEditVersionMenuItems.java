@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyProperty;
 import javafx.scene.control.MenuItem;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.chronicle.VersionType;
@@ -35,9 +36,9 @@ public class AddEditVersionMenuItems {
    final List<MenuItem> menuItems = new ArrayList<>();
    final Manifold manifold;
    final ObservableCategorizedVersion categorizedVersion;
-   final Consumer<PropertySheet> propertySheetConsumer;
+   final Consumer<PropertySheetMenuItem> propertySheetConsumer;
 
-   public AddEditVersionMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheet> propertySheetConsumer) {
+   public AddEditVersionMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheetMenuItem> propertySheetConsumer) {
       this.manifold = manifold;
       this.categorizedVersion = categorizedVersion;
       this.propertySheetConsumer = propertySheetConsumer;
@@ -51,7 +52,7 @@ public class AddEditVersionMenuItems {
       return menuItems;
    }
    
-   public List<Property<?>> getProperties() {
+   public List<ReadOnlyProperty<?>> getProperties() {
       return categorizedVersion.getProperties();
    }
 
@@ -63,7 +64,7 @@ public class AddEditVersionMenuItems {
       MenuItem menuItem = new MenuItem(menuText);
       menuItem.setOnAction((event) -> {
          propertySheetMenuItem.prepareToExecute();
-         propertySheetConsumer.accept(propertySheetMenuItem.getPropertySheet());
+         propertySheetConsumer.accept(propertySheetMenuItem);
       });
       menuItems.add(menuItem);
       return propertySheetMenuItem;

@@ -17,7 +17,7 @@
 package sh.isaac.model.observable.version;
 
 import java.util.List;
-import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.version.MutableStringVersion;
@@ -25,7 +25,6 @@ import sh.isaac.api.component.sememe.version.StringVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.observable.sememe.version.ObservableStringVersion;
-import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
@@ -84,8 +83,8 @@ public class ObservableStringVersionImpl
    }
 
    @Override
-   public List<Property<?>> getProperties() {
-      List<Property<?>> properties = super.getProperties();
+   public List<ReadOnlyProperty<?>> getProperties() {
+      List<ReadOnlyProperty<?>> properties = super.getProperties();
       properties.add(stringProperty());
       return properties;
    }  

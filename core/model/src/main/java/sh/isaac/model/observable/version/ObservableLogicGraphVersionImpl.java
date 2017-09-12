@@ -19,6 +19,7 @@ package sh.isaac.model.observable.version;
 import java.util.List;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
@@ -26,10 +27,10 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.observable.sememe.version.ObservableLogicGraphVersion;
-import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.observable.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
 
 /**
  *
@@ -78,6 +79,9 @@ public class ObservableLogicGraphVersionImpl
          this.graphProperty = new CommitAwareObjectProperty(this,
                ObservableFields.LOGIC_GRAPH_FOR_SEMEME.toExternalString(),
                getGraphData());
+         this.graphProperty.addListener((observable, oldValue, newValue) -> {
+            ((LogicGraphVersionImpl) this.stampedVersion).setGraphData(newValue);
+         });
       }
 
       return this.graphProperty;
@@ -85,8 +89,8 @@ public class ObservableLogicGraphVersionImpl
 
 
    @Override
-   public List<Property<?>> getProperties() {
-      List<Property<?>> properties = super.getProperties();
+   public List<ReadOnlyProperty<?>> getProperties() {
+      List<ReadOnlyProperty<?>> properties = super.getProperties();
       properties.add(logicGraphProperty());
       return properties;
    }  
@@ -118,9 +122,8 @@ public class ObservableLogicGraphVersionImpl
    public void setGraphData(byte[][] graphData) {
       if (this.graphProperty != null) {
          this.graphProperty.set(graphData);
-      } else {
-         ((MutableLogicGraphVersion) this.stampedVersion).setGraphData(graphData);
       }
+      ((MutableLogicGraphVersion) this.stampedVersion).setGraphData(graphData);
    }
 
    //~--- get methods ---------------------------------------------------------

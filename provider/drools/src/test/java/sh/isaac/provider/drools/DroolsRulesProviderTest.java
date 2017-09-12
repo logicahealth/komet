@@ -28,6 +28,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Ignore;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -68,7 +69,7 @@ public class DroolsRulesProviderTest {
    public void testGetEditMenuItems() {
       Manifold manifold = null;
       ObservableCategorizedVersion categorizedVersion = null;
-      Consumer<PropertySheet> propertySheetConsumer = null;
+      Consumer<PropertySheetMenuItem> propertySheetConsumer = null;
       List<MenuItem> result = instance.getEditMenuItems(manifold, categorizedVersion, propertySheetConsumer);
       assertEquals(1, result.size());
    }
@@ -81,7 +82,7 @@ public class DroolsRulesProviderTest {
    public void testGetAttachmentMenuItems() {
       Manifold manifold = null;
       ObservableCategorizedVersion categorizedVersion = null;
-      Consumer<PropertySheet> propertySheetConsumer = null;
+      Consumer<PropertySheetMenuItem> propertySheetConsumer = null;
       List<MenuItem> result = instance.getAttachmentMenuItems(manifold, categorizedVersion, propertySheetConsumer);
       assertEquals(1, result.size());
    }

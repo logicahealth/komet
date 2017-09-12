@@ -48,6 +48,8 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.ConceptProxy;
 
 import sh.isaac.api.State;
@@ -97,7 +99,7 @@ public interface ObservableVersion
     *
     * @return the integer property
     */
-   IntegerProperty stampSequenceProperty();
+   ReadOnlyIntegerProperty stampSequenceProperty();
 
    /**
     * State property.
@@ -127,10 +129,10 @@ public interface ObservableVersion
     * 
     * @return a list of properties for this observable version
     */
-   List<Property<?>> getProperties();
+   List<ReadOnlyProperty<?>> getProperties();
    
-   default Map<ConceptSpecification, Property<?>> getPropertyMap() {
-      Map<ConceptSpecification, Property<?>> propertyMap = new HashMap<>();
+   default Map<ConceptSpecification, ReadOnlyProperty<?>> getPropertyMap() {
+      Map<ConceptSpecification, ReadOnlyProperty<?>> propertyMap = new HashMap<>();
       getProperties().forEach((property) -> propertyMap.put(new ConceptProxy(property.getName()), property));
       return propertyMap;
    }

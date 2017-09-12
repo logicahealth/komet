@@ -42,6 +42,7 @@ package sh.isaac.api.observable.sememe.version;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.observable.ObservableVersion;
@@ -63,8 +64,8 @@ public interface ObservableSememeVersion
    @Override
    ObservableSememeChronology getChronology();
    
-   IntegerProperty assemblageSequenceProperty();
+   ReadOnlyIntegerProperty assemblageSequenceProperty();
    
-   IntegerProperty referencedComponentNidProperty();
+   ReadOnlyIntegerProperty referencedComponentNidProperty();
 }
 

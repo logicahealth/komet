@@ -48,8 +48,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -60,7 +58,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -316,47 +313,55 @@ public class StampProvider
     */
    @Override
    public String describeStampSequence(int stampSequence) {
+      if (stampSequence == -1) {
+         return "{Stamp≤CANCELED≥}";
+      }
       final StringBuilder sb = new StringBuilder();
 
       sb.append("{Stamp≤");
       sb.append(stampSequence);
       sb.append("::");
 
-      final State status = getStatusForStamp(stampSequence);
-
-      sb.append(status);
-
-      if (status == State.ACTIVE) {
-         sb.append("  ");
+      try {
+         final State status = getStatusForStamp(stampSequence);
+         
+         sb.append(status);
+         
+         if (status == State.ACTIVE) {
+            sb.append("  ");
+         }
+         
+         sb.append(" ");
+         
+         final long time = getTimeForStamp(stampSequence);
+         
+         if (time == Long.MAX_VALUE) {
+            sb.append("UNCOMMITTED:");
+         } else if (time == Long.MIN_VALUE) {
+            sb.append("CANCELED:  ");
+         } else {
+            sb.append(Instant.ofEpochMilli(time));
+         }
+         
+         sb.append(" a:");
+         sb.append(Get.conceptDescriptionText(getAuthorSequenceForStamp(stampSequence)));
+         sb.append(" <");
+         sb.append(getAuthorSequenceForStamp(stampSequence));
+         sb.append(">");
+         sb.append(" m:");
+         sb.append(Get.conceptDescriptionText(getModuleSequenceForStamp(stampSequence)));
+         sb.append(" <");
+         sb.append(getModuleSequenceForStamp(stampSequence));
+         sb.append(">");
+         sb.append(" p: ");
+         sb.append(Get.conceptDescriptionText(getPathSequenceForStamp(stampSequence)));
+         sb.append(" <");
+         sb.append(getPathSequenceForStamp(stampSequence));
+         sb.append(">≥}");
+      } catch (Exception e) {
+         sb.append(e.getMessage());
       }
-
-      sb.append(" ");
-
-      final long time = getTimeForStamp(stampSequence);
-
-      if (time == Long.MAX_VALUE) {
-         sb.append("UNCOMMITTED:");
-      } else if (time == Long.MIN_VALUE) {
-         sb.append("CANCELED:  ");
-      } else {
-         sb.append(Instant.ofEpochMilli(time));
-      }
-
-      sb.append(" a:");
-      sb.append(Get.conceptDescriptionText(getAuthorSequenceForStamp(stampSequence)));
-      sb.append(" <");
-      sb.append(getAuthorSequenceForStamp(stampSequence));
-      sb.append(">");
-      sb.append(" m:");
-      sb.append(Get.conceptDescriptionText(getModuleSequenceForStamp(stampSequence)));
-      sb.append(" <");
-      sb.append(getModuleSequenceForStamp(stampSequence));
-      sb.append(">");
-      sb.append(" p: ");
-      sb.append(Get.conceptDescriptionText(getPathSequenceForStamp(stampSequence)));
-      sb.append(" <");
-      sb.append(getPathSequenceForStamp(stampSequence));
-      sb.append(">≥S}");
+      sb.append(">≥}");
       return sb.toString();
    }
 
@@ -415,7 +420,7 @@ public class StampProvider
 
             this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
          }
-      } catch (final Exception e) {
+      } catch (final IOException e) {
          LookupService.getService(SystemStatusService.class)
                  .notifyServiceConfigurationFailure("Stamp Provider", e);
          throw new RuntimeException(e);
@@ -490,6 +495,11 @@ public class StampProvider
          return s.get()
                  .getAuthorSequence();
       }
+      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
+         if (entry.getValue() == stampSequence) {
+            return entry.getKey().authorSequence;
+         }
+      }
 
       throw new NoSuchElementException("No stampSequence found: " + stampSequence);
    }
@@ -512,6 +522,11 @@ public class StampProvider
          return Get.identifierService()
                  .getConceptSequence(s.get()
                          .getAuthorSequence());
+      }
+      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
+         if (entry.getValue() == stampSequence) {
+            return entry.getKey().authorSequence;
+         }
       }
 
       throw new NoSuchElementException("No stampSequence found: " + stampSequence);
@@ -554,6 +569,11 @@ public class StampProvider
          return s.get()
                  .getModuleSequence();
       }
+      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
+         if (entry.getValue() == stampSequence) {
+            return entry.getKey().moduleSequence;
+         }
+      }
 
       throw new NoSuchElementException("No stampSequence found: " + stampSequence);
    }
@@ -576,6 +596,11 @@ public class StampProvider
          return Get.identifierService()
                  .getConceptSequence(s.get()
                          .getModuleSequence());
+      }
+      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
+         if (entry.getValue() == stampSequence) {
+            return entry.getKey().moduleSequence;
+         }
       }
 
       throw new NoSuchElementException("No stampSequence found: " + stampSequence);
@@ -613,6 +638,11 @@ public class StampProvider
          return s.get()
                  .getPathSequence();
       }
+      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
+         if (entry.getValue() == stampSequence) {
+            return entry.getKey().pathSequence;
+         }
+      }
 
       throw new NoSuchElementException("No stampSequence found: " + stampSequence);
    }
@@ -641,6 +671,11 @@ public class StampProvider
                          .getConceptSequence(s.get()
                                  .getPathSequence()));
          return this.stampSequencePathSequenceMap.get(stampSequence);
+      }
+      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
+         if (entry.getValue() == stampSequence) {
+            return entry.getKey().pathSequence;
+         }
       }
 
       throw new NoSuchElementException("No stampSequence found: " + stampSequence);
@@ -706,7 +741,7 @@ public class StampProvider
          final Integer temp = UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get(usp);
 
          if (temp != null) {
-            return temp.intValue();
+            return temp;
          } else {
             this.stampLock.lock();
 
@@ -780,7 +815,12 @@ public class StampProvider
          return s.get()
                  .getStatus();
       }
-
+      
+      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
+         if (entry.getValue() == stampSequence) {
+            return entry.getKey().status;
+         }
+      }
       throw new NoSuchElementException("No stampSequence found: " + stampSequence);
    }
 
@@ -801,6 +841,9 @@ public class StampProvider
       if (s.isPresent()) {
          return s.get()
                  .getTime();
+      }
+      if (UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.containsValue(stampSequence)) {
+         return Long.MAX_VALUE;
       }
 
       throw new NoSuchElementException("No stampSequence found: " + stampSequence + " map size: "

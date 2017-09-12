@@ -42,8 +42,8 @@ package sh.isaac.model.observable.version;
 //~--- non-JDK imports --------------------------------------------------------
 
 import java.util.List;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -52,6 +52,7 @@ import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.sememe.version.SememeVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -65,10 +66,10 @@ public class ObservableSememeVersionImpl
          implements ObservableSememeVersion {
 
    /** The author sequence property. */
-   IntegerProperty assemblageSequenceProperty;
+   ReadOnlyIntegerProperty assemblageSequenceProperty;
 
    /** The module sequence property. */
-   IntegerProperty referencedComponentNidProperty;
+   ReadOnlyIntegerProperty referencedComponentNidProperty;
 
    /**
     * Instantiates a new observable sememe version impl.
@@ -97,11 +98,12 @@ public class ObservableSememeVersionImpl
     * @return the integer property
     */
    @Override
-   public final IntegerProperty assemblageSequenceProperty() {
+   public final ReadOnlyIntegerProperty assemblageSequenceProperty() {
       if (this.assemblageSequenceProperty == null) {
-         this.assemblageSequenceProperty = new CommitAwareIntegerProperty(this,
+         this.assemblageSequenceProperty = 
+            ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
                ObservableFields.ASSEMBLAGE_SEQUENCE_FOR_SEMEME_CHRONICLE.toExternalString(),
-               getModuleSequence());
+               getAssemblageSequence()));
       }
 
       return this.assemblageSequenceProperty;
@@ -113,18 +115,18 @@ public class ObservableSememeVersionImpl
     * @return the integer property
     */
    @Override
-   public final IntegerProperty referencedComponentNidProperty() {
+   public final ReadOnlyIntegerProperty referencedComponentNidProperty() {
       if (this.referencedComponentNidProperty == null) {
-         this.referencedComponentNidProperty = new CommitAwareIntegerProperty(this,
+         this.referencedComponentNidProperty = 
+            ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
                ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMEME_CHRONICLE.toExternalString(),
-               getPathSequence());
+               getReferencedComponentNid()));
       }
-
       return this.referencedComponentNidProperty;
    }
    @Override
-   public List<Property<?>> getProperties() {
-      List<Property<?>> properties = super.getProperties();
+   public List<ReadOnlyProperty<?>> getProperties() {
+      List<ReadOnlyProperty<?>> properties = super.getProperties();
       properties.add(assemblageSequenceProperty());
       properties.add(referencedComponentNidProperty());
       return properties;
@@ -139,7 +141,7 @@ public class ObservableSememeVersionImpl
     */
    @Override
    public int getAssemblageSequence() {
-      return ((SememeVersion) this.stampedVersion).getAssemblageSequence();
+      return ((SememeVersionImpl) this.stampedVersion).getAssemblageSequence();
    }
 
    /**

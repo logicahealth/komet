@@ -77,14 +77,14 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
    }
 
    @Override
-   public List<MenuItem> getEditMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheet> propertySheetConsumer) {
+   public List<MenuItem> getEditMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheetMenuItem> propertySheetConsumer) {
       AddEditVersionMenuItems executionItem = new AddEditVersionMenuItems(manifold, categorizedVersion, propertySheetConsumer);
       this.kSession.execute(executionItem);
       return executionItem.menuItems;
    }
 
    @Override
-   public List<MenuItem> getAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheet> propertySheetConsumer) {
+   public List<MenuItem> getAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheetMenuItem> propertySheetConsumer) {
       AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(manifold, categorizedVersion, propertySheetConsumer);
       this.kSession.execute(executionItem);
       return executionItem.menuItems;

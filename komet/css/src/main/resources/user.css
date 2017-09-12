@@ -711,3 +711,20 @@ limitations under the License.
    -fx-background-color: -komet-uncommitted-fill;
 }
 
+.component-panel:uncommitted * .cancel-button {
+    -fx-background-color: white;
+   -fx-border-color: -komet-uncommitted-border;   
+      -fx-border-radius: 2;    
+      -fx-border-width:2;
+      -fx-font-size:12;
+      -fx-padding:2 4 2 4;
+}
+
+.component-panel:uncommitted * .commit-button {
+   -fx-background-color: white;
+   -fx-border-color: -komet-uncommitted-border;   
+      -fx-border-radius: 2;    
+      -fx-border-width:2;
+      -fx-font-size:12;
+      -fx-padding:2 4 2 4;
+}

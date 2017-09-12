@@ -181,10 +181,13 @@ public class ConceptDetailTreeTableController {
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions
                  = observableConceptChronology.getCategorizedVersions(
                          manifold);
-
-         TreeItem<ObservableCategorizedVersion> conceptRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
-         addChildren(conceptRoot, observableConceptChronology.getObservableSememeList(), true);
-         conceptExtensionTreeTable.setRoot(conceptRoot);
+          if (categorizedVersions.getLatestVersion().isPresent()) {
+            TreeItem<ObservableCategorizedVersion> conceptRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
+            addChildren(conceptRoot, observableConceptChronology.getObservableSememeList(), true);
+            conceptExtensionTreeTable.setRoot(conceptRoot);
+          } else {
+             throw new IllegalStateException("Latest version is null: " + categorizedVersions);
+          }
       }
    }
 

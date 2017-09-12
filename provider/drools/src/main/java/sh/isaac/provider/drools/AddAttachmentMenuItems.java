@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import javafx.scene.control.MenuItem;
-import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -32,9 +32,9 @@ public class AddAttachmentMenuItems {
    final List<MenuItem> menuItems = new ArrayList<>();
    final Manifold manifold;
    final ObservableCategorizedVersion categorizedVersion;
-   final Consumer<PropertySheet> propertySheetConsumer;
+   final Consumer<PropertySheetMenuItem> propertySheetConsumer;
 
-   public AddAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheet> propertySheetConsumer) {
+   public AddAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheetMenuItem> propertySheetConsumer) {
       this.manifold = manifold;
       this.categorizedVersion = categorizedVersion;
       this.propertySheetConsumer = propertySheetConsumer;

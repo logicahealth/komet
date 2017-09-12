@@ -48,13 +48,14 @@ import javafx.beans.value.ObservableValue;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
+import javafx.event.ActionEvent;
 import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
@@ -127,7 +128,9 @@ public abstract class BadgedVersionPanel
    private final ObservableCategorizedVersion categorizedVersion;
    private final Manifold manifold;
    protected int rows;
-   private Optional<PropertySheet> optionalPropertySheet = Optional.empty();
+   private Optional<PropertySheetMenuItem> optionalPropertySheetMenuItem = Optional.empty();
+   private final Button cancelButton = new Button("Cancel");
+   private final Button commitButton = new Button("Commit");
 
    //~--- initializers --------------------------------------------------------
    {
@@ -176,6 +179,15 @@ public abstract class BadgedVersionPanel
               .setAll(StyleClasses.EDIT_COMPONENT_BUTTON.toString());
       editControl.getItems().addAll(getEditMenuItems());
       editControl.setVisible(!editControl.getItems().isEmpty());
+      
+      cancelButton.getStyleClass()
+              .add(StyleClasses.CANCEL_BUTTON.toString());
+      cancelButton.setOnAction(this::cancel);
+      commitButton.getStyleClass()
+              .add(StyleClasses.COMMIT_BUTTON.toString());
+      commitButton.setOnAction(this::commit);
+      cancelButton.setVisible(false);
+      commitButton.setVisible(false);
 
       if (observableVersion instanceof DescriptionVersion) {
          isDescription.set(true);
@@ -190,6 +202,38 @@ public abstract class BadgedVersionPanel
          setupOther(observableVersion);
       }
    }
+   
+   private void cancel(ActionEvent event) {
+      System.out.println("cancel");
+      if (optionalPropertySheetMenuItem.isPresent()) {
+         PropertySheetMenuItem item = optionalPropertySheetMenuItem.get();
+         item.cancel();
+         cancelButton.setVisible(false);
+         commitButton.setVisible(false);
+         gridpane.getChildren().remove(item.getPropertySheet());
+         optionalPropertySheetMenuItem = Optional.empty();
+         pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
+         editControl.getItems().setAll(getEditMenuItems());
+         editControl.setVisible(!editControl.getItems().isEmpty());
+        redoLayout();
+      } 
+   }
+   
+   private void commit(ActionEvent event) {
+     System.out.println("commit");
+      if (optionalPropertySheetMenuItem.isPresent()) {
+         PropertySheetMenuItem item = optionalPropertySheetMenuItem.get();
+         item.commit();
+         cancelButton.setVisible(false);
+         commitButton.setVisible(false);
+         gridpane.getChildren().remove(item.getPropertySheet());
+         optionalPropertySheetMenuItem = Optional.empty();
+         pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
+         editControl.getItems().setAll(getEditMenuItems());
+         editControl.setVisible(!editControl.getItems().isEmpty());
+         redoLayout();
+      }
+    }
 
    public void debugTextLayoutListener(ObservableValue<? extends Bounds> bounds, Bounds oldBounds, Bounds newBounds) {
       if (this.getParent() != null && componentText.getText().startsWith("SNOMED CT has been")) {
@@ -212,15 +256,17 @@ public abstract class BadgedVersionPanel
    }
 
    public final List<MenuItem> getEditMenuItems() {
-      return FxGet.rulesDrivenKometService().getEditMenuItems(manifold, this.categorizedVersion, (propertySheet) -> {
-         addEditingPropertySheet(propertySheet);
+      return FxGet.rulesDrivenKometService().getEditMenuItems(manifold, this.categorizedVersion, (propertySheetMenuItem) -> {
+         addEditingPropertySheet(propertySheetMenuItem);
       });
    }
 
-   private void addEditingPropertySheet(PropertySheet propertySheet) {
+   private void addEditingPropertySheet(PropertySheetMenuItem propertySheetMenuItem) {
       pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, true);
       editControl.setVisible(false);
-      this.optionalPropertySheet = Optional.of(propertySheet);
+      cancelButton.setVisible(true);
+      commitButton.setVisible(true);
+      this.optionalPropertySheetMenuItem = Optional.of(propertySheetMenuItem);
       redoLayout();
    }
 
@@ -471,6 +517,7 @@ public abstract class BadgedVersionPanel
                  new Insets(0, 4, 1, 0));
          gridpane.getChildren()
                  .add(addAttachmentControl);
+// edit control         
          gridpane.getChildren()
                  .remove(editControl);
          GridPane.setConstraints(
@@ -486,9 +533,48 @@ public abstract class BadgedVersionPanel
                  new Insets(1, 4, 0, 0));
          gridpane.getChildren()
                  .add(editControl);
+// commitButton         
+         
+         gridpane.getChildren()
+                 .remove(commitButton);
+         GridPane.setConstraints(
+                 commitButton,
+                 columns-3,
+                 0,
+                 4,
+                 1,
+                 HPos.RIGHT,
+                 VPos.TOP,
+                 Priority.SOMETIMES,
+                 Priority.NEVER,
+                 new Insets(1, 4, 0, 0));
+         gridpane.getChildren()
+                 .add(commitButton);
+                 
+//         
+// cancelButton         
+         
+         gridpane.getChildren()
+                 .remove(cancelButton);
+         GridPane.setConstraints(
+                 cancelButton,
+                 columns-6,
+                 0,
+                 3,
+                 1,
+                 HPos.RIGHT,
+                 VPos.TOP,
+                 Priority.SOMETIMES,
+                 Priority.NEVER,
+                 new Insets(1, 4, 0, 0));
+         gridpane.getChildren()
+                 .add(cancelButton);
+                 
+//         
          int gridRow = 0;
-         if (optionalPropertySheet.isPresent()) {
-            PropertySheet propertySheet = optionalPropertySheet.get();
+         if (optionalPropertySheetMenuItem.isPresent()) {
+            PropertySheetMenuItem propertySheetMenuItem = optionalPropertySheetMenuItem.get();
+            PropertySheet propertySheet = propertySheetMenuItem.getPropertySheet();
             gridpane.getChildren()
                     .remove(propertySheet);
             gridRow = 1;

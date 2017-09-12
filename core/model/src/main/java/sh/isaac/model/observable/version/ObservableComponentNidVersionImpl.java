@@ -19,13 +19,13 @@ package sh.isaac.model.observable.version;
 import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.observable.sememe.version.ObservableComponentNidVersion;
-import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
@@ -77,6 +77,9 @@ public class ObservableComponentNidVersionImpl
          this.componentNidProperty = new CommitAwareIntegerProperty(this,
                ObservableFields.COMPONENT_NID_FOR_SEMEME.toExternalString(),
                getComponentNid());
+         this.componentNidProperty.addListener((observable, oldValue, newValue) -> {
+            ((ComponentNidVersionImpl) this.stampedVersion).setComponentNid(newValue.intValue());
+         });
       }
 
       return this.componentNidProperty;
@@ -110,9 +113,8 @@ public class ObservableComponentNidVersionImpl
    public void setComponentNid(int componentNid) {
       if (this.componentNidProperty != null) {
          this.componentNidProperty.set(componentNid);
-      } else {
-         ((ComponentNidVersionImpl) this.stampedVersion).setComponentNid(componentNid);
       }
+      ((ComponentNidVersionImpl) this.stampedVersion).setComponentNid(componentNid);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -123,8 +125,8 @@ public class ObservableComponentNidVersionImpl
    }
 
    @Override
-   public List<Property<?>> getProperties() {
-      List<Property<?>> properties = super.getProperties();
+   public List<ReadOnlyProperty<?>> getProperties() {
+      List<ReadOnlyProperty<?>> properties = super.getProperties();
       properties.add(componentNidProperty());
       return properties;
    }  

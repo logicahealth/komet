@@ -34,16 +34,13 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.model.observable.version;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
@@ -56,11 +53,9 @@ import sh.isaac.model.sememe.version.DescriptionVersionImpl;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
-import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class ObservableDescriptionVersionImpl.
  *
@@ -68,21 +63,29 @@ import sh.isaac.model.observable.ObservableChronologyImpl;
  */
 public class ObservableDescriptionVersionImpl
         extends ObservableSememeVersionImpl
-         implements ObservableDescriptionVersion {
-   /** The case significance concept sequence property. */
+        implements ObservableDescriptionVersion {
+
+   /**
+    * The case significance concept sequence property.
+    */
    IntegerProperty caseSignificanceConceptSequenceProperty;
 
-   /** The language concept sequence property. */
+   /**
+    * The language concept sequence property.
+    */
    IntegerProperty languageConceptSequenceProperty;
 
-   /** The text property. */
+   /**
+    * The text property.
+    */
    StringProperty textProperty;
 
-   /** The description type concept sequence property. */
+   /**
+    * The description type concept sequence property.
+    */
    IntegerProperty descriptionTypeConceptSequenceProperty;
 
    //~--- constructors --------------------------------------------------------
-
    /**
     * Instantiates a new observable description impl.
     *
@@ -90,23 +93,21 @@ public class ObservableDescriptionVersionImpl
     * @param chronology the chronology
     */
    public ObservableDescriptionVersionImpl(DescriptionVersion stampedVersion,
-                                    ObservableSememeChronology chronology) {
-      super(stampedVersion, 
+           ObservableSememeChronology chronology) {
+      super(stampedVersion,
               chronology);
    }
 
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       DescriptionVersion newVersion = this.stampedVersion.makeAnalog(ec);
-      ObservableDescriptionVersionImpl newObservableVersion = 
-              new ObservableDescriptionVersionImpl(newVersion, (ObservableSememeChronology) chronology);
+      ObservableDescriptionVersionImpl newObservableVersion
+              = new ObservableDescriptionVersionImpl(newVersion, (ObservableSememeChronology) chronology);
       ((ObservableChronologyImpl) chronology).getObservableVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
    }
 
-
    //~--- methods -------------------------------------------------------------
-
    /**
     * Case significance concept sequence property.
     *
@@ -116,8 +117,11 @@ public class ObservableDescriptionVersionImpl
    public IntegerProperty caseSignificanceConceptSequenceProperty() {
       if (this.caseSignificanceConceptSequenceProperty == null) {
          this.caseSignificanceConceptSequenceProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION.toExternalString(),
-               getCaseSignificanceConceptSequence());
+                 ObservableFields.CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION.toExternalString(),
+                 getCaseSignificanceConceptSequence());
+         this.caseSignificanceConceptSequenceProperty.addListener((observable, oldValue, newValue) -> {
+            ((DescriptionVersionImpl) this.stampedVersion).setCaseSignificanceConceptSequence(newValue.intValue());
+         });
       }
 
       return this.caseSignificanceConceptSequenceProperty;
@@ -132,8 +136,11 @@ public class ObservableDescriptionVersionImpl
    public IntegerProperty descriptionTypeConceptSequenceProperty() {
       if (this.descriptionTypeConceptSequenceProperty == null) {
          this.descriptionTypeConceptSequenceProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.DESCRIPTION_TYPE_FOR_DESCRIPTION.toExternalString(),
-               getDescriptionTypeConceptSequence());
+                 ObservableFields.DESCRIPTION_TYPE_FOR_DESCRIPTION.toExternalString(),
+                 getDescriptionTypeConceptSequence());
+         this.descriptionTypeConceptSequenceProperty.addListener((observable, oldValue, newValue) -> {
+            ((DescriptionVersionImpl) this.stampedVersion).setDescriptionTypeConceptSequence(newValue.intValue());
+         });
       }
 
       return this.descriptionTypeConceptSequenceProperty;
@@ -148,8 +155,11 @@ public class ObservableDescriptionVersionImpl
    public IntegerProperty languageConceptSequenceProperty() {
       if (this.languageConceptSequenceProperty == null) {
          this.languageConceptSequenceProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION.toExternalString(),
-               getLanguageConceptSequence());
+                 ObservableFields.LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION.toExternalString(),
+                 getLanguageConceptSequence());
+         this.languageConceptSequenceProperty.addListener((observable, oldValue, newValue) -> {
+            ((DescriptionVersionImpl) this.stampedVersion).setLanguageConceptSequence(newValue.intValue());
+         });
       }
 
       return this.languageConceptSequenceProperty;
@@ -164,15 +174,17 @@ public class ObservableDescriptionVersionImpl
    public StringProperty textProperty() {
       if (this.textProperty == null) {
          this.textProperty = new CommitAwareStringProperty(this,
-               ObservableFields.TEXT_FOR_DESCRIPTION.toExternalString(),
-               getText());
+                 ObservableFields.TEXT_FOR_DESCRIPTION.toExternalString(),
+                 getText());
+         this.textProperty.addListener((observable, oldValue, newValue) -> {
+            ((DescriptionVersionImpl) this.stampedVersion).setText(newValue);
+         });
       }
 
       return this.textProperty;
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the case significance concept sequence.
     *
@@ -188,7 +200,6 @@ public class ObservableDescriptionVersionImpl
    }
 
    //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the case significance concept sequence.
     *
@@ -198,14 +209,12 @@ public class ObservableDescriptionVersionImpl
    public void setCaseSignificanceConceptSequence(int caseSignificanceConceptSequence) {
       if (this.caseSignificanceConceptSequenceProperty != null) {
          this.caseSignificanceConceptSequenceProperty.set(caseSignificanceConceptSequence);
-      } else {
-         ((DescriptionVersionImpl) this.stampedVersion).setCaseSignificanceConceptSequence(
-             caseSignificanceConceptSequence);
       }
+      ((DescriptionVersionImpl) this.stampedVersion).setCaseSignificanceConceptSequence(
+                 caseSignificanceConceptSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the description type concept sequence.
     *
@@ -221,7 +230,6 @@ public class ObservableDescriptionVersionImpl
    }
 
    //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the description type concept sequence.
     *
@@ -232,12 +240,10 @@ public class ObservableDescriptionVersionImpl
       if (this.descriptionTypeConceptSequenceProperty != null) {
          this.descriptionTypeConceptSequenceProperty.set(descriptionTypeConceptSequence);
       }
-
       ((DescriptionVersionImpl) this.stampedVersion).setDescriptionTypeConceptSequence(descriptionTypeConceptSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the language concept sequence.
     *
@@ -253,7 +259,6 @@ public class ObservableDescriptionVersionImpl
    }
 
    //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the language concept sequence.
     *
@@ -263,13 +268,11 @@ public class ObservableDescriptionVersionImpl
    public void setLanguageConceptSequence(int languageConceptSequence) {
       if (this.languageConceptSequenceProperty != null) {
          this.languageConceptSequenceProperty.set(languageConceptSequence);
-      } else {
-         ((DescriptionVersionImpl) this.stampedVersion).setLanguageConceptSequence(languageConceptSequence);
       }
+      ((DescriptionVersionImpl) this.stampedVersion).setLanguageConceptSequence(languageConceptSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the text.
     *
@@ -285,7 +288,6 @@ public class ObservableDescriptionVersionImpl
    }
 
    //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the text.
     *
@@ -296,29 +298,26 @@ public class ObservableDescriptionVersionImpl
       if (this.textProperty != null) {
          this.textProperty.set(text);
       }
-
       ((DescriptionVersionImpl) this.stampedVersion).setText(text);
    }
 
    @Override
    public String toString() {
       return "ObservableDescriptionImpl{text:" + getText() + ", case: " + Get.conceptDescriptionText(getCaseSignificanceConceptSequence())
-              + ", language:" + Get.conceptDescriptionText(getLanguageConceptSequence()) + 
-              ", type: " + Get.conceptDescriptionText(getDescriptionTypeConceptSequence()) + 
-              " " + Get.stampService().describeStampSequence(getStampSequence()) +
-              '}';
+              + ", language:" + Get.conceptDescriptionText(getLanguageConceptSequence())
+              + ", type: " + Get.conceptDescriptionText(getDescriptionTypeConceptSequence())
+              + " " + Get.stampService().describeStampSequence(getStampSequence())
+              + '}';
    }
 
    @Override
-   public List<Property<?>> getProperties() {
-      List<Property<?>> properties = super.getProperties();
+   public List<ReadOnlyProperty<?>> getProperties() {
+      List<ReadOnlyProperty<?>> properties = super.getProperties();
       properties.add(textProperty());
       properties.add(languageConceptSequenceProperty());
       properties.add(descriptionTypeConceptSequenceProperty());
       properties.add(caseSignificanceConceptSequenceProperty());
       return properties;
    }
-   
-   
-}
 
+}

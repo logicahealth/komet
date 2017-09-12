@@ -124,10 +124,11 @@ import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.task.SequentialAggregateTask;
 import sh.isaac.api.task.TimedTask;
-import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.model.observable.version.ObservableVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -143,8 +144,8 @@ public class CommitProvider
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
-   /** The Constant DEFAULT_CRADLE_COMMIT_MANAGER_FOLDER. */
-   public static final String DEFAULT_CRADLE_COMMIT_MANAGER_FOLDER = "commit-manager";
+   /** The Constant DEFAULT_COMMIT_MANAGER_FOLDER. */
+   public static final String DEFAULT_COMMIT_MANAGER_FOLDER = "commit-manager";
 
    /** The Constant COMMIT_MANAGER_DATA_FILENAME. */
    private static final String COMMIT_MANAGER_DATA_FILENAME = "commit-manager.data";
@@ -237,14 +238,14 @@ public class CommitProvider
                                           .resolve("commit-provider");
          this.loadRequired.set(Files.exists(this.dbFolderPath));
          Files.createDirectories(this.dbFolderPath);
-         this.commitManagerFolder = this.dbFolderPath.resolve(DEFAULT_CRADLE_COMMIT_MANAGER_FOLDER);
+         this.commitManagerFolder = this.dbFolderPath.resolve(DEFAULT_COMMIT_MANAGER_FOLDER);
 
          if (!Files.exists(this.commitManagerFolder)) {
             this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
          }
 
          Files.createDirectories(this.commitManagerFolder);
-      } catch (final Exception e) {
+      } catch (final IOException e) {
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Cradle Commit Provider", e);
          throw e;
@@ -399,18 +400,20 @@ public class CommitProvider
     */
    @Override
    public Task<Void> cancel(Chronology chronicle, EditCoordinate editCoordinate) {
-      final ChronologyImpl    chronicleImpl = (ChronologyImpl) chronicle;
-      final List<VersionImpl> versionList   = chronicleImpl.getVersionList();
+      final List<Version> versionList   = chronicle.getVersionList();
 
-      for (final VersionImpl version: versionList) {
+      for (final Version version: versionList) {
          if (version.isUncommitted()) {
             if (version.getAuthorSequence() == editCoordinate.getAuthorSequence()) {
-               version.cancel();
+               if (version instanceof VersionImpl) {
+                  ((VersionImpl) version).cancel();
+               } else if (version instanceof ObservableVersionImpl) {
+                  ((ObservableVersionImpl) version).cancel();
+                }
+               
             }
          }
       }
-
-      chronicleImpl.setVersions(versionList);  // see if id is in uncommitted with checks, and without checks...
 
       final Collection<Task<?>> subTasks = new ArrayList<>();
 
@@ -616,11 +619,11 @@ public class CommitProvider
          final SememeSequenceSet  sememesInCommit  = new SememeSequenceSet();
 
          chronicle.getVersionList().forEach((version) -> {
-                              if (((VersionImpl) version).isUncommitted() &&
-                                  ((VersionImpl) version).getAuthorSequence() ==
+                              if (version.isUncommitted() &&
+                                  version.getAuthorSequence() ==
                                   editCoordinate.getAuthorSequence()) {
-                                 ((VersionImpl) version).setTime(commitTime);
-                                 stampsInCommit.add(((VersionImpl) version).getStampSequence());
+                                 version.setTime(commitTime);
+                                 stampsInCommit.add(version.getStampSequence());
                               }
                            });
 
@@ -990,9 +993,9 @@ public class CommitProvider
             this.stampCommentMap.read(new File(this.commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
             this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
          }
-      } catch (final Exception e) {
+      } catch (final IOException e) {
          LookupService.getService(SystemStatusService.class)
-                      .notifyServiceConfigurationFailure("Cradle Commit Provider", e);
+                      .notifyServiceConfigurationFailure("Commit Provider", e);
          throw new RuntimeException(e);
       }
    }
