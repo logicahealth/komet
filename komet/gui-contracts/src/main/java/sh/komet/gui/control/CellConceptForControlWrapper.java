@@ -10,15 +10,13 @@ import sh.komet.gui.control.ConceptForControlWrapper;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.UUID;
 
 public class CellConceptForControlWrapper extends ListCell<ConceptForControlWrapper> {
-
 
     public CellConceptForControlWrapper(){
 
         ListCell listCell = this;
-
-        listCell.setContentDisplay(ContentDisplay.TEXT_ONLY);
 
         setOnDragDetected(event -> {
 
@@ -31,6 +29,7 @@ public class CellConceptForControlWrapper extends ListCell<ConceptForControlWrap
         });
 
         setOnDragOver(event -> {
+
             if (event.getGestureSource() != listCell &&
                     event.getDragboard().hasString()) {
                 event.acceptTransferModes(TransferMode.MOVE);
@@ -55,14 +54,16 @@ public class CellConceptForControlWrapper extends ListCell<ConceptForControlWrap
 
         setOnDragDropped(event -> {
 
-            if (getItem() == null) {
+            if (getItem() == null ||
+                    ((ListCell) event.getGestureSource()).getListView().getId()
+                            != ((ListCell) event.getGestureTarget()).getListView().getId()  ) {
                 return;
             }
 
             Dragboard dragboard = event.getDragboard();
             boolean success = false;
 
-            //TODO: Change this to a shift down or Up rather than a quick replace
+            //TODO: Change this to a shift down or Up rather than a index swap replace
             if (dragboard.hasString()) {
                 ObservableList<ConceptForControlWrapper> items = getListView().getItems();
 

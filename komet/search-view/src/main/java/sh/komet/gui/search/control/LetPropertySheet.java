@@ -20,6 +20,8 @@ import sh.komet.gui.manifold.Manifold;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
+
 import sh.komet.gui.control.ConceptForControlWrapper;
 
 /**
@@ -80,9 +82,10 @@ public class LetPropertySheet {
                             ListView<ConceptForControlWrapper>>(prop, new ListView<>()) {
 
                         {
+                            super.getEditor().setId(UUID.randomUUID().toString());
                             super.getEditor().setItems(((PropertySheetItemPreferenceWrapper) prop).getList());
-                            double maxHeight = (((PropertySheetItemPreferenceWrapper) prop).getList().size() * 26) + 2;
-                            super.getEditor().setPrefHeight(maxHeight);
+                            super.getEditor().setPrefHeight((((PropertySheetItemPreferenceWrapper) prop)
+                                    .getList().size() * 26) + 2);
                             super.getEditor().setCellFactory(cell -> new CellConceptForControlWrapper());
                         }
 
