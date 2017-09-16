@@ -116,9 +116,7 @@ public class WriteAndCheckConceptChronicle
       this.uncommittedTracking = uncommittedTracking;
       updateTitle("Write and check concept");
 
-      // TODO dan disabled this, cause it keeps causing a timing based (randomly occurring) null pointer exception when it tries to read the descriptions
-      // for this new concept.  see https://slack-files.com/T04QD7FHW-F0B2PQL87-4d6e82e985
-      updateMessage("writing nid " + cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
+      updateMessage("writing " + Get.conceptDescriptionText(cc.getConceptSequence()));
       updateProgress(-1, Long.MAX_VALUE);           // Indeterminate progress
       LookupService.getService(ActiveTasks.class)
                    .get()
@@ -142,8 +140,7 @@ public class WriteAndCheckConceptChronicle
          this.uncommittedTracking.accept(this.cc, true);
          updateProgress(1, 3);
 
-         // TODO dan disabled for the same reason as above.
-         updateMessage("checking nid: " + this.cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
+         updateMessage("checking: " + Get.conceptDescriptionText(cc.getConceptSequence()));  
 
          if (this.cc.isUncommitted()) {
             this.checkers.stream().forEach((check) -> {
@@ -153,8 +150,7 @@ public class WriteAndCheckConceptChronicle
 
          updateProgress(2, 3);
 
-         // TODO dan disabled for the same reason as above.
-         updateMessage("notifying nid: " + this.cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
+         updateMessage("notifying: " + Get.conceptDescriptionText(cc.getConceptSequence()));  
          this.changeListeners.forEach((listenerRef) -> {
                                          final ChronologyChangeListener listener = listenerRef.get();
 
@@ -166,8 +162,7 @@ public class WriteAndCheckConceptChronicle
                                       });
          updateProgress(3, 3);
 
-         // TODO dan disabled for the same reason as above.
-         updateMessage("complete nid: " + this.cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
+         updateMessage("Write and check complete: " + Get.conceptDescriptionText(cc.getConceptSequence())); 
          return null;
       } finally {
          this.writeSemaphore.release();

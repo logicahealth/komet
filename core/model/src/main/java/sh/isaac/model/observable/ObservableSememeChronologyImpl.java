@@ -184,14 +184,10 @@ public class ObservableSememeChronologyImpl
       return this.sememeSequenceProperty;
    }
 
-   /**
-    * Wrap in observable.
-    *
-    * @param sememeVersion the sememe version
-    * @return the ov
-    */
-   private <OV extends ObservableSememeVersion>
-           OV wrapInObservable(SememeVersion sememeVersion) {
+   @Override
+   protected <OV extends ObservableVersion>
+           OV wrapInObservable(Version version) {
+              SememeVersion sememeVersion = (SememeVersion) version;
       switch (sememeVersion.getChronology().getSememeType()) {
          case DESCRIPTION:
             return (OV) new ObservableDescriptionVersionImpl((DescriptionVersionImpl) sememeVersion,
@@ -248,7 +244,7 @@ public class ObservableSememeChronologyImpl
     * @return the observable version list
     */
    @Override
-   public <OV extends ObservableVersion> ObservableList<OV> getObservableVersionList() {
+   protected <OV extends ObservableVersion> ObservableList<OV> getObservableVersionList() {
       final ObservableList<OV> observableList = FXCollections.observableArrayList();
 
       this.chronicledObjectLocal.getVersionList().stream().forEach((sememeVersion) -> {

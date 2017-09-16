@@ -41,6 +41,7 @@ package sh.isaac.model.sememe.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.Arrays;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.SememeChronology;
@@ -58,7 +59,7 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  * @author kec
  */
 public class DescriptionVersionImpl
-        extends SememeVersionImpl
+        extends AbstractSememeVersionImpl
          implements MutableDescriptionVersion {
    /** The case significance concept sequence. */
    protected int caseSignificanceConceptSequence;
@@ -286,5 +287,41 @@ public class DescriptionVersionImpl
    public void setText(String text) {
       this.text = text;
    }
+   @Override
+   protected int editDistance3(AbstractSememeVersionImpl other, int editDistance) {
+      DescriptionVersionImpl otherImpl = (DescriptionVersionImpl) other;
+      if (this.caseSignificanceConceptSequence != otherImpl.caseSignificanceConceptSequence) {
+         editDistance++;
+      }
+      if (this.descriptionTypeConceptSequence != otherImpl.descriptionTypeConceptSequence) {
+         editDistance++;
+      }
+      if (this.languageConceptSequence != otherImpl.languageConceptSequence) {
+         editDistance++;
+      }
+      if (!this.text.equals(otherImpl.text)) {
+         editDistance++;
+      }
+      return editDistance;
+   }
+
+   @Override
+   protected boolean deepEquals3(AbstractSememeVersionImpl other) {
+      if (!(other instanceof LogicGraphVersionImpl)) {
+         return false;
+      }
+      DescriptionVersionImpl otherImpl = (DescriptionVersionImpl) other;
+      if (this.caseSignificanceConceptSequence != otherImpl.caseSignificanceConceptSequence) {
+         return false;
+      }
+      if (this.descriptionTypeConceptSequence != otherImpl.descriptionTypeConceptSequence) {
+         return false;
+      }
+      if (this.languageConceptSequence != otherImpl.languageConceptSequence) {
+         return false;
+      }
+      return this.text.equals(otherImpl.text);
+   }
+   
 }
 

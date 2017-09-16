@@ -150,13 +150,17 @@ public class WriteAndCheckSememeChronicle
          updateProgress(2, 3);
          updateMessage("notifying: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
          this.changeListeners.forEach((listenerRef) -> {
-                                         final ChronologyChangeListener listener = listenerRef.get();
-
-                                         if (listener == null) {
-                                            this.changeListeners.remove(listenerRef);
-                                         } else {
-                                            listener.handleChange(this.sc);
-                                         }
+            try {
+               final ChronologyChangeListener listener = listenerRef.get();
+               
+               if (listener == null) {
+                  this.changeListeners.remove(listenerRef);
+               } else {
+                  listener.handleChange(this.sc);
+               }
+            } catch (Throwable e) {
+               e.printStackTrace();
+            }
                                       });
          updateProgress(3, 3);
          updateMessage("completed change: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());

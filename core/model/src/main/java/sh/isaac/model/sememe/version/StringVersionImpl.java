@@ -34,13 +34,9 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.model.sememe.version;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.SememeChronology;
@@ -49,23 +45,25 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.component.sememe.version.MutableStringVersion;
 import sh.isaac.api.component.sememe.version.StringVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.model.VersionImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class StringVersionImpl.
  *
  * @author kec
  */
 public class StringVersionImpl
-        extends SememeVersionImpl
-         implements StringVersion, MutableStringVersion {
-   /** The string. */
+        extends AbstractSememeVersionImpl
+        implements StringVersion, MutableStringVersion {
+
+   /**
+    * The string.
+    */
    private String string = null;
 
    //~--- constructors --------------------------------------------------------
-
    /**
     * Instantiates a new string sememe impl.
     *
@@ -86,13 +84,13 @@ public class StringVersionImpl
     * @param data the data
     */
    public StringVersionImpl(SememeChronology container,
-                           int stampSequence,
-                           short versionSequence,
-                           ByteArrayDataBuffer data) {
+           int stampSequence,
+           short versionSequence,
+           ByteArrayDataBuffer data) {
       super(container, stampSequence, versionSequence);
       this.string = data.readUTF();
    }
-   
+
    private StringVersionImpl(StringVersionImpl other, int stampSequence, short versionSequence) {
       super(other.getChronology(), stampSequence, versionSequence);
       this.string = other.getString();
@@ -101,22 +99,21 @@ public class StringVersionImpl
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       final int stampSequence = Get.stampService()
-                                   .getStampSequence(
-                                       this.getState(),
-                                       Long.MAX_VALUE,
-                                       ec.getAuthorSequence(),
-                                       this.getModuleSequence(),
-                                       ec.getPathSequence());
+              .getStampSequence(
+                      this.getState(),
+                      Long.MAX_VALUE,
+                      ec.getAuthorSequence(),
+                      this.getModuleSequence(),
+                      ec.getPathSequence());
       SememeChronologyImpl chronologyImpl = (SememeChronologyImpl) this.chronicle;
-      final StringVersionImpl newVersion = new StringVersionImpl(this, stampSequence, 
+      final StringVersionImpl newVersion = new StringVersionImpl(this, stampSequence,
               chronologyImpl.nextVersionSequence());
 
       chronologyImpl.addVersion(newVersion);
-      return (V) newVersion;   
+      return (V) newVersion;
    }
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * To string.
     *
@@ -145,7 +142,6 @@ public class StringVersionImpl
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the sememe type.
     *
@@ -167,7 +163,6 @@ public class StringVersionImpl
    }
 
    //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the string.
     *
@@ -181,6 +176,23 @@ public class StringVersionImpl
 
       this.string = string;
    }
-   
-}
 
+   @Override
+   protected int editDistance3(AbstractSememeVersionImpl other, int editDistance) {
+      StringVersionImpl otherString = (StringVersionImpl) other;
+      if (!this.string.equals(otherString.string)) {
+         editDistance++;
+      }
+      return editDistance;
+   }
+
+   @Override
+   protected boolean deepEquals3(AbstractSememeVersionImpl other) {
+      if (!(other instanceof StringVersionImpl)) {
+         return false;
+      }
+      StringVersionImpl otherString = (StringVersionImpl) other;
+      return this.string.equals(otherString.string);
+   }
+
+}

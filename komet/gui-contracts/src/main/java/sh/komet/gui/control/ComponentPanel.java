@@ -99,14 +99,18 @@ public final class ComponentPanel
                  .contradictions()
                  .forEach(
                          (contradiction) -> {
-                            versionPanels.add(new VersionPanel(manifold, contradiction, stampOrderHashMap));
+                            if (contradiction.getStampSequence() != -1) {
+                               versionPanels.add(new VersionPanel(manifold, contradiction, stampOrderHashMap));
+                            }
                          });
       }
 
       this.categorizedVersions.getHistoricVersions()
               .forEach(
                       (historicVersion) -> {
-                         versionPanels.add(new VersionPanel(manifold, historicVersion, stampOrderHashMap));
+                            if (historicVersion.getStampSequence() != -1) {
+                               versionPanels.add(new VersionPanel(manifold, historicVersion, stampOrderHashMap));
+                            }
                       });
       observableVersion.getChronology()
               .getObservableSememeList()

@@ -62,7 +62,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
  * @author kec
  */
 public class ComponentNidVersionImpl
-        extends SememeVersionImpl
+        extends AbstractSememeVersionImpl
          implements MutableComponentNidVersion {
    /** The component nid. */
    int componentNid = Integer.MAX_VALUE;
@@ -217,5 +217,25 @@ public class ComponentNidVersionImpl
    public VersionType getSememeType() {
       return VersionType.COMPONENT_NID;
    }
+   
+
+   @Override
+   protected int editDistance3(AbstractSememeVersionImpl other, int editDistance) {
+      ComponentNidVersionImpl otherImpl = (ComponentNidVersionImpl) other;
+      if (this.componentNid != otherImpl.componentNid) {
+         editDistance++;
+      }
+      return editDistance;
+   }
+
+   @Override
+   protected boolean deepEquals3(AbstractSememeVersionImpl other) {
+      if (!(other instanceof ComponentNidVersionImpl)) {
+         return false;
+      }
+      ComponentNidVersionImpl otherImpl = (ComponentNidVersionImpl) other;
+      return this.componentNid == otherImpl.componentNid;
+   }
+      
 }
 

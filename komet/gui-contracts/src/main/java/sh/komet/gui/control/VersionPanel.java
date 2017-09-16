@@ -35,10 +35,14 @@ public final class VersionPanel  extends BadgedVersionPanel {
    public VersionPanel(Manifold manifold, ObservableCategorizedVersion categorizedVersion, 
            OpenIntIntHashMap stampOrderHashMap) {
       super(manifold, categorizedVersion, stampOrderHashMap);
+      if (categorizedVersion.getStampSequence() == -1) {
+         throw new IllegalStateException("StampSequence = -1: \n" + categorizedVersion);
+      }
       revertCheckBox.setSelected(false);
       this.getStyleClass()
               .add(StyleClasses.VERSION_PANEL.toString());
       this.expandControl.setVisible(false);
+      this.addAttachmentControl.setVisible(false);
       //this.setBackground(new Background(new BackgroundFill(Color.IVORY, CornerRadii.EMPTY, Insets.EMPTY)));
    }
 

@@ -56,7 +56,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
  * @author kec
  */
 public class LongVersionImpl
-        extends SememeVersionImpl
+        extends AbstractSememeVersionImpl
          implements MutableLongVersion {
    /** The long value. */
    long longValue = Long.MAX_VALUE;
@@ -177,8 +177,26 @@ public class LongVersionImpl
     * @return the sememe type
     */
    @Override
-   public VersionType getSememeType() {
+   public final VersionType getSememeType() {
       return VersionType.LONG;
+   }
+
+   @Override
+   protected int editDistance3(AbstractSememeVersionImpl other, int editDistance) {
+      LongVersionImpl otherImpl = (LongVersionImpl) other;
+      if (this.longValue != otherImpl.longValue) {
+         editDistance++;
+      }
+      return editDistance;
+   }
+
+   @Override
+   protected boolean deepEquals3(AbstractSememeVersionImpl other) {
+      if (!(other instanceof LongVersionImpl)) {
+         return false;
+      }
+      LongVersionImpl otherImpl = (LongVersionImpl) other;
+      return this.longValue == otherImpl.longValue;
    }
 }
 

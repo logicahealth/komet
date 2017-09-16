@@ -75,7 +75,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class DynamicSememeImpl
-        extends SememeVersionImpl
+        extends AbstractSememeVersionImpl
          implements MutableDynamicVersion<DynamicSememeImpl> {
    /** The bootstrap mode. */
    private static boolean bootstrapMode = Get.configurationService()
@@ -340,5 +340,26 @@ public class DynamicSememeImpl
    public VersionType getSememeType() {
       return VersionType.DYNAMIC;
    }
+   
+   
+
+   @Override
+   protected int editDistance3(AbstractSememeVersionImpl other, int editDistance) {
+      DynamicSememeImpl otherImpl = (DynamicSememeImpl) other;
+      if (!Arrays.equals(this.data, otherImpl.data)) {
+         editDistance++;
+      }
+      return editDistance;
+   }
+
+   @Override
+   protected boolean deepEquals3(AbstractSememeVersionImpl other) {
+      if (!(other instanceof DynamicSememeImpl)) {
+         return false;
+      }
+      DynamicSememeImpl otherImpl = (DynamicSememeImpl) other;
+      return Arrays.equals(this.data, otherImpl.data);
+   }
+   
 }
 

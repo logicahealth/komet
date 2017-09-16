@@ -18,7 +18,6 @@ package sh.isaac.model.observable.version;
 
 import java.util.List;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
@@ -60,7 +59,7 @@ public class ObservableComponentNidVersionImpl
       ComponentNidVersion newVersion = this.stampedVersion.makeAnalog(ec);
       ObservableComponentNidVersionImpl newObservableVersion = 
               new ObservableComponentNidVersionImpl(newVersion, (ObservableSememeChronology) chronology);
-      ((ObservableChronologyImpl) chronology).getObservableVersionList().add(newObservableVersion);
+      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
    }
 
@@ -95,11 +94,19 @@ public class ObservableComponentNidVersionImpl
     */
    @Override
    public int getComponentNid() {
+      super.updateVersion();
       if (this.componentNidProperty != null) {
          return this.componentNidProperty.get();
       }
 
       return ((ComponentNidVersionImpl) this.stampedVersion).getComponentNid();
+   }
+
+   @Override
+   protected void updateVersion() {
+      if (this.componentNidProperty != null && this.componentNidProperty.get() != ((ComponentNidVersionImpl) this.stampedVersion).getComponentNid()) {
+         this.componentNidProperty.set(((ComponentNidVersionImpl) this.stampedVersion).getComponentNid());
+      }
    }
 
    //~--- set methods ---------------------------------------------------------

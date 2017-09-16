@@ -45,9 +45,7 @@ package sh.isaac.api.observable.concept;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ListProperty;
 
-import javafx.collections.ObservableList;
 
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -57,7 +55,6 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
@@ -69,12 +66,6 @@ import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
  */
 public interface ObservableConceptChronology
         extends ObservableChronology, ConceptChronology {
-   /**
-    * Concept description list property.
-    *
-    * @return the list property
-    */
-   ListProperty<ObservableSememeChronology> conceptDescriptionListProperty();
 
    /**
     * Concept sequence property.
@@ -92,13 +83,6 @@ public interface ObservableConceptChronology
     */
    boolean containsActiveDescription(String descriptionText, StampCoordinate stampCoordinate);
 
-   /**
-    * A test for validating that a concept contains a description. Used
-    * to validate concept proxies or concept specs at runtime.
-    * @param descriptionText text to match against.
-    * @return true if any version of a description matches this text.
-    */
-   boolean containsDescription(String descriptionText);
 
    /**
     * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
@@ -106,6 +90,7 @@ public interface ObservableConceptChronology
     * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version.
     * @return the mutable version
     */
+   @Override
    ObservableConceptVersion createMutableVersion(int stampSequence);
 
    /**
@@ -117,24 +102,10 @@ public interface ObservableConceptChronology
     * @param ec edit coordinate to provide the author, module, and path for the mutable version
     * @return the mutable version
     */
+   @Override
    ObservableConceptVersion createMutableVersion(State state, EditCoordinate ec);
 
    //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the concept description list.
-    *
-    * @return the concept description list
-    */
-   ObservableList<ObservableSememeChronology> getDescriptions();
-
-   /**
-    * Gets the concept sequence.
-    *
-    * @return the sequence of this concept. A contiguously assigned identifier for
-    * concepts >= 0;
-    */
-   int getConceptSequence();
 
    /**
     * Gets the fully specified description.

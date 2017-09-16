@@ -64,6 +64,7 @@ import sh.isaac.model.sememe.version.SememeVersionImpl;
 import sh.isaac.model.sememe.version.StringVersionImpl;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.model.sememe.version.AbstractSememeVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -160,7 +161,7 @@ public class SememeChronologyImpl extends ChronologyImpl
     * @param bb the bb
     * @return the sememe version impl
     */
-   public static SememeVersionImpl createSememe(byte token,
+   public static AbstractSememeVersionImpl createSememe(byte token,
          SememeChronologyImpl container,
          int stampSequence,
          short versionSequence,

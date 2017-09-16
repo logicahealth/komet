@@ -45,6 +45,7 @@ import java.util.List;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.sememe.version.MutableStringVersion;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
@@ -87,7 +88,7 @@ public class ObservableSememeVersionImpl
       SememeVersion newVersion = this.stampedVersion.makeAnalog(ec);
       ObservableSememeVersionImpl newObservableVersion = 
               new ObservableSememeVersionImpl(newVersion, (ObservableSememeChronology) chronology);
-      ((ObservableChronologyImpl) chronology).getObservableVersionList().add(newObservableVersion);
+      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
    }
 
@@ -141,7 +142,7 @@ public class ObservableSememeVersionImpl
     */
    @Override
    public int getAssemblageSequence() {
-      return ((SememeVersionImpl) this.stampedVersion).getAssemblageSequence();
+      return ((SememeVersion) this.stampedVersion).getAssemblageSequence();
    }
 
    /**
@@ -173,5 +174,11 @@ public class ObservableSememeVersionImpl
    public int getSememeSequence() {
       return ((SememeVersion) this.stampedVersion).getSememeSequence();
    }
+   @Override
+   protected void updateVersion() {
+      // nothing to update
+      // only read-only values in this subclass. 
+   }
+   
 }
 

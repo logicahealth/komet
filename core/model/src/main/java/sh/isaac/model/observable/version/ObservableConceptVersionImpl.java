@@ -75,8 +75,13 @@ public class ObservableConceptVersionImpl
       ConceptVersion newVersion = this.stampedVersion.makeAnalog(ec);
       ObservableConceptVersionImpl newObservableVersion = 
               new ObservableConceptVersionImpl(newVersion, (ObservableConceptChronology) chronology);
-      ((ObservableChronologyImpl) chronology).getObservableVersionList().add(newObservableVersion);
+      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
+   }
+
+   @Override
+   protected void updateVersion() {
+      // nothing to update. 
    }
 
 

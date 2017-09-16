@@ -47,8 +47,6 @@ package sh.isaac.model.observable;
 import java.util.List;
 import java.util.Optional;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleListProperty;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -71,6 +69,7 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
@@ -85,9 +84,6 @@ public class ObservableConceptChronologyImpl
          implements ObservableConceptChronology {
    /** The concept sequence property. */
    private IntegerProperty conceptSequenceProperty;
-
-   /** The description list property. */
-   private ListProperty<ObservableSememeChronology> descriptionListProperty;
 
    //~--- constructors --------------------------------------------------------
 
@@ -105,32 +101,6 @@ public class ObservableConceptChronologyImpl
    }
 
    //~--- methods -------------------------------------------------------------
-
-   /**
-    * Concept description list property.
-    *
-    * @return the list property
-    */
-   @Override
-   public ListProperty<ObservableSememeChronology> conceptDescriptionListProperty() {
-      if (this.descriptionListProperty == null) {
-         final ObservableList<ObservableSememeChronology> observableList =
-            FXCollections.observableArrayList();
-
-         this.descriptionListProperty =
-            new SimpleListProperty<>(this,
-                  ObservableFields.DESCRIPTION_LIST_FOR_CONCEPT.toExternalString(),
-                  observableList);
-         this.getConceptChronology().getConceptDescriptionList().stream().forEach((conceptDescriptionChronicle) -> {
-                                               final ObservableSememeChronologyImpl observableConceptDescriptionChronicle =
-                                                  new ObservableSememeChronologyImpl(conceptDescriptionChronicle);
-
-                                               observableList.add(observableConceptDescriptionChronicle);
-                                            });
-      }
-
-      return this.descriptionListProperty;
-   }
 
    /**
     * Concept sequence property.
@@ -171,6 +141,11 @@ public class ObservableConceptChronologyImpl
       return this.getConceptChronology().containsDescription(descriptionText);
    }
 
+   @Override
+   protected <OV extends ObservableVersion> OV wrapInObservable(Version version) {
+      return (OV) new ObservableConceptVersionImpl((ConceptVersion) version, this);
+   }
+
    /**
     * Creates the mutable version.
     *
@@ -197,16 +172,6 @@ public class ObservableConceptChronologyImpl
    }
 
    //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the concept description list.
-    *
-    * @return the concept description list
-    */
-   @Override
-   public ObservableList<ObservableSememeChronology> getDescriptions() {
-      return conceptDescriptionListProperty().get();
-   }
 
    /**
     * Gets the concept sequence.
@@ -246,7 +211,7 @@ public class ObservableConceptChronologyImpl
     * @return the observable version list
     */
    @Override
-   public ObservableList<ObservableConceptVersionImpl> getObservableVersionList() {
+   protected ObservableList<ObservableConceptVersionImpl> getObservableVersionList() {
       final ObservableList<ObservableConceptVersionImpl> observableList = FXCollections.observableArrayList();
 
       this.chronicledObjectLocal.getVersionList().stream().forEach((conceptVersion) -> {

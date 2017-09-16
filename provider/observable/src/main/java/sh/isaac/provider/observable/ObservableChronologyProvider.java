@@ -38,6 +38,7 @@ package sh.isaac.provider.observable;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.UUID;
+import javafx.application.Platform;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -51,6 +52,7 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
@@ -77,7 +79,7 @@ import sh.isaac.model.observable.ObservableSememeChronologyWeakRefImpl;
  * @author kec
  */
 @Service
-@RunLevel(value = 1)
+@RunLevel(value = 2)
 public class ObservableChronologyProvider
         implements ObservableChronologyService, ChronologyChangeListener {
 
@@ -105,7 +107,7 @@ public class ObservableChronologyProvider
    ConcurrentReferenceHashMap<Integer, ObservableSememeChronology> observableSememeMap
            = new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
                    ConcurrentReferenceHashMap.ReferenceType.WEAK);
-   
+
    final ObservableChronologyConcreteClassProvider concreteProvider;
 
    //~--- constructors --------------------------------------------------------
@@ -125,12 +127,14 @@ public class ObservableChronologyProvider
     * @param cc the cc
     */
    @Override
-   public void handleChange(ConceptChronology cc) {
+   public void handleChange(final ConceptChronology cc) {
+      Platform.runLater(() -> {
       final ObservableConceptChronology occ = this.observableConceptMap.get(cc.getNid());
 
       if (occ != null) {
          occ.handleChange(cc);
       }
+      });
    }
 
    /**
@@ -139,41 +143,44 @@ public class ObservableChronologyProvider
     * @param sc the sc
     */
    @Override
-   public void handleChange(SememeChronology sc) {
-      final ObservableSememeChronology osc = this.observableSememeMap.get(sc.getNid());
+   public void handleChange(final SememeChronology sc) {
+      Platform.runLater(() -> {
+         final ObservableSememeChronology osc = this.observableSememeMap.get(sc.getNid());
 
-      if (osc != null) {
-         osc.handleChange(sc);
-      }
+         if (osc != null) {
+            osc.handleChange(sc);
+         }
 
-      final ObservableConceptChronology assemblageOcc = this.observableConceptMap.get(sc.getAssemblageSequence());
+         final ObservableConceptChronology assemblageOcc = this.observableConceptMap.get(sc.getAssemblageSequence());
 
-      if (assemblageOcc != null) {
-         assemblageOcc.handleChange(sc);
-      }
+         if (assemblageOcc != null) {
+            assemblageOcc.handleChange(sc);
+         }
 
-      // handle referenced component
-      // Concept, description, or sememe
-      final ObjectChronologyType oct = Get.identifierService()
-              .getChronologyTypeForNid(sc.getReferencedComponentNid());
-      ChronologyChangeListener referencedComponent = null;
+         // handle referenced component
+         // Concept, description, or sememe
+         final ObjectChronologyType oct = Get.identifierService()
+                 .getChronologyTypeForNid(sc.getReferencedComponentNid());
+         ChronologyChangeListener referencedComponent = null;
 
-      switch (oct) {
-         case CONCEPT:
-            referencedComponent = this.observableConceptMap.get(sc.getReferencedComponentNid());
-            break;
+         switch (oct) {
+            case CONCEPT:
+               referencedComponent = this.observableConceptMap.get(sc.getReferencedComponentNid());
+               break;
 
-         case SEMEME:
-            referencedComponent = this.observableSememeMap.get(sc.getReferencedComponentNid());
-            break;
+            case SEMEME:
+               referencedComponent = this.observableSememeMap.get(sc.getReferencedComponentNid());
+               break;
 
-         default:
-            throw new UnsupportedOperationException("Can't handle: " + oct);
-      }
+            default:
+               throw new UnsupportedOperationException("Can't handle: " + oct);
+         }
 
-      if (referencedComponent != null) {
-         referencedComponent.handleChange(sc);
-      }
+         if (referencedComponent != null) {
+            referencedComponent.handleChange(sc);
+         }
+      });
+
    }
 
    /**
@@ -183,8 +190,20 @@ public class ObservableChronologyProvider
     */
    @Override
    public void handleCommit(CommitRecord commitRecord) {
-      // TODO implement handle commit...
-      LOG.error("Observable handleCommit() not implemented");
+      IdentifierService identifierService = Get.identifierService();
+      commitRecord.getConceptsInCommit().stream().forEach((conceptSequence) -> {
+         int nid = identifierService.getConceptNid(conceptSequence);
+         if (this.observableConceptMap.containsKey(nid)) {
+            handleChange(Get.concept(nid));
+         }
+      });
+      commitRecord.getSememesInCommit().stream().forEach((sememeSequence) -> {
+         int nid = identifierService.getSememeNid(sememeSequence);
+         if (this.observableSememeMap.containsKey(nid)) {
+            handleChange(Get.assemblageService().getSememe(nid));
+         }
+      });
+      LOG.info("ObservableChronologyProvider handled commit");
    }
 
    /**
@@ -193,6 +212,7 @@ public class ObservableChronologyProvider
    @PostConstruct
    private void startMe() {
       LOG.info("Starting ObservableChronologyProvider post-construct");
+      Get.commitService().addChangeListener(this);
    }
 
    /**
@@ -201,6 +221,7 @@ public class ObservableChronologyProvider
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping ObservableChronologyProvider");
+      Get.commitService().removeChangeListener(this);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -249,7 +270,7 @@ public class ObservableChronologyProvider
    @Override
    public ObservableSememeChronology getObservableSememeChronology(int id) {
       return new ObservableSememeChronologyWeakRefImpl(id, concreteProvider);
-    }
+   }
 
    @Override
    public ObservableSnapshotService getObservableSnapshotService(ManifoldCoordinate manifoldCoordinate) {

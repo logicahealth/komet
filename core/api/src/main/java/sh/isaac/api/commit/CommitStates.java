@@ -45,10 +45,13 @@ package sh.isaac.api.commit;
  * @author kec
  */
 public enum CommitStates {
-   /** The committed. */
+   /** Committed commit state. */
    COMMITTED,
 
-   /** The uncommitted. */
-   UNCOMMITTED;
+   /** Uncommitted commit state. */
+   UNCOMMITTED,
+   
+   /** Canceled commit state. */
+   CANCELED;
 }
 

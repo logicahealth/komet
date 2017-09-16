@@ -97,5 +97,17 @@ public class ConceptVersionImpl
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;   
    }
+
+   @Override
+   protected final boolean deepEquals2(VersionImpl other) {
+      // no additional fields to check. 
+      return true;
+   }
+
+   @Override
+   protected int editDistance2(VersionImpl other, int editDistance) {
+      // no additional fields to add.
+      return editDistance;
+   }
 }
 

@@ -55,16 +55,6 @@ public interface ObservableConceptService
     * @return the concept chronology associated with the identifier.
     */
    ObservableConceptChronology getConcept(int conceptId);
-   
-   /**
-    * Gets the list of descriptions for a concept.
-    *
-    * @param conceptId either a concept sequence or a concept nid.
-    * @return the list of descriptions.
-    */
-   default ObservableList<ObservableSememeChronology> getConceptDescriptions(int conceptId) {
-      return getConcept(conceptId).getDescriptions();
-   }
 
    /**
     * Gets the concept.

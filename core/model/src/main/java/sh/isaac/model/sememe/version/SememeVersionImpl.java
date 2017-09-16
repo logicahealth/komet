@@ -45,7 +45,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.sememe.version.MutableSememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.VersionImpl;
@@ -59,8 +58,7 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  * @author kec
  */
 public class SememeVersionImpl
-        extends VersionImpl
-         implements MutableSememeVersion {
+        extends AbstractSememeVersionImpl {
    /**
     * Instantiates a new sememe version impl.
     *
@@ -119,54 +117,26 @@ public class SememeVersionImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the assemblage sequence.
-    *
-    * @return the assemblage sequence
-    */
-   @Override
-   public final int getAssemblageSequence() {
-      return getChronology().getAssemblageSequence();
-   }
-
-   /**
-    * Gets the chronology.
-    *
-    * @return the chronology
-    */
-   @Override
-   public SememeChronology getChronology() {
-      return (SememeChronology) this.chronicle;
-   }
-
-   /**
-    * Gets the referenced component nid.
-    *
-    * @return the referenced component nid
-    */
-   @Override
-   public int getReferencedComponentNid() {
-      return getChronology().getReferencedComponentNid();
-   }
-
-   /**
-    * Gets the sememe sequence.
-    *
-    * @return the sememe sequence
-    */
-   @Override
-   public int getSememeSequence() {
-      return getChronology().getSememeSequence();
-   }
-
-   /**
     * Gets the sememe type.
     *
     * @return the sememe type
     */
-   public VersionType getSememeType() {
+   @Override
+   public final VersionType getSememeType() {
       return VersionType.MEMBER;
    }
+   
+   @Override
+   protected final boolean deepEquals3(AbstractSememeVersionImpl other) {
+      // no new fields
+      return other instanceof SememeVersionImpl;
+   }
 
-   ;
+   @Override
+   protected final int editDistance3(AbstractSememeVersionImpl other, int editDistance) {
+      // no new fields
+      return editDistance;
+   }
+   
 }
 

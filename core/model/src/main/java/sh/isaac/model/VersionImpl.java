@@ -34,18 +34,13 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.model;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.List;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.Chronology;
@@ -54,25 +49,30 @@ import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class VersionImpl.
  *
  * @author kec
  */
 public abstract class VersionImpl
-         implements Version {
-   /** The chronicle. */
+        implements Version {
+
+   /**
+    * The chronicle.
+    */
    protected final Chronology chronicle;
 
-   /** The stamp sequence. */
+   /**
+    * The stamp sequence.
+    */
    private int stampSequence;
 
-   /** The version sequence. */
+   /**
+    * The version sequence.
+    */
    private short versionSequence;
 
    //~--- constructors --------------------------------------------------------
-
    /**
     * Instantiates a new object version impl.
     *
@@ -81,13 +81,12 @@ public abstract class VersionImpl
     * @param versionSequence the version sequence
     */
    public VersionImpl(Chronology chronicle, int stampSequence, short versionSequence) {
-      this.chronicle       = chronicle;
-      this.stampSequence   = stampSequence;
+      this.chronicle = chronicle;
+      this.stampSequence = stampSequence;
       this.versionSequence = versionSequence;
    }
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * Cancel.
     */
@@ -100,7 +99,9 @@ public abstract class VersionImpl
    }
 
    /**
-    * Equals.
+    * Equals uses just STAMP comparison for fast evaluation, which works form committed versions, and most other cases.
+    * For more complete evaluation, use deepEquals.
+    *
     *
     * @param obj the obj
     * @return true, if successful
@@ -127,6 +128,60 @@ public abstract class VersionImpl
 
       return this.chronicle.getNid() == other.chronicle.getNid();
    }
+
+   /**
+    * DeepEquals considers all fields, not just the stamp and the assumptions that the commit manager will not allow
+    * more one version for a given stamp. This extra consideration is necessary to support uncommitted versions, that
+    * may change in a multi-user environment, including that an individual author may make changes on more than one path
+    * at a time.
+    *
+    * @param other the object to compare.
+    * @return true if all fields are equal, otherwise false.
+    */
+   public final boolean deepEquals(Object other) {
+      if (!(other instanceof VersionImpl)) {
+         return false;
+      }
+      VersionImpl otherVersion = (VersionImpl) other;
+      if (this.stampSequence != otherVersion.stampSequence) {
+         return false;
+      }
+      return deepEquals2(otherVersion);
+   }
+
+   protected abstract boolean deepEquals2(VersionImpl other);
+
+   /**
+    * A representation of how different two versions are from each other. The author field is weighted such that a
+    * difference of author is considered greater than all the other fields combined. Edit distance is always positive.
+    *
+    * @param other the version to compute the edit distance with respect to.
+    * @return the edit distance.
+    */
+   public int editDistance(VersionImpl other) {
+      int editDistance = 0;
+      if (this.getState() != other.getState()) {
+         editDistance++;
+      }
+      if (this.getTime() != other.getTime()) {
+         editDistance++;
+      }
+      if (this.getAuthorSequence() != other.getAuthorSequence()) {
+         // weight author to overwhelm all others... 
+         editDistance = editDistance + 1000;
+      }
+      if (this.getModuleSequence() != other.getModuleSequence()) {
+         // weight module to overwhelm all except author... 
+         editDistance = editDistance + 100;
+      }
+      if (this.getPathSequence() != other.getPathSequence()) {
+         // weight path... 
+         editDistance = editDistance + 10;
+      }
+      return editDistance2(other, editDistance);
+   }
+
+   protected abstract int editDistance2(VersionImpl other, int editDistance);
 
    /**
     * Hash code.
@@ -159,8 +214,8 @@ public abstract class VersionImpl
     */
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
-             .append(Get.stampService()
-                        .describeStampSequence(this.stampSequence));
+              .append(Get.stampService()
+                      .describeStampSequence(this.stampSequence));
       return builder;
    }
 
@@ -180,7 +235,7 @@ public abstract class VersionImpl
     * @throws RuntimeException the runtime exception
     */
    protected void checkUncommitted()
-            throws RuntimeException {
+           throws RuntimeException {
       if (!this.isUncommitted()) {
          throw new RuntimeException("Component is already committed");
       }
@@ -197,7 +252,6 @@ public abstract class VersionImpl
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the author sequence.
     *
@@ -206,11 +260,10 @@ public abstract class VersionImpl
    @Override
    public int getAuthorSequence() {
       return Get.stampService()
-                .getAuthorSequenceForStamp(this.stampSequence);
+              .getAuthorSequenceForStamp(this.stampSequence);
    }
 
    //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the author sequence.
     *
@@ -218,17 +271,18 @@ public abstract class VersionImpl
     */
    @Override
    public void setAuthorSequence(int authorSequence) {
-      checkUncommitted();
-      this.stampSequence = Get.stampService()
-                              .getStampSequence(getState(),
-                                    getTime(),
-                                    authorSequence,
-                                    getModuleSequence(),
-                                    getPathSequence());
+      if (this.stampSequence != -1) {
+         checkUncommitted();
+         this.stampSequence = Get.stampService()
+                 .getStampSequence(getState(),
+                         getTime(),
+                         authorSequence,
+                         getModuleSequence(),
+                         getPathSequence());
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the commit state.
     *
@@ -251,11 +305,10 @@ public abstract class VersionImpl
    @Override
    public int getModuleSequence() {
       return Get.stampService()
-                .getModuleSequenceForStamp(this.stampSequence);
+              .getModuleSequenceForStamp(this.stampSequence);
    }
 
    //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the module sequence.
     *
@@ -263,14 +316,17 @@ public abstract class VersionImpl
     */
    @Override
    public void setModuleSequence(int moduleSequence) {
-      checkUncommitted();
-      this.stampSequence = Get.stampService()
-                              .getStampSequence(getState(),
-                                    getTime(),
-                                    getAuthorSequence(),
-                                    moduleSequence,
-                                    getPathSequence());
+      if (this.stampSequence != -1) {
+         checkUncommitted();
+         this.stampSequence = Get.stampService()
+                 .getStampSequence(getState(),
+                         getTime(),
+                         getAuthorSequence(),
+                         moduleSequence,
+                         getPathSequence());
+      }
    }
+
    /**
     * Sets the state.
     *
@@ -278,17 +334,18 @@ public abstract class VersionImpl
     */
    @Override
    public void setStatus(State state) {
-      checkUncommitted();
-      this.stampSequence = Get.stampService()
-                              .getStampSequence(state,
-                                    getTime(),
-                                    getAuthorSequence(),
-                                    getModuleSequence(),
-                                    getPathSequence());
+      if (this.stampSequence != -1) {
+         checkUncommitted();
+         this.stampSequence = Get.stampService()
+                 .getStampSequence(state,
+                         getTime(),
+                         getAuthorSequence(),
+                         getModuleSequence(),
+                         getPathSequence());
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the nid.
     *
@@ -307,11 +364,10 @@ public abstract class VersionImpl
    @Override
    public int getPathSequence() {
       return Get.stampService()
-                .getPathSequenceForStamp(this.stampSequence);
+              .getPathSequenceForStamp(this.stampSequence);
    }
 
    //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the path sequence.
     *
@@ -319,17 +375,18 @@ public abstract class VersionImpl
     */
    @Override
    public void setPathSequence(int pathSequence) {
-      checkUncommitted();
-      this.stampSequence = Get.stampService()
-                              .getStampSequence(getState(),
-                                    getTime(),
-                                    getAuthorSequence(),
-                                    getModuleSequence(),
-                                    pathSequence);
+      if (this.stampSequence != -1) {
+         checkUncommitted();
+         this.stampSequence = Get.stampService()
+                 .getStampSequence(getState(),
+                         getTime(),
+                         getAuthorSequence(),
+                         getModuleSequence(),
+                         pathSequence);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the primordial uuid.
     *
@@ -358,7 +415,7 @@ public abstract class VersionImpl
    @Override
    public State getState() {
       return Get.stampService()
-                .getStatusForStamp(this.stampSequence);
+              .getStatusForStamp(this.stampSequence);
    }
 
    /**
@@ -369,11 +426,10 @@ public abstract class VersionImpl
    @Override
    public long getTime() {
       return Get.stampService()
-                .getTimeForStamp(this.stampSequence);
+              .getTimeForStamp(this.stampSequence);
    }
 
    //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the time.
     *
@@ -381,17 +437,18 @@ public abstract class VersionImpl
     */
    @Override
    public void setTime(long time) {
-      checkUncommitted();
-      this.stampSequence = Get.stampService()
-                              .getStampSequence(getState(),
-                                    time,
-                                    getAuthorSequence(),
-                                    getModuleSequence(),
-                                    getPathSequence());
+      if (this.stampSequence != -1) {
+         checkUncommitted();
+         this.stampSequence = Get.stampService()
+                 .getStampSequence(getState(),
+                         time,
+                         getAuthorSequence(),
+                         getModuleSequence(),
+                         getPathSequence());
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Checks if uncommitted.
     *
@@ -422,7 +479,6 @@ public abstract class VersionImpl
    }
 
    //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the version sequence.
     *
@@ -432,4 +488,3 @@ public abstract class VersionImpl
       this.versionSequence = versionSequence;
    }
 }
-

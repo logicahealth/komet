@@ -264,8 +264,10 @@ public class StampProvider
 
    @Override
    public String describeStampSequenceForTooltip(int stampSequence, ManifoldCoordinate manifoldCoordinate) {
+      if (stampSequence == -1) {
+         return "CANCELED";
+      }
       final StringBuilder sb = new StringBuilder();
-
       sb.append("S: ");
       final State status = getStatusForStamp(stampSequence);
 

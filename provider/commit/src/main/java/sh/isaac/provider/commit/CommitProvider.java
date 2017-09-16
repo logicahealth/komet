@@ -128,6 +128,8 @@ import sh.isaac.model.VersionImpl;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -300,6 +302,9 @@ public class CommitProvider
     */
    @Override
    public Task<Void> addUncommitted(ConceptChronology cc) {
+      if (cc instanceof ObservableChronologyImpl) {
+         cc = (ConceptChronology) ((ObservableChronologyImpl) cc).getWrappedChronology();
+      }
       return checkAndWrite(cc,
                            this.checkers,
                            this.alertCollection,
@@ -315,6 +320,9 @@ public class CommitProvider
     */
    @Override
    public Task<Void> addUncommitted(SememeChronology sc) {
+      if (sc instanceof ObservableChronologyImpl) {
+         sc = (SememeChronology) ((ObservableChronologyImpl) sc).getWrappedChronology();
+      }
       return checkAndWrite(sc,
                            this.checkers,
                            this.alertCollection,
@@ -330,6 +338,9 @@ public class CommitProvider
     */
    @Override
    public Task<Void> addUncommittedNoChecks(ConceptChronology cc) {
+      if (cc instanceof ObservableChronologyImpl) {
+         cc = (ConceptChronology) ((ObservableChronologyImpl) cc).getWrappedChronology();
+      }
       return write(cc, this.writePermitReference.get(), this.changeListeners);
    }
 
@@ -341,6 +352,9 @@ public class CommitProvider
     */
    @Override
    public Task<Void> addUncommittedNoChecks(SememeChronology sc) {
+      if (sc instanceof ObservableChronologyImpl) {
+         sc = (SememeChronology) ((ObservableChronologyImpl) sc).getWrappedChronology();
+      }
       return write(sc, this.writePermitReference.get(), this.changeListeners);
    }
 
@@ -363,6 +377,9 @@ public class CommitProvider
     */
    @Override
    public Task<Void> cancel(ConceptChronology cc) {
+      if (cc instanceof ObservableChronologyImpl) {
+         cc = (ConceptChronology) ((ObservableChronologyImpl) cc).getWrappedChronology();
+      }
       return cancel(cc, Get.configurationService()
                            .getDefaultEditCoordinate());
    }
@@ -387,6 +404,9 @@ public class CommitProvider
     */
    @Override
    public Task<Void> cancel(SememeChronology sememeChronicle) {
+      if (sememeChronicle instanceof ObservableChronologyImpl) {
+         sememeChronicle = (SememeChronology) ((ObservableChronologyImpl) sememeChronicle).getWrappedChronology();
+      }
       return cancel(sememeChronicle, Get.configurationService()
                                         .getDefaultEditCoordinate());
    }
@@ -400,8 +420,10 @@ public class CommitProvider
     */
    @Override
    public Task<Void> cancel(Chronology chronicle, EditCoordinate editCoordinate) {
+      if (chronicle instanceof ObservableChronologyImpl) {
+         chronicle = ((ObservableChronologyImpl) chronicle).getWrappedChronology();
+      }
       final List<Version> versionList   = chronicle.getVersionList();
-
       for (final Version version: versionList) {
          if (version.isUncommitted()) {
             if (version.getAuthorSequence() == editCoordinate.getAuthorSequence()) {
@@ -419,7 +441,7 @@ public class CommitProvider
 
       if (chronicle instanceof ConceptChronology) {
          final ConceptChronology conceptChronology = (ConceptChronology) chronicle;
-
+         
          if (this.uncommittedConceptsNoChecksSequenceSet.contains(conceptChronology.getConceptSequence())) {
             subTasks.add(addUncommittedNoChecks(conceptChronology));
          }
@@ -501,6 +523,9 @@ public class CommitProvider
     */
    @Override
    public Task<Optional<CommitRecord>> commit(ConceptChronology cc, String commitComment) {
+      if (cc instanceof ObservableChronologyImpl) {
+         cc = (ConceptChronology) ((ObservableChronologyImpl) cc).getWrappedChronology();
+      }
       return commit(cc, Get.configurationService()
                            .getDefaultEditCoordinate(), commitComment);
    }
@@ -560,6 +585,9 @@ public class CommitProvider
     */
    @Override
    public Task<Optional<CommitRecord>> commit(SememeChronology cc, String commitComment) {
+      if (cc instanceof ObservableChronologyImpl) {
+         cc = (SememeChronology) ((ObservableChronologyImpl) cc).getWrappedChronology();
+      }
       return commit(cc, Get.configurationService()
                            .getDefaultEditCoordinate(), commitComment);
    }
@@ -581,9 +609,12 @@ public class CommitProvider
       // global seq number, should a write be done on the provider?
       // This also doesn't safely copy the uncommitted lists before using them.
       // TODO I think this needs to be rewritten to use the CommitTask - but need to understand these issues first.
-      // This also doesn't update the stamp provider...
+      // This method doesn't update the observable provider properly...
       CommitRecord     commitRecord = null;
       final Set<Alert> alerts       = new HashSet<>();
+      if (chronicle instanceof ObservableChronologyImpl) {
+         chronicle = ((ObservableChronologyImpl) chronicle).getWrappedChronology();
+      }
 
       if (chronicle instanceof ConceptChronology) {
          final ConceptChronology conceptChronology = (ConceptChronology) chronicle;
@@ -920,6 +951,9 @@ public class CommitProvider
     * @param changeCheckerActive the change checker active
     */
    private void handleUncommittedSequenceSet(Chronology sememeOrConceptChronicle, boolean changeCheckerActive) {
+      if (sememeOrConceptChronicle instanceof ObservableChronologyImpl) {
+         sememeOrConceptChronicle = ((ObservableChronologyImpl) sememeOrConceptChronicle).getWrappedChronology();
+      }
       try {
          this.uncommittedSequenceLock.lock();
 

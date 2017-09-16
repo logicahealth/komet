@@ -125,13 +125,17 @@ public class WriteSememeChronicle
          updateProgress(1, 2);
          updateMessage("notifying: " + this.sc.getAssemblageSequence());
          this.changeListeners.forEach((listenerRef) -> {
-                                         final ChronologyChangeListener listener = listenerRef.get();
-
-                                         if (listener == null) {
-                                            this.changeListeners.remove(listenerRef);
-                                         } else {
-                                            listener.handleChange(this.sc);
-                                         }
+            try {
+               final ChronologyChangeListener listener = listenerRef.get();
+               
+               if (listener == null) {
+                  this.changeListeners.remove(listenerRef);
+               } else {
+                  listener.handleChange(this.sc);
+               }
+            } catch (Throwable e) {
+               e.printStackTrace();
+            }
                                       });
          updateProgress(2, 2);
          updateMessage("complete: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());

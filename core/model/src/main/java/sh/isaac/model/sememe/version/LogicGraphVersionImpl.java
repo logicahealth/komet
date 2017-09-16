@@ -41,6 +41,7 @@ package sh.isaac.model.sememe.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.Arrays;
 import org.glassfish.hk2.api.MultiException;
 
 import sh.isaac.api.DataSource;
@@ -65,7 +66,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
  * @author kec
  */
 public class LogicGraphVersionImpl
-        extends SememeVersionImpl
+        extends AbstractSememeVersionImpl
          implements MutableLogicGraphVersion {
    /** The converter. */
    private static LogicalExpressionByteArrayConverter converter;
@@ -267,5 +268,25 @@ public class LogicGraphVersionImpl
    public VersionType getSememeType() {
       return VersionType.LOGIC_GRAPH;
    }
+   
+
+   @Override
+   protected int editDistance3(AbstractSememeVersionImpl other, int editDistance) {
+      LogicGraphVersionImpl otherImpl = (LogicGraphVersionImpl) other;
+      if (!Arrays.deepEquals(this.graphData, otherImpl.graphData)) {
+         editDistance++;
+      }
+      return editDistance;
+   }
+
+   @Override
+   protected boolean deepEquals3(AbstractSememeVersionImpl other) {
+      if (!(other instanceof LogicGraphVersionImpl)) {
+         return false;
+      }
+      LogicGraphVersionImpl otherImpl = (LogicGraphVersionImpl) other;
+      return Arrays.deepEquals(this.graphData, otherImpl.graphData);
+   }
+   
 }
 

@@ -161,10 +161,17 @@ public abstract class BadgedVersionPanel
               .addListener(this::textLayoutChanged);
       componentText.layoutBoundsProperty().addListener(this::debugTextLayoutListener);
       isInactive.set(this.categorizedVersion.getState() != State.ACTIVE);
-      this.stampControl.setStampedVersion(
+      if (stampOrderHashMap.containsKey(categorizedVersion.getStampSequence())) {
+         this.stampControl.setStampedVersion(
               categorizedVersion.getStampSequence(),
               manifold,
               stampOrderHashMap.get(categorizedVersion.getStampSequence()));
+      } else {
+         this.stampControl.setStampedVersion(
+              categorizedVersion.getStampSequence(),
+              manifold,
+              -1);
+      }
       badges.add(this.stampControl);
       this.widthProperty()
               .addListener(this::widthChanged);
@@ -179,7 +186,7 @@ public abstract class BadgedVersionPanel
               .setAll(StyleClasses.EDIT_COMPONENT_BUTTON.toString());
       editControl.getItems().addAll(getEditMenuItems());
       editControl.setVisible(!editControl.getItems().isEmpty());
-      
+
       cancelButton.getStyleClass()
               .add(StyleClasses.CANCEL_BUTTON.toString());
       cancelButton.setOnAction(this::cancel);
@@ -202,38 +209,42 @@ public abstract class BadgedVersionPanel
          setupOther(observableVersion);
       }
    }
-   
+
    private void cancel(ActionEvent event) {
       System.out.println("cancel");
       if (optionalPropertySheetMenuItem.isPresent()) {
          PropertySheetMenuItem item = optionalPropertySheetMenuItem.get();
          item.cancel();
-         cancelButton.setVisible(false);
-         commitButton.setVisible(false);
-         gridpane.getChildren().remove(item.getPropertySheet());
-         optionalPropertySheetMenuItem = Optional.empty();
-         pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
-         editControl.getItems().setAll(getEditMenuItems());
-         editControl.setVisible(!editControl.getItems().isEmpty());
-        redoLayout();
-      } 
+         Platform.runLater(() -> {
+            cancelButton.setVisible(false);
+            commitButton.setVisible(false);
+            gridpane.getChildren().remove(item.getPropertySheet());
+            optionalPropertySheetMenuItem = Optional.empty();
+            pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
+            editControl.getItems().setAll(getEditMenuItems());
+            editControl.setVisible(!editControl.getItems().isEmpty());
+            redoLayout();
+         });
+      }
    }
-   
+
    private void commit(ActionEvent event) {
-     System.out.println("commit");
+      System.out.println("commit");
       if (optionalPropertySheetMenuItem.isPresent()) {
          PropertySheetMenuItem item = optionalPropertySheetMenuItem.get();
          item.commit();
-         cancelButton.setVisible(false);
-         commitButton.setVisible(false);
-         gridpane.getChildren().remove(item.getPropertySheet());
-         optionalPropertySheetMenuItem = Optional.empty();
-         pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
-         editControl.getItems().setAll(getEditMenuItems());
-         editControl.setVisible(!editControl.getItems().isEmpty());
-         redoLayout();
+         Platform.runLater(() -> {
+            cancelButton.setVisible(false);
+            commitButton.setVisible(false);
+            gridpane.getChildren().remove(item.getPropertySheet());
+            optionalPropertySheetMenuItem = Optional.empty();
+            pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
+            editControl.getItems().setAll(getEditMenuItems());
+            editControl.setVisible(!editControl.getItems().isEmpty());
+            redoLayout();
+         });
       }
-    }
+   }
 
    public void debugTextLayoutListener(ObservableValue<? extends Bounds> bounds, Bounds oldBounds, Bounds newBounds) {
       if (this.getParent() != null && componentText.getText().startsWith("SNOMED CT has been")) {
@@ -492,7 +503,7 @@ public abstract class BadgedVersionPanel
          componentText.setWrappingWidth(wrappingWidth);
          // will call redoLayout, so should not continue to layout...
       } else {
-         
+
          gridpane.getChildren()
                  .remove(expandControl);
          GridPane.setConstraints(expandControl, 0, 0, 1, 1, HPos.CENTER, VPos.TOP, Priority.NEVER, Priority.NEVER);
@@ -534,12 +545,12 @@ public abstract class BadgedVersionPanel
          gridpane.getChildren()
                  .add(editControl);
 // commitButton         
-         
+
          gridpane.getChildren()
                  .remove(commitButton);
          GridPane.setConstraints(
                  commitButton,
-                 columns-3,
+                 columns - 3,
                  0,
                  4,
                  1,
@@ -550,15 +561,14 @@ public abstract class BadgedVersionPanel
                  new Insets(1, 4, 0, 0));
          gridpane.getChildren()
                  .add(commitButton);
-                 
+
 //         
 // cancelButton         
-         
          gridpane.getChildren()
                  .remove(cancelButton);
          GridPane.setConstraints(
                  cancelButton,
-                 columns-6,
+                 columns - 6,
                  0,
                  3,
                  1,
@@ -569,7 +579,7 @@ public abstract class BadgedVersionPanel
                  new Insets(1, 4, 0, 0));
          gridpane.getChildren()
                  .add(cancelButton);
-                 
+
 //         
          int gridRow = 0;
          if (optionalPropertySheetMenuItem.isPresent()) {
