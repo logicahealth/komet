@@ -284,21 +284,21 @@ public class StampProvider
          ZonedDateTime stampTime = Instant.ofEpochMilli(time).atZone(ZoneOffset.UTC);
          sb.append(stampTime.format(FORMATTER));
       }
-      LatestVersion<DescriptionVersion> authorDescription = manifoldCoordinate.getFullySpecifiedDescription(getAuthorSequenceForStamp(stampSequence));
+      LatestVersion<DescriptionVersion> authorDescription = manifoldCoordinate.getPreferredDescription(getAuthorSequenceForStamp(stampSequence));
       if (authorDescription.isPresent()) {
          sb.append("\nA: ").append(authorDescription.get().getText());
       } else {
          sb.append("\nA: unretrievable");
       }
       
-      LatestVersion<DescriptionVersion> moduleDescription = manifoldCoordinate.getFullySpecifiedDescription(getModuleSequenceForStamp(stampSequence));
+      LatestVersion<DescriptionVersion> moduleDescription = manifoldCoordinate.getPreferredDescription(getModuleSequenceForStamp(stampSequence));
       if (moduleDescription.isPresent()) {
          sb.append("\nM: ").append(moduleDescription.get().getText());
       } else {
          sb.append("\nM: unretrievable");
       }
       
-      LatestVersion<DescriptionVersion> pathDescription = manifoldCoordinate.getFullySpecifiedDescription(getPathSequenceForStamp(stampSequence));
+      LatestVersion<DescriptionVersion> pathDescription = manifoldCoordinate.getPreferredDescription(getPathSequenceForStamp(stampSequence));
       if (pathDescription.isPresent()) {
          sb.append("\nP: ").append(pathDescription.get().getText());
       } else {
