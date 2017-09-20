@@ -90,6 +90,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
+import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
 
@@ -169,7 +170,7 @@ public class AssemblageProvider
          Files.createDirectories(this.sememePath);
          LOG.info("Setting up sememe provider at " + this.sememePath.toAbsolutePath().toString());
          this.sememeMap = new CasSequenceObjectMap<>(
-                 new AssemblageSerializer(),
+                 new AssemblageSerializer(ChronologyImpl.DATA_FORMAT_VERSION),
                  this.sememePath,
                  "seg.",
                  ".sememe.map");

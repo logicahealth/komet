@@ -65,7 +65,7 @@ public class WriteConceptChronicle
    /**
     * The cc.
     */
-   private final ConceptChronology cc;
+   private ConceptChronology cc;
 
    /**
     * The write semaphore.
@@ -122,6 +122,8 @@ public class WriteConceptChronicle
       try {
          Get.conceptService()
                  .writeConcept(this.cc);
+         // get any updates that may have occured during merge write...
+         this.cc = Get.conceptService().getConcept(this.cc.getConceptSequence());
          this.uncommittedTracking.accept(this.cc, false);
          updateProgress(1, 2);
          updateMessage("notifying: " + Get.conceptDescriptionText(this.cc.getConceptSequence()));

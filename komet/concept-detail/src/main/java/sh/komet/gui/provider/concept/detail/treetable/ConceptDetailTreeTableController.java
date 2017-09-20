@@ -58,6 +58,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
@@ -169,9 +170,10 @@ public class ConceptDetailTreeTableController {
       }
    }
 
-   private void focusConceptChanged(ObservableValue<? extends ConceptChronology> observable,
-           ConceptChronology oldValue,
-           ConceptChronology newValue) {
+   private void focusConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
+           ConceptSpecification oldSpecification,
+           ConceptSpecification newSpecification) {
+      ConceptChronology newValue = Get.concept(newSpecification);
       if (newValue == null) {
          conceptExtensionTreeTable.setRoot(null);
       } else {
@@ -207,7 +209,7 @@ public class ConceptDetailTreeTableController {
       }
 
       this.manifold = manifold;
-      this.manifold.focusedConceptChronologyProperty()
+      this.manifold.focusedConceptProperty()
               .addListener(this::focusConceptChanged);
       this.conceptCellFactory = new TreeTableConceptCellFactory(manifold);
       this.whatCellFactory = new TreeTableWhatCellFactory(manifold);

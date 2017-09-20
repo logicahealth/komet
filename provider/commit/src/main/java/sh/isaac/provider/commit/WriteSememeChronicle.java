@@ -68,7 +68,7 @@ import sh.isaac.api.chronicle.Chronology;
 public class WriteSememeChronicle
         extends Task<Void> {
    /** The sc. */
-   private final SememeChronology sc;
+   private SememeChronology sc;
 
    /** The write semaphore. */
    private final Semaphore writeSemaphore;
@@ -121,6 +121,7 @@ public class WriteSememeChronicle
       try {
          Get.assemblageService()
             .writeSememe(this.sc);
+         this.sc = Get.assemblageService().getSememe(this.sc.getSememeSequence());
          this.uncommittedTracking.accept(this.sc, false);
          updateProgress(1, 2);
          updateMessage("notifying: " + this.sc.getAssemblageSequence());

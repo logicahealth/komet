@@ -60,7 +60,7 @@ public abstract class VersionImpl
    /**
     * The chronicle.
     */
-   protected final Chronology chronicle;
+   protected final ChronologyImpl chronicle;
 
    /**
     * The stamp sequence.
@@ -81,7 +81,7 @@ public abstract class VersionImpl
     * @param versionSequence the version sequence
     */
    public VersionImpl(Chronology chronicle, int stampSequence, short versionSequence) {
-      this.chronicle = chronicle;
+      this.chronicle = (ChronologyImpl) chronicle;
       this.stampSequence = stampSequence;
       this.versionSequence = versionSequence;
    }
@@ -94,8 +94,9 @@ public abstract class VersionImpl
       if (!isUncommitted()) {
          throw new RuntimeException("Attempt to cancel an already committed version: " + this);
       }
-
+      int oldStampSequence = this.stampSequence;
       this.stampSequence = -1;
+      this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
    }
 
    /**
@@ -273,12 +274,14 @@ public abstract class VersionImpl
    public void setAuthorSequence(int authorSequence) {
       if (this.stampSequence != -1) {
          checkUncommitted();
+         int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
                  .getStampSequence(getState(),
                          getTime(),
                          authorSequence,
                          getModuleSequence(),
                          getPathSequence());
+         this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
 
@@ -318,12 +321,14 @@ public abstract class VersionImpl
    public void setModuleSequence(int moduleSequence) {
       if (this.stampSequence != -1) {
          checkUncommitted();
+         int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
                  .getStampSequence(getState(),
                          getTime(),
                          getAuthorSequence(),
                          moduleSequence,
                          getPathSequence());
+         this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
 
@@ -336,12 +341,14 @@ public abstract class VersionImpl
    public void setStatus(State state) {
       if (this.stampSequence != -1) {
          checkUncommitted();
+         int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
                  .getStampSequence(state,
                          getTime(),
                          getAuthorSequence(),
                          getModuleSequence(),
                          getPathSequence());
+         this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
 
@@ -377,12 +384,14 @@ public abstract class VersionImpl
    public void setPathSequence(int pathSequence) {
       if (this.stampSequence != -1) {
          checkUncommitted();
+         int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
                  .getStampSequence(getState(),
                          getTime(),
                          getAuthorSequence(),
                          getModuleSequence(),
                          pathSequence);
+         this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
 
@@ -439,12 +448,14 @@ public abstract class VersionImpl
    public void setTime(long time) {
       if (this.stampSequence != -1) {
          checkUncommitted();
+         int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
                  .getStampSequence(getState(),
                          time,
                          getAuthorSequence(),
                          getModuleSequence(),
                          getPathSequence());
+         this.chronicle.updateStampSequence(oldStampSequence, this.stampSequence, this);
       }
    }
 

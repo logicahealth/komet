@@ -24,7 +24,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
-import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.ConceptLabel;
 import sh.komet.gui.control.ConceptLabelToolbar;
@@ -56,7 +56,7 @@ public class AssemblageViewProvider implements ExplorationNode {
          loader.load();
          AssemblageDetailController assemblageDetailController = loader.getController();
          assemblageDetailController.setManifold(manifold);
-         assemblageDetailController.getManifold().focusedConceptChronologyProperty().addListener(this::focusConceptChanged);
+         assemblageDetailController.getManifold().focusedConceptProperty().addListener(this::focusConceptChanged);
          assemblageDetailPane.setCenter(assemblageDetailController.getAssemblageDetailRootPane());
       } catch (IOException ex) {
          throw new RuntimeException(ex);
@@ -64,9 +64,9 @@ public class AssemblageViewProvider implements ExplorationNode {
 
    }
    
-   private void focusConceptChanged(ObservableValue<? extends ConceptChronology> observable,
-           ConceptChronology oldValue,
-           ConceptChronology newValue) {
+   private void focusConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
+           ConceptSpecification oldValue,
+           ConceptSpecification newValue) {
       if (titleLabel == null) {
          titleProperty.set(manifold.getPreferredDescriptionText(newValue));
       } else {

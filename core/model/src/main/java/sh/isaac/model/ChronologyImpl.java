@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -91,6 +92,8 @@ public abstract class ChronologyImpl
          implements Chronology, WaitFreeComparable {
    /** The Constant STAMPED_LOCKS. */
    private static final StampedLock[] STAMPED_LOCKS = new StampedLock[256];
+
+   public static final byte DATA_FORMAT_VERSION = 0;
 
    //~--- static initializers -------------------------------------------------
 
@@ -547,9 +550,33 @@ public abstract class ChronologyImpl
          this.versionSequence   = data.getShort();
          setAdditionalChronicleFieldsFromBuffer(data);
          constructorEnd(data);
+         // find if there are any uncommitted versions in the written data...
+         getVersionStampSequences().filter((stamp) -> 
+                 Get.stampService().isUncommitted(stamp)).findAny().ifPresent((stamp) -> {
+                    this.unwrittenData = new ConcurrentSkipListMap<>();
+                    this.versionListReference = null;
+                    getVersionList().forEach((version) -> {
+                       this.unwrittenData.put(version.getStampSequence(), version);
+                    });
+                    this.writtenData = null;
+         });
       }
    }
 
+   protected void updateStampSequence(int oldStampSequence, int newStampSequence, VersionImpl version) {
+      if (this.unwrittenData == null) {
+         throw new IllegalStateException("Cannot update since unwritten data is null");
+      }
+      if (!this.unwrittenData.containsKey(oldStampSequence)) {
+         throw new IllegalStateException("No version with the old stamp sequence: " + oldStampSequence + "\n" + this.unwrittenData);
+      }
+      this.unwrittenData.remove(oldStampSequence);
+      if (newStampSequence == -1) {
+         this.versionListReference = null;
+      } else {
+         this.unwrittenData.put(newStampSequence, version);
+      }
+   }
    /**
     * Skip additional chronicle fields.
     *
@@ -751,20 +778,22 @@ public abstract class ChronologyImpl
     * Get data to write to datastore, use the writeSequence as it was
     * originally read from the database.
     *
+    * @param dataFormatVersion the object data format version
     * @return the data to write
     */
-   public byte[] getDataToWrite() {
-      return getDataToWrite(this.writeSequence);
+   public byte[] getDataToWrite(byte dataFormatVersion) {
+      return getDataToWrite(dataFormatVersion, this.writeSequence);
    }
 
    /**
     * Get data to write to datastore. Set the write sequence to the specified
     * value
     *
+    * @param dataFormatVersion the object data format version
     * @param writeSequence the write sequence to prepend to the data
     * @return the data to write
     */
-   public byte[] getDataToWrite(int writeSequence) {
+   public byte[] getDataToWrite(byte dataFormatVersion, int writeSequence) {
       setWriteSequence(writeSequence);
 
       if (this.unwrittenData == null) {
@@ -1117,6 +1146,12 @@ public abstract class ChronologyImpl
       }
 
       return results;
+   }
+   
+   public Map<Integer, Version> getStampVersionMap() {
+      Map<Integer, Version> result = new HashMap<>();
+      getVersionList().forEach((version) -> result.put(version.getStampSequence(), version));
+      return result;
    }
 
    /**

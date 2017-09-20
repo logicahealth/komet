@@ -67,6 +67,7 @@ import javafx.stage.WindowEvent;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
@@ -95,10 +96,10 @@ public class ConceptLabel
            Consumer<ConceptLabel> descriptionTextUpdater) {
       this.manifold = manifold;
       this.descriptionTextUpdater = descriptionTextUpdater;
-      this.manifold.focusedConceptChronologyProperty().addListener(
-              (ObservableValue<? extends ConceptChronology> observable,
-                      ConceptChronology oldValue,
-                      ConceptChronology newValue) -> {
+      this.manifold.focusedConceptProperty().addListener(
+              (ObservableValue<? extends ConceptSpecification> observable,
+                      ConceptSpecification oldValue,
+                      ConceptSpecification newValue) -> {
                  this.descriptionTextUpdater.accept(this);
               });
       this.getStyleClass().add(CONCEPT_LABEL.toString());
@@ -279,7 +280,7 @@ public class ConceptLabel
    }
 
    public static void setFullySpecifiedText(ConceptLabel label) {
-      ConceptChronology focusedConcept = label.manifold.getFocusedConceptChronology();
+      ConceptChronology focusedConcept = Get.concept(label.manifold.getFocusedConcept());
       if (focusedConcept != null) {
          focusedConcept
                  .getFullySpecifiedDescription(label.manifold)
@@ -291,7 +292,7 @@ public class ConceptLabel
    }
 
    public static void setPreferredText(ConceptLabel label) {
-      ConceptChronology focusedConcept = label.manifold.getFocusedConceptChronology();
+      ConceptChronology focusedConcept = Get.concept(label.manifold.getFocusedConcept());
       if (focusedConcept != null) {
          focusedConcept
                  .getPreferredDescription(label.manifold)

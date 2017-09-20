@@ -71,7 +71,7 @@ import sh.isaac.api.chronicle.Chronology;
 public class WriteAndCheckConceptChronicle
         extends Task<Void> {
    /** The cc. */
-   private final ConceptChronology cc;
+   private ConceptChronology cc;
 
    /** The checkers. */
    private final ConcurrentSkipListSet<ChangeChecker> checkers;
@@ -137,6 +137,8 @@ public class WriteAndCheckConceptChronicle
       try {
          Get.conceptService()
             .writeConcept(this.cc);
+         // get any updates that may have occured during merge write...
+         this.cc = Get.conceptService().getConcept(this.cc.getConceptSequence());
          this.uncommittedTracking.accept(this.cc, true);
          updateProgress(1, 3);
 

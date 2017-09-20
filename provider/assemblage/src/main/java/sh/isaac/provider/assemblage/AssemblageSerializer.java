@@ -54,6 +54,12 @@ import sh.isaac.model.waitfree.WaitFreeMergeSerializer;
  */
 public class AssemblageSerializer
          implements WaitFreeMergeSerializer<SememeChronologyImpl> {
+   
+   private final byte dataFormatVersion;
+
+   public AssemblageSerializer(byte dataFormatVersion) {
+      this.dataFormatVersion = dataFormatVersion;
+   }
    /**
     * Deserialize.
     *
@@ -77,7 +83,7 @@ public class AssemblageSerializer
    public SememeChronologyImpl merge(SememeChronologyImpl a,
          SememeChronologyImpl b,
          int writeSequence) {
-      final byte[]              dataBytes = a.mergeData(writeSequence, b.getDataToWrite(writeSequence));
+      final byte[]              dataBytes = a.mergeData(writeSequence, b.getDataToWrite(dataFormatVersion, writeSequence));
       final ByteArrayDataBuffer db        = new ByteArrayDataBuffer(dataBytes);
 
       return SememeChronologyImpl.make(db);
@@ -91,7 +97,7 @@ public class AssemblageSerializer
     */
    @Override
    public void serialize(ByteArrayDataBuffer d, SememeChronologyImpl a) {
-      final byte[] data = a.getDataToWrite();
+      final byte[] data = a.getDataToWrite(dataFormatVersion);
 
       d.put(data, 0, data.length);
    }

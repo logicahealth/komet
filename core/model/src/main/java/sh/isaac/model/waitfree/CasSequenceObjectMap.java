@@ -262,7 +262,7 @@ public class CasSequenceObjectMap<T extends WaitFreeComparable> {
 
          value.setWriteSequence(getWriteSequence(sequence));
 
-         final ByteArrayDataBuffer newDataBuffer = new ByteArrayDataBuffer(oldDataSize + 512);
+         final ByteArrayDataBuffer newDataBuffer = new ByteArrayDataBuffer(oldDataSize + 512);  //TODO add version
 
          this.elementSerializer.serialize(newDataBuffer, value);
          newDataBuffer.trimToSize();
@@ -482,7 +482,12 @@ public class CasSequenceObjectMap<T extends WaitFreeComparable> {
     * @return the write sequence
     */
    private static int getWriteSequence(int componentSequence) {
-      return writeSequences.incrementAndGet(componentSequence % WRITE_SEQUENCES);
+      int writeSequence = writeSequences.incrementAndGet(componentSequence % WRITE_SEQUENCES);
+      if (writeSequence > 10240) {
+         writeSequences.set(componentSequence % WRITE_SEQUENCES, 0);
+         return getWriteSequence(componentSequence);
+      }
+      return writeSequence;
    }
 
    //~--- inner classes -------------------------------------------------------

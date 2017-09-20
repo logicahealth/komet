@@ -297,11 +297,12 @@
    </build>
    <profiles>
       <profile>
-         <activation>
+         <id>build-mac-binary</id>
+<!--         <activation>
             <os>
                <name>Mac OS X</name>
             </os>
-         </activation>
+         </activation>-->
          <build>
             <plugins>
                <plugin>

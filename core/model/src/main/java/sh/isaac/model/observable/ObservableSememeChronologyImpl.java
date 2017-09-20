@@ -63,7 +63,6 @@ import sh.isaac.api.component.sememe.version.StringVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
-import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
@@ -244,8 +243,11 @@ public class ObservableSememeChronologyImpl
     * @return the observable version list
     */
    @Override
-   protected <OV extends ObservableVersion> ObservableList<OV> getObservableVersionList() {
-      final ObservableList<OV> observableList = FXCollections.observableArrayList();
+   protected ObservableList<ObservableVersion> getObservableVersionList() {
+      if (this.versionListProperty != null && this.versionListProperty.get() != null) {
+         return this.versionListProperty.get();
+      }
+      final ObservableList<ObservableVersion> observableList = FXCollections.observableArrayList();
 
       this.chronicledObjectLocal.getVersionList().stream().forEach((sememeVersion) -> {
          observableList.add(wrapInObservable((SememeVersion) sememeVersion));

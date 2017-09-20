@@ -88,6 +88,7 @@ import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
+import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.DeepEqualsVersionWrapper;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.VersionWithScoreWrapper;
@@ -112,7 +113,7 @@ public abstract class ObservableChronologyImpl
    /**
     * The version list property.
     */
-   private SimpleListProperty<ObservableVersion> versionListProperty;
+   protected SimpleListProperty<ObservableVersion> versionListProperty;
 
    /**
     * The nid property.
@@ -201,7 +202,7 @@ public abstract class ObservableChronologyImpl
    @Override
    public final void handleChange(ConceptChronology cc) {
       if (this.getNid() == cc.getNid()) {
-         updateChronicle(cc);
+         updateChronology(cc);
       }
    }
 
@@ -213,7 +214,7 @@ public abstract class ObservableChronologyImpl
    @Override
    public final void handleChange(SememeChronology sc) {
       if (this.getNid() == sc.getNid()) {
-         updateChronicle(sc);
+         updateChronology(sc);
       }
 
       if (sc.getReferencedComponentNid() == this.getNid()) {
@@ -338,7 +339,7 @@ public abstract class ObservableChronologyImpl
    @Override
    public final ListProperty<ObservableVersion> versionListProperty() {
       if (this.versionListProperty == null) {
-         this.versionListProperty = new SimpleListProperty<ObservableVersion>(
+         this.versionListProperty = new SimpleListProperty<>(
              this,
              ObservableFields.VERSION_LIST_FOR_CHRONICLE.toExternalString(),
              getVersionList());
@@ -352,17 +353,15 @@ public abstract class ObservableChronologyImpl
     *
     * @param chronology the chronicled object local
     */
-   protected final void updateChronicle(Chronology chronology) {
+   protected final void updateChronology(Chronology chronology) {
       if (chronology instanceof ObservableChronology) {
          throw new IllegalStateException("Observable chronology cannot wrap another observable chronology");
       }
-
       if (!Platform.isFxApplicationThread()) {
          throw new UnsupportedOperationException("Cannot update on this thread: " + Thread.currentThread().getName());
       }
 
       if (this.versionListProperty != null) {
-         Chronology                    oldChronology = this.chronicledObjectLocal;
          Chronology                    newChronology = chronology;
          Set<DeepEqualsVersionWrapper> oldSet        = new HashSet<>();
          Map<VersionImpl, VersionImpl> oldVersionNewVersionMap = new HashMap<>();
@@ -371,25 +370,34 @@ public abstract class ObservableChronologyImpl
          Map<VersionImpl, Set<VersionWithScoreWrapper>> finalAlignmentMap = new HashMap<>();
                  
 
-         oldChronology.getVersionList()
-                      .forEach((version) -> oldSet.add(new DeepEqualsVersionWrapper((VersionImpl) version)));
-
+         this.getVersionList().forEach((observableVersion) -> {
+            StampedVersion oldVersion = ((ObservableVersionImpl) observableVersion).getStampedVersion();
+            oldSet.add(new DeepEqualsVersionWrapper((VersionImpl) oldVersion));
+         });
+         
          Set<DeepEqualsVersionWrapper> newSet = new HashSet<>();
 
          newChronology.getVersionList()
                       .forEach((version) -> newSet.add(new DeepEqualsVersionWrapper((VersionImpl) version)));
 
-         // Exact match -> nothing to change in the underlying versions, but else will handle observable changes. 
+         // Exact match -> nothing to change in the underlying observableVersions, but else will handle observable changes. 
          if (!newSet.equals(oldSet)) {
             // Change goes only one direction uncommitted -> committed; uncommitted -> canceled.
             // Create two sets, then do a set difference.
+            Set<DeepEqualsVersionWrapper> equalsSet = new HashSet<>(newSet);
+            equalsSet.retainAll(oldSet);
+            HashMap<Integer, Version> equalsStampVersionMap = new HashMap<>();
+            equalsSet.forEach((versionWrapper) -> {
+               equalsStampVersionMap.put(versionWrapper.getVersion().getStampSequence(), versionWrapper.getVersion());
+            });
             
+            Set<DeepEqualsVersionWrapper> oldSetCopy = new HashSet<>(oldSet);
             oldSet.removeAll(newSet);
-            newSet.removeAll(oldSet);
+            newSet.removeAll(oldSetCopy);
             if (oldSet.size() == newSet.size()) {
                // align by edit distance...
                if (newSet.size() == 1) {
-                  // easy case... 
+                  // easy case... TODO, handle checking to make sure author is same, if necessary for multi-tenant authoring. 
                   oldVersionNewVersionMap.put(oldSet.iterator().next().getVersion(), newSet.iterator().next().getVersion());
                } else {
                   Map<VersionImpl, Set<VersionWithScoreWrapper>> alignmentMap = makeAlignmentMap(oldSet, newSet);
@@ -460,17 +468,17 @@ public abstract class ObservableChronologyImpl
                }
             }
             
-            ObservableList<ObservableVersionImpl> observableVersionList = this.getObservableVersionList();
- 
-            ListIterator<ObservableVersionImpl> versions = observableVersionList.listIterator();
-
+            ObservableList<ObservableVersionImpl> observableVersionList = this.getVersionList();
+            ListIterator<ObservableVersionImpl> observableVersions = observableVersionList.listIterator();
             // Handle delete or merge... 
-            while (versions.hasNext()) {
-               ObservableVersionImpl observableVersion = versions.next();
+            while (observableVersions.hasNext()) {
+               ObservableVersionImpl observableVersion = observableVersions.next();
                VersionImpl version = observableVersion.getStampedVersion();
-               // see if delete or merge... 
-               if (cancelSet.contains(version)) {
-                  versions.remove();
+               // see if equals
+               if (equalsStampVersionMap.containsKey(version.getStampSequence())) {
+                  observableVersion.updateVersion(equalsStampVersionMap.get(version.getStampSequence()));
+               } else if (cancelSet.contains(version)) {
+                  observableVersions.remove();
                } else if (finalAlignmentMap.containsKey(version)) {
                   VersionImpl updateVersion = finalAlignmentMap.get(version).iterator().next().getVersion();
                   observableVersion.updateVersion(updateVersion);
@@ -478,19 +486,18 @@ public abstract class ObservableChronologyImpl
                   throw new IllegalStateException("No match for: " + observableVersion);
                }
             }
-
             // then add... 
-            
             additionSet.forEach((version) -> {
-               versions.add(wrapInObservable(version));
+               observableVersions.add(wrapInObservable(version));
             });
-            
-            
          } else {
-            // Old and new sets are equal, still may need to update the observable versions...
+            // Old and new sets are equal, still need to update the observable observableVersions
+            // with the new chronology object...
+            Map<Integer, Version> stampVersionMap = ((ChronologyImpl) chronology).getStampVersionMap();
             this.getVersionList().forEach((observableVersion) -> {
                ObservableVersionImpl observableVersionImpl = (ObservableVersionImpl) observableVersion;
-               observableVersionImpl.updateVersion(observableVersionImpl.getStampedVersion());
+               StampedVersion version = observableVersionImpl.getStampedVersion();
+               observableVersionImpl.updateVersion(stampVersionMap.get(version.getStampSequence()));
             });
          }
       }

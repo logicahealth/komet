@@ -64,6 +64,7 @@ import javafx.scene.control.Label;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LanguageCoordinateProxy;
 import sh.isaac.api.coordinate.LogicCoordinateProxy;
 import sh.isaac.api.coordinate.ManifoldCoordinateProxy;
@@ -93,7 +94,7 @@ import sh.isaac.komet.iconography.Iconography;
  */
 public class Manifold
          implements StampCoordinateProxy, LanguageCoordinateProxy, LogicCoordinateProxy, ManifoldCoordinateProxy,
-                    ChangeListener<ConceptChronology> {
+                    ChangeListener<ConceptSpecification> {
    private static final WeakHashMap<Manifold, Object>              MANIFOLD_CHANGE_LISTENERS = new WeakHashMap<>();
    public static final String                                      UNLINKED_GROUP_NAME       = "unlinked";
    public static final String                                      SIMPLE_SEARCH_GROUP_NAME  = "search";
@@ -119,7 +120,7 @@ public class Manifold
    final SimpleObjectProperty<UUID>                           manifoldUuidProperty;
    final ObservableManifoldCoordinate                         observableManifoldCoordinate;
    final ObservableEditCoordinate                             observableEditCoordinate;
-   final SimpleObjectProperty<ConceptChronology>              focusedConceptChronologyProperty;
+   final SimpleObjectProperty<ConceptSpecification>           focusedConceptSpecificationProperty;
 
    //~--- constructors --------------------------------------------------------
 
@@ -134,13 +135,13 @@ public class Manifold
                     UUID manifoldUuid,
                     ObservableManifoldCoordinate observableManifoldCoordinate,
                     ObservableEditCoordinate editCoordinate,
-                    ConceptChronology focusedObject) {
+                    ConceptSpecification focusedObject) {
       this.groupNameProperty                = new SimpleStringProperty(group);
       this.manifoldUuidProperty             = new SimpleObjectProperty<>(manifoldUuid);
       this.observableManifoldCoordinate     = observableManifoldCoordinate;
       this.observableEditCoordinate         = editCoordinate;
-      this.focusedConceptChronologyProperty = new SimpleObjectProperty<>(focusedObject);
-      this.focusedConceptChronologyProperty.addListener(new WeakChangeListener<>(this));
+      this.focusedConceptSpecificationProperty = new SimpleObjectProperty<>(focusedObject);
+      this.focusedConceptSpecificationProperty.addListener(new WeakChangeListener<>(this));
 
       // MANIFOLD_CHANGE_LISTENERS is a map with weak reference keys, so the following line is not a leak...
       MANIFOLD_CHANGE_LISTENERS.put(this, null);
@@ -149,9 +150,9 @@ public class Manifold
    //~--- methods -------------------------------------------------------------
 
    @Override
-   public void changed(ObservableValue<? extends ConceptChronology> observable,
-                       ConceptChronology oldValue,
-                       ConceptChronology newValue) {
+   public void changed(ObservableValue<? extends ConceptSpecification> observable,
+                       ConceptSpecification oldValue,
+                       ConceptSpecification newValue) {
       if (newValue != null) {
          MANIFOLD_CHANGE_LISTENERS.forEach(
              (manifold, u) -> {
@@ -167,7 +168,7 @@ public class Manifold
                 if ((manifold != this) &&
                     !manifold.getGroupName().equals(UNLINKED_GROUP_NAME) &&
                     manifold.getGroupName().equals(this.getGroupName())) {
-                   manifold.focusedConceptChronologyProperty()
+                   manifold.focusedConceptProperty()
                            .set(newValue);
                    addHistory(historyRecord, manifold.manifoldHistory);
                    groupHistory = GROUP_HISTORY_MAP.computeIfAbsent(manifold.getGroupName(), k -> new ArrayDeque<>());
@@ -184,11 +185,11 @@ public class Manifold
           UUID.randomUUID(),
           observableManifoldCoordinate.deepClone(),
           observableEditCoordinate.deepClone(),
-          focusedConceptChronologyProperty.get());
+          focusedConceptSpecificationProperty.get());
    }
 
-   public SimpleObjectProperty<ConceptChronology> focusedConceptChronologyProperty() {
-      return focusedConceptChronologyProperty;
+   public SimpleObjectProperty<ConceptSpecification> focusedConceptProperty() {
+      return focusedConceptSpecificationProperty;
    }
 
    public SimpleStringProperty groupNameProperty() {
@@ -231,8 +232,8 @@ public class Manifold
    public String toString() {
       return "Manifold{" + "groupNameProperty=" + groupNameProperty + ", manifoldUuidProperty=" +
              manifoldUuidProperty + ", observableManifoldCoordinate=" + observableManifoldCoordinate +
-             ", editCoordinate=" + observableEditCoordinate + ", focusedConceptChronologyProperty=" +
-             focusedConceptChronologyProperty + '}';
+             ", editCoordinate=" + observableEditCoordinate + ", focusedConceptProperty=" +
+             focusedConceptSpecificationProperty + '}';
    }
 
    private static void addHistory(HistoryRecord history, ArrayDeque<HistoryRecord> historyDequeue) {
@@ -247,7 +248,7 @@ public class Manifold
 
    //~--- get methods ---------------------------------------------------------
 
-   public ConceptChronology getConceptForGroup(String groupName) {
+   public ConceptSpecification getConceptForGroup(String groupName) {
       Optional<Manifold> optionalManifold = MANIFOLD_CHANGE_LISTENERS.keySet()
                                                                      .stream()
                                                                      .filter(
@@ -257,7 +258,7 @@ public class Manifold
 
       if (optionalManifold.isPresent()) {
          return optionalManifold.get()
-                                .getFocusedConceptChronology();
+                                .getFocusedConcept();
       }
 
       return null;
@@ -275,8 +276,8 @@ public class Manifold
       return observableEditCoordinate;
    }
 
-   public ConceptChronology getFocusedConceptChronology() {
-      return this.focusedConceptChronologyProperty.get();
+   public ConceptSpecification getFocusedConcept() {
+      return this.focusedConceptSpecificationProperty.get();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -290,7 +291,7 @@ public class Manifold
          addHistory(history, this.manifoldHistory);
       }
 
-      this.focusedConceptChronologyProperty.set(newFocusedObject);
+      this.focusedConceptSpecificationProperty.set(newFocusedObject);
    }
 
    //~--- get methods ---------------------------------------------------------

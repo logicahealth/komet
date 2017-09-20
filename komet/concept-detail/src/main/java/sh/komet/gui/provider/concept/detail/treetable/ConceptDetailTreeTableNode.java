@@ -53,6 +53,7 @@ import javafx.scene.layout.BorderPane;
 import sh.isaac.api.State;
 
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.ConceptLabel;
 
@@ -80,11 +81,11 @@ public class ConceptDetailTreeTableNode
       try {
          this.conceptDetailManifold = conceptDetailManifold;
          this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(State.INACTIVE);
-         conceptDetailManifold.focusedConceptChronologyProperty()
+         conceptDetailManifold.focusedConceptProperty()
                  .addListener(
-                         (ObservableValue<? extends ConceptChronology> observable,
-                                 ConceptChronology oldValue,
-                                 ConceptChronology newValue) -> {
+                         (ObservableValue<? extends ConceptSpecification> observable,
+                                 ConceptSpecification oldValue,
+                                 ConceptSpecification newValue) -> {
                             if (titleLabel == null) {
                                if (newValue == null) {
                                   titleProperty.set("empty");

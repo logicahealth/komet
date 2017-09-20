@@ -30,7 +30,7 @@ import javafx.scene.layout.BorderPane;
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.CategorizedVersions;
-import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
@@ -145,9 +145,9 @@ public class AssemblageDetailController {
       }
    }
 
-   private void focusConceptChanged(ObservableValue<? extends ConceptChronology> observable,
-           ConceptChronology oldValue,
-           ConceptChronology newValue) {
+   private void focusConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
+           ConceptSpecification oldValue,
+           ConceptSpecification newValue) {
       if (newValue == null) {
          assemblageExtensionTreeTable.setRoot(null);
       } else {
@@ -185,7 +185,7 @@ public class AssemblageDetailController {
       }
 
       this.manifold = manifold;
-      this.manifold.focusedConceptChronologyProperty()
+      this.manifold.focusedConceptProperty()
               .addListener(this::focusConceptChanged);
       this.assemblageCellFactory = new TreeTableConceptCellFactory(manifold);
       this.whatCellFactory = new TreeTableWhatCellFactory(manifold);

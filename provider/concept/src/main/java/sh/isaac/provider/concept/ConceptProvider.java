@@ -113,7 +113,7 @@ public class ConceptProvider
    /** The Constant CRADLE_ID_FILE_NAME. */
    public static final String CRADLE_ID_FILE_NAME = "dbid.txt";
 
-   /** The Constant CRADLE_DATA_VERSION. */
+   /** The Constant CRADLE_DATA_VERSION. We must use strings for integers  > 0 that Byte.parseByte() can parse for future data versions. */
    public static final String CRADLE_DATA_VERSION = "1.5";
 
    /** The Constant CRADLE_DATA_VERSION_PROPERTY. */
@@ -138,6 +138,8 @@ public class ConceptProvider
 
    /** The ochre concept path. */
    private Path ochreConceptPath;
+   
+   private final byte dataVersion;
 
    //~--- constructors --------------------------------------------------------
 
@@ -207,7 +209,7 @@ public class ConceptProvider
             this.dbId = UUID.randomUUID();
             Files.write(dbIdPath, this.dbId.toString()
                                            .getBytes());
-            LOG.info("Creating a new (empty) concept store at " + folderPath.toAbsolutePath() + " with the id of ]" +
+            LOG.info("Creating a new (empty) concept store at " + folderPath.toAbsolutePath() + " with the id of '" +
                      this.dbId.toString() + "'");
          }
 
@@ -216,8 +218,14 @@ public class ConceptProvider
          if (!Files.exists(this.ochreConceptPath)) {
             this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
          }
+         
+         if (cradleProps.getProperty(CRADLE_DATA_VERSION_PROPERTY).equals("1.5")) {
+            dataVersion = 0;
+         } else {
+            dataVersion = Byte.parseByte(cradleProps.getProperty(CRADLE_DATA_VERSION_PROPERTY));
+         }
 
-         this.conceptMap = new CasSequenceObjectMap<>(new ConceptSerializer(),
+         this.conceptMap = new CasSequenceObjectMap<>(new ConceptSerializer(dataVersion),
                this.ochreConceptPath,
                "seg.",
                ".ochre-concepts.map");

@@ -379,7 +379,7 @@ public class KometStageController
       int tabCountInPanel = 1;
 
       if (tabPanelCount == 1) {
-         FLOWR_MANIFOLD.focusedConceptChronologyProperty()
+         FLOWR_MANIFOLD.focusedConceptProperty()
                        .addListener(
                            (ObservableValue<? extends IdentifiedObject> observable,
                             IdentifiedObject oldValue,
@@ -389,7 +389,7 @@ public class KometStageController
                                        statusMessage.getScene(),
                                        FLOWR_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
                            });
-         SEARCH_MANIFOLD.focusedConceptChronologyProperty()
+         SEARCH_MANIFOLD.focusedConceptProperty()
                         .addListener(
                             (ObservableValue<? extends IdentifiedObject> observable,
                              IdentifiedObject oldValue,
@@ -399,7 +399,7 @@ public class KometStageController
                                         statusMessage.getScene(),
                                         SEARCH_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
                             });
-         TAXONOMY_MANIFOLD.focusedConceptChronologyProperty()
+         TAXONOMY_MANIFOLD.focusedConceptProperty()
                           .addListener(
                               (ObservableValue<? extends IdentifiedObject> observable,
                                IdentifiedObject oldValue,

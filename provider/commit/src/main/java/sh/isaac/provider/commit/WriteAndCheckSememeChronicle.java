@@ -72,7 +72,7 @@ import sh.isaac.api.chronicle.Chronology;
 public class WriteAndCheckSememeChronicle
         extends Task<Void> {
    /** The sc. */
-   private final SememeChronology sc;
+   private SememeChronology sc;
 
    /** The checkers. */
    private final ConcurrentSkipListSet<ChangeChecker> checkers;
@@ -137,6 +137,7 @@ public class WriteAndCheckSememeChronicle
       try {
          Get.assemblageService()
             .writeSememe(this.sc);
+         this.sc = Get.assemblageService().getSememe(this.sc.getSememeSequence());
          this.uncommittedTracking.accept(this.sc, true);
          updateProgress(1, 3);
          updateMessage("checking: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
