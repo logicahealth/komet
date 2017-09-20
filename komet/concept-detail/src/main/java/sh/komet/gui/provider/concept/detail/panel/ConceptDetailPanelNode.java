@@ -486,16 +486,16 @@ public class ConceptDetailPanelNode
                          .compareTo(stampService.getInstantForStamp(o1));
               });
 
-      final AtomicInteger stampOrder = new AtomicInteger(sortedStampSequences.size());
+      final AtomicInteger stampOrder = new AtomicInteger();
 
       sortedStampSequences.forEach(
               (stampSequence) -> {
                  if (historySwitch.isSelected()) {
-                    stampOrderHashMap.put(stampSequence, stampOrder.getAndDecrement());
+                    stampOrderHashMap.put(stampSequence, stampOrder.incrementAndGet());
                  } else {
                     if (Get.stampService()
                             .getStatusForStamp(stampSequence) == State.ACTIVE) {
-                       stampOrderHashMap.put(stampSequence, stampOrder.getAndDecrement());
+                       stampOrderHashMap.put(stampSequence, stampOrder.incrementAndGet());
                     }
                  }
               });

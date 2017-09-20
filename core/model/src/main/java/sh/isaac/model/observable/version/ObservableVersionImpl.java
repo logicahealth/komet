@@ -329,14 +329,16 @@ public abstract class ObservableVersionImpl
          this.timeProperty.addListener(
                  (observable, oldValue, newValue) -> {
                     if (this.stampedVersion.getStampSequence() != -1) {
-                       this.stampedVersion.setTime(newValue.longValue());
+                       if (this.stampedVersion.getTime() != newValue.longValue()) {
+                          this.stampedVersion.setTime(newValue.longValue());
 
-                       if (this.commitStateBinding != null) {
-                          this.commitStateBinding.invalidate();
-                       }
+                          if (this.commitStateBinding != null) {
+                             this.commitStateBinding.invalidate();
+                          }
 
-                       if (this.stampSequenceProperty != null) {
-                          this.stampSequenceProperty.setValue(this.stampedVersion.getStampSequence());
+                          if (this.stampSequenceProperty != null) {
+                             this.stampSequenceProperty.setValue(this.stampedVersion.getStampSequence());
+                          }
                        }
                     }
                  });
@@ -402,7 +404,7 @@ public abstract class ObservableVersionImpl
               && (this.pathSequenceProperty.get() != stampedVersion.getPathSequence())) {
          this.pathSequenceProperty.set(stampedVersion.getPathSequence());
       }
-      
+
       if ((this.timeProperty != null)
               && (this.timeProperty.get() != stampedVersion.getTime())) {
          this.timeProperty.set(stampedVersion.getTime());
