@@ -66,7 +66,7 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
 
    @Override
    public String getDescription() {
-      return "Tooltip for the property sheet item we are editing. ";
+      return "Select the proper concept value for the version you wish to create. ";
    }
 
    @Override

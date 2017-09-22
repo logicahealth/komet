@@ -46,6 +46,7 @@ when
    $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.CONCEPT);
 then
    PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit concept");
+   propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____ISAAC, PropertyEditorType.STATUS);
    propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_SEQUENCE_FOR_VERSION____ISAAC, PropertyEditorType.CONCEPT);
    propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_SEQUENCE_FOR_VERSION____ISAAC, PropertyEditorType.CONCEPT);
 end

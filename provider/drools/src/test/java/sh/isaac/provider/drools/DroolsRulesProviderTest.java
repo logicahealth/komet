@@ -19,7 +19,6 @@ package sh.isaac.provider.drools;
 import java.util.List;
 import java.util.function.Consumer;
 import javafx.scene.control.MenuItem;
-import org.controlsfx.control.PropertySheet;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

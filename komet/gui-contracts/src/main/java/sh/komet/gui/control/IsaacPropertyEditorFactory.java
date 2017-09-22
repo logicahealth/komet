@@ -22,6 +22,7 @@ import javafx.util.Callback;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.Editors;
 import org.controlsfx.property.editor.PropertyEditor;
+import sh.isaac.api.State;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -37,6 +38,8 @@ public class IsaacPropertyEditorFactory implements Callback<PropertySheet.Item, 
    public PropertyEditor<?> call(PropertySheet.Item propertySheetItem) {
       if (propertySheetItem instanceof PropertySheetItemConceptWrapper) {
          return createCustomChoiceEditor((PropertySheetItemConceptWrapper) propertySheetItem);
+      } else if (propertySheetItem instanceof PropertySheetStatusWrapper) {
+         return Editors.createChoiceEditor(propertySheetItem, State.makeActiveAndInactiveSet());
       }
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }

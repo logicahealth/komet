@@ -49,6 +49,7 @@ import java.util.Objects;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.value.ChangeListener;
 
@@ -56,7 +57,7 @@ import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.PropertySheet.Item;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.State;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -106,6 +107,14 @@ public class PropertySheetMenuItem
       completionListeners.add(listener);
    }
 
+   /**
+    * Drools, or some other service, populates which properties to edit. 
+    * A later call to prepareToExecute will then set the constraints 
+    * on a property editor using rules. 
+    * @param nameOnPropertySheet
+    * @param propertySpecification
+    * @param propertyEditorType 
+    */
    public void addPropertyToEdit(String nameOnPropertySheet,
                                  ConceptSpecification propertySpecification,
                                  PropertyEditorType propertyEditorType) {
@@ -158,13 +167,21 @@ public class PropertySheetMenuItem
 
    //~--- get methods ---------------------------------------------------------
 
-   public PropertySheetItemConceptWrapper getConceptProperty(ConceptSpecification propertyConceptSpecification,
+   private PropertySheetItemConceptWrapper getConceptProperty(ConceptSpecification propertyConceptSpecification,
          String nameForProperty) {
       return new PropertySheetItemConceptWrapper(
           manifold,
           nameForProperty,
           (IntegerProperty) getPropertyMap().get(propertyConceptSpecification));
    }
+   
+   private PropertySheetStatusWrapper getStatusProperty(ConceptSpecification propertyConceptSpecification,
+         String nameForProperty) {
+      return new PropertySheetStatusWrapper(nameForProperty,
+              (ObjectProperty<State>) getPropertyMap().get(propertyConceptSpecification));
+   }
+   
+   
 
    public Map<ConceptSpecification, ReadOnlyProperty<?>> getPropertyMap() {
       if (propertyMap == null) {
@@ -191,7 +208,12 @@ public class PropertySheetMenuItem
                             propertySpec.propertyConceptSpecification,
                             propertySpec.nameOnPropertySheet)));
                 break;
-
+             case STATUS:
+                items.add(
+                    addItem(getStatusProperty(
+                            propertySpec.propertyConceptSpecification,
+                            propertySpec.nameOnPropertySheet)));
+                break;
              default:
                 throw new RuntimeException("Can't handle: " + propertySpec);
              }

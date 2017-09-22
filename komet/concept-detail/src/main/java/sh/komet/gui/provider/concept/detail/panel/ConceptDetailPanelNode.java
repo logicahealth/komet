@@ -179,7 +179,7 @@ public class ConceptDetailPanelNode
       nodeConsumer.accept(this.scrollPane);
       expandControl.expandActionProperty()
               .addListener(this::expandAllAction);
-      // commit service uses weak change listner references, so this method is not a leak. 
+      // commit service uses weak change listener references, so this method call is not a leak. 
       Get.commitService().addChangeListener(this);
    }
 

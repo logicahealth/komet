@@ -1,16 +1,11 @@
 package sh.komet.gui.control;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.*;
 import org.controlsfx.control.PropertySheet;
-import sh.komet.gui.control.ConceptForControlWrapper;
 import sh.komet.gui.manifold.Manifold;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class PropertySheetItemPreferenceWrapper implements PropertySheet.Item {
