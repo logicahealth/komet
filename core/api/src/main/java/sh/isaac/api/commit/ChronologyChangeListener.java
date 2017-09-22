@@ -47,7 +47,6 @@ import java.util.UUID;
 
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 
 //~--- interfaces -------------------------------------------------------------
 

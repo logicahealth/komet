@@ -52,7 +52,6 @@ import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import sh.isaac.api.State;
 
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.ConceptLabel;
