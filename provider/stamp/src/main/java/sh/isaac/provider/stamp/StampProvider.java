@@ -304,6 +304,12 @@ public class StampProvider
       } else {
          sb.append("\nP: unretrievable");
       }
+      
+      Optional<String> optionalComment = Get.commitService().getComment(stampSequence);
+      if (optionalComment.isPresent()) {
+         sb.append("\n\ncomment: ");
+         sb.append(optionalComment.get());
+      }
       return sb.toString();
    }
 

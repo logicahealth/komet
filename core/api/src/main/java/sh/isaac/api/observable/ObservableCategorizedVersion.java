@@ -17,6 +17,7 @@
 package sh.isaac.api.observable;
 
 import java.util.List;
+import java.util.Optional;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
@@ -84,6 +85,21 @@ public class ObservableCategorizedVersion extends CategorizedVersion implements 
    @Override
    public List<ReadOnlyProperty<?>> getProperties() {
       return getObservableVersion().getProperties();
+   }
+
+   @Override
+   public <T> Optional<T> getUserObject(String objectKey) {
+      return getObservableVersion().getUserObject(objectKey);
+   }
+
+   @Override
+   public void putUserObject(String objectKey, Object object) {
+      getObservableVersion().putUserObject(objectKey, object);
+   }
+
+   @Override
+   public <T> Optional<T> removeUserObject(String objectKey) {
+      return getObservableVersion().removeUserObject(objectKey);
    }
    
    

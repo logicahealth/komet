@@ -59,6 +59,7 @@ import sh.isaac.api.observable.ObservableVersion;
  * @param <V>
  */
 public class CategorizedVersions<V extends Version> {
+   private final List<V>          uncommittedVersions = new ArrayList<>();
    private final List<V>          historicVersions = new ArrayList<>();
    private final LatestVersion<V> latestVersion;
    private final StampSequenceSet latestStampSequences;
@@ -93,8 +94,10 @@ public class CategorizedVersions<V extends Version> {
 
    @Override
    public String toString() {
-      return "CategorizedVersions{" + "historicVersions=\n" + historicVersions + ", latestVersion=\n" + latestVersion +
-             ", latestStampSequences=\n" + latestStampSequences + ", allStampSequences=\n" + allStampSequences + '}';
+      return "CategorizedVersions{" + "uncommittedVersions=\n" + uncommittedVersions + "historicVersions=\n" + 
+              historicVersions + ", latestVersion=\n" + latestVersion +
+             ", latestStampSequences=\n" + latestStampSequences + 
+              ", allStampSequences=\n" + allStampSequences + '}';
    }
 
    private LatestVersion<V> wrap(Chronology chronology, boolean observableWrap) {
@@ -103,6 +106,8 @@ public class CategorizedVersions<V extends Version> {
       for (Version version: chronology.getVersionList()) {
          if (latestStampSequences.contains(version.getStampSequence())) {
             wrappedLatestVersion.addLatest(wrap(version, observableWrap));
+         } else if (version.isUncommitted()) {
+            uncommittedVersions.add(wrap(version, observableWrap));
          } else {
             historicVersions.add(wrap(version, observableWrap));
          }
@@ -121,6 +126,10 @@ public class CategorizedVersions<V extends Version> {
 
    //~--- get methods ---------------------------------------------------------
 
+   public List<V> getUncommittedVersions() {
+      return uncommittedVersions;
+   }
+
    public List<V> getHistoricVersions() {
       return historicVersions;
    }
@@ -131,6 +140,10 @@ public class CategorizedVersions<V extends Version> {
 
    public VersionCategory getVersionCategory(Version version) {
       int stampSequence = version.getStampSequence();
+      
+      if (version.isUncommitted()) {
+         return VersionCategory.Uncommitted;
+      }
 
       if (latestStampSequences.contains(stampSequence)) {
          if (latestVersion.contradictions.isEmpty()) {

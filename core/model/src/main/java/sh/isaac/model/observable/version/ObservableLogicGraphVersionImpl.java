@@ -101,7 +101,7 @@ public class ObservableLogicGraphVersionImpl
              getGraphData());
          this.graphProperty.addListener(
              (observable, oldValue, newValue) -> {
-                ((LogicGraphVersionImpl) this.stampedVersion).setGraphData(newValue);
+                ((LogicGraphVersionImpl) this.stampedVersionProperty.get()).setGraphData(newValue);
              });
       }
 
@@ -110,7 +110,7 @@ public class ObservableLogicGraphVersionImpl
 
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      LogicGraphVersion newVersion = this.stampedVersion.makeAnalog(ec);
+      LogicGraphVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
       ObservableLogicGraphVersionImpl newObservableVersion = new ObservableLogicGraphVersionImpl(
                                                                  newVersion,
                                                                        (ObservableSememeChronology) chronology);
@@ -123,14 +123,14 @@ public class ObservableLogicGraphVersionImpl
    @Override
    public String toString() {
       return "ObservableLogicGraphVersionImpl{data[][]:" +
-             ((MutableLogicGraphVersion) this.stampedVersion).getLogicalExpression() + '}';
+             ((MutableLogicGraphVersion) this.stampedVersionProperty.get()).getLogicalExpression() + '}';
    }
 
    @Override
    protected void updateVersion() {
       super.updateVersion();
-      if (this.graphProperty != null && !Arrays.deepEquals(this.graphProperty.get(), ((LogicGraphVersion) this.stampedVersion).getGraphData())) {
-         this.graphProperty.set(((LogicGraphVersion) this.stampedVersion).getGraphData());
+      if (this.graphProperty != null && !Arrays.deepEquals(this.graphProperty.get(), ((LogicGraphVersion) this.stampedVersionProperty.get()).getGraphData())) {
+         this.graphProperty.set(((LogicGraphVersion) this.stampedVersionProperty.get()).getGraphData());
       }
    }
 
@@ -138,7 +138,7 @@ public class ObservableLogicGraphVersionImpl
 
    @Override
    public byte[][] getExternalGraphData() {
-      return ((MutableLogicGraphVersion) this.stampedVersion).getExternalGraphData();
+      return ((MutableLogicGraphVersion) this.stampedVersionProperty.get()).getExternalGraphData();
    }
 
    /**
@@ -152,7 +152,7 @@ public class ObservableLogicGraphVersionImpl
          return this.graphProperty.get();
       }
 
-      return ((LogicGraphVersion) this.stampedVersion).getGraphData();
+      return ((LogicGraphVersion) this.stampedVersionProperty.get()).getGraphData();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -168,14 +168,14 @@ public class ObservableLogicGraphVersionImpl
          this.graphProperty.set(graphData);
       }
 
-      ((MutableLogicGraphVersion) this.stampedVersion).setGraphData(graphData);
+      ((MutableLogicGraphVersion) this.stampedVersionProperty.get()).setGraphData(graphData);
    }
 
    //~--- get methods ---------------------------------------------------------
 
    @Override
    public LogicalExpression getLogicalExpression() {
-      return ((MutableLogicGraphVersion) this.stampedVersion).getLogicalExpression();
+      return ((MutableLogicGraphVersion) this.stampedVersionProperty.get()).getLogicalExpression();
    }
 
    @Override

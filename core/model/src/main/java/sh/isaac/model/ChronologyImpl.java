@@ -865,6 +865,27 @@ public abstract class ChronologyImpl
       return new LatestVersion<>(getVersionsForStamps(latestStampSequences));
    }
 
+   @Override
+   public <V extends Version> LatestVersion<V> getLatestCommittedVersion(StampCoordinate coordinate) {
+      final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+
+      if (this.versionListReference != null) {
+         final ArrayList<V> versions = (ArrayList<V>) this.versionListReference.get();
+
+         if (versions != null) {
+            return calc.getLatestVersion(this);
+         }
+      }
+
+      final StampSequenceSet latestStampSequences = calc.getLatestCommittedStampSequencesAsSet(this.getVersionStampSequences());
+
+      if (latestStampSequences.isEmpty()) {
+         return new LatestVersion<>();
+      }
+
+      return new LatestVersion<>(getVersionsForStamps(latestStampSequences));
+   }
+
    /**
     * Checks if latest version active.
     *

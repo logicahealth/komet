@@ -72,7 +72,7 @@ public class ObservableConceptVersionImpl
 
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      ConceptVersion newVersion = this.stampedVersion.makeAnalog(ec);
+      ConceptVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
       ObservableConceptVersionImpl newObservableVersion = 
               new ObservableConceptVersionImpl(newVersion, (ObservableConceptChronology) chronology);
       ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);

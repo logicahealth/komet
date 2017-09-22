@@ -44,6 +44,7 @@ package sh.isaac.api.observable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
@@ -135,5 +136,28 @@ public interface ObservableVersion
       getProperties().forEach((property) -> propertyMap.put(new ConceptProxy(property.getName()), property));
       return propertyMap;
    }
+   
+   /**
+    * Method supporting a general purpose ability to associate an api user's objects with versions. 
+    * @param <T>
+    * @param objectKey
+    * @return 
+    */
+   <T extends Object> Optional<T> getUserObject(String objectKey);
+   
+   /**
+    * Method supporting a general purpose ability to associate an api user's objects with versions. 
+    * @param objectKey
+    * @param object 
+    */
+   void putUserObject(String objectKey, Object object);
+   
+   /**
+    * Method supporting a general purpose ability to associate an api user's objects with versions. 
+    * @param <T>
+    * @param objectKey
+    * @return 
+    */
+   <T extends Object> Optional<T> removeUserObject(String objectKey);
 }
 

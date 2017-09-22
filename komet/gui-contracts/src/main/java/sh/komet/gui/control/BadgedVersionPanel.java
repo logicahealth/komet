@@ -103,6 +103,8 @@ public abstract class BadgedVersionPanel
         extends Pane {
 
    public static final int FIRST_COLUMN_WIDTH = 32;
+   
+   protected static final String PROPERTY_SHEET_ATTACHMENT = BadgedVersionPanel.class.getCanonicalName() + ".PROPERTY_SHEET_ATTACHMENT";
 
    //~--- fields --------------------------------------------------------------
    protected final int badgeWidth = 25;
@@ -272,12 +274,17 @@ public abstract class BadgedVersionPanel
       });
    }
 
-   private void addEditingPropertySheet(PropertySheetMenuItem propertySheetMenuItem) {
+   protected void addEditingPropertySheet(PropertySheetMenuItem propertySheetMenuItem) {
+      ObservableVersion observableVersion = propertySheetMenuItem.getVersionInFlight();
       pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, true);
       editControl.setVisible(false);
       cancelButton.setVisible(true);
       commitButton.setVisible(true);
       this.optionalPropertySheetMenuItem = Optional.of(propertySheetMenuItem);
+      observableVersion.putUserObject(PROPERTY_SHEET_ATTACHMENT, propertySheetMenuItem);
+      propertySheetMenuItem.addCompletionListener((observable, oldValue, newValue) -> {
+         observableVersion.removeUserObject(PROPERTY_SHEET_ATTACHMENT);
+      });
       redoLayout();
    }
 

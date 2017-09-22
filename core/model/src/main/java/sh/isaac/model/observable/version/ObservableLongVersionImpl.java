@@ -99,7 +99,7 @@ public class ObservableLongVersionImpl
              getLongValue());
          this.longProperty.addListener(
              (observable, oldValue, newValue) -> {
-                ((LongVersionImpl) this.stampedVersion).setLongValue(newValue.longValue());
+                ((LongVersionImpl) this.stampedVersionProperty.get()).setLongValue(newValue.longValue());
              });
       }
 
@@ -108,7 +108,7 @@ public class ObservableLongVersionImpl
 
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      LongVersion newVersion = this.stampedVersion.makeAnalog(ec);
+      LongVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
       ObservableLongVersionImpl newObservableVersion = new ObservableLongVersionImpl(
                                                            newVersion,
                                                                  (ObservableSememeChronology) chronology);
@@ -126,8 +126,8 @@ public class ObservableLongVersionImpl
    @Override
    protected void updateVersion() {
       super.updateVersion();
-      if (this.longProperty != null && this.longProperty.get() != ((LongVersion) this.stampedVersion).getLongValue()) {
-         this.longProperty.set(((LongVersion) this.stampedVersion).getLongValue());
+      if (this.longProperty != null && this.longProperty.get() != ((LongVersion) this.stampedVersionProperty.get()).getLongValue()) {
+         this.longProperty.set(((LongVersion) this.stampedVersionProperty.get()).getLongValue());
       }
    }
 
@@ -144,7 +144,7 @@ public class ObservableLongVersionImpl
          return this.longProperty.get();
       }
 
-      return ((LongVersion) this.stampedVersion).getLongValue();
+      return ((LongVersion) this.stampedVersionProperty.get()).getLongValue();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -160,7 +160,7 @@ public class ObservableLongVersionImpl
          this.longProperty.set(longValue);
       }
 
-      ((MutableLongVersion) this.stampedVersion).setLongValue(longValue);
+      ((MutableLongVersion) this.stampedVersionProperty.get()).setLongValue(longValue);
    }
 
    //~--- get methods ---------------------------------------------------------

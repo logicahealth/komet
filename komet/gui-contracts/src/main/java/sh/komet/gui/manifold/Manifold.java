@@ -57,6 +57,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WeakChangeListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableSet;
 
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -75,6 +77,7 @@ import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.interfaces.EditInFlight;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -102,6 +105,7 @@ public class Manifold
    public static final String                                      FLOWR_SEARCH_GROUP_NAME   = "flowr";
    private static final HashMap<String, Supplier<Node>>            ICONOGRAPHIC_SUPPLIER     = new HashMap();
    private static final HashMap<String, ArrayDeque<HistoryRecord>> GROUP_HISTORY_MAP         = new HashMap();
+   private static final ObservableSet<EditInFlight>                EDITS_IN_PROCESS = FXCollections.observableSet();
 
    //~--- static initializers -------------------------------------------------
 
@@ -364,6 +368,13 @@ public class Manifold
    @Override
    public ObservableStampCoordinate getStampCoordinate() {
       return this.observableManifoldCoordinate.getStampCoordinate();
+   }
+   
+   public void addEditInFlight(EditInFlight editInFlight) {
+      EDITS_IN_PROCESS.add(editInFlight);
+      editInFlight.addCompletionListener((observable, oldValue, newValue) -> {
+         EDITS_IN_PROCESS.remove(editInFlight);
+      });
    }
 }
 

@@ -578,6 +578,12 @@ public abstract class ObservableChronologyImpl
       return calculator.getLatestVersion(this);
    }
 
+   @Override
+   public LatestVersion<ObservableVersion> getLatestCommittedVersion(StampCoordinate coordinate) {
+      final RelativePositionCalculator calculator = RelativePositionCalculator.getCalculator(coordinate);
+      return calculator.getLatestCommittedVersion(this);
+   }
+
    /**
     * Gets the listener uuid.
     *

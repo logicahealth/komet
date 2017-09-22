@@ -49,7 +49,6 @@ import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
 
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.component.sememe.version.LongVersion;
 import sh.isaac.api.component.sememe.version.MutableStringVersion;
 import sh.isaac.api.component.sememe.version.StringVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -87,7 +86,7 @@ public class ObservableStringVersionImpl
 
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      StringVersion newVersion = this.stampedVersion.makeAnalog(ec);
+      StringVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
       ObservableStringVersionImpl newObservableVersion = new ObservableStringVersionImpl(
                                                              newVersion,
                                                                    (ObservableSememeChronology) chronology);
@@ -122,8 +121,8 @@ public class ObservableStringVersionImpl
    @Override
    protected void updateVersion() {
       super.updateVersion();
-      if (this.stringProperty != null && !this.stringProperty.get().equals(((MutableStringVersion) this.stampedVersion).getString())) {
-         this.stringProperty.set(((MutableStringVersion) this.stampedVersion).getString());
+      if (this.stringProperty != null && !this.stringProperty.get().equals(((MutableStringVersion) this.stampedVersionProperty.get()).getString())) {
+         this.stringProperty.set(((MutableStringVersion) this.stampedVersionProperty.get()).getString());
       }
    }
 
@@ -148,7 +147,7 @@ public class ObservableStringVersionImpl
          return this.stringProperty.get();
       }
 
-      return ((StringVersion) this.stampedVersion).getString();
+      return ((StringVersion) this.stampedVersionProperty.get()).getString();
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -164,7 +163,7 @@ public class ObservableStringVersionImpl
          this.stringProperty.set(string);
       }
 
-      ((MutableStringVersion) this.stampedVersion).setString(string);
+      ((MutableStringVersion) this.stampedVersionProperty.get()).setString(string);
    }
 }
 

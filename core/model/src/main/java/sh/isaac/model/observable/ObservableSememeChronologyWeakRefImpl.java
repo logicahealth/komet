@@ -310,5 +310,10 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    public String toString() {
       return getChronology().toString();
    }
+
+   @Override
+   public <V extends Version> LatestVersion<V> getLatestCommittedVersion(StampCoordinate coordinate) {
+      return getChronology().getLatestCommittedVersion(coordinate);
+   }
    
 }

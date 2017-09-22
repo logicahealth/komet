@@ -38,6 +38,7 @@ package sh.komet.gui.control;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.Optional;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
@@ -92,6 +93,19 @@ public final class ComponentPanel
 
       isContradiction.set(this.categorizedVersions.getLatestVersion()
               .isContradicted());
+      
+      if (!this.categorizedVersions.getUncommittedVersions().isEmpty()) {
+         if (this.categorizedVersions.getUncommittedVersions().size() > 1) {
+            System.err.println("Error: can't handle more than one uncommitted version in this editor...");
+         }
+         ObservableCategorizedVersion uncommittedVersion = this.categorizedVersions.getUncommittedVersions().get(0);
+         Optional<PropertySheetMenuItem> propertySheetMenuItem = uncommittedVersion.getUserObject(PROPERTY_SHEET_ATTACHMENT);
+         if (propertySheetMenuItem.isPresent()) {
+            this.addEditingPropertySheet(propertySheetMenuItem.get());
+         } else {
+            System.err.println("Error: No property sheet editor for this uncommitted version...\n" + uncommittedVersion);
+         }
+      }
 
       if (this.categorizedVersions.getLatestVersion()
               .isContradicted()) {

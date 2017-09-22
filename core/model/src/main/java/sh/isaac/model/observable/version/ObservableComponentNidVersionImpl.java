@@ -56,7 +56,7 @@ public class ObservableComponentNidVersionImpl
 
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      ComponentNidVersion newVersion = this.stampedVersion.makeAnalog(ec);
+      ComponentNidVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
       ObservableComponentNidVersionImpl newObservableVersion = 
               new ObservableComponentNidVersionImpl(newVersion, (ObservableSememeChronology) chronology);
       ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
@@ -77,7 +77,7 @@ public class ObservableComponentNidVersionImpl
                ObservableFields.COMPONENT_NID_FOR_SEMEME.toExternalString(),
                getComponentNid());
          this.componentNidProperty.addListener((observable, oldValue, newValue) -> {
-            ((ComponentNidVersionImpl) this.stampedVersion).setComponentNid(newValue.intValue());
+            ((ComponentNidVersionImpl) this.stampedVersionProperty.get()).setComponentNid(newValue.intValue());
          });
       }
 
@@ -99,13 +99,13 @@ public class ObservableComponentNidVersionImpl
          return this.componentNidProperty.get();
       }
 
-      return ((ComponentNidVersionImpl) this.stampedVersion).getComponentNid();
+      return ((ComponentNidVersionImpl) this.stampedVersionProperty.get()).getComponentNid();
    }
 
    @Override
    protected void updateVersion() {
-      if (this.componentNidProperty != null && this.componentNidProperty.get() != ((ComponentNidVersionImpl) this.stampedVersion).getComponentNid()) {
-         this.componentNidProperty.set(((ComponentNidVersionImpl) this.stampedVersion).getComponentNid());
+      if (this.componentNidProperty != null && this.componentNidProperty.get() != ((ComponentNidVersionImpl) this.stampedVersionProperty.get()).getComponentNid()) {
+         this.componentNidProperty.set(((ComponentNidVersionImpl) this.stampedVersionProperty.get()).getComponentNid());
       }
    }
 
@@ -121,7 +121,7 @@ public class ObservableComponentNidVersionImpl
       if (this.componentNidProperty != null) {
          this.componentNidProperty.set(componentNid);
       }
-      ((ComponentNidVersionImpl) this.stampedVersion).setComponentNid(componentNid);
+      ((ComponentNidVersionImpl) this.stampedVersionProperty.get()).setComponentNid(componentNid);
    }
 
    //~--- get methods ---------------------------------------------------------

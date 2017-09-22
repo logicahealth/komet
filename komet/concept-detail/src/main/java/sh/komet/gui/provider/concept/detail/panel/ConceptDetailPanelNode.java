@@ -83,6 +83,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.chronicle.VersionType;
@@ -91,6 +92,7 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
@@ -255,11 +257,20 @@ public class ConceptDetailPanelNode
          // Sort them...
          observableConceptChronology.getObservableSememeList()
                  .filtered(
-                         (t) -> {
-                            switch (t.getSememeType()) {
+                         (sememeChronology) -> {
+                            switch (sememeChronology.getSememeType()) {
                                case DESCRIPTION:
                                case LOGIC_GRAPH:
-                                  return true;
+                                  if (historySwitch.isSelected()) {
+                                     return true;
+                                  } else {
+                                     LatestVersion<SememeVersion> latest = sememeChronology.getLatestVersion(conceptDetailManifold);
+                                     if (latest.isPresent()) {
+                                        return latest.get().getState() == State.ACTIVE;
+                                     }
+                                     
+                                  }
+                                  
 
                                default:
                                   return false;

@@ -45,7 +45,6 @@ import java.util.List;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.component.sememe.version.MutableStringVersion;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
@@ -53,7 +52,6 @@ import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.sememe.version.SememeVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -85,7 +83,7 @@ public class ObservableSememeVersionImpl
 
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      SememeVersion newVersion = this.stampedVersion.makeAnalog(ec);
+      SememeVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
       ObservableSememeVersionImpl newObservableVersion = 
               new ObservableSememeVersionImpl(newVersion, (ObservableSememeChronology) chronology);
       ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
@@ -142,7 +140,7 @@ public class ObservableSememeVersionImpl
     */
    @Override
    public int getAssemblageSequence() {
-      return ((SememeVersion) this.stampedVersion).getAssemblageSequence();
+      return ((SememeVersion) this.stampedVersionProperty.get()).getAssemblageSequence();
    }
 
    /**
@@ -162,7 +160,7 @@ public class ObservableSememeVersionImpl
     */
    @Override
    public int getReferencedComponentNid() {
-      return ((SememeVersion) this.stampedVersion).getReferencedComponentNid();
+      return ((SememeVersion) this.stampedVersionProperty.get()).getReferencedComponentNid();
    }
 
    /**
@@ -172,7 +170,7 @@ public class ObservableSememeVersionImpl
     */
    @Override
    public int getSememeSequence() {
-      return ((SememeVersion) this.stampedVersion).getSememeSequence();
+      return ((SememeVersion) this.stampedVersionProperty.get()).getSememeSequence();
    }
    @Override
    protected void updateVersion() {

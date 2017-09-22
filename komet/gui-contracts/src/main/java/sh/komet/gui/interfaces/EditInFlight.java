@@ -14,18 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.chronicle;
+package sh.komet.gui.interfaces;
 
-import java.util.EnumSet;
+import javafx.beans.value.ChangeListener;
+import sh.isaac.api.commit.CommitStates;
+import sh.isaac.api.observable.ObservableVersion;
 
 /**
  *
  * @author kec
  */
-public enum VersionCategory {
+public interface EditInFlight {
    
-   UncontradictedLatest, ContradictedLatest, Prior, Uncategorized, Uncommitted;
-
-   public static EnumSet LatestSet = EnumSet.of(UncontradictedLatest, ContradictedLatest, Uncommitted);
-
+   void cancel();
+   
+   ObservableVersion getVersionInFlight();
+   
+   void addCompletionListener(ChangeListener<CommitStates> listener);
 }

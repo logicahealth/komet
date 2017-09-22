@@ -477,7 +477,13 @@ public class RelativePositionCalculator
     * @param stampsForPosition the stamps for position
     * @param stampSequence the stamp sequence
     */
-   private void handleStamp(StampSequenceSet stampsForPosition, int stampSequence) {
+   private void handleStamp(StampSequenceSet stampsForPosition, int stampSequence, boolean allowUncommitted) {
+      if (!allowUncommitted) {
+         if (Get.stampService().isUncommitted(stampSequence)) {
+            return;
+         }
+      }
+      
       if (!onRoute(stampSequence)) {
          return;
       }
@@ -639,8 +645,19 @@ public class RelativePositionCalculator
     */
    public StampSequenceSet getLatestStampSequencesAsSet(IntStream stampSequenceStream) {
       final StampSequenceSet result = stampSequenceStream.collect(StampSequenceSet::new,
-                                                                  new LatestStampAccumulator(),
-                                                                  new LatestStampCombiner());
+                                                                  new LatestStampAccumulator(true),
+                                                                  new LatestStampCombiner(true));
+
+      return StampSequenceSet.of(result.stream().filter((stampSequence) -> {
+               return this.coordinate.getAllowedStates()
+                                     .contains(Get.stampService()
+                                           .getStatusForStamp(stampSequence));
+            }));
+   }
+   public StampSequenceSet getLatestCommittedStampSequencesAsSet(IntStream stampSequenceStream) {
+      final StampSequenceSet result = stampSequenceStream.collect(StampSequenceSet::new,
+                                                                  new LatestStampAccumulator(false),
+                                                                  new LatestStampCombiner(false));
 
       return StampSequenceSet.of(result.stream().filter((stampSequence) -> {
                return this.coordinate.getAllowedStates()
@@ -662,6 +679,35 @@ public class RelativePositionCalculator
       chronicle.getVersionList()
                .stream()
                .filter((newVersionToTest) -> (newVersionToTest.getTime() != Long.MIN_VALUE))
+               .filter((newVersionToTest) -> (onRoute(newVersionToTest)))
+               .forEach((newVersionToTest) -> {
+                           if (latestVersionSet.isEmpty()) {
+                              latestVersionSet.add((V) newVersionToTest);
+                           } else {
+                              handlePart(latestVersionSet, newVersionToTest);
+                           }
+                        });
+
+      final List<V> latestVersionList = new ArrayList<>(latestVersionSet);
+
+      if (latestVersionList.isEmpty()) {
+         return new LatestVersion();
+      }
+
+      if (latestVersionList.size() == 1) {
+         return new LatestVersion<>(latestVersionList.get(0));
+      }
+
+      return new LatestVersion<>(latestVersionList.get(0),
+            latestVersionList.subList(1, latestVersionList.size()));
+   }
+   
+   public <V extends ObservableVersion> LatestVersion<V> getLatestCommittedVersion(ObservableChronology chronicle) {
+      final HashSet<V> latestVersionSet = new HashSet<>();
+
+      chronicle.getVersionList()
+               .stream()
+               .filter((newVersionToTest) -> (newVersionToTest.getTime() != Long.MIN_VALUE && newVersionToTest.getTime() != Long.MAX_VALUE))
                .filter((newVersionToTest) -> (onRoute(newVersionToTest)))
                .forEach((newVersionToTest) -> {
                            if (latestVersionSet.isEmpty()) {
@@ -741,6 +787,12 @@ public class RelativePositionCalculator
     */
    private class LatestStampAccumulator
             implements ObjIntConsumer<StampSequenceSet> {
+      
+      final boolean allowUncommitted;
+
+      public LatestStampAccumulator(boolean allowUncommitted) {
+         this.allowUncommitted = allowUncommitted;
+      }
       /**
        * Accept.
        *
@@ -749,7 +801,7 @@ public class RelativePositionCalculator
        */
       @Override
       public void accept(StampSequenceSet stampsForPosition, int stampToCompare) {
-         handleStamp(stampsForPosition, stampToCompare);
+         handleStamp(stampsForPosition, stampToCompare, allowUncommitted);
       }
    }
 
@@ -759,6 +811,12 @@ public class RelativePositionCalculator
     */
    private class LatestStampCombiner
             implements BiConsumer<StampSequenceSet, StampSequenceSet> {
+      final boolean allowUncommitted;
+
+      public LatestStampCombiner(boolean allowUncommitted) {
+         this.allowUncommitted = allowUncommitted;
+      }
+
       /**
        * Accept.
        *
@@ -768,7 +826,7 @@ public class RelativePositionCalculator
       @Override
       public void accept(StampSequenceSet t, StampSequenceSet u) {
          u.stream().forEach((stampToTest) -> {
-                      handleStamp(t, stampToTest);
+                      handleStamp(t, stampToTest, allowUncommitted);
                    });
          u.clear();
 

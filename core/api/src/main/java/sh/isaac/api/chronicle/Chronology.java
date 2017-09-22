@@ -105,6 +105,15 @@ public interface Chronology
     * @return the latest version
     */
    <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate);
+   
+   /**
+    * Exclude uncommitted versions from the latest version computation. 
+    * @param <V>
+    * @param coordinate
+    * @return 
+    */
+   <V extends Version> LatestVersion<V> getLatestCommittedVersion(StampCoordinate coordinate);
+
 
    /**
     * Gets the categorized versions.
@@ -114,7 +123,7 @@ public interface Chronology
     * @return the latest version
     */
    default <V extends Version> CategorizedVersions<V> getCategorizedVersions(StampCoordinate coordinate) {
-      LatestVersion<V> latestVersion = getLatestVersion(coordinate);
+      LatestVersion<V> latestVersion = getLatestCommittedVersion(coordinate);
       return new CategorizedVersions(latestVersion, this);
    }
 

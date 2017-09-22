@@ -49,20 +49,23 @@ import java.util.Objects;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.value.ChangeListener;
 
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.PropertySheet.Item;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 
+import sh.komet.gui.interfaces.EditInFlight;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -72,13 +75,15 @@ import sh.komet.gui.util.FxGet;
  *
  * @author kec
  */
-public class PropertySheetMenuItem {
-   PropertySheet                          propertySheet    = new PropertySheet();
-   List<PropertySpec>                     propertiesToEdit = new ArrayList<>();
-   Map<ConceptSpecification, ReadOnlyProperty<?>> propertyMap;
-   ObservableVersion                      observableVersion;
-   boolean                                executeOnClone;
-   Manifold                               manifold;
+public class PropertySheetMenuItem
+         implements EditInFlight {
+   PropertySheet                                         propertySheet       = new PropertySheet();
+   List<PropertySpec>                                    propertiesToEdit    = new ArrayList<>();
+   private final ArrayList<ChangeListener<CommitStates>> completionListeners = new ArrayList<>();
+   Map<ConceptSpecification, ReadOnlyProperty<?>>        propertyMap;
+   ObservableVersion                                     observableVersion;
+   boolean                                               executeOnClone;
+   Manifold                                              manifold;
 
    //~--- constructors --------------------------------------------------------
 
@@ -96,19 +101,34 @@ public class PropertySheetMenuItem {
 
    //~--- methods -------------------------------------------------------------
 
+   @Override
+   public void addCompletionListener(ChangeListener<CommitStates> listener) {
+      completionListeners.add(listener);
+   }
+
    public void addPropertyToEdit(String nameOnPropertySheet,
                                  ConceptSpecification propertySpecification,
                                  PropertyEditorType propertyEditorType) {
       this.propertiesToEdit.add(new PropertySpec(nameOnPropertySheet, propertySpecification, propertyEditorType));
    }
 
+   @Override
    public void cancel() {
       Get.commitService()
          .cancel(observableVersion.getChronology(), manifold.getEditCoordinate());
+      completionListeners.forEach((listener) -> {
+         listener.changed(observableVersion.commitStateProperty(), CommitStates.UNCOMMITTED, CommitStates.CANCELED);
+      });
+      completionListeners.clear();
    }
 
    public void commit() {
-      Get.commitService().commit(observableVersion.getChronology(), manifold.getEditCoordinate(), "temporary comment");
+      Get.commitService()
+         .commit(observableVersion.getChronology(), manifold.getEditCoordinate(), "temporary comment");
+      completionListeners.forEach((listener) -> {
+         listener.changed(observableVersion.commitStateProperty(), CommitStates.UNCOMMITTED, CommitStates.COMMITTED);
+      });
+      completionListeners.clear();
    }
 
    public void prepareToExecute() {
@@ -127,6 +147,7 @@ public class PropertySheetMenuItem {
 
       FxGet.rulesDrivenKometService()
            .populatePropertySheetEditors(this);
+      this.manifold.addEditInFlight(this);
    }
 
    private Item addItem(Item item) {
@@ -176,6 +197,11 @@ public class PropertySheetMenuItem {
              }
           });
       return items;
+   }
+
+   @Override
+   public ObservableVersion getVersionInFlight() {
+      return this.observableVersion;
    }
 
    //~--- inner classes -------------------------------------------------------
