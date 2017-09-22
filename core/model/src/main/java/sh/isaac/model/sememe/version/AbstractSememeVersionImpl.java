@@ -101,7 +101,7 @@ public abstract class AbstractSememeVersionImpl
 
    @Override
    protected final int editDistance2(VersionImpl other, int editDistance) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      return editDistance3((AbstractSememeVersionImpl) other, editDistance);
    }
    
    protected abstract int editDistance3(AbstractSememeVersionImpl other, int editDistance);

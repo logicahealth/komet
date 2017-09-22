@@ -95,30 +95,6 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
       this.kSession.execute(propertySheetMenuItem);
    }
 
-   private void addPropertySheetEditorAction(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
-           Consumer<PropertySheet> propertySheetConsumer, MenuItem editPropertySheetItem) {
-
-      PropertySheet propertySheet = new PropertySheet();
-      propertySheet.setPropertyEditorFactory(new IsaacPropertyEditorFactory(manifold));
-      // add status and module items...
-      IntegerProperty moduleSequenceProperty = categorizedVersion.moduleSequenceProperty();
-      // the name of the property is the external string of the concept that specifies the semantics of this field. 
-      // TODO: add a gui dialect...
-      // TODO: how do we know it is a concept field?
-      // TODO: how to determine the constraints? 
-      // Need finer granularity than just an Assemblage...
-      // Pass the version + field semantics concept spec to Drools. 
-      // default rule is to use the field constraints/binding. 
-      // Add class-based rules that specialize the constraints. zx
-      ConceptProxy moduleSequenceConceptSpec = new ConceptProxy(moduleSequenceProperty.getName());
-
-      // TODO: add a gui dialect...
-      // TODO: how do we know it is a concept field?
-      ObjectProperty<State> stateProperty = categorizedVersion.stateProperty();
-      ConceptProxy stateSpecConceptSpec = new ConceptProxy(stateProperty.getName());
-      stateSpecConceptSpec.equals(MetaData.MODULE_SEQUENCE_FOR_VERSION____ISAAC);
-   }
-
    /*
 A fluent API was created to allow programatic creation of rules as an alternative to the previously suggested method of template creation.
 

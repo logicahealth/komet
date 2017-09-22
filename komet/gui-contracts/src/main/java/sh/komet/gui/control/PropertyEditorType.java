@@ -21,5 +21,5 @@ package sh.komet.gui.control;
  * @author kec
  */
 public enum PropertyEditorType {
-   CONCEPT, STATUS;
+   CONCEPT, STATUS, TEXT;
 }

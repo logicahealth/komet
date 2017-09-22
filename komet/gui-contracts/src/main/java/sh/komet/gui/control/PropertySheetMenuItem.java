@@ -51,6 +51,7 @@ import java.util.Objects;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 
 import org.controlsfx.control.PropertySheet;
@@ -169,10 +170,14 @@ public class PropertySheetMenuItem
 
    private PropertySheetItemConceptWrapper getConceptProperty(ConceptSpecification propertyConceptSpecification,
          String nameForProperty) {
+      IntegerProperty conceptProperty = (IntegerProperty) getPropertyMap().get(propertyConceptSpecification);
+      if (conceptProperty == null) {
+         throw new IllegalStateException("No property for: " + propertyConceptSpecification);
+      }
       return new PropertySheetItemConceptWrapper(
           manifold,
           nameForProperty,
-          (IntegerProperty) getPropertyMap().get(propertyConceptSpecification));
+          conceptProperty);
    }
    
    private PropertySheetStatusWrapper getStatusProperty(ConceptSpecification propertyConceptSpecification,
@@ -181,6 +186,12 @@ public class PropertySheetMenuItem
               (ObjectProperty<State>) getPropertyMap().get(propertyConceptSpecification));
    }
    
+   
+   private PropertySheetTextWrapper getTextProperty(ConceptSpecification propertyConceptSpecification,
+         String nameForProperty) {
+      return new PropertySheetTextWrapper(nameForProperty,
+              (StringProperty) getPropertyMap().get(propertyConceptSpecification));
+   }
    
 
    public Map<ConceptSpecification, ReadOnlyProperty<?>> getPropertyMap() {
@@ -211,6 +222,13 @@ public class PropertySheetMenuItem
              case STATUS:
                 items.add(
                     addItem(getStatusProperty(
+                            propertySpec.propertyConceptSpecification,
+                            propertySpec.nameOnPropertySheet)));
+                break;
+                
+             case TEXT:
+                items.add(
+                    addItem(getTextProperty(
                             propertySpec.propertyConceptSpecification,
                             propertySpec.nameOnPropertySheet)));
                 break;

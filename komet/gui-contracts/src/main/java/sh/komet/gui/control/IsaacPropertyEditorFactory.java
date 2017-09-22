@@ -40,6 +40,8 @@ public class IsaacPropertyEditorFactory implements Callback<PropertySheet.Item, 
          return createCustomChoiceEditor((PropertySheetItemConceptWrapper) propertySheetItem);
       } else if (propertySheetItem instanceof PropertySheetStatusWrapper) {
          return Editors.createChoiceEditor(propertySheetItem, State.makeActiveAndInactiveSet());
+      }  else if (propertySheetItem instanceof PropertySheetTextWrapper) {
+         return Editors.createTextEditor(propertySheetItem);
       }
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
