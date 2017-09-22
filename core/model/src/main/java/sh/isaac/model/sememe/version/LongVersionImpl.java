@@ -68,10 +68,9 @@ public class LongVersionImpl
     *
     * @param container the container
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     */
-   public LongVersionImpl(SememeChronologyImpl container, int stampSequence, short versionSequence) {
-      super(container, stampSequence, versionSequence);
+   public LongVersionImpl(SememeChronologyImpl container, int stampSequence) {
+      super(container, stampSequence);
    }
 
    /**
@@ -79,19 +78,17 @@ public class LongVersionImpl
     *
     * @param container the container
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     * @param data the data
     */
    public LongVersionImpl(SememeChronologyImpl container,
                          int stampSequence,
-                         short versionSequence,
                          ByteArrayDataBuffer data) {
-      super(container, stampSequence, versionSequence);
+      super(container, stampSequence);
       this.longValue = data.getLong();
    }
    
-   private LongVersionImpl(LongVersionImpl other, int stampSequence, short versionSequence) {
-      super(other.getChronology(), stampSequence, versionSequence);
+   private LongVersionImpl(LongVersionImpl other, int stampSequence) {
+      super(other.getChronology(), stampSequence);
       this.longValue = other.longValue;
    }
 
@@ -105,8 +102,7 @@ public class LongVersionImpl
                                        this.getModuleSequence(),
                                        ec.getPathSequence());
       SememeChronologyImpl chronologyImpl = (SememeChronologyImpl) this.chronicle;
-      final LongVersionImpl newVersion = new LongVersionImpl(this, stampSequence, 
-              chronologyImpl.nextVersionSequence());
+      final LongVersionImpl newVersion = new LongVersionImpl(this, stampSequence);
 
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;   

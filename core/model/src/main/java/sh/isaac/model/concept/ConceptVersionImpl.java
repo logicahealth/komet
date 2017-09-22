@@ -63,10 +63,9 @@ public class ConceptVersionImpl
     *
     * @param chronicle the chronicle
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     */
-   public ConceptVersionImpl(ConceptChronologyImpl chronicle, int stampSequence, short versionSequence) {
-      super(chronicle, stampSequence, versionSequence);
+   public ConceptVersionImpl(ConceptChronologyImpl chronicle, int stampSequence) {
+      super(chronicle, stampSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -91,8 +90,7 @@ public class ConceptVersionImpl
                                        this.getModuleSequence(),
                                        ec.getPathSequence());
       ConceptChronologyImpl chronologyImpl = (ConceptChronologyImpl) this.chronicle;
-      final ConceptVersionImpl newVersion = new ConceptVersionImpl(chronologyImpl, stampSequence, 
-              chronologyImpl.nextVersionSequence());
+      final ConceptVersionImpl newVersion = new ConceptVersionImpl(chronologyImpl, stampSequence);
 
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;   

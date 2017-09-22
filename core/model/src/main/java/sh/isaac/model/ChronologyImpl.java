@@ -105,11 +105,6 @@ public abstract class ChronologyImpl
 
    //~--- fields --------------------------------------------------------------
 
-   /**
-    * Counter to give versions unique sequences within the chronicle.
-    */
-   private short versionSequence = 0;
-
    /** Position in the data where chronicle data ends, and version data starts. */
    private int versionStartPosition = -1;
 
@@ -485,15 +480,6 @@ public abstract class ChronologyImpl
    }
 
    /**
-    * Next version sequence.
-    *
-    * @return the short
-    */
-   public short nextVersionSequence() {
-      return this.versionSequence++;
-   }
-
-   /**
     * Put additional chronicle fields.
     *
     * @param out the out
@@ -547,7 +533,8 @@ public abstract class ChronologyImpl
       } else {
          this.nid               = data.getNid();
          this.containerSequence = data.getInt();
-         this.versionSequence   = data.getShort();
+         // read legacy version sequence. 
+         data.getShort();
          setAdditionalChronicleFieldsFromBuffer(data);
          constructorEnd(data);
          // find if there are any uncommitted versions in the written data...
@@ -610,7 +597,8 @@ public abstract class ChronologyImpl
       if (!data.isExternalData()) {
          data.putInt(this.nid);
          data.putInt(this.containerSequence);
-         data.putShort(this.versionSequence);
+         // legacy version sequence. 
+         data.putShort((short) 0);
       }
 
       putAdditionalChronicleFields(data);

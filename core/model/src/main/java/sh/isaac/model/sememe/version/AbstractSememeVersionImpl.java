@@ -34,15 +34,14 @@ public abstract class AbstractSememeVersionImpl
     *
     * @param container the container
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     */
-   public AbstractSememeVersionImpl(SememeChronology container, int stampSequence, short versionSequence) {
-      super(container, stampSequence, versionSequence);
+   public AbstractSememeVersionImpl(SememeChronology container, int stampSequence) {
+      super(container, stampSequence);
    }
    
 
-   private AbstractSememeVersionImpl(SememeVersionImpl other, int stampSequence, short versionSequence) {
-      super(other.getChronology(), stampSequence, versionSequence);
+   private AbstractSememeVersionImpl(SememeVersionImpl other, int stampSequence) {
+      super(other.getChronology(), stampSequence);
    }
 
    //~--- methods -------------------------------------------------------------

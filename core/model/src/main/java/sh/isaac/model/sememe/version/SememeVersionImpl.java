@@ -47,7 +47,6 @@ import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.model.VersionImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -64,15 +63,14 @@ public class SememeVersionImpl
     *
     * @param container the container
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     */
-   public SememeVersionImpl(SememeChronology container, int stampSequence, short versionSequence) {
-      super(container, stampSequence, versionSequence);
+   public SememeVersionImpl(SememeChronology container, int stampSequence) {
+      super(container, stampSequence);
    }
    
 
-   private SememeVersionImpl(SememeVersionImpl other, int stampSequence, short versionSequence) {
-      super(other.getChronology(), stampSequence, versionSequence);
+   private SememeVersionImpl(SememeVersionImpl other, int stampSequence) {
+      super(other.getChronology(), stampSequence);
    }
 
    @Override
@@ -85,8 +83,7 @@ public class SememeVersionImpl
                                        this.getModuleSequence(),
                                        ec.getPathSequence());
       SememeChronologyImpl chronologyImpl = (SememeChronologyImpl) this.chronicle;
-      final SememeVersionImpl newVersion = new SememeVersionImpl(this, stampSequence, 
-              chronologyImpl.nextVersionSequence());
+      final SememeVersionImpl newVersion = new SememeVersionImpl(this, stampSequence);
 
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;   

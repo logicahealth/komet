@@ -124,7 +124,7 @@ public class SememeChronologyImpl extends ChronologyImpl
     */
    @Override
    public <V extends Version> V createMutableVersion(int stampSequence) {
-      final V version = createMutableVersionInternal(stampSequence, nextVersionSequence());
+      final V version = createMutableVersionInternal(stampSequence);
       addVersion(version);
       return version;
    }
@@ -145,7 +145,7 @@ public class SememeChronologyImpl extends ChronologyImpl
                                          ec.getAuthorSequence(),
                                          ec.getModuleSequence(),
                                          ec.getPathSequence());
-      final V version = createMutableVersionInternal(stampSequence, nextVersionSequence());
+      final V version = createMutableVersionInternal(stampSequence);
 
       addVersion(version);
       return version;
@@ -157,55 +157,47 @@ public class SememeChronologyImpl extends ChronologyImpl
     * @param token the token
     * @param container the container
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     * @param bb the bb
     * @return the sememe version impl
     */
    public static AbstractSememeVersionImpl createSememe(byte token,
          SememeChronologyImpl container,
          int stampSequence,
-         short versionSequence,
          ByteArrayDataBuffer bb) {
       final VersionType st = VersionType.getFromToken(token);
 
       switch (st) {
       case MEMBER:
-         return new SememeVersionImpl(container, stampSequence, versionSequence);
+         return new SememeVersionImpl(container, stampSequence);
 
       case COMPONENT_NID:
          return new ComponentNidVersionImpl((SememeChronologyImpl) container,
                                            stampSequence,
-                                           versionSequence,
                                            bb);
 
       case LONG:
          return new LongVersionImpl((SememeChronologyImpl) container,
                                    stampSequence,
-                                   versionSequence,
                                    bb);
 
       case LOGIC_GRAPH:
          return new LogicGraphVersionImpl((SememeChronologyImpl) container,
                                          stampSequence,
-                                         versionSequence,
                                          bb);
 
       case DYNAMIC:
          return new DynamicSememeImpl((SememeChronologyImpl) container,
                                       stampSequence,
-                                      versionSequence,
                                       bb);
 
       case STRING:
          return new StringVersionImpl((SememeChronologyImpl) container,
                                      stampSequence,
-                                     versionSequence,
                                      bb);
 
       case DESCRIPTION:
          return (new DescriptionVersionImpl((SememeChronologyImpl) container,
                                            stampSequence,
-                                           versionSequence,
                                            bb));
 
       default:
@@ -297,39 +289,33 @@ public class SememeChronologyImpl extends ChronologyImpl
     * @throws UnsupportedOperationException the unsupported operation exception
     */
    protected <M extends MutableSememeVersion> M createMutableVersionInternal(
-         int stampSequence,
-         short versionSequence)
+         int stampSequence)
             throws UnsupportedOperationException {
       switch (getSememeType()) {
       case COMPONENT_NID:
             return (M) new ComponentNidVersionImpl((SememeChronology) this,
-                  stampSequence,
-                  versionSequence);
+                  stampSequence);
       case LONG:
-            return (M) new LongVersionImpl((SememeChronologyImpl) this, stampSequence, versionSequence);
+            return (M) new LongVersionImpl((SememeChronologyImpl) this, stampSequence);
 
       case DYNAMIC:
             return (M) new DynamicSememeImpl((SememeChronologyImpl) this,
-                                             stampSequence,
-                                             versionSequence);
+                                             stampSequence);
 
       case LOGIC_GRAPH:
             return (M) new LogicGraphVersionImpl((SememeChronologyImpl) this,
-                  stampSequence,
-                  versionSequence);
+                  stampSequence);
 
       case STRING:
             return (M) new StringVersionImpl((SememeChronology) this,
-                                            stampSequence,
-                                            versionSequence);
+                                            stampSequence);
 
       case MEMBER:
-            return (M) new SememeVersionImpl(this, stampSequence, versionSequence);
+            return (M) new SememeVersionImpl(this, stampSequence);
 
       case DESCRIPTION:
             return (M) new DescriptionVersionImpl((SememeChronology) this,
-                  stampSequence,
-                  versionSequence);
+                  stampSequence);
 
       default:
          throw new UnsupportedOperationException("Can't handle: " + getSememeType());
@@ -345,7 +331,9 @@ public class SememeChronologyImpl extends ChronologyImpl
     */
    @Override
    protected <V extends StampedVersion> V makeVersion(int stampSequence, ByteArrayDataBuffer db) {
-      return (V) createSememe(this.sememeTypeToken, this, stampSequence, db.getShort(), db);
+      // consume legacy version sequence. 
+      db.getShort();
+      return (V) createSememe(this.sememeTypeToken, this, stampSequence, db);
    }
 
    /**

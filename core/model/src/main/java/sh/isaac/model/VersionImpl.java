@@ -67,23 +67,16 @@ public abstract class VersionImpl
     */
    private int stampSequence;
 
-   /**
-    * The version sequence.
-    */
-   private short versionSequence;
-
    //~--- constructors --------------------------------------------------------
    /**
     * Instantiates a new object version impl.
     *
     * @param chronicle the chronicle
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     */
-   public VersionImpl(Chronology chronicle, int stampSequence, short versionSequence) {
+   public VersionImpl(Chronology chronicle, int stampSequence) {
       this.chronicle = (ChronologyImpl) chronicle;
       this.stampSequence = stampSequence;
-      this.versionSequence = versionSequence;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -249,7 +242,8 @@ public abstract class VersionImpl
     */
    protected void writeVersionData(ByteArrayDataBuffer data) {
       data.putStampSequence(this.stampSequence);
-      data.putShort(this.versionSequence);
+      // legacy version sequence...
+      data.putShort((byte) 0);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -478,24 +472,5 @@ public abstract class VersionImpl
    @Override
    public List<UUID> getUuidList() {
       return this.chronicle.getUuidList();
-   }
-
-   /**
-    * Gets the version sequence.
-    *
-    * @return the version sequence
-    */
-   public short getVersionSequence() {
-      return this.versionSequence;
-   }
-
-   //~--- set methods ---------------------------------------------------------
-   /**
-    * Sets the version sequence.
-    *
-    * @param versionSequence the new version sequence
-    */
-   public void setVersionSequence(short versionSequence) {
-      this.versionSequence = versionSequence;
    }
 }

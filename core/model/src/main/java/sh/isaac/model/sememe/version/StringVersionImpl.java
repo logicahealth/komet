@@ -45,7 +45,6 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.component.sememe.version.MutableStringVersion;
 import sh.isaac.api.component.sememe.version.StringVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.model.VersionImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -69,10 +68,9 @@ public class StringVersionImpl
     *
     * @param container the container
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     */
-   public StringVersionImpl(SememeChronology container, int stampSequence, short versionSequence) {
-      super(container, stampSequence, versionSequence);
+   public StringVersionImpl(SememeChronology container, int stampSequence) {
+      super(container, stampSequence);
    }
 
    /**
@@ -80,19 +78,17 @@ public class StringVersionImpl
     *
     * @param container the container
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     * @param data the data
     */
    public StringVersionImpl(SememeChronology container,
            int stampSequence,
-           short versionSequence,
            ByteArrayDataBuffer data) {
-      super(container, stampSequence, versionSequence);
+      super(container, stampSequence);
       this.string = data.readUTF();
    }
 
-   private StringVersionImpl(StringVersionImpl other, int stampSequence, short versionSequence) {
-      super(other.getChronology(), stampSequence, versionSequence);
+   private StringVersionImpl(StringVersionImpl other, int stampSequence) {
+      super(other.getChronology(), stampSequence);
       this.string = other.getString();
    }
 
@@ -106,8 +102,7 @@ public class StringVersionImpl
                       this.getModuleSequence(),
                       ec.getPathSequence());
       SememeChronologyImpl chronologyImpl = (SememeChronologyImpl) this.chronicle;
-      final StringVersionImpl newVersion = new StringVersionImpl(this, stampSequence,
-              chronologyImpl.nextVersionSequence());
+      final StringVersionImpl newVersion = new StringVersionImpl(this, stampSequence);
 
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;

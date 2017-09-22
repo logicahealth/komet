@@ -93,12 +93,10 @@ public class DynamicSememeImpl
     *
     * @param container the container
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     */
    public DynamicSememeImpl(SememeChronologyImpl container,
-                            int stampSequence,
-                            short versionSequence) {
-      super(container, stampSequence, versionSequence);
+                            int stampSequence) {
+      super(container, stampSequence);
    }
 
    /**
@@ -106,14 +104,12 @@ public class DynamicSememeImpl
     *
     * @param container the container
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     * @param data the dynamicData
     */
    public DynamicSememeImpl(SememeChronologyImpl container,
                             int stampSequence,
-                            short versionSequence,
                             ByteArrayDataBuffer data) {
-      super(container, stampSequence, versionSequence);
+      super(container, stampSequence);
 
       // read the following format - dataFieldCount [dataFieldType dataFieldBytes] [dataFieldType dataFieldBytes] ...
       final int colCount = data.getInt();
@@ -146,8 +142,8 @@ public class DynamicSememeImpl
          }
       }
    }
-   private DynamicSememeImpl(DynamicSememeImpl other, int stampSequence, short versionSequence) {
-      super(other.getChronology(), stampSequence, versionSequence);
+   private DynamicSememeImpl(DynamicSememeImpl other, int stampSequence) {
+      super(other.getChronology(), stampSequence);
       this.data = new DynamicSememeData[other.data.length];
       System.arraycopy(other.data, 0, this.data, 0, this.data.length);
    }
@@ -162,8 +158,7 @@ public class DynamicSememeImpl
                                        this.getModuleSequence(),
                                        ec.getPathSequence());
       SememeChronologyImpl chronologyImpl = (SememeChronologyImpl) this.chronicle;
-      final DynamicSememeImpl newVersion = new DynamicSememeImpl(this, stampSequence, 
-              chronologyImpl.nextVersionSequence());
+      final DynamicSememeImpl newVersion = new DynamicSememeImpl(this, stampSequence);
 
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;   

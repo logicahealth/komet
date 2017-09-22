@@ -41,7 +41,6 @@ package sh.isaac.model.sememe.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import java.util.Arrays;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.SememeChronology;
@@ -80,12 +79,10 @@ public class DescriptionVersionImpl
     *
     * @param chronicle the chronicle
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     */
    public DescriptionVersionImpl(SememeChronology chronicle,
-                                int stampSequence,
-                                short versionSequence) {
-      super(chronicle, stampSequence, versionSequence);
+                                int stampSequence) {
+      super(chronicle, stampSequence);
    }
 
    /**
@@ -93,21 +90,19 @@ public class DescriptionVersionImpl
     *
     * @param chronicle the chronicle
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     * @param data the data
     */
    public DescriptionVersionImpl(SememeChronology chronicle,
                                 int stampSequence,
-                                short versionSequence,
                                 ByteArrayDataBuffer data) {
-      super(chronicle, stampSequence, versionSequence);
+      super(chronicle, stampSequence);
       this.caseSignificanceConceptSequence = data.getConceptSequence();
       this.languageConceptSequence         = data.getConceptSequence();
       this.text                            = data.readUTF();
       this.descriptionTypeConceptSequence  = data.getConceptSequence();
    }
-   private DescriptionVersionImpl(DescriptionVersionImpl other, int stampSequence, short versionSequence) {
-      super(other.getChronology(), stampSequence, versionSequence);
+   private DescriptionVersionImpl(DescriptionVersionImpl other, int stampSequence) {
+      super(other.getChronology(), stampSequence);
       this.caseSignificanceConceptSequence = other.caseSignificanceConceptSequence;
       this.languageConceptSequence         = other.languageConceptSequence;
       this.text                            = other.text;
@@ -124,8 +119,7 @@ public class DescriptionVersionImpl
                                        this.getModuleSequence(),
                                        ec.getPathSequence());
       SememeChronologyImpl chronologyImpl = (SememeChronologyImpl) this.chronicle;
-      final DescriptionVersionImpl newVersion = new DescriptionVersionImpl(this, stampSequence, 
-              chronologyImpl.nextVersionSequence());
+      final DescriptionVersionImpl newVersion = new DescriptionVersionImpl(this, stampSequence);
 
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;   

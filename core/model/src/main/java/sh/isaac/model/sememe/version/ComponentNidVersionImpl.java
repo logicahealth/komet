@@ -74,12 +74,10 @@ public class ComponentNidVersionImpl
     *
     * @param container the container
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     */
    public ComponentNidVersionImpl(SememeChronology container,
-                                 int stampSequence,
-                                 short versionSequence) {
-      super(container, stampSequence, versionSequence);
+                                 int stampSequence) {
+      super(container, stampSequence);
    }
 
    /**
@@ -87,18 +85,16 @@ public class ComponentNidVersionImpl
     *
     * @param container the container
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     * @param data the data
     */
    public ComponentNidVersionImpl(SememeChronologyImpl container,
                                  int stampSequence,
-                                 short versionSequence,
                                  ByteArrayDataBuffer data) {
-      super(container, stampSequence, versionSequence);
+      super(container, stampSequence);
       this.componentNid = data.getNid();
    }
-   private ComponentNidVersionImpl(ComponentNidVersionImpl other, int stampSequence, short versionSequence) {
-      super(other.getChronology(), stampSequence, versionSequence);
+   private ComponentNidVersionImpl(ComponentNidVersionImpl other, int stampSequence) {
+      super(other.getChronology(), stampSequence);
       this.componentNid = other.componentNid;
    }
 
@@ -112,8 +108,7 @@ public class ComponentNidVersionImpl
                                        this.getModuleSequence(),
                                        ec.getPathSequence());
       SememeChronologyImpl chronologyImpl = (SememeChronologyImpl) this.chronicle;
-      final ComponentNidVersionImpl newVersion = new ComponentNidVersionImpl(this, stampSequence, 
-              chronologyImpl.nextVersionSequence());
+      final ComponentNidVersionImpl newVersion = new ComponentNidVersionImpl(this, stampSequence);
 
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;   

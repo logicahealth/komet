@@ -83,12 +83,10 @@ public class LogicGraphVersionImpl
     *
     * @param container the container
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     */
    public LogicGraphVersionImpl(SememeChronologyImpl container,
-                               int stampSequence,
-                               short versionSequence) {
-      super(container, stampSequence, versionSequence);
+                               int stampSequence) {
+      super(container, stampSequence);
    }
 
    /**
@@ -96,14 +94,12 @@ public class LogicGraphVersionImpl
     *
     * @param container the container
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     * @param data the data
     */
    public LogicGraphVersionImpl(SememeChronologyImpl container,
                                int stampSequence,
-                               short versionSequence,
                                ByteArrayDataBuffer data) {
-      super(container, stampSequence, versionSequence);
+      super(container, stampSequence);
 
       final int graphNodes = data.getInt();
 
@@ -121,8 +117,8 @@ public class LogicGraphVersionImpl
          this.graphData = getExternalDataConverter().convertLogicGraphForm(this.graphData, DataTarget.INTERNAL);
       }
    }
-   private LogicGraphVersionImpl(LogicGraphVersionImpl other, int stampSequence, short versionSequence) {
-      super(other.getChronology(), stampSequence, versionSequence);
+   private LogicGraphVersionImpl(LogicGraphVersionImpl other, int stampSequence) {
+      super(other.getChronology(), stampSequence);
       this.graphData = new byte[other.graphData.length][];
       for (int i = 0; i < this.graphData.length; i++) {
          this.graphData[i] = other.graphData[i].clone();
@@ -139,8 +135,7 @@ public class LogicGraphVersionImpl
                                        this.getModuleSequence(),
                                        ec.getPathSequence());
       SememeChronologyImpl chronologyImpl = (SememeChronologyImpl) this.chronicle;
-      final LogicGraphVersionImpl newVersion = new LogicGraphVersionImpl(this, stampSequence, 
-              chronologyImpl.nextVersionSequence());
+      final LogicGraphVersionImpl newVersion = new LogicGraphVersionImpl(this, stampSequence);
 
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;   

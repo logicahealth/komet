@@ -140,7 +140,7 @@ public class ConceptChronologyImpl
     */
    @Override
    public ConceptVersionImpl createMutableVersion(int stampSequence) {
-      final ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence, nextVersionSequence());
+      final ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence);
 
       addVersion(newVersion);
       return newVersion;
@@ -162,7 +162,7 @@ public class ConceptChronologyImpl
                                        ec.getAuthorSequence(),
                                        ec.getModuleSequence(),
                                        ec.getPathSequence());
-      final ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence, nextVersionSequence());
+      final ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence);
 
       addVersion(newVersion);
       return newVersion;
@@ -236,7 +236,9 @@ public class ConceptChronologyImpl
     */
    @Override
    protected ConceptVersionImpl makeVersion(int stampSequence, ByteArrayDataBuffer bb) {
-      return new ConceptVersionImpl(this, stampSequence, bb.getShort());
+      // discard old short value for version sequence
+      bb.getShort();
+      return new ConceptVersionImpl(this, stampSequence);
    }
 
    /**

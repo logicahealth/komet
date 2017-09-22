@@ -669,15 +669,6 @@ public abstract class ObservableVersionImpl
       return ((VersionImpl) this.stampedVersionProperty.get()).getUuidList();
    }
 
-   /**
-    * Gets the version sequence.
-    *
-    * @return the version sequence
-    */
-   public short getVersionSequence() {
-      return ((VersionImpl) this.stampedVersionProperty.get()).getVersionSequence();
-   }
-
    @Override
    public VersionType getVersionType() {
       return ((VersionImpl) this.stampedVersionProperty.get()).getVersionType();
