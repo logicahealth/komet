@@ -586,7 +586,7 @@ public class RF2Mojo
             
             DescriptionType descriptionType = DescriptionType.convert(typeId);
             if (descriptionType == DescriptionType.UNKNOWN) {
-               getLog().error("Unknown description type for: " + id + "|" + term);
+               getLog().error("Unknown description type for: " + descRS.getString("TYPEID") + "|"+ id + "|" + term);
             }
             final SememeChronology desc =
                super.importUtil.addDescription(ComponentReference.fromConcept(conceptId),
@@ -652,11 +652,9 @@ public class RF2Mojo
                      : UUID.fromString(langRS.getString("acceptabilityId")));
                boolean preferred;
 
-               if (MetaData.ACCEPTABLE____ISAAC.getPrimordialUuid()
-                                      .equals(acceptabilityId)) {
+               if (MetaData.ACCEPTABLE____ISAAC.isIdentifiedBy(acceptabilityId)) {
                   preferred = false;
-               } else if (MetaData.PREFERRED____ISAAC.getPrimordialUuid()
-                                            .equals(acceptabilityId)) {
+               } else if (MetaData.PREFERRED____ISAAC.isIdentifiedBy(acceptabilityId)) {
                   preferred = true;
                } else {
                   throw new RuntimeException("Unexpected acceptibility: " + acceptabilityId);
@@ -732,13 +730,13 @@ public class RF2Mojo
                final Rel r = rb.getRels()
                                .last();
 
-               if ((stated && r.characteristicTypeId.equals(MetaData.INFERRED____ISAAC.getPrimordialUuid())) ||
-                     (!stated && r.characteristicTypeId.equals(MetaData.STATED____ISAAC.getPrimordialUuid()))) {
+               if ((stated && MetaData.INFERRED____ISAAC.isIdentifiedBy(r.characteristicTypeId)) ||
+                     (!stated && MetaData.STATED____ISAAC.isIdentifiedBy(r.characteristicTypeId))) {
                   throw new RuntimeException("Unexpected - table type and characteristic type do not match!");
                }
 
-               if (r.characteristicTypeId.equals(MetaData.INFERRED____ISAAC.getPrimordialUuid()) ||
-                     r.characteristicTypeId.equals(MetaData.STATED____ISAAC.getPrimordialUuid())) {
+               if (MetaData.INFERRED____ISAAC.isIdentifiedBy(r.characteristicTypeId) ||
+                     MetaData.STATED____ISAAC.isIdentifiedBy(r.characteristicTypeId)) {
                   if (r.effectiveTime > newestRelTime) {
                      newestRelTime = r.effectiveTime;
                   }
@@ -746,8 +744,7 @@ public class RF2Mojo
                   if (r.relGroup.trim()
                                 .equals("0")) {
                      // Don't just check primordial, IS_A has multiple UUIDs
-                     if (Arrays.stream(MetaData.IS_A____ISAAC.getUuids())
-                               .anyMatch(uuid -> uuid.equals(r.typeId))) {
+                     if (MetaData.IS_A____ISAAC.isIdentifiedBy(r.typeId)) {
                         assertions.add(ConceptAssertion(Get.identifierService()
                                                            .getConceptSequenceForUuids(r.destinationId),
                                                         leb));
@@ -861,14 +858,11 @@ public class RF2Mojo
                                            builder.toString());
                }
             } else {
-               if (conDefStatus.lastEntry()
-                               .getValue()
-                               .equals(TermAux.SUFFICIENT_CONCEPT_DEFINITION.getPrimordialUuid())) {
+               if (TermAux.SUFFICIENT_CONCEPT_DEFINITION.isIdentifiedBy(conDefStatus.lastEntry()
+                               .getValue())) {
                   defined = true;
-               } else if (conDefStatus.lastEntry()
-                                      .getValue()
-                                      .equals(
-                                      TermAux.NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION.getPrimordialUuid())) {
+               } else if (TermAux.NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION.isIdentifiedBy(conDefStatus.lastEntry()
+                                      .getValue())) {
                   defined = false;
                } else {
                   throw new RuntimeException("Unexpected concept definition status: " + conDefStatus.lastEntry());

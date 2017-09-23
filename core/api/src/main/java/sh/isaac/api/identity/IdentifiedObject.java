@@ -101,5 +101,9 @@ public interface IdentifiedObject {
    default UUID[] getUuids() {
       return getUuidList().toArray(new UUID[getUuidList().size()]);
    }
+   
+   default boolean isIdentifiedBy(UUID uuid) {
+      return getUuidList().contains(uuid);
+   }
 }
 

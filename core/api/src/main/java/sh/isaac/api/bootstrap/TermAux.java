@@ -184,85 +184,85 @@ public class TermAux {
 
    /** ConceptProxy for: "Spanish language". */
    public static ConceptSpecification SPANISH_LANGUAGE = new ConceptProxy("Spanish language",
-                                                                          "0fcf44fb-d0a7-3a67-bc9f-eb3065ed3c8e");
+                                                                          UUID.fromString("0fcf44fb-d0a7-3a67-bc9f-eb3065ed3c8e"));
 
    /** ConceptProxy for: "French language". */
    public static ConceptSpecification FRENCH_LANGUAGE = new ConceptProxy("French language",
-                                                                         "8b23e636-a0bd-30fb-b8e2-1f77eaa3a87e");
+                                                                         UUID.fromString("8b23e636-a0bd-30fb-b8e2-1f77eaa3a87e"));
 
    /** ConceptProxy for: "Danish language". */
    public static ConceptSpecification DANISH_LANGUAGE = new ConceptProxy("Danish language",
-                                                                         "7e462e33-6d94-38ae-a044-492a857a6853");
+                                                                         UUID.fromString("7e462e33-6d94-38ae-a044-492a857a6853"));
 
    /** ConceptProxy for: "Polish language". */
    public static ConceptSpecification POLISH_LANGUAGE = new ConceptProxy("Polish language",
-                                                                         "c924b887-da88-3a72-b8ea-fa86990467c9");
+                                                                         UUID.fromString("c924b887-da88-3a72-b8ea-fa86990467c9"));
 
    /** ConceptProxy for: "Dutch language". */
    public static ConceptSpecification DUTCH_LANGUAGE = new ConceptProxy("Dutch language",
-                                                                        "674ad858-0224-3f90-bcf0-bc4cab753d2d");
+                                                                        UUID.fromString("674ad858-0224-3f90-bcf0-bc4cab753d2d"));
 
    /** ConceptProxy for: "Lithuanian language". */
    public static ConceptSpecification LITHUANIAN_LANGUAGE = new ConceptProxy("Lithuanian language",
-                                                                             "e9645d95-8a1f-3825-8feb-0bc2ee825694");
+                                                                             UUID.fromString("e9645d95-8a1f-3825-8feb-0bc2ee825694"));
 
    /** ConceptProxy for: "Chinese language". */
    public static ConceptSpecification CHINESE_LANGUAGE = new ConceptProxy("Chinese language",
-                                                                          "ba2efe6b-fe56-3d91-ae0f-3b389628f74c");
+                                                                          UUID.fromString("ba2efe6b-fe56-3d91-ae0f-3b389628f74c"));
 
    /** ConceptProxy for: "Japanese language". */
    public static ConceptSpecification JAPANESE_LANGUAGE = new ConceptProxy("Japanese language",
-                                                                           "b90a1097-29e3-42bc-8576-8e8eb6715c44");
+                                                                           UUID.fromString("b90a1097-29e3-42bc-8576-8e8eb6715c44"));
 
    /** ConceptProxy for: "Swedish language". */
    public static ConceptSpecification SWEDISH_LANGUAGE = new ConceptProxy("Swedish language",
-                                                                          "9784a791-8fdb-32f7-88da-74ab135fe4e3");
+                                                                          UUID.fromString("9784a791-8fdb-32f7-88da-74ab135fe4e3"));
 
    /** ConceptProxy for: "English description assemblage". */
    public static ConceptSpecification ENGLISH_DESCRIPTION_ASSEMBLAGE =
       new ConceptProxy("English description assemblage",
-                       "45021920-9567-11e5-8994-feff819cdc9f");
+                       UUID.fromString("45021920-9567-11e5-8994-feff819cdc9f"));
 
    /** ConceptProxy for: "Spanish description assemblage". */
    public static ConceptSpecification SPANISH_DESCRIPTION_ASSEMBLAGE =
       new ConceptProxy("Spanish description assemblage",
-                       "45021c36-9567-11e5-8994-feff819cdc9f");
+                       UUID.fromString("45021c36-9567-11e5-8994-feff819cdc9f"));
 
    /** ConceptProxy for: "French description assemblage". */
    public static ConceptSpecification FRENCH_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("French description assemblage",
-                                                                                       "45021dbc-9567-11e5-8994-feff819cdc9f");
+                                                                                       UUID.fromString("45021dbc-9567-11e5-8994-feff819cdc9f"));
 
    /** ConceptProxy for: "Danish description assemblage". */
    public static ConceptSpecification DANISH_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("Danish description assemblage",
-                                                                                       "45021f10-9567-11e5-8994-feff819cdc9f");
+                                                                                       UUID.fromString("45021f10-9567-11e5-8994-feff819cdc9f"));
 
    /** ConceptProxy for: "Polish description assemblage". */
    public static ConceptSpecification POLISH_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("Polish description assemblage",
-                                                                                       "45022140-9567-11e5-8994-feff819cdc9f");
+                                                                                       UUID.fromString("45022140-9567-11e5-8994-feff819cdc9f"));
 
    /** ConceptProxy for: "Dutch description assemblage". */
    public static ConceptSpecification DUTCH_DESCRIPTION_ASSEMBLAGE = new ConceptProxy("Dutch description assemblage",
-                                                                                      "45022280-9567-11e5-8994-feff819cdc9f");
+                                                                                      UUID.fromString("45022280-9567-11e5-8994-feff819cdc9f"));
 
    /** ConceptProxy for: "Lithuanian description assemblage". */
    public static ConceptSpecification LITHUANIAN_DESCRIPTION_ASSEMBLAGE =
       new ConceptProxy("Lithuanian description assemblage",
-                       "45022410-9567-11e5-8994-feff819cdc9f");
+                       UUID.fromString("45022410-9567-11e5-8994-feff819cdc9f"));
 
    /** ConceptProxy for: "Chinese description assemblage. */
    public static ConceptSpecification CHINESE_DESCRIPTION_ASSEMBLAGE =
       new ConceptProxy("Chinese description assemblage",
-                       "45022532-9567-11e5-8994-feff819cdc9f");
+                       UUID.fromString("45022532-9567-11e5-8994-feff819cdc9f"));
 
    /** ConceptProxy for: "Japanese description assemblage". */
    public static ConceptSpecification JAPANESE_DESCRIPTION_ASSEMBLAGE =
       new ConceptProxy("Japanese description assemblage",
-                       "450226cc-9567-11e5-8994-feff819cdc9f");
+                       UUID.fromString("450226cc-9567-11e5-8994-feff819cdc9f"));
 
    /** ConceptProxy for: "Swedish description assemblage". */
    public static ConceptSpecification SWEDISH_DESCRIPTION_ASSEMBLAGE =
       new ConceptProxy("Swedish description assemblage",
-                       "45022848-9567-11e5-8994-feff819cdc9f");
+                       UUID.fromString("45022848-9567-11e5-8994-feff819cdc9f"));
 
    /** ConceptProxy for: "preferred". SCT ID:    900000000000548007 */
    public static ConceptSpecification PREFERRED = new ConceptProxy("preferred",

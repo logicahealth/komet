@@ -319,6 +319,8 @@ public class IsaacTaxonomy {
       out.append("package " + packageName + ";\n");
       out.append("\n\nimport sh.isaac.api.component.concept.ConceptSpecification;\n");
       out.append("import sh.isaac.api.ConceptProxy;\n");
+      out.append("import java.util.UUID;\n");
+
       out.append("\n\npublic class " + className + " {\n");
 
       for (final ConceptBuilder concept : this.conceptBuildersInInsertionOrder) {
@@ -339,7 +341,7 @@ public class IsaacTaxonomy {
          out.append("\n             new ConceptProxy(\"" + preferredName + "\"");
 
          for (final UUID uuid : concept.getUuidList()) {
-            out.append(",\"" + uuid.toString() + "\"");
+            out.append(", UUID.fromString(\"" + uuid.toString() + "\")");
          }
 
          out.append(");");

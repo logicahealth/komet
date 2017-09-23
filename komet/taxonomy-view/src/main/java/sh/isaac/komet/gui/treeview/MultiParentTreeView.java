@@ -487,7 +487,7 @@ public class MultiParentTreeView
          for (TreeItem<ConceptChronology> child: item.getChildren()) {
             if ((child != null) &&
                   (child.getValue() != null) &&
-                  child.getValue().getPrimordialUuid().equals(targetChildUUID)) {
+                  child.getValue().isIdentifiedBy(targetChildUUID)) {
                // Found it.
                found.set((MultiParentTreeItem) child);
                break;
