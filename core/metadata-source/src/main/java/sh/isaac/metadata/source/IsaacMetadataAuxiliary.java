@@ -338,6 +338,8 @@ public class IsaacMetadataAuxiliary
 
          syn.addUuids(UUID.fromString("d6fad981-7df6-3388-94d8-238cc0465a79"));
          createConcept("definition description type").mergeFromSpec(TermAux.DEFINITION_DESCRIPTION_TYPE);
+         createConcept("unknown description type");
+         
          popParent();
          createConcept(
              TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY);  // LOINC and RxNorm description types are created under this node
