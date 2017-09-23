@@ -104,6 +104,12 @@ public class SememeSequenceSet
 
    //~--- methods -------------------------------------------------------------
 
+   @Override
+   public void add(int item) {
+      super.add(Get.identifierService()
+              .getSememeSequence(item)); 
+   }
+
    /**
     * Adds the.
     *
@@ -111,7 +117,7 @@ public class SememeSequenceSet
     */
    public void add(UUID sememeUuid) {
       super.add(Get.identifierService()
-                   .getSememeSequenceForUuids(sememeUuid));
+              .getSememeSequenceForUuids(sememeUuid));
    }
 
    /**

@@ -42,7 +42,6 @@ package sh.isaac.api.component.sememe;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.IdentifiedComponentBuilder;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -52,6 +51,6 @@ import sh.isaac.api.component.sememe.version.SememeVersion;
  * @author kec
  * @param <C> the generic type
  */
-public interface SememeBuilder<C extends SememeChronology<? extends SememeVersion<?>>>
+public interface SememeBuilder<C extends SememeChronology>
         extends IdentifiedComponentBuilder<C> {}
 

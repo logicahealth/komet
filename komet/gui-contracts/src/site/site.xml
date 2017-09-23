@@ -6,7 +6,7 @@
   </bannerLeft>
  
   <bannerRight>
-    <src>images/newton-stamp.jpg</src>
+    <src>images/guiContracts1-newton-mali.jpg</src>
   </bannerRight>
    <skin>
       <groupId>org.apache.maven.skins</groupId>

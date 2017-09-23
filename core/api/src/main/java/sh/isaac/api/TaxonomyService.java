@@ -49,7 +49,6 @@ import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
@@ -72,7 +71,7 @@ public interface TaxonomyService
     *
     * @param logicGraphChronology Chronology of the logical definitions
     */
-   void updateTaxonomy(SememeChronology<LogicGraphSememe<?>> logicGraphChronology);
+   void updateTaxonomy(SememeChronology logicGraphChronology);
 
    /**
     * Method to determine if a concept was ever a kind of another, without

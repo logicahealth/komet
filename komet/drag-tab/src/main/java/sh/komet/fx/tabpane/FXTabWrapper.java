@@ -20,7 +20,7 @@ import javafx.scene.control.TabPane;
  * Create a wrapper for the {@link Tab}
  */
 public class FXTabWrapper implements GenericTab {
-	private Tab t;
+	private final Tab t;
 
 	private FXTabWrapper(Tab t) {
 		this.t = t;

@@ -51,7 +51,7 @@ import java.time.Instant;
  * @author kec
  */
 public interface StampPosition
-        extends Comparable<StampPosition> {
+        extends Comparable<StampPosition>, Coordinate {
    /**
     * Compare to.
     *
@@ -100,5 +100,10 @@ public interface StampPosition
    default Instant getTimeAsInstant() {
       return Instant.ofEpochMilli(getTime());
    }
+
+   @Override
+   public StampPosition deepClone();
+   
+   
 }
 

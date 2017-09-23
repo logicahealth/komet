@@ -42,12 +42,19 @@ package sh.isaac.api.chronicle;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
+import sh.isaac.api.collections.StampSequenceSet;
+import sh.isaac.api.identity.StampedVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -56,24 +63,25 @@ import java.util.stream.Stream;
  *
  * @author kec
  * @param <V> the value type
+ * TODO search for all get() methods to make sure test for isPresent() is completed. 
  */
 public final class LatestVersion<V> {
+   
    /** The value. */
    V value;
 
    /** The contradictions. */
-   Optional<Set<V>> contradictions;
+   Set<V> contradictions;
 
    //~--- constructors --------------------------------------------------------
+   public LatestVersion() {}
 
    /**
     * Instantiates a new latest version.
     *
     * @param versionType the version type
     */
-   public LatestVersion(Class<V> versionType) {
-      this.contradictions = Optional.empty();
-   }
+   public LatestVersion(Class<V> versionType) {}
 
    /**
     * Instantiates a new latest version.
@@ -84,9 +92,9 @@ public final class LatestVersion<V> {
       this.value = Objects.requireNonNull(versions.get(0), "latest version cannot be null");
 
       if (versions.size() < 2) {
-         this.contradictions = Optional.empty();
+         this.contradictions = null;
       } else {
-         this.contradictions = Optional.of(new HashSet<>(versions.subList(1, versions.size())));
+         this.contradictions = new HashSet<>(versions.subList(1, versions.size()));
       }
    }
 
@@ -97,7 +105,7 @@ public final class LatestVersion<V> {
     */
    public LatestVersion(V latest) {
       this.value          = Objects.requireNonNull(latest, "latest version cannot be null");
-      this.contradictions = Optional.empty();
+      this.contradictions = null;
    }
 
    /**
@@ -110,9 +118,9 @@ public final class LatestVersion<V> {
       this.value = latest;
 
       if (contradictions == null) {
-         this.contradictions = Optional.empty();
+         this.contradictions = null;
       } else {
-         this.contradictions = Optional.of(new HashSet<>(contradictions));
+         this.contradictions = new HashSet<>(contradictions);
       }
    }
 
@@ -127,21 +135,100 @@ public final class LatestVersion<V> {
       if (this.value == null) {
          this.value = value;
       } else {
-         if (!this.contradictions.isPresent()) {
-            this.contradictions = Optional.of(new HashSet<>());
+         if (this.contradictions == null) {
+            this.contradictions = new HashSet<>();
          }
 
-         this.contradictions.get()
-                            .add(value);
+         this.contradictions.add(value);
       }
    }
-
+   
    /**
-    * Contradictions.
+    * 
+    * @param consumer the consumer to process the value if it is present.
+    * @return the latest version unmodified for use in a fluent API manner. 
+    */
+   public LatestVersion<V> ifPresent(Consumer<? super V> consumer) {
+      if (value != null) {
+         consumer.accept(this.value);
+      }
+      return this;
+   }
+   
+   /**
+    * Return true if there is a value present, otherwise false.
+    * @return true if there is a value present, otherwise false.
+    */
+   public boolean isPresent() {
+      return value != null;
+   }
+   
+   /**
+    * Return true if there is a value absent, otherwise false.
+    * @return true if the value absent, otherwise false.
+    */
+   public boolean isAbsent() {
+      return value == null;
+   }
+   
+   /**
+    * Return the value if present, otherwise return other.
+    * @param other
+    * @return the value if present, otherwise return other.
+    */
+   public V orElse(V other) {
+      if (this.value != null) {
+         return this.value;
+      }
+      return other;
+   }
+   
+   /**
+    * Return the value if present, otherwise invoke other and return the result of that invocation.
+    * @param other
+    * @return the value if present, otherwise invoke other and return the result of that invocation.
+    */
+   public V orElseGet(Supplier<? extends V> other) {
+      if (this.value != null) {
+         return this.value;
+      }
+      return other.get();
+   }
+   /**
+    * Execute the runnable to execute if the value is present.
+    * @param runnable the runnable to execute if the value is present
+    * @return the latest version unmodified for use in a fluent API manner. 
+    */
+   public LatestVersion<V> ifAbsent(Runnable runnable) {
+      if (value == null) {
+         runnable.run();
+      }
+      return this;
+   }
+           
+   /**
+    * Return the contained value, if present, otherwise throw an exception to be created by the provided supplier.
+    * @param <X> Type of the exception to be thrown
+    * @param exceptionSupplier The supplier which will return the exception to be thrown
+    * @return the present value
+    * @throws X if there is no value present
+    */
+   public <X extends Throwable> V orElseThrow(Supplier<? extends X> exceptionSupplier) 
+      throws X {
+      if (this.value != null) {
+         return this.value;
+      }
+      throw exceptionSupplier.get();
+   }
+   /**
+    * Read-only set of contradictions.
     *
     * @return the optional
     */
-   public Optional<Set<V>> contradictions() {
+   public Set<V> contradictions() {
+      if (this.contradictions == null) {
+         return Collections.EMPTY_SET;
+      }
       return this.contradictions;
    }
 
@@ -152,20 +239,49 @@ public final class LatestVersion<V> {
     */
    @Override
    public String toString() {
-      return "LatestVersion{" + "value=" + this.value + ", contradictions=" + this.contradictions + '}';
+      return "LatestVersion{" + "value=" + this.value + ", contradictions=" + contradictions() + '}';
    }
 
    /**
-    * Value.
-    *
-    * @return the v
+    * The latest version value
+    * @return the latest version
+    * @throws NoSuchElementException - if there is no value present
+    * @see isPresent()
     */
-   public V value() {
+   public V get() {
+      if (this.value == null) {
+         throw new NoSuchElementException();
+      }
       return this.value;
    }
 
    /**
-    * Version stream.
+    * If a value is present, and the value matches the given predicate, return an Optional describing the value, otherwise return an empty Optional.
+    * @param predicate a predicate to apply to the value, if present
+    * @return an Optional describing the value of this Optional if a value is present and the value matches the given predicate, otherwise an empty Optional
+    */
+   public LatestVersion<V> filter(Predicate<LatestVersion<V>> predicate) {
+      //throw new UnsupportedOperationException("not implemented yet...");
+      if (predicate.test(this)) {
+         return this;
+      }
+      return new LatestVersion<>();
+   }
+           
+   /**
+    * If a value is present, apply the provided mapping function to it, and if the result is non-null, 
+    * return an Optional describing the result. Otherwise return an empty Optional.
+    * @param <U> The type of the result of the mapping function
+    * @param mapper a mapping function to apply to the value, if present
+    * @return an Optional describing the result of applying a mapping function to the value of this Optional, if a value is present, otherwise an empty Optional
+    */
+   public <U> LatestVersion<U> map(Function<? super LatestVersion<V>,? extends LatestVersion<U>> mapper) {
+      return mapper.apply(this);
+   }
+   
+   /**
+    * Stream of the latest values (if more that one latest value is computed, then
+    * all are included in this stream), including all contradictions.
     *
     * @return the stream
     */
@@ -179,13 +295,30 @@ public final class LatestVersion<V> {
 
       builder.accept(this.value);
 
-      if (this.contradictions.isPresent()) {
-         this.contradictions.get().forEach((contradiction) -> {
+      if (this.contradictions != null) {
+         this.contradictions.forEach((contradiction) -> {
                                         builder.add(contradiction);
                                      });
       }
 
       return builder.build();
+   }
+   
+   public StampSequenceSet getStamps() {
+      StampSequenceSet stampSequences = new StampSequenceSet();
+      versionStream().forEach((v) -> {
+         if (v instanceof StampedVersion) {
+            stampSequences.add(((StampedVersion) v).getStampSequence());
+         }
+      });
+      return stampSequences;
+   }
+
+   public boolean isContradicted() {
+      if (this.contradictions == null) {
+         return false;
+      }
+      return !this.contradictions.isEmpty();
    }
 }
 

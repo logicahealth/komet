@@ -141,6 +141,11 @@ public class LiteralNodeString
    public String toString() {
       return "String literal[" + getNodeIndex() + "]" + this.literalValue + super.toString();
    }
+   @Override
+   public String toSimpleString() {
+      return this.literalValue +  super.toSimpleString();
+   }
+
 
    /**
     * To string.

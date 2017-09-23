@@ -41,13 +41,11 @@ package sh.isaac.api.component.concept;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -56,29 +54,9 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * @author kec
  */
-public interface ConceptSnapshotService {
-   /**
-    * Simple method for getting text of the description of a concept.
-    * This method will return a description type according to the constraints of
-    * the
-    * {@code StampCoordinate} and the default
-    * {@code LanguageCoordinate}.
-    * @param conceptId nid or sequence of the concept to get the description for
-    * @return a description for this concept. If no description can be found,
-    * {@code "No desc for: " + conceptId;} will be returned.
-    */
-   String conceptDescriptionText(int conceptId);
+public interface ConceptSnapshotService extends SharedConceptSnapshotService {
 
    //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Checks if concept active.
-    *
-    * @param conceptId nid or sequence of the concept to determine if it is active
-    * according to the {@code StampCoordinate} of this snapshot service
-    * @return true, if concept active
-    */
-   boolean isConceptActive(int conceptId);
 
    /**
     * Gets the concept snapshot.
@@ -106,7 +84,7 @@ public interface ConceptSnapshotService {
     * @param conceptId nid or sequence of the concept to get the description for
     * @return a Optional description for this concept.
     */
-   Optional<LatestVersion<DescriptionSememe<?>>> getDescriptionOptional(int conceptId);
+   LatestVersion<DescriptionVersion> getDescriptionOptional(int conceptId);
 
    /**
     * Gets the fully specified description.
@@ -116,7 +94,7 @@ public interface ConceptSnapshotService {
     * there is not description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
-   Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(int conceptId);
+   LatestVersion<DescriptionVersion> getFullySpecifiedDescription(int conceptId);
 
    /**
     * Gets the preferred description.
@@ -126,13 +104,6 @@ public interface ConceptSnapshotService {
     * there is not description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
-   Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(int conceptId);
-
-   /**
-    * Gets the manifold coordinate.
-    *
-    * @return the {@code ManifoldCoordinate} associated with this snapshot.
-    */
-   ManifoldCoordinate getManifoldCoordinate();
+   LatestVersion<DescriptionVersion> getPreferredDescription(int conceptId);
 }
-
+//~--- JDK imports ------------------------------------------------------------

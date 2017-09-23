@@ -95,6 +95,10 @@ public class SubstitutionNodeInteger
    public String toString() {
       return toString("");
    }
+   @Override
+   public String toSimpleString() {
+      return "Integer substitution:" +  super.toSimpleString();
+   }
 
    /**
     * To string.

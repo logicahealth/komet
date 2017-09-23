@@ -71,7 +71,7 @@ import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.ObjectChronologyType;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUID;
@@ -117,7 +117,7 @@ public interface DynamicSememeUtility {
     * @return the dynamic sememe data[]
     */
    public DynamicSememeData[] configureDynamicSememeRestrictionData(ObjectChronologyType referencedComponentRestriction,
-         SememeType referencedComponentSubRestriction);
+         VersionType referencedComponentSubRestriction);
 
    /**
     * Creates the dynamic string data.
@@ -175,9 +175,9 @@ public interface DynamicSememeUtility {
 
          if ((requiredType == ObjectChronologyType.SEMEME) &&
                (dsud.getReferencedComponentTypeSubRestriction() != null) &&
-               (dsud.getReferencedComponentTypeSubRestriction() != SememeType.UNKNOWN)) {
-            final SememeType requiredSememeType = dsud.getReferencedComponentTypeSubRestriction();
-            final SememeType foundSememeType    = Get.sememeService()
+               (dsud.getReferencedComponentTypeSubRestriction() != VersionType.UNKNOWN)) {
+            final VersionType requiredSememeType = dsud.getReferencedComponentTypeSubRestriction();
+            final VersionType foundSememeType    = Get.assemblageService()
                                                      .getSememe(referencedComponentNid)
                                                      .getSememeType();
 

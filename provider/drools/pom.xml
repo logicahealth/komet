@@ -4,14 +4,14 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>provider</artifactId>
-      <version>4.22</version>
+      <version>4.24</version>
    </parent>
    <groupId>sh.isaac.provider</groupId>
    <artifactId>drools</artifactId>
    <packaging>jar</packaging>
    <name>ISAAC provider: Drools</name>
    <properties>
-      <drools.version>7.0.0.Final</drools.version>
+      <drools.version>7.2.0.Final</drools.version>
    </properties>
    <dependencyManagement>
       <dependencies>
@@ -25,6 +25,11 @@
       </dependencies>
    </dependencyManagement>
    <dependencies>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>gui-contracts</artifactId>
+         <version>${project.version}</version>
+      </dependency>
       <dependency>
          <groupId>sh.isaac.core</groupId>
          <artifactId>model</artifactId>
@@ -44,4 +49,18 @@
          <artifactId>drools-core</artifactId>
       </dependency>
    </dependencies>
+<!--    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>META-INF/kmodule.xml</include>
+                    <include>sh/isaac/provider/drools/AddAttachmentRules.drl</include>
+                    <include>sh/isaac/provider/drools/EditVersionRules.drl</include>
+                </includes>
+                <targetPath>.</targetPath>
+            </resource>
+        </resources>
+    </build>-->
 </project>

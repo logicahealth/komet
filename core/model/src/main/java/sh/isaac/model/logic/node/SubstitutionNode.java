@@ -166,6 +166,11 @@ public abstract class SubstitutionNode
       return " Substitution: '" + this.substitutionFieldSpecification + '\'' + super.toString(nodeIdSuffix);
    }
 
+   @Override
+   public String toSimpleString() {
+      return " Substitution: '" + this.substitutionFieldSpecification + '\'' + super.toSimpleString();
+   }
+
    /**
     * Compare fields.
     *

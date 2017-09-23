@@ -54,6 +54,14 @@ import sh.isaac.model.waitfree.WaitFreeMergeSerializer;
  */
 public class ConceptSerializer
          implements WaitFreeMergeSerializer<ConceptChronologyImpl> {
+   
+   private final byte dataVersion;
+
+   public ConceptSerializer(byte dataVersion) {
+      this.dataVersion = dataVersion;
+   }
+   
+   
    /**
     * Deserialize.
     *
@@ -75,9 +83,9 @@ public class ConceptSerializer
     */
    @Override
    public ConceptChronologyImpl merge(ConceptChronologyImpl a, ConceptChronologyImpl b, int writeSequence) {
-      final byte[]              dataBytes = a.mergeData(writeSequence, b.getDataToWrite(writeSequence));
+      final byte[]              dataBytes = a.mergeData(writeSequence, b.getDataToWrite(dataVersion, writeSequence));
       final ByteArrayDataBuffer db        = new ByteArrayDataBuffer(dataBytes);
-
+      db.setObjectDataFormatVersion(dataVersion);
       return ConceptChronologyImpl.make(db);
    }
 
@@ -92,7 +100,7 @@ public class ConceptSerializer
       Get.conceptActiveService()
          .updateStatus(conceptChronicle);
 
-      final byte[] data = conceptChronicle.getDataToWrite();
+      final byte[] data = conceptChronicle.getDataToWrite(dataVersion);
 
       d.put(data, 0, data.length);
    }

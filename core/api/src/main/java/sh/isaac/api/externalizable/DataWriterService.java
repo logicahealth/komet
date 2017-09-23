@@ -107,7 +107,7 @@ public interface DataWriterService
     * @param ochreObject the ochre object
     * @throws RuntimeException the runtime exception
     */
-   public void put(OchreExternalizable ochreObject)
+   public void put(IsaacExternalizable ochreObject)
             throws RuntimeException;
 
    /**

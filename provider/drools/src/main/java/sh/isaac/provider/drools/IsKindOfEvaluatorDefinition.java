@@ -22,7 +22,6 @@ import org.drools.core.base.evaluators.EvaluatorDefinition;
 import org.drools.core.base.evaluators.Operator;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSnapshot;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 /**

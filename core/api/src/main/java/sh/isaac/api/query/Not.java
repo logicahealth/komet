@@ -41,7 +41,6 @@ package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Optional;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -50,6 +49,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -111,8 +111,8 @@ public class Not
       final ConceptSequenceSet activeSet = new ConceptSequenceSet();
 
       Get.conceptService().getConceptChronologyStream(ConceptSequenceSet.of(incomingComponents)).forEach((ConceptChronology cc) -> {
-                     final Optional<ConceptVersion> latestVersion =
-                        cc.getLatestVersion(ConceptVersion.class, getEnclosingQuery().getStampCoordinate());
+                     final LatestVersion<ConceptVersion> latestVersion =
+                        cc.getLatestVersion(getEnclosingQuery().getStampCoordinate());
 
                      if (latestVersion.isPresent()) {
                         activeSet.add(cc.getNid());

@@ -47,7 +47,6 @@ import java.util.stream.Stream;
 
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.SememeSequenceSet;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampPosition;
 
 //~--- interfaces -------------------------------------------------------------
@@ -56,24 +55,24 @@ import sh.isaac.api.coordinate.StampPosition;
  * The Interface SememeServiceTyped.
  *
  * @author kec
- * @param <SV> the generic type
  */
-public interface SememeServiceTyped<SV extends SememeVersion> {
+public interface SememeServiceTyped {
    /**
     * Write sememe.
     *
     * @param sememeChronicle the sememe chronicle
     */
-   void writeSememe(SememeChronology<?> sememeChronicle);
+   void writeSememe(SememeChronology sememeChronicle);
 
    //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the parallel sememe stream.
     *
+    * @param <V>
     * @return the parallel sememe stream
     */
-   Stream<SememeChronology<SV>> getParallelSememeStream();
+   <V extends SememeChronology> Stream<V> getParallelSememeStream();
 
    /**
     * Gets the sememe.
@@ -81,7 +80,7 @@ public interface SememeServiceTyped<SV extends SememeVersion> {
     * @param sememeSequence the sememe sequence
     * @return the sememe
     */
-   SememeChronology<SV> getSememe(int sememeSequence);
+   SememeChronology getSememe(int sememeSequence);
 
    /**
     * Gets the sememe sequences for component.
@@ -142,33 +141,37 @@ public interface SememeServiceTyped<SV extends SememeVersion> {
    /**
     * Gets the sememe stream.
     *
+    * @param <V>
     * @return the sememe stream
     */
-   Stream<SememeChronology<SV>> getSememeStream();
+   <V extends SememeChronology> Stream<V> getSememeStream();
 
    /**
     * Gets the sememes for component.
     *
+    * @param <V>
     * @param componentNid the component nid
     * @return the sememes for component
     */
-   Stream<SememeChronology<SV>> getSememesForComponent(int componentNid);
+   <V extends SememeChronology> Stream<V> getSememesForComponent(int componentNid);
 
    /**
     * Gets the sememes for component from assemblage.
     *
+    * @param <V>
     * @param componentNid the component nid
     * @param assemblageSequence the assemblage sequence
     * @return the sememes for component from assemblage
     */
-   Stream<SememeChronology<SV>> getSememesForComponentFromAssemblage(int componentNid, int assemblageSequence);
+   <V extends SememeChronology> Stream<V> getSememesForComponentFromAssemblage(int componentNid, int assemblageSequence);
 
    /**
     * Gets the sememes from assemblage.
     *
+    * @param <V>
     * @param assemblageSequence the assemblage sequence
     * @return the sememes from assemblage
     */
-   Stream<SememeChronology<SV>> getSememesFromAssemblage(int assemblageSequence);
+   <V extends SememeChronology> Stream<V> getSememesFromAssemblage(int assemblageSequence);
 }
 

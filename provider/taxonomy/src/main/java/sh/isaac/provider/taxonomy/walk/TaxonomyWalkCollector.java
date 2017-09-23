@@ -133,7 +133,7 @@ public class TaxonomyWalkCollector
          final int parentCount = (int) parentSequences.count();
 
          if (parentCount == 0) {
-            final ConceptChronology<?> c = Get.conceptService()
+            final ConceptChronology c = Get.conceptService()
                                               .getConcept(conceptSequence);
 
             if (this.printCount < MAX_PRINT_COUNT) {

@@ -73,8 +73,6 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
-import sh.isaac.api.component.sememe.version.MutableLogicGraphSememe;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.logic.LogicalExpression;
@@ -102,6 +100,8 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.FloatLiteral;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import sh.isaac.api.index.IndexService;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -216,7 +216,7 @@ public class RxNormLogicGraphsMojo
 //                 
 //                 EditCoordinate ec = Get.configurationService().getDefaultEditCoordinate();
 //                 //TODO find constant
-//                 ConceptChronology<?> unitConcept = Get.conceptService().getConcept(UUID.fromString("17055d89-84e3-3e12-9fb1-1bc4c75a122d"));  //Units (attribute)
+//                 ConceptChronology unitConcept = Get.conceptService().getConcept(UUID.fromString("17055d89-84e3-3e12-9fb1-1bc4c75a122d"));  //Units (attribute)
 //                 
 //                 LogicalExpressionBuilderService expressionBuilderService = LookupService.getService(LogicalExpressionBuilderService.class);
 //                 
@@ -338,7 +338,7 @@ public class RxNormLogicGraphsMojo
 //                                                         LogicCoordinates.getStandardElProfile().getStatedAssemblageSequence()).findFirst().get();
 //                                         
 //                                         @SuppressWarnings("unchecked")
-//                                         MutableLogicGraphSememe<?> mls = ((SememeChronology<LogicGraphSememe<?>>)sc).createMutableVersion(MutableLogicGraphSememe.class, 
+//                                         MutableLogicGraphVersion mls = ((SememeChronology<LogicGraphSememe>)sc).createMutableVersion(MutableLogicGraphVersion.class, 
 //                                                         sh.isaac.api.State.ACTIVE, 
 //                                                         ec); 
 //                                         

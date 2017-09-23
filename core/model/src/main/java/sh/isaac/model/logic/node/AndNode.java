@@ -105,6 +105,11 @@ public class AndNode
    public String toString(String nodeIdSuffix) {
       return "And[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return "And " + super.toSimpleString();
+   }
+
 
    /**
     * Compare node fields.

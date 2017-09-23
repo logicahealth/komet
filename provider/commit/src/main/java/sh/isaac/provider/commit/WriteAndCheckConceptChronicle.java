@@ -53,13 +53,13 @@ import javafx.concurrent.Task;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.commit.Alert;
 import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.CheckPhase;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.progress.ActiveTasks;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -71,7 +71,7 @@ import sh.isaac.api.progress.ActiveTasks;
 public class WriteAndCheckConceptChronicle
         extends Task<Void> {
    /** The cc. */
-   private final ConceptChronology cc;
+   private ConceptChronology cc;
 
    /** The checkers. */
    private final ConcurrentSkipListSet<ChangeChecker> checkers;
@@ -86,7 +86,7 @@ public class WriteAndCheckConceptChronicle
    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
 
    /** The uncommitted tracking. */
-   private final BiConsumer<ObjectChronology, Boolean> uncommittedTracking;
+   private final BiConsumer<Chronology, Boolean> uncommittedTracking;
 
    //~--- constructors --------------------------------------------------------
 
@@ -107,7 +107,7 @@ public class WriteAndCheckConceptChronicle
          ConcurrentSkipListSet<Alert> alertCollection,
          Semaphore writeSemaphore,
          ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners,
-         BiConsumer<ObjectChronology, Boolean> uncommittedTracking) {
+         BiConsumer<Chronology, Boolean> uncommittedTracking) {
       this.cc                  = cc;
       this.checkers            = checkers;
       this.alertCollection     = alertCollection;
@@ -116,9 +116,7 @@ public class WriteAndCheckConceptChronicle
       this.uncommittedTracking = uncommittedTracking;
       updateTitle("Write and check concept");
 
-      // TODO dan disabled this, cause it keeps causing a timing based (randomly occurring) null pointer exception when it tries to read the descriptions
-      // for this new concept.  see https://slack-files.com/T04QD7FHW-F0B2PQL87-4d6e82e985
-      updateMessage("writing nid " + cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
+      updateMessage("writing " + Get.conceptDescriptionText(cc.getConceptSequence()));
       updateProgress(-1, Long.MAX_VALUE);           // Indeterminate progress
       LookupService.getService(ActiveTasks.class)
                    .get()
@@ -139,11 +137,12 @@ public class WriteAndCheckConceptChronicle
       try {
          Get.conceptService()
             .writeConcept(this.cc);
+         // get any updates that may have occured during merge write...
+         this.cc = Get.conceptService().getConcept(this.cc.getConceptSequence());
          this.uncommittedTracking.accept(this.cc, true);
          updateProgress(1, 3);
 
-         // TODO dan disabled for the same reason as above.
-         updateMessage("checking nid: " + this.cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
+         updateMessage("checking: " + Get.conceptDescriptionText(cc.getConceptSequence()));  
 
          if (this.cc.isUncommitted()) {
             this.checkers.stream().forEach((check) -> {
@@ -153,8 +152,7 @@ public class WriteAndCheckConceptChronicle
 
          updateProgress(2, 3);
 
-         // TODO dan disabled for the same reason as above.
-         updateMessage("notifying nid: " + this.cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
+         updateMessage("notifying: " + Get.conceptDescriptionText(cc.getConceptSequence()));  
          this.changeListeners.forEach((listenerRef) -> {
                                          final ChronologyChangeListener listener = listenerRef.get();
 
@@ -166,8 +164,7 @@ public class WriteAndCheckConceptChronicle
                                       });
          updateProgress(3, 3);
 
-         // TODO dan disabled for the same reason as above.
-         updateMessage("complete nid: " + this.cc.getNid());  // Get.conceptDescriptionText(cc.getConceptSequence()));
+         updateMessage("Write and check complete: " + Get.conceptDescriptionText(cc.getConceptSequence())); 
          return null;
       } finally {
          this.writeSemaphore.release();

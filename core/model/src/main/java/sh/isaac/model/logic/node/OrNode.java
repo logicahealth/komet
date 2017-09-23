@@ -105,6 +105,11 @@ public class OrNode
    public String toString(String nodeIdSuffix) {
       return "Or[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return "Or " +  super.toSimpleString();
+   }
+
 
    /**
     * Compare node fields.

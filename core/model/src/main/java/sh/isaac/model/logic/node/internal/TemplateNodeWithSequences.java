@@ -214,6 +214,14 @@ public final class TemplateNodeWithSequences
              Get.conceptDescriptionText(this.templateConceptSequence) + super.toString(nodeIdSuffix);
    }
 
+   @Override
+   public String toSimpleString() {
+      return "assemblage: " +
+             Get.defaultCoordinate().getPreferredDescriptionText(this.assemblageConceptSequence) + ", template: " +
+             Get.defaultCoordinate().getPreferredDescriptionText(this.templateConceptSequence) +
+             super.toSimpleString();
+   }
+
    /**
     * Write node data.
     *

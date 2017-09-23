@@ -41,7 +41,6 @@ package sh.isaac.api.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Optional;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -55,7 +54,6 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.query.Clause;
@@ -63,6 +61,7 @@ import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -112,12 +111,12 @@ public class FullySpecifiedNameForConcept
          Get.conceptService()
             .getConceptChronologyStream(conceptSequenceSet)
             .forEach((conceptChronology) -> {
-                        final Optional<LatestVersion<DescriptionSememe<?>>> desc =
+                        final LatestVersion<? extends DescriptionVersion> desc =
                            conceptChronology.getFullySpecifiedDescription(languageCoordinate, stampCoordinate);
 
                         if (desc.isPresent()) {
-                           outgoingFullySpecifiedNids.add(desc.get()
-                                 .value()
+                           outgoingFullySpecifiedNids.add(desc
+                                 .get()
                                  .getNid());
                         }
                      });
@@ -173,4 +172,4 @@ public class FullySpecifiedNameForConcept
    }
 
 }
-
+//~--- JDK imports ------------------------------------------------------------

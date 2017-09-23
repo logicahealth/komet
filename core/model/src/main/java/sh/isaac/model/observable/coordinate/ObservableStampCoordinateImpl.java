@@ -258,5 +258,13 @@ public class ObservableStampCoordinateImpl
 
       return this.stampCoordinate.getStampPrecedence();
    }
+   
+      
+   
+   @Override
+   public ObservableStampCoordinateImpl deepClone() {
+      return new ObservableStampCoordinateImpl(stampCoordinate.deepClone());
+   }
+
 }
 

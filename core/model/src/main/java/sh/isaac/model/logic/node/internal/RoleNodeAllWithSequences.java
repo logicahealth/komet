@@ -123,6 +123,12 @@ public final class RoleNodeAllWithSequences
       return "All[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
 
+   @Override
+   public String toSimpleString() {
+      return "All " +
+             super.toSimpleString();
+   }
+
    /**
     * Write node data.
     *

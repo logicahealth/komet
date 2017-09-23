@@ -314,5 +314,14 @@ public class ManifoldCoordinateImpl
          return v;
       }
    }
+   
+   @Override
+   public ManifoldCoordinateImpl deepClone() {
+      ManifoldCoordinateImpl newCoordinate = new ManifoldCoordinateImpl(taxonomyType,
+                                 stampCoordinate.deepClone(),
+                                 languageCoordinate.deepClone(),
+                                 logicCoordinate.deepClone());
+      return newCoordinate;
+   }
 }
 

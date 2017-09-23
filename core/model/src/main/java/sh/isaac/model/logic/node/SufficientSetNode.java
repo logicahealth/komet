@@ -106,6 +106,10 @@ public class SufficientSetNode
    public String toString(String nodeIdSuffix) {
       return "Sufficient[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return "Sufficient " +  super.toSimpleString();
+   }
 
    /**
     * Compare node fields.

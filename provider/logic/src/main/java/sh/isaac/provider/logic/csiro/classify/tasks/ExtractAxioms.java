@@ -51,7 +51,7 @@ import sh.isaac.api.component.sememe.SememeSnapshotService;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
+import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 
 //~--- classes ----------------------------------------------------------------
@@ -119,13 +119,13 @@ public class ExtractAxioms
          LogicCoordinate logicCoordinate,
          ClassifierData cd,
          AtomicInteger logicGraphMembers) {
-      final SememeSnapshotService<LogicGraphSememeImpl> sememeSnapshot = Get.sememeService()
-                                                                            .getSnapshot(LogicGraphSememeImpl.class,
+      final SememeSnapshotService<LogicGraphVersionImpl> sememeSnapshot = Get.assemblageService()
+                                                                            .getSnapshot(LogicGraphVersionImpl.class,
                                                                                   stampCoordinate);
 
       sememeSnapshot.getLatestSememeVersionsFromAssemblage(logicCoordinate.getStatedAssemblageSequence(), this)
-                    .forEach((LatestVersion<LogicGraphSememeImpl> latest) -> {
-                                final LogicGraphSememeImpl lgs = latest.value();
+                    .forEach((LatestVersion<LogicGraphVersionImpl> latest) -> {
+                                final LogicGraphVersionImpl lgs = latest.get();
                                 final int conceptSequence = Get.identifierService()
                                                                .getConceptSequence(lgs.getReferencedComponentNid());
 

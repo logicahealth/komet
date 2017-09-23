@@ -93,15 +93,12 @@ import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
-import sh.isaac.api.component.sememe.version.SememeVersion;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.dag.Node;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
@@ -116,6 +113,7 @@ import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
 import sh.isaac.provider.taxonomy.graph.GraphCollector;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -242,7 +240,7 @@ public class TaxonomyProvider
     * @param cc the cc
     */
    @Override
-   public void handleChange(ConceptChronology<? extends StampedVersion> cc) {
+   public void handleChange(ConceptChronology cc) {
       // not interested on concept changes
    }
 
@@ -252,8 +250,8 @@ public class TaxonomyProvider
     * @param sc the sc
     */
    @Override
-   public void handleChange(SememeChronology<? extends SememeVersion<?>> sc) {
-      if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {
+   public void handleChange(SememeChronology sc) {
+      if (sc.getSememeType() == VersionType.LOGIC_GRAPH) {
          this.sememeSequencesForUnhandledChanges.add(sc.getSememeSequence());
       }
    }
@@ -279,7 +277,7 @@ public class TaxonomyProvider
     * @param conceptChronology the concept chronology
     */
    @Override
-   public void updateStatus(ConceptChronology<?> conceptChronology) {
+   public void updateStatus(ConceptChronology conceptChronology) {
       final int               conceptSequence = conceptChronology.getConceptSequence();
       TaxonomyRecordPrimitive parentTaxonomyRecord;
 
@@ -306,7 +304,7 @@ public class TaxonomyProvider
     * @param logicGraphChronology the logic graph chronology
     */
    @Override
-   public void updateTaxonomy(SememeChronology<LogicGraphSememe<?>> logicGraphChronology) {
+   public void updateTaxonomy(SememeChronology logicGraphChronology) {
       final int conceptSequence =
          this.identifierService.getConceptSequence(logicGraphChronology.getReferencedComponentNid());
       final Optional<TaxonomyRecordPrimitive> record = this.originDestinationTaxonomyRecordMap.get(conceptSequence);
@@ -326,7 +324,7 @@ public class TaxonomyProvider
          taxonomyFlags = TaxonomyFlags.STATED;
       }
 
-      final List<Graph<? extends LogicGraphSememe<?>>> versionGraphList = logicGraphChronology.getVersionGraphList();
+      final List<Graph<LogicGraphVersion>> versionGraphList = logicGraphChronology.getVersionGraphList();
 
       versionGraphList.forEach((versionGraph) -> {
                                   processVersionNode(versionGraph.getRoot(), parentTaxonomyRecord, taxonomyFlags);
@@ -496,7 +494,7 @@ public class TaxonomyProvider
     * @param parentTaxonomyRecord the parent taxonomy record
     * @param taxonomyFlags the taxonomy flags
     */
-   private void processNewLogicGraph(LogicGraphSememe firstVersion,
+   private void processNewLogicGraph(LogicGraphVersion firstVersion,
                                      TaxonomyRecordPrimitive parentTaxonomyRecord,
                                      TaxonomyFlags taxonomyFlags) {
       if (firstVersion.getCommitState() == CommitStates.COMMITTED) {
@@ -561,7 +559,7 @@ public class TaxonomyProvider
     * @param parentTaxonomyRecord the parent taxonomy record
     * @param taxonomyFlags the taxonomy flags
     */
-   private void processVersionNode(Node<? extends LogicGraphSememe> node,
+   private void processVersionNode(Node<? extends LogicGraphVersion> node,
                                    TaxonomyRecordPrimitive parentTaxonomyRecord,
                                    TaxonomyFlags taxonomyFlags) {
       if (node.getParent() == null) {

@@ -52,25 +52,23 @@ import javafx.concurrent.Task;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.SememeVersion;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.model.sememe.SememeChronologyImpl;
-import sh.isaac.model.sememe.version.ComponentNidSememeImpl;
-import sh.isaac.model.sememe.version.DescriptionSememeImpl;
+import sh.isaac.model.sememe.version.ComponentNidVersionImpl;
+import sh.isaac.model.sememe.version.DescriptionVersionImpl;
 import sh.isaac.model.sememe.version.DynamicSememeImpl;
-import sh.isaac.model.sememe.version.LogicGraphSememeImpl;
-import sh.isaac.model.sememe.version.LongSememeImpl;
+import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
+import sh.isaac.model.sememe.version.LongVersionImpl;
 import sh.isaac.model.sememe.version.SememeVersionImpl;
-import sh.isaac.model.sememe.version.StringSememeImpl;
+import sh.isaac.model.sememe.version.StringVersionImpl;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -80,7 +78,7 @@ import sh.isaac.model.sememe.version.StringSememeImpl;
  * @author kec
  * @param <C> the generic type
  */
-public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersion<?>>>
+public class SememeBuilderImpl<C extends SememeChronology>
         extends ComponentBuilder<C>
          implements SememeBuilder<C> {
    /** The referenced component nid. */
@@ -93,7 +91,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
    int assemblageConceptSequence;
 
    /** The sememe type. */
-   SememeType sememeType;
+   VersionType sememeType;
 
    /** The parameters. */
    Object[] parameters;
@@ -110,7 +108,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
     */
    public SememeBuilderImpl(IdentifiedComponentBuilder referencedComponentBuilder,
                             int assemblageConceptSequence,
-                            SememeType sememeType,
+                            VersionType sememeType,
                             Object... paramaters) {
       this.referencedComponentBuilder = referencedComponentBuilder;
       this.assemblageConceptSequence  = assemblageConceptSequence;
@@ -128,7 +126,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
     */
    public SememeBuilderImpl(int referencedComponentNid,
                             int assemblageConceptSequence,
-                            SememeType sememeType,
+                            VersionType sememeType,
                             Object... paramaters) {
       this.referencedComponentNid    = referencedComponentNid;
       this.assemblageConceptSequence = assemblageConceptSequence;
@@ -148,7 +146,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
     */
    @Override
    public C build(int stampSequence,
-                  List<ObjectChronology<? extends StampedVersion>> builtObjects)
+                  List<Chronology> builtObjects)
             throws IllegalStateException {
       if (this.referencedComponentNid == Integer.MAX_VALUE) {
          this.referencedComponentNid = Get.identifierService()
@@ -159,9 +157,9 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
       final int            sememeNid = Get.identifierService()
                                           .getNidForUuids(this.getUuids());
 
-      if (Get.sememeService()
+      if (Get.assemblageService()
              .hasSememe(sememeNid)) {
-         sememeChronicle = (SememeChronologyImpl) Get.sememeService()
+         sememeChronicle = (SememeChronologyImpl) Get.assemblageService()
                .getSememe(sememeNid);
 
          if ((sememeChronicle.getSememeType() != this.sememeType) ||
@@ -183,43 +181,38 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
 
       switch (this.sememeType) {
       case COMPONENT_NID:
-         final ComponentNidSememeImpl cnsi =
-            (ComponentNidSememeImpl) sememeChronicle.createMutableVersion(ComponentNidSememeImpl.class,
-                                                                          stampSequence);
+         final ComponentNidVersionImpl cnsi =
+            (ComponentNidVersionImpl) sememeChronicle.createMutableVersion(stampSequence);
 
          cnsi.setComponentNid((Integer) this.parameters[0]);
          break;
 
       case LONG:
-         final LongSememeImpl lsi = (LongSememeImpl) sememeChronicle.createMutableVersion(LongSememeImpl.class,
-                                                                                          stampSequence);
+         final LongVersionImpl lsi = (LongVersionImpl) sememeChronicle.createMutableVersion(stampSequence);
 
          lsi.setLongValue((Long) this.parameters[0]);
          break;
 
       case LOGIC_GRAPH:
-         final LogicGraphSememeImpl lgsi =
-            (LogicGraphSememeImpl) sememeChronicle.createMutableVersion(LogicGraphSememeImpl.class,
-                                                                        stampSequence);
+         final LogicGraphVersionImpl lgsi =
+            (LogicGraphVersionImpl) sememeChronicle.createMutableVersion(stampSequence);
 
          lgsi.setGraphData(((LogicalExpression) this.parameters[0]).getData(DataTarget.INTERNAL));
          break;
 
       case MEMBER:
-         sememeChronicle.createMutableVersion(SememeVersionImpl.class, stampSequence);
+         sememeChronicle.createMutableVersion(stampSequence);
          break;
 
       case STRING:
-         final StringSememeImpl ssi = (StringSememeImpl) sememeChronicle.createMutableVersion(StringSememeImpl.class,
-                                                                                              stampSequence);
+         final StringVersionImpl ssi = (StringVersionImpl) sememeChronicle.createMutableVersion(stampSequence);
 
          ssi.setString((String) this.parameters[0]);
          break;
 
       case DESCRIPTION: {
-         final DescriptionSememeImpl dsi =
-            (DescriptionSememeImpl) sememeChronicle.createMutableVersion(DescriptionSememeImpl.class,
-                                                                         stampSequence);
+         final DescriptionVersionImpl dsi =
+            (DescriptionVersionImpl) sememeChronicle.createMutableVersion(stampSequence);
 
          dsi.setCaseSignificanceConceptSequence((Integer) this.parameters[0]);
          dsi.setDescriptionTypeConceptSequence((Integer) this.parameters[1]);
@@ -229,8 +222,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
       }
 
       case DYNAMIC: {
-         final DynamicSememeImpl dsi = (DynamicSememeImpl) sememeChronicle.createMutableVersion(DynamicSememeImpl.class,
-                                                                                                stampSequence);
+         final DynamicSememeImpl dsi = (DynamicSememeImpl) sememeChronicle.createMutableVersion(stampSequence);
 
          if ((this.parameters != null) && (this.parameters.length > 0)) {
             // See notes in SememeBuilderProvider - this casting / wrapping nonesense it to work around Java being stupid.
@@ -262,7 +254,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
    @Override
    public OptionalWaitTask<C> build(EditCoordinate editCoordinate,
                                     ChangeCheckerMode changeCheckerMode,
-                                    List<ObjectChronology<? extends StampedVersion>> builtObjects)
+                                    List<Chronology> builtObjects)
             throws IllegalStateException {
       if (this.referencedComponentNid == Integer.MAX_VALUE) {
          this.referencedComponentNid = Get.identifierService()
@@ -273,9 +265,9 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
       final int            sememeNid = Get.identifierService()
                                           .getNidForUuids(this.getUuids());
 
-      if (Get.sememeService()
+      if (Get.assemblageService()
              .hasSememe(sememeNid)) {
-         sememeChronicle = (SememeChronologyImpl) Get.sememeService()
+         sememeChronicle = (SememeChronologyImpl) Get.assemblageService()
                .getSememe(sememeNid);
 
          if ((sememeChronicle.getSememeType() != this.sememeType) ||
@@ -297,47 +289,42 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
 
       switch (this.sememeType) {
       case COMPONENT_NID:
-         final ComponentNidSememeImpl cnsi =
-            (ComponentNidSememeImpl) sememeChronicle.createMutableVersion(ComponentNidSememeImpl.class,
-                                                                          this.state,
+         final ComponentNidVersionImpl cnsi =
+            (ComponentNidVersionImpl) sememeChronicle.createMutableVersion(this.state,
                                                                           editCoordinate);
 
          cnsi.setComponentNid((Integer) this.parameters[0]);
          break;
 
       case LONG:
-         final LongSememeImpl lsi = (LongSememeImpl) sememeChronicle.createMutableVersion(LongSememeImpl.class,
-                                                                                          this.state,
+         final LongVersionImpl lsi = (LongVersionImpl) sememeChronicle.createMutableVersion(this.state,
                                                                                           editCoordinate);
 
          lsi.setLongValue((Long) this.parameters[0]);
          break;
 
       case LOGIC_GRAPH:
-         final LogicGraphSememeImpl lgsi =
-            (LogicGraphSememeImpl) sememeChronicle.createMutableVersion(LogicGraphSememeImpl.class,
-                                                                        this.state,
+         final LogicGraphVersionImpl lgsi =
+            (LogicGraphVersionImpl) sememeChronicle.createMutableVersion(this.state,
                                                                         editCoordinate);
 
          lgsi.setGraphData(((LogicalExpression) this.parameters[0]).getData(DataTarget.INTERNAL));
          break;
 
       case MEMBER:
-         sememeChronicle.createMutableVersion(SememeVersionImpl.class, this.state, editCoordinate);
+         sememeChronicle.createMutableVersion(this.state, editCoordinate);
          break;
 
       case STRING:
-         final StringSememeImpl ssi = (StringSememeImpl) sememeChronicle.createMutableVersion(StringSememeImpl.class,
-                                                                                              this.state,
+         final StringVersionImpl ssi = (StringVersionImpl) sememeChronicle.createMutableVersion(this.state,
                                                                                               editCoordinate);
 
          ssi.setString((String) this.parameters[0]);
          break;
 
       case DESCRIPTION: {
-         final DescriptionSememeImpl dsi =
-            (DescriptionSememeImpl) sememeChronicle.createMutableVersion(DescriptionSememeImpl.class,
-                                                                         this.state,
+         final DescriptionVersionImpl dsi =
+            (DescriptionVersionImpl) sememeChronicle.createMutableVersion(this.state,
                                                                          editCoordinate);
 
          dsi.setCaseSignificanceConceptSequence((Integer) this.parameters[0]);
@@ -348,8 +335,7 @@ public class SememeBuilderImpl<C extends SememeChronology<? extends SememeVersio
       }
 
       case DYNAMIC: {
-         final DynamicSememeImpl dsi = (DynamicSememeImpl) sememeChronicle.createMutableVersion(DynamicSememeImpl.class,
-                                                                                                this.state,
+         final DynamicSememeImpl dsi = (DynamicSememeImpl) sememeChronicle.createMutableVersion(this.state,
                                                                                                 editCoordinate);
 
          if ((this.parameters != null) && (this.parameters.length > 0)) {

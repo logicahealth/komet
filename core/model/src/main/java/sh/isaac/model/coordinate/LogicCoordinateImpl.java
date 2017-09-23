@@ -69,16 +69,16 @@ import sh.isaac.api.coordinate.LogicCoordinate;
 public class LogicCoordinateImpl
          implements LogicCoordinate {
    /** The stated assemblage sequence. */
-   int statedAssemblageSequence;
+   protected int statedAssemblageSequence;
 
    /** The inferred assemblage sequence. */
-   int inferredAssemblageSequence;
+   protected int inferredAssemblageSequence;
 
    /** The description logic profile sequence. */
-   int descriptionLogicProfileSequence;
+   protected int descriptionLogicProfileSequence;
 
    /** The classifier sequence. */
-   int classifierSequence;
+   protected int classifierSequence;
 
    //~--- constructors --------------------------------------------------------
 
@@ -101,6 +101,7 @@ public class LogicCoordinateImpl
                               int inferredAssemblageSequence,
                               int descriptionLogicProfileSequence,
                               int classifierSequence) {
+      
       this.statedAssemblageSequence        = statedAssemblageSequence;
       this.inferredAssemblageSequence      = inferredAssemblageSequence;
       this.descriptionLogicProfileSequence = descriptionLogicProfileSequence;
@@ -120,7 +121,9 @@ public class LogicCoordinateImpl
       if (obj == null) {
          return false;
       }
-
+      if (obj instanceof LogicCoordinate) {
+         return false;
+      }
       // Do not compare object classes, a LogicCoordinateImpl from one impl should be able to be equal to another impl...
       final LogicCoordinate other = (LogicCoordinate) obj;
 
@@ -295,5 +298,15 @@ public class LogicCoordinateImpl
       statedAssemblageSequenceProperty.addListener(new WeakChangeListener<>(listener));
       return listener;
    }
+   
+   @Override
+   public LogicCoordinateImpl deepClone() {
+      LogicCoordinateImpl newCoordinate = new LogicCoordinateImpl(getStatedAssemblageSequence(),
+                              getInferredAssemblageSequence(),
+                              getDescriptionLogicProfileSequence(),
+                              getClassifierSequence());
+      return newCoordinate;
+   }
+   
 }
 

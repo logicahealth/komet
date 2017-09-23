@@ -4,13 +4,13 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>komet</artifactId>
-      <version>4.22</version>
+      <version>4.24</version>
    </parent>
    <groupId>sh.isaac.komet</groupId>
    <artifactId>gui-contracts</artifactId>
    <packaging>jar</packaging>
 
-   <name>ISAAC’s KOMET: GUI plugin contracts</name>
+   <name>ISAAC’s KOMET: GUI contracts &amp; capabilities</name>
    <description>
       Contracts for ISAAC's KOMET plugins.
    </description>
@@ -30,6 +30,18 @@
                <artifactId>reactfx</artifactId>
             </exclusion>
          </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.komet</groupId>
+         <artifactId>iconography</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
+      </dependency>
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>metadata</artifactId>
+         <version>${project.parent.version}</version>
+         <type>jar</type>
       </dependency>
    </dependencies>
 </project>

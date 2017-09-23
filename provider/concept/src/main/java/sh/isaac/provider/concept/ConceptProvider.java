@@ -84,15 +84,14 @@ import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
-import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.model.observable.ObservableConceptChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -114,7 +113,7 @@ public class ConceptProvider
    /** The Constant CRADLE_ID_FILE_NAME. */
    public static final String CRADLE_ID_FILE_NAME = "dbid.txt";
 
-   /** The Constant CRADLE_DATA_VERSION. */
+   /** The Constant CRADLE_DATA_VERSION. We must use strings for integers  > 0 that Byte.parseByte() can parse for future data versions. */
    public static final String CRADLE_DATA_VERSION = "1.5";
 
    /** The Constant CRADLE_DATA_VERSION_PROPERTY. */
@@ -139,6 +138,8 @@ public class ConceptProvider
 
    /** The ochre concept path. */
    private Path ochreConceptPath;
+   
+   private final byte dataVersion;
 
    //~--- constructors --------------------------------------------------------
 
@@ -208,7 +209,7 @@ public class ConceptProvider
             this.dbId = UUID.randomUUID();
             Files.write(dbIdPath, this.dbId.toString()
                                            .getBytes());
-            LOG.info("Creating a new (empty) concept store at " + folderPath.toAbsolutePath() + " with the id of ]" +
+            LOG.info("Creating a new (empty) concept store at " + folderPath.toAbsolutePath() + " with the id of '" +
                      this.dbId.toString() + "'");
          }
 
@@ -217,8 +218,14 @@ public class ConceptProvider
          if (!Files.exists(this.ochreConceptPath)) {
             this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
          }
+         
+         if (cradleProps.getProperty(CRADLE_DATA_VERSION_PROPERTY).equals("1.5")) {
+            dataVersion = 0;
+         } else {
+            dataVersion = Byte.parseByte(cradleProps.getProperty(CRADLE_DATA_VERSION_PROPERTY));
+         }
 
-         this.conceptMap = new CasSequenceObjectMap<>(new ConceptSerializer(),
+         this.conceptMap = new CasSequenceObjectMap<>(new ConceptSerializer(dataVersion),
                this.ochreConceptPath,
                "seg.",
                ".ochre-concepts.map");
@@ -247,7 +254,10 @@ public class ConceptProvider
     * @param concept the concept
     */
    @Override
-   public void writeConcept(ConceptChronology<? extends ConceptVersion<?>> concept) {
+   public void writeConcept(ConceptChronology concept) {
+      if (concept instanceof ObservableConceptChronologyImpl) {
+         concept = ((ObservableConceptChronologyImpl) concept).getConceptChronology();
+      }
       this.conceptMap.put(concept.getConceptSequence(), (ConceptChronologyImpl) concept);
    }
 
@@ -360,9 +370,9 @@ public class ConceptProvider
     * @return the concept chronology stream
     */
    @Override
-   public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream() {
+   public Stream<ConceptChronology> getConceptChronologyStream() {
       return this.conceptMap.getStream().map((cc) -> {
-                                    return (ConceptChronology<? extends ConceptVersion<?>>) cc;
+                                    return (ConceptChronology) cc;
                                  });
    }
 
@@ -373,7 +383,7 @@ public class ConceptProvider
     * @return the concept chronology stream
     */
    @Override
-   public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream(
+   public Stream<ConceptChronology> getConceptChronologyStream(
            ConceptSequenceSet conceptSequences) {
       return Get.identifierService().getConceptSequenceStream().filter((int sequence) -> conceptSequences.contains(sequence)).mapToObj((int sequence) -> {
                              final Optional<ConceptChronologyImpl> result = this.conceptMap.get(sequence);
@@ -471,7 +481,7 @@ public class ConceptProvider
     * @return the optional concept
     */
    @Override
-   public Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(int conceptId) {
+   public Optional<? extends ConceptChronology> getOptionalConcept(int conceptId) {
       if (conceptId < 0) {
          conceptId = Get.identifierService()
                         .getConceptSequence(conceptId);
@@ -487,7 +497,7 @@ public class ConceptProvider
     * @return the optional concept
     */
    @Override
-   public Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(UUID... conceptUuids) {
+   public Optional<? extends ConceptChronology> getOptionalConcept(UUID... conceptUuids) {
       // check hasUuid first, because getOptionalConcept adds the UUID to the index if it doesn't exist...
       if (Get.identifierService()
              .hasUuid(conceptUuids)) {
@@ -504,7 +514,7 @@ public class ConceptProvider
     * @return the parallel concept chronology stream
     */
    @Override
-   public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream() {
+   public Stream<ConceptChronology> getParallelConceptChronologyStream() {
       return this.conceptMap.getParallelStream().map((cc) -> {
                                     return cc;
                                  });
@@ -517,7 +527,7 @@ public class ConceptProvider
     * @return the parallel concept chronology stream
     */
    @Override
-   public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream(
+   public Stream<ConceptChronology> getParallelConceptChronologyStream(
            ConceptSequenceSet conceptSequences) {
       return Get.identifierService().getParallelConceptSequenceStream().filter((int sequence) -> conceptSequences.contains(sequence)).mapToObj((int sequence) -> {
                              final Optional<ConceptChronologyImpl> result = this.conceptMap.get(sequence);
@@ -540,6 +550,11 @@ public class ConceptProvider
    @Override
    public ConceptSnapshotService getSnapshot(sh.isaac.api.coordinate.ManifoldCoordinate manifoldCoordinate) {
       return new ConceptSnapshotProvider(manifoldCoordinate);
+   }
+
+   @Override
+   public ConceptChronology getConcept(ConceptSpecification conceptSpecification) {
+      return getConcept(conceptSpecification.getConceptSequence());
    }
 
    //~--- inner classes -------------------------------------------------------
@@ -573,11 +588,10 @@ public class ConceptProvider
        */
       @Override
       public String conceptDescriptionText(int conceptId) {
-         final Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional = getDescriptionOptional(conceptId);
+         final LatestVersion<DescriptionVersion> descriptionOptional = getDescriptionOptional(conceptId);
 
          if (descriptionOptional.isPresent()) {
             return descriptionOptional.get()
-                                      .value()
                                       .getText();
          }
 
@@ -624,11 +638,11 @@ public class ConceptProvider
        * @param conceptId the concept id
        * @return the description list
        */
-      private List<SememeChronology<? extends DescriptionSememe<?>>> getDescriptionList(int conceptId) {
+      private List<SememeChronology> getDescriptionList(int conceptId) {
          final int conceptNid = Get.identifierService()
                                    .getConceptNid(conceptId);
 
-         return Get.sememeService()
+         return Get.assemblageService()
                    .getDescriptionsForComponent(conceptNid)
                    .collect(Collectors.toList());
       }
@@ -640,7 +654,7 @@ public class ConceptProvider
        * @return the description optional
        */
       @Override
-      public Optional<LatestVersion<DescriptionSememe<?>>> getDescriptionOptional(int conceptId) {
+      public LatestVersion<DescriptionVersion> getDescriptionOptional(int conceptId) {
          return this.manifoldCoordinate.getDescription(getDescriptionList(conceptId));
       }
 
@@ -651,7 +665,7 @@ public class ConceptProvider
        * @return the fully specified description
        */
       @Override
-      public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(int conceptId) {
+      public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(int conceptId) {
          return this.manifoldCoordinate.getFullySpecifiedDescription(getDescriptionList(conceptId));
       }
 
@@ -662,7 +676,7 @@ public class ConceptProvider
        * @return the preferred description
        */
       @Override
-      public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(int conceptId) {
+      public LatestVersion<DescriptionVersion> getPreferredDescription(int conceptId) {
          return this.manifoldCoordinate.getPreferredDescription(getDescriptionList(conceptId));
       }
 

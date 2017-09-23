@@ -112,6 +112,11 @@ public abstract class LiteralNode
    public String toString(String nodeIdSuffix) {
       return super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return super.toSimpleString();
+   }
+
 
    /**
     * Write node data.

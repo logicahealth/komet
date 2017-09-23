@@ -53,10 +53,10 @@ import javafx.concurrent.Task;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.progress.ActiveTasks;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -68,7 +68,7 @@ import sh.isaac.api.progress.ActiveTasks;
 public class WriteSememeChronicle
         extends Task<Void> {
    /** The sc. */
-   private final SememeChronology sc;
+   private SememeChronology sc;
 
    /** The write semaphore. */
    private final Semaphore writeSemaphore;
@@ -77,7 +77,7 @@ public class WriteSememeChronicle
    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
 
    /** The uncommitted tracking. */
-   private final BiConsumer<ObjectChronology, Boolean> uncommittedTracking;
+   private final BiConsumer<Chronology, Boolean> uncommittedTracking;
 
    //~--- constructors --------------------------------------------------------
 
@@ -94,7 +94,7 @@ public class WriteSememeChronicle
    public WriteSememeChronicle(SememeChronology sc,
                                Semaphore writeSemaphore,
                                ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners,
-                               BiConsumer<ObjectChronology, Boolean> uncommittedTracking) {
+                               BiConsumer<Chronology, Boolean> uncommittedTracking) {
       this.sc                  = sc;
       this.writeSemaphore      = writeSemaphore;
       this.changeListeners     = changeListeners;
@@ -119,19 +119,24 @@ public class WriteSememeChronicle
    public Void call()
             throws Exception {
       try {
-         Get.sememeService()
+         Get.assemblageService()
             .writeSememe(this.sc);
+         this.sc = Get.assemblageService().getSememe(this.sc.getSememeSequence());
          this.uncommittedTracking.accept(this.sc, false);
          updateProgress(1, 2);
          updateMessage("notifying: " + this.sc.getAssemblageSequence());
          this.changeListeners.forEach((listenerRef) -> {
-                                         final ChronologyChangeListener listener = listenerRef.get();
-
-                                         if (listener == null) {
-                                            this.changeListeners.remove(listenerRef);
-                                         } else {
-                                            listener.handleChange(this.sc);
-                                         }
+            try {
+               final ChronologyChangeListener listener = listenerRef.get();
+               
+               if (listener == null) {
+                  this.changeListeners.remove(listenerRef);
+               } else {
+                  listener.handleChange(this.sc);
+               }
+            } catch (Throwable e) {
+               e.printStackTrace();
+            }
                                       });
          updateProgress(2, 2);
          updateMessage("complete: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());

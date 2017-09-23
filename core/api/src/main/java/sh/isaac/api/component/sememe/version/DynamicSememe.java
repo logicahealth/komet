@@ -42,6 +42,7 @@ package sh.isaac.api.component.sememe.version;
 //~--- JDK imports ------------------------------------------------------------
 
 import javax.naming.InvalidNameException;
+import sh.isaac.api.chronicle.VersionType;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -58,7 +59,7 @@ import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDes
  * @param <T> the generic type
  */
 public interface DynamicSememe<T extends DynamicSememe<T>>
-        extends SememeVersion<T> {
+        extends SememeVersion {
    /**
     * Return a string representation of the data fields.
     *
@@ -104,5 +105,10 @@ public interface DynamicSememe<T extends DynamicSememe<T>>
     * @return the dynamic sememe usage description
     */
    public DynamicSememeUsageDescription getDynamicSememeUsageDescription();
+
+   @Override
+   default VersionType getVersionType() {
+      return VersionType.DESCRIPTION;
+   }
 }
 

@@ -45,7 +45,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import static jdk.nashorn.api.scripting.ScriptUtils.wrap;
 import org.drools.core.base.BaseEvaluator;
 import org.drools.core.base.ValueType;
 import org.drools.core.base.evaluators.Operator;

@@ -56,7 +56,6 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.query.Clause;
@@ -65,6 +64,7 @@ import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -110,13 +110,13 @@ public class PreferredNameForConcept
                                Get.conceptService()
                                   .getConceptChronologyStream(conceptSequenceSet)
                                   .forEach((conceptChronology) -> {
-                                              final Optional<LatestVersion<DescriptionSememe<?>>> desc =
+                                              final LatestVersion<? extends DescriptionVersion> desc =
                                                  conceptChronology.getPreferredDescription(
                                                     languageCoordinate, stampCoordinate);
 
                                               if (desc.isPresent()) {
-                                                 outgoingPreferredNids.add(desc.get()
-                                                       .value()
+                                                 outgoingPreferredNids.add(desc
+                                                       .get()
                                                        .getNid());
                                               }
                                            });

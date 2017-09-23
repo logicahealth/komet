@@ -59,13 +59,13 @@ import java.util.UUID;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -242,6 +242,11 @@ public abstract class AbstractLogicNode
       return "";
    }
 
+   @Override
+   public String toSimpleString() {
+      return "";
+   }
+
    /**
     * Compare fields.
     *
@@ -405,7 +410,7 @@ public abstract class AbstractLogicNode
    }
 
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
+   public LatestVersion<DescriptionVersion> getPreferredDescription(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
       int sequenceForDescription = -1;
 
       switch (getNodeSemantic()) {
@@ -424,9 +429,9 @@ public abstract class AbstractLogicNode
                     .getConceptSequence();
       }
 
-      Optional<LatestVersion<DescriptionSememe<?>>> latestDescriptionOptional = languageCoordinate.getPreferredDescription(sequenceForDescription, stampCoordinate);
+      LatestVersion<DescriptionVersion> latestDescription = languageCoordinate.getPreferredDescription(sequenceForDescription, stampCoordinate);
 
-      return latestDescriptionOptional;   
+      return latestDescription;   
    }
 
    @Override

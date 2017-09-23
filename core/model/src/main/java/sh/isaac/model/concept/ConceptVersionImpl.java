@@ -41,8 +41,12 @@ package sh.isaac.model.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.model.ObjectVersionImpl;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.model.VersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -52,17 +56,16 @@ import sh.isaac.model.ObjectVersionImpl;
  * @author kec
  */
 public class ConceptVersionImpl
-        extends ObjectVersionImpl<ConceptChronologyImpl, ConceptVersionImpl>
-         implements ConceptVersion<ConceptVersionImpl> {
+        extends VersionImpl
+         implements ConceptVersion {
    /**
     * Instantiates a new concept version impl.
     *
     * @param chronicle the chronicle
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     */
-   public ConceptVersionImpl(ConceptChronologyImpl chronicle, int stampSequence, short versionSequence) {
-      super(chronicle, stampSequence, versionSequence);
+   public ConceptVersionImpl(ConceptChronologyImpl chronicle, int stampSequence) {
+      super(chronicle, stampSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -73,8 +76,36 @@ public class ConceptVersionImpl
     * @return the chronology
     */
    @Override
-   public ConceptChronologyImpl getChronology() {
-      return this.chronicle;
+   public ConceptChronology getChronology() {
+      return (ConceptChronology) this.chronicle;
+   }
+
+   @Override
+   public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      final int stampSequence = Get.stampService()
+                                   .getStampSequence(
+                                       this.getState(),
+                                       Long.MAX_VALUE,
+                                       ec.getAuthorSequence(),
+                                       this.getModuleSequence(),
+                                       ec.getPathSequence());
+      ConceptChronologyImpl chronologyImpl = (ConceptChronologyImpl) this.chronicle;
+      final ConceptVersionImpl newVersion = new ConceptVersionImpl(chronologyImpl, stampSequence);
+
+      chronologyImpl.addVersion(newVersion);
+      return (V) newVersion;   
+   }
+
+   @Override
+   protected final boolean deepEquals2(VersionImpl other) {
+      // no additional fields to check. 
+      return true;
+   }
+
+   @Override
+   protected int editDistance2(VersionImpl other, int editDistance) {
+      // no additional fields to add.
+      return editDistance;
    }
 }
 

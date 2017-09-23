@@ -66,23 +66,16 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.ComponentNidSememe;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
-import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
-import sh.isaac.api.component.sememe.version.StringSememe;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
@@ -95,8 +88,6 @@ import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.MultipleDataWriterService;
-import sh.isaac.api.externalizable.OchreExternalizable;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
@@ -125,6 +116,8 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -295,7 +288,7 @@ public class IBDFCreationUtility {
           StampPrecedence.PATH,
           stampPosition,
           ConceptSequenceSet.EMPTY,
-          State.ANY_STATE_SET);
+          State.makeAnyStateSet());
 
       final UUID moduleUUID = moduleToCreate.isPresent() ? UuidT5Generator.get(
                                   UuidT5Generator.PATH_ID_FROM_FS_DESC,
@@ -413,7 +406,7 @@ public class IBDFCreationUtility {
     * @param time - if null, uses the component time
     * @return the sememe chronology
     */
-   public SememeChronology<DynamicSememe<?>> addAnnotation(ComponentReference referencedComponent,
+   public SememeChronology addAnnotation(ComponentReference referencedComponent,
          UUID uuidForCreatedAnnotation,
          DynamicSememeData value,
          UUID refexDynamicTypeUuid,
@@ -437,7 +430,7 @@ public class IBDFCreationUtility {
     * @return the sememe chronology
     */
    @SuppressWarnings("unchecked")
-   public SememeChronology<DynamicSememe<?>> addAnnotation(ComponentReference referencedComponent,
+   public SememeChronology addAnnotation(ComponentReference referencedComponent,
          UUID uuidForCreatedAnnotation,
          DynamicSememeData[] values,
          UUID refexDynamicTypeUuid,
@@ -477,15 +470,15 @@ public class IBDFCreationUtility {
 
       sb.setPrimordialUuid(uuidForCreatedAnnotation);
 
-      final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
-      final SememeChronology<DynamicSememe<?>> sc = (SememeChronology<DynamicSememe<?>>) sb.build(
+      final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
+      final SememeChronology sc = (SememeChronology) sb.build(
                                                         createStamp(
                                                               state,
                                                                     selectTime(time, referencedComponent),
                                                                     module),
                                                               builtObjects);
 
-      for (final OchreExternalizable ochreObject: builtObjects) {
+      for (final IsaacExternalizable ochreObject: builtObjects) {
          this.writer.put(ochreObject);
       }
 
@@ -518,7 +511,7 @@ public class IBDFCreationUtility {
     * @param module the module
     * @return the sememe chronology
     */
-   public SememeChronology<DynamicSememe<?>> addAssociation(ComponentReference concept,
+   public SememeChronology addAssociation(ComponentReference concept,
          UUID associationPrimordialUuid,
          UUID targetUuid,
          UUID associationTypeUuid,
@@ -552,7 +545,7 @@ public class IBDFCreationUtility {
     * @param state the state
     * @return the sememe chronology
     */
-   public SememeChronology<DescriptionSememe<?>> addDescription(ComponentReference concept,
+   public SememeChronology addDescription(ComponentReference concept,
          String descriptionValue,
          DescriptionType wbDescriptionType,
          boolean preferred,
@@ -585,7 +578,7 @@ public class IBDFCreationUtility {
     * @param status the status
     * @return the sememe chronology
     */
-   public SememeChronology<DescriptionSememe<?>> addDescription(ComponentReference concept,
+   public SememeChronology addDescription(ComponentReference concept,
          UUID descriptionPrimordialUUID,
          String descriptionValue,
          DescriptionType wbDescriptionType,
@@ -625,7 +618,7 @@ public class IBDFCreationUtility {
     * @return the sememe chronology
     */
    @SuppressWarnings("unchecked")
-   public SememeChronology<DescriptionSememe<?>> addDescription(ComponentReference concept,
+   public SememeChronology addDescription(ComponentReference concept,
          UUID descriptionPrimordialUUID,
          String descriptionValue,
          DescriptionType wbDescriptionType,
@@ -662,7 +655,7 @@ public class IBDFCreationUtility {
       }
 
       @SuppressWarnings({ "rawtypes" })
-      final SememeBuilder<? extends SememeChronology<? extends DescriptionSememe>> descBuilder =
+      final SememeBuilder<? extends SememeChronology> descBuilder =
          this.sememeBuilderService.getDescriptionSememeBuilder(
              Get.identifierService()
                 .getConceptSequenceForUuids(
@@ -678,9 +671,9 @@ public class IBDFCreationUtility {
 
       descBuilder.setPrimordialUuid(descriptionPrimordialUUID);
 
-      final List<ObjectChronology<? extends StampedVersion>> builtObjects = new ArrayList<>();
-      final SememeChronology<DescriptionSememe<?>> newDescription =
-         (SememeChronology<DescriptionSememe<?>>) descBuilder.build(
+      final List<Chronology> builtObjects = new ArrayList<>();
+      final SememeChronology newDescription =
+         (SememeChronology) descBuilder.build(
              createStamp(
                  state,
                  selectTime(time, concept),
@@ -705,7 +698,7 @@ public class IBDFCreationUtility {
          this.ls.addAnnotation("Description", getOriginStringForUuid(dialect));
       }
 
-      for (final OchreExternalizable ochreObject: builtObjects) {
+      for (final IsaacExternalizable ochreObject: builtObjects) {
          this.writer.put(ochreObject);
       }
 
@@ -739,7 +732,7 @@ public class IBDFCreationUtility {
     * @param module - optional
     * @return the sememe chronology
     */
-   public SememeChronology<ComponentNidSememe<?>> addDescriptionAcceptibility(ComponentReference description,
+   public SememeChronology addDescriptionAcceptibility(ComponentReference description,
          UUID acceptabilityPrimordialUUID,
          UUID dialectRefset,
          boolean preferred,
@@ -764,13 +757,13 @@ public class IBDFCreationUtility {
 
       sb.setPrimordialUuid(acceptabilityPrimordialUUID);
 
-      final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
+      final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SememeChronology<ComponentNidSememe<?>> sc = (SememeChronology<ComponentNidSememe<?>>) sb.build(
+      final SememeChronology sc = (SememeChronology) sb.build(
                                                              createStamp(state, selectTime(time, description), module),
                                                                    builtObjects);
 
-      for (final OchreExternalizable ochreObject: builtObjects) {
+      for (final IsaacExternalizable ochreObject: builtObjects) {
          this.writer.put(ochreObject);
       }
 
@@ -786,9 +779,9 @@ public class IBDFCreationUtility {
     * @param descriptions the descriptions
     * @return the list
     */
-   public List<SememeChronology<DescriptionSememe<?>>> addDescriptions(ComponentReference concept,
+   public List<SememeChronology> addDescriptions(ComponentReference concept,
          List<? extends ValuePropertyPair> descriptions) {
-      final ArrayList<SememeChronology<DescriptionSememe<?>>> result = new ArrayList<>(descriptions.size());
+      final ArrayList<SememeChronology> result = new ArrayList<>(descriptions.size());
 
       Collections.sort(descriptions);
 
@@ -869,7 +862,7 @@ public class IBDFCreationUtility {
     * @param fullySpecifiedName the fully specified name
     * @return the sememe chronology
     */
-   public SememeChronology<DescriptionSememe<?>> addFullySpecifiedName(ComponentReference concept,
+   public SememeChronology addFullySpecifiedName(ComponentReference concept,
          String fullySpecifiedName) {
       return addDescription(concept, fullySpecifiedName, DescriptionType.FSN, true, null, State.ACTIVE);
    }
@@ -882,7 +875,7 @@ public class IBDFCreationUtility {
     * @param targetUuid the target uuid
     * @return the sememe chronology
     */
-   public SememeChronology<LogicGraphSememe<?>> addParent(ComponentReference concept, UUID targetUuid) {
+   public SememeChronology addParent(ComponentReference concept, UUID targetUuid) {
       return addParent(concept, null, new UUID[] { targetUuid }, null, null);
    }
 
@@ -897,7 +890,7 @@ public class IBDFCreationUtility {
     * @param time the time
     * @return the sememe chronology
     */
-   public SememeChronology<LogicGraphSememe<?>> addParent(ComponentReference concept,
+   public SememeChronology addParent(ComponentReference concept,
          UUID targetUuid,
          Property p,
          Long time) {
@@ -919,7 +912,7 @@ public class IBDFCreationUtility {
     * @param time - if null, default is used
     * @return the sememe chronology
     */
-   public SememeChronology<LogicGraphSememe<?>> addParent(ComponentReference concept,
+   public SememeChronology addParent(ComponentReference concept,
          UUID relPrimordialUuid,
          UUID[] targetUuid,
          UUID sourceRelTypeUUID,
@@ -962,13 +955,13 @@ public class IBDFCreationUtility {
                                                   MetaData.IS_A____ISAAC.getPrimordialUuid()
                                                         .toString()));
 
-      final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
+      final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SememeChronology<LogicGraphSememe<?>> sci = (SememeChronology<LogicGraphSememe<?>>) sb.build(
+      final SememeChronology sci = (SememeChronology) sb.build(
                                                             createStamp(State.ACTIVE, selectTime(time, concept)),
                                                                   builtObjects);
 
-      for (final OchreExternalizable ochreObject: builtObjects) {
+      for (final IsaacExternalizable ochreObject: builtObjects) {
          this.writer.put(ochreObject);
       }
 
@@ -997,7 +990,7 @@ public class IBDFCreationUtility {
     * @param time the time
     * @return the sememe chronology
     */
-   public SememeChronology<DynamicSememe<?>> addRefsetMembership(ComponentReference referencedComponent,
+   public SememeChronology addRefsetMembership(ComponentReference referencedComponent,
          UUID refexDynamicTypeUuid,
          State state,
          Long time) {
@@ -1021,7 +1014,7 @@ public class IBDFCreationUtility {
     * @param module the module
     * @return the sememe chronology
     */
-   public SememeChronology<LogicGraphSememe<?>> addRelationshipGraph(ComponentReference concept,
+   public SememeChronology addRelationshipGraph(ComponentReference concept,
          LogicalExpression logicalExpression,
          boolean stated,
          Long time,
@@ -1040,7 +1033,7 @@ public class IBDFCreationUtility {
     * @param module the module
     * @return the sememe chronology
     */
-   public SememeChronology<LogicGraphSememe<?>> addRelationshipGraph(ComponentReference concept,
+   public SememeChronology addRelationshipGraph(ComponentReference concept,
          UUID graphPrimordialUuid,
          LogicalExpression logicalExpression,
          boolean stated,
@@ -1083,16 +1076,16 @@ public class IBDFCreationUtility {
       sb.setPrimordialUuid((graphPrimordialUuid != null) ? graphPrimordialUuid
             : generatedGraphPrimordialUuid);
 
-      final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
+      final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SememeChronology<LogicGraphSememe<?>> sci = (SememeChronology<LogicGraphSememe<?>>) sb.build(
+      final SememeChronology sci = (SememeChronology) sb.build(
                                                             createStamp(
                                                                   State.ACTIVE,
                                                                         selectTime(time, concept),
                                                                         module),
                                                                   builtObjects);
 
-      for (final OchreExternalizable ochreObject: builtObjects) {
+      for (final IsaacExternalizable ochreObject: builtObjects) {
          this.writer.put(ochreObject);
       }
 
@@ -1109,7 +1102,7 @@ public class IBDFCreationUtility {
     * @param state the state
     * @return the sememe chronology
     */
-   public SememeChronology<StringSememe<?>> addStaticStringAnnotation(ComponentReference referencedComponent,
+   public SememeChronology addStaticStringAnnotation(ComponentReference referencedComponent,
          String annotationValue,
          UUID refsetUuid,
          State state) {
@@ -1127,13 +1120,13 @@ public class IBDFCreationUtility {
                                      .toString());
       sb.setPrimordialUuid(ConverterUUID.createNamespaceUUIDFromString(temp.toString()));
 
-      final ArrayList<OchreExternalizable> builtObjects = new ArrayList<>();
+      final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SememeChronology<StringSememe<?>> sc = (SememeChronology<StringSememe<?>>) sb.build(
+      final SememeChronology sc = (SememeChronology) sb.build(
                                                        createStamp(state, selectTime(null, referencedComponent)),
                                                              builtObjects);
 
-      for (final OchreExternalizable ochreObject: builtObjects) {
+      for (final IsaacExternalizable ochreObject: builtObjects) {
          this.writer.put(ochreObject);
       }
 
@@ -1153,7 +1146,7 @@ public class IBDFCreationUtility {
     * @param status the status
     * @return the sememe chronology
     */
-   public SememeChronology<DynamicSememe<?>> addStringAnnotation(ComponentReference referencedComponent,
+   public SememeChronology addStringAnnotation(ComponentReference referencedComponent,
          String annotationValue,
          UUID refsetUuid,
          State status) {
@@ -1177,7 +1170,7 @@ public class IBDFCreationUtility {
     * @param status the status
     * @return the sememe chronology
     */
-   public SememeChronology<DynamicSememe<?>> addStringAnnotation(ComponentReference referencedComponent,
+   public SememeChronology addStringAnnotation(ComponentReference referencedComponent,
          UUID uuidForCreatedAnnotation,
          String annotationValue,
          UUID refsetUuid,
@@ -1214,7 +1207,7 @@ public class IBDFCreationUtility {
     * @param refsetUuid the refset uuid
     * @return the sememe chronology
     */
-   public SememeChronology<DynamicSememe<?>> addUUIDAnnotation(ComponentReference object, UUID value, UUID refsetUuid) {
+   public SememeChronology addUUIDAnnotation(ComponentReference object, UUID value, UUID refsetUuid) {
       return addAnnotation(
           object,
           null,
@@ -1263,7 +1256,7 @@ public class IBDFCreationUtility {
           null);
 
       if (!StringUtils.isBlank(inverseName)) {
-         final SememeChronology<DescriptionSememe<?>> inverseDesc = addDescription(
+         final SememeChronology inverseDesc = addDescription(
                                                                         ComponentReference.fromConcept(
                                                                               associationTypeConcept),
                                                                               inverseName,
@@ -1296,7 +1289,7 @@ public class IBDFCreationUtility {
          String refexDescription,
          DynamicSememeColumnInfo[] columns,
          ObjectChronologyType referencedComponentTypeRestriction,
-         SememeType referencedComponentTypeSubRestriction) {
+         VersionType referencedComponentTypeSubRestriction) {
       if (refexDescription == null) {
          throw new RuntimeException("Refex description is required");
       }
@@ -1315,7 +1308,7 @@ public class IBDFCreationUtility {
                                   .toString(),
                             new Boolean("true").toString(),
                             "DynamicSememeMarker");
-      final SememeChronology<DescriptionSememe<?>> desc = addDescription(
+      final SememeChronology desc = addDescription(
                                                               concept,
                                                                     temp,
                                                                     refexDescription,
@@ -1394,7 +1387,7 @@ public class IBDFCreationUtility {
     * @param conceptPrimordialUuid the concept primordial uuid
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid) {
+   public ConceptChronology createConcept(UUID conceptPrimordialUuid) {
       return createConcept(conceptPrimordialUuid, (Long) null, State.ACTIVE, null);
    }
 
@@ -1406,7 +1399,7 @@ public class IBDFCreationUtility {
     * @param createSynonymFromFSN the create synonym from FSN
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology<? extends ConceptVersion<?>> createConcept(String fsn, boolean createSynonymFromFSN) {
+   public ConceptChronology createConcept(String fsn, boolean createSynonymFromFSN) {
       return createConcept(ConverterUUID.createNamespaceUUIDFromString(fsn), fsn, createSynonymFromFSN);
    }
 
@@ -1418,10 +1411,10 @@ public class IBDFCreationUtility {
     * @param parentConceptPrimordial the parent concept primordial
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology<? extends ConceptVersion<?>> createConcept(String fsn,
+   public ConceptChronology createConcept(String fsn,
          boolean createSynonymFromFSN,
          UUID parentConceptPrimordial) {
-      final ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(fsn, createSynonymFromFSN);
+      final ConceptChronology concept = createConcept(fsn, createSynonymFromFSN);
 
       addParent(ComponentReference.fromConcept(concept), parentConceptPrimordial);
       return concept;
@@ -1436,7 +1429,7 @@ public class IBDFCreationUtility {
     * @param createSynonymFromFSN the create synonym from FSN
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid,
+   public ConceptChronology createConcept(UUID conceptPrimordialUuid,
          String fsn,
          boolean createSynonymFromFSN) {
       return createConcept(conceptPrimordialUuid, fsn, createSynonymFromFSN, null, State.ACTIVE);
@@ -1451,7 +1444,7 @@ public class IBDFCreationUtility {
     * @param module - if null, uses the default
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid,
+   public ConceptChronology createConcept(UUID conceptPrimordialUuid,
          Long time,
          State status,
          UUID module) {
@@ -1473,11 +1466,11 @@ public class IBDFCreationUtility {
     * @param relParentPrimordial the rel parent primordial
     * @return the concept chronology<? extends concept version<?>>
     */
-   public final ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid,
+   public final ConceptChronology createConcept(UUID conceptPrimordialUuid,
          String fsn,
          boolean createSynonymFromFSN,
          UUID relParentPrimordial) {
-      final ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(
+      final ConceptChronology concept = createConcept(
                                                                          conceptPrimordialUuid,
                                                                                fsn,
                                                                                createSynonymFromFSN);
@@ -1496,12 +1489,12 @@ public class IBDFCreationUtility {
     * @param status the status
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID conceptPrimordialUuid,
+   public ConceptChronology createConcept(UUID conceptPrimordialUuid,
          String fsn,
          boolean createSynonymFromFSN,
          Long time,
          State status) {
-      final ConceptChronology<? extends ConceptVersion<?>> cc = createConcept(
+      final ConceptChronology cc = createConcept(
                                                                     conceptPrimordialUuid,
                                                                           time,
                                                                           status,
@@ -1536,14 +1529,14 @@ public class IBDFCreationUtility {
     * @param secondParent - optional
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology<? extends ConceptVersion<?>> createConcept(UUID primordial,
+   public ConceptChronology createConcept(UUID primordial,
          String fsnName,
          String preferredName,
          String altName,
          String definition,
          UUID relParentPrimordial,
          UUID secondParent) {
-      final ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(
+      final ConceptChronology concept = createConcept(
                                                                          (primordial == null)
                                                                          ? ConverterUUID.createNamespaceUUIDFromString(
                                                                                fsnName)
@@ -1700,7 +1693,7 @@ public class IBDFCreationUtility {
 
          if (pt instanceof BPT_Refsets) {
             secondParent = setupWbPropertyMetadata(
-                MetaData.SOLOR_REFSETS____ISAAC.getPrimordialUuid(),
+                MetaData.SOLOR_ASSEMBLAGE____ISAAC.getPrimordialUuid(),
                 (BPT_DualParentPropertyType) pt);
          } else if (pt instanceof BPT_Descriptions) {
             // should only do this once, in case we see a BPT_Descriptions more than once
@@ -1721,7 +1714,7 @@ public class IBDFCreationUtility {
                addParent(ComponentReference.fromConcept(p.getUUID()), pt.getPropertyTypeUUID());
             } else {
                // don't feed in the 'definition' if it is an association, because that will be done by the configureConceptAsDynamicRefex method
-               final ConceptChronology<? extends ConceptVersion<?>> concept = createConcept(
+               final ConceptChronology concept = createConcept(
                                                                                   p.getUUID(),
                                                                                         p.getSourcePropertyNameFSN() +
                                                                                         METADATA_SEMANTIC_TAG,
@@ -1766,7 +1759,7 @@ public class IBDFCreationUtility {
 
                   // add the inverse name, if it has one
                   if (!StringUtils.isBlank(item.getAssociationInverseName())) {
-                     final SememeChronology<DescriptionSememe<?>> inverseDesc = addDescription(
+                     final SememeChronology inverseDesc = addDescription(
                                                                                     ComponentReference.fromConcept(
                                                                                           concept),
                                                                                           item.getAssociationInverseName(),

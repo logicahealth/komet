@@ -71,6 +71,6 @@ public interface BinaryDataReaderQueueService {
     *
     * @return the queue
     */
-   BlockingQueue<OchreExternalizable> getQueue();
+   BlockingQueue<IsaacExternalizable> getQueue();
 }
 

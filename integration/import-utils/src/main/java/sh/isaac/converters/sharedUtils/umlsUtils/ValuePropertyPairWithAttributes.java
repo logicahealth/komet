@@ -51,11 +51,11 @@ import java.util.UUID;
 
 import sh.isaac.api.State;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.converters.sharedUtils.ComponentReference;
 import sh.isaac.converters.sharedUtils.IBDFCreationUtility;
 import sh.isaac.converters.sharedUtils.propertyTypes.Property;
 import sh.isaac.converters.sharedUtils.propertyTypes.ValuePropertyPair;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -139,7 +139,7 @@ public class ValuePropertyPairWithAttributes
     */
    public static void processAttributes(IBDFCreationUtility ibdfCreationUtility,
          List<? extends ValuePropertyPairWithAttributes> descriptionSource,
-         List<SememeChronology<DescriptionSememe<?>>> descriptions) {
+         List<SememeChronology> descriptions) {
       for (int i = 0; i < descriptionSource.size(); i++) {
          for (final Entry<UUID, ArrayList<String>> attributes: descriptionSource.get(i).stringAttributes
                .entrySet()) {

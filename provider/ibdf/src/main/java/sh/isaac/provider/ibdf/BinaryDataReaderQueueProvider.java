@@ -66,9 +66,9 @@ import java.util.stream.StreamSupport;
 import sh.isaac.api.Get;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.OchreExternalizable;
-import sh.isaac.api.externalizable.OchreExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -79,7 +79,7 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
  */
 public class BinaryDataReaderQueueProvider
         extends TimedTaskWithProgressTracker<Integer>
-         implements BinaryDataReaderQueueService, Spliterator<OchreExternalizableUnparsed> {
+         implements BinaryDataReaderQueueService, Spliterator<IsaacExternalizableUnparsed> {
    /** The objects. */
    int objects = 0;
 
@@ -104,12 +104,12 @@ public class BinaryDataReaderQueueProvider
    /** The read data. */
 
    // Only one thread doing the reading from disk, give it lots of buffer space
-   private final BlockingQueue<OchreExternalizableUnparsed> readData = new ArrayBlockingQueue<>(5000);
+   private final BlockingQueue<IsaacExternalizableUnparsed> readData = new ArrayBlockingQueue<>(5000);
 
    /** The parsed data. */
 
    // This buffers from between the time when we deserialize the object, and when we write it back to the DB.
-   private final BlockingQueue<OchreExternalizable> parsedData = new ArrayBlockingQueue<>(50);
+   private final BlockingQueue<IsaacExternalizable> parsedData = new ArrayBlockingQueue<>(50);
 
    /** The data path. */
    Path dataPath;
@@ -204,10 +204,10 @@ public class BinaryDataReaderQueueProvider
     * @return true, if successful
     */
    @Override
-   public boolean tryAdvance(Consumer<? super OchreExternalizableUnparsed> action) {
+   public boolean tryAdvance(Consumer<? super IsaacExternalizableUnparsed> action) {
       try {
          final int                           startBytes        = this.input.available();
-         final OchreExternalizableObjectType type = OchreExternalizableObjectType.fromDataStream(this.input);
+         final IsaacExternalizableObjectType type = IsaacExternalizableObjectType.fromDataStream(this.input);
          final byte                          dataFormatVersion = this.input.readByte();
          final int                           recordSize        = this.input.readInt();
          final byte[]                        objectData        = new byte[recordSize];
@@ -218,7 +218,7 @@ public class BinaryDataReaderQueueProvider
 
          buffer.setExternalData(true);
          buffer.setObjectDataFormatVersion(dataFormatVersion);
-         action.accept(new OchreExternalizableUnparsed(type, buffer));
+         action.accept(new IsaacExternalizableUnparsed(type, buffer));
          this.objects++;
          completedUnitsOfWork(startBytes - this.input.available());
          return true;
@@ -236,7 +236,7 @@ public class BinaryDataReaderQueueProvider
     * @return the spliterator
     */
    @Override
-   public Spliterator<OchreExternalizableUnparsed> trySplit() {
+   public Spliterator<IsaacExternalizableUnparsed> trySplit() {
       return null;
    }
 
@@ -275,7 +275,7 @@ public class BinaryDataReaderQueueProvider
     * @see sh.isaac.api.externalizable.BinaryDataReaderQueueService#getQueue()
     */
    @Override
-   public BlockingQueue<OchreExternalizable> getQueue() {
+   public BlockingQueue<IsaacExternalizable> getQueue() {
       if (this.complete.getCount() == this.NOTSTARTED) {
          try {
             this.completeBlock.acquireUninterruptibly();
@@ -343,7 +343,7 @@ public class BinaryDataReaderQueueProvider
     *
     * @return the stream internal
     */
-   private Stream<OchreExternalizableUnparsed> getStreamInternal() {
+   private Stream<IsaacExternalizableUnparsed> getStreamInternal() {
       running();
       return StreamSupport.stream(this, false);
    }

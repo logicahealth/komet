@@ -74,5 +74,10 @@ public interface ObservableEditCoordinate
     * @return the integer property
     */
    IntegerProperty pathSequenceProperty();
+
+   @Override
+   public ObservableEditCoordinate deepClone();
+   
+   
 }
 

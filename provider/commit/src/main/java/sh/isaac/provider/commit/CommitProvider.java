@@ -103,7 +103,6 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.SememeSequenceSet;
@@ -119,15 +118,19 @@ import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.UncommittedStamp;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.task.SequentialAggregateTask;
 import sh.isaac.api.task.TimedTask;
-import sh.isaac.model.ObjectChronologyImpl;
-import sh.isaac.model.ObjectVersionImpl;
+import sh.isaac.model.VersionImpl;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.model.observable.ObservableChronologyImpl;
+import sh.isaac.model.observable.version.ObservableVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -143,8 +146,8 @@ public class CommitProvider
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
-   /** The Constant DEFAULT_CRADLE_COMMIT_MANAGER_FOLDER. */
-   public static final String DEFAULT_CRADLE_COMMIT_MANAGER_FOLDER = "commit-manager";
+   /** The Constant DEFAULT_COMMIT_MANAGER_FOLDER. */
+   public static final String DEFAULT_COMMIT_MANAGER_FOLDER = "commit-manager";
 
    /** The Constant COMMIT_MANAGER_DATA_FILENAME. */
    private static final String COMMIT_MANAGER_DATA_FILENAME = "commit-manager.data";
@@ -237,14 +240,14 @@ public class CommitProvider
                                           .resolve("commit-provider");
          this.loadRequired.set(Files.exists(this.dbFolderPath));
          Files.createDirectories(this.dbFolderPath);
-         this.commitManagerFolder = this.dbFolderPath.resolve(DEFAULT_CRADLE_COMMIT_MANAGER_FOLDER);
+         this.commitManagerFolder = this.dbFolderPath.resolve(DEFAULT_COMMIT_MANAGER_FOLDER);
 
          if (!Files.exists(this.commitManagerFolder)) {
             this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
          }
 
          Files.createDirectories(this.commitManagerFolder);
-      } catch (final Exception e) {
+      } catch (final IOException e) {
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Cradle Commit Provider", e);
          throw e;
@@ -299,6 +302,9 @@ public class CommitProvider
     */
    @Override
    public Task<Void> addUncommitted(ConceptChronology cc) {
+      if (cc instanceof ObservableChronologyImpl) {
+         cc = (ConceptChronology) ((ObservableChronologyImpl) cc).getWrappedChronology();
+      }
       return checkAndWrite(cc,
                            this.checkers,
                            this.alertCollection,
@@ -314,6 +320,9 @@ public class CommitProvider
     */
    @Override
    public Task<Void> addUncommitted(SememeChronology sc) {
+      if (sc instanceof ObservableChronologyImpl) {
+         sc = (SememeChronology) ((ObservableChronologyImpl) sc).getWrappedChronology();
+      }
       return checkAndWrite(sc,
                            this.checkers,
                            this.alertCollection,
@@ -329,6 +338,9 @@ public class CommitProvider
     */
    @Override
    public Task<Void> addUncommittedNoChecks(ConceptChronology cc) {
+      if (cc instanceof ObservableChronologyImpl) {
+         cc = (ConceptChronology) ((ObservableChronologyImpl) cc).getWrappedChronology();
+      }
       return write(cc, this.writePermitReference.get(), this.changeListeners);
    }
 
@@ -340,6 +352,9 @@ public class CommitProvider
     */
    @Override
    public Task<Void> addUncommittedNoChecks(SememeChronology sc) {
+      if (sc instanceof ObservableChronologyImpl) {
+         sc = (SememeChronology) ((ObservableChronologyImpl) sc).getWrappedChronology();
+      }
       return write(sc, this.writePermitReference.get(), this.changeListeners);
    }
 
@@ -362,6 +377,9 @@ public class CommitProvider
     */
    @Override
    public Task<Void> cancel(ConceptChronology cc) {
+      if (cc instanceof ObservableChronologyImpl) {
+         cc = (ConceptChronology) ((ObservableChronologyImpl) cc).getWrappedChronology();
+      }
       return cancel(cc, Get.configurationService()
                            .getDefaultEditCoordinate());
    }
@@ -386,6 +404,9 @@ public class CommitProvider
     */
    @Override
    public Task<Void> cancel(SememeChronology sememeChronicle) {
+      if (sememeChronicle instanceof ObservableChronologyImpl) {
+         sememeChronicle = (SememeChronology) ((ObservableChronologyImpl) sememeChronicle).getWrappedChronology();
+      }
       return cancel(sememeChronicle, Get.configurationService()
                                         .getDefaultEditCoordinate());
    }
@@ -398,25 +419,29 @@ public class CommitProvider
     * @return the task
     */
    @Override
-   public Task<Void> cancel(ObjectChronology<?> chronicle, EditCoordinate editCoordinate) {
-      final ObjectChronologyImpl    chronicleImpl = (ObjectChronologyImpl) chronicle;
-      final List<ObjectVersionImpl> versionList   = chronicleImpl.getVersionList();
-
-      for (final ObjectVersionImpl version: versionList) {
+   public Task<Void> cancel(Chronology chronicle, EditCoordinate editCoordinate) {
+      if (chronicle instanceof ObservableChronologyImpl) {
+         chronicle = ((ObservableChronologyImpl) chronicle).getWrappedChronology();
+      }
+      final List<Version> versionList   = chronicle.getVersionList();
+      for (final Version version: versionList) {
          if (version.isUncommitted()) {
             if (version.getAuthorSequence() == editCoordinate.getAuthorSequence()) {
-               version.cancel();
+               if (version instanceof VersionImpl) {
+                  ((VersionImpl) version).cancel();
+               } else if (version instanceof ObservableVersionImpl) {
+                  ((ObservableVersionImpl) version).cancel();
+                }
+               
             }
          }
       }
-
-      chronicleImpl.setVersions(versionList);  // see if id is in uncommitted with checks, and without checks...
 
       final Collection<Task<?>> subTasks = new ArrayList<>();
 
       if (chronicle instanceof ConceptChronology) {
          final ConceptChronology conceptChronology = (ConceptChronology) chronicle;
-
+         
          if (this.uncommittedConceptsNoChecksSequenceSet.contains(conceptChronology.getConceptSequence())) {
             subTasks.add(addUncommittedNoChecks(conceptChronology));
          }
@@ -498,6 +523,9 @@ public class CommitProvider
     */
    @Override
    public Task<Optional<CommitRecord>> commit(ConceptChronology cc, String commitComment) {
+      if (cc instanceof ObservableChronologyImpl) {
+         cc = (ConceptChronology) ((ObservableChronologyImpl) cc).getWrappedChronology();
+      }
       return commit(cc, Get.configurationService()
                            .getDefaultEditCoordinate(), commitComment);
    }
@@ -557,6 +585,9 @@ public class CommitProvider
     */
    @Override
    public Task<Optional<CommitRecord>> commit(SememeChronology cc, String commitComment) {
+      if (cc instanceof ObservableChronologyImpl) {
+         cc = (SememeChronology) ((ObservableChronologyImpl) cc).getWrappedChronology();
+      }
       return commit(cc, Get.configurationService()
                            .getDefaultEditCoordinate(), commitComment);
    }
@@ -570,7 +601,7 @@ public class CommitProvider
     * @return the task
     */
    @Override
-   public synchronized Task<Optional<CommitRecord>> commit(ObjectChronology<?> chronicle,
+   public synchronized Task<Optional<CommitRecord>> commit(Chronology chronicle,
          EditCoordinate editCoordinate,
          String commitComment) {
       // TODO make asynchronous with a actual task.
@@ -578,9 +609,12 @@ public class CommitProvider
       // global seq number, should a write be done on the provider?
       // This also doesn't safely copy the uncommitted lists before using them.
       // TODO I think this needs to be rewritten to use the CommitTask - but need to understand these issues first.
-      // This also doesn't update the stamp provider...
+      // This method doesn't update the observable provider properly...
       CommitRecord     commitRecord = null;
       final Set<Alert> alerts       = new HashSet<>();
+      if (chronicle instanceof ObservableChronologyImpl) {
+         chronicle = ((ObservableChronologyImpl) chronicle).getWrappedChronology();
+      }
 
       if (chronicle instanceof ConceptChronology) {
          final ConceptChronology conceptChronology = (ConceptChronology) chronicle;
@@ -616,11 +650,11 @@ public class CommitProvider
          final SememeSequenceSet  sememesInCommit  = new SememeSequenceSet();
 
          chronicle.getVersionList().forEach((version) -> {
-                              if (((ObjectVersionImpl) version).isUncommitted() &&
-                                  ((ObjectVersionImpl) version).getAuthorSequence() ==
+                              if (version.isUncommitted() &&
+                                  version.getAuthorSequence() ==
                                   editCoordinate.getAuthorSequence()) {
-                                 ((ObjectVersionImpl) version).setTime(commitTime);
-                                 stampsInCommit.add(((ObjectVersionImpl) version).getStampSequence());
+                                 version.setTime(commitTime);
+                                 stampsInCommit.add(version.getStampSequence());
                               }
                            });
 
@@ -638,7 +672,7 @@ public class CommitProvider
             sememesInCommit.add(sememeChronology.getSememeSequence());
             this.uncommittedSememesWithChecksSequenceSet.remove(sememeChronology.getSememeSequence());
             this.uncommittedSememesNoChecksSequenceSet.remove(sememeChronology.getSememeSequence());
-            Get.sememeService()
+            Get.assemblageService()
                .writeSememe(sememeChronology);
          }
 
@@ -677,8 +711,8 @@ public class CommitProvider
     * @param ochreExternalizable the ochre externalizable
     */
    @Override
-   public void importNoChecks(OchreExternalizable ochreExternalizable) {
-      switch (ochreExternalizable.getOchreObjectType()) {
+   public void importNoChecks(IsaacExternalizable ochreExternalizable) {
+      switch (ochreExternalizable.getExternalizableObjectType()) {
       case CONCEPT:
          final ConceptChronology conceptChronology = (ConceptChronology) ochreExternalizable;
 
@@ -689,10 +723,10 @@ public class CommitProvider
       case SEMEME:
          final SememeChronology sememeChronology = (SememeChronology) ochreExternalizable;
 
-         Get.sememeService()
+         Get.assemblageService()
             .writeSememe(sememeChronology);
 
-         if (sememeChronology.getSememeType() == SememeType.LOGIC_GRAPH) {
+         if (sememeChronology.getSememeType() == VersionType.LOGIC_GRAPH) {
             deferNidAction(sememeChronology.getNid());
          }
 
@@ -711,7 +745,8 @@ public class CommitProvider
          break;
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + ochreExternalizable);
+         throw new UnsupportedOperationException("Can't handle: " + ochreExternalizable.getClass().getName() + 
+                 ": " + ochreExternalizable);
       }
    }
 
@@ -738,10 +773,10 @@ public class CommitProvider
          for (final int nid: nids) {
             if (ObjectChronologyType.SEMEME.equals(Get.identifierService()
                   .getChronologyTypeForNid(nid))) {
-               final SememeChronology sc = Get.sememeService()
+               final SememeChronology sc = Get.assemblageService()
                                               .getSememe(nid);
 
-               if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {
+               if (sc.getSememeType() == VersionType.LOGIC_GRAPH) {
                   Get.taxonomyService()
                      .updateTaxonomy(sc);
                } else {
@@ -915,11 +950,14 @@ public class CommitProvider
     * @param sememeOrConceptChronicle the sememe or concept chronicle
     * @param changeCheckerActive the change checker active
     */
-   private void handleUncommittedSequenceSet(ObjectChronology sememeOrConceptChronicle, boolean changeCheckerActive) {
+   private void handleUncommittedSequenceSet(Chronology sememeOrConceptChronicle, boolean changeCheckerActive) {
+      if (sememeOrConceptChronicle instanceof ObservableChronologyImpl) {
+         sememeOrConceptChronicle = ((ObservableChronologyImpl) sememeOrConceptChronicle).getWrappedChronology();
+      }
       try {
          this.uncommittedSequenceLock.lock();
 
-         switch (sememeOrConceptChronicle.getOchreObjectType()) {
+         switch (sememeOrConceptChronicle.getExternalizableObjectType()) {
          case CONCEPT: {
             final int sequence           = Get.identifierService()
                                               .getConceptSequence(sememeOrConceptChronicle.getNid());
@@ -989,9 +1027,9 @@ public class CommitProvider
             this.stampCommentMap.read(new File(this.commitManagerFolder.toFile(), STAMP_COMMENT_MAP_FILENAME));
             this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
          }
-      } catch (final Exception e) {
+      } catch (final IOException e) {
          LookupService.getService(SystemStatusService.class)
-                      .notifyServiceConfigurationFailure("Cradle Commit Provider", e);
+                      .notifyServiceConfigurationFailure("Commit Provider", e);
          throw new RuntimeException(e);
       }
    }

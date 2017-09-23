@@ -55,10 +55,10 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.progress.ActiveTasks;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -148,8 +148,8 @@ public class UpdateInferredFormsTask
    protected Integer call()
             throws Exception {
       try {
-         final SememeSnapshotService<LogicGraphSememe> sememeSnapshot = Get.sememeService()
-                                                                           .getSnapshot(LogicGraphSememe.class,
+         final SememeSnapshotService<LogicGraphVersion> sememeSnapshot = Get.assemblageService()
+                                                                           .getSnapshot(LogicGraphVersion.class,
                                                                                  this.stampCoordinate);
 
          this.classifierResults.getAffectedConcepts().stream().parallel().forEach((conceptSequence) -> {
@@ -163,7 +163,7 @@ public class UpdateInferredFormsTask
                                               updateValue(this.processedCount.get());
                                               sememeSnapshot.getLatestSememeVersionsForComponentFromAssemblage(
                                                   conceptSequence,
-                                                  this.logicCoordinate.getInferredAssemblageSequence()).forEach((LatestVersion<LogicGraphSememe> latestLogicGraph) -> {
+                                                  this.logicCoordinate.getInferredAssemblageSequence()).forEach((LatestVersion<LogicGraphVersion> latestLogicGraph) -> {
                         processLogicGraphSememe(latestLogicGraph);
                      });
                                            }
@@ -182,6 +182,6 @@ public class UpdateInferredFormsTask
     *
     * @param latest the latest
     */
-   private void processLogicGraphSememe(LatestVersion<LogicGraphSememe> latest) {}
+   private void processLogicGraphSememe(LatestVersion<LogicGraphVersion> latest) {}
 }
 

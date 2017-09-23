@@ -41,9 +41,17 @@ package sh.isaac.model.observable.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.List;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyProperty;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.sememe.version.SememeVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
-import sh.isaac.model.sememe.version.SememeVersionImpl;
+import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.ObservableChronologyImpl;
+import sh.isaac.model.observable.ObservableFields;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -51,19 +59,76 @@ import sh.isaac.model.sememe.version.SememeVersionImpl;
  * The Class ObservableSememeVersionImpl.
  *
  * @author kec
- * @param <V> the value type
  */
-public class ObservableSememeVersionImpl<V extends ObservableSememeVersionImpl<V>>
-        extends ObservableVersionImpl<V, SememeVersionImpl<?>>
-         implements ObservableSememeVersion<V> {
+public class ObservableSememeVersionImpl
+        extends ObservableVersionImpl
+         implements ObservableSememeVersion {
+
+   /** The author sequence property. */
+   ReadOnlyIntegerProperty assemblageSequenceProperty;
+
+   /** The module sequence property. */
+   ReadOnlyIntegerProperty referencedComponentNidProperty;
+
    /**
     * Instantiates a new observable sememe version impl.
     *
     * @param stampedVersion the stamped version
     * @param chronology the chronology
     */
-   public ObservableSememeVersionImpl(SememeVersionImpl<?> stampedVersion, ObservableSememeChronology<V> chronology) {
-      super(stampedVersion, chronology);
+   public ObservableSememeVersionImpl(SememeVersion stampedVersion, ObservableSememeChronology chronology) {
+      super(stampedVersion, 
+              chronology);
+   }
+
+   @Override
+   public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      SememeVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+      ObservableSememeVersionImpl newObservableVersion = 
+              new ObservableSememeVersionImpl(newVersion, (ObservableSememeChronology) chronology);
+      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
+   }
+
+
+   /**
+    * Module sequence property.
+    *
+    * @return the integer property
+    */
+   @Override
+   public final ReadOnlyIntegerProperty assemblageSequenceProperty() {
+      if (this.assemblageSequenceProperty == null) {
+         this.assemblageSequenceProperty = 
+            ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
+               ObservableFields.ASSEMBLAGE_SEQUENCE_FOR_SEMEME_CHRONICLE.toExternalString(),
+               getAssemblageSequence()));
+      }
+
+      return this.assemblageSequenceProperty;
+   }
+
+   /**
+    * Path sequence property.
+    *
+    * @return the integer property
+    */
+   @Override
+   public final ReadOnlyIntegerProperty referencedComponentNidProperty() {
+      if (this.referencedComponentNidProperty == null) {
+         this.referencedComponentNidProperty = 
+            ReadOnlyIntegerProperty.readOnlyIntegerProperty(new CommitAwareIntegerProperty(this,
+               ObservableFields.REFERENCED_COMPONENT_NID_FOR_SEMEME_CHRONICLE.toExternalString(),
+               getReferencedComponentNid()));
+      }
+      return this.referencedComponentNidProperty;
+   }
+   @Override
+   public List<ReadOnlyProperty<?>> getProperties() {
+      List<ReadOnlyProperty<?>> properties = super.getProperties();
+      properties.add(assemblageSequenceProperty());
+      properties.add(referencedComponentNidProperty());
+      return properties;
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -75,7 +140,7 @@ public class ObservableSememeVersionImpl<V extends ObservableSememeVersionImpl<V
     */
    @Override
    public int getAssemblageSequence() {
-      return this.stampedVersion.getAssemblageSequence();
+      return ((SememeVersion) this.stampedVersionProperty.get()).getAssemblageSequence();
    }
 
    /**
@@ -84,8 +149,8 @@ public class ObservableSememeVersionImpl<V extends ObservableSememeVersionImpl<V
     * @return the chronology
     */
    @Override
-   public ObservableSememeChronology<V> getChronology() {
-      return (ObservableSememeChronology<V>) this.chronology;
+   public ObservableSememeChronology getChronology() {
+      return (ObservableSememeChronology) this.chronology;
    }
 
    /**
@@ -95,7 +160,7 @@ public class ObservableSememeVersionImpl<V extends ObservableSememeVersionImpl<V
     */
    @Override
    public int getReferencedComponentNid() {
-      return this.stampedVersion.getReferencedComponentNid();
+      return ((SememeVersion) this.stampedVersionProperty.get()).getReferencedComponentNid();
    }
 
    /**
@@ -105,7 +170,13 @@ public class ObservableSememeVersionImpl<V extends ObservableSememeVersionImpl<V
     */
    @Override
    public int getSememeSequence() {
-      return this.stampedVersion.getSememeSequence();
+      return ((SememeVersion) this.stampedVersionProperty.get()).getSememeSequence();
    }
+   @Override
+   protected void updateVersion() {
+      // nothing to update
+      // only read-only values in this subclass. 
+   }
+   
 }
 

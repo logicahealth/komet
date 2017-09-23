@@ -73,21 +73,21 @@ import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
-import sh.isaac.api.component.sememe.version.MutableLogicGraphSememe;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
-import sh.isaac.api.externalizable.OchreExternalizable;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -124,7 +124,7 @@ public class LoadTermstore
    private int duplicatesToPrint = 20;
 
    /** The sememe types to skip. */
-   private final HashSet<SememeType> sememeTypesToSkip = new HashSet<>();
+   private final HashSet<VersionType> sememeTypesToSkip = new HashSet<>();
 
    /** The skipped items. */
    private final HashSet<Integer> skippedItems = new HashSet<>();
@@ -241,24 +241,24 @@ public class LoadTermstore
             int duplicateCount = 0;
             
             final BinaryDataReaderQueueService       reader = Get.binaryDataQueueReader(f.toPath());
-            final BlockingQueue<OchreExternalizable> queue  = reader.getQueue();
+            final BlockingQueue<IsaacExternalizable> queue  = reader.getQueue();
 
             while (!queue.isEmpty() ||!reader.isFinished()) {
-               final OchreExternalizable object = queue.poll(500, TimeUnit.MILLISECONDS);
+               final IsaacExternalizable object = queue.poll(500, TimeUnit.MILLISECONDS);
 
                if (object != null) {
                   this.itemCount++;
 
                   try {
-                     if (null != object.getOchreObjectType()) {
-                        switch (object.getOchreObjectType()) {
+                     if (null != object.getExternalizableObjectType()) {
+                        switch (object.getExternalizableObjectType()) {
                         case CONCEPT:
-                           if (!this.activeOnly || isActive((ObjectChronology) object)) {
+                           if (!this.activeOnly || isActive((Chronology) object)) {
                               Get.conceptService()
                                  .writeConcept(((ConceptChronology) object));
                               this.conceptCount++;
                            } else {
-                              this.skippedItems.add(((ObjectChronology) object).getNid());
+                              this.skippedItems.add(((Chronology) object).getNid());
                            }
 
                            break;
@@ -267,7 +267,7 @@ public class LoadTermstore
                            SememeChronology sc = (SememeChronology) object;
 
                            if (sc.getAssemblageSequence() == statedSequence) {
-                              final SememeSequenceSet sequences = Get.sememeService()
+                              final SememeSequenceSet sequences = Get.assemblageService()
                                                                      .getSememeSequencesForComponentFromAssemblage(
                                                                         sc.getReferencedComponentNid(),
                                                                               statedSequence);
@@ -281,7 +281,7 @@ public class LoadTermstore
                                  sequences.stream()
                                           .forEach(
                                               (sememeSequence) -> listToMerge.add(
-                                                  getLatestLogicalExpression(Get.sememeService()
+                                                  getLatestLogicalExpression(Get.assemblageService()
                                                         .getSememe(sememeSequence))));
                                  getLog().info("Duplicates: " + listToMerge);
 
@@ -296,7 +296,7 @@ public class LoadTermstore
 
                                  getLog().info("Isomorphic results: " + isomorphicResults);
 
-                                 final SememeChronology existingChronology = Get.sememeService()
+                                 final SememeChronology existingChronology = Get.assemblageService()
                                                                                 .getSememe(sequences.findFirst()
                                                                                       .getAsInt());
                                  final ConceptProxy moduleProxy = new ConceptProxy("SOLOR overlay module",
@@ -311,9 +311,8 @@ public class LoadTermstore
                                                                     userProxy.getConceptSequence(),
                                                                     moduleProxy.getConceptSequence(),
                                                                     pathProxy.getConceptSequence());
-                                 final MutableLogicGraphSememe newVersion =
-                                    (MutableLogicGraphSememe) existingChronology.createMutableVersion(
-                                        MutableLogicGraphSememe.class,
+                                 final MutableLogicGraphVersion newVersion =
+                                    (MutableLogicGraphVersion) existingChronology.createMutableVersion(
                                         stampSequence);
 
                                  newVersion.setGraphData(isomorphicResults.getMergedExpression()
@@ -331,10 +330,10 @@ public class LoadTermstore
                            if (!this.sememeTypesToSkip.contains(sc.getSememeType()) &&
                                  (!this.activeOnly ||
                                   (isActive(sc) &&!this.skippedItems.contains(sc.getReferencedComponentNid())))) {
-                              Get.sememeService()
+                              Get.assemblageService()
                                  .writeSememe(sc);
 
-                              if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {
+                              if (sc.getSememeType() == VersionType.LOGIC_GRAPH) {
                                  deferredActionNids.add(sc.getNid());
                               }
 
@@ -379,8 +378,8 @@ public class LoadTermstore
                      try (JsonWriter json = new JsonWriter(baos, args)) {
                         UUID                        primordial = null;
                         
-                        if (object instanceof ObjectChronology) {
-                           primordial = ((ObjectChronology) object).getPrimordialUuid();
+                        if (object instanceof Chronology) {
+                           primordial = ((Chronology) object).getPrimordialUuid();
                         }
                         
                         json.write(object);
@@ -420,10 +419,10 @@ public class LoadTermstore
          for (final int nid: deferredActionNids) {
             if (ObjectChronologyType.SEMEME.equals(Get.identifierService()
                   .getChronologyTypeForNid(nid))) {
-               final SememeChronology sc = Get.sememeService()
+               final SememeChronology sc = Get.assemblageService()
                                               .getSememe(nid);
 
-               if (sc.getSememeType() == SememeType.LOGIC_GRAPH) {
+               if (sc.getSememeType() == VersionType.LOGIC_GRAPH) {
                   Get.taxonomyService()
                      .updateTaxonomy(sc);
                } else {
@@ -462,7 +461,7 @@ public class LoadTermstore
     *
     * @param types the types
     */
-   public void skipSememeTypes(Collection<SememeType> types) {
+   public void skipSememeTypes(Collection<VersionType> types) {
       this.sememeTypesToSkip.addAll(types);
    }
 
@@ -474,7 +473,7 @@ public class LoadTermstore
     * @param object the object
     * @return true, if active
     */
-   private boolean isActive(ObjectChronology<?> object) {
+   private boolean isActive(Chronology object) {
       if (object.getVersionList()
                 .size() != 1) {
          throw new RuntimeException("Didn't expect version list of size " + object.getVersionList());
@@ -504,14 +503,14 @@ public class LoadTermstore
     * @return the latest logical expression
     */
    private static LogicalExpression getLatestLogicalExpression(SememeChronology sc) {
-      final SememeChronology<? extends LogicGraphSememe> lgsc          = sc;
-      LogicGraphSememe                                   latestVersion = null;
+      final SememeChronology lgsc          = sc;
+      LogicGraphVersion                                   latestVersion = null;
 
-      for (final LogicGraphSememe version: lgsc.getVersionList()) {
+      for (final StampedVersion version: lgsc.getVersionList()) {
          if (latestVersion == null) {
-            latestVersion = version;
+            latestVersion = (LogicGraphVersion) version;
          } else if (latestVersion.getTime() < version.getTime()) {
-            latestVersion = version;
+            latestVersion = (LogicGraphVersion) version;
          }
       }
 

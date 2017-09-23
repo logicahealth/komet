@@ -41,6 +41,7 @@ package sh.isaac.api.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.EnumSet;
 import sh.isaac.api.State;
 
 //~--- interfaces -------------------------------------------------------------
@@ -59,5 +60,10 @@ public interface StateBasedAnalogMaker<T> {
     * @return a new {@code <T>} with the specified allowed states.
     */
    T makeCoordinateAnalog(State... state);
+   
+   
+   default T makeCoordinateAnalog(EnumSet<State> stateSet) {
+      return makeCoordinateAnalog(stateSet.toArray(new State[stateSet.size()]));
+   }
 }
 

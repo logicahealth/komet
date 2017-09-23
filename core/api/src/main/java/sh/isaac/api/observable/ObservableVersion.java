@@ -41,13 +41,21 @@ package sh.isaac.api.observable;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyProperty;
+import sh.isaac.api.ConceptProxy;
 
 import sh.isaac.api.State;
-import sh.isaac.api.chronicle.MutableStampedVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -57,7 +65,7 @@ import sh.isaac.api.commit.CommitStates;
  * @author kec
  */
 public interface ObservableVersion
-        extends MutableStampedVersion {
+        extends Version {
    /**
     * Author sequence property.
     *
@@ -91,7 +99,7 @@ public interface ObservableVersion
     *
     * @return the integer property
     */
-   IntegerProperty stampSequenceProperty();
+   ReadOnlyIntegerProperty stampSequenceProperty();
 
    /**
     * State property.
@@ -114,6 +122,42 @@ public interface ObservableVersion
     *
     * @return the chronology
     */
-   ObservableChronology<? extends ObservableVersion> getChronology();
+   @Override
+   ObservableChronology getChronology();
+   
+   /**
+    * 
+    * @return a list of properties for this observable version
+    */
+   List<ReadOnlyProperty<?>> getProperties();
+   
+   default Map<ConceptSpecification, ReadOnlyProperty<?>> getPropertyMap() {
+      Map<ConceptSpecification, ReadOnlyProperty<?>> propertyMap = new HashMap<>();
+      getProperties().forEach((property) -> propertyMap.put(new ConceptProxy(property.getName()), property));
+      return propertyMap;
+   }
+   
+   /**
+    * Method supporting a general purpose ability to associate an api user's objects with versions. 
+    * @param <T>
+    * @param objectKey
+    * @return 
+    */
+   <T extends Object> Optional<T> getUserObject(String objectKey);
+   
+   /**
+    * Method supporting a general purpose ability to associate an api user's objects with versions. 
+    * @param objectKey
+    * @param object 
+    */
+   void putUserObject(String objectKey, Object object);
+   
+   /**
+    * Method supporting a general purpose ability to associate an api user's objects with versions. 
+    * @param <T>
+    * @param objectKey
+    * @return 
+    */
+   <T extends Object> Optional<T> removeUserObject(String objectKey);
 }
 

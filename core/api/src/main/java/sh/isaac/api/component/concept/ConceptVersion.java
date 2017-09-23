@@ -41,23 +41,28 @@ package sh.isaac.api.component.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.commit.CommittableComponent;
-import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 
 //~--- interfaces -------------------------------------------------------------
 
 /**
  * Created by kec on 6/6/15.
  *
- * @param <V> the value type
  */
-public interface ConceptVersion<V extends ConceptVersion<V>>
-        extends StampedVersion, CommittableComponent {
+public interface ConceptVersion
+        extends Version {
    /**
     * Gets the chronology.
     *
     * @return the chronology
     */
-   ConceptChronology<V> getChronology();
+   @Override
+   ConceptChronology getChronology();
+   
+   @Override
+   default VersionType getVersionType() {
+      return VersionType.CONCEPT;
+   }
 }
 

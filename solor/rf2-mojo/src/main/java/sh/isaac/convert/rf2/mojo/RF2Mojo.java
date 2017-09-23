@@ -79,10 +79,7 @@ import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
-import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
@@ -482,7 +479,7 @@ public class RF2Mojo
                                        " " + id + " " + definitionStatusId);
          }
 
-         final ConceptChronology<? extends ConceptVersion<?>> con = super.importUtil.createConcept(id,
+         final ConceptChronology con = super.importUtil.createConcept(id,
                                                                                                    time,
                                                                                                    active ? State.ACTIVE
                : State.INACTIVE,
@@ -585,7 +582,7 @@ public class RF2Mojo
                                                     .isLong() ? UuidT3Generator.fromSNOMED(
                                                        descRS.getLong("CASESIGNIFICANCEID"))
                   : UUID.fromString(descRS.getString("CASESIGNIFICANCEID")));
-            final SememeChronology<DescriptionSememe<?>> desc =
+            final SememeChronology desc =
                super.importUtil.addDescription(ComponentReference.fromConcept(conceptId),
                                                id,
                                                term,
@@ -786,7 +783,7 @@ public class RF2Mojo
                } else {
                   // kick it over into an association bucket
                   // TODO should I toss these when processing inferred?
-                  final SememeChronology<DynamicSememe<?>> assn =
+                  final SememeChronology assn =
                      super.importUtil.addAssociation(ComponentReference.fromConcept(r.sourceId),
                                                      r.id,
                                                      r.destinationId,

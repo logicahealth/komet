@@ -74,7 +74,7 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.DataWriterService;
-import sh.isaac.api.externalizable.OchreExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.tree.Tree;
@@ -194,7 +194,7 @@ public class ImportExportTest {
             .forEach((ochreExternalizable) -> {
                         writer.put(ochreExternalizable);
 
-                        if (ochreExternalizable.getOchreObjectType() == OchreExternalizableObjectType.STAMP_ALIAS) {
+                        if (ochreExternalizable.getExternalizableObjectType() == IsaacExternalizableObjectType.STAMP_ALIAS) {
                            LOG.info(ochreExternalizable);
                         }
                      });

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Accordion?>
@@ -19,7 +24,8 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="AnchorPane" fx:id="anchorPane" prefHeight="723.0" prefWidth="604.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.search.QueryController">
+<?import org.controlsfx.control.PropertySheet?>
+<AnchorPane id="AnchorPane" fx:id="anchorPane" prefHeight="723.0" prefWidth="604.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.search.QueryController">
    <stylesheets>
       <URL value="@/styles/search.css" />
    </stylesheets>
@@ -49,9 +55,9 @@
                               </VBox>
                            </content>
                       </TitledPane>
-                      <TitledPane fx:id="letPane" animated="false" text="Let">
+                      <TitledPane fx:id="letPane" animated="false" prefHeight="200.0" prefWidth="100.0" text="Let">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                          <AnchorPane fx:id="letAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="100.0"/>
                         </content>
                       </TitledPane>
                       <TitledPane fx:id="orderPane" animated="false" text="Order">
@@ -96,8 +102,9 @@
                            <content>
                               <TableView fx:id="resultTable" prefHeight="200.0" prefWidth="200.0">
                                 <columns>
-                                  <TableColumn prefWidth="75.0" text="resultC1" />
-                                  <TableColumn prefWidth="75.0" text="resultC2" />
+                                  <TableColumn fx:id="textColumn" editable="false" prefWidth="320.0" text="text" />
+                                  <TableColumn fx:id="typeColumn" editable="false" minWidth="0.0" prefWidth="124.0" text="type" />
+                                    <TableColumn fx:id="languageColumn" editable="false" prefWidth="155.0" text="language" />
                                 </columns>
                               </TableView>
                            </content>

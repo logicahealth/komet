@@ -46,7 +46,7 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.ObjectChronologyType;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 
 //~--- classes ----------------------------------------------------------------
@@ -66,7 +66,7 @@ public class MetadataDynamicSememeConstant
    private final ObjectChronologyType referencedComponentRestriction;
 
    /** The referenced component sub restriction. */
-   private final SememeType referencedComponentSubRestriction;
+   private final VersionType referencedComponentSubRestriction;
 
    //~--- constructors --------------------------------------------------------
 
@@ -162,7 +162,7 @@ public class MetadataDynamicSememeConstant
          String[] synonyms,
          String[] definitions,
          ObjectChronologyType referencedComponentRestriction,
-         SememeType refererenceComponentSubRestriction) {
+         VersionType refererenceComponentSubRestriction) {
       super(fsn, uuid);
 
       if (definitions != null) {
@@ -197,9 +197,9 @@ public class MetadataDynamicSememeConstant
    /**
     * Gets the referenced component sub type restriction.
     *
-    * @return The limit (if any) on which {@link SememeType} this dynamic sememe is restricted to.
+    * @return The limit (if any) on which {@link VersionType} this dynamic sememe is restricted to.
     */
-   public SememeType getReferencedComponentSubTypeRestriction() {
+   public VersionType getReferencedComponentSubTypeRestriction() {
       return this.referencedComponentSubRestriction;
    }
 

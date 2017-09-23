@@ -192,6 +192,12 @@ public final class ConceptNodeWithSequences
              super.toString(nodeIdSuffix);
    }
 
+   @Override
+   public String toSimpleString() {
+      return Get.defaultCoordinate().getPreferredDescriptionText(this.conceptSequence) +
+             super.toSimpleString();
+   }
+
    /**
     * Write node data.
     *

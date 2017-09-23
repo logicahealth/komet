@@ -153,6 +153,11 @@ public class LiteralNodeFloat
    public String toString(String nodeIdSuffix) {
       return "Float literal[" + getNodeIndex() + nodeIdSuffix + "]" + this.literalValue + super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return this.literalValue +  super.toSimpleString();
+   }
+
 
    /**
     * Compare fields.

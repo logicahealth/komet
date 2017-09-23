@@ -77,7 +77,6 @@ import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.LruCache;
@@ -86,9 +85,9 @@ import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -199,28 +198,34 @@ public class IdentifierProvider
    public void clearUnusedIds() {
       final AtomicInteger cleaned = new AtomicInteger();
 
-      this.conceptSequenceMap.getSequenceStream().parallel().forEach((conceptSequence) -> {
-                                         if (!Get.conceptService()
-                                               .hasConcept(conceptSequence)) {
-                                            final int nid = this.conceptSequenceMap.getNid(conceptSequence)
-                                                                                   .getAsInt();
+      this.conceptSequenceMap.getSequenceStream()
+                             .parallel()
+                             .forEach(
+                                 (conceptSequence) -> {
+                                    if (!Get.conceptService()
+                                            .hasConcept(conceptSequence)) {
+                                       final int nid = this.conceptSequenceMap.getNid(conceptSequence)
+                                                                              .getAsInt();
 
-                                            this.conceptSequenceMap.removeNid(nid);
-                                            cleaned.incrementAndGet();
-                                         }
-                                      });
+                                       this.conceptSequenceMap.removeNid(nid);
+                                       cleaned.incrementAndGet();
+                                    }
+                                 });
       LOG.info("Removed " + cleaned.get() + " unused concept references");
       cleaned.set(0);
-      this.sememeSequenceMap.getSequenceStream().parallel().forEach((sememeSequence) -> {
-                                        if (!Get.sememeService()
-                                              .hasSememe(sememeSequence)) {
-                                           final int nid = this.sememeSequenceMap.getNid(sememeSequence)
-                                                                                 .getAsInt();
+      this.sememeSequenceMap.getSequenceStream()
+                            .parallel()
+                            .forEach(
+                                (sememeSequence) -> {
+                                   if (!Get.assemblageService()
+                                           .hasSememe(sememeSequence)) {
+                                      final int nid = this.sememeSequenceMap.getNid(sememeSequence)
+                                                                            .getAsInt();
 
-                                           this.sememeSequenceMap.removeNid(nid);
-                                           cleaned.incrementAndGet();
-                                        }
-                                     });
+                                      this.sememeSequenceMap.removeNid(nid);
+                                      cleaned.incrementAndGet();
+                                   }
+                                });
       LOG.info("Removed " + cleaned.get() + " unused sememe references");
 
       // We could also clear refs from the uuid map here... but that would take longer /
@@ -250,20 +255,22 @@ public class IdentifierProvider
          if (!this.loadRequired.get()) {
             final String conceptSequenceMapBaseName = "concept-sequence.map";
 
-            LOG.info("Loading {} from dir {}.",
-                     conceptSequenceMapBaseName,
-                     this.folderPath.toAbsolutePath()
-                                    .normalize()
-                                    .toString());
+            LOG.info(
+                "Loading {} from dir {}.",
+                conceptSequenceMapBaseName,
+                this.folderPath.toAbsolutePath()
+                               .normalize()
+                               .toString());
             this.conceptSequenceMap.read(new File(this.folderPath.toFile(), conceptSequenceMapBaseName));
 
             final String sememeSequenceMapBaseName = "sememe-sequence.map";
 
-            LOG.info("Loading {} from dir {}.",
-                     sememeSequenceMapBaseName,
-                     this.folderPath.toAbsolutePath()
-                                    .normalize()
-                                    .toString());
+            LOG.info(
+                "Loading {} from dir {}.",
+                sememeSequenceMapBaseName,
+                this.folderPath.toAbsolutePath()
+                               .normalize()
+                               .toString());
             this.sememeSequenceMap.read(new File(this.folderPath.toFile(), sememeSequenceMapBaseName));
 
             // uuid-nid-map can do dynamic load, no need to read all at the beginning.
@@ -329,7 +336,7 @@ public class IdentifierProvider
     * @return the concept identifier for authority
     */
    @Override
-   public Optional<LatestVersion<String>> getConceptIdentifierForAuthority(int conceptId,
+   public Optional<String> getConceptIdentifierForAuthority(int conceptId,
          UUID identifierAuthorityUuid,
          StampCoordinate stampCoordinate) {
       conceptId = getConceptNid(conceptId);
@@ -365,9 +372,10 @@ public class IdentifierProvider
     */
    @Override
    public IntStream getConceptNidsForConceptSequences(IntStream conceptSequences) {
-      return conceptSequences.map((sequence) -> {
-                                     return getConceptNid(sequence);
-                                  });
+      return conceptSequences.map(
+          (sequence) -> {
+             return getConceptNid(sequence);
+          });
    }
 
    /**
@@ -485,14 +493,14 @@ public class IdentifierProvider
     * @return the identified object chronology
     */
    @Override
-   public Optional<? extends ObjectChronology<? extends StampedVersion>> getIdentifiedObjectChronology(int nid) {
+   public Optional<? extends Chronology> getIdentifiedObjectChronology(int nid) {
       switch (getChronologyTypeForNid(nid)) {
       case CONCEPT:
          return Get.conceptService()
                    .getOptionalConcept(nid);
 
       case SEMEME:
-         return Get.sememeService()
+         return Get.assemblageService()
                    .getOptionalSememe(nid);
 
       case UNKNOWN_NID:
@@ -511,7 +519,7 @@ public class IdentifierProvider
     * @return the identifier for authority
     */
    @Override
-   public Optional<LatestVersion<String>> getIdentifierForAuthority(int nid,
+   public Optional<String> getIdentifierForAuthority(int nid,
          UUID identifierAuthorityUuid,
          StampCoordinate stampCoordinate) {
       if (nid >= 0) {
@@ -519,25 +527,15 @@ public class IdentifierProvider
       }
 
       final int authoritySequence = getConceptSequenceForUuids(identifierAuthorityUuid);
-      final SememeSnapshotService<StringSememe> snapshot = Get.sememeService()
-                                                              .getSnapshot(StringSememe.class, stampCoordinate);
+      final SememeSnapshotService<StringVersion> snapshot = Get.assemblageService()
+                                                              .getSnapshot(StringVersion.class, stampCoordinate);
 
       return snapshot.getLatestSememeVersionsForComponentFromAssemblage(nid, authoritySequence)
-                     .findAny()
-                     .map((LatestVersion<StringSememe> latestSememe) -> {
-                             final LatestVersion<String> latestString =
-                                new LatestVersion<>(latestSememe.value().getString());
-
-                             if (latestSememe.contradictions()
-                                   .isPresent()) {
-                                for (final StringSememe version: latestSememe.contradictions()
-                                      .get()) {
-                                   latestString.addLatest(version.getString());
-                                }
-                             }
-
-                             return latestString;
-                          });
+                     .filter((LatestVersion<StringVersion> latestSememe) -> latestSememe.isPresent())
+                     .map((LatestVersion<StringVersion> latestSememe) -> 
+                            latestSememe.get()
+                                  .getString())
+                     .findAny();
    }
 
    /**
@@ -645,8 +643,8 @@ public class IdentifierProvider
     */
    private boolean isPopulated() {
       final File segmentDirectory    = new File(this.folderPath.toAbsolutePath().toFile(), "uuid-nid-map");
-      final int numberOfSegmentFiles = segmentDirectory.list((segmentDirectory1,
-                                          name) -> (name.endsWith("map"))).length;
+      final int numberOfSegmentFiles = segmentDirectory.list(
+                                           (segmentDirectory1, name) -> (name.endsWith("map"))).length;
 
       return numberOfSegmentFiles > 0;
    }
@@ -674,9 +672,10 @@ public class IdentifierProvider
     */
    @Override
    public IntStream getSememeNidsForSememeSequences(IntStream sememSequences) {
-      return sememSequences.map((sequence) -> {
-                                   return getSememeNid(sequence);
-                                });
+      return sememSequences.map(
+          (sequence) -> {
+             return getSememeNid(sequence);
+          });
    }
 
    /**
@@ -798,9 +797,10 @@ public class IdentifierProvider
       // If we have a cache in uuidIntMapMap, read from there, it is faster.
       // If we don't have a cache, then uuidIntMapMap will be extremely slow, so try this first.
       if (!this.uuidIntMapMap.cacheContainsNid(nid)) {
-         final Optional<? extends ObjectChronology<? extends StampedVersion>> optionalObj =
+         final Optional<? extends Chronology> optionalObj =
             Get.identifiedObjectService()
-               .getIdentifiedObjectChronology(nid);
+               .getIdentifiedObjectChronology(
+                   nid);
 
          if (optionalObj.isPresent()) {
             return Optional.of(optionalObj.get()
@@ -854,9 +854,9 @@ public class IdentifierProvider
          throw new RuntimeException("Method expected nid!");
       }
 
-      final Optional<? extends ObjectChronology<? extends StampedVersion>> optionalObj = Get.identifiedObjectService()
+      final Optional<? extends Chronology> optionalObj = Get.identifiedObjectService()
                                                                                             .getIdentifiedObjectChronology(
-                                                                                               nid);
+                                                                                                  nid);
 
       if (optionalObj.isPresent()) {
          return optionalObj.get()

@@ -46,7 +46,7 @@ import java.util.function.Predicate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.externalizable.OchreExternalizable;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -54,18 +54,21 @@ import sh.isaac.api.externalizable.OchreExternalizable;
  * Created by kec on 1/25/16.
  */
 public class OchreExternalizableStatsTestFilter
-         implements Predicate<OchreExternalizable> {
-   /** The concepts. */
+         implements Predicate<IsaacExternalizable> {
+   /** The concept count. */
    AtomicInteger concepts = new AtomicInteger(0);
 
-   /** The sememes. */
+   /** The sememe count. */
    AtomicInteger sememes = new AtomicInteger(0);
 
-   /** The stamp aliases. */
+   /** The stamp aliases count. */
    AtomicInteger stampAliases = new AtomicInteger(0);
 
-   /** The stamp comments. */
+   /** The stamp comments count. */
    AtomicInteger stampComments = new AtomicInteger(0);
+
+   /** The stamp count. */
+   AtomicInteger stamps = new AtomicInteger(0);
 
    //~--- methods -------------------------------------------------------------
 
@@ -99,6 +102,10 @@ public class OchreExternalizableStatsTestFilter
          return false;
       }
 
+      if (this.stamps.get() != that.stamps.get()) {
+         return false;
+      }
+
       return this.stampComments.get() == that.stampComments.get();
    }
 
@@ -120,12 +127,12 @@ public class OchreExternalizableStatsTestFilter
    /**
     * Test.
     *
-    * @param ochreExternalizable the ochre externalizable
+    * @param isaacExternalizable the Isaac externalizable
     * @return true, if successful
     */
    @Override
-   public boolean test(OchreExternalizable ochreExternalizable) {
-      switch (ochreExternalizable.getOchreObjectType()) {
+   public boolean test(IsaacExternalizable isaacExternalizable) {
+      switch (isaacExternalizable.getExternalizableObjectType()) {
       case CONCEPT:
          this.concepts.incrementAndGet();
          break;
@@ -141,9 +148,14 @@ public class OchreExternalizableStatsTestFilter
       case STAMP_COMMENT:
          this.stampComments.incrementAndGet();
          break;
-
+         
+      case STAMP:
+         this.stamps.incrementAndGet();
+          break;
+          
       default:
-         throw new UnsupportedOperationException("Can't handle: " + ochreExternalizable);
+         throw new UnsupportedOperationException("Can't handle: " + isaacExternalizable.getClass().getName() + 
+                 ": " + isaacExternalizable);
       }
 
       return true;
@@ -157,7 +169,8 @@ public class OchreExternalizableStatsTestFilter
    @Override
    public String toString() {
       return "OchreExternalizableStatsTestFilter{" + "concepts=" + this.concepts + ", sememes=" + this.sememes +
-             ", stampAliases=" + this.stampAliases + ", stampComments=" + this.stampComments + '}';
+             ", stampAliases=" + this.stampAliases + ", stampComments=" + this.stampComments + 
+              ", stamps=" + this.stamps + '}';
    }
 }
 

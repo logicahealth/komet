@@ -16,7 +16,11 @@
  */
 package sh.komet.gui.contract;
 
-import javafx.scene.layout.BorderPane;
+import java.util.EnumSet;
+import java.util.function.Consumer;
+import javafx.scene.Node;
+import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.interfaces.DetailNode;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -25,12 +29,16 @@ import org.jvnet.hk2.annotations.Contract;
  * @author kec
  */
 @Contract
-public interface DetailNodeFactory {
+public interface DetailNodeFactory extends NodeFactory {
+   
+   EnumSet<DetailType> getSupportedTypes();
+   
    /**
     * 
     * @param manifold the manifold that determines the current coordinates and focus. 
-    * @param parent the detail node will be added to the center pane of the parent. 
+    * @param nodeConsumer function that will add the Node to the proper parent Node.  
+    * @param type the type of the detail node to return
     * @return the detail node, after it has been added to the parent. 
     */
-   DetailNode createDetailNode(Manifold manifold, BorderPane parent);
+   DetailNode createDetailNode(Manifold manifold, Consumer<Node> nodeConsumer, DetailType type);
 }

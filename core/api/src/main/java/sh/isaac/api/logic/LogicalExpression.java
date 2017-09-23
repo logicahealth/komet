@@ -98,6 +98,13 @@ public interface LogicalExpression {
     */
    String toString(String nodeIdSuffix);
 
+   /**
+    * Use when the root node should not be displayed, and many of the features of 
+    * use to the isaac developer (node id, etc) are removed, and the display is optimized
+    * for .
+    * @return a simple text representation of this expression.
+    */
+   String toSimpleString();
    //~--- get methods ---------------------------------------------------------
 
    /**

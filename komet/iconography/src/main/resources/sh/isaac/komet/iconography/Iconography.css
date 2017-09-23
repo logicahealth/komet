@@ -125,7 +125,6 @@ limitations under the License.
    -glyph-name: "CHECKBOX_BLANK_CIRCLE_OUTLINE";
    -glyph-size: 14pt;
    -icons-color: #7DDE3A;
-   
 }
 
 .taxonomy-closed-icon {
@@ -213,5 +212,506 @@ limitations under the License.
    -my-width: 25;
    -icons-color: #FF4E08;
    -fx-rotate:90; 
+}
+.run {
+   -glyph-name: "RUN";
+   -glyph-size: 16pt;
+   -icons-color: #4CB709;
+}
+
+.link {
+   -glyph-name: "LINK_VARIANT";
+   -glyph-size: 16pt;
+   -icons-color: #4CB709;
+}
+.link-broken {
+   -glyph-name: "LINK_VARIANT_OFF";
+   -glyph-size: 16pt;
+   -icons-color: #4CB709;
+}
+
+.flowr-search {
+   -glyph-name: "FLOWER";
+   -glyph-size: 16pt;
+   -icons-color: #4CB709;
+}
+.simple-search {
+   -glyph-name: "MAGNIFY";
+   -glyph-size: 16pt;
+   -icons-color: #4CB709;
+}
+.settings-gear {
+   -glyph-name: "GEAR";
+   -glyph-size: 16pt;
+   -icons-color: #4CB709;
+}
+
+.tree-aspect-ratio-layout {
+   -glyph-name: "ARRANGE_SEND_TO_BACK";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+
+.classic-tree-layout {
+   -glyph-name: "FILE_TREE";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+
+.hierarchical-layout {
+   -glyph-name: "CROWN";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+
+
+  
+  .pin-slider-open{
+   -glyph-name: "PIN";
+   -glyph-size: 12pt;
+   -icons-color: #FFFFFF;
+}
+  .close_slider{
+   -glyph-name: "HIGHLIGHT_OFF";
+   -glyph-size: 16pt;
+   -icons-color: #FFFFFF;
+}
+  
+  .edit-pencil{
+   -glyph-name: "LEAD_PENCIL";
+   -glyph-size: 16pt;
+   -icons-color: black;
+}
+  .look-eye{
+   -glyph-name: "EYE";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+  .look-eye-2{
+   -glyph-name: "EYE";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+  
+  .drag-drop{
+   -glyph-name: "ARROWS";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+
+.magnify {
+   -glyph-name: "MAGNIFY";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
    
+}
+
+.magnify-plus {
+   -glyph-name: "MAGNIFY_PLUS";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+   
+}
+
+.magnify-minus {
+   -glyph-name: "MAGNIFY_MINUS";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+   
+}
+
+.zoom-to-fit {
+   -glyph-name: "FULLSCREEN";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+
+.one-to-one {
+   -glyph-name: "FULLSCREEN_EXIT";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+
+.circle-a {
+   -glyph-name: "REGIONAL_INDICATOR_A";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-b {
+   -glyph-name: "REGIONAL_INDICATOR_B";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-c {
+   -glyph-name: "REGIONAL_INDICATOR_C";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-d {
+   -glyph-name: "REGIONAL_INDICATOR_D";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-e {
+   -glyph-name: "REGIONAL_INDICATOR_E";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-f {
+   -glyph-name: "REGIONAL_INDICATOR_F";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-g {
+   -glyph-name: "REGIONAL_INDICATOR_G";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-h {
+   -glyph-name: "REGIONAL_INDICATOR_H";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-i {
+   -glyph-name: "REGIONAL_INDICATOR_I";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-j {
+   -glyph-name: "REGIONAL_INDICATOR_J";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-k {
+   -glyph-name: "REGIONAL_INDICATOR_K";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-l {
+   -glyph-name: "REGIONAL_INDICATOR_L";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-m {
+   -glyph-name: "REGIONAL_INDICATOR_M";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-n {
+   -glyph-name: "REGIONAL_INDICATOR_N";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-o {
+   -glyph-name: "REGIONAL_INDICATOR_O";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-p {
+   -glyph-name: "REGIONAL_INDICATOR_P";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-q {
+   -glyph-name: "REGIONAL_INDICATOR_Q";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-r {
+   -glyph-name: "REGIONAL_INDICATOR_R";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-s {
+   -glyph-name: "REGIONAL_INDICATOR_S";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-t {
+   -glyph-name: "REGIONAL_INDICATOR_T";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-u {
+   -glyph-name: "REGIONAL_INDICATOR_U";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-v {
+   -glyph-name: "REGIONAL_INDICATOR_V";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-w {
+   -glyph-name: "REGIONAL_INDICATOR_W";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-x {
+   -glyph-name: "REGIONAL_INDICATOR_X";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-y {
+   -glyph-name: "REGIONAL_INDICATOR_Y";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+.circle-z {
+   -glyph-name: "REGIONAL_INDICATOR_Z";
+   -glyph-size: 16pt;
+   -icons-color: #0B5FFF;
+}
+
+.case-sensitive {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_caseSensitive.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-close {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_close.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-edit {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_edit.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-expand {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_expand.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-export {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_export.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-goto-link {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_goToLink.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.not-case-sensitive {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_notCaseSensitive.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-reload {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_reload.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-batch-edit {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_batchEdit.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-check-mark {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_checkMark_check_mark.png");
+   -my-height: 14;
+   -my-width: 14;
+}
+
+.icon-classifier-1 {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_classfier_1.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-classifier-2 {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_classfier_2.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-classifier-3 {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_classfier_3.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-classifier-4 {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_classfier_4.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-link-to-search {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_linkToSearch.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-link-to-taxonomy {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_linkToTaxonomy.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-not-linked {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_nonLinked.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-settings-1 {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_settings_1.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-settings-2 {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_settings_2.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-settings-3 {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/16x16/icon_settings_3.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-search {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/20x20/icon_search.png");
+   -my-height: 20;
+   -my-width: 20;
+}
+
+.icon-taxonomy {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/20x20/icon_taxonomy.png");
+   -my-height: 20;
+   -my-width: 20;
+}
+
+.icon-defined-arrow {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/color_icons/icon_defined_arrow.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-defined {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/color_icons/icon_defined.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-primitive {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/color_icons/icon-primitive.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.icon-primitive-arrow {
+   -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/color_icons/icon-primitive-arrow.png");
+   -my-height: 16;
+   -my-width: 16;
+}
+
+.paperclip {
+   -glyph-name: "PAPERCLIP"; 
+   -fx-rotate: 45;
+   -glyph-size: 15pt;
+   -icons-color: black;
+}
+
+.branch {
+   -glyph-name: "GIT_BRANCH"; 
+   -glyph-size: 16;
+   -icons-color: black;
+}
+
+.branch-1 {
+   -glyph-name: "SOURCE_BRANCH"; 
+   -glyph-size: 20;
+   -icons-color: black;
+}
+
+.plus {
+   -glyph-name: "PLUS"; 
+   -glyph-size: 20;
+   -icons-color: white;
+}
+
+.concept-details {
+   -glyph-name: "VIEW_WEEK"; 
+   -glyph-size: 20;
+   -fx-rotate: 90;
+
+}
+
+.concept-table {
+   -glyph-name: "TABLE"; 
+   -glyph-size: 20;
+}
+
+.komet {
+   -glyph-name: "COMET"; 
+   -glyph-size: 20;
+   -fx-rotate: 180;
+}
+
+.spinner {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 20; 
+}
+.spinner-1 {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 20; 
+   -fx-rotate: 45;
+}
+.spinner-2 {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 20; 
+   -fx-rotate: 90;
+}
+.spinner-3 {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 20; 
+   -fx-rotate: 135;
+}
+.spinner-4 {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 20; 
+   -fx-rotate: 180;
+}
+.spinner-5 {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 20; 
+   -fx-rotate: 225;
+}
+.spinner-6 {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 270; 
+}
+.spinner-7 {
+   -glyph-name: "SPINNER"; 
+   -glyph-size: 315; 
+}
+.stop-circle {
+   -glyph-name: "STOP_CIRCLE";
+   -glyph-size: 20;
+   -icons-color: red;
+}
+.stop-square {
+   -glyph-name: "STOP";
+   -glyph-size: 20;
+   -icons-color: red;
+}
+
+.stop-sign {
+   -glyph-name: "STOP_SIGN";
+   -glyph-size: 24;
+   -icons-color: red;
 }

@@ -273,5 +273,12 @@ public class ObservableLogicCoordinateImpl
 
       return this.logicCoordinate.getStatedAssemblageSequence();
    }
+   
+   
+   @Override
+   public ObservableLogicCoordinateImpl deepClone() {
+      return new ObservableLogicCoordinateImpl(logicCoordinate.deepClone());
+   }
+
 }
 

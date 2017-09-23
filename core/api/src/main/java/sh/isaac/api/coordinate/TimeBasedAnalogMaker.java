@@ -48,7 +48,7 @@ import java.time.temporal.TemporalAccessor;
 //~--- interfaces -------------------------------------------------------------
 
 /**
- *  Analog: A structural derivative that often differs by a single element.
+ * Analog: A structural derivative that often differs by a single element.
  * @author kec
  * @param <T> The type of object to make a time-based analog from.
  */

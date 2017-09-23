@@ -84,7 +84,7 @@ public interface BinaryDataDifferService {
     * @param changedComponents the changed components
     * @throws Exception the exception
     */
-   public void generateDiffedIbdfFile(Map<ChangeType, List<OchreExternalizable>> changedComponents)
+   public void generateDiffedIbdfFile(Map<ChangeType, List<IsaacExternalizable>> changedComponents)
             throws Exception;
 
    /**
@@ -94,9 +94,9 @@ public interface BinaryDataDifferService {
     * @param newContentMap the new content map
     * @return the map
     */
-   public Map<ChangeType, List<OchreExternalizable>> identifyVersionChanges(Map<OchreExternalizableObjectType,
-              Set<OchreExternalizable>> oldContentMap,
-         Map<OchreExternalizableObjectType, Set<OchreExternalizable>> newContentMap);
+   public Map<ChangeType, List<IsaacExternalizable>> identifyVersionChanges(Map<IsaacExternalizableObjectType,
+              Set<IsaacExternalizable>> oldContentMap,
+         Map<IsaacExternalizableObjectType, Set<IsaacExternalizable>> newContentMap);
 
    /**
     * Initialize.
@@ -130,7 +130,7 @@ public interface BinaryDataDifferService {
     * @return the map
     * @throws Exception the exception
     */
-   public Map<OchreExternalizableObjectType, Set<OchreExternalizable>> processVersion(File versionFile)
+   public Map<IsaacExternalizableObjectType, Set<IsaacExternalizable>> processVersion(File versionFile)
             throws Exception;
 
    /**
@@ -142,9 +142,9 @@ public interface BinaryDataDifferService {
     * @param ibdfFileOutputDir the ibdf file output dir
     * @param analysisFilesOutputDir the analysis files output dir
     */
-   public void writeFilesForAnalysis(Map<OchreExternalizableObjectType, Set<OchreExternalizable>> newContentMap,
-                                     Map<OchreExternalizableObjectType, Set<OchreExternalizable>> oldContentMap,
-                                     Map<ChangeType, List<OchreExternalizable>> changedComponents,
+   public void writeFilesForAnalysis(Map<IsaacExternalizableObjectType, Set<IsaacExternalizable>> newContentMap,
+                                     Map<IsaacExternalizableObjectType, Set<IsaacExternalizable>> oldContentMap,
+                                     Map<ChangeType, List<IsaacExternalizable>> changedComponents,
                                      String ibdfFileOutputDir,
                                      String analysisFilesOutputDir);
 }

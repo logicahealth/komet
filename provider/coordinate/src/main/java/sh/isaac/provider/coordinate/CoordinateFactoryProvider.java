@@ -48,7 +48,6 @@ import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -65,22 +64,22 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.version.ComponentNidSememe;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.CoordinateFactory;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.configuration.LogicCoordinates;
-import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.configuration.ManifoldCoordinates;
+import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -143,9 +142,10 @@ public class CoordinateFactoryProvider
     */
    @Override
    public ManifoldCoordinate createDefaultInferredManifoldCoordinate() {
-      return createInferredManifoldCoordinate(createDevelopmentLatestActiveOnlyStampCoordinate(),
-            getUsEnglishLanguageFullySpecifiedNameCoordinate(),
-            createStandardElProfileLogicCoordinate());
+      return createInferredManifoldCoordinate(
+          createDevelopmentLatestActiveOnlyStampCoordinate(),
+          getUsEnglishLanguageFullySpecifiedNameCoordinate(),
+          createStandardElProfileLogicCoordinate());
    }
 
    /**
@@ -155,9 +155,10 @@ public class CoordinateFactoryProvider
     */
    @Override
    public ManifoldCoordinate createDefaultStatedManifoldCoordinate() {
-      return createStatedManifoldCoordinate(createDevelopmentLatestActiveOnlyStampCoordinate(),
-            getUsEnglishLanguageFullySpecifiedNameCoordinate(),
-            createStandardElProfileLogicCoordinate());
+      return createStatedManifoldCoordinate(
+          createDevelopmentLatestActiveOnlyStampCoordinate(),
+          getUsEnglishLanguageFullySpecifiedNameCoordinate(),
+          createStandardElProfileLogicCoordinate());
    }
 
    /**
@@ -261,9 +262,9 @@ public class CoordinateFactoryProvider
          List<ConceptSpecification> moduleSpecificationList,
          EnumSet<State> allowedStateSet,
          CharSequence dateTimeText) {
-      final StampPositionImpl stampPosition =
-         new StampPositionImpl(LocalDateTime.parse(dateTimeText).toEpochSecond(ZoneOffset.UTC),
-                               stampPath.getConceptSequence());
+      final StampPositionImpl stampPosition = new StampPositionImpl(
+                                                  LocalDateTime.parse(dateTimeText).toEpochSecond(ZoneOffset.UTC),
+                                                        stampPath.getConceptSequence());
 
       return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, allowedStateSet);
    }
@@ -284,9 +285,9 @@ public class CoordinateFactoryProvider
          List<ConceptSpecification> moduleSpecificationList,
          EnumSet<State> allowedStateSet,
          TemporalAccessor temporal) {
-      final StampPositionImpl stampPosition =
-         new StampPositionImpl(LocalDateTime.from(temporal).toEpochSecond(ZoneOffset.UTC),
-                               stampPath.getConceptSequence());
+      final StampPositionImpl stampPosition = new StampPositionImpl(
+                                                  LocalDateTime.from(temporal).toEpochSecond(ZoneOffset.UTC),
+                                                        stampPath.getConceptSequence());
 
       return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, allowedStateSet);
    }
@@ -317,14 +318,15 @@ public class CoordinateFactoryProvider
          int hour,
          int minute,
          int second) {
-      final StampPositionImpl stampPosition = new StampPositionImpl(LocalDateTime.of(year,
-                                                                                     month,
-                                                                                     dayOfMonth,
-                                                                                     hour,
-                                                                                     minute,
-                                                                                     second).toEpochSecond(
-                                                                                        ZoneOffset.UTC),
-                                                                    stampPath.getConceptSequence());
+      final StampPositionImpl stampPosition = new StampPositionImpl(
+                                                  LocalDateTime.of(
+                                                        year,
+                                                              month,
+                                                              dayOfMonth,
+                                                              hour,
+                                                              minute,
+                                                              second).toEpochSecond(ZoneOffset.UTC),
+                                                        stampPath.getConceptSequence());
 
       return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, allowedStateSet);
    }
@@ -436,21 +438,22 @@ public class CoordinateFactoryProvider
     * @return the specified description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   public LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
+         List<SememeChronology> descriptionList,
          LanguageCoordinate languageCoordinate) {
       for (final int descType: languageCoordinate.getDescriptionTypePreferenceList()) {
-         final Optional<LatestVersion<DescriptionSememe<?>>> match = getSpecifiedDescription(stampCoordinate,
-                                                                                             descriptionList,
-                                                                                             descType,
-                                                                                             languageCoordinate);
+         final LatestVersion<DescriptionVersion> match = getSpecifiedDescription(
+                                                            stampCoordinate,
+                                                                  descriptionList,
+                                                                  descType,
+                                                                  languageCoordinate);
 
          if (match.isPresent()) {
             return match;
          }
       }
 
-      return Optional.empty();
+      return new LatestVersion<>();
    }
 
    /**
@@ -463,72 +466,74 @@ public class CoordinateFactoryProvider
     * @return the specified description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   public LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
+         List<SememeChronology> descriptionList,
          int typeSequence,
          LanguageCoordinate languageCoordinate) {
-      final SememeSnapshotService<ComponentNidSememe> acceptabilitySnapshot = Get.sememeService()
-                                                                                 .getSnapshot(ComponentNidSememe.class,
-                                                                                       stampCoordinate);
-      final List<DescriptionSememe<?>> descriptionsForLanguageOfType = new ArrayList<>();
+      final SememeSnapshotService<ComponentNidVersion> acceptabilitySnapshot = Get.assemblageService()
+                                                                                 .getSnapshot(ComponentNidVersion.class,
+                                                                                             stampCoordinate);
+      final List<DescriptionVersion> descriptionsForLanguageOfType = new ArrayList<>();
 
-      descriptionList.stream().forEach((descriptionChronicle) -> {
-                                 @SuppressWarnings("unchecked")
-                                 final Optional<LatestVersion<DescriptionSememe<?>>> latestDescription =
-                                    ((SememeChronology) descriptionChronicle).getLatestVersion(DescriptionSememe.class,
-                                                                                               stampCoordinate);
+      descriptionList.stream()
+                     .forEach((descriptionChronicle) -> {
+                            @SuppressWarnings("unchecked")
+                            final LatestVersion<DescriptionVersion> latestDescription =
+                               ((SememeChronology) descriptionChronicle).getLatestVersion(stampCoordinate);
 
-                                 if (latestDescription.isPresent()) {
-                                    final LatestVersion<DescriptionSememe<?>> latestDescriptionVersion =
-                                       latestDescription.get();
+                            if (latestDescription.isPresent()) {
+                               final LatestVersion<DescriptionVersion> latestDescriptionVersion = latestDescription;
 
-                                    latestDescriptionVersion.versionStream().forEach((descriptionVersion) -> {
-                     if (descriptionVersion.getLanguageConceptSequence() ==
-                         languageCoordinate.getLanguageConceptSequence()) {
-                        if (descriptionVersion.getDescriptionTypeConceptSequence() == typeSequence) {
-                           descriptionsForLanguageOfType.add(descriptionVersion);
-                        }
-                     }
-                  });
-                                 }
-                              });
+                               latestDescriptionVersion.versionStream()
+                                     .forEach(
+                                         (descriptionVersion) -> {
+                                            if (descriptionVersion.getLanguageConceptSequence() ==
+                                                languageCoordinate.getLanguageConceptSequence()) {
+                                               if (descriptionVersion.getDescriptionTypeConceptSequence() ==
+                                                   typeSequence) {
+                                                  descriptionsForLanguageOfType.add(descriptionVersion);
+                                               }
+                                            }
+                                         });
+                            }
+                         });
 
       if (descriptionsForLanguageOfType.isEmpty()) {
-         return Optional.empty();
+         return new LatestVersion<>();
       }
 
       // handle dialect...
-      final LatestVersion<DescriptionSememe<?>> preferredForDialect = new LatestVersion(DescriptionSememe.class);
+      final LatestVersion<DescriptionVersion> preferredForDialect = new LatestVersion(DescriptionVersion.class);
 
-      IntStream.of(languageCoordinate.getDialectAssemblagePreferenceList()).forEach((dialectAssemblageSequence) -> {
-                           if (preferredForDialect.value() == null) {
-                              descriptionsForLanguageOfType.forEach((DescriptionSememe description) -> {
-                     final Stream<LatestVersion<ComponentNidSememe>> acceptability =
-                        acceptabilitySnapshot.getLatestSememeVersionsForComponentFromAssemblage(description.getNid(),
-                                                                                                dialectAssemblageSequence);
+      IntStream.of(languageCoordinate.getDialectAssemblagePreferenceList())
+               .forEach((dialectAssemblageSequence) -> {
+                      if (!preferredForDialect.isPresent()) {
+                         descriptionsForLanguageOfType.forEach((DescriptionVersion description) -> {
+                                final Stream<LatestVersion<ComponentNidVersion>> acceptability =
+                                   acceptabilitySnapshot.getLatestSememeVersionsForComponentFromAssemblage(
+                                       description.getNid(),
+                                       dialectAssemblageSequence);
 
-                     if (acceptability.anyMatch((LatestVersion<ComponentNidSememe> acceptabilityVersion) -> {
-                                                   return Get.identifierService()
-                                                         .getConceptSequence(acceptabilityVersion.value()
-                                                               .getComponentNid()) == getPreferredConceptSequence();
-                                                })) {
-                        preferredForDialect.addLatest(description);
-                     }
-                  });
-                           }
-                        });
+                                if (acceptability.anyMatch((LatestVersion<ComponentNidVersion> acceptabilityVersion) -> {
+                                       return Get.identifierService()
+                                                 .getConceptSequence(
+                                                     acceptabilityVersion.get()
+                                                           .getComponentNid()) == getPreferredConceptSequence();
+                                    })) {
+                                   preferredForDialect.addLatest(description);
+                                }
+                             });
+                      }
+                   });
 
-      if (preferredForDialect.value() == null) {
-         descriptionsForLanguageOfType.forEach((fsn) -> {
-                  preferredForDialect.addLatest(fsn);
-               });
+      if (!preferredForDialect.isPresent()) {
+         descriptionsForLanguageOfType.forEach(
+             (fsn) -> {
+                preferredForDialect.addLatest(fsn);
+             });
       }
 
-      if (preferredForDialect.value() == null) {
-         return Optional.empty();
-      }
-
-      return Optional.of(preferredForDialect);
+      return preferredForDialect;
    }
 
    /**

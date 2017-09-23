@@ -60,6 +60,9 @@ import sh.isaac.api.State;
  * @author kec
  */
 public interface StampedVersion {
+   
+   static final long UNCOMMITTED_TIME = Long.MAX_VALUE;
+   static final long CANCELED_TIME = Long.MIN_VALUE;
    /**
     * Gets the author sequence.
     *

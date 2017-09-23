@@ -61,13 +61,13 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.PathService;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.component.sememe.version.LongSememe;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.model.coordinate.StampPathImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
+import sh.isaac.api.component.sememe.version.LongVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -133,7 +133,7 @@ public class PathProvider
 
          try {
             this.pathMap = new ConcurrentHashMap<>();
-            Get.sememeService()
+            Get.assemblageService()
                .getSememesFromAssemblage(TermAux.PATH_ASSEMBLAGE.getConceptSequence())
                .forEach((pathSememe) -> {
                            final int pathSequence = Get.identifierService()
@@ -175,7 +175,7 @@ public class PathProvider
     * @return the from disk
     */
    private Optional<StampPath> getFromDisk(int stampPathSequence) {
-      return Get.sememeService().getSememesForComponentFromAssemblage(stampPathSequence, TermAux.PATH_ASSEMBLAGE.getConceptSequence()).map((sememeChronicle) -> {
+      return Get.assemblageService().getSememesForComponentFromAssemblage(stampPathSequence, TermAux.PATH_ASSEMBLAGE.getConceptSequence()).map((sememeChronicle) -> {
                         int pathId = sememeChronicle.getReferencedComponentNid();
 
                         pathId = Get.identifierService()
@@ -215,10 +215,10 @@ public class PathProvider
     * @return the path origins from db
     */
    private List<StampPosition> getPathOriginsFromDb(int nid) {
-      return Get.sememeService()
+      return Get.assemblageService()
                 .getSememesForComponentFromAssemblage(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getConceptSequence())
                 .map((pathOrigin) -> {
-                        final long time = ((LongSememe) pathOrigin.getVersionList()
+                        final long time = ((LongVersion) pathOrigin.getVersionList()
                                                                   .get(0)).getLongValue();
 
                         return new StampPositionImpl(time, Get.identifierService().getConceptSequence(nid));
@@ -233,7 +233,7 @@ public class PathProvider
     */
    @Override
    public Collection<? extends StampPath> getPaths() {
-      return Get.sememeService().getSememesFromAssemblage(TermAux.PATH_ASSEMBLAGE.getConceptSequence()).map((sememeChronicle) -> {
+      return Get.assemblageService().getSememesFromAssemblage(TermAux.PATH_ASSEMBLAGE.getConceptSequence()).map((sememeChronicle) -> {
                         int pathId = sememeChronicle.getReferencedComponentNid();
 
                         pathId = Get.identifierService()

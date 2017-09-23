@@ -192,6 +192,10 @@ public class FeatureNodeWithUuids
       // + Get.conceptService().getConcept(unitsConceptUuid).toUserString()
       + super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return toString("");
+   }
 
    /**
     * Write node data.

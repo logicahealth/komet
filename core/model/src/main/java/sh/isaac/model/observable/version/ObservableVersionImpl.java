@@ -34,91 +34,112 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.model.observable.version;
 
 //~--- JDK imports ------------------------------------------------------------
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
+import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 import sh.isaac.api.State;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.model.ObjectVersionImpl;
+import sh.isaac.model.VersionImpl;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareLongProperty;
 import sh.isaac.model.observable.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableFields;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class ObservableVersionImpl.
  *
  * @author kec
- * @param <OV> the generic type
- * @param <V> the value type
  */
-public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V extends ObjectVersionImpl<?, ?>>
-         implements ObservableVersion, CommittableComponent {
-   /** The state property. */
+public abstract class ObservableVersionImpl
+        implements ObservableVersion, CommittableComponent {
+
+   /**
+    * The state property.
+    */
    ObjectProperty<State> stateProperty;
 
-   /** The time property. */
+   /**
+    * The time property.
+    */
    LongProperty timeProperty;
 
-   /** The author sequence property. */
+   /**
+    * The author sequence property.
+    */
    IntegerProperty authorSequenceProperty;
 
-   /** The module sequence property. */
+   /**
+    * The module sequence property.
+    */
    IntegerProperty moduleSequenceProperty;
 
-   /** The path sequence property. */
+   /**
+    * The path sequence property.
+    */
    IntegerProperty pathSequenceProperty;
 
-   /** The commit state property. */
+   /**
+    * The commit state property.
+    */
    ObjectProperty<CommitStates> commitStateProperty;
 
-   /** The commit state binding. */
+   /**
+    * The commit state binding.
+    */
    ObjectBinding<CommitStates> commitStateBinding;
 
-   /** The stamp sequence property. */
+   /**
+    * The stamp sequence property.
+    */
    IntegerProperty stampSequenceProperty;
+   
+   private HashMap<String, Object> userObjectMap;
 
-   /** The stamped version. */
-   protected V stampedVersion;
+   /**
+    * The stamped version.
+    */
+   protected final SimpleObjectProperty<VersionImpl> stampedVersionProperty;
 
-   /** The chronology. */
-   protected ObservableChronology<OV> chronology;
+   /**
+    * The chronology.
+    */
+   protected final ObservableChronology chronology;
 
    //~--- constructors --------------------------------------------------------
-
    /**
     * Instantiates a new observable version impl.
     *
     * @param stampedVersion the stamped version
     * @param chronology the chronology
     */
-   public ObservableVersionImpl(V stampedVersion, ObservableChronology<OV> chronology) {
-      this.stampedVersion = stampedVersion;
-      this.chronology     = chronology;
+   public ObservableVersionImpl(Version stampedVersion, ObservableChronology chronology) {
+      this.stampedVersionProperty = new SimpleObjectProperty<>((VersionImpl) stampedVersion);
+      this.chronology = chronology;
    }
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * Author sequence property.
     *
@@ -127,12 +148,37 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
    @Override
    public final IntegerProperty authorSequenceProperty() {
       if (this.authorSequenceProperty == null) {
-         this.authorSequenceProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.AUTHOR_SEQUENCE_FOR_VERSION.toExternalString(),
-               getAuthorSequence());
+         this.authorSequenceProperty = new CommitAwareIntegerProperty(
+                 this,
+                 ObservableFields.AUTHOR_SEQUENCE_FOR_VERSION.toExternalString(),
+                 getAuthorSequence());
+         this.authorSequenceProperty.addListener(
+                 (observable, oldValue, newValue) -> {
+                    this.stampedVersionProperty.get().setAuthorSequence(newValue.intValue());
+
+                    if (this.stampSequenceProperty != null) {
+                       this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
+                    }
+                 });
       }
 
       return this.authorSequenceProperty;
+   }
+
+   /**
+    * Cancel.
+    */
+   public void cancel() {
+      if (!isUncommitted()) {
+         throw new RuntimeException("Attempt to cancel an already committed version: " + this);
+      }
+
+      this.stampedVersionProperty.get().cancel();
+      this.getChronology()
+              .getVersionList()
+              .remove(this);
+      this.stampSequenceProperty()
+              .set(-1);
    }
 
    /**
@@ -146,16 +192,24 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
          this.commitStateBinding = new ObjectBinding<CommitStates>() {
             @Override
             protected CommitStates computeValue() {
-               if (ObservableVersionImpl.this.timeProperty.get() == Long.MAX_VALUE) {
+               if (ObservableVersionImpl.this.stampedVersionProperty.get().getStampSequence() == -1) {
+                  return CommitStates.CANCELED;
+               }
+               if (ObservableVersionImpl.this.timeProperty()
+                       .get() == Long.MAX_VALUE) {
                   return CommitStates.UNCOMMITTED;
                }
 
                return CommitStates.COMMITTED;
             }
          };
-         this.commitStateProperty = new SimpleObjectProperty(this,
-               ObservableFields.COMMITTED_STATE_FOR_VERSION.toExternalString(),
-               this.commitStateBinding.get());
+         this.timeProperty().addListener((observable) -> {
+            this.commitStateBinding.invalidate();
+         });
+         this.commitStateProperty = new SimpleObjectProperty(
+                 this,
+                 ObservableFields.COMMITTED_STATE_FOR_VERSION.toExternalString(),
+                 this.commitStateBinding.get());
          this.commitStateProperty.bind(this.commitStateBinding);
       }
 
@@ -170,9 +224,18 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
    @Override
    public final IntegerProperty moduleSequenceProperty() {
       if (this.moduleSequenceProperty == null) {
-         this.moduleSequenceProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.MODULE_SEQUENCE_FOR_VERSION.toExternalString(),
-               getModuleSequence());
+         this.moduleSequenceProperty = new CommitAwareIntegerProperty(
+                 this,
+                 ObservableFields.MODULE_SEQUENCE_FOR_VERSION.toExternalString(),
+                 getModuleSequence());
+         this.moduleSequenceProperty.addListener(
+                 (observable, oldValue, newValue) -> {
+                    this.stampedVersionProperty.get().setModuleSequence(newValue.intValue());
+
+                    if (this.stampSequenceProperty != null) {
+                       this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
+                    }
+                 });
       }
 
       return this.moduleSequenceProperty;
@@ -186,9 +249,18 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
    @Override
    public final IntegerProperty pathSequenceProperty() {
       if (this.pathSequenceProperty == null) {
-         this.pathSequenceProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.PATH_SEQUENCE_FOR_VERSION.toExternalString(),
-               getPathSequence());
+         this.pathSequenceProperty = new CommitAwareIntegerProperty(
+                 this,
+                 ObservableFields.PATH_SEQUENCE_FOR_VERSION.toExternalString(),
+                 getPathSequence());
+         this.pathSequenceProperty.addListener(
+                 (observable, oldValue, newValue) -> {
+                    this.stampedVersionProperty.get().setPathSequence(newValue.intValue());
+
+                    if (this.stampSequenceProperty != null) {
+                       this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
+                    }
+                 });
       }
 
       return this.pathSequenceProperty;
@@ -202,9 +274,23 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
    @Override
    public final IntegerProperty stampSequenceProperty() {
       if (this.stampSequenceProperty == null) {
-         this.stampSequenceProperty = new CommitAwareIntegerProperty(this,
-               ObservableFields.STAMP_SEQUENCE_FOR_VERSION.toExternalString(),
-               getStampSequence());
+         this.stampSequenceProperty = new CommitAwareIntegerProperty(
+                 this,
+                 ObservableFields.STAMP_SEQUENCE_FOR_VERSION.toExternalString(),
+                 getStampSequence());
+         this.stampSequenceProperty.addListener(
+                 (observable, oldValue, newValue) -> {
+                    if (newValue.intValue() != this.stampedVersionProperty.get().getStampSequence()) {
+                       throw new RuntimeException(
+                               "ERROR: Cannot set stamp value directly. stampedVersion now out of sync with observable");
+                    }
+                 });
+         stateProperty();
+         authorSequenceProperty();
+         moduleSequenceProperty();
+         pathSequenceProperty();
+         stateProperty();
+         timeProperty();
       }
 
       return this.stampSequenceProperty;
@@ -218,9 +304,18 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
    @Override
    public final ObjectProperty<State> stateProperty() {
       if (this.stateProperty == null) {
-         this.stateProperty = new CommitAwareObjectProperty<>(this,
-               ObservableFields.STATUS_FOR_VERSION.toExternalString(),
-               getState());
+         this.stateProperty = new CommitAwareObjectProperty<>(
+                 this,
+                 ObservableFields.STATUS_FOR_VERSION.toExternalString(),
+                 getState());
+         this.stateProperty.addListener(
+                 (observable, oldValue, newValue) -> {
+                    this.stampedVersionProperty.get().setStatus(newValue);
+
+                    if (this.stampSequenceProperty != null) {
+                       this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
+                    }
+                 });
       }
 
       return this.stateProperty;
@@ -234,12 +329,34 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
    @Override
    public final LongProperty timeProperty() {
       if (this.timeProperty == null) {
-         this.timeProperty = new CommitAwareLongProperty(this,
-               ObservableFields.TIME_FOR_VERSION.toExternalString(),
-               getTime());
+         this.timeProperty = new CommitAwareLongProperty(
+                 this,
+                 ObservableFields.TIME_FOR_VERSION.toExternalString(),
+                 getTime());
+         this.timeProperty.addListener(
+                 (observable, oldValue, newValue) -> {
+                    if (this.stampedVersionProperty.get().getStampSequence() != -1) {
+                       if (this.stampedVersionProperty.get().getTime() != newValue.longValue()) {
+                          this.stampedVersionProperty.get().setTime(newValue.longValue());
+
+                          if (this.commitStateBinding != null) {
+                             this.commitStateBinding.invalidate();
+                          }
+
+                          if (this.stampSequenceProperty != null) {
+                             this.stampSequenceProperty.setValue(this.stampedVersionProperty.get().getStampSequence());
+                          }
+                       }
+                    }
+                 });
       }
 
       return this.timeProperty;
+   }
+
+   @Override
+   public String toString() {
+      return "ObservableVersionImpl{" + stampedVersionProperty.get() + '}';
    }
 
    /**
@@ -257,10 +374,18 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
     *
     * @param stampedVersion the stamped version
     */
-   public void updateVersion(V stampedVersion) {
-      this.stampedVersion = stampedVersion;
+   public void updateVersion(Version stampedVersion) {
+      if (!this.stampedVersionProperty.get().getClass()
+              .equals(stampedVersion.getClass())) {
+         throw new IllegalStateException(
+                 "versions are not of same class: \n" + this.stampedVersionProperty.get().getClass().getName() + "\n"
+                 + stampedVersion.getClass().getName());
+      }
 
-      if (this.stampSequenceProperty != null) {
+      this.stampedVersionProperty.set((VersionImpl) stampedVersion);
+
+      if ((this.stampSequenceProperty != null)
+              && (this.stampSequenceProperty.get() != stampedVersion.getStampSequence())) {
          this.stampSequenceProperty.set(stampedVersion.getStampSequence());
       }
 
@@ -268,25 +393,34 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
          this.commitStateBinding.invalidate();
       }
 
-      if (this.stateProperty != null) {
+      if ((this.stateProperty != null) && (this.stateProperty.get() != stampedVersion.getState())) {
          this.stateProperty.set(stampedVersion.getState());
       }
 
-      if (this.authorSequenceProperty != null) {
+      if ((this.authorSequenceProperty != null)
+              && (this.authorSequenceProperty.get() != stampedVersion.getAuthorSequence())) {
          this.authorSequenceProperty.set(stampedVersion.getAuthorSequence());
       }
 
-      if (this.moduleSequenceProperty != null) {
+      if ((this.moduleSequenceProperty != null)
+              && (this.moduleSequenceProperty.get() != stampedVersion.getModuleSequence())) {
          this.moduleSequenceProperty.set(stampedVersion.getModuleSequence());
       }
 
-      if (this.pathSequenceProperty != null) {
+      if ((this.pathSequenceProperty != null)
+              && (this.pathSequenceProperty.get() != stampedVersion.getPathSequence())) {
          this.pathSequenceProperty.set(stampedVersion.getPathSequence());
+      }
+
+      if ((this.timeProperty != null)
+              && (this.timeProperty.get() != stampedVersion.getTime())) {
+         this.timeProperty.set(stampedVersion.getTime());
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
+   protected abstract void updateVersion();
 
+   //~--- get methods ---------------------------------------------------------
    /**
     * Gets the author sequence.
     *
@@ -298,11 +432,10 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
          return this.authorSequenceProperty.get();
       }
 
-      return this.stampedVersion.getAuthorSequence();
+      return this.stampedVersionProperty.get().getAuthorSequence();
    }
 
    //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the author sequence.
     *
@@ -312,20 +445,19 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
    public void setAuthorSequence(int authorSequence) {
       if (this.authorSequenceProperty != null) {
          this.authorSequenceProperty.set(authorSequence);
-      } else {
-         this.stampedVersion.setAuthorSequence(authorSequence);
       }
+
+      this.stampedVersionProperty.get().setAuthorSequence(authorSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the chronology.
     *
     * @return the chronology
     */
    @Override
-   public ObservableChronology<OV> getChronology() {
+   public ObservableChronology getChronology() {
       return this.chronology;
    }
 
@@ -344,6 +476,10 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
          return CommitStates.UNCOMMITTED;
       }
 
+      if (getTime() == Long.MIN_VALUE) {
+         return CommitStates.CANCELED;
+      }
+
       return CommitStates.COMMITTED;
    }
 
@@ -358,11 +494,10 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
          return this.moduleSequenceProperty.get();
       }
 
-      return this.stampedVersion.getModuleSequence();
+      return this.stampedVersionProperty.get().getModuleSequence();
    }
 
    //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the module sequence.
     *
@@ -372,13 +507,12 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
    public void setModuleSequence(int moduleSequence) {
       if (this.moduleSequenceProperty != null) {
          this.moduleSequenceProperty.set(moduleSequence);
-      } else {
-         this.stampedVersion.setModuleSequence(moduleSequence);
       }
+
+      this.stampedVersionProperty.get().setModuleSequence(moduleSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the nid.
     *
@@ -386,7 +520,7 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
     */
    @Override
    public int getNid() {
-      return this.stampedVersion.getNid();
+      return stampedVersionProperty.get().getNid();
    }
 
    /**
@@ -400,11 +534,10 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
          return this.pathSequenceProperty.get();
       }
 
-      return this.stampedVersion.getPathSequence();
+      return stampedVersionProperty.get().getPathSequence();
    }
 
    //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the path sequence.
     *
@@ -414,13 +547,12 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
    public void setPathSequence(int pathSequence) {
       if (this.pathSequenceProperty != null) {
          this.pathSequenceProperty.set(pathSequence);
-      } else {
-         this.stampedVersion.setPathSequence(pathSequence);
       }
+
+      this.stampedVersionProperty.get().setPathSequence(pathSequence);
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the primordial uuid.
     *
@@ -428,7 +560,16 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
     */
    @Override
    public UUID getPrimordialUuid() {
-      return this.stampedVersion.getPrimordialUuid();
+      return this.stampedVersionProperty.get().getPrimordialUuid();
+   }
+
+   @Override
+   public List<ReadOnlyProperty<?>> getProperties() {
+      return new ArrayList(
+              Arrays.asList(
+                      new Property[]{
+                         stateProperty(), timeProperty(), authorSequenceProperty(), moduleSequenceProperty(), pathSequenceProperty(),
+                         commitStateProperty(), stampSequenceProperty(),}));
    }
 
    /**
@@ -442,7 +583,11 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
          return this.stampSequenceProperty.get();
       }
 
-      return this.stampedVersion.getStampSequence();
+      return this.stampedVersionProperty.get().getStampSequence();
+   }
+
+   public VersionImpl getStampedVersion() {
+      return stampedVersionProperty.get();
    }
 
    /**
@@ -456,9 +601,20 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
          return this.stateProperty.get();
       }
 
-      return this.stampedVersion.getState();
+      return this.stampedVersionProperty.get().getState();
    }
 
+   //~--- set methods ---------------------------------------------------------
+   @Override
+   public final void setStatus(State state) {
+      if (this.stateProperty != null) {
+         this.stateProperty.set(state);
+      }
+
+      this.stampedVersionProperty.get().setStatus(state);
+   }
+
+   //~--- get methods ---------------------------------------------------------
    /**
     * Gets the time.
     *
@@ -470,11 +626,10 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
          return this.timeProperty.get();
       }
 
-      return this.stampedVersion.getTime();
+      return this.stampedVersionProperty.get().getTime();
    }
 
    //~--- set methods ---------------------------------------------------------
-
    /**
     * Sets the time.
     *
@@ -484,13 +639,16 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
    public void setTime(long time) {
       if (this.timeProperty != null) {
          this.timeProperty.set(time);
-      } else {
-         this.stampedVersion.setTime(time);
+      }
+
+      this.stampedVersionProperty.get().setTime(time);
+
+      if (this.commitStateBinding != null) {
+         this.commitStateBinding.invalidate();
       }
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Checks if uncommitted.
     *
@@ -508,16 +666,41 @@ public class ObservableVersionImpl<OV extends ObservableVersionImpl<OV, V>, V ex
     */
    @Override
    public List<UUID> getUuidList() {
-      return this.stampedVersion.getUuidList();
+      return ((VersionImpl) this.stampedVersionProperty.get()).getUuidList();
    }
 
-   /**
-    * Gets the version sequence.
-    *
-    * @return the version sequence
-    */
-   public short getVersionSequence() {
-      return this.stampedVersion.getVersionSequence();
+   @Override
+   public VersionType getVersionType() {
+      return ((VersionImpl) this.stampedVersionProperty.get()).getVersionType();
    }
+
+   @Override
+   public <T> Optional<T> getUserObject(String objectKey) {
+      if (userObjectMap == null) {
+         return Optional.empty();
+      }
+      return Optional.ofNullable((T) userObjectMap.get(objectKey));
+   }
+
+   @Override
+   public void putUserObject(String objectKey, Object object) {
+      if (userObjectMap == null) {
+         userObjectMap = new HashMap<>();
+      }
+      userObjectMap.put(objectKey, object);
+   }
+
+   @Override
+   public <T> Optional<T> removeUserObject(String objectKey) {
+      T value = null;
+      if (userObjectMap != null) {
+         value = (T) userObjectMap.remove(objectKey);
+         if (userObjectMap.isEmpty()) {
+            userObjectMap = null;
+         }
+      }
+      return Optional.ofNullable(value);
+   }
+   
+   
 }
-

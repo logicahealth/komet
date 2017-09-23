@@ -42,7 +42,7 @@ package sh.isaac.api.component.sememe.version.dynamicSememe;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.ObjectChronologyType;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememePolymorphic;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
@@ -94,7 +94,7 @@ import sh.isaac.api.constants.DynamicSememeConstants;
  * <br>
  * The assemblage concept may also contain a single {@link DynamicSememeVersion} annotation of type
  * {@link DynamicSememeConstants#DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION} with a one or two string column(s) which can be parsed as
- * a {@link ObjectChronologyType} and a {@link SememeType}- which will restrict the type of nid that can be placed
+ * a {@link ObjectChronologyType} and a {@link VersionType}- which will restrict the type of nid that can be placed
  * into the referenced component field when creating an instance of the assemblage.
  * <br>
  * <br>
@@ -144,7 +144,7 @@ public interface DynamicSememeUsageDescription {
    public ObjectChronologyType getReferencedComponentTypeRestriction();
 
    /**
-    * Return the {@link SememeType} of the sub restriction on referenced components for this DynamicSememe (if any - may return null)
+    * Return the {@link VersionType} of the sub restriction on referenced components for this DynamicSememe (if any - may return null)
     *
     * If there is a restriction, the nid set for the component type of this DynamicSememe must resolve to the matching type.
     *
@@ -152,6 +152,6 @@ public interface DynamicSememeUsageDescription {
     *
     * @return the referenced component type sub restriction
     */
-   public SememeType getReferencedComponentTypeSubRestriction();
+   public VersionType getReferencedComponentTypeSubRestriction();
 }
 

@@ -67,9 +67,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -194,8 +195,8 @@ public class LanguageCoordinateImpl
     * @return the description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(
-           List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   public LatestVersion<DescriptionVersion> getDescription(
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return Get.languageCoordinateService()
                 .getSpecifiedDescription(stampCoordinate, descriptionList, this);
@@ -277,8 +278,8 @@ public class LanguageCoordinateImpl
     * @return the fully specified description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
-           List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return Get.languageCoordinateService()
                 .getSpecifiedDescription(stampCoordinate,
@@ -327,8 +328,8 @@ public class LanguageCoordinateImpl
     * @return the preferred description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(
-           List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   public LatestVersion<DescriptionVersion> getPreferredDescription(
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return Get.languageCoordinateService()
                 .getSpecifiedDescription(stampCoordinate,
@@ -336,6 +337,14 @@ public class LanguageCoordinateImpl
                                          Get.languageCoordinateService()
                                                .getSynonymConceptSequence(),
                                          this);
+   }
+
+   @Override
+   public LanguageCoordinate deepClone() {
+      LanguageCoordinateImpl newCoordinate = new LanguageCoordinateImpl(languageConceptSequence,
+                                 dialectAssemblagePreferenceList.clone(),
+                                 descriptionTypePreferenceList.clone());
+      return newCoordinate;
    }
 }
 

@@ -3,7 +3,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>sh.isaac</groupId>
    <artifactId>isaac</artifactId>
-   <version>4.22</version>
+   <version>4.24</version>
 
    <name>ISAAC: (MMP) Informatics Analytic Architecture</name>
 
@@ -60,7 +60,7 @@
       <site>
          <id>isaacs.website</id>
          <name>ISAAC website</name>
-         <url>file:/Library/WebServer/Documents/isaac.web</url>
+         <url>file:/Library/WebServer/Documents/isaac.web/</url>
       </site>
    </distributionManagement>
 
@@ -810,34 +810,6 @@
          </reporting>
       </profile>
       <profile>
-         <id>sca-clean</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>com.hpe.security.fortify.maven.plugin</groupId>
-                  <artifactId>sca-maven-plugin</artifactId>
-                  <version>${fortify.version}</version>
-                  <configuration>
-                     <jre64>true</jre64>
-                     <buildId>isaac-fortify-build</buildId>
-                     <toplevelArtifactId>isaac-parent</toplevelArtifactId>
-                     <skipTests>true</skipTests>
-                  </configuration>
-                  <executions>
-                     <execution>
-                        <goals>
-                           <goal>clean</goal>
-                        </goals>
-                     </execution>
-                  </executions>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-      <profile>
          <id>sca-translate</id>
          <activation>
             <activeByDefault>false</activeByDefault>
@@ -865,33 +837,6 @@
                         </goals>
                      </execution>
                   </executions>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-      <profile>
-         <id>sca-scan</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>com.hpe.security.fortify.maven.plugin</groupId>
-                  <artifactId>sca-maven-plugin</artifactId>
-                  <version>${fortify.version}</version>
-                  <configuration>
-                     <jre64>true</jre64>
-                     <jreStack>8M</jreStack>
-                     <maxHeap>13000M</maxHeap>
-                     <verbose>true</verbose>
-                     <buildId>isaac-fortify-build</buildId>
-                     <toplevelArtifactId>isaac-parent</toplevelArtifactId>
-                     <failOnSCAError>true</failOnSCAError>
-                     <upload>false</upload>
-                     <projectName>ISAAC REST</projectName>
-                     <projectVersion>${project.version}</projectVersion>
-                  </configuration>
                </plugin>
             </plugins>
          </build>

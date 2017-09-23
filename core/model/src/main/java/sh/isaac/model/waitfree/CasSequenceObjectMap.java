@@ -76,7 +76,7 @@ import sh.isaac.api.memory.DiskSemaphore;
 import sh.isaac.api.memory.HoldInMemoryCache;
 import sh.isaac.api.memory.MemoryManagedReference;
 import sh.isaac.api.memory.WriteToDiskCache;
-import sh.isaac.model.ObjectChronologyImpl;
+import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.WaitFreeComparable;
 
 //~--- classes ----------------------------------------------------------------
@@ -179,7 +179,7 @@ public class CasSequenceObjectMap<T extends WaitFreeComparable> {
 
       // Identify number of files with fileSuffix
       final int numberOfSegmentFiles =
-         segmentDirectory.list((dir, name) -> (name.endsWith(CasSequenceObjectMap.this.fileSuffix.toString()))).length;
+         segmentDirectory.list((dir, name) -> (name.endsWith(CasSequenceObjectMap.this.fileSuffix))).length;
 
       // While initializing, if cannot find expected *.fileSuffix file sequentially, database is corrupt.
       while (segmentIndex < numberOfSegmentFiles) {
@@ -262,7 +262,7 @@ public class CasSequenceObjectMap<T extends WaitFreeComparable> {
 
          value.setWriteSequence(getWriteSequence(sequence));
 
-         final ByteArrayDataBuffer newDataBuffer = new ByteArrayDataBuffer(oldDataSize + 512);
+         final ByteArrayDataBuffer newDataBuffer = new ByteArrayDataBuffer(oldDataSize + 512);  //TODO add version
 
          this.elementSerializer.serialize(newDataBuffer, value);
          newDataBuffer.trimToSize();
@@ -271,8 +271,8 @@ public class CasSequenceObjectMap<T extends WaitFreeComparable> {
             this.objectByteList.get(segmentIndex)
                                .elementUpdated();
 
-            if ((originalValue != value) && (value instanceof ObjectChronologyImpl)) {
-               final ObjectChronologyImpl objc = (ObjectChronologyImpl) originalValue;
+            if ((originalValue != value) && (value instanceof ChronologyImpl)) {
+               final ChronologyImpl objc = (ChronologyImpl) originalValue;
 
                objc.setWrittenData(newDataBuffer.getData());
                objc.setWriteSequence(value.getWriteSequence());
@@ -429,6 +429,7 @@ public class CasSequenceObjectMap<T extends WaitFreeComparable> {
     * @return the segment
     */
    protected SerializedAtomicReferenceArray getSegment(int segmentIndex) {
+      
       SerializedAtomicReferenceArray referenceArray = this.objectByteList.get(segmentIndex)
                                                                          .get();
 
@@ -481,7 +482,12 @@ public class CasSequenceObjectMap<T extends WaitFreeComparable> {
     * @return the write sequence
     */
    private static int getWriteSequence(int componentSequence) {
-      return writeSequences.incrementAndGet(componentSequence % WRITE_SEQUENCES);
+      int writeSequence = writeSequences.incrementAndGet(componentSequence % WRITE_SEQUENCES);
+      if (writeSequence > 10240) {
+         writeSequences.set(componentSequence % WRITE_SEQUENCES, 0);
+         return getWriteSequence(componentSequence);
+      }
+      return writeSequence;
    }
 
    //~--- inner classes -------------------------------------------------------

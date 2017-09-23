@@ -42,7 +42,6 @@ package sh.isaac.model.observable.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
-import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -65,12 +64,13 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.model.coordinate.LanguageCoordinateImpl;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -114,6 +114,10 @@ public final class ObservableLanguageCoordinateImpl
     * @param languageCoordinate the language coordinate
     */
    public ObservableLanguageCoordinateImpl(LanguageCoordinate languageCoordinate) {
+      if (languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
+         throw new IllegalStateException("Trying to wrap an observable coordinate in an observable coordinate...");
+                 
+      }
       this.languageCoordinate = languageCoordinate;
       if (languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
          ObservableLanguageCoordinateImpl observableLanguageCoordinate = (ObservableLanguageCoordinateImpl) languageCoordinate;
@@ -155,9 +159,18 @@ public final class ObservableLanguageCoordinateImpl
          this.dialectAssemblagePreferenceListProperty = new SimpleObjectProperty<>(this,
                ObservableFields.DIALECT_ASSEMBLAGE_SEQUENCE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE.toExternalString(),
                FXCollections.observableIntegerArray(getDialectAssemblagePreferenceList()));
-         addListenerReference(
+         
+         if (this.languageCoordinate instanceof LanguageCoordinateImpl) {
+            addListenerReference(
              ((LanguageCoordinateImpl) this.languageCoordinate).setDialectAssemblagePreferenceListProperty(
                  this.dialectAssemblagePreferenceListProperty));
+         } else if (this.languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
+            LanguageCoordinateImpl languageCoordinateImpl = 
+                    (LanguageCoordinateImpl) ((ObservableLanguageCoordinateImpl) this.languageCoordinate).languageCoordinate;
+            languageCoordinateImpl.setDialectAssemblagePreferenceListProperty(
+                 this.dialectAssemblagePreferenceListProperty);
+         }
+         
       }
 
       return this.dialectAssemblagePreferenceListProperty;
@@ -174,10 +187,17 @@ public final class ObservableLanguageCoordinateImpl
          this.languageConceptSequenceProperty = new SimpleIntegerProperty(this,
                ObservableFields.LANGUAGE_SEQUENCE_FOR_LANGUAGE_COORDINATE.toExternalString(),
                getLanguageConceptSequence());
-         addListenerReference(
-             ((LanguageCoordinateImpl) this.languageCoordinate).setLanguageConceptSequenceProperty(this.languageConceptSequenceProperty));
+         if (this.languageCoordinate instanceof LanguageCoordinateImpl) {
+            addListenerReference(
+             ((LanguageCoordinateImpl) this.languageCoordinate).setLanguageConceptSequenceProperty(
+                 this.languageConceptSequenceProperty));
+         } else if (this.languageCoordinate instanceof ObservableLanguageCoordinateImpl) {
+            LanguageCoordinateImpl languageCoordinateImpl = 
+                    (LanguageCoordinateImpl) ((ObservableLanguageCoordinateImpl) this.languageCoordinate).languageCoordinate;
+            languageCoordinateImpl.setLanguageConceptSequenceProperty(
+                 this.languageConceptSequenceProperty);
+         }
       }
-
       return this.languageConceptSequenceProperty;
    }
 
@@ -201,8 +221,8 @@ public final class ObservableLanguageCoordinateImpl
     * @return the description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getDescription(
-           List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   public LatestVersion<DescriptionVersion> getDescription(
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return this.languageCoordinate.getDescription(descriptionList, stampCoordinate);
    }
@@ -245,8 +265,8 @@ public final class ObservableLanguageCoordinateImpl
     * @return the fully specified description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getFullySpecifiedDescription(
-           List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return this.languageCoordinate.getFullySpecifiedDescription(descriptionList, stampCoordinate);
    }
@@ -273,10 +293,16 @@ public final class ObservableLanguageCoordinateImpl
     * @return the preferred description
     */
    @Override
-   public Optional<LatestVersion<DescriptionSememe<?>>> getPreferredDescription(
-           List<SememeChronology<? extends DescriptionSememe<?>>> descriptionList,
+   public LatestVersion<DescriptionVersion> getPreferredDescription(
+           List<SememeChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return this.languageCoordinate.getPreferredDescription(descriptionList, stampCoordinate);
    }
+
+   @Override
+   public ObservableLanguageCoordinateImpl deepClone() {
+      return new ObservableLanguageCoordinateImpl(languageCoordinate.deepClone());
+   }
+   
 }
 

@@ -44,7 +44,7 @@ package sh.isaac.api.coordinate;
  *
  * @author kec
  */
-public interface EditCoordinate {
+public interface EditCoordinate extends Coordinate {
    /**
     * Gets the author sequence.
     *
@@ -65,5 +65,10 @@ public interface EditCoordinate {
     * @return the path sequence
     */
    int getPathSequence();
+
+   @Override
+   public EditCoordinate deepClone();
+   
+   
 }
 

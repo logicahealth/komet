@@ -168,7 +168,7 @@ public class LogicalExpressionBuilderOchreImpl
     * @return the all role
     */
    @Override
-   public AllRole allRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction) {
+   public AllRole allRole(ConceptChronology roleTypeChronology, Assertion roleRestriction) {
       checkNotBuilt();
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_ALL, this);
@@ -282,7 +282,7 @@ public class LogicalExpressionBuilderOchreImpl
     * @return the concept assertion
     */
    @Override
-   public ConceptAssertion conceptAssertion(ConceptChronology<?> conceptChronology) {
+   public ConceptAssertion conceptAssertion(ConceptChronology conceptChronology) {
       checkNotBuilt();
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.CONCEPT, this);
@@ -346,7 +346,7 @@ public class LogicalExpressionBuilderOchreImpl
     * @return the disjoint with
     */
    @Override
-   public DisjointWith disjointWith(ConceptChronology<?> conceptChronology) {
+   public DisjointWith disjointWith(ConceptChronology conceptChronology) {
       checkNotBuilt();
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.DISJOINT_WITH, this);
@@ -379,7 +379,7 @@ public class LogicalExpressionBuilderOchreImpl
     * @return the feature
     */
    @Override
-   public Feature feature(ConceptChronology<?> featureTypeChronology, LiteralAssertion literal) {
+   public Feature feature(ConceptChronology featureTypeChronology, LiteralAssertion literal) {
       checkNotBuilt();
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.FEATURE, this);
@@ -544,7 +544,7 @@ public class LogicalExpressionBuilderOchreImpl
     * @return the some role
     */
    @Override
-   public SomeRole someRole(ConceptChronology<?> roleTypeChronology, Assertion roleRestriction) {
+   public SomeRole someRole(ConceptChronology roleTypeChronology, Assertion roleRestriction) {
       checkNotBuilt();
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.ROLE_SOME, this);
@@ -647,8 +647,8 @@ public class LogicalExpressionBuilderOchreImpl
     * @return the template
     */
    @Override
-   public Template template(ConceptChronology<?> templateChronology,
-                            ConceptChronology<?> assemblageToPopulateTemplateConcept) {
+   public Template template(ConceptChronology templateChronology,
+                            ConceptChronology assemblageToPopulateTemplateConcept) {
       checkNotBuilt();
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.TEMPLATE, this);
@@ -732,8 +732,8 @@ public class LogicalExpressionBuilderOchreImpl
                                             .get(0), definition));
          }
 
-         final ConceptChronology<?> featureTypeSpecification =
-            (ConceptChronology<?>) this.axiomParameters.get(axiom.getIndex());
+         final ConceptChronology featureTypeSpecification =
+            (ConceptChronology) this.axiomParameters.get(axiom.getIndex());
 
          return definition.Feature(featureTypeSpecification.getNid(),
                                    addToDefinition(this.definitionTree.get(axiom)
@@ -749,8 +749,8 @@ public class LogicalExpressionBuilderOchreImpl
                 ((ConceptSpecification) this.axiomParameters.get(axiom.getIndex())).getConceptSequence());
          }
 
-         final ConceptChronology<?> conceptSpecification =
-            (ConceptChronology<?>) this.axiomParameters.get(axiom.getIndex());
+         final ConceptChronology conceptSpecification =
+            (ConceptChronology) this.axiomParameters.get(axiom.getIndex());
 
          return definition.Concept(conceptSpecification.getConceptSequence());
 
@@ -767,7 +767,7 @@ public class LogicalExpressionBuilderOchreImpl
                                             .get(0), definition));
          }
 
-         ConceptChronology<?> roleTypeSpecification = (ConceptChronology<?>) this.axiomParameters.get(axiom.getIndex());
+         ConceptChronology roleTypeSpecification = (ConceptChronology) this.axiomParameters.get(axiom.getIndex());
 
          return definition.AllRole(roleTypeSpecification.getNid(),
                                    addToDefinition(this.definitionTree.get(axiom)
@@ -786,7 +786,7 @@ public class LogicalExpressionBuilderOchreImpl
                                              .get(0), definition));
          }
 
-         roleTypeSpecification = (ConceptChronology<?>) this.axiomParameters.get(axiom.getIndex());
+         roleTypeSpecification = (ConceptChronology) this.axiomParameters.get(axiom.getIndex());
          return definition.SomeRole(roleTypeSpecification.getNid(),
                                     addToDefinition(this.definitionTree.get(axiom)
                                           .get(0), definition));
@@ -807,8 +807,8 @@ public class LogicalExpressionBuilderOchreImpl
                                        assemblageToPopulateTemplateConceptSpecification.getConceptSequence());
          }
 
-         final ConceptChronology<?> templateConceptSpecification                     = (ConceptChronology<?>) params[0];
-         final ConceptChronology<?> assemblageToPopulateTemplateConceptSpecification = (ConceptChronology<?>) params[1];
+         final ConceptChronology templateConceptSpecification                     = (ConceptChronology) params[0];
+         final ConceptChronology assemblageToPopulateTemplateConceptSpecification = (ConceptChronology) params[1];
 
          return definition.Template(templateConceptSpecification.getConceptSequence(),
                                     assemblageToPopulateTemplateConceptSpecification.getConceptSequence());
@@ -824,8 +824,8 @@ public class LogicalExpressionBuilderOchreImpl
                     ((ConceptSpecification) this.axiomParameters.get(axiom.getIndex())).getConceptSequence()));
          }
 
-         final ConceptChronology<?> disjointConceptSpecification =
-            (ConceptChronology<?>) this.axiomParameters.get(axiom.getIndex());
+         final ConceptChronology disjointConceptSpecification =
+            (ConceptChronology) this.axiomParameters.get(axiom.getIndex());
 
          return definition.DisjointWith(definition.Concept(disjointConceptSpecification.getConceptSequence()));
 

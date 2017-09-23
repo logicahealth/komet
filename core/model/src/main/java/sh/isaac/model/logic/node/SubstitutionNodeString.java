@@ -106,6 +106,10 @@ public class SubstitutionNodeString
    public String toString(String nodeIdSuffix) {
       return "String substitution[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return "String substitution:" +  super.toSimpleString();
+   }
 
    /**
     * Inits the node uuid.

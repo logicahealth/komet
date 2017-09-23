@@ -34,13 +34,9 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.model.logic;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -57,7 +53,6 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.mahout.math.list.IntArrayList;
 
 import sh.isaac.api.DataSource;
@@ -105,48 +100,58 @@ import sh.isaac.model.logic.node.internal.TemplateNodeWithSequences;
 import sh.isaac.model.logic.node.internal.TypedNodeWithSequences;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * Created by kec on 12/6/14.
  *
  * TODO need version of Pack that uses UUIDs for change sets
  *
- * TODO need unique way of identifying data columns for substitution: Use
- * enumerations for now
+ * TODO need unique way of identifying data columns for substitution: Use enumerations for now
  *
  * TODO Standard refset for never grouped roles
  *
  * TODO Standard refset for right identities
  */
 public class LogicalExpressionImpl
-         implements LogicalExpression {
-   /** The Constant NODE_SEMANTICS. */
+        implements LogicalExpression {
+
+   /**
+    * The Constant NODE_SEMANTICS.
+    */
    private static final NodeSemantic[] NODE_SEMANTICS = NodeSemantic.values();
 
-   /** The Constant MEANINGFUL_NODE_SEMANTICS. */
+   /**
+    * The Constant MEANINGFUL_NODE_SEMANTICS.
+    */
    private static final EnumSet<NodeSemantic> MEANINGFUL_NODE_SEMANTICS = EnumSet.of(NodeSemantic.CONCEPT,
-                                                                                     NodeSemantic.SUBSTITUTION_CONCEPT);
+           NodeSemantic.SUBSTITUTION_CONCEPT);
 
-   /** The isa nid. */
+   /**
+    * The isa nid.
+    */
    protected static int isaNid = 0;
 
    //~--- fields --------------------------------------------------------------
-
-   /** The concept sequence. */
+   /**
+    * The concept sequence.
+    */
    transient int conceptSequence = -1;
 
-   /** The logic nodes. */
+   /**
+    * The logic nodes.
+    */
    ArrayList<LogicNode> logicNodes = new ArrayList<>();
 
-   /** The root node index. */
+   /**
+    * The root node index.
+    */
    int rootNodeIndex = -1;
 
    //~--- constructors --------------------------------------------------------
-
    /**
     * Instantiates a new logical expression ochre impl.
     */
-   public LogicalExpressionImpl() {}
+   public LogicalExpressionImpl() {
+   }
 
    /**
     * Instantiates a new logical expression ochre impl.
@@ -158,162 +163,162 @@ public class LogicalExpressionImpl
       try {
          this.logicNodes = new ArrayList<>(nodeDataArray.length);
 
-         for (final byte[] nodeDataArray1: nodeDataArray) {
-            final DataInputStream dataInputStream   = new DataInputStream(new ByteArrayInputStream(nodeDataArray1));
-            final byte            nodeSemanticIndex = dataInputStream.readByte();
-            final NodeSemantic    nodeSemantic      = NODE_SEMANTICS[nodeSemanticIndex];
+         for (final byte[] nodeDataArray1 : nodeDataArray) {
+            final DataInputStream dataInputStream = new DataInputStream(new ByteArrayInputStream(nodeDataArray1));
+            final byte nodeSemanticIndex = dataInputStream.readByte();
+            final NodeSemantic nodeSemantic = NODE_SEMANTICS[nodeSemanticIndex];
 
             switch (nodeSemantic) {
-            case DEFINITION_ROOT:
-               Root(dataInputStream);
-               break;
-
-            case NECESSARY_SET:
-               NecessarySet(dataInputStream);
-               break;
-
-            case SUFFICIENT_SET:
-               SufficientSet(dataInputStream);
-               break;
-
-            case AND:
-               And(dataInputStream);
-               break;
-
-            case OR:
-               Or(dataInputStream);
-               break;
-
-            case DISJOINT_WITH:
-               DisjointWith(dataInputStream);
-               break;
-
-            case ROLE_ALL:
-               switch (dataSource) {
-               case EXTERNAL:
-                  AllRoleWithUuids(dataInputStream);
+               case DEFINITION_ROOT:
+                  Root(dataInputStream);
                   break;
 
-               case INTERNAL:
-                  AllRole(dataInputStream);
+               case NECESSARY_SET:
+                  NecessarySet(dataInputStream);
+                  break;
+
+               case SUFFICIENT_SET:
+                  SufficientSet(dataInputStream);
+                  break;
+
+               case AND:
+                  And(dataInputStream);
+                  break;
+
+               case OR:
+                  Or(dataInputStream);
+                  break;
+
+               case DISJOINT_WITH:
+                  DisjointWith(dataInputStream);
+                  break;
+
+               case ROLE_ALL:
+                  switch (dataSource) {
+                     case EXTERNAL:
+                        AllRoleWithUuids(dataInputStream);
+                        break;
+
+                     case INTERNAL:
+                        AllRole(dataInputStream);
+                        break;
+
+                     default:
+                        throw new UnsupportedOperationException("Can't handle: " + dataSource);
+                  }
+
+                  break;
+
+               case ROLE_SOME:
+                  switch (dataSource) {
+                     case EXTERNAL:
+                        SomeRoleWithUuids(dataInputStream);
+                        break;
+
+                     case INTERNAL:
+                        SomeRole(dataInputStream);
+                        break;
+
+                     default:
+                        throw new UnsupportedOperationException("Can't handle: " + dataSource);
+                  }
+
+                  break;
+
+               case FEATURE:
+                  switch (dataSource) {
+                     case EXTERNAL:
+                        FeatureWithUuids(dataInputStream);
+                        break;
+
+                     case INTERNAL:
+                        Feature(dataInputStream);
+                        break;
+
+                     default:
+                        throw new UnsupportedOperationException("Can't handle: " + dataSource);
+                  }
+
+                  break;
+
+               case LITERAL_BOOLEAN:
+                  BooleanLiteral(dataInputStream);
+                  break;
+
+               case LITERAL_FLOAT:
+                  FloatLiteral(dataInputStream);
+                  break;
+
+               case LITERAL_INSTANT:
+                  InstantLiteral(dataInputStream);
+                  break;
+
+               case LITERAL_INTEGER:
+                  IntegerLiteral(dataInputStream);
+                  break;
+
+               case LITERAL_STRING:
+                  StringLiteral(dataInputStream);
+                  break;
+
+               case CONCEPT:
+                  switch (dataSource) {
+                     case EXTERNAL:
+                        ConceptWithUuids(dataInputStream);
+                        break;
+
+                     case INTERNAL:
+                        Concept(dataInputStream);
+                        break;
+
+                     default:
+                        throw new UnsupportedOperationException("Can't handle: " + dataSource);
+                  }
+
+                  break;
+
+               case TEMPLATE:
+                  switch (dataSource) {
+                     case EXTERNAL:
+                        TemplateWithUuids(dataInputStream);
+                        break;
+
+                     case INTERNAL:
+                        Template(dataInputStream);
+                        break;
+
+                     default:
+                        throw new UnsupportedOperationException("Can't handle: " + dataSource);
+                  }
+
+                  break;
+
+               case SUBSTITUTION_BOOLEAN:
+                  BooleanSubstitution(dataInputStream);
+                  break;
+
+               case SUBSTITUTION_CONCEPT:
+                  ConceptSubstitution(dataInputStream);
+                  break;
+
+               case SUBSTITUTION_FLOAT:
+                  FloatSubstitution(dataInputStream);
+                  break;
+
+               case SUBSTITUTION_INSTANT:
+                  InstantSubstitution(dataInputStream);
+                  break;
+
+               case SUBSTITUTION_INTEGER:
+                  IntegerSubstitution(dataInputStream);
+                  break;
+
+               case SUBSTITUTION_STRING:
+                  StringSubstitution(dataInputStream);
                   break;
 
                default:
-                  throw new UnsupportedOperationException("Can't handle: " + dataSource);
-               }
-
-               break;
-
-            case ROLE_SOME:
-               switch (dataSource) {
-               case EXTERNAL:
-                  SomeRoleWithUuids(dataInputStream);
-                  break;
-
-               case INTERNAL:
-                  SomeRole(dataInputStream);
-                  break;
-
-               default:
-                  throw new UnsupportedOperationException("Can't handle: " + dataSource);
-               }
-
-               break;
-
-            case FEATURE:
-               switch (dataSource) {
-               case EXTERNAL:
-                  FeatureWithUuids(dataInputStream);
-                  break;
-
-               case INTERNAL:
-                  Feature(dataInputStream);
-                  break;
-
-               default:
-                  throw new UnsupportedOperationException("Can't handle: " + dataSource);
-               }
-
-               break;
-
-            case LITERAL_BOOLEAN:
-               BooleanLiteral(dataInputStream);
-               break;
-
-            case LITERAL_FLOAT:
-               FloatLiteral(dataInputStream);
-               break;
-
-            case LITERAL_INSTANT:
-               InstantLiteral(dataInputStream);
-               break;
-
-            case LITERAL_INTEGER:
-               IntegerLiteral(dataInputStream);
-               break;
-
-            case LITERAL_STRING:
-               StringLiteral(dataInputStream);
-               break;
-
-            case CONCEPT:
-               switch (dataSource) {
-               case EXTERNAL:
-                  ConceptWithUuids(dataInputStream);
-                  break;
-
-               case INTERNAL:
-                  Concept(dataInputStream);
-                  break;
-
-               default:
-                  throw new UnsupportedOperationException("Can't handle: " + dataSource);
-               }
-
-               break;
-
-            case TEMPLATE:
-               switch (dataSource) {
-               case EXTERNAL:
-                  TemplateWithUuids(dataInputStream);
-                  break;
-
-               case INTERNAL:
-                  Template(dataInputStream);
-                  break;
-
-               default:
-                  throw new UnsupportedOperationException("Can't handle: " + dataSource);
-               }
-
-               break;
-
-            case SUBSTITUTION_BOOLEAN:
-               BooleanSubstitution(dataInputStream);
-               break;
-
-            case SUBSTITUTION_CONCEPT:
-               ConceptSubstitution(dataInputStream);
-               break;
-
-            case SUBSTITUTION_FLOAT:
-               FloatSubstitution(dataInputStream);
-               break;
-
-            case SUBSTITUTION_INSTANT:
-               InstantSubstitution(dataInputStream);
-               break;
-
-            case SUBSTITUTION_INTEGER:
-               IntegerSubstitution(dataInputStream);
-               break;
-
-            case SUBSTITUTION_STRING:
-               StringSubstitution(dataInputStream);
-               break;
-
-            default:
-               throw new UnsupportedOperationException("Can't handle: " + nodeSemantic);
+                  throw new UnsupportedOperationException("Can't handle: " + nodeSemantic);
             }
          }
 
@@ -327,10 +332,9 @@ public class LogicalExpressionImpl
     * Called to generate an isomorphicExpression and a mergedExpression.
     *
     * @param another the logical expression to add nodes from.
-    * @param solution an array mapping from the nodeId in another to the nodeId
-    * in this expression. If the value of the solution element == -1, that node
-    * is not added to this logical expression, otherwise the value of the
-    * solution element is used for the nodeId in this logical expression.
+    * @param solution an array mapping from the nodeId in another to the nodeId in this expression. If the value of the
+    * solution element == -1, that node is not added to this logical expression, otherwise the value of the solution
+    * element is used for the nodeId in this logical expression.
     */
    public LogicalExpressionImpl(LogicalExpressionImpl another, int[] solution) {
       addNodesWithMap(another, solution, new int[another.getNodeCount()], another.rootNodeIndex);
@@ -349,7 +353,7 @@ public class LogicalExpressionImpl
 
       if (conceptId < 0) {
          conceptId = Get.identifierService()
-                        .getConceptSequence(conceptId);
+                 .getConceptSequence(conceptId);
       }
 
       this.conceptSequence = conceptId;
@@ -359,10 +363,9 @@ public class LogicalExpressionImpl
     * Called to generate an isomorphicExpression and a mergedExpression.
     *
     * @param another the logical expression to add nodes from.
-    * @param solution an array mapping from the nodeId in another to the nodeId
-    * in this expression. If the value of the solution element == -1, that node
-    * is not added to this logical expression, otherwise the value of the
-    * solution element is used for the nodeId in this logical expression.
+    * @param solution an array mapping from the nodeId in another to the nodeId in this expression. If the value of the
+    * solution element == -1, that node is not added to this logical expression, otherwise the value of the solution
+    * element is used for the nodeId in this logical expression.
     * @param anotherToThisNodeIdMap contains a mapping from nodeId in another to nodeId in this constructed expression.
     */
    public LogicalExpressionImpl(LogicalExpressionImpl another, int[] solution, int[] anotherToThisNodeIdMap) {
@@ -371,7 +374,6 @@ public class LogicalExpressionImpl
    }
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * All role.
     *
@@ -380,7 +382,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final RoleNodeAllWithSequences AllRole(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new RoleNodeAllWithSequences(this, dataInputStream);
    }
 
@@ -403,7 +405,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final RoleNodeAllWithUuids AllRoleWithUuids(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new RoleNodeAllWithUuids(this, dataInputStream);
    }
 
@@ -425,7 +427,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final AndNode And(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new AndNode(this, dataInputStream);
    }
 
@@ -447,7 +449,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final LiteralNodeBoolean BooleanLiteral(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new LiteralNodeBoolean(this, dataInputStream);
    }
 
@@ -459,7 +461,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final SubstitutionNodeBoolean BooleanSubstitution(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new SubstitutionNodeBoolean(this, dataInputStream);
    }
 
@@ -481,7 +483,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final ConceptNodeWithSequences Concept(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new ConceptNodeWithSequences(this, dataInputStream);
    }
 
@@ -503,7 +505,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final SubstitutionNodeConcept ConceptSubstitution(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new SubstitutionNodeConcept(this, dataInputStream);
    }
 
@@ -525,7 +527,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final ConceptNodeWithUuids ConceptWithUuids(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new ConceptNodeWithUuids(this, dataInputStream);
    }
 
@@ -547,7 +549,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final DisjointWithNode DisjointWith(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new DisjointWithNode(this, dataInputStream);
    }
 
@@ -559,7 +561,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final FeatureNodeWithSequences Feature(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new FeatureNodeWithSequences(this, dataInputStream);
    }
 
@@ -576,8 +578,8 @@ public class LogicalExpressionImpl
          return new FeatureNodeWithSequences(this, typeNid, literal);
       }
 
-      throw new IllegalStateException("LogicNode must be of type LiteralNode or SubstitutionNodeLiteral. Found: " +
-                                      literal);
+      throw new IllegalStateException("LogicNode must be of type LiteralNode or SubstitutionNodeLiteral. Found: "
+              + literal);
    }
 
    /**
@@ -588,7 +590,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final FeatureNodeWithUuids FeatureWithUuids(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new FeatureNodeWithUuids(this, dataInputStream);
    }
 
@@ -600,7 +602,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final LiteralNodeFloat FloatLiteral(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new LiteralNodeFloat(this, dataInputStream);
    }
 
@@ -622,7 +624,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final SubstitutionNodeFloat FloatSubstitution(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new SubstitutionNodeFloat(this, dataInputStream);
    }
 
@@ -644,7 +646,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final LiteralNodeInstant InstantLiteral(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new LiteralNodeInstant(this, dataInputStream);
    }
 
@@ -666,7 +668,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final SubstitutionNodeInstant InstantSubstitution(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new SubstitutionNodeInstant(this, dataInputStream);
    }
 
@@ -688,7 +690,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final LiteralNodeInteger IntegerLiteral(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new LiteralNodeInteger(this, dataInputStream);
    }
 
@@ -710,7 +712,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final SubstitutionNodeInteger IntegerSubstitution(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new SubstitutionNodeInteger(this, dataInputStream);
    }
 
@@ -742,7 +744,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final NecessarySetNode NecessarySet(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new NecessarySetNode(this, dataInputStream);
    }
 
@@ -764,7 +766,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final OrNode Or(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new OrNode(this, dataInputStream);
    }
 
@@ -789,7 +791,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final RootNode Root(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       final RootNode rootNode = new RootNode(this, dataInputStream);
 
       this.rootNodeIndex = rootNode.getNodeIndex();
@@ -804,7 +806,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final RoleNodeSomeWithSequences SomeRole(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new RoleNodeSomeWithSequences(this, dataInputStream);
    }
 
@@ -827,7 +829,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final RoleNodeSomeWithUuids SomeRoleWithUuids(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new RoleNodeSomeWithUuids(this, dataInputStream);
    }
 
@@ -839,7 +841,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final LiteralNodeString StringLiteral(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new LiteralNodeString(this, dataInputStream);
    }
 
@@ -861,7 +863,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final SubstitutionNodeString StringSubstitution(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new SubstitutionNodeString(this, dataInputStream);
    }
 
@@ -893,7 +895,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final SufficientSetNode SufficientSet(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new SufficientSetNode(this, dataInputStream);
    }
 
@@ -905,7 +907,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final TemplateNodeWithSequences Template(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new TemplateNodeWithSequences(this, dataInputStream);
    }
 
@@ -928,7 +930,7 @@ public class LogicalExpressionImpl
     * @throws IOException Signals that an I/O exception has occurred.
     */
    public final TemplateNodeWithUuids TemplateWithUuids(DataInputStream dataInputStream)
-            throws IOException {
+           throws IOException {
       return new TemplateNodeWithUuids(this, dataInputStream);
    }
 
@@ -946,17 +948,14 @@ public class LogicalExpressionImpl
     * Adds the nodes.
     *
     * @param another the logical expression to add nodes from.
-    * @param solution an array mapping from the nodeId in another to the nodeId
-    * in this expression. If the value of the solution element == -1, that node
-    * is not added to this logical expression, otherwise the value of the
-    * solution element is used for the nodeId in this logical expression.
-    * @param oldIds the list of nodeIds in the provided logical expression
-    * (another) to add to this logical expression on this invocation. Note that
-    * children of the nodes indicated by oldIds may be added by recursive calls
-    * to this method, if the oldId index in the solution array is >= 0.
-    * @return the LogicNode elements added as a result of this instance of the
-    * call, not including any children LogicNode elements added by recursive
-    * calls. Those children LogicNode elements can be retrieved by recursively
+    * @param solution an array mapping from the nodeId in another to the nodeId in this expression. If the value of the
+    * solution element == -1, that node is not added to this logical expression, otherwise the value of the solution
+    * element is used for the nodeId in this logical expression.
+    * @param oldIds the list of nodeIds in the provided logical expression (another) to add to this logical expression
+    * on this invocation. Note that children of the nodes indicated by oldIds may be added by recursive calls to this
+    * method, if the oldId index in the solution array is >= 0.
+    * @return the LogicNode elements added as a result of this instance of the call, not including any children
+    * LogicNode elements added by recursive calls. Those children LogicNode elements can be retrieved by recursively
     * traversing the children of these returned LogicNode elements.
     */
    public final LogicNode[] addNodes(LogicalExpressionImpl another, int[] solution, int... oldIds) {
@@ -972,7 +971,7 @@ public class LogicalExpressionImpl
    @Override
    public boolean contains(NodeSemantic semantic) {
       return this.logicNodes.stream()
-                            .anyMatch((node) -> (node.getNodeSemantic() == semantic));
+              .anyMatch((node) -> (node.getNodeSemantic() == semantic));
    }
 
    /**
@@ -1036,9 +1035,10 @@ public class LogicalExpressionImpl
    }
 
    /**
-    * Process depth first. The consumer will be presented with the current logic node, and
-    * with graph visit data that provides information about the other nodes that have been encountered. 
-    * To get the current id of the visit, within the consumers {@code accept(LogicNode logicNode, TreeNodeVisitData visitData)} method,  get the node id of the presented logic node. 
+    * Process depth first. The consumer will be presented with the current logic node, and with graph visit data that
+    * provides information about the other nodes that have been encountered. To get the current id of the visit, within
+    * the consumers {@code accept(LogicNode logicNode, TreeNodeVisitData visitData)} method, get the node id of the
+    * presented logic node.
     *
     * @param consumer the consumer
     */
@@ -1079,6 +1079,24 @@ public class LogicalExpressionImpl
       return toString("");
    }
 
+   @Override
+   public String toSimpleString() {
+      final StringBuilder builder = new StringBuilder();
+
+      processDepthFirst((LogicNode logicNode,
+              TreeNodeVisitData graphVisitData) -> {
+         if (!(logicNode instanceof RootNode)) {
+            for (int i = 1; i < graphVisitData.getDistance(logicNode.getNodeIndex()); i++) {
+               builder.append("    ");
+            }
+
+            builder.append(logicNode.toSimpleString());
+            builder.append("\n");
+         }});
+      builder.deleteCharAt(builder.length() - 1);
+      return builder.toString();
+   }
+
    /**
     * To string.
     *
@@ -1090,21 +1108,21 @@ public class LogicalExpressionImpl
       final StringBuilder builder = new StringBuilder();
 
       processDepthFirst((LogicNode logicNode,
-                         TreeNodeVisitData graphVisitData) -> {
-                           for (int i = 0; i < graphVisitData.getDistance(logicNode.getNodeIndex()); i++) {
-                              builder.append("    ");
-                           }
+              TreeNodeVisitData graphVisitData) -> {
+         for (int i = 0; i < graphVisitData.getDistance(logicNode.getNodeIndex()); i++) {
+            builder.append("    ");
+         }
 
-                           builder.append(logicNode.toString(nodeIdSuffix));
-                           builder.append("\n");
-                        });
+         builder.append(logicNode.toString(nodeIdSuffix));
+         builder.append("\n");
+      });
       return builder.toString();
    }
 
    /**
-    * Depth first visit. The consumer will be presented with the current logic node, and
-    * with graph visit data that provides information about the other nodes that have been encountered. 
-    * To get the current id of the visit, get the node id of the presented logic node. 
+    * Depth first visit. The consumer will be presented with the current logic node, and with graph visit data that
+    * provides information about the other nodes that have been encountered. To get the current id of the visit, get the
+    * node id of the presented logic node.
     *
     * @param consumer the consumer
     * @param logicNode the logic node
@@ -1112,9 +1130,9 @@ public class LogicalExpressionImpl
     * @param depth the depth
     */
    protected void depthFirstVisit(BiConsumer<LogicNode, TreeNodeVisitData> consumer,
-                                  LogicNode logicNode,
-                                  TreeNodeVisitData graphVisitData,
-                                  int depth) {
+           LogicNode logicNode,
+           TreeNodeVisitData graphVisitData,
+           int depth) {
       if (depth > 100) {
          // toString depends on this method, so we can't include this.toString() in the exception...
          throw new RuntimeException("Depth limit exceeded for logicNode: " + logicNode);  // + " in graph: " + this);
@@ -1127,10 +1145,10 @@ public class LogicalExpressionImpl
       logicNode.addConceptsReferencedByNode(conceptsAtNodeOrAbove);
       graphVisitData.getConceptsReferencedAtNodeOrAbove(logicNode.getNodeIndex());
       logicNode.addConceptsReferencedByNode(
-          ConceptSequenceSet.of(graphVisitData.getConceptsReferencedAtNodeOrAbove(logicNode.getNodeIndex())));
+              ConceptSequenceSet.of(graphVisitData.getConceptsReferencedAtNodeOrAbove(logicNode.getNodeIndex())));
       conceptsAtNodeOrAbove.addAll(
-          graphVisitData.getConceptsReferencedAtNodeOrAbove(
-              graphVisitData.getPredecessorSequence(logicNode.getNodeIndex())));
+              graphVisitData.getConceptsReferencedAtNodeOrAbove(
+                      graphVisitData.getPredecessorSequence(logicNode.getNodeIndex())));
       graphVisitData.setConceptsReferencedAtNodeOrAbove(logicNode.getNodeIndex(), conceptsAtNodeOrAbove);
 
       if (consumer != null) {
@@ -1143,20 +1161,20 @@ public class LogicalExpressionImpl
          int siblingGroupSequence;
 
          switch (logicNode.getNodeSemantic()) {
-         case AND:
-         case OR:
-         case SUFFICIENT_SET:
-         case NECESSARY_SET:
-         case DISJOINT_WITH:
-         case DEFINITION_ROOT:
-            siblingGroupSequence = logicNode.getNodeIndex();
-            break;
+            case AND:
+            case OR:
+            case SUFFICIENT_SET:
+            case NECESSARY_SET:
+            case DISJOINT_WITH:
+            case DEFINITION_ROOT:
+               siblingGroupSequence = logicNode.getNodeIndex();
+               break;
 
-         default:
-            siblingGroupSequence = graphVisitData.getSiblingGroupForSequence(logicNode.getNodeIndex());
+            default:
+               siblingGroupSequence = graphVisitData.getSiblingGroupForSequence(logicNode.getNodeIndex());
          }
 
-         for (final LogicNode child: logicNode.getChildren()) {
+         for (final LogicNode child : logicNode.getChildren()) {
             graphVisitData.setSiblingGroupForSequence(child.getNodeIndex(), siblingGroupSequence);
             graphVisitData.setPredecessorSequence(child.getNodeIndex(), logicNode.getNodeIndex());
             depthFirstVisit(consumer, child, graphVisitData, depth + 1);
@@ -1177,190 +1195,187 @@ public class LogicalExpressionImpl
     * Adds the nodes with map.
     *
     * @param another the logical expression to add nodes from.
-    * @param solution an array mapping from the nodeId in another to the nodeId
-    * in this expression. If the value of the solution element == -1, that node
-    * is not added to this logical expression, otherwise the value of the
-    * solution element is used for the nodeId in this logical expression.
+    * @param solution an array mapping from the nodeId in another to the nodeId in this expression. If the value of the
+    * solution element == -1, that node is not added to this logical expression, otherwise the value of the solution
+    * element is used for the nodeId in this logical expression.
     * @param anotherToThisNodeIdMap contains a mapping from nodeId in another to nodeId in this constructed expression.
-    * @param oldIds the list of nodeIds in the provided logical expression
-    * (another) to add to this logical expression on this invocation. Note that
-    * children of the nodes indicated by oldIds may be added by recursive calls
-    * to this method, if the oldId index in the solution array is >= 0.
-    * @return the LogicNode elements added as a result of this instance of the
-    * call, not including any children LogicNode elements added by recursive
-    * calls. Those children LogicNode elements can be retrieved by recursively
+    * @param oldIds the list of nodeIds in the provided logical expression (another) to add to this logical expression
+    * on this invocation. Note that children of the nodes indicated by oldIds may be added by recursive calls to this
+    * method, if the oldId index in the solution array is >= 0.
+    * @return the LogicNode elements added as a result of this instance of the call, not including any children
+    * LogicNode elements added by recursive calls. Those children LogicNode elements can be retrieved by recursively
     * traversing the children of these returned LogicNode elements.
     */
    private LogicNode[] addNodesWithMap(LogicalExpressionImpl another,
-         int[] solution,
-         int[] anotherToThisNodeIdMap,
-         int... oldIds) {
+           int[] solution,
+           int[] anotherToThisNodeIdMap,
+           int... oldIds) {
       final AbstractLogicNode[] results = new AbstractLogicNode[oldIds.length];
 
       for (int i = 0; i < oldIds.length; i++) {
          final LogicNode oldLogicNode = another.getNode(oldIds[i]);
 
          switch (oldLogicNode.getNodeSemantic()) {
-         case DEFINITION_ROOT:
-            results[i] = Root(Arrays.stream(addNodesWithMap(another,
-                  solution,
-                  anotherToThisNodeIdMap,
-                  oldLogicNode.getChildStream()
-                              .filter(  // the int[] of oldIds to add to the expression
-                                  (oldChildNode) -> solution[oldChildNode.getNodeIndex()] >=
-                                  0                                              // if the solution element == -1, filter out
-                              )
-                              .mapToInt(
-                                  (oldChildNode) -> oldChildNode.getNodeIndex()  // the nodeId in the original expression
-                              )
-                              .toArray()                                         // create the oldIds passed into the addNodes recursive call
-                              )                                                  // end of addNodes parameters; returns LogicNode[]
-                              )
-                                    .map((LogicNode t) -> (ConnectorNode) t)
-                                    .toArray(
-                                    ConnectorNode[]::new)                        // convert LogicNode[] to ConnectorNode[] to pass into the Root method call.
-                                    );
-            this.rootNodeIndex = results[i].getNodeIndex();
-            break;
+            case DEFINITION_ROOT:
+               results[i] = Root(Arrays.stream(addNodesWithMap(another,
+                       solution,
+                       anotherToThisNodeIdMap,
+                       oldLogicNode.getChildStream()
+                               .filter( // the int[] of oldIds to add to the expression
+                                       (oldChildNode) -> solution[oldChildNode.getNodeIndex()]
+                                       >= 0 // if the solution element == -1, filter out
+                               )
+                               .mapToInt(
+                                       (oldChildNode) -> oldChildNode.getNodeIndex() // the nodeId in the original expression
+                               )
+                               .toArray() // create the oldIds passed into the addNodes recursive call
+               ) // end of addNodes parameters; returns LogicNode[]
+               )
+                       .map((LogicNode t) -> (ConnectorNode) t)
+                       .toArray(
+                               ConnectorNode[]::new) // convert LogicNode[] to ConnectorNode[] to pass into the Root method call.
+               );
+               this.rootNodeIndex = results[i].getNodeIndex();
+               break;
 
-         case NECESSARY_SET:
-            results[i] = NecessarySet((AbstractLogicNode[]) addNodesWithMap(another,
-                  solution,
-                  anotherToThisNodeIdMap,
-                  oldLogicNode.getChildStream()
-                              .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
-                              .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
-                              .toArray()));
-            break;
+            case NECESSARY_SET:
+               results[i] = NecessarySet((AbstractLogicNode[]) addNodesWithMap(another,
+                       solution,
+                       anotherToThisNodeIdMap,
+                       oldLogicNode.getChildStream()
+                               .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
+                               .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
+                               .toArray()));
+               break;
 
-         case SUFFICIENT_SET:
-            results[i] = SufficientSet((AbstractLogicNode[]) addNodesWithMap(another,
-                  solution,
-                  anotherToThisNodeIdMap,
-                  oldLogicNode.getChildStream()
-                              .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
-                              .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
-                              .toArray()));
-            break;
+            case SUFFICIENT_SET:
+               results[i] = SufficientSet((AbstractLogicNode[]) addNodesWithMap(another,
+                       solution,
+                       anotherToThisNodeIdMap,
+                       oldLogicNode.getChildStream()
+                               .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
+                               .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
+                               .toArray()));
+               break;
 
-         case AND:
-            results[i] = And((AbstractLogicNode[]) addNodesWithMap(another,
-                  solution,
-                  anotherToThisNodeIdMap,
-                  oldLogicNode.getChildStream()
-                              .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
-                              .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
-                              .toArray()));
-            break;
+            case AND:
+               results[i] = And((AbstractLogicNode[]) addNodesWithMap(another,
+                       solution,
+                       anotherToThisNodeIdMap,
+                       oldLogicNode.getChildStream()
+                               .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
+                               .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
+                               .toArray()));
+               break;
 
-         case OR:
-            results[i] = Or((AbstractLogicNode[]) addNodesWithMap(another,
-                  solution,
-                  anotherToThisNodeIdMap,
-                  oldLogicNode.getChildStream()
-                              .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
-                              .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
-                              .toArray()));
-            break;
+            case OR:
+               results[i] = Or((AbstractLogicNode[]) addNodesWithMap(another,
+                       solution,
+                       anotherToThisNodeIdMap,
+                       oldLogicNode.getChildStream()
+                               .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
+                               .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
+                               .toArray()));
+               break;
 
-         case DISJOINT_WITH:
-            results[i] = DisjointWith((AbstractLogicNode[]) addNodesWithMap(another,
-                  solution,
-                  anotherToThisNodeIdMap,
-                  oldLogicNode.getChildStream()
-                              .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
-                              .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
-                              .toArray()));
-            break;
+            case DISJOINT_WITH:
+               results[i] = DisjointWith((AbstractLogicNode[]) addNodesWithMap(another,
+                       solution,
+                       anotherToThisNodeIdMap,
+                       oldLogicNode.getChildStream()
+                               .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
+                               .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
+                               .toArray()));
+               break;
 
-         case ROLE_ALL:
-            results[i] = AllRole(((TypedNodeWithSequences) oldLogicNode).getTypeConceptSequence(),
-                                 (AbstractLogicNode) addNodesWithMap(another,
-                                       solution,
-                                       anotherToThisNodeIdMap,
-                                       oldLogicNode.getChildStream()
-                                             .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
-                                             .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
-                                             .toArray())[0]);
-            break;
+            case ROLE_ALL:
+               results[i] = AllRole(((TypedNodeWithSequences) oldLogicNode).getTypeConceptSequence(),
+                       (AbstractLogicNode) addNodesWithMap(another,
+                               solution,
+                               anotherToThisNodeIdMap,
+                               oldLogicNode.getChildStream()
+                                       .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
+                                       .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
+                                       .toArray())[0]);
+               break;
 
-         case ROLE_SOME:
-            results[i] = SomeRole(((TypedNodeWithSequences) oldLogicNode).getTypeConceptSequence(),
-                                  (AbstractLogicNode) addNodesWithMap(another,
-                                        solution,
-                                        anotherToThisNodeIdMap,
-                                        oldLogicNode.getChildStream()
-                                              .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
-                                              .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
-                                              .toArray())[0]);
-            break;
+            case ROLE_SOME:
+               results[i] = SomeRole(((TypedNodeWithSequences) oldLogicNode).getTypeConceptSequence(),
+                       (AbstractLogicNode) addNodesWithMap(another,
+                               solution,
+                               anotherToThisNodeIdMap,
+                               oldLogicNode.getChildStream()
+                                       .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
+                                       .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
+                                       .toArray())[0]);
+               break;
 
-         case FEATURE:
-            results[i] = Feature(((TypedNodeWithSequences) oldLogicNode).getTypeConceptSequence(),
-                                 (AbstractLogicNode) addNodesWithMap(another,
-                                       solution,
-                                       anotherToThisNodeIdMap,
-                                       oldLogicNode.getChildStream()
-                                             .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
-                                             .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
-                                             .toArray())[0]);
-            break;
+            case FEATURE:
+               results[i] = Feature(((TypedNodeWithSequences) oldLogicNode).getTypeConceptSequence(),
+                       (AbstractLogicNode) addNodesWithMap(another,
+                               solution,
+                               anotherToThisNodeIdMap,
+                               oldLogicNode.getChildStream()
+                                       .filter((oldChildNode) -> solution[oldChildNode.getNodeIndex()] >= 0)
+                                       .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
+                                       .toArray())[0]);
+               break;
 
-         case LITERAL_BOOLEAN:
-            results[i] = BooleanLiteral(((LiteralNodeBoolean) oldLogicNode).getLiteralValue());
-            break;
+            case LITERAL_BOOLEAN:
+               results[i] = BooleanLiteral(((LiteralNodeBoolean) oldLogicNode).getLiteralValue());
+               break;
 
-         case LITERAL_FLOAT:
-            results[i] = FloatLiteral(((LiteralNodeFloat) oldLogicNode).getLiteralValue());
-            break;
+            case LITERAL_FLOAT:
+               results[i] = FloatLiteral(((LiteralNodeFloat) oldLogicNode).getLiteralValue());
+               break;
 
-         case LITERAL_INSTANT:
-            results[i] = InstantLiteral(((LiteralNodeInstant) oldLogicNode).getLiteralValue());
-            break;
+            case LITERAL_INSTANT:
+               results[i] = InstantLiteral(((LiteralNodeInstant) oldLogicNode).getLiteralValue());
+               break;
 
-         case LITERAL_INTEGER:
-            results[i] = IntegerLiteral(((LiteralNodeInteger) oldLogicNode).getLiteralValue());
-            break;
+            case LITERAL_INTEGER:
+               results[i] = IntegerLiteral(((LiteralNodeInteger) oldLogicNode).getLiteralValue());
+               break;
 
-         case LITERAL_STRING:
-            results[i] = StringLiteral(((LiteralNodeString) oldLogicNode).getLiteralValue());
-            break;
+            case LITERAL_STRING:
+               results[i] = StringLiteral(((LiteralNodeString) oldLogicNode).getLiteralValue());
+               break;
 
-         case CONCEPT:
-            results[i] = Concept(((ConceptNodeWithSequences) oldLogicNode).getConceptSequence());
-            break;
+            case CONCEPT:
+               results[i] = Concept(((ConceptNodeWithSequences) oldLogicNode).getConceptSequence());
+               break;
 
-         case TEMPLATE:
-            results[i] = Template(((TemplateNodeWithSequences) oldLogicNode).getTemplateConceptSequence(),
-                                  ((TemplateNodeWithSequences) oldLogicNode).getAssemblageConceptSequence());
-            break;
+            case TEMPLATE:
+               results[i] = Template(((TemplateNodeWithSequences) oldLogicNode).getTemplateConceptSequence(),
+                       ((TemplateNodeWithSequences) oldLogicNode).getAssemblageConceptSequence());
+               break;
 
-         case SUBSTITUTION_BOOLEAN:
-            results[i] = BooleanSubstitution(((SubstitutionNode) oldLogicNode).getSubstitutionFieldSpecification());
-            break;
+            case SUBSTITUTION_BOOLEAN:
+               results[i] = BooleanSubstitution(((SubstitutionNode) oldLogicNode).getSubstitutionFieldSpecification());
+               break;
 
-         case SUBSTITUTION_CONCEPT:
-            results[i] = ConceptSubstitution(((SubstitutionNode) oldLogicNode).getSubstitutionFieldSpecification());
-            break;
+            case SUBSTITUTION_CONCEPT:
+               results[i] = ConceptSubstitution(((SubstitutionNode) oldLogicNode).getSubstitutionFieldSpecification());
+               break;
 
-         case SUBSTITUTION_FLOAT:
-            results[i] = FloatSubstitution(((SubstitutionNode) oldLogicNode).getSubstitutionFieldSpecification());
-            break;
+            case SUBSTITUTION_FLOAT:
+               results[i] = FloatSubstitution(((SubstitutionNode) oldLogicNode).getSubstitutionFieldSpecification());
+               break;
 
-         case SUBSTITUTION_INSTANT:
-            results[i] = InstantSubstitution(((SubstitutionNode) oldLogicNode).getSubstitutionFieldSpecification());
-            break;
+            case SUBSTITUTION_INSTANT:
+               results[i] = InstantSubstitution(((SubstitutionNode) oldLogicNode).getSubstitutionFieldSpecification());
+               break;
 
-         case SUBSTITUTION_INTEGER:
-            results[i] = IntegerSubstitution(((SubstitutionNode) oldLogicNode).getSubstitutionFieldSpecification());
-            break;
+            case SUBSTITUTION_INTEGER:
+               results[i] = IntegerSubstitution(((SubstitutionNode) oldLogicNode).getSubstitutionFieldSpecification());
+               break;
 
-         case SUBSTITUTION_STRING:
-            results[i] = StringSubstitution(((SubstitutionNode) oldLogicNode).getSubstitutionFieldSpecification());
-            break;
+            case SUBSTITUTION_STRING:
+               results[i] = StringSubstitution(((SubstitutionNode) oldLogicNode).getSubstitutionFieldSpecification());
+               break;
 
-         default:
-            throw new UnsupportedOperationException("Can't handle: " + oldLogicNode.getNodeSemantic());
+            default:
+               throw new UnsupportedOperationException("Can't handle: " + oldLogicNode.getNodeSemantic());
          }
 
          if (anotherToThisNodeIdMap != null) {
@@ -1394,13 +1409,13 @@ public class LogicalExpressionImpl
          }
 
          final HashMap<Set<UUID>, IntArrayList> uuidSetNodeListMap = new HashMap<>();
-         int                                    depthToTest        = 0;
+         int depthToTest = 0;
 
          while ((uuidSetNodeListMap.size() < g1children.length) && (depthToTest < maxDepth - depth)) {
             depthToTest++;
             uuidSetNodeListMap.clear();
 
-            for (final AbstractLogicNode child: g1children) {
+            for (final AbstractLogicNode child : g1children) {
                final Set<UUID> nodeUuidSetForDepth = child.getNodeUuidSetForDepth(depthToTest);
 
                if (!uuidSetNodeListMap.containsKey(nodeUuidSetForDepth)) {
@@ -1410,15 +1425,15 @@ public class LogicalExpressionImpl
                   uuidSetNodeListMap.put(nodeUuidSetForDepth, nodeList);
                } else {
                   uuidSetNodeListMap.get(nodeUuidSetForDepth)
-                                    .add(child.getNodeIndex());
+                          .add(child.getNodeIndex());
                }
             }
          }
 
          // need to try all combinations
-         for (final AbstractLogicNode g2Child: g2children) {
-            final Set<UUID>    nodeUuidSetForDepth = g2Child.getNodeUuidSetForDepth(depthToTest);
-            final IntArrayList possibleMatches     = uuidSetNodeListMap.get(nodeUuidSetForDepth);
+         for (final AbstractLogicNode g2Child : g2children) {
+            final Set<UUID> nodeUuidSetForDepth = g2Child.getNodeUuidSetForDepth(depthToTest);
+            final IntArrayList possibleMatches = uuidSetNodeListMap.get(nodeUuidSetForDepth);
 
             if (possibleMatches == null) {
                return false;
@@ -1426,11 +1441,11 @@ public class LogicalExpressionImpl
 
             int match = -1;
 
-            for (final int possibleMatchIndex: possibleMatches.elements()) {
+            for (final int possibleMatchIndex : possibleMatches.elements()) {
                if (graphsEqual((AbstractLogicNode) this.logicNodes.get(possibleMatchIndex),
-                               g2Child,
-                               depth + 1,
-                               maxDepth)) {
+                       g2Child,
+                       depth + 1,
+                       maxDepth)) {
                   match = possibleMatchIndex;
                   break;
                }
@@ -1450,7 +1465,6 @@ public class LogicalExpressionImpl
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the concept sequence.
     *
@@ -1475,7 +1489,7 @@ public class LogicalExpressionImpl
 
       for (int index = 0; index < byteArrayArray.length; index++) {
          byteArrayArray[index] = this.logicNodes.get(index)
-               .getBytes(dataTarget);
+                 .getBytes(dataTarget);
       }
 
       return byteArrayArray;
@@ -1489,7 +1503,7 @@ public class LogicalExpressionImpl
    @Override
    public boolean isMeaningful() {
       return this.logicNodes.stream()
-                            .anyMatch((node) -> (MEANINGFUL_NODE_SEMANTICS.contains(node.getNodeSemantic())));
+              .anyMatch((node) -> (MEANINGFUL_NODE_SEMANTICS.contains(node.getNodeSemantic())));
    }
 
    /**
@@ -1522,7 +1536,7 @@ public class LogicalExpressionImpl
    @Override
    public Stream<LogicNode> getNodesOfType(NodeSemantic semantic) {
       return this.logicNodes.stream()
-                            .filter((node) -> (node.getNodeSemantic() == semantic));
+              .filter((node) -> (node.getNodeSemantic() == semantic));
    }
 
    /**
@@ -1539,4 +1553,3 @@ public class LogicalExpressionImpl
       return (RootNode) this.logicNodes.get(this.rootNodeIndex);
    }
 }
-

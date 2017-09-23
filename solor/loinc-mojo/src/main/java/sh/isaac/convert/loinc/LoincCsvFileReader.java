@@ -60,7 +60,7 @@ import org.apache.commons.io.input.BOMInputStream;
 
 import com.opencsv.CSVReader;
 
-import sh.isaac.api.util.AlphanumComparator;
+import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 
 //~--- classes ----------------------------------------------------------------
@@ -83,7 +83,7 @@ public class LoincCsvFileReader
    String release = null;
 
    /** The version time map. */
-   private final TreeMap<String, Long> versionTimeMap = new TreeMap<String, Long>(new AlphanumComparator(true));
+   private final TreeMap<String, Long> versionTimeMap = new TreeMap<>(new NaturalOrder());
 
    /** The header. */
    String[] header;

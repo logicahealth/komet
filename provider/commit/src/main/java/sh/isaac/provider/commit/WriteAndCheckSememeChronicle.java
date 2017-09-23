@@ -53,7 +53,6 @@ import javafx.concurrent.Task;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.commit.Alert;
 import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.CheckPhase;
@@ -61,6 +60,7 @@ import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.progress.ActiveTasks;
+import sh.isaac.api.chronicle.Chronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -72,7 +72,7 @@ import sh.isaac.api.progress.ActiveTasks;
 public class WriteAndCheckSememeChronicle
         extends Task<Void> {
    /** The sc. */
-   private final SememeChronology sc;
+   private SememeChronology sc;
 
    /** The checkers. */
    private final ConcurrentSkipListSet<ChangeChecker> checkers;
@@ -87,7 +87,7 @@ public class WriteAndCheckSememeChronicle
    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
 
    /** The uncommitted tracking. */
-   private final BiConsumer<ObjectChronology, Boolean> uncommittedTracking;
+   private final BiConsumer<Chronology, Boolean> uncommittedTracking;
 
    //~--- constructors --------------------------------------------------------
 
@@ -108,7 +108,7 @@ public class WriteAndCheckSememeChronicle
          ConcurrentSkipListSet<Alert> alertCollection,
          Semaphore writeSemaphore,
          ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners,
-         BiConsumer<ObjectChronology, Boolean> uncommittedTracking) {
+         BiConsumer<Chronology, Boolean> uncommittedTracking) {
       this.sc                  = sc;
       this.checkers            = checkers;
       this.alertCollection     = alertCollection;
@@ -135,8 +135,9 @@ public class WriteAndCheckSememeChronicle
    public Void call()
             throws Exception {
       try {
-         Get.sememeService()
+         Get.assemblageService()
             .writeSememe(this.sc);
+         this.sc = Get.assemblageService().getSememe(this.sc.getSememeSequence());
          this.uncommittedTracking.accept(this.sc, true);
          updateProgress(1, 3);
          updateMessage("checking: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
@@ -150,13 +151,17 @@ public class WriteAndCheckSememeChronicle
          updateProgress(2, 3);
          updateMessage("notifying: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
          this.changeListeners.forEach((listenerRef) -> {
-                                         final ChronologyChangeListener listener = listenerRef.get();
-
-                                         if (listener == null) {
-                                            this.changeListeners.remove(listenerRef);
-                                         } else {
-                                            listener.handleChange(this.sc);
-                                         }
+            try {
+               final ChronologyChangeListener listener = listenerRef.get();
+               
+               if (listener == null) {
+                  this.changeListeners.remove(listenerRef);
+               } else {
+                  listener.handleChange(this.sc);
+               }
+            } catch (Throwable e) {
+               e.printStackTrace();
+            }
                                       });
          updateProgress(3, 3);
          updateMessage("completed change: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());

@@ -56,7 +56,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeDouble;
@@ -97,7 +97,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * For {@link DynamicSememeValidatorType#COMPONENT_TYPE} the validator definition data should be a {@link DynamicSememeArray <DynamicSememeString>}
  * where position 0 is a string constant parseable by {@link ObjectChronologyType#parse(String)}.  Postion 1 is optional, and is only applicable when
- * position 0 is {@link ObjectChronologyType#SEMEME} - in which case - the value should be parsable by {@link SememeType#parse(String)}
+ * position 0 is {@link ObjectChronologyType#SEMEME} - in which case - the value should be parsable by {@link VersionType#parse(String)}
  *
  * For {@link DynamicSememeValidatorType#EXTERNAL} the validatorDefinitionData should be a {@link DynamicSememeArray <DynamicSememeString>}
  * which contains (in the first position of the array) the name of an HK2 named service which implements {@link DynamicSememeExternalValidator}
@@ -396,7 +396,7 @@ public enum DynamicSememeValidatorType {
                throw new RuntimeException("Userdata is invalid for a COMPONENT_TYPE comparison");
             }
 
-            // Position 0 tells us the ObjectChronologyType.  When the type is Sememe, position 2 tells us the (optional) SememeType of the assemblage restriction
+            // Position 0 tells us the ObjectChronologyType.  When the type is Sememe, position 2 tells us the (optional) VersionType of the assemblage restriction
             final DynamicSememeString[] valData =
                ((DynamicSememeArray<DynamicSememeString>) validatorDefinitionData).getDataArray();
             final ObjectChronologyType expectedCT = ObjectChronologyType.parse(valData[0].getDataString(), false);
@@ -414,8 +414,8 @@ public enum DynamicSememeValidatorType {
 
             if ((expectedCT == ObjectChronologyType.SEMEME) && (valData.length == 2)) {
                // they specified a specific sememe type.  Verify.
-               final SememeType st = SememeType.parse(valData[1].getDataString(), false);
-               final SememeChronology<? extends SememeVersion<?>> sememe = Get.sememeService()
+               final VersionType st = VersionType.parse(valData[1].getDataString(), false);
+               final SememeChronology sememe = Get.assemblageService()
                                                                               .getSememe(nid);
 
                if (sememe.getSememeType() != st) {

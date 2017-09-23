@@ -41,11 +41,12 @@ package sh.isaac.model.sememe.version;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.MutableSememeVersion;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.model.ObjectVersionImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -54,20 +55,38 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  * The Class SememeVersionImpl.
  *
  * @author kec
- * @param <V> the value type
  */
-public class SememeVersionImpl<V extends SememeVersionImpl<V>>
-        extends ObjectVersionImpl<SememeChronologyImpl<V>, V>
-         implements MutableSememeVersion<V> {
+public class SememeVersionImpl
+        extends AbstractSememeVersionImpl {
    /**
     * Instantiates a new sememe version impl.
     *
     * @param container the container
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     */
-   public SememeVersionImpl(SememeChronologyImpl<V> container, int stampSequence, short versionSequence) {
-      super(container, stampSequence, versionSequence);
+   public SememeVersionImpl(SememeChronology container, int stampSequence) {
+      super(container, stampSequence);
+   }
+   
+
+   private SememeVersionImpl(SememeVersionImpl other, int stampSequence) {
+      super(other.getChronology(), stampSequence);
+   }
+
+   @Override
+   public <V extends Version> V makeAnalog(EditCoordinate ec) {
+      final int stampSequence = Get.stampService()
+                                   .getStampSequence(
+                                       this.getState(),
+                                       Long.MAX_VALUE,
+                                       ec.getAuthorSequence(),
+                                       this.getModuleSequence(),
+                                       ec.getPathSequence());
+      SememeChronologyImpl chronologyImpl = (SememeChronologyImpl) this.chronicle;
+      final SememeVersionImpl newVersion = new SememeVersionImpl(this, stampSequence);
+
+      chronologyImpl.addVersion(newVersion);
+      return (V) newVersion;   
    }
 
    //~--- methods -------------------------------------------------------------
@@ -95,54 +114,26 @@ public class SememeVersionImpl<V extends SememeVersionImpl<V>>
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the assemblage sequence.
-    *
-    * @return the assemblage sequence
-    */
-   @Override
-   public int getAssemblageSequence() {
-      return this.chronicle.getAssemblageSequence();
-   }
-
-   /**
-    * Gets the chronology.
-    *
-    * @return the chronology
-    */
-   @Override
-   public SememeChronology<V> getChronology() {
-      return this.chronicle;
-   }
-
-   /**
-    * Gets the referenced component nid.
-    *
-    * @return the referenced component nid
-    */
-   @Override
-   public int getReferencedComponentNid() {
-      return this.chronicle.getReferencedComponentNid();
-   }
-
-   /**
-    * Gets the sememe sequence.
-    *
-    * @return the sememe sequence
-    */
-   @Override
-   public int getSememeSequence() {
-      return this.chronicle.getSememeSequence();
-   }
-
-   /**
     * Gets the sememe type.
     *
     * @return the sememe type
     */
-   public SememeType getSememeType() {
-      return SememeType.MEMBER;
+   @Override
+   public final VersionType getSememeType() {
+      return VersionType.MEMBER;
+   }
+   
+   @Override
+   protected final boolean deepEquals3(AbstractSememeVersionImpl other) {
+      // no new fields
+      return other instanceof SememeVersionImpl;
    }
 
-   ;
+   @Override
+   protected final int editDistance3(AbstractSememeVersionImpl other, int editDistance) {
+      // no new fields
+      return editDistance;
+   }
+   
 }
 

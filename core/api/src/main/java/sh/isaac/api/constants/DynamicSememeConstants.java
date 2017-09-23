@@ -70,7 +70,7 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.ObjectChronologyType;
-import sh.isaac.api.component.sememe.SememeType;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUtility;
@@ -385,14 +385,12 @@ public class DynamicSememeConstants
                                                        DynamicSememeValidatorType.REGEXP },
                                                     new DynamicSememeString[] {
                                                        LookupService.getService(
-                                                          DynamicSememeUtility.class).createDynamicStringData(
-                                                          SememeType.COMPONENT_NID.name() + "|" +
-                                                          SememeType.DESCRIPTION.name() + "|" +
-                                                          SememeType.DYNAMIC.name() + "|" +
-                                                          SememeType.LOGIC_GRAPH.name() + "|" +
-                                                          SememeType.LONG.name() + "|" + SememeType.MEMBER.name() +
-                                                          "|" + SememeType.RELATIONSHIP_ADAPTOR.name() + "|" +
-                                                          SememeType.STRING.name()) },
+                                                          DynamicSememeUtility.class).createDynamicStringData(VersionType.COMPONENT_NID.name() + "|" +
+                                                          VersionType.DESCRIPTION.name() + "|" +
+                                                          VersionType.DYNAMIC.name() + "|" +
+                                                          VersionType.LOGIC_GRAPH.name() + "|" +
+                                                          VersionType.LONG.name() + "|" + VersionType.MEMBER.name() 
+                                                          + "|" + VersionType.STRING.name()) },
                                                     false) }) {}
    ;
 
@@ -498,7 +496,7 @@ public class DynamicSememeConstants
                                         null,
                                         null,
                                         ObjectChronologyType.SEMEME,
-                                        SememeType.DESCRIPTION) {}
+                                        VersionType.DESCRIPTION) {}
    ;
 
    // This is the assemblage type that is used to record the current configuration of the Indexer for Dynamic Sememes..
@@ -559,7 +557,7 @@ public class DynamicSememeConstants
                                         new String[] {},
                                         new String[] {},
                                         ObjectChronologyType.SEMEME,
-                                        SememeType.DESCRIPTION) {}
+                                        VersionType.DESCRIPTION) {}
    ;
 
    /** The dynamic sememe extended description type. */

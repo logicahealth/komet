@@ -67,7 +67,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  *
  */
 public interface StampCoordinate
-        extends TimeBasedAnalogMaker<StampCoordinate>, StateBasedAnalogMaker<StampCoordinate> {
+        extends TimeBasedAnalogMaker<StampCoordinate>, StateBasedAnalogMaker<StampCoordinate>, Coordinate {
    /**
     * Determine what states should be included in results based on this
     * stamp coordinate. If current—but inactive—versions are desired,
@@ -110,5 +110,12 @@ public interface StampCoordinate
     * @return the stamp precedence.
     */
    StampPrecedence getStampPrecedence();
+   
+   
+   @Override
+   public StampCoordinate deepClone();
+   
+   
+
 }
 

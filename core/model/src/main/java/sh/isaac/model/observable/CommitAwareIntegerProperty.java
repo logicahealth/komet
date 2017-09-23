@@ -105,8 +105,10 @@ public class CommitAwareIntegerProperty
     */
    @Override
    public void setValue(Number v) {
-      checkChangesAllowed(getBean());
-      super.setValue(v);
+      if (v.intValue() != this.get()) {
+         checkChangesAllowed(getBean());
+         super.setValue(v);
+      }
    }
 }
 

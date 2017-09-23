@@ -298,7 +298,7 @@ public class MultipleDataWriterService
     * @see sh.isaac.api.externalizable.DataWriterService#put(sh.isaac.api.externalizable.OchreExternalizable)
     */
    @Override
-   public void put(OchreExternalizable ochreObject)
+   public void put(IsaacExternalizable ochreObject)
             throws RuntimeException {
       try {
          handleMulti((writer) -> {

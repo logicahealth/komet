@@ -55,7 +55,7 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
  * @author kec
  */
 public interface ConceptBuilder
-        extends IdentifiedComponentBuilder<ConceptChronology<?>>, ConceptSpecification {
+        extends IdentifiedComponentBuilder<ConceptChronology>, ConceptSpecification {
    /**
     * Used to add another arbitrary description type to the concept.
     *

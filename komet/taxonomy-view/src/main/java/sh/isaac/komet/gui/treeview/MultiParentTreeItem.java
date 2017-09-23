@@ -18,8 +18,6 @@
  */
 package sh.isaac.komet.gui.treeview;
 
-import sh.komet.gui.interfaces.MultiParentTreeItemDisplayPolicies;
-import sh.komet.gui.interfaces.MultiParentTreeItemI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,8 +33,8 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.util.AlphanumComparator;
+import sh.isaac.api.util.NaturalOrder;
+import sh.komet.gui.task.SequentialAggregateTaskWithIcon;
 
 /**
  * A {@link TreeItem} for modeling nodes in ISAAC taxonomies.
@@ -49,7 +47,7 @@ import sh.isaac.api.util.AlphanumComparator;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  * @see MultiParentTreeCell
  */
-public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends ConceptVersion<?>>> 
+public class MultiParentTreeItem extends TreeItem<ConceptChronology> 
         implements MultiParentTreeItemI, Comparable<MultiParentTreeItem> {
 
    /**
@@ -67,13 +65,15 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
    private int multiParentDepth = 0;
    private boolean secondaryParentOpened = false;
    private MultiParentTreeView treeView;
+   private String conceptDescriptionText; // Cached to speed up comparisons with toString method. 
+   private final int nid;
 
    public MultiParentTreeView getTreeView() {
       return treeView;
    }
 
-   private static TreeItem<ConceptChronology<? extends ConceptVersion<?>>> getTreeRoot(TreeItem<ConceptChronology<? extends ConceptVersion<?>>> item) {
-      TreeItem<ConceptChronology<? extends ConceptVersion<?>>> parent = item.getParent();
+   private static TreeItem<ConceptChronology> getTreeRoot(TreeItem<ConceptChronology> item) {
+      TreeItem<ConceptChronology> parent = item.getParent();
 
       if (parent == null) {
          return item;
@@ -89,9 +89,10 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
       this(Get.conceptService().getConcept(conceptSequence), treeView, graphic);
    }
 
-   MultiParentTreeItem(ConceptChronology<? extends ConceptVersion<?>> conceptChronology, MultiParentTreeView treeView, Node graphic) {
+   MultiParentTreeItem(ConceptChronology conceptChronology, MultiParentTreeView treeView, Node graphic) {
       super(conceptChronology, graphic);
       this.treeView = treeView;
+      this.nid = conceptChronology.getNid();
    }
 
    MultiParentTreeItemDisplayPolicies getDisplayPolicies() {
@@ -101,7 +102,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
    void addChildren() {
       childLoadStarts();
       try {
-         final ConceptChronology<? extends ConceptVersion<?>> conceptChronology = getValue();
+         final ConceptChronology conceptChronology = getValue();
          if (!shouldDisplay()) {
             // Don't add children to something that shouldn't be displayed
             LOG.debug("this.shouldDisplay() == false: not adding children to " + this.getConceptUuid());
@@ -132,10 +133,11 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
                getChildren().addAll(childrenToAdd);
             });
             //This loads the children of this child
-            childrenToProcess.forEach((child) -> {
-               Get.workExecutors().getPotentiallyBlockingExecutor().execute(child);
-            });
-
+            if (!childrenToProcess.isEmpty()) {
+               SequentialAggregateTaskWithIcon aggregateTask = new SequentialAggregateTaskWithIcon("Fetching children", childrenToProcess);
+               Get.activeTasks().add(aggregateTask);
+               Get.workExecutors().getPotentiallyBlockingExecutor().execute(aggregateTask);
+            }
          }
       } catch (Exception e) {
          LOG.error("Unexpected error computing children and/or grandchildren", e);
@@ -152,14 +154,14 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
             // Don't add children to something that shouldn't be displayed
             LOG.debug("this.shouldDisplay() == false: not adding children concepts and grandchildren items to " + this.getConceptUuid());
          } else {
-            for (TreeItem<ConceptChronology<? extends ConceptVersion<?>>> child : getChildren()) {
+            for (TreeItem<ConceptChronology> child : getChildren()) {
                if (cancelLookup) {
                   return;
                }
                if (((MultiParentTreeItem) child).shouldDisplay()) {
                   if (child.getChildren().isEmpty() && (child.getValue() != null)) {
                      if (treeView.getTaxonomyTree().getChildrenSequences(child.getValue().getConceptSequence()).length == 0) {
-                        ConceptChronology<? extends ConceptVersion<?>> value = child.getValue();
+                        ConceptChronology value = child.getValue();
                         child.setValue(null);
                         MultiParentTreeItem noChildItem = (MultiParentTreeItem) child;
                         noChildItem.computeGraphic();
@@ -209,9 +211,11 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
             }
 
             //This loads the childrens children
-            grandChildrenToProcess.forEach((childsChild) -> {
-               Get.workExecutors().getPotentiallyBlockingExecutor().execute(childsChild);
-            });
+            if (!grandChildrenToProcess.isEmpty()) {
+               SequentialAggregateTaskWithIcon aggregateTask = new SequentialAggregateTaskWithIcon("Fetching grandchildren", grandChildrenToProcess);
+               Get.activeTasks().add(aggregateTask);
+               Get.workExecutors().getPotentiallyBlockingExecutor().execute(aggregateTask);
+            }
          }
       } catch (InterruptedException e) {
          LOG.error("Unexpected error computing children and/or grandchildren", e);
@@ -222,7 +226,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
 
    @Override
    public int compareTo(MultiParentTreeItem o) {
-      return AlphanumComparator.compare(this.toString(), o.toString(), true);
+      return NaturalOrder.compareStrings(this.toString(), o.toString());
    }
 
    public UUID getConceptUuid() {
@@ -234,7 +238,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
       return getValue() != null ? getValue().getNid() : Integer.MIN_VALUE;
    }
 
-   private static int getConceptNid(TreeItem<ConceptChronology<? extends ConceptVersion<?>>> item) {
+   private static int getConceptNid(TreeItem<ConceptChronology> item) {
       return item != null && item.getValue() != null ? item.getValue().getNid() : null;
    }
 
@@ -245,7 +249,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
       } else if (this.getParent() == null) {
          return true;
       } else {
-         TreeItem<ConceptChronology<? extends ConceptVersion<?>>> root = getTreeRoot(this);
+         TreeItem<ConceptChronology> root = getTreeRoot(this);
 
          if (this == root) {
             return true;
@@ -270,7 +274,10 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
    public String toString() {
       try {
          if (this.getValue() != null) {
-            return treeView.manifoldProperty.get().getConceptSnapshotService().conceptDescriptionText(this.getValue().getNid());
+            if (conceptDescriptionText == null) {
+               this.conceptDescriptionText = treeView.getManifold().getConceptSnapshotService().conceptDescriptionText(nid);
+            }
+            return this.conceptDescriptionText;
          }
          return "root";
       } catch (RuntimeException | Error re) {
@@ -291,6 +298,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology<? extends Co
    /**
     * returns -2 when not yet started, -1 when started, but indeterminate otherwise, a value between 0 and 1 (1 when
     * complete)
+    * @return the percent load complete.
     */
    public DoubleProperty getChildLoadPercentComplete() {
       return childLoadPercentComplete;

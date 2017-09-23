@@ -16,7 +16,10 @@
  */
 package sh.komet.gui.contract;
 
-import javafx.scene.layout.BorderPane;
+import java.util.function.Consumer;
+import javafx.scene.Node;
+import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.interfaces.ExplorationNode;
 import org.jvnet.hk2.annotations.Contract;
 
 /**
@@ -24,6 +27,6 @@ import org.jvnet.hk2.annotations.Contract;
  * @author kec
  */
 @Contract
-public interface ExplorationNodeFactory {
-   ExplorationNode createExplorationNode(Manifold manifold, BorderPane parent);
+public interface ExplorationNodeFactory extends NodeFactory {
+   ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer);
 }

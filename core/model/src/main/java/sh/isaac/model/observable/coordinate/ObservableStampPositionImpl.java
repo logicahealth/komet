@@ -189,5 +189,12 @@ public class ObservableStampPositionImpl
 
       return this.stampPosition.getTimeAsInstant();
    }
+   
+   
+   @Override
+   public ObservableStampPositionImpl deepClone() {
+      return new ObservableStampPositionImpl(stampPosition.deepClone());
+   }
+   
 }
 

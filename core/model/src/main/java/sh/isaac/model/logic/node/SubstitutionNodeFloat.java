@@ -106,6 +106,10 @@ public class SubstitutionNodeFloat
    public String toString(String nodeIdSuffix) {
       return "Float substitution[" + getNodeIndex() + nodeIdSuffix + "]:" + super.toString(nodeIdSuffix);
    }
+  @Override
+   public String toSimpleString() {
+      return "Float substitution:" +  super.toSimpleString();
+   }
 
    /**
     * Inits the node uuid.

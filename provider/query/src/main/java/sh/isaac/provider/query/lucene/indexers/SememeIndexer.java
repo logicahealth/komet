@@ -66,7 +66,6 @@ import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.PointRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
@@ -75,15 +74,10 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeType;
-import sh.isaac.api.component.sememe.version.ComponentNidSememe;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
-import sh.isaac.api.component.sememe.version.LongSememe;
-import sh.isaac.api.component.sememe.version.StringSememe;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
 import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeBoolean;
@@ -105,6 +99,11 @@ import sh.isaac.model.sememe.dataTypes.DynamicSememeNidImpl;
 import sh.isaac.model.sememe.dataTypes.DynamicSememeStringImpl;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.sememe.version.ComponentNidVersion;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.sememe.version.LongVersion;
+import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -152,7 +151,7 @@ public class SememeIndexer
 
    /**
     * Search for matches to the specified nid. Note that in the current implementation, you will only find matches to sememes
-    * of type {@link SememeType#COMPONENT_NID} or {@link SememeType#LOGIC_GRAPH}.
+    * of type {@link VersionType#COMPONENT_NID} or {@link VersionType#LOGIC_GRAPH}.
     *
     * This only supports nids, not sequences.
     *
@@ -317,8 +316,8 @@ public class SememeIndexer
     * @param doc the doc
     */
    @Override
-   protected void addFields(ObjectChronology<?> chronicle, Document doc) {
-      final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
+   protected void addFields(Chronology chronicle, Document doc) {
+      final SememeChronology sememeChronology = (SememeChronology) chronicle;
 
       doc.add(new TextField(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE,
                             sememeChronology.getAssemblageSequence() + "",
@@ -326,7 +325,7 @@ public class SememeIndexer
 
       for (final Object sv: sememeChronology.getVersionList()) {
          if (sv instanceof DynamicSememe) {
-            final DynamicSememe<?> dsv     = (DynamicSememe<?>) sv;
+            final DynamicSememe dsv     = (DynamicSememe) sv;
             final Integer[]        columns = this.lric.whatColumnsToIndex(dsv.getAssemblageSequence());
 
             if (columns != null) {
@@ -345,23 +344,23 @@ public class SememeIndexer
 
          // TODO enhance the index configuration to allow us to configure Static sememes as indexed, or not indexed
          // static sememe types are never more than 1 column, always pass -1
-         else if (sv instanceof StringSememe) {
-            final StringSememe<?> ssv = (StringSememe<?>) sv;
+         else if (sv instanceof StringVersion) {
+            final StringVersion ssv = (StringVersion) sv;
 
             handleType(doc, new DynamicSememeStringImpl(ssv.getString()), -1);
             incrementIndexedItemCount("Sememe String");
-         } else if (sv instanceof LongSememe) {
-            final LongSememe<?> lsv = (LongSememe<?>) sv;
+         } else if (sv instanceof LongVersion) {
+            final LongVersion lsv = (LongVersion) sv;
 
             handleType(doc, new DynamicSememeLongImpl(lsv.getLongValue()), -1);
             incrementIndexedItemCount("Sememe Long");
-         } else if (sv instanceof ComponentNidSememe) {
-            final ComponentNidSememe<?> csv = (ComponentNidSememe<?>) sv;
+         } else if (sv instanceof ComponentNidVersion) {
+            final ComponentNidVersion csv = (ComponentNidVersion) sv;
 
             handleType(doc, new DynamicSememeNidImpl(csv.getComponentNid()), -1);
             incrementIndexedItemCount("Sememe Component Nid");
-         } else if (sv instanceof LogicGraphSememe) {
-            final LogicGraphSememe<?> lgsv = (LogicGraphSememe<?>) sv;
+         } else if (sv instanceof LogicGraphVersion) {
+            final LogicGraphVersion lgsv = (LogicGraphVersion) sv;
             final ConceptSequenceSet  css  = new ConceptSequenceSet();
 
             lgsv.getLogicalExpression().processDepthFirst((LogicNode logicNode,TreeNodeVisitData data) -> {
@@ -400,15 +399,15 @@ public class SememeIndexer
     * @return true, if successful
     */
    @Override
-   protected boolean indexChronicle(ObjectChronology<?> chronicle) {
-      if (chronicle instanceof SememeChronology<?>) {
-         final SememeChronology<?> sememeChronology = (SememeChronology<?>) chronicle;
+   protected boolean indexChronicle(Chronology chronicle) {
+      if (chronicle instanceof SememeChronology) {
+         final SememeChronology sememeChronology = (SememeChronology) chronicle;
 
-         if ((sememeChronology.getSememeType() == SememeType.DYNAMIC) ||
-               (sememeChronology.getSememeType() == SememeType.STRING) ||
-               (sememeChronology.getSememeType() == SememeType.LONG) ||
-               (sememeChronology.getSememeType() == SememeType.COMPONENT_NID) ||
-               (sememeChronology.getSememeType() == SememeType.LOGIC_GRAPH)) {
+         if ((sememeChronology.getSememeType() == VersionType.DYNAMIC) ||
+               (sememeChronology.getSememeType() == VersionType.STRING) ||
+               (sememeChronology.getSememeType() == VersionType.LONG) ||
+               (sememeChronology.getSememeType() == VersionType.COMPONENT_NID) ||
+               (sememeChronology.getSememeType() == VersionType.LOGIC_GRAPH)) {
             return true;
          }
       }
@@ -664,8 +663,8 @@ public class SememeIndexer
          }
 
          incrementIndexedItemCount("Dynamic Sememe UUID");
-      } else if (dataCol instanceof DynamicSememeArray<?>) {
-         for (final DynamicSememeData nestedData: ((DynamicSememeArray<?>) dataCol).getDataArray()) {
+      } else if (dataCol instanceof DynamicSememeArray) {
+         for (final DynamicSememeData nestedData: ((DynamicSememeArray) dataCol).getDataArray()) {
             handleType(doc, nestedData, colNumber);
          }
       } else {

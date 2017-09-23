@@ -64,14 +64,11 @@ import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.memory.HeapUseTicker;
 import sh.isaac.api.progress.ActiveTasksTicker;
 import sh.isaac.model.builder.ConceptBuilderImpl;
@@ -79,6 +76,8 @@ import sh.isaac.model.coordinate.LogicCoordinateImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 
 import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
+import sh.isaac.api.chronicle.Chronology;
+import static sh.isaac.model.ChronologyImpl.DATA_FORMAT_VERSION;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -115,7 +114,7 @@ public class ConceptSuite {
       final String                uuidString   = "bd4d197d-0d88-4543-83dc-09deb2321ee7";
       final long                  time         = System.currentTimeMillis();
       final ConceptChronologyImpl testConcept  = (ConceptChronologyImpl) createConcept(conceptName, uuidString, time);
-      final byte[]                data         = testConcept.getDataToWrite();
+      final byte[]                data         = testConcept.getDataToWrite(DATA_FORMAT_VERSION);
       final ByteArrayDataBuffer   buffer       = new ByteArrayDataBuffer(data);
       final ConceptChronologyImpl testConcept2 = ConceptChronologyImpl.make(buffer);
 
@@ -162,7 +161,7 @@ public class ConceptSuite {
 
       conceptChronology.createMutableVersion(stampSequence);
 
-      final byte[]                data               = conceptChronology.getDataToWrite();
+      final byte[]                data               = conceptChronology.getDataToWrite(DATA_FORMAT_VERSION);
       final ByteArrayDataBuffer   buffer             = new ByteArrayDataBuffer(data);
       final ConceptChronologyImpl conceptChronology2 = ConceptChronologyImpl.make(buffer);
 
@@ -225,16 +224,16 @@ public class ConceptSuite {
       final int pathSequence   = TermAux.DEVELOPMENT_PATH.getConceptSequence();
       final int stampSequence = Get.stampService()
                                    .getStampSequence(State.ACTIVE, time, authorSequence, moduleSequence, pathSequence);
-      final List<ObjectChronology<? extends StampedVersion>> builtObjects = new ArrayList<>();
+      final List<Chronology> builtObjects = new ArrayList<>();
       final ConceptChronology concept = testConceptBuilder.build(stampSequence, builtObjects);
 
       for (final Object obj: builtObjects) {
          if (obj instanceof ConceptChronologyImpl) {
             Get.conceptService()
-               .writeConcept((ConceptChronology<? extends ConceptVersion<?>>) obj);
+               .writeConcept((ConceptChronology) obj);
          } else if (obj instanceof SememeChronologyImpl) {
-            Get.sememeService()
-               .writeSememe((SememeChronology<?>) obj);
+            Get.assemblageService()
+               .writeSememe((SememeChronology) obj);
          } else {
             throw new UnsupportedOperationException("Can't handle: " + obj);
          }

@@ -49,6 +49,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Stream;
@@ -76,21 +77,19 @@ import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.PostCommitService;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptBuilderService;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionSememe;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.CoordinateFactory;
 import sh.isaac.api.externalizable.BinaryDataDifferService;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.BinaryDataServiceFactory;
 import sh.isaac.api.externalizable.DataWriterService;
-import sh.isaac.api.externalizable.OchreExternalizable;
-import sh.isaac.api.externalizable.OchreExternalizableSpliterator;
+import sh.isaac.api.externalizable.IsaacExternalizableSpliterator;
 import sh.isaac.api.index.GenerateIndexes;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
@@ -99,6 +98,10 @@ import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.observable.ObservableChronologyService;
+import sh.isaac.api.observable.ObservableSnapshotService;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -187,6 +190,10 @@ public class Get
 
    /** The change set writer service. */
    private static ChangeSetWriterService changeSetWriterService;
+   
+   private static ObservableChronologyService observableChronologyService;
+   
+   private static SerializationService serializationService;
 
    //~--- constructors --------------------------------------------------------
 
@@ -321,15 +328,17 @@ public class Get
     * for
     * @return a description for this concept. If no description can be found,
     * {@code "No desc for: " + conceptId;} will be returned.
+    *  TODO: make getDescriptionOptional return a LatestVersion, which has optional value, rather than returning an 
+    *  Optional&gt;LatestVersion>&lt;
     */
    public static String conceptDescriptionText(int conceptId) {
-      final Optional<LatestVersion<DescriptionSememe<?>>> descriptionOptional =
+      final LatestVersion<DescriptionVersion> descriptionOptional =
          defaultConceptSnapshotService().getDescriptionOptional(conceptId);
 
       if (descriptionOptional.isPresent()) {
-         return descriptionOptional.get()
-                                   .value()
-                                   .getText();
+            return descriptionOptional
+                    .get()
+                    .getText();
       }
 
       return "No desc for: " + conceptId;
@@ -391,6 +400,18 @@ public class Get
       }
 
       return conceptService;
+   }
+   
+   public static ConceptChronology concept(int id) {
+      return conceptService().getConcept(id);
+   }
+
+   public static ConceptChronology concept(UUID uuid) {
+      return conceptService().getConcept(uuid);
+   }
+
+   public static ConceptChronology concept(ConceptSpecification spec) {
+      return conceptService().getConcept(spec);
    }
 
    /**
@@ -487,9 +508,9 @@ public class Get
     * @return the inferred definition chronology for the specified concept
     * according to the default logic coordinate.
     */
-   public static Optional<SememeChronology<? extends SememeVersion<?>>> inferredDefinitionChronology(int conceptId) {
+   public static Optional<SememeChronology> inferredDefinitionChronology(int conceptId) {
       conceptId = identifierService().getConceptNid(conceptId);
-      return sememeService().getSememesForComponentFromAssemblage(conceptId,
+      return assemblageService().getSememesForComponentFromAssemblage(conceptId,
             configurationService().getDefaultLogicCoordinate()
                                   .getInferredAssemblageSequence())
                             .findAny();
@@ -552,8 +573,8 @@ public class Get
     *
     * @return the stream
     */
-   public static Stream<OchreExternalizable> ochreExternalizableStream() {
-      return StreamSupport.stream(new OchreExternalizableSpliterator(), false);
+   public static Stream<IsaacExternalizable> ochreExternalizableStream() {
+      return StreamSupport.stream(new IsaacExternalizableSpliterator(), false);
    }
 
    /**
@@ -611,14 +632,16 @@ public class Get
       binaryDataDifferService         = null;
       postCommitService               = null;
       changeSetWriterService          = null;
+      observableChronologyService     = null;
+      serializationService = null;
    }
 
    /**
-    * Sememe builder service.
+    * Sememe builder service. 
     *
     * @return the sememe builder service<? extends sememe chronology<? extends sememe version<?>>>
     */
-   public static SememeBuilderService<? extends SememeChronology<? extends SememeVersion<?>>> sememeBuilderService() {
+   public static SememeBuilderService<? extends SememeChronology> sememeBuilderService() {
       if (sememeBuilderService == null) {
          sememeBuilderService = getService(SememeBuilderService.class);
       }
@@ -631,7 +654,7 @@ public class Get
     *
     * @return the sememe service
     */
-   public static AssemblageService sememeService() {
+   public static AssemblageService assemblageService() {
       if (sememeService == null) {
          sememeService = getService(AssemblageService.class);
       }
@@ -639,6 +662,15 @@ public class Get
       return sememeService;
    }
 
+   public static SerializationService serializer() {
+      if (serializationService == null) {
+         serializationService = getService(SerializationService.class);
+      }
+      return serializationService;
+   }
+
+   
+   
    /**
     * Sememe service available.
     *
@@ -696,9 +728,9 @@ public class Get
     * @return the stated definition chronology for the specified concept
     * according to the default logic coordinate.
     */
-   public static Optional<SememeChronology<? extends SememeVersion<?>>> statedDefinitionChronology(int conceptId) {
+   public static Optional<SememeChronology> statedDefinitionChronology(int conceptId) {
       conceptId = identifierService().getConceptNid(conceptId);
-      return sememeService().getSememesForComponentFromAssemblage(conceptId,
+      return assemblageService().getSememesForComponentFromAssemblage(conceptId,
             configurationService().getDefaultLogicCoordinate()
                                   .getStatedAssemblageSequence())
                             .findAny();
@@ -715,6 +747,17 @@ public class Get
       }
 
       return taxonomyService;
+   }
+   
+   public static ObservableChronologyService observableChronologyService() {
+      if (observableChronologyService == null) {
+         observableChronologyService = getService(ObservableChronologyService.class);
+      }
+      return observableChronologyService;
+   }
+   
+   public static ObservableSnapshotService observableSnapshotService(ManifoldCoordinate manifoldCoordinate) {
+      return observableChronologyService().getObservableSnapshotService(manifoldCoordinate);
    }
 
    /**

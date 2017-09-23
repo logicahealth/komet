@@ -17,34 +17,47 @@
 package sh.komet.gui.search;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.Node;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import sh.komet.gui.contract.ExplorationNode;
+import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.contract.ExplorationNodeFactory;
-import sh.komet.gui.contract.Manifold;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  *
  * @author kec
  */
-@Service(name = "Exploratory Search Provider")
+@Service(name = "FLOWR Search Provider")
 @RunLevel(value = 1)
 public class QueryViewFactory implements ExplorationNodeFactory {
 
+   public static final String MENU_TEXT  = "FLOWR Query";
    @Override
-   public ExplorationNode createExplorationNode(Manifold manifold, BorderPane parent) {
+   public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
       try {
          FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/Query.fxml"));
          loader.load();
          QueryController queryController = loader.getController();
          queryController.setManifold(manifold);
-         queryController.setParent(parent);
+         nodeConsumer.accept(queryController.getNode());
          return queryController;
       } catch (IOException ex) {
          throw new RuntimeException(ex);
       }
+   }
+
+   @Override
+   public String getMenuText() {
+      return MENU_TEXT;
+   }
+
+   @Override
+   public Node getMenuIcon() {
+      return Iconography.FLOWR_SEARCH.getIconographic();
    }
    
 }

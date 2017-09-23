@@ -106,6 +106,11 @@ public class DisjointWithNode
    public String toString(String nodeIdSuffix) {
       return "Disjoint with[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return "Disjoint with " + super.toSimpleString();
+   }
+
 
    /**
     * Compare node fields.

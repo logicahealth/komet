@@ -81,5 +81,11 @@ public interface ObservableLogicCoordinate
     * @return the integer property
     */
    IntegerProperty statedAssemblageSequenceProperty();
+   
+   @Override
+   public ObservableLogicCoordinate deepClone();
+   
+
+
 }
 

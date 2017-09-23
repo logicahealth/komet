@@ -112,7 +112,7 @@ public class ISAACVisitor
     * @param defBuilder the def builder
     * @param c the c
     */
-   public ISAACVisitor(LogicalExpressionBuilder defBuilder, ConceptChronology<?> c) {
+   public ISAACVisitor(LogicalExpressionBuilder defBuilder, ConceptChronology c) {
       this(defBuilder, c, false);
    }
 
@@ -123,7 +123,7 @@ public class ISAACVisitor
     * @param c the c
     * @param defaultToPrimitive the default to primitive
     */
-   public ISAACVisitor(LogicalExpressionBuilder defBuilder, ConceptChronology<?> c, boolean defaultToPrimitive) {
+   public ISAACVisitor(LogicalExpressionBuilder defBuilder, ConceptChronology c, boolean defaultToPrimitive) {
       super();
       this.defaultToPrimitive = defaultToPrimitive;
       this.defBuilder         = defBuilder;
@@ -146,15 +146,15 @@ public class ISAACVisitor
       if (ctx.attributeValue()
              .getChild(0)
              .getClass() == SNOMEDCTExpressionParser.ConceptReferenceContext.class) {
-         final ConceptChronology<?> property = (ConceptChronology<?>) visitConceptReference(ctx.conceptReference());
-         final ConceptChronology<?> value = (ConceptChronology<?>) visitConceptReference(ctx.attributeValue()
+         final ConceptChronology property = (ConceptChronology) visitConceptReference(ctx.conceptReference());
+         final ConceptChronology value = (ConceptChronology) visitConceptReference(ctx.attributeValue()
                                                                                             .conceptReference());
 
          role = SomeRole(property, ConceptAssertion(value, this.defBuilder));
       } else if (ctx.attributeValue()
                     .getChild(0)
                     .getClass() == SNOMEDCTExpressionParser.NestedExpressionContext.class) {
-         final ConceptChronology<?> property = (ConceptChronology<?>) visitConceptReference(ctx.conceptReference());
+         final ConceptChronology property = (ConceptChronology) visitConceptReference(ctx.conceptReference());
          final Assertion            result = (Assertion) visit(ctx.attributeValue()
                                                                   .nestedExpression()
                                                                   .subExpression());
@@ -299,11 +299,11 @@ public class ISAACVisitor
          final Assertion[] refinementAssertions = (Assertion[]) visit(ctx.refinement());
          final Assertion[] assertions           = new Assertion[refinementAssertions.length + 1];
 
-         assertions[0] = ConceptAssertion((ConceptChronology<?>) visit(ctx.focusConcept()), this.defBuilder);
+         assertions[0] = ConceptAssertion((ConceptChronology) visit(ctx.focusConcept()), this.defBuilder);
          System.arraycopy(refinementAssertions, 0, assertions, 1, refinementAssertions.length);
          result = And(assertions);
       } else {
-         result = ConceptAssertion((ConceptChronology<?>) visit(ctx.focusConcept()), this.defBuilder);
+         result = ConceptAssertion((ConceptChronology) visit(ctx.focusConcept()), this.defBuilder);
       }
 
       return result;

@@ -1,0 +1,145 @@
+/*
+ * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
+         US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package sh.isaac.provider.drools;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import javafx.scene.control.MenuItem;
+import org.controlsfx.control.PropertySheet;
+import org.controlsfx.control.PropertySheet.Item;
+import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.provider.drools.AddEditVersionMenuItems;
+import sh.komet.gui.control.PropertySheetMenuItem;
+import sh.komet.gui.manifold.Manifold;
+import javafx.beans.property.Property;
+import sh.isaac.MetaData;
+import sh.isaac.api.chronicle.VersionCategory;
+import sh.isaac.api.chronicle.VersionType;
+import sh.komet.gui.control.PropertySheetItemConceptWrapper;
+import sh.komet.gui.control.PropertyEditorType;
+/**
+ *
+ * @author kec
+ */
+rule "Given a AddEditVersionMenuItems, with VersionType.CONCEPT, add editing options"
+   lock-on-active true
+when
+   $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.CONCEPT);
+then
+   PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit concept");
+   propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____ISAAC, PropertyEditorType.STATUS);
+   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_SEQUENCE_FOR_VERSION____ISAAC, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_SEQUENCE_FOR_VERSION____ISAAC, PropertyEditorType.CONCEPT);
+end
+
+rule "Given a AddEditVersionMenuItems, with VersionType.DESCRIPTION, add editing options"
+   lock-on-active true
+when
+   $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.DESCRIPTION);
+then
+   PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit description");
+   propertySheetMenuItem.addPropertyToEdit("text", MetaData.TEXT_FOR_DESCRIPTION____ISAAC, PropertyEditorType.TEXT);
+   propertySheetMenuItem.addPropertyToEdit("type", MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____ISAAC, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("case significance", MetaData.CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____ISAAC, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("language", MetaData.LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____ISAAC, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____ISAAC, PropertyEditorType.STATUS);
+   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_SEQUENCE_FOR_VERSION____ISAAC, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_SEQUENCE_FOR_VERSION____ISAAC, PropertyEditorType.CONCEPT);
+end
+
+rule "Given a property set, populate the choice items"
+   lock-on-active true
+when
+   $propertySheetMenuItem: PropertySheetMenuItem()
+then
+   for (Item item: $propertySheetMenuItem.getPropertySheetItems()) {
+      insert(item);
+   }
+end
+
+rule "if property specification is PATH_SEQUENCE_FOR_VERSION____ISAAC then"
+
+when
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.PATH_SEQUENCE_FOR_VERSION____ISAAC)
+then
+   $property.getAllowedValues().addAll(
+      Get.assemblageService().getReferencedComponentNidStreamFromAssemblage(MetaData.PATHS_ASSEMBLAGE____ISAAC)
+   );
+end
+
+
+rule "if property specification is STATUS_FOR_VERSION____ISAAC then"
+
+when
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.STATUS_FOR_VERSION____ISAAC)
+then
+   System.out.println("Add status capability");
+end
+
+rule "if property specification is MODULE_SEQUENCE_FOR_VERSION____ISAAC then "
+
+when
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.MODULE_SEQUENCE_FOR_VERSION____ISAAC)
+then
+   $property.getAllowedValues().add(MetaData.ISAAC_MODULE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.SOLOR_OVERLAY_MODULE____ISAAC.getConceptSequence());
+   
+end
+
+
+rule "if property specification is DESCRIPTION_TYPE____ISAAC then "
+
+when
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____ISAAC)
+then
+   $property.getAllowedValues().add(MetaData.FULLY_SPECIFIED_NAME____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.SYNONYM____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC.getConceptSequence());
+   
+end
+rule "if property specification is CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____ISAAC then "
+
+when
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____ISAAC)
+then
+   $property.getAllowedValues().add(MetaData.DESCRIPTION_CASE_SENSITIVE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE____ISAAC.getConceptSequence());
+   
+end
+rule "if property specification is LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____ISAAC then "
+
+when
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____ISAAC)
+then
+   $property.getAllowedValues().add(MetaData.ENGLISH_LANGUAGE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.SPANISH_LANGUAGE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.FRENCH_LANGUAGE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.DANISH_LANGUAGE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.POLISH_LANGUAGE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.DUTCH_LANGUAGE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.LITHUANIAN_LANGUAGE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.CHINESE_LANGUAGE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.JAPANESE_LANGUAGE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.SWEDISH_LANGUAGE____ISAAC.getConceptSequence());
+   
+end

@@ -42,6 +42,7 @@ package sh.isaac.provider.progress;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.concurrent.ConcurrentHashMap;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 
@@ -80,7 +81,12 @@ public class ActiveTasksProvider
     */
    @Override
    public void add(Task<?> task) {
-      this.taskSet.add(task);
+      if (Platform.isFxApplicationThread()) {
+         this.taskSet.add(task);
+      } else {
+         Platform.runLater(() -> this.taskSet.add(task));
+      }
+      
    }
 
    /**

@@ -70,13 +70,13 @@ import sh.isaac.api.Get;
 import sh.isaac.api.OchreCache;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.ObjectChronology;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableChronology;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.observable.ObservableVersion;
 
 //~--- classes ----------------------------------------------------------------
@@ -322,14 +322,15 @@ public class RelativePositionCalculator
    /**
     * On route.
     *
-    * @param v the v
+    * @param <V>
+    * @param version the version
     * @return true, if successful
     */
-   public boolean onRoute(StampedVersion v) {
-      final Segment seg = this.pathSequenceSegmentMap.get(v.getPathSequence());
+   public <V extends StampedVersion> boolean onRoute(V version) {
+      final Segment seg = this.pathSequenceSegmentMap.get(version.getPathSequence());
 
       if (seg != null) {
-         return seg.containsPosition(v.getPathSequence(), v.getModuleSequence(), v.getTime());
+         return seg.containsPosition(version.getPathSequence(), version.getModuleSequence(), version.getTime());
       }
 
       return false;
@@ -420,24 +421,24 @@ public class RelativePositionCalculator
     * @param partsForPosition the parts for position
     * @param part the part
     */
-   private <V extends StampedVersion> void handlePart(HashSet<V> partsForPosition, V part) {
+   private <V extends StampedVersion> void handlePart(HashSet<V> partsForPosition, StampedVersion part) {
       // create a list of values so we don't have any
       // concurrent modification issues with removing/adding
       // items to the partsForPosition.
-      final List<V> partsToCompare = new ArrayList<>(partsForPosition);
+      final List<StampedVersion> partsToCompare = new ArrayList<>(partsForPosition);
 
-      for (final V prevPartToTest: partsToCompare) {
+      for (final StampedVersion prevPartToTest: partsToCompare) {
          switch (fastRelativePosition(part, prevPartToTest, this.coordinate.getStampPrecedence())) {
          case AFTER:
-            partsForPosition.remove(prevPartToTest);
-            partsForPosition.add(part);
+            partsForPosition.remove((V) prevPartToTest);
+            partsForPosition.add((V) part);
             break;
 
          case BEFORE:
             break;
 
          case CONTRADICTION:
-            partsForPosition.add(part);
+            partsForPosition.add((V) part);
             break;
 
          case EQUAL:
@@ -476,7 +477,13 @@ public class RelativePositionCalculator
     * @param stampsForPosition the stamps for position
     * @param stampSequence the stamp sequence
     */
-   private void handleStamp(StampSequenceSet stampsForPosition, int stampSequence) {
+   private void handleStamp(StampSequenceSet stampsForPosition, int stampSequence, boolean allowUncommitted) {
+      if (!allowUncommitted) {
+         if (Get.stampService().isUncommitted(stampSequence)) {
+            return;
+         }
+      }
+      
       if (!onRoute(stampSequence)) {
          return;
       }
@@ -638,8 +645,19 @@ public class RelativePositionCalculator
     */
    public StampSequenceSet getLatestStampSequencesAsSet(IntStream stampSequenceStream) {
       final StampSequenceSet result = stampSequenceStream.collect(StampSequenceSet::new,
-                                                                  new LatestStampAccumulator(),
-                                                                  new LatestStampCombiner());
+                                                                  new LatestStampAccumulator(true),
+                                                                  new LatestStampCombiner(true));
+
+      return StampSequenceSet.of(result.stream().filter((stampSequence) -> {
+               return this.coordinate.getAllowedStates()
+                                     .contains(Get.stampService()
+                                           .getStatusForStamp(stampSequence));
+            }));
+   }
+   public StampSequenceSet getLatestCommittedStampSequencesAsSet(IntStream stampSequenceStream) {
+      final StampSequenceSet result = stampSequenceStream.collect(StampSequenceSet::new,
+                                                                  new LatestStampAccumulator(false),
+                                                                  new LatestStampCombiner(false));
 
       return StampSequenceSet.of(result.stream().filter((stampSequence) -> {
                return this.coordinate.getAllowedStates()
@@ -651,13 +669,11 @@ public class RelativePositionCalculator
    /**
     * Gets the latest version.
     *
-    * @param <C> the generic type
     * @param <V> the value type
     * @param chronicle the chronicle
     * @return the latest version
     */
-   public <C extends ObservableChronology<V>,
-           V extends ObservableVersion> Optional<LatestVersion<V>> getLatestVersion(C chronicle) {
+   public <V extends ObservableVersion> LatestVersion<V> getLatestVersion(ObservableChronology chronicle) {
       final HashSet<V> latestVersionSet = new HashSet<>();
 
       chronicle.getVersionList()
@@ -666,7 +682,7 @@ public class RelativePositionCalculator
                .filter((newVersionToTest) -> (onRoute(newVersionToTest)))
                .forEach((newVersionToTest) -> {
                            if (latestVersionSet.isEmpty()) {
-                              latestVersionSet.add(newVersionToTest);
+                              latestVersionSet.add((V) newVersionToTest);
                            } else {
                               handlePart(latestVersionSet, newVersionToTest);
                            }
@@ -675,15 +691,44 @@ public class RelativePositionCalculator
       final List<V> latestVersionList = new ArrayList<>(latestVersionSet);
 
       if (latestVersionList.isEmpty()) {
-         return Optional.empty();
+         return new LatestVersion();
       }
 
       if (latestVersionList.size() == 1) {
-         return Optional.of(new LatestVersion<>(latestVersionList.get(0)));
+         return new LatestVersion<>(latestVersionList.get(0));
       }
 
-      return Optional.of(new LatestVersion<>(latestVersionList.get(0),
-            latestVersionList.subList(1, latestVersionList.size())));
+      return new LatestVersion<>(latestVersionList.get(0),
+            latestVersionList.subList(1, latestVersionList.size()));
+   }
+   
+   public <V extends ObservableVersion> LatestVersion<V> getLatestCommittedVersion(ObservableChronology chronicle) {
+      final HashSet<V> latestVersionSet = new HashSet<>();
+
+      chronicle.getVersionList()
+               .stream()
+               .filter((newVersionToTest) -> (newVersionToTest.getTime() != Long.MIN_VALUE && newVersionToTest.getTime() != Long.MAX_VALUE))
+               .filter((newVersionToTest) -> (onRoute(newVersionToTest)))
+               .forEach((newVersionToTest) -> {
+                           if (latestVersionSet.isEmpty()) {
+                              latestVersionSet.add((V) newVersionToTest);
+                           } else {
+                              handlePart(latestVersionSet, newVersionToTest);
+                           }
+                        });
+
+      final List<V> latestVersionList = new ArrayList<>(latestVersionSet);
+
+      if (latestVersionList.isEmpty()) {
+         return new LatestVersion();
+      }
+
+      if (latestVersionList.size() == 1) {
+         return new LatestVersion<>(latestVersionList.get(0));
+      }
+
+      return new LatestVersion<>(latestVersionList.get(0),
+            latestVersionList.subList(1, latestVersionList.size()));
    }
 
    /**
@@ -694,8 +739,8 @@ public class RelativePositionCalculator
     * @param chronicle the chronicle
     * @return the latest version
     */
-   public <C extends ObjectChronology<V>,
-           V extends StampedVersion> Optional<LatestVersion<V>> getLatestVersion(C chronicle) {
+   public <C extends Chronology,
+           V extends StampedVersion> LatestVersion<V> getLatestVersion(C chronicle) {
       final HashSet<V> latestVersionSet = new HashSet<>();
 
       chronicle.getVersionList()
@@ -704,14 +749,13 @@ public class RelativePositionCalculator
                .filter((newVersionToTest) -> (onRoute(newVersionToTest)))
                .forEach((newVersionToTest) -> {
                            if (latestVersionSet.isEmpty()) {
-                              latestVersionSet.add(newVersionToTest);
+                              latestVersionSet.add((V) newVersionToTest);
                            } else {
                               handlePart(latestVersionSet, newVersionToTest);
                            }
                         });
 
-      if (this.coordinate.getAllowedStates()
-                         .equals(State.ACTIVE_ONLY_SET)) {
+      if (State.isActiveOnlySet(this.coordinate.getAllowedStates())) {
          final HashSet<V> inactiveVersions = new HashSet<>();
 
          latestVersionSet.stream().forEach((version) -> {
@@ -725,15 +769,15 @@ public class RelativePositionCalculator
       final List<V> latestVersionList = new ArrayList<>(latestVersionSet);
 
       if (latestVersionList.isEmpty()) {
-         return Optional.empty();
+         return new LatestVersion();
       }
 
       if (latestVersionList.size() == 1) {
-         return Optional.of(new LatestVersion<>(latestVersionList.get(0)));
+         return new LatestVersion<>(latestVersionList.get(0));
       }
 
-      return Optional.of(new LatestVersion<>(latestVersionList.get(0),
-            latestVersionList.subList(1, latestVersionList.size())));
+      return new LatestVersion<>(latestVersionList.get(0),
+            latestVersionList.subList(1, latestVersionList.size()));
    }
 
    //~--- inner classes -------------------------------------------------------
@@ -743,6 +787,12 @@ public class RelativePositionCalculator
     */
    private class LatestStampAccumulator
             implements ObjIntConsumer<StampSequenceSet> {
+      
+      final boolean allowUncommitted;
+
+      public LatestStampAccumulator(boolean allowUncommitted) {
+         this.allowUncommitted = allowUncommitted;
+      }
       /**
        * Accept.
        *
@@ -751,7 +801,7 @@ public class RelativePositionCalculator
        */
       @Override
       public void accept(StampSequenceSet stampsForPosition, int stampToCompare) {
-         handleStamp(stampsForPosition, stampToCompare);
+         handleStamp(stampsForPosition, stampToCompare, allowUncommitted);
       }
    }
 
@@ -761,6 +811,12 @@ public class RelativePositionCalculator
     */
    private class LatestStampCombiner
             implements BiConsumer<StampSequenceSet, StampSequenceSet> {
+      final boolean allowUncommitted;
+
+      public LatestStampCombiner(boolean allowUncommitted) {
+         this.allowUncommitted = allowUncommitted;
+      }
+
       /**
        * Accept.
        *
@@ -770,7 +826,7 @@ public class RelativePositionCalculator
       @Override
       public void accept(StampSequenceSet t, StampSequenceSet u) {
          u.stream().forEach((stampToTest) -> {
-                      handleStamp(t, stampToTest);
+                      handleStamp(t, stampToTest, allowUncommitted);
                    });
          u.clear();
 

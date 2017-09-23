@@ -59,8 +59,7 @@ import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
-import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
 
 //~--- classes ----------------------------------------------------------------
@@ -72,7 +71,7 @@ import sh.isaac.api.coordinate.StampCoordinate;
 public class MockConceptService
          implements ConceptService {
    /** The concepts map. */
-   ConcurrentHashMap<Integer, ConceptChronology<? extends ConceptVersion<?>>> conceptsMap = new ConcurrentHashMap<>();
+   ConcurrentHashMap<Integer, ConceptChronology> conceptsMap = new ConcurrentHashMap<>();
 
    /** The db id. */
    UUID dbId = UUID.randomUUID();
@@ -93,7 +92,7 @@ public class MockConceptService
     * @param concept the concept
     */
    @Override
-   public void writeConcept(ConceptChronology<? extends ConceptVersion<?>> concept) {
+   public void writeConcept(ConceptChronology concept) {
       this.conceptsMap.put(concept.getConceptSequence(), concept);
    }
 
@@ -106,7 +105,7 @@ public class MockConceptService
     * @return the concept
     */
    @Override
-   public ConceptChronology<? extends ConceptVersion<?>> getConcept(int conceptId) {
+   public ConceptChronology getConcept(int conceptId) {
       return this.conceptsMap.get(Get.identifierService()
                                      .getConceptSequence(conceptId));
    }
@@ -118,7 +117,7 @@ public class MockConceptService
     * @return the concept
     */
    @Override
-   public ConceptChronology<? extends ConceptVersion<?>> getConcept(UUID... conceptUuids) {
+   public ConceptChronology getConcept(UUID... conceptUuids) {
       final int conceptNid      = Get.identifierService()
                                      .getNidForUuids(conceptUuids);
       final int conceptSequence = Get.identifierService()
@@ -169,7 +168,7 @@ public class MockConceptService
     * @return the concept chronology stream
     */
    @Override
-   public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream() {
+   public Stream<ConceptChronology> getConceptChronologyStream() {
       return this.conceptsMap.values()
                              .stream();
    }
@@ -181,7 +180,7 @@ public class MockConceptService
     * @return the concept chronology stream
     */
    @Override
-   public Stream<ConceptChronology<? extends ConceptVersion<?>>> getConceptChronologyStream(
+   public Stream<ConceptChronology> getConceptChronologyStream(
            ConceptSequenceSet conceptSequences) {
       throw new UnsupportedOperationException();
    }
@@ -257,7 +256,7 @@ public class MockConceptService
     * @return the optional concept
     */
    @Override
-   public Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(int conceptId) {
+   public Optional<? extends ConceptChronology> getOptionalConcept(int conceptId) {
       return Optional.ofNullable(getConcept(conceptId));
    }
 
@@ -268,7 +267,7 @@ public class MockConceptService
     * @return the optional concept
     */
    @Override
-   public Optional<? extends ConceptChronology<? extends ConceptVersion<?>>> getOptionalConcept(UUID... conceptUuids) {
+   public Optional<? extends ConceptChronology> getOptionalConcept(UUID... conceptUuids) {
       return Optional.ofNullable(getConcept(conceptUuids));
    }
 
@@ -278,7 +277,7 @@ public class MockConceptService
     * @return the parallel concept chronology stream
     */
    @Override
-   public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream() {
+   public Stream<ConceptChronology> getParallelConceptChronologyStream() {
       return this.conceptsMap.values()
                              .parallelStream();
    }
@@ -290,7 +289,7 @@ public class MockConceptService
     * @return the parallel concept chronology stream
     */
    @Override
-   public Stream<ConceptChronology<? extends ConceptVersion<?>>> getParallelConceptChronologyStream(
+   public Stream<ConceptChronology> getParallelConceptChronologyStream(
            ConceptSequenceSet conceptSequences) {
       throw new UnsupportedOperationException();
    }
@@ -304,6 +303,11 @@ public class MockConceptService
    @Override
    public ConceptSnapshotService getSnapshot(sh.isaac.api.coordinate.ManifoldCoordinate manifoldCoordinate) {
       throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public ConceptChronology getConcept(ConceptSpecification conceptSpecification) {
+      return getConcept(conceptSpecification.getConceptSequence());
    }
 }
 

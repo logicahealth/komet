@@ -19,3 +19,5 @@
 /komet/application/target/
 /solor/target/
 /solor/solor-parent/target/
+/core/api/nbproject/
+/provider/drools/nbproject/

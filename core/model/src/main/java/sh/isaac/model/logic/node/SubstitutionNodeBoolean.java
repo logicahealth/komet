@@ -106,6 +106,11 @@ public class SubstitutionNodeBoolean
    public String toString(String nodeIdSuffix) {
       return "Boolean substitution[" + getNodeIndex() + nodeIdSuffix + "]" + super.toString(nodeIdSuffix);
    }
+   @Override
+   public String toSimpleString() {
+      return "Boolean substitution:" +  super.toSimpleString();
+   }
+
 
    /**
     * Inits the node uuid.

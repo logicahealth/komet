@@ -41,23 +41,21 @@ package sh.isaac.api.observable.concept;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Optional;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ListProperty;
 
-import javafx.collections.ObservableList;
 
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionSememe;
+import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -65,17 +63,9 @@ import sh.isaac.api.observable.sememe.version.ObservableDescriptionSememe;
  * The Interface ObservableConceptChronology.
  *
  * @author kec
- * @param <V> the value type
  */
-public interface ObservableConceptChronology<V extends ObservableConceptVersion>
-        extends ObservableChronology<V> {
-   /**
-    * Concept description list property.
-    *
-    * @param <T> the generic type
-    * @return the list property
-    */
-   <T extends ObservableDescriptionSememe<T>> ListProperty<ObservableSememeChronology<T>> conceptDescriptionListProperty();
+public interface ObservableConceptChronology
+        extends ObservableChronology, ConceptChronology {
 
    /**
     * Concept sequence property.
@@ -93,13 +83,6 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
     */
    boolean containsActiveDescription(String descriptionText, StampCoordinate stampCoordinate);
 
-   /**
-    * A test for validating that a concept contains a description. Used
-    * to validate concept proxies or concept specs at runtime.
-    * @param descriptionText text to match against.
-    * @return true if any version of a description matches this text.
-    */
-   boolean containsDescription(String descriptionText);
 
    /**
     * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
@@ -107,7 +90,8 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
     * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version.
     * @return the mutable version
     */
-   V createMutableVersion(int stampSequence);
+   @Override
+   ObservableConceptVersion createMutableVersion(int stampSequence);
 
    /**
     * Create a mutable version with Long.MAX_VALUE as the time, indicating
@@ -118,25 +102,10 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
     * @param ec edit coordinate to provide the author, module, and path for the mutable version
     * @return the mutable version
     */
-   V createMutableVersion(State state, EditCoordinate ec);
+   @Override
+   ObservableConceptVersion createMutableVersion(State state, EditCoordinate ec);
 
    //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the concept description list.
-    *
-    * @param <T> the generic type
-    * @return the concept description list
-    */
-   <T extends ObservableDescriptionSememe<T>> ObservableList<? extends ObservableSememeChronology<T>> getConceptDescriptionList();
-
-   /**
-    * Gets the concept sequence.
-    *
-    * @return the sequence of this concept. A contiguously assigned identifier for
-    * concepts >= 0;
-    */
-   int getConceptSequence();
 
    /**
     * Gets the fully specified description.
@@ -145,20 +114,45 @@ public interface ObservableConceptChronology<V extends ObservableConceptVersion>
     * @param stampCoordinate the stamp coordinate
     * @return the fully specified description
     */
-   Optional<LatestVersion<ObservableDescriptionSememe<?>>> getFullySpecifiedDescription(
+   @Override
+   LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate);
 
    /**
+    * Gets the fully specified description.
+    *
+    * @param manifoldCoordinate the language coordinate and the stamp coordinate
+    * @return the fully specified description
+    */
+   @Override
+   default LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
+           ManifoldCoordinate manifoldCoordinate) {
+      return getFullySpecifiedDescription(manifoldCoordinate, manifoldCoordinate);
+      
+   }
+
+   /**
     * Gets the preferred description.
     *
-    * @param <T> the generic type
     * @param languageCoordinate the language coordinate
     * @param stampCoordinate the stamp coordinate
     * @return the preferred description
     */
-   <T extends ObservableDescriptionSememe<T>> Optional<LatestVersion<T>> getPreferredDescription(
+   @Override
+   LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate);
+   /**
+    * Gets the preferred description.
+    *
+    * @param manifoldCoordinate the language coordinate and the stamp coordinate
+    * @return the preferred description
+    */
+   @Override
+   default LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
+           ManifoldCoordinate manifoldCoordinate) {
+      return getPreferredDescription(manifoldCoordinate, manifoldCoordinate);
+   }
 }
-
+//~--- JDK imports ------------------------------------------------------------

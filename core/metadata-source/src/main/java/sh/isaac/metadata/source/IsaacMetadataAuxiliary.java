@@ -166,6 +166,9 @@ public class IsaacMetadataAuxiliary
          createConcept("LOINC Solor modules");
          createConcept("RxNorm modules");
          createConcept("RxNorm Solor modules");
+         createConcept("Generated administration of module");
+         createConcept("SOLOR quality assurance rule module");
+         createConcept("SOLOR automation rule module");
 
          // The second UUID here was the old value from the TermAux - but this was an orphan.  to best fix the bug that resulted,
          // the type5 UUID from here was moved to TermAux, and the old UUID was added here as an additional.
@@ -240,6 +243,13 @@ public class IsaacMetadataAuxiliary
          createConcept("normal member").setPrimordialUuid("cc624429-b17d-4ac5-a69e-0b32448aaf3c");
          createConcept("marked parent").setPrimordialUuid("125f3d04-de17-490e-afec-1431c2a39e29");
          popParent();
+         createConcept("annotation type");
+         pushParent(current());
+         createConcept("content issue");
+         createConcept("komet issue");
+         createConcept("qa rule issue");
+         createConcept("automation issue");
+         popParent();
          createConcept(TermAux.ASSEMBLAGE);
          pushParent(current());
          createConcept("description assemblage");
@@ -259,11 +269,18 @@ public class IsaacMetadataAuxiliary
          pushParent(current());
          createConcept("US English dialect").mergeFromSpec(TermAux.US_DIALECT_ASSEMBLAGE);
          createConcept("GB English dialect").mergeFromSpec(TermAux.GB_DIALECT_ASSEMBLAGE);
+         createConcept("US Nursing dialect");
          popParent();
          createConcept("logic assemblage");
          pushParent(current());
          createConcept(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE);
          createConcept(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE);
+         popParent();
+         createConcept("Rule assemblage");
+         pushParent(current());
+         createConcept("module assemblage");
+         createConcept("QA rule assemblage");
+         createConcept("Automation rule assemblage");
          popParent();
          createConcept("assemblage related to path management");
          pushParent(current());
@@ -280,7 +297,7 @@ public class IsaacMetadataAuxiliary
 
          // addPathOrigin(pathOrigins, developmentPath, masterPath);
          popParent();
-         createConcept("SOLOR Refsets").setPrimordialUuid("7a9b495e-69c1-53e5-a2d5-41be2429c146");
+         createConcept("SOLOR assemblage").setPrimordialUuid("7a9b495e-69c1-53e5-a2d5-41be2429c146");
          createConcept("SOLOR Content Metadata");
          pushParent(current());
          createConcept(TermAux.DATABASE_UUID);

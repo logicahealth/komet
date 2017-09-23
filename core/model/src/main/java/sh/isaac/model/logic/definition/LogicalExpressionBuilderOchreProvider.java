@@ -44,11 +44,11 @@ package sh.isaac.model.logic.definition;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.DataSource;
-import sh.isaac.api.component.sememe.version.LogicGraphSememe;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.model.logic.LogicalExpressionImpl;
+import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -74,7 +74,7 @@ public class LogicalExpressionBuilderOchreProvider
     * @return the logical expression
     */
    @Override
-   public LogicalExpression fromSememe(LogicGraphSememe<?> sememe) {
+   public LogicalExpression fromSememe(LogicGraphVersion sememe) {
       return new LogicalExpressionImpl(sememe.getGraphData(),
             DataSource.INTERNAL,
             sememe.getReferencedComponentNid());

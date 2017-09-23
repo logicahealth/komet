@@ -56,7 +56,6 @@ import java.util.stream.IntStream;
 
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
@@ -112,7 +111,7 @@ public interface IdentifierService
     * @param stampCoordinate the stamp coordinate
     * @return the concept identifier for authority
     */
-   Optional<LatestVersion<String>> getConceptIdentifierForAuthority(int conceptId,
+   Optional<String> getConceptIdentifierForAuthority(int conceptId,
          UUID identifierAuthorityUuid,
          StampCoordinate stampCoordinate);
 
@@ -198,7 +197,7 @@ public interface IdentifierService
     * @param stampCoordinate the stamp coordinate
     * @return the identifier for authority
     */
-   Optional<LatestVersion<String>> getIdentifierForAuthority(int nid,
+   Optional<String> getIdentifierForAuthority(int nid,
          UUID identifierAuthorityUuid,
          StampCoordinate stampCoordinate);
 

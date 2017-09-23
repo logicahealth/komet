@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TreeTableColumn?>
+<?import javafx.scene.control.TreeTableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<BorderPane fx:id="conceptDetailRootPane" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.provider.concept.detail.treetable.ConceptDetailTreeTableController">
+   <center>
+      <GridPane prefWidth="598.0" BorderPane.alignment="CENTER">
+        <columnConstraints>
+          <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="129.0" minHeight="0.0" prefHeight="7.0" vgrow="SOMETIMES" />
+            <RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="244.0" vgrow="NEVER" />
+            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+            <RowConstraints vgrow="NEVER" />
+            <RowConstraints vgrow="SOMETIMES" />
+            <RowConstraints vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <TreeTableView fx:id="conceptExtensionTreeTable" showRoot="false" tableMenuButtonVisible="true" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+              <columns>
+                <TreeTableColumn fx:id="conceptWhatColumn" minWidth="50.0" prefWidth="-1.0" />
+                <TreeTableColumn fx:id="conceptGeneralColumn" minWidth="300.0" prefWidth="-1.0" />
+                  <TreeTableColumn fx:id="conceptStatusColumn" editable="false" maxWidth="-Infinity" prefWidth="-1.0" text="status" visible="false" />
+                  <TreeTableColumn fx:id="conceptAuthorTimeColumn" editable="false" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" text="author/time" />
+                  <TreeTableColumn fx:id="conceptTimeColumn" prefWidth="75.0" text="time" visible="false" />
+                  <TreeTableColumn fx:id="conceptAuthorColumn" prefWidth="75.0" text="author" visible="false" />
+                  <TreeTableColumn fx:id="conceptModulePathColumn" editable="false" maxWidth="-1.0" minWidth="100.0" prefWidth="-1.0" text="module/path" />
+                  <TreeTableColumn fx:id="conceptModuleColumn" prefWidth="75.0" text="module" visible="false" />
+                  <TreeTableColumn fx:id="conceptPathColumn" prefWidth="75.0" text="path" visible="false" />
+              </columns>
+               <columnResizePolicy>
+                  <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+               </columnResizePolicy>
+            </TreeTableView>
+         </children>
+      </GridPane>
+   </center>
+</BorderPane>
