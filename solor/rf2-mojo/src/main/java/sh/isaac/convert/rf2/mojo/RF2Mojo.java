@@ -582,11 +582,17 @@ public class RF2Mojo
                                                     .isLong() ? UuidT3Generator.fromSNOMED(
                                                        descRS.getLong("CASESIGNIFICANCEID"))
                   : UUID.fromString(descRS.getString("CASESIGNIFICANCEID")));
+            
+            
+            DescriptionType descriptionType = DescriptionType.convert(typeId);
+            if (descriptionType == DescriptionType.UNKNOWN) {
+               getLog().error("Unknown description type for: " + id + "|" + term);
+            }
             final SememeChronology desc =
                super.importUtil.addDescription(ComponentReference.fromConcept(conceptId),
                                                id,
                                                term,
-                                               DescriptionType.convert(typeId),
+                                               descriptionType,
                                                null,
                                                null,
                                                caseSigId,
@@ -672,7 +678,7 @@ public class RF2Mojo
                // Might be better as "fine" or debug logging logging...
                // ConsoleUtil.printErrorln("No acceptibility found for: " + id + " " + sctID);
             }
-
+         
             if (descCount % 1000 == 0) {
                ConsoleUtil.showProgress();
             }

@@ -57,6 +57,8 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.codehaus.plexus.util.FileUtils;
 
@@ -131,6 +133,11 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class IBDFCreationUtility {
+   
+   /** The LOG. */
+   private static final Logger LOG = LogManager.getLogger();
+   
+   
    /** The Constant METADATA_SEMANTIC_TAG. */
    public final static String METADATA_SEMANTIC_TAG = " (ISAAC)";
 
@@ -341,7 +348,10 @@ public class IBDFCreationUtility {
       SYNONYM,
 
       /** Definition. */
-      DEFINITION;
+      DEFINITION,
+      
+      /** Should not every be used...*/
+      UNKNOWN;
 
       /**
        * Convert a UUID to a description type.
@@ -362,8 +372,9 @@ public class IBDFCreationUtility {
                .equals(typeUuid)) {
             return DEFINITION;
          }
+         LOG.error(typeUuid + " is not a known description type. ");
 
-         throw new RuntimeException("Unknown description type for UUID: " + typeUuid);
+         return UNKNOWN;
       }
 
       //~--- get methods ------------------------------------------------------
@@ -384,6 +395,9 @@ public class IBDFCreationUtility {
          case DEFINITION:
             return MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC;
 
+         case UNKNOWN:
+             return MetaData.UNKNOWN_DESCRIPTION_TYPE____ISAAC;
+                    
          default:
             throw new RuntimeException("Unsupported descriptiontype '" + this + "'");
          }

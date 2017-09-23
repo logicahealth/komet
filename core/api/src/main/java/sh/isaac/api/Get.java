@@ -119,7 +119,7 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
 @Singleton
 public class Get
          implements OchreCache {
-   /** The Constant LOG. */
+   /** The LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    /** The active task set. */
