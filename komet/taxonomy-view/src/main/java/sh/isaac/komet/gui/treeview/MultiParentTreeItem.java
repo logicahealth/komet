@@ -244,7 +244,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
 
    @Override
    public boolean isRoot() {
-      if (MetaData.ISAAC_ROOT____ISAAC.getPrimordialUuid().equals(this.getConceptUuid())) {
+      if (MetaData.ISAAC_ROOT____ISAAC.isIdentifiedBy(this.getConceptUuid())) {
          return true;
       } else if (this.getParent() == null) {
          return true;

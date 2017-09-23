@@ -360,16 +360,13 @@ public class IBDFCreationUtility {
        * @return the description type
        */
       public static DescriptionType convert(UUID typeUuid) {
-         if (MetaData.FULLY_SPECIFIED_NAME____ISAAC.getPrimordialUuid()
-                                          .equals(typeUuid)) {
+         if (MetaData.FULLY_SPECIFIED_NAME____ISAAC.getUuidList().contains(typeUuid)) {
             return FSN;
-         } else if (MetaData.SYNONYM____ISAAC.getPrimordialUuid()
-                                    .equals(typeUuid)) {
+         } else if (MetaData.SYNONYM____ISAAC.getUuidList().contains(typeUuid)) {
             return SYNONYM;
          }
 
-         if (MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC.getPrimordialUuid()
-               .equals(typeUuid)) {
+         if (MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC.getUuidList().contains(typeUuid)) {
             return DEFINITION;
          }
          LOG.error(typeUuid + " is not a known description type. ");

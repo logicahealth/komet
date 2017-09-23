@@ -127,16 +127,6 @@ public class ConceptProxy
     * Instantiates a new concept proxy.
     *
     * @param fullySpecifiedDescriptionText the fullySpecifiedDescriptionText
-    * @param uuidString the uuid string.
-    */
-   public ConceptProxy(String fullySpecifiedDescriptionText, String uuidString) {
-      this(fullySpecifiedDescriptionText, UUID.fromString(uuidString));
-   }
-
-   /**
-    * Instantiates a new concept proxy.
-    *
-    * @param fullySpecifiedDescriptionText the fullySpecifiedDescriptionText
     * @param uuids the uuids
     */
    public ConceptProxy(String fullySpecifiedDescriptionText, UUID... uuids) {
@@ -149,25 +139,13 @@ public class ConceptProxy
     *
     * @param fullySpecifiedDescriptionText the fullySpecifiedDescriptionText
     * @param preferredDescriptionText
-    * @param uuidStrings the uuid strings
-    */
-   public ConceptProxy(String fullySpecifiedDescriptionText, String preferredDescriptionText, String... uuidStrings) {
-      this.uuids = Arrays.stream(uuidStrings)
-              .map(uuidString -> UUID.fromString(uuidString))
-              .toArray(UUID[]::new);
-      this.fullySpecifiedDescriptionText = fullySpecifiedDescriptionText;
-      this.preferredDescriptionText = preferredDescriptionText;
-   }
-
-   /**
-    * Instantiates a new concept proxy.
-    *
-    * @param fullySpecifiedDescriptionText the fullySpecifiedDescriptionText
-    * @param preferredDescriptionText
     * @param uuids the uuids
     */
    public ConceptProxy(String fullySpecifiedDescriptionText, String preferredDescriptionText, UUID... uuids) {
       this.uuids = uuids;
+      if (UUIDUtil.isUUID(preferredDescriptionText)) {
+         throw new IllegalStateException("perferredDescription cannot be a uuid for: " + fullySpecifiedDescriptionText);
+      }
       this.fullySpecifiedDescriptionText = fullySpecifiedDescriptionText;
       this.preferredDescriptionText = preferredDescriptionText;
    }

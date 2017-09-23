@@ -163,7 +163,7 @@ public class SememeBuilderImpl<C extends SememeChronology>
                .getSememe(sememeNid);
 
          if ((sememeChronicle.getSememeType() != this.sememeType) ||
-               !sememeChronicle.getPrimordialUuid().equals(getPrimordialUuid()) ||
+               !sememeChronicle.isIdentifiedBy(getPrimordialUuid()) ||
                (sememeChronicle.getAssemblageSequence() != this.assemblageConceptSequence) ||
                (sememeChronicle.getReferencedComponentNid() != this.referencedComponentNid)) {
             throw new RuntimeException("Builder is being used to attempt a mis-matched edit of an existing sememe!");
@@ -271,7 +271,7 @@ public class SememeBuilderImpl<C extends SememeChronology>
                .getSememe(sememeNid);
 
          if ((sememeChronicle.getSememeType() != this.sememeType) ||
-               !sememeChronicle.getPrimordialUuid().equals(getPrimordialUuid()) ||
+               !sememeChronicle.isIdentifiedBy(getPrimordialUuid()) ||
                (sememeChronicle.getAssemblageSequence() != this.assemblageConceptSequence) ||
                (sememeChronicle.getReferencedComponentNid() != this.referencedComponentNid)) {
             throw new RuntimeException("Builder is being used to attempt a mis-matched edit of an existing sememe!");
