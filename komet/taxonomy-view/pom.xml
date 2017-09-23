@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>komet</artifactId>
-      <version>4.24-SNAPSHOT</version>
+      <version>4.24</version>
    </parent>
    <groupId>sh.isaac.komet</groupId>
    <artifactId>taxonomy-view</artifactId>
@@ -19,7 +19,7 @@
       <dependency>
          <groupId>sh.isaac.core</groupId>
          <artifactId>metadata</artifactId>
-         <version>4.24-SNAPSHOT</version>
+         <version>4.24</version>
          <type>jar</type>
          <exclusions>
             <exclusion>
