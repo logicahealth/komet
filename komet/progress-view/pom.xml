@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>komet</artifactId>
-        <version>4.27-SNAPSHOT</version>
+        <version>4.26</version>
     </parent>
     <groupId>sh.isaac.komet</groupId>
     <artifactId>progress-view</artifactId>
@@ -17,7 +17,7 @@
       <dependency>
          <groupId>sh.isaac.core</groupId>
          <artifactId>metadata</artifactId>
-         <version>4.27-SNAPSHOT</version>
+         <version>4.26</version>
          <type>jar</type>
          <exclusions>
             <exclusion>
