@@ -419,13 +419,13 @@
             <dependency>
                <groupId>one.solor</groupId>
                <artifactId>solor-db</artifactId>
-               <version>1.2</version>
+               <version>1.3</version>
                <type>cradle.zip</type>
             </dependency>
             <dependency>
                <groupId>one.solor</groupId>
                <artifactId>solor-db</artifactId>
-               <version>1.2</version>
+               <version>1.3</version>
                <type>lucene.zip</type>
             </dependency>
          </dependencies>
@@ -446,13 +446,13 @@
                               <artifact>
                                  <groupId>one.solor</groupId>
                                  <artifactId>solor-db</artifactId>
-                                 <version>1.2</version>
+                                 <version>1.3</version>
                                  <type>lucene.zip</type>
                               </artifact>
                               <artifact>
                                  <groupId>one.solor</groupId>
                                  <artifactId>solor-db</artifactId>
-                                 <version>1.2</version>
+                                 <version>1.3</version>
                                  <type>cradle.zip</type>
                               </artifact>
                            </artifactItems>
