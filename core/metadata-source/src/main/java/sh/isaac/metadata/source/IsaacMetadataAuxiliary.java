@@ -74,6 +74,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.model.observable.ObservableFields;
 
 import static sh.isaac.model.observable.ObservableFields.ALLOWED_STATES_FOR_STAMP_COORDINATE;
 import static sh.isaac.model.observable.ObservableFields.ASSEMBLAGE_SEQUENCE_FOR_SEMEME_CHRONICLE;
@@ -516,6 +517,15 @@ public class IsaacMetadataAuxiliary
          pushParent(current());
          createConcept(DESCRIPTION_LIST_FOR_CONCEPT);
          popParent();
+         createConcept("sememe properties");
+         pushParent(current());
+         createConcept(ObservableFields.STRING_VALUE_FOR_SEMEME);
+         createConcept(ObservableFields.COMPONENT_NID_FOR_SEMEME);
+         createConcept(ObservableFields.LOGIC_GRAPH_FOR_SEMEME);
+         createConcept(ObservableFields.LONG_VALUE_FOR_SEMEME);
+         popParent();
+         
+         
          popParent();
          
          createConcept("query clauses");

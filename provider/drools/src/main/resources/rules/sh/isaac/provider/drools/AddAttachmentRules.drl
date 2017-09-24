@@ -17,13 +17,25 @@
 package sh.isaac.provider.drools;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Consumer;
+import java.util.List;
+import java.util.Map;
+import javafx.beans.property.Property;
 import javafx.scene.control.MenuItem;
 import org.controlsfx.control.PropertySheet;
+import org.controlsfx.control.PropertySheet.Item;
+import sh.isaac.api.chronicle.VersionCategory;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.Get;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
-import sh.komet.gui.manifold.Manifold;
+import sh.isaac.MetaData;
 import sh.isaac.provider.drools.AddAttachmentMenuItems;
+import sh.komet.gui.control.PropertyEditorType;
+import sh.komet.gui.control.PropertySheetItemConceptWrapper;
+import sh.komet.gui.control.PropertySheetMenuItem;
+import sh.komet.gui.manifold.Manifold;
 
 /**
  *
@@ -33,5 +45,6 @@ rule "Add comment attachment"
 when
    $addAttachmentToVersion : AddAttachmentMenuItems()
 then
-   $addAttachmentToVersion.getMenuItems().add(new MenuItem("Add comment"));
+   PropertySheetMenuItem propertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add automation issue");
+   propertySheetMenuItem.addPropertyToEdit("describe issue", MetaData, PropertyEditorType.STATUS);
 end
