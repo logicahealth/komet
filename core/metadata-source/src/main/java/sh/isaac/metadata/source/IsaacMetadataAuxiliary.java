@@ -252,6 +252,18 @@ public class IsaacMetadataAuxiliary
          popParent();
          createConcept(TermAux.ASSEMBLAGE);
          pushParent(current());
+         createConcept("issue managment assemblage");
+         pushParent(current());
+            createConcept("content issue assemblage");
+            createConcept("komet issue assemblage");
+            createConcept("qa rule issue assemblage");
+            createConcept("automation issue assemblage");
+            createConcept("clinical statement issue assemblage");
+            createConcept("SNOMED issue assemblage");
+            createConcept("LOINC issue assemblage");
+            createConcept("RxNorm issue assemblage");
+            createConcept("SOLOR issue assemblage");
+         popParent();
          createConcept("description assemblage");
          pushParent(current());
          createConcept(TermAux.ENGLISH_DESCRIPTION_ASSEMBLAGE);
