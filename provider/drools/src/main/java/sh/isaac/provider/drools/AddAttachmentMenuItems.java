@@ -18,9 +18,21 @@ package sh.isaac.provider.drools;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.concurrent.ExecutionException;
+import java.util.function.BiConsumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.control.MenuItem;
+import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.CategorizedVersions;
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.sememe.SememeBuilder;
+import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.isaac.api.observable.sememe.ObservableSememeChronology;
+import sh.isaac.api.observable.sememe.version.ObservableStringVersion;
+import sh.isaac.api.task.OptionalWaitTask;
 import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
 
@@ -32,23 +44,43 @@ public class AddAttachmentMenuItems {
    final List<MenuItem> menuItems = new ArrayList<>();
    final Manifold manifold;
    final ObservableCategorizedVersion categorizedVersion;
-   final Consumer<PropertySheetMenuItem> propertySheetConsumer;
+   final BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer;
 
-   public AddAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheetMenuItem> propertySheetConsumer) {
+   public AddAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, 
+           BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
       this.manifold = manifold;
       this.categorizedVersion = categorizedVersion;
-      this.propertySheetConsumer = propertySheetConsumer;
+      this.newAttachmentConsumer = newAttachmentConsumer;
    }
 
    public List<MenuItem> getMenuItems() {
       return menuItems;
    }
-   public PropertySheetMenuItem makePropertySheetMenuItem(String menuText) {
-      PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion, true);
+   public PropertySheetMenuItem makePropertySheetMenuItem(String menuText, ConceptSpecification assemblageSpecification) {
+      PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion, false);
       MenuItem menuItem = new MenuItem(menuText);
       menuItem.setOnAction((event) -> {
-         propertySheetMenuItem.prepareToExecute();
-         propertySheetConsumer.accept(propertySheetMenuItem);
+         try {
+            SememeBuilder<? extends SememeChronology> builder = Get.sememeBuilderService().getStringSememeBuilder("",
+                    this.categorizedVersion.getNid(),
+                    assemblageSpecification.getConceptSequence());
+            
+            OptionalWaitTask<? extends SememeChronology> buildTask = builder.build(manifold.getEditCoordinate(), ChangeCheckerMode.INACTIVE);
+            
+            // this step does an add uncommitted...
+            SememeChronology newChronology = buildTask.get();
+            
+            ObservableSememeChronology newObservableChronology = Get.observableChronologyService().getObservableSememeChronology(newChronology.getSememeSequence());
+            CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = newObservableChronology.getCategorizedVersions(manifold);
+            ObservableStringVersion newStringVersion = (ObservableStringVersion) categorizedVersions.getUncommittedVersions().get(0).getObservableVersion();
+
+            propertySheetMenuItem.setVersionInFlight(newStringVersion);
+            
+            propertySheetMenuItem.prepareToExecute();
+            newAttachmentConsumer.accept(propertySheetMenuItem, assemblageSpecification);
+         } catch (InterruptedException | ExecutionException ex) {
+            Logger.getLogger(AddAttachmentMenuItems.class.getName()).log(Level.SEVERE, null, ex);
+         }
       });
       menuItems.add(menuItem);
       return propertySheetMenuItem;

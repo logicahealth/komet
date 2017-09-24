@@ -40,6 +40,9 @@ package sh.komet.gui.control;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -72,10 +75,14 @@ import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.component.sememe.version.ComponentNidVersion;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.component.sememe.version.LogicGraphVersion;
@@ -84,6 +91,9 @@ import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.component.sememe.version.StringVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.observable.sememe.ObservableSememeChronology;
+import sh.isaac.api.observable.sememe.version.ObservableStringVersion;
+import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.manifold.Manifold;
@@ -103,7 +113,7 @@ public abstract class BadgedVersionPanel
         extends Pane {
 
    public static final int FIRST_COLUMN_WIDTH = 32;
-   
+
    protected static final String PROPERTY_SHEET_ATTACHMENT = BadgedVersionPanel.class.getCanonicalName() + ".PROPERTY_SHEET_ATTACHMENT";
 
    //~--- fields --------------------------------------------------------------
@@ -133,6 +143,7 @@ public abstract class BadgedVersionPanel
    private Optional<PropertySheetMenuItem> optionalPropertySheetMenuItem = Optional.empty();
    private final Button cancelButton = new Button("Cancel");
    private final Button commitButton = new Button("Commit");
+   private final OpenIntIntHashMap stampOrderHashMap;
 
    //~--- initializers --------------------------------------------------------
    {
@@ -148,6 +159,7 @@ public abstract class BadgedVersionPanel
            ObservableCategorizedVersion categorizedVersion,
            OpenIntIntHashMap stampOrderHashMap) {
       this.manifold = manifold;
+      this.stampOrderHashMap = stampOrderHashMap;
       this.categorizedVersion = categorizedVersion;
       isInactive.set(categorizedVersion.getState() == State.INACTIVE);
       expandControl.expandActionProperty()
@@ -165,14 +177,14 @@ public abstract class BadgedVersionPanel
       isInactive.set(this.categorizedVersion.getState() != State.ACTIVE);
       if (stampOrderHashMap.containsKey(categorizedVersion.getStampSequence())) {
          this.stampControl.setStampedVersion(
-              categorizedVersion.getStampSequence(),
-              manifold,
-              stampOrderHashMap.get(categorizedVersion.getStampSequence()));
+                 categorizedVersion.getStampSequence(),
+                 manifold,
+                 stampOrderHashMap.get(categorizedVersion.getStampSequence()));
       } else {
          this.stampControl.setStampedVersion(
-              categorizedVersion.getStampSequence(),
-              manifold,
-              -1);
+                 categorizedVersion.getStampSequence(),
+                 manifold,
+                 -1);
       }
       badges.add(this.stampControl);
       this.widthProperty()
@@ -263,9 +275,26 @@ public abstract class BadgedVersionPanel
    //~--- methods -------------------------------------------------------------
 
    public final List<MenuItem> getAttachmentMenuItems() {
-      return FxGet.rulesDrivenKometService().getAttachmentMenuItems(manifold, this.categorizedVersion, (t) -> {
-         throw new UnsupportedOperationException();
+      return FxGet.rulesDrivenKometService().getAttachmentMenuItems(manifold, this.categorizedVersion,
+              (propertySheetMenuItem, assemblageSpecification) -> {
+                 addNewAttachmentPropertySheet(propertySheetMenuItem, assemblageSpecification);
+              });
+   }
+
+   protected void addNewAttachmentPropertySheet(PropertySheetMenuItem propertySheetMenuItem,
+           ConceptSpecification assemblageSpecification) {
+
+      ObservableVersion observableVersion = propertySheetMenuItem.getVersionInFlight();
+      observableVersion.putUserObject(PROPERTY_SHEET_ATTACHMENT, propertySheetMenuItem);
+      CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(manifold);      
+      
+      ComponentPanel newPanel = new ComponentPanel(getManifold(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap);
+      extensionPanels.add(newPanel);
+      this.expandControl.setExpandAction(ExpandAction.SHOW_CHILDREN);
+      propertySheetMenuItem.addCompletionListener((observable, oldValue, newValue) -> {
+         observableVersion.removeUserObject(PROPERTY_SHEET_ATTACHMENT);
       });
+      redoLayout();
    }
 
    public final List<MenuItem> getEditMenuItems() {
@@ -721,7 +750,7 @@ public abstract class BadgedVersionPanel
 
    //~--- get methods ---------------------------------------------------------
    /**
-    * @return the categorizedVersion
+    * @return the uncommittedVersion
     */
    public final ObservableCategorizedVersion getCategorizedVersion() {
       return categorizedVersion;

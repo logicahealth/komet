@@ -33,6 +33,7 @@ import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.dag.Graph;
@@ -314,6 +315,11 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    @Override
    public <V extends Version> LatestVersion<V> getLatestCommittedVersion(StampCoordinate coordinate) {
       return getChronology().getLatestCommittedVersion(coordinate);
+   }
+
+   @Override
+   public SememeSequenceSet getRecursiveSememeSequences() {
+      return getChronology().getRecursiveSememeSequences();
    }
    
 }

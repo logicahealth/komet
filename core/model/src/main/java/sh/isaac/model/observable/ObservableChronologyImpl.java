@@ -781,5 +781,11 @@ public abstract class ObservableChronologyImpl
       }
       
    }
+   
+      @Override
+   public SememeSequenceSet getRecursiveSememeSequences() {
+      return chronicledObjectLocal.getRecursiveSememeSequences();
+   }
+
 }
 

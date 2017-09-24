@@ -55,6 +55,7 @@ import java.util.stream.IntStream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.State;
+import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -250,5 +251,9 @@ public interface Chronology
       }
       return versions.get(0).getVersionType();
    }
+   
+   SememeSequenceSet getRecursiveSememeSequences();
+
+
 }
 

@@ -16,26 +16,21 @@
  */
 package sh.isaac.provider.drools;
 
-import sh.komet.gui.control.IsaacPropertyEditorFactory;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.scene.control.MenuItem;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.controlsfx.control.PropertySheet;
 import org.jvnet.hk2.annotations.Service;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.StatelessKieSession;
-import sh.isaac.MetaData;
 import sh.isaac.api.BusinessRulesService;
-import sh.isaac.api.ConceptProxy;
-import sh.isaac.api.State;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.contract.RulesDrivenKometService;
 import sh.komet.gui.control.PropertySheetMenuItem;
@@ -77,15 +72,17 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
    }
 
    @Override
-   public List<MenuItem> getEditMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheetMenuItem> propertySheetConsumer) {
+   public List<MenuItem> getEditMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, 
+            Consumer<PropertySheetMenuItem> propertySheetConsumer) {
       AddEditVersionMenuItems executionItem = new AddEditVersionMenuItems(manifold, categorizedVersion, propertySheetConsumer);
       this.kSession.execute(executionItem);
       return executionItem.menuItems;
    }
 
    @Override
-   public List<MenuItem> getAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheetMenuItem> propertySheetConsumer) {
-      AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(manifold, categorizedVersion, propertySheetConsumer);
+   public List<MenuItem> getAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, 
+           BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
+      AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(manifold, categorizedVersion, newAttachmentConsumer);
       this.kSession.execute(executionItem);
       return executionItem.menuItems;
    }

@@ -73,17 +73,11 @@ public final class ComponentPanel
 
    //~--- constructors --------------------------------------------------------
 
-   public ComponentPanel(Manifold manifold, CategorizedVersions<ObservableCategorizedVersion> categorizedVersions,
+   public ComponentPanel(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
            OpenIntIntHashMap stampOrderHashMap) {
-      super(manifold, categorizedVersions.getLatestVersion()
-              .get(), stampOrderHashMap);
+      super(manifold, categorizedVersion, stampOrderHashMap);
 
-      if (categorizedVersions.getLatestVersion()
-              .isAbsent()) {
-         throw new IllegalStateException("Must have a latest version: " + categorizedVersions);
-      }
-
-      this.categorizedVersions = categorizedVersions;
+      this.categorizedVersions = categorizedVersion.getCategorizedVersions();
 
       // gridpane.gridLinesVisibleProperty().set(true);
       this.getStyleClass()
@@ -190,8 +184,13 @@ public final class ComponentPanel
 
       if (oscCategorizedVersions.getLatestVersion()
               .isPresent()) {
-         ComponentPanel newPanel = new ComponentPanel(getManifold(), oscCategorizedVersions, stampOrderHashMap);
+         ComponentPanel newPanel = new ComponentPanel(getManifold(), 
+                 oscCategorizedVersions.getLatestVersion().get(), stampOrderHashMap);
 
+         extensionPanels.add(newPanel);
+      } else if (!oscCategorizedVersions.getUncommittedVersions().isEmpty()) {
+         ComponentPanel newPanel = new ComponentPanel(getManifold(), 
+                 oscCategorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap);
          extensionPanels.add(newPanel);
       }
    }

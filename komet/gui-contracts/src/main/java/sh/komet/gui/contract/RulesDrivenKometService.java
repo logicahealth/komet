@@ -17,9 +17,11 @@
 package sh.komet.gui.contract;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javafx.scene.control.MenuItem;
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
@@ -30,7 +32,11 @@ import sh.komet.gui.manifold.Manifold;
  */
 @Contract
 public interface RulesDrivenKometService {
-   List<MenuItem> getEditMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheetMenuItem> propertySheetConsumer);
-   List<MenuItem> getAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, Consumer<PropertySheetMenuItem> propertySheetConsumer);
+   List<MenuItem> getEditMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, 
+           Consumer<PropertySheetMenuItem> propertySheetConsumer);
+   
+   List<MenuItem> getAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion, 
+           BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer);
+   
    void populatePropertySheetEditors(PropertySheetMenuItem propertySheetMenuItem);
 }
