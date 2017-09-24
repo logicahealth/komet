@@ -45,6 +45,31 @@ rule "Add comment attachment"
 when
    $addAttachmentToVersion : AddAttachmentMenuItems()
 then
-   PropertySheetMenuItem propertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add automation issue");
-   propertySheetMenuItem.addPropertyToEdit("describe issue", MetaData, PropertyEditorType.STATUS);
+   PropertySheetMenuItem contentIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add content issue");
+   contentIssuePropertySheetMenuItem.addPropertyToEdit("content issue", MetaData.STRING_VALUE_FOR_SEMEME____ISAAC, PropertyEditorType.STATUS);
+   /* */
+   PropertySheetMenuItem kometIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add KOMET issue");
+   kometIssuePropertySheetMenuItem.addPropertyToEdit("KOMET issue", MetaData.STRING_VALUE_FOR_SEMEME____ISAAC, PropertyEditorType.STATUS);
+   /* */
+   PropertySheetMenuItem qaRuleIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add QA rule issue");
+   qaRuleIssuePropertySheetMenuItem.addPropertyToEdit("QA rule issue", MetaData.STRING_VALUE_FOR_SEMEME____ISAAC, PropertyEditorType.STATUS);
+   /* */
+   PropertySheetMenuItem automationPropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add automation issue");
+   automationPropertySheetMenuItem.addPropertyToEdit("automation issue", MetaData.STRING_VALUE_FOR_SEMEME____ISAAC, PropertyEditorType.STATUS);
+   /* */
+   PropertySheetMenuItem clinicalStatementIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add clinical statement issue");
+   clinicalStatementIssuePropertySheetMenuItem.addPropertyToEdit("clinical statement issue", MetaData.STRING_VALUE_FOR_SEMEME____ISAAC, PropertyEditorType.STATUS);
+   /* */
+   PropertySheetMenuItem snomedIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add SNOMED issue");
+   snomedIssuePropertySheetMenuItem.addPropertyToEdit("SNOMED issue", MetaData.STRING_VALUE_FOR_SEMEME____ISAAC, PropertyEditorType.STATUS);
+   /* */
+   PropertySheetMenuItem loincIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add LOINC issue");
+   loincIssuePropertySheetMenuItem.addPropertyToEdit("LOINC issue", MetaData.STRING_VALUE_FOR_SEMEME____ISAAC, PropertyEditorType.STATUS);
+   /* */
+   PropertySheetMenuItem rxNormIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add RxNorm issue");
+   rxNormIssuePropertySheetMenuItem.addPropertyToEdit("RxNorm issue", MetaData.STRING_VALUE_FOR_SEMEME____ISAAC, PropertyEditorType.STATUS);
+   /* */
+   PropertySheetMenuItem solorIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add SOLOR issue");
+   solorIssuePropertySheetMenuItem.addPropertyToEdit("SOLOR issue", MetaData.STRING_VALUE_FOR_SEMEME____ISAAC, PropertyEditorType.STATUS);
+   /* */
 end

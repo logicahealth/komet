@@ -16,6 +16,7 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <mainClass>sh.komet.fx.stage.MainApp</mainClass>
       <log4j.version>2.8.1</log4j.version>
+      <solor.db.version>1.5</solor.db.version>
    </properties>
 
    <organization>
@@ -419,13 +420,13 @@
             <dependency>
                <groupId>one.solor</groupId>
                <artifactId>solor-db</artifactId>
-               <version>1.4</version>
+               <version>${solor.db.version}</version>
                <type>cradle.zip</type>
             </dependency>
             <dependency>
                <groupId>one.solor</groupId>
                <artifactId>solor-db</artifactId>
-               <version>1.4</version>
+               <version>${solor.db.version}</version>
                <type>lucene.zip</type>
             </dependency>
          </dependencies>
@@ -446,13 +447,13 @@
                               <artifact>
                                  <groupId>one.solor</groupId>
                                  <artifactId>solor-db</artifactId>
-                                 <version>1.4</version>
+                                 <version>${solor.db.version}</version>
                                  <type>lucene.zip</type>
                               </artifact>
                               <artifact>
                                  <groupId>one.solor</groupId>
                                  <artifactId>solor-db</artifactId>
-                                 <version>1.4</version>
+                                 <version>${solor.db.version}</version>
                                  <type>cradle.zip</type>
                               </artifact>
                            </artifactItems>
