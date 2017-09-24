@@ -43,5 +43,15 @@ public class AddAttachmentMenuItems {
    public List<MenuItem> getMenuItems() {
       return menuItems;
    }
+   public PropertySheetMenuItem makePropertySheetMenuItem(String menuText) {
+      PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion, true);
+      MenuItem menuItem = new MenuItem(menuText);
+      menuItem.setOnAction((event) -> {
+         propertySheetMenuItem.prepareToExecute();
+         propertySheetConsumer.accept(propertySheetMenuItem);
+      });
+      menuItems.add(menuItem);
+      return propertySheetMenuItem;
+   }
    
 }
