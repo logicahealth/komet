@@ -3,6 +3,7 @@ package sh.komet.gui.search.control;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import org.controlsfx.control.PropertySheet;
@@ -13,16 +14,14 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.komet.gui.control.CellConceptForControlWrapper;
-import sh.komet.gui.control.PropertySheetItemConceptWrapper;
-import sh.komet.gui.control.PropertySheetItemPreferenceWrapper;
+import sh.komet.gui.control.*;
 import sh.komet.gui.manifold.Manifold;
+import tornadofx.control.DateTimePicker;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
-
-import sh.komet.gui.control.ConceptForControlWrapper;
 
 /**
  *
@@ -38,10 +37,9 @@ public class LetPropertySheet {
 
     private static final String LANGUAGE = "Language";
     private static final String CLASSIFIER = "Classifier";
-    private static final String DESCRIPTION_LOGIC = "Description Logic";
-    private static final String DESCRIPTION_TYPE = "Description Type";
+    private static final String DESCRIPTION_LOGIC = "Logic";
+    private static final String DESCRIPTION_TYPE = "Type";
     private static final String DIALECT = "Dialect";
-    private static final String STATE = "State";
     private static final String TIME = "Time";
     private static final String AUTHOR = "Author";
     private static final String MODULE = "Module";
@@ -106,6 +104,27 @@ public class LetPropertySheet {
                     };
 
                     return preferencePropertyEditor;
+                case TIME:
+                    PropertySheetItemDateWrapper dateWrapper = ((PropertySheetItemDateWrapper) prop);
+                    PropertyEditor<?> dateTimePropertyEditor = new AbstractPropertyEditor<LocalDateTime, DateTimePicker>
+                            (prop, new DateTimePicker()) {
+
+                        {
+                            super.getEditor().setDateTimeValue((LocalDateTime)dateWrapper.getValue());
+                        }
+
+                        @Override
+                        protected ObservableValue<LocalDateTime> getObservableValue() {
+                            return getEditor().dateTimeValueProperty();
+                        }
+
+                        @Override
+                        public void setValue(LocalDateTime value) {
+                            getEditor().setDateTimeValue(value);
+                        }
+                    };
+
+                    return dateTimePropertyEditor;
             }
 
             return Editors.createTextEditor(prop);
@@ -120,7 +139,6 @@ public class LetPropertySheet {
             ConceptForControlWrapper propertySheetItemConceptWrapper = 
                     new ConceptForControlWrapper(this.manifoldForDisplay, i);
             collection.add(propertySheetItemConceptWrapper);
-            //System.out.println(Get.concept(i));
         });
 
         return Editors.createChoiceEditor(prop, collection);
@@ -129,7 +147,7 @@ public class LetPropertySheet {
     /**
      * Add to the items Observable list of PropertySheet Items
      */
-    private void buildPropertySheetItems(){
+    private void buildPropertySheetItems() {
 
         //Langauge Coordinate
         this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
@@ -140,6 +158,10 @@ public class LetPropertySheet {
                 this.manifoldForModification.getLanguageCoordinate().dialectAssemblagePreferenceListProperty().get(),
                 DIALECT,
                 this.manifoldForDisplay));
+        this.manifoldForModification.getLanguageCoordinate().dialectAssemblagePreferenceListProperty().get().addListener(observable -> {
+            System.out.println("Dialect Preference Changed:" + observable.toString());
+        });
+
         this.items.add(new PropertySheetItemPreferenceWrapper(
                 this.manifoldForModification.getLanguageCoordinate().descriptionTypePreferenceListProperty().get(),
                 DESCRIPTION_TYPE,
@@ -158,18 +180,22 @@ public class LetPropertySheet {
 
 
         //STAMP Coordinate
+//        this.items.add(new PropertySheetItemDateWrapper(TIME, this.manifoldForModification.getStampCoordinate()
+//                        .stampPositionProperty().get().timeProperty()));
+
         this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
                 PATH,
                 this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().stampPathSequenceProperty()
         ));
-        //Needs Checkboxes to select which on - Blank is wildcard/all
-//        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForModification, this.manifoldForDisplay,
-//                this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().get().get().stampPathSequenceProperty().get(),
-//                PATH,
-//                this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().stampPathSequenceProperty()
-//        ));
+//        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
+//                MODULE,
+//                this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().get());
 
-
+        this.items.add(new PropertySheetItemDateWrapper(TIME, this.manifoldForModification.getStampCoordinate()
+                .stampPositionProperty().get().timeProperty()));
+        this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().timeProperty().addListener(observable -> {
+            System.out.println("Time Changed: " + observable.toString());
+        });
 
     }
 
