@@ -60,19 +60,12 @@ import org.glassfish.hk2.api.Rank;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.IsaacTaxonomy;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
 import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
 import sh.isaac.api.constants.DynamicSememeConstants;
 import sh.isaac.api.constants.MetadataDynamicSememeConstant;
-import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.logic.LogicalExpressionBuilder;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
-import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.model.observable.ObservableFields;
 
@@ -137,7 +130,7 @@ import static sh.isaac.model.observable.ObservableFields.VERSION_LIST_FOR_CHRONI
 public class IsaacMetadataAuxiliary
         extends IsaacTaxonomy {
    /** The Constant METADATA_SEMANTIC_TAG. */
-   public static final String METADATA_SEMANTIC_TAG = "ISAAC";
+   public static final String METADATA_SEMANTIC_TAG = "SOLOR";
 
    //~--- constructors --------------------------------------------------------
 
@@ -150,17 +143,17 @@ public class IsaacMetadataAuxiliary
     */
    public IsaacMetadataAuxiliary()
             throws NoSuchAlgorithmException, UnsupportedEncodingException {
-      super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.ISAAC_MODULE, TermAux.IS_A, METADATA_SEMANTIC_TAG);
+      super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.SOLOR_MODULE, TermAux.IS_A, METADATA_SEMANTIC_TAG);
 
       try {
-         createConcept(TermAux.ISAAC_ROOT);
+         createConcept(TermAux.SOLOR_ROOT);
          pushParent(current());
          createConcept("health concept").setPrimordialUuid("ee9ac5d2-a07c-3981-a57a-f7f26baf38d8");
-         createConcept(TermAux.ISAAC_METADATA);
+         createConcept(TermAux.SOLOR_METADATA);
          pushParent(current());
          createConcept("module").mergeFromSpec(TermAux.UNSPECIFIED_MODULE);
          pushParent(current());
-         createConcept(TermAux.ISAAC_MODULE);
+         createConcept(TermAux.SOLOR_MODULE);
          createConcept("SNOMED CT core modules").setPrimordialUuid("1b4f1ba5-b725-390f-8c3b-33ec7096bdca");
          createConcept("US Extension modules");
          createConcept("LOINC modules");
@@ -562,13 +555,13 @@ public class IsaacMetadataAuxiliary
          
          
          popParent(); // ISAAC root should still be parent on stack... 
-         createConcept("test concept");
-         pushParent(current());
-         ConceptBuilder parentOneBuilder = createConcept("parent one");
-         pushParent(current());
-         ConceptBuilder multiParentBuilder = createConcept("multi-parent");
-         popParent();
-         ConceptBuilder parentTwoBuilder = createConcept("parent two");
+//         createConcept("test concept");
+//         pushParent(current());
+//         ConceptBuilder parentOneBuilder = createConcept("parent one");
+//         pushParent(current());
+//         ConceptBuilder multiParentBuilder = createConcept("multi-parent");
+//         popParent();
+//         ConceptBuilder parentTwoBuilder = createConcept("parent two");
          
          
          
@@ -586,14 +579,14 @@ public class IsaacMetadataAuxiliary
          // MetaData file....
          generateStableUUIDs();
 
-         final LogicalExpressionBuilderService expressionBuilderService =
-            LookupService.getService(LogicalExpressionBuilderService.class);
-         final LogicalExpressionBuilder defBuilder = expressionBuilderService.getLogicalExpressionBuilder();
-                  NecessarySet(And(ConceptAssertion(parentOneBuilder.getNid(), defBuilder), 
-                          ConceptAssertion(parentTwoBuilder.getNid(), defBuilder)));
-         
-         final LogicalExpression logicalExpression = defBuilder.build();
-         multiParentBuilder.setLogicalExpression(logicalExpression);
+//         final LogicalExpressionBuilderService expressionBuilderService =
+//            LookupService.getService(LogicalExpressionBuilderService.class);
+//         final LogicalExpressionBuilder defBuilder = expressionBuilderService.getLogicalExpressionBuilder();
+//                  NecessarySet(And(ConceptAssertion(parentOneBuilder.getNid(), defBuilder), 
+//                          ConceptAssertion(parentTwoBuilder.getNid(), defBuilder)));
+//         
+//         final LogicalExpression logicalExpression = defBuilder.build();
+//         multiParentBuilder.setLogicalExpression(logicalExpression);
 
       } catch (final Exception ex) {
          Logger.getLogger(IsaacMetadataAuxiliary.class.getName())

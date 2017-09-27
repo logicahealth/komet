@@ -84,7 +84,7 @@ public class TermAux {
                                                                           "072e7737-e22e-36b5-89d2-4815f0529c63"));
 
    /** ConceptProxy for: "ISAAC root concept". */
-   public static ConceptSpecification ISAAC_ROOT = new ConceptProxy("ISAAC root",
+   public static ConceptSpecification SOLOR_ROOT = new ConceptProxy("SOLOR concept",
                                                                     UUID.fromString(
                                                                        "7c21b6c5-cf11-5af9-893b-743f004c97f5"));
 
@@ -111,7 +111,7 @@ public class TermAux {
                                                               UUID.fromString("4459d8cf-5a6f-3952-9458-6d64324b27b7"));
 
    /** ConceptProxy for: "Path origin assemblage". IsaacMetadataAuxiliary has "path origins assemblage", TermAux has "Path origin reference set" */
-   public static ConceptSpecification PATH_ORIGIN_ASSEMBLAGE = new ConceptProxy("Path origin reference set",
+   public static ConceptSpecification PATH_ORIGIN_ASSEMBLAGE = new ConceptProxy("Path origin assemblage",
                                                                                 UUID.fromString(
                                                                                    "1239b874-41b4-32a1-981f-88b448829b4b"));
 
@@ -138,7 +138,7 @@ public class TermAux {
                        UUID.fromString("40d1c869-b509-32f8-b735-836eac577a67"));
 
    /** ConceptProxy for: "ISAAC module". */
-   public static ConceptSpecification ISAAC_MODULE = new ConceptProxy("ISAAC Module",
+   public static ConceptSpecification SOLOR_MODULE = new ConceptProxy("SOLOR module",
                                                                       UUID.fromString(
                                                                          "f680c868-f7e5-5d0e-91f2-615eca8f8fd2"));
 
@@ -169,12 +169,12 @@ public class TermAux {
 
    /** ConceptProxy for: "US dialect assemblage". IsaacMetadataAuxiliary has "US English dialect", TermAux has "United States of America English language reference set" */
    public static ConceptSpecification US_DIALECT_ASSEMBLAGE =
-      new ConceptProxy("United States of America English language reference set",
+      new ConceptProxy("United States of America English language assemblage",
                        UUID.fromString("bca0a686-3516-3daf-8fcf-fe396d13cfad"));
 
    /** ConceptProxy for: "Great Britain dialect assemblage". IsaacMetadataAuxiliary has "GB English dialect", TermAux has "Great Britain English language reference set" */
    public static ConceptSpecification GB_DIALECT_ASSEMBLAGE =
-      new ConceptProxy("Great Britain English language reference set",
+      new ConceptProxy("Great Britain English language assemblage",
                        UUID.fromString("eb9a5e42-3cba-356d-b623-3ed472e20b30"));
 
    /** ConceptProxy for: "English language". */
@@ -347,8 +347,8 @@ public class TermAux {
                        UUID.fromString("e1a12059-3b01-3296-9532-d10e49d0afc3"));
 
    /** ConceptProxy for: "ISAAC metadata" */
-   public static ConceptSpecification ISAAC_METADATA =
-      new ConceptProxy("ISAAC metadata",
+   public static ConceptSpecification SOLOR_METADATA =
+      new ConceptProxy("SOLOR metadata",
                        UUID.fromString("7bbd4210-381c-11e7-9598-0800200c9a66"));
    
    

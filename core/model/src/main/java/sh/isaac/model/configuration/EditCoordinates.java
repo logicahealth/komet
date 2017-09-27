@@ -73,7 +73,7 @@ public class EditCoordinates {
     */
    public static EditCoordinate getDefaultUserMetadata() {
       final EditCoordinate editCoordinate = new EditCoordinateImpl(getNid(TermAux.USER),
-                                                                   getNid(TermAux.ISAAC_MODULE),
+                                                                   getNid(TermAux.SOLOR_MODULE),
                                                                    getNid(TermAux.DEVELOPMENT_PATH));
 
       return editCoordinate;
