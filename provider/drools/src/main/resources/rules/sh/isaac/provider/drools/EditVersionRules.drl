@@ -100,7 +100,7 @@ rule "if property specification is MODULE_SEQUENCE_FOR_VERSION____SOLOR then "
 when
    $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.MODULE_SEQUENCE_FOR_VERSION____SOLOR)
 then
-   $property.getAllowedValues().add(MetaData.ISAAC_MODULE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.SOLOR_MODULE____SOLOR.getConceptSequence());
    $property.getAllowedValues().add(MetaData.SOLOR_OVERLAY_MODULE____SOLOR.getConceptSequence());
    
 end
