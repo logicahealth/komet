@@ -65,13 +65,13 @@ public class LetPropertySheet {
         this.propertySheet.setPropertyEditorFactory(prop -> {
             switch (prop.getName()){
                 case PATH:
-                    return createCustomChoiceEditor(MetaData.PATH____ISAAC, prop);
+                    return createCustomChoiceEditor(MetaData.PATH____SOLOR, prop);
                 case LANGUAGE:
-                    return createCustomChoiceEditor(MetaData.LANGUAGE____ISAAC, prop);
+                    return createCustomChoiceEditor(MetaData.LANGUAGE____SOLOR, prop);
                 case CLASSIFIER:
-                    return createCustomChoiceEditor(MetaData.DESCRIPTION_LOGIC_CLASSIFIER____ISAAC, prop);
+                    return createCustomChoiceEditor(MetaData.DESCRIPTION_LOGIC_CLASSIFIER____SOLOR, prop);
                 case DESCRIPTION_LOGIC:
-                    return createCustomChoiceEditor(MetaData.DESCRIPTION_LOGIC_PROFILE____ISAAC, prop);
+                    return createCustomChoiceEditor(MetaData.DESCRIPTION_LOGIC_PROFILE____SOLOR, prop);
                 case MODULE:
                 case DESCRIPTION_TYPE:
                 case DIALECT:

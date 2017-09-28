@@ -46,9 +46,9 @@ when
    $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.CONCEPT);
 then
    PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit concept");
-   propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____ISAAC, PropertyEditorType.STATUS);
-   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_SEQUENCE_FOR_VERSION____ISAAC, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_SEQUENCE_FOR_VERSION____ISAAC, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
+   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_SEQUENCE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_SEQUENCE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
 end
 
 rule "Given a AddEditVersionMenuItems, with VersionType.DESCRIPTION, add editing options"
@@ -57,13 +57,13 @@ when
    $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.DESCRIPTION);
 then
    PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit description");
-   propertySheetMenuItem.addPropertyToEdit("text", MetaData.TEXT_FOR_DESCRIPTION____ISAAC, PropertyEditorType.TEXT);
-   propertySheetMenuItem.addPropertyToEdit("type", MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____ISAAC, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("case significance", MetaData.CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____ISAAC, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("language", MetaData.LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____ISAAC, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____ISAAC, PropertyEditorType.STATUS);
-   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_SEQUENCE_FOR_VERSION____ISAAC, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_SEQUENCE_FOR_VERSION____ISAAC, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("text", MetaData.TEXT_FOR_DESCRIPTION____SOLOR, PropertyEditorType.TEXT);
+   propertySheetMenuItem.addPropertyToEdit("type", MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("case significance", MetaData.CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("language", MetaData.LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
+   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_SEQUENCE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_SEQUENCE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
 end
 
 rule "Given a property set, populate the choice items"
@@ -76,70 +76,70 @@ then
    }
 end
 
-rule "if property specification is PATH_SEQUENCE_FOR_VERSION____ISAAC then"
+rule "if property specification is PATH_SEQUENCE_FOR_VERSION____SOLOR then"
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.PATH_SEQUENCE_FOR_VERSION____ISAAC)
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.PATH_SEQUENCE_FOR_VERSION____SOLOR)
 then
    $property.getAllowedValues().addAll(
-      Get.assemblageService().getReferencedComponentNidStreamFromAssemblage(MetaData.PATHS_ASSEMBLAGE____ISAAC)
+      Get.assemblageService().getReferencedComponentNidStreamFromAssemblage(MetaData.PATHS_ASSEMBLAGE____SOLOR)
    );
 end
 
 
-rule "if property specification is STATUS_FOR_VERSION____ISAAC then"
+rule "if property specification is STATUS_FOR_VERSION____SOLOR then"
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.STATUS_FOR_VERSION____ISAAC)
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.STATUS_FOR_VERSION____SOLOR)
 then
    System.out.println("Add status capability");
 end
 
-rule "if property specification is MODULE_SEQUENCE_FOR_VERSION____ISAAC then "
+rule "if property specification is MODULE_SEQUENCE_FOR_VERSION____SOLOR then "
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.MODULE_SEQUENCE_FOR_VERSION____ISAAC)
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.MODULE_SEQUENCE_FOR_VERSION____SOLOR)
 then
-   $property.getAllowedValues().add(MetaData.ISAAC_MODULE____ISAAC.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.SOLOR_OVERLAY_MODULE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.ISAAC_MODULE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.SOLOR_OVERLAY_MODULE____SOLOR.getConceptSequence());
    
 end
 
 
-rule "if property specification is DESCRIPTION_TYPE____ISAAC then "
+rule "if property specification is DESCRIPTION_TYPE____SOLOR then "
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____ISAAC)
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____SOLOR)
 then
-   $property.getAllowedValues().add(MetaData.FULLY_SPECIFIED_NAME____ISAAC.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.SYNONYM____ISAAC.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.FULLY_SPECIFIED_NAME____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.SYNONYM____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getConceptSequence());
    
 end
-rule "if property specification is CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____ISAAC then "
+rule "if property specification is CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____SOLOR then "
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____ISAAC)
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.CASE_SIGNIFICANCE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____SOLOR)
 then
-   $property.getAllowedValues().add(MetaData.DESCRIPTION_CASE_SENSITIVE____ISAAC.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____ISAAC.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.DESCRIPTION_INITIAL_CHARACTER_SENSITIVE____SOLOR.getConceptSequence());
    
 end
-rule "if property specification is LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____ISAAC then "
+rule "if property specification is LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____SOLOR then "
 
 when
-   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____ISAAC)
+   $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.LANGUAGE_CONCEPT_SEQUENCE_FOR_DESCRIPTION____SOLOR)
 then
-   $property.getAllowedValues().add(MetaData.ENGLISH_LANGUAGE____ISAAC.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.SPANISH_LANGUAGE____ISAAC.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.FRENCH_LANGUAGE____ISAAC.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.DANISH_LANGUAGE____ISAAC.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.POLISH_LANGUAGE____ISAAC.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.DUTCH_LANGUAGE____ISAAC.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.LITHUANIAN_LANGUAGE____ISAAC.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.CHINESE_LANGUAGE____ISAAC.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.JAPANESE_LANGUAGE____ISAAC.getConceptSequence());
-   $property.getAllowedValues().add(MetaData.SWEDISH_LANGUAGE____ISAAC.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.ENGLISH_LANGUAGE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.SPANISH_LANGUAGE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.FRENCH_LANGUAGE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.DANISH_LANGUAGE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.POLISH_LANGUAGE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.DUTCH_LANGUAGE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.LITHUANIAN_LANGUAGE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.CHINESE_LANGUAGE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.JAPANESE_LANGUAGE____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.SWEDISH_LANGUAGE____SOLOR.getConceptSequence());
    
 end

@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
     <name>ISAAC provider: Query</name>
     <properties>
-       <org.apache.lucene.version>6.6.0</org.apache.lucene.version>
+       <org.apache.lucene.version>7.0.0</org.apache.lucene.version>
     </properties>
     <dependencies>
         <dependency>

@@ -208,8 +208,8 @@ public class Frills
 
       final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
-      conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____ISAAC);
-      conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____ISAAC);
+      conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____SOLOR);
+      conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____SOLOR);
       conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
 
       final DescriptionBuilderService descriptionBuilderService = LookupService.getService(
@@ -230,17 +230,17 @@ public class Frills
       DescriptionBuilder<?, ?> definitionBuilder = descriptionBuilderService.getDescriptionBuilder(
                                                        columnName,
                                                              builder,
-                                                             MetaData.SYNONYM____ISAAC,
-                                                             MetaData.ENGLISH_LANGUAGE____ISAAC);
+                                                             MetaData.SYNONYM____SOLOR,
+                                                             MetaData.ENGLISH_LANGUAGE____SOLOR);
 
-      definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____ISAAC);
+      definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
       builder.addDescription(definitionBuilder);
       definitionBuilder = descriptionBuilderService.getDescriptionBuilder(
           columnDescription,
           builder,
-          MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC,
-          MetaData.ENGLISH_LANGUAGE____ISAAC);
-      definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____ISAAC);
+          MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR,
+          MetaData.ENGLISH_LANGUAGE____SOLOR);
+      definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
       builder.addDescription(definitionBuilder);
 
       ConceptChronology newCon;
@@ -288,8 +288,8 @@ public class Frills
                : editCoord);
          final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
-         conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____ISAAC);
-         conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____ISAAC);
+         conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____SOLOR);
+         conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____SOLOR);
          conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
 
          final DescriptionBuilderService descriptionBuilderService = LookupService.getService(
@@ -311,10 +311,10 @@ public class Frills
             descriptionBuilderService.getDescriptionBuilder(
                 sememePreferredTerm,
                 builder,
-                MetaData.SYNONYM____ISAAC,
-                MetaData.ENGLISH_LANGUAGE____ISAAC);
+                MetaData.SYNONYM____SOLOR,
+                MetaData.ENGLISH_LANGUAGE____SOLOR);
 
-         definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____ISAAC);
+         definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
          builder.addDescription(definitionBuilder);
 
          final ConceptChronology newCon = builder.build(localEditCoord, ChangeCheckerMode.ACTIVE, new ArrayList<>())
@@ -326,9 +326,9 @@ public class Frills
             definitionBuilder = descriptionBuilderService.getDescriptionBuilder(
                 sememeDescription,
                 builder,
-                MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC,
-                MetaData.ENGLISH_LANGUAGE____ISAAC);
-            definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____ISAAC);
+                MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR,
+                MetaData.ENGLISH_LANGUAGE____SOLOR);
+            definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
 
             final SememeChronology definitionSememe = definitionBuilder.build(
                                                              localEditCoord,
@@ -787,8 +787,8 @@ public class Frills
                   : stamp);
 
                    if (latest.isPresent()) {
-                      if ((latest.get().getComponentNid() == MetaData.PREFERRED____ISAAC.getNid()) ||
-                          (latest.get().getComponentNid() == MetaData.ACCEPTABLE____ISAAC.getNid())) {
+                      if ((latest.get().getComponentNid() == MetaData.PREFERRED____SOLOR.getNid()) ||
+                          (latest.get().getComponentNid() == MetaData.ACCEPTABLE____SOLOR.getNid())) {
                          if ((dialectSequenceToAcceptabilityNidMap.get(dialectSequence) != null) &&
                              (dialectSequenceToAcceptabilityNidMap.get(
                                  dialectSequence) != latest.get().getComponentNid())) {
@@ -1228,14 +1228,14 @@ public class Frills
 
                    if (latest.isPresent()) {
                       if (latest.get()
-                                .getComponentNid() == MetaData.PREFERRED____ISAAC.getNid()) {
+                                .getComponentNid() == MetaData.PREFERRED____SOLOR.getNid()) {
                          if ((answer.get() != null) && (answer.get() != true)) {
                             throw new RuntimeException("contradictory annotations about preferred status!");
                          }
 
                          answer.set(true);
                       } else if (latest.get()
-                                       .getComponentNid() == MetaData.ACCEPTABLE____ISAAC.getNid()) {
+                                       .getComponentNid() == MetaData.ACCEPTABLE____SOLOR.getNid()) {
                          if ((answer.get() != null) && (answer.get() != false)) {
                             throw new RuntimeException("contradictory annotations about preferred status!");
                          }
@@ -1613,7 +1613,7 @@ public class Frills
          final List<SearchResult> result = si.query(
                                                sctID + " ",
                                                      true,
-                                                     new Integer[] { MetaData.SCTID____ISAAC.getConceptSequence() },
+                                                     new Integer[] { MetaData.SCTID____SOLOR.getConceptSequence() },
                                                      5,
                                                      Long.MIN_VALUE);
 
@@ -1645,7 +1645,7 @@ public class Frills
          final List<SearchResult> result = si.query(
                                                vuID + " ",
                                                      true,
-                                                     new Integer[] { MetaData.VUID____ISAAC.getConceptSequence() },
+                                                     new Integer[] { MetaData.VUID____SOLOR.getConceptSequence() },
                                                      5,
                                                      Long.MIN_VALUE);
 
@@ -1679,7 +1679,7 @@ public class Frills
                : stamp)
                                                            .getLatestSememeVersionsForComponentFromAssemblage(
                                                                  componentNid,
-                                                                       MetaData.SCTID____ISAAC.getConceptSequence())
+                                                                       MetaData.SCTID____SOLOR.getConceptSequence())
                                                            .findFirstVersion();
 
          if (sememe.isPresent()) {
@@ -1904,7 +1904,7 @@ public class Frills
                                 : stamp)
             .getLatestSememeVersionsForComponentFromAssemblage(
                 componentNid,
-                MetaData.VUID____ISAAC.getConceptSequence())
+                MetaData.VUID____SOLOR.getConceptSequence())
             .forEach(latestSememe -> {
             // expected path
                    if (latestSememe.get()

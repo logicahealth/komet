@@ -56,7 +56,7 @@ public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedV
               
               break;
            default: 
-              if (sememeVersion.getNid() == MetaData.PATH____ISAAC.getNid()) {
+              if (sememeVersion.getNid() == MetaData.PATH____SOLOR.getNid()) {
                  setText("PATH");
               } else {
                  setText(sememeVersion.getChronology().getSememeType().getWhatName());

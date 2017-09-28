@@ -250,7 +250,7 @@ public class MultiParentTreeView
    }
 
    public void init() {
-      init(MetaData.ISAAC_ROOT____ISAAC.getPrimordialUuid());
+      init(MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
    }
 
    public void refresh() {

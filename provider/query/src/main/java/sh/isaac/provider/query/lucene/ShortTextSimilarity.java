@@ -69,7 +69,6 @@ class ShortTextSimilarity
     * @param maxOverlap the max overlap
     * @return the float
     */
-   @Override
    public float coord(int overlap, int maxOverlap) {
       return 1.0f;
    }

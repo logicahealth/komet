@@ -80,7 +80,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -124,8 +123,6 @@ import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.ConceptSearchResult;
 import sh.isaac.api.index.IndexedGenerationCallable;
@@ -156,7 +153,7 @@ public abstract class LuceneIndexer
    private static final Logger LOG = LogManager.getLogger();
 
    /** The Constant LUCENE_VERSION. */
-   public static final Version LUCENE_VERSION = Version.LUCENE_6_6_0;
+   public static final Version LUCENE_VERSION = Version.LUCENE_7_0_0;
 
    /** The Constant UNINDEXED_FUTURE. */
    private static final CompletableFuture<Long> UNINDEXED_FUTURE = new CompletableFuture<>();
@@ -767,7 +764,7 @@ public abstract class LuceneIndexer
                topDocs = searcher.search(q, adjustedLimit);
             }
 
-            final List<SearchResult> results               = new ArrayList<>(topDocs.totalHits);
+            final List<SearchResult> results               = new ArrayList<>((int) topDocs.totalHits);
             final HashSet<Integer>   includedComponentNids = new HashSet<>();
 
             for (final ScoreDoc hit: topDocs.scoreDocs) {

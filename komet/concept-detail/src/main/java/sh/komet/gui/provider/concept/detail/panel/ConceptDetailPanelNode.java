@@ -303,7 +303,7 @@ public class ConceptDetailPanelNode
                              }
 
                              if (dv1.getDescriptionTypeConceptSequence()
-                                     == MetaData.FULLY_SPECIFIED_NAME____ISAAC.getConceptSequence()) {
+                                     == MetaData.FULLY_SPECIFIED_NAME____SOLOR.getConceptSequence()) {
                                 return -1;
                              }
 
