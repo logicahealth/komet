@@ -2,9 +2,10 @@ package sh.komet.gui.search.control;
 
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableIntegerArray;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.AnchorPane;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.AbstractPropertyEditor;
@@ -73,28 +74,49 @@ public class LetPropertySheet {
                 case DESCRIPTION_LOGIC:
                     return createCustomChoiceEditor(MetaData.DESCRIPTION_LOGIC_PROFILE____ISAAC, prop);
                 case MODULE:
-                case DESCRIPTION_TYPE:
-                case DIALECT:
-                    PropertySheetItemPreferenceWrapper preferenceWrapper = ((PropertySheetItemPreferenceWrapper) prop);
-                    PropertyEditor<?> preferencePropertyEditor = new AbstractPropertyEditor<ObservableList<ConceptForControlWrapper>,
+                    PropertyEditor<?> multiselectPropertyEditor = new AbstractPropertyEditor<ObservableList<ConceptForControlWrapper>,
                             ListView<ConceptForControlWrapper>>(prop, new ListView<>()) {
 
                         {
+                            PropertySheetItemListViewWrapper listViewWrapper = ((PropertySheetItemListViewWrapper) prop);
                             super.getEditor().setId(UUID.randomUUID().toString());
-                            super.getEditor().setItems(((PropertySheetItemPreferenceWrapper) prop).getList());
-                            super.getEditor().setPrefHeight((((PropertySheetItemPreferenceWrapper) prop)
-                                    .getList().size() * 26) + 2);
-                            super.getEditor().setCellFactory(cell -> new CellConceptForControlWrapper());
-                        }
-
-                        @Override
-                        public ListView<ConceptForControlWrapper> getEditor() {
-                            return super.getEditor();
+                            super.getEditor().setItems((ObservableList<ConceptForControlWrapper>) listViewWrapper.getValue());
+                            super.getEditor().setPrefHeight(((((ObservableList) listViewWrapper.getValue())
+                                    .size() * 26) + 2));
+                            listViewWrapper.addMultiselectListener(super.getEditor().getSelectionModel().getSelectedItems());
+                            super.getEditor().getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
                         }
 
                         @Override
                         protected ObservableValue<ObservableList<ConceptForControlWrapper>> getObservableValue() {
-                            return preferenceWrapper.observableWrapperProperty();
+                            return getEditor().itemsProperty();
+                        }
+
+                        @Override
+                        public void setValue(ObservableList<ConceptForControlWrapper> value) {
+                            getEditor().setItems(value);
+                        }
+                    };
+
+                    return multiselectPropertyEditor;
+                case DESCRIPTION_TYPE:
+                case DIALECT:
+                    PropertyEditor<?> preferencePropertyEditor = new AbstractPropertyEditor<ObservableList<ConceptForControlWrapper>,
+                            ListView<ConceptForControlWrapper>>(prop, new ListView<>()) {
+
+                        {
+                            PropertySheetItemListViewWrapper listViewWrapper = ((PropertySheetItemListViewWrapper) prop);
+                            super.getEditor().setId(UUID.randomUUID().toString());
+                            super.getEditor().setItems((ObservableList<ConceptForControlWrapper>) listViewWrapper.getValue());
+                            super.getEditor().setPrefHeight(((((ObservableList) listViewWrapper.getValue())
+                                    .size() * 26) + 2));
+                            super.getEditor().setCellFactory(cell -> new CellConceptForDragDropControlWrapper());
+                            listViewWrapper.addDragAndDropListener();
+                        }
+
+                        @Override
+                        protected ObservableValue<ObservableList<ConceptForControlWrapper>> getObservableValue() {
+                            return getEditor().itemsProperty();
                         }
 
                         @Override
@@ -149,26 +171,30 @@ public class LetPropertySheet {
      */
     private void buildPropertySheetItems() {
 
-        //Langauge Coordinate
+        buildAndSetModulesForMultiSelect();
+
+        this.items.add(new PropertySheetItemDateWrapper(TIME, this.manifoldForModification.getStampCoordinate()
+                .stampPositionProperty().get().timeProperty()));
+        this.items.add(new PropertySheetItemListViewWrapper(
+                this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().get(),
+                MODULE,
+                this.manifoldForModification));
+        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
+                PATH,
+                this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().stampPathSequenceProperty()
+        ));
         this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
                 LANGUAGE,
                 this.manifoldForModification.getLanguageCoordinate().languageConceptSequenceProperty()
         ));
-        this.items.add(new PropertySheetItemPreferenceWrapper(
+        this.items.add(new PropertySheetItemListViewWrapper(
                 this.manifoldForModification.getLanguageCoordinate().dialectAssemblagePreferenceListProperty().get(),
                 DIALECT,
                 this.manifoldForDisplay));
-        this.manifoldForModification.getLanguageCoordinate().dialectAssemblagePreferenceListProperty().get().addListener(observable -> {
-            System.out.println("Dialect Preference Changed:" + observable.toString());
-        });
-
-        this.items.add(new PropertySheetItemPreferenceWrapper(
+        this.items.add(new PropertySheetItemListViewWrapper(
                 this.manifoldForModification.getLanguageCoordinate().descriptionTypePreferenceListProperty().get(),
                 DESCRIPTION_TYPE,
                 this.manifoldForDisplay));
-        ////
-
-        //Logic Coordinate
         this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
                 CLASSIFIER,
                 this.manifoldForModification.getLogicCoordinate().classifierSequenceProperty()
@@ -177,26 +203,6 @@ public class LetPropertySheet {
                 DESCRIPTION_LOGIC,
                 this.manifoldForModification.getLogicCoordinate().descriptionLogicProfileSequenceProperty()
         ));
-
-
-        //STAMP Coordinate
-//        this.items.add(new PropertySheetItemDateWrapper(TIME, this.manifoldForModification.getStampCoordinate()
-//                        .stampPositionProperty().get().timeProperty()));
-
-        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
-                PATH,
-                this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().stampPathSequenceProperty()
-        ));
-//        this.items.add(new PropertySheetItemConceptWrapper(this.manifoldForDisplay,
-//                MODULE,
-//                this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().get());
-
-        this.items.add(new PropertySheetItemDateWrapper(TIME, this.manifoldForModification.getStampCoordinate()
-                .stampPositionProperty().get().timeProperty()));
-        this.manifoldForModification.getStampCoordinate().stampPositionProperty().get().timeProperty().addListener(observable -> {
-            System.out.println("Time Changed: " + observable.toString());
-        });
-
     }
 
     public PropertySheet getPropertySheet() {
@@ -207,7 +213,22 @@ public class LetPropertySheet {
         return manifoldForModification;
     }
 
-    public ObservableList<PropertySheet.Item> getItems() {
-        return items;
+    private void buildAndSetModulesForMultiSelect(){
+
+        if(this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().get().size() == 0) {
+            ArrayList<Integer> moduleNIDs = new ArrayList<>();
+            ObservableIntegerArray moduleIntegerArray = FXCollections.observableIntegerArray();
+            Get.taxonomyService().getAllRelationshipOriginSequences(MetaData.MODULE____ISAAC.getNid()).forEach(i -> {
+                moduleNIDs.add(i);
+            });
+            int[] iArray = new int[moduleNIDs.size()];
+            for (int i = 0; i < iArray.length; i++) {
+                iArray[i] = moduleNIDs.get(i);
+            }
+            moduleIntegerArray.addAll(iArray, 0, moduleNIDs.size());
+            this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().set(moduleIntegerArray);
+        }
+
     }
+
 }

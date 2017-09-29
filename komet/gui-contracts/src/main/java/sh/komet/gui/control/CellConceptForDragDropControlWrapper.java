@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
-public class CellConceptForControlWrapper extends ListCell<ConceptForControlWrapper> {
+public class CellConceptForDragDropControlWrapper extends ListCell<ConceptForControlWrapper> {
 
-    public CellConceptForControlWrapper(){
+    public CellConceptForDragDropControlWrapper(){
 
         ListCell listCell = this;
 
