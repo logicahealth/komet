@@ -72,7 +72,7 @@
       <docbkx-maven-plugin.version>2.0.17</docbkx-maven-plugin.version>
       <enforcer-api.version>1.4.1</enforcer-api.version>
       <fortify.version>16.10</fortify.version>
-      <gitflow-maven-plugin-version>1.6.0</gitflow-maven-plugin-version>
+      <gitflow-maven-plugin-version>1.7.0</gitflow-maven-plugin-version>
       <guava.version>21.0</guava.version>
       <hk2.version>2.5.0-b36</hk2.version>
       <httpclient.version>4.5.3</httpclient.version>
