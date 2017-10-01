@@ -5,7 +5,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>komet</artifactId>
-      <version>4.30-SNAPSHOT</version>
+      <version>4.31-SNAPSHOT</version>
    </parent>
    <groupId>sh.isaac.komet</groupId>
    <artifactId>assemblage-view</artifactId>
@@ -20,7 +20,7 @@
       <dependency>
          <groupId>sh.isaac.core</groupId>
          <artifactId>metadata</artifactId>
-         <version>4.30-SNAPSHOT</version>
+         <version>4.31-SNAPSHOT</version>
          <type>jar</type>
          <exclusions>
             <exclusion>
