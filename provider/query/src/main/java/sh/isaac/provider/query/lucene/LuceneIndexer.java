@@ -131,7 +131,6 @@ import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.util.WorkExecutors;
-import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SememeIndexer;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.chronicle.Chronology;
