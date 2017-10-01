@@ -114,9 +114,12 @@ import sh.isaac.api.component.sememe.version.StringVersion;
  *
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ * 
+ * TODO much of this functionality has been replaced by the single assemblage indexer. 
+ * Need to see what aspects of the dynamic sememe data types need to be migrated. 
  */
-@Service(name = "sememe indexer")
-@RunLevel(value = 2)
+//@Service(name = "sememe indexer")
+//@RunLevel(value = 2)
 public class SememeIndexer
         extends LuceneIndexer {
    /** The Constant LOG. */

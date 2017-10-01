@@ -90,9 +90,8 @@ public interface AssemblageService
     * of the underlying service.
     *
     * @param sememeChronicle the sememe chronicle
-    * @param constraints the constraints
     */
-   void writeSememe(SememeChronology sememeChronicle, SememeConstraints... constraints);
+   void writeSememe(SememeChronology sememeChronicle);
 
    //~--- get methods ---------------------------------------------------------
 
@@ -188,38 +187,6 @@ public interface AssemblageService
    SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageConceptSequence);
 
    /**
-    * Gets the sememe sequences for component from assemblages.
-    *
-    * @param componentNid The component nid that the sememes must reference
-    * @param allowedAssemblageSequences The (optional) set of assemblage types to limit the return to.  If empty or null, no assemblage filter is applied.
-    * @return the sememe sequences for component from assemblages
-    */
-   SememeSequenceSet getSememeSequencesForComponentFromAssemblages(int componentNid,
-         Set<Integer> allowedAssemblageSequences);
-
-   /**
-    * Gets the sememe sequences for components from assemblage.
-    *
-    * @param componentNidSet the component nid set
-    * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the sememe sequences for components from assemblage
-    */
-   SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet,
-         int assemblageConceptSequence);
-
-   /**
-    * Gets the sememe sequences for components from assemblage modified after position.
-    *
-    * @param componentNidSet the component nid set
-    * @param assemblageConceptSequence the assemblage concept sequence
-    * @param position the position
-    * @return the sememe sequences for components from assemblage modified after position
-    */
-   SememeSequenceSet getSememeSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet,
-         int assemblageConceptSequence,
-         StampPosition position);
-
-   /**
     * Gets the sememe sequences from assemblage.
     *
     * @param assemblageConceptSequence the assemblage concept sequence
@@ -246,17 +213,6 @@ public interface AssemblageService
     */
    <C extends SememeChronology> Stream<C> getSememesForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence);
-
-   /**
-    * Gets the sememes for component from assemblages.
-    *
-    * @param <C>
-    * @param componentNid The component nid that the sememes must reference
-    * @param allowedAssemblageSequences The (optional) set of assemblage types to limit the return to.  If empty or null, no assemblage filter is applied.
-    * @return the sememes for component from assemblages
-    */
-   <C extends SememeChronology> Stream<C> getSememesForComponentFromAssemblages(int componentNid,
-         Set<Integer> allowedAssemblageSequences);
 
    /**
     * Gets the sememes from assemblage.

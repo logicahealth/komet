@@ -84,7 +84,7 @@ public class TermAux {
                                                                           "072e7737-e22e-36b5-89d2-4815f0529c63"));
 
    /** ConceptProxy for: "ISAAC root concept". */
-   public static ConceptSpecification ISAAC_ROOT = new ConceptProxy("ISAAC root",
+   public static ConceptSpecification SOLOR_ROOT = new ConceptProxy("SOLOR concept",
                                                                     UUID.fromString(
                                                                        "7c21b6c5-cf11-5af9-893b-743f004c97f5"));
 
@@ -94,11 +94,11 @@ public class TermAux {
                                                                           "49b882a1-05e4-52cf-96d8-5de024b24632"));
 
    /** ConceptProxy for: "user". */
-   public static ConceptSpecification USER = new ConceptProxy("user",
+   public static ConceptSpecification USER = new ConceptProxy("User",
                                                               UUID.fromString("f7495b58-6630-3499-a44e-2052b5fcf06c"));
 
    /** ConceptProxy for: "is a". */
-   public static ConceptSpecification IS_A = new ConceptProxy("is a (relationship type)",
+   public static ConceptSpecification IS_A = new ConceptProxy("Is a (relationship type)",
                                                               UUID.fromString("46bccdc4-8fb6-11db-b606-0800200c9a66"));
 
    /** ConceptProxy for: "IHTSDO classifier. */
@@ -107,16 +107,16 @@ public class TermAux {
                                                                               "7e87cc5b-e85f-3860-99eb-7a44f2b9e6f9"));
 
    /** ConceptProxy for: "Path". */
-   public static ConceptSpecification PATH = new ConceptProxy("path",
+   public static ConceptSpecification PATH = new ConceptProxy("Path",
                                                               UUID.fromString("4459d8cf-5a6f-3952-9458-6d64324b27b7"));
 
    /** ConceptProxy for: "Path origin assemblage". IsaacMetadataAuxiliary has "path origins assemblage", TermAux has "Path origin reference set" */
-   public static ConceptSpecification PATH_ORIGIN_ASSEMBLAGE = new ConceptProxy("Path origin reference set",
+   public static ConceptSpecification PATH_ORIGIN_ASSEMBLAGE = new ConceptProxy("Path origin assemblage",
                                                                                 UUID.fromString(
                                                                                    "1239b874-41b4-32a1-981f-88b448829b4b"));
 
    /** ConceptProxy for: "path assemblage". IsaacMetadataAuxiliary has "paths assemblage", TermAux has "paths" */
-   public static ConceptSpecification PATH_ASSEMBLAGE = new ConceptProxy("paths",
+   public static ConceptSpecification PATH_ASSEMBLAGE = new ConceptProxy("Paths",
                                                                          UUID.fromString(
                                                                             "fd9d47b7-c0a4-3eea-b3ab-2b5a3f9e888f"));
 
@@ -128,7 +128,7 @@ public class TermAux {
                                                                               "87360947-e603-3397-804b-efd0fcc509b9"));
 
    /** ConceptProxy for: "Assemblage". Formerly known as REFSET_IDENTITY */
-   public static ConceptSpecification ASSEMBLAGE = new ConceptProxy("assemblage",
+   public static ConceptSpecification ASSEMBLAGE = new ConceptProxy("Assemblage",
                                                                     UUID.fromString(
                                                                        "3e0cd740-2cc6-3d68-ace7-bad2eb2621da"));
 
@@ -138,12 +138,12 @@ public class TermAux {
                        UUID.fromString("40d1c869-b509-32f8-b735-836eac577a67"));
 
    /** ConceptProxy for: "ISAAC module". */
-   public static ConceptSpecification ISAAC_MODULE = new ConceptProxy("ISAAC Module",
+   public static ConceptSpecification SOLOR_MODULE = new ConceptProxy("SOLOR module",
                                                                       UUID.fromString(
                                                                          "f680c868-f7e5-5d0e-91f2-615eca8f8fd2"));
 
    /** ConceptProxy for: "Synonym description type". SCT ID:    900000000000013009 */
-   public static ConceptSpecification SYNONYM_DESCRIPTION_TYPE = new ConceptProxy("synonym",
+   public static ConceptSpecification SYNONYM_DESCRIPTION_TYPE = new ConceptProxy("Synonym",
                                                                                   UUID.fromString(
                                                                                      "8bfba944-3965-3946-9bcb-1e80a5da63a2"));
 
@@ -159,22 +159,22 @@ public class TermAux {
 
    /** ConceptProxy for: "Description type in source terminology". Needed within DynamicSememeMetadata constants, which can't reference IsaacMetadataAuxiliary */
    public static ConceptSpecification DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY =
-      new ConceptProxy("description type in source terminology",
+      new ConceptProxy("Description type in source terminology",
                        UUID.fromString("ef7d9808-a839-5119-a604-b777268eb719"));
 
    /** ConceptProxy for: "Relationship type in source terminology". */
    public static ConceptSpecification RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY =
-      new ConceptProxy("relationship type in source terminology",
+      new ConceptProxy("Relationship type in source terminology",
                        UUID.fromString("46bc0e6b-0e64-5aa6-af27-a823e9156dfc"));
 
    /** ConceptProxy for: "US dialect assemblage". IsaacMetadataAuxiliary has "US English dialect", TermAux has "United States of America English language reference set" */
    public static ConceptSpecification US_DIALECT_ASSEMBLAGE =
-      new ConceptProxy("United States of America English language reference set",
+      new ConceptProxy("United States of America English language assemblage",
                        UUID.fromString("bca0a686-3516-3daf-8fcf-fe396d13cfad"));
 
    /** ConceptProxy for: "Great Britain dialect assemblage". IsaacMetadataAuxiliary has "GB English dialect", TermAux has "Great Britain English language reference set" */
    public static ConceptSpecification GB_DIALECT_ASSEMBLAGE =
-      new ConceptProxy("Great Britain English language reference set",
+      new ConceptProxy("Great Britain English language assemblage",
                        UUID.fromString("eb9a5e42-3cba-356d-b623-3ed472e20b30"));
 
    /** ConceptProxy for: "English language". */
@@ -218,6 +218,12 @@ public class TermAux {
    public static ConceptSpecification SWEDISH_LANGUAGE = new ConceptProxy("Swedish language",
                                                                           UUID.fromString("9784a791-8fdb-32f7-88da-74ab135fe4e3"));
 
+   /** ConceptProxy for: "English description assemblage". */
+   public static ConceptSpecification DESCRIPTION_ASSEMBLAGE =
+      new ConceptProxy("Description assemblage",
+                       UUID.fromString("c9b9a4ac-3a1c-516c-bbef-3a13e30df27d"));
+   
+   
    /** ConceptProxy for: "English description assemblage". */
    public static ConceptSpecification ENGLISH_DESCRIPTION_ASSEMBLAGE =
       new ConceptProxy("English description assemblage",
@@ -283,21 +289,21 @@ public class TermAux {
 
    /** ConceptProxy for: "description not case sensitive". SCT ID:    900000000000448009 */
    public static ConceptSpecification DESCRIPTION_NOT_CASE_SENSITIVE =
-      new ConceptProxy("description not case sensitive",
+      new ConceptProxy("Description not case sensitive",
                        UUID.fromString("ecea41a2-f596-3d98-99d1-771b667e55b8"));
 
    /** ConceptProxy for: "description initial character sensitive". SCT ID:    900000000000020002 */
    public static ConceptSpecification DESCRIPTION_INITIAL_CHARACTER_SENSITIVE =
-      new ConceptProxy("description initial character sensitive",
+      new ConceptProxy("Description initial character sensitive",
                        UUID.fromString("17915e0d-ed38-3488-a35c-cda966db306a"));
 
    /** ConceptProxy for: "development path". */
-   public static ConceptSpecification DEVELOPMENT_PATH = new ConceptProxy("development path",
+   public static ConceptSpecification DEVELOPMENT_PATH = new ConceptProxy("Development path",
                                                                           UUID.fromString(
                                                                              "1f200ca6-960e-11e5-8994-feff819cdc9f"));
 
    /** ConceptProxy for: "master path". */
-   public static ConceptSpecification MASTER_PATH = new ConceptProxy("master path",
+   public static ConceptSpecification MASTER_PATH = new ConceptProxy("Master path",
                                                                      UUID.fromString(
                                                                         "1f20134a-960e-11e5-8994-feff819cdc9f"));
 
@@ -332,53 +338,53 @@ public class TermAux {
                                                                                  "1f201fac-960e-11e5-8994-feff819cdc9f"));
 
    /** ConceptProxy for: "role group". */
-   public static ConceptSpecification ROLE_GROUP = new ConceptProxy("role group",
+   public static ConceptSpecification ROLE_GROUP = new ConceptProxy("Role group",
                                                                     UUID.fromString(
                                                                        "a63f4bf2-a040-11e5-8994-feff819cdc9f"));
 
    /** ConceptProxy for: "sufficient concept definition". SCTID: 900000000000073002 */
-   public static ConceptSpecification SUFFICIENT_CONCEPT_DEFINITION = new ConceptProxy("sufficient concept definition",
+   public static ConceptSpecification SUFFICIENT_CONCEPT_DEFINITION = new ConceptProxy("Sufficient concept definition",
                                                                                        UUID.fromString(
                                                                                           "6d9cd46e-8a8f-310a-a298-3e55dcf7a986"));
 
    /** ConceptProxy for: "necessary but not sufficient concept definition". SCTID: 900000000000074008 */
    public static ConceptSpecification NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION =
-      new ConceptProxy("necessary but not sufficient concept definition",
+      new ConceptProxy("Necessary but not sufficient concept definition",
                        UUID.fromString("e1a12059-3b01-3296-9532-d10e49d0afc3"));
 
    /** ConceptProxy for: "ISAAC metadata" */
-   public static ConceptSpecification ISAAC_METADATA =
-      new ConceptProxy("ISAAC metadata",
+   public static ConceptSpecification SOLOR_METADATA =
+      new ConceptProxy("Metadata",
                        UUID.fromString("7bbd4210-381c-11e7-9598-0800200c9a66"));
    
    
-   public static ConceptSpecification ACTIVE_QUERY_CLAUSE = new ConceptProxy("component is active (query clause)", "active ", UUID.fromString("45df0b38-67ec-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification INACTIVE_QUERY_CLAUSE = new ConceptProxy("component is inactive (query clause)", "inactive", UUID.fromString("50e719a8-67ec-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification AND_QUERY_CLAUSE = new ConceptProxy("all child criterion are satisfied for component (query clause)", "and", UUID.fromString("d9c1e360-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification NOT_QUERY_CLAUSE = new ConceptProxy("not (query clause)", "not", UUID.fromString("d9c1ea9a-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification ACTIVE_QUERY_CLAUSE = new ConceptProxy("Component is active (query clause)", "active ", UUID.fromString("45df0b38-67ec-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification INACTIVE_QUERY_CLAUSE = new ConceptProxy("Component is inactive (query clause)", "inactive", UUID.fromString("50e719a8-67ec-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification AND_QUERY_CLAUSE = new ConceptProxy("All child criterion are satisfied for component (query clause)", "and", UUID.fromString("d9c1e360-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification NOT_QUERY_CLAUSE = new ConceptProxy("Not (query clause)", "not", UUID.fromString("d9c1ea9a-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification AND_NOT_QUERY_CLAUSE = new ConceptProxy("and not (query clause)", "and not", UUID.fromString("d9c1ec02-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification OR_QUERY_CLAUSE = new ConceptProxy("any child criterion is satisfied for component (query clause)", "or", UUID.fromString("d9c1f24c-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification XOR_QUERY_CLAUSE = new ConceptProxy("xor (query clause)", "xor", UUID.fromString("d9c1f42c-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification OR_QUERY_CLAUSE = new ConceptProxy("Any child criterion is satisfied for component (query clause)", "or", UUID.fromString("d9c1f24c-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification XOR_QUERY_CLAUSE = new ConceptProxy("XOR (query clause)", "xor", UUID.fromString("d9c1f42c-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification CHANGED_FROM_PREVIOUS_VERSION_QUERY_CLAUSE = new ConceptProxy("changed from previous version (query clause)", "changed from previous version", UUID.fromString("d9c1f530-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification CONCEPT_IS_QUERY_CLAUSE = new ConceptProxy("concept is (query clause)", "concept is", UUID.fromString("d9c1f602-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification CONCEPT_IS_KIND_OF_QUERY_CLAUSE = new ConceptProxy("concept is kind of (query clause)", "kind of", UUID.fromString("d9c1f6d4-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification DESCRIPTION_LUCENE_MATCH_QUERY_CLAUSE = new ConceptProxy("description Lucene match (query clause)", "Lucene match", UUID.fromString("d9c1f7a6-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification PREFERRED_NAME_FOR_CONCEPT_QUERY_CLAUSE = new ConceptProxy("preferred name for concept (query clause)", "preferred name for concept", UUID.fromString("d9c1f882-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification RELATIONSHIP_IS_CIRCULAR_QUERY_CLAUSE = new ConceptProxy("relationship is circular (query clause)", "relationship is circular", UUID.fromString("d9c1fcec-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification CONCEPT_IS_CHILD_OF_QUERY_CLAUSE = new ConceptProxy("concept is child of (query clause)", "child of", UUID.fromString("d9c1fddc-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE = new ConceptProxy("description regex match (query clause)", "regex match", UUID.fromString("d9c1ff9e-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification CONCEPT_FOR_COMPONENT_QUERY_CLAUSE = new ConceptProxy("concept for component (query clause)", "concept for component", UUID.fromString("d9c20070-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE = new ConceptProxy("concept is descendent of (query clause)", "descendent of", UUID.fromString("d9c20142-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification FULLY_SPECIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE = new ConceptProxy("fully specified name for concept (query clause)", "fully specified name for concept", UUID.fromString("f8eb8a8c-57aa-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification CONCEPT_IS_QUERY_CLAUSE = new ConceptProxy("Concept is (query clause)", "concept is", UUID.fromString("d9c1f602-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification CONCEPT_IS_KIND_OF_QUERY_CLAUSE = new ConceptProxy("Concept is kind of (query clause)", "kind of", UUID.fromString("d9c1f6d4-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification DESCRIPTION_LUCENE_MATCH_QUERY_CLAUSE = new ConceptProxy("Description Lucene match (query clause)", "Lucene match", UUID.fromString("d9c1f7a6-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification PREFERRED_NAME_FOR_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Preferred name for concept (query clause)", "preferred name for concept", UUID.fromString("d9c1f882-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification RELATIONSHIP_IS_CIRCULAR_QUERY_CLAUSE = new ConceptProxy("Relationship is circular (query clause)", "relationship is circular", UUID.fromString("d9c1fcec-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification CONCEPT_IS_CHILD_OF_QUERY_CLAUSE = new ConceptProxy("Concept is child of (query clause)", "child of", UUID.fromString("d9c1fddc-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE = new ConceptProxy("Description regex match (query clause)", "regex match", UUID.fromString("d9c1ff9e-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification CONCEPT_FOR_COMPONENT_QUERY_CLAUSE = new ConceptProxy("Concept for component (query clause)", "concept for component", UUID.fromString("d9c20070-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE = new ConceptProxy("Concept is descendent of (query clause)", "descendent of", UUID.fromString("d9c20142-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification FULLY_SPECIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Fully specified name for concept (query clause)", "fully specified name for concept", UUID.fromString("f8eb8a8c-57aa-11e7-907b-a6006ad3dba0"));
    
-   public static ConceptSpecification ASSEMBLAGE_CONTAINS_STRING_QUERY_CLAUSE = new ConceptProxy("assemblage contains string (query clause)", "assemblage contains string", UUID.fromString("d9c207c8-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE = new ConceptProxy("assemblage contains concept (query clause)", "assemblage contains concept", UUID.fromString("d9c208a4-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification ASSEMBLAGE_CONTAINS_COMPONENT_QUERY_CLAUSE = new ConceptProxy("assemblage contains component (query clause)", "assemblage contains component", UUID.fromString("d9c20976-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification ASSEMBLAGE_LUCENE_MATCH_QUERY_CLAUSE = new ConceptProxy("assemblage Lucene match (query clause)", "assemblage Lucene match", UUID.fromString("d9c20a5c-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT_QUERY_CLAUSE = new ConceptProxy("assemblage contains kind-of concept (query clause)", "assemblage contains kind-of concept", UUID.fromString("d9c20b38-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification REL_RESTRICTION_QUERY_CLAUSE = new ConceptProxy("relationship restriction (query clause)", "relationship restriction", UUID.fromString("d9c20c0a-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification REL_TYPE_QUERY_CLAUSE = new ConceptProxy("relationship type (query clause)", "relationship type", UUID.fromString("d9c211be-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification ENCLOSING_CONCEPT_QUERY_CLAUSE = new ConceptProxy("enclosing concept (query clause)", "enclosing concept", UUID.fromString("f5111e6c-681d-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification ASSEMBLAGE_CONTAINS_STRING_QUERY_CLAUSE = new ConceptProxy("Assemblage contains string (query clause)", "assemblage contains string", UUID.fromString("d9c207c8-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Assemblage contains concept (query clause)", "assemblage contains concept", UUID.fromString("d9c208a4-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification ASSEMBLAGE_CONTAINS_COMPONENT_QUERY_CLAUSE = new ConceptProxy("Assemblage contains component (query clause)", "assemblage contains component", UUID.fromString("d9c20976-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification ASSEMBLAGE_LUCENE_MATCH_QUERY_CLAUSE = new ConceptProxy("Assemblage Lucene match (query clause)", "assemblage Lucene match", UUID.fromString("d9c20a5c-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Assemblage contains kind-of concept (query clause)", "assemblage contains kind-of concept", UUID.fromString("d9c20b38-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification REL_RESTRICTION_QUERY_CLAUSE = new ConceptProxy("Relationship restriction (query clause)", "relationship restriction", UUID.fromString("d9c20c0a-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification REL_TYPE_QUERY_CLAUSE = new ConceptProxy("Relationship type (query clause)", "relationship type", UUID.fromString("d9c211be-579e-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification ENCLOSING_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Enclosing concept (query clause)", "enclosing concept", UUID.fromString("f5111e6c-681d-11e7-907b-a6006ad3dba0"));
 
   
    //~--- methods -------------------------------------------------------------

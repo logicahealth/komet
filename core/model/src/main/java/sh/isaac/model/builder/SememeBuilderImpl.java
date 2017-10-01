@@ -66,7 +66,6 @@ import sh.isaac.model.sememe.version.DescriptionVersionImpl;
 import sh.isaac.model.sememe.version.DynamicSememeImpl;
 import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
 import sh.isaac.model.sememe.version.LongVersionImpl;
-import sh.isaac.model.sememe.version.SememeVersionImpl;
 import sh.isaac.model.sememe.version.StringVersionImpl;
 import sh.isaac.api.chronicle.Chronology;
 

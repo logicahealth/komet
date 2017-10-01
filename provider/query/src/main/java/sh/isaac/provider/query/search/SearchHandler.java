@@ -45,16 +45,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -62,16 +65,15 @@ import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.TaskCompleteCallback;
 import sh.isaac.api.util.UUIDUtil;
-import sh.isaac.MetaData;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
-import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
+import sh.isaac.provider.query.lucene.indexers.AssemblageIndexer;
 import sh.isaac.provider.query.lucene.indexers.SememeIndexer;
-import sh.isaac.utility.Frills;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
@@ -159,7 +161,7 @@ public class SearchHandler {
     * @return A handle to the running search.
     */
    public static SearchHandle descriptionSearch(String query,
-         final BiFunction<DescriptionIndexer, String, List<SearchResult>> searchFunction,
+         final BiFunction<AssemblageIndexer, String, List<SearchResult>> searchFunction,
          final boolean prefixSearch,
          final Consumer<SearchHandle> operationToRunWhenSearchComplete,
          final Integer taskId,
@@ -198,8 +200,8 @@ public class SearchHandler {
 
                                   LOG.debug("Lucene Search: '" + localQuery + "'");
 
-                                  final DescriptionIndexer descriptionIndexer =
-                                     LookupService.getService(DescriptionIndexer.class);
+                                  final AssemblageIndexer descriptionIndexer =
+                                     LookupService.getService(AssemblageIndexer.class);
 
                                   if (descriptionIndexer == null) {
                                      LOG.warn("No description indexer found, aborting.");
@@ -726,15 +728,81 @@ public class SearchHandler {
    private static Integer[] getDescriptionSememeAssemblages() {
       if (descriptionSememeAssemblagesCache == null) {
          final Set<Integer> descSememes =
-            Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_ASSEMBLAGE____ISAAC.getConceptSequence(),
+            getAllChildrenOfConcept(TermAux.DESCRIPTION_ASSEMBLAGE.getConceptSequence(),
                                            true,
                                            false);
 
-         descSememes.add(MetaData.DESCRIPTION_ASSEMBLAGE____ISAAC.getConceptSequence());
+         descSememes.add(TermAux.DESCRIPTION_ASSEMBLAGE.getConceptSequence());
          descriptionSememeAssemblagesCache = descSememes.toArray(new Integer[descSememes.size()]);
       }
 
       return descriptionSememeAssemblagesCache;
    }
+   
+   
+
+   /**
+    * Get isA children of a concept.  Does not return the requested concept in any circumstance.
+    * @param conceptSequence The concept to look at
+    * @param recursive recurse down from the concept
+    * @param leafOnly only return leaf nodes
+    * @return the set of concept sequence ids that represent the children
+    */
+   public static Set<Integer> getAllChildrenOfConcept(int conceptSequence, boolean recursive, boolean leafOnly) {
+      final Set<Integer> temp = getAllChildrenOfConcept(new HashSet<>(), conceptSequence, recursive, leafOnly);
+
+      if (leafOnly && (temp.size() == 1)) {
+         temp.remove(conceptSequence);
+      }
+
+      return temp;
+   }
+
+   /**
+    * Recursively get Is a children of a concept.  May inadvertenly return the requested starting sequence when leafOnly is true, and
+    * there are no children.
+    *
+    * @param handledConceptSequenceIds the handled concept sequence ids
+    * @param conceptSequence the concept sequence
+    * @param recursive the recursive
+    * @param leafOnly the leaf only
+    * @return the all children of concept
+    */
+   private static Set<Integer> getAllChildrenOfConcept(Set<Integer> handledConceptSequenceIds,
+         int conceptSequence,
+         boolean recursive,
+         boolean leafOnly) {
+      final Set<Integer> results = new HashSet<>();
+
+      // This both prevents infinite recursion and avoids processing or returning of duplicates
+      if (handledConceptSequenceIds.contains(conceptSequence)) {
+         return results;
+      }
+
+      final AtomicInteger count    = new AtomicInteger();
+      final IntStream     children = Get.taxonomyService()
+                                        .getTaxonomyChildSequences(conceptSequence);
+
+      children.forEach(
+          (conSequence) -> {
+             count.getAndIncrement();
+
+             if (!leafOnly) {
+                results.add(conSequence);
+             }
+
+             if (recursive) {
+                results.addAll(getAllChildrenOfConcept(handledConceptSequenceIds, conSequence, recursive, leafOnly));
+             }
+          });
+
+      if (leafOnly && (count.get() == 0)) {
+         results.add(conceptSequence);
+      }
+
+      handledConceptSequenceIds.add(conceptSequence);
+      return results;
+   }
+   
 }
 

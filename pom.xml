@@ -3,7 +3,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>sh.isaac</groupId>
    <artifactId>isaac</artifactId>
-   <version>4.28</version>
+   <version>4.38</version>
 
    <name>ISAAC: (MMP) Informatics Analytic Architecture</name>
 
@@ -72,7 +72,7 @@
       <docbkx-maven-plugin.version>2.0.17</docbkx-maven-plugin.version>
       <enforcer-api.version>1.4.1</enforcer-api.version>
       <fortify.version>16.10</fortify.version>
-      <gitflow-maven-plugin-version>1.6.0</gitflow-maven-plugin-version>
+      <gitflow-maven-plugin-version>1.7.0</gitflow-maven-plugin-version>
       <guava.version>21.0</guava.version>
       <hk2.version>2.5.0-b36</hk2.version>
       <httpclient.version>4.5.3</httpclient.version>
@@ -673,6 +673,18 @@
             <groupId>com.amashchenko.maven.plugin</groupId>
             <artifactId>gitflow-maven-plugin</artifactId>
             <version>${gitflow-maven-plugin-version}</version>
+            <configuration>
+              <allowSnapshots>false</allowSnapshots>
+              <autoVersionSubmodules>true</autoVersionSubmodules>
+              <enableFeatureVersions>true</enableFeatureVersions>
+              <enableSshAgent>true</enableSshAgent>
+              <fetchRemote>false</fetchRemote>
+              <installProject>true</installProject>
+              <pushReleases>false</pushReleases>
+              <scmCommentPrefix>[gitflow-plugin] </scmCommentPrefix>
+              <username>${git.user}</username>
+              <password>${git.password}</password>
+            </configuration>
          </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>

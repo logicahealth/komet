@@ -49,7 +49,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
+import java.util.logging.Level;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -80,10 +80,6 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.MetaData;
-import sh.isaac.api.component.concept.ConceptSnapshot;
-import sh.isaac.api.component.concept.ConceptSnapshotService;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.model.logic.LogicByteArrayConverterService;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderOchreProvider;
 
@@ -157,9 +153,9 @@ public class ImportExportTest {
             throws Exception {
       final LogicalExpressionBuilder defBuilder = this.builderProvider.getLogicalExpressionBuilder();
 
-      SufficientSet(And(SomeRole(MetaData.ROLE_GROUP____ISAAC,
-                                 And(Feature(MetaData.HAS_STRENGTH____ISAAC, FloatLiteral(1.2345F, defBuilder)),
-                                     ConceptAssertion(MetaData.MASTER_PATH____ISAAC, defBuilder)))));
+      SufficientSet(And(SomeRole(MetaData.ROLE_GROUP____SOLOR,
+                                 And(Feature(MetaData.HAS_STRENGTH____SOLOR, FloatLiteral(1.2345F, defBuilder)),
+                                     ConceptAssertion(MetaData.MASTER_PATH____SOLOR, defBuilder)))));
 
       final LogicalExpression              logicGraphDef    = defBuilder.build();
       final LogicByteArrayConverterService converter        = new LogicByteArrayConverterService();
@@ -326,12 +322,17 @@ public class ImportExportTest {
                .forEach((object) -> {
                            commitService.importNoChecks(object);
                         });
+         Get.startIndexTask().get();
          commitService.postProcessImportNoChecks();
          this.importStats.sememes.incrementAndGet();  // For the commit that the ChangeSetLoadProvider makes on startup
          this.importStats.stampComments.incrementAndGet();  // For the commit that the ChangeSetLoadProvider makes on startup
          LOG.info("Loaded components: " + this.importStats);
       } catch (final FileNotFoundException e) {
          Assert.fail("File not found", e);
+      } catch (InterruptedException ex) {
+         Assert.fail("Interrupted", ex);
+      } catch (ExecutionException ex) {
+         Assert.fail("Execution exception", ex);
       }
    }
 

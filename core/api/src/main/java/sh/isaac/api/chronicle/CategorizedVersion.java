@@ -223,5 +223,9 @@ public class CategorizedVersion
    public VersionType getVersionType() {
       return delegate.getVersionType();
    }
+   
+   public CategorizedVersions getCategorizedVersions() {
+      return categorizedVersions;
+   }   
 }
 

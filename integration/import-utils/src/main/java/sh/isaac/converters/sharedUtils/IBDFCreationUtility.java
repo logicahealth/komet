@@ -219,8 +219,8 @@ public class IBDFCreationUtility {
       LookupService.startupIsaac();
 
       // Initialize after starting up isaac...
-      this.authorSeq          = MetaData.USER____ISAAC.getConceptSequence();
-      this.terminologyPathSeq = MetaData.DEVELOPMENT_PATH____ISAAC.getConceptSequence();
+      this.authorSeq          = MetaData.USER____SOLOR.getConceptSequence();
+      this.terminologyPathSeq = MetaData.DEVELOPMENT_PATH____SOLOR.getConceptSequence();
 
       // TODO automate this somehow....
       registerDynamicSememeColumnInfo(
@@ -271,7 +271,7 @@ public class IBDFCreationUtility {
 
       // TODO figure out how to get rid of this copy/paste mess too
       registerDynamicSememeColumnInfo(
-          MetaData.LOINC_NUM____ISAAC.getPrimordialUuid(),
+          MetaData.LOINC_NUM____SOLOR.getPrimordialUuid(),
           new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(
               0,
               DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getPrimordialUuid(),
@@ -280,8 +280,8 @@ public class IBDFCreationUtility {
               true,
               true) });
       this.conceptBuilderService = Get.conceptBuilderService();
-      this.conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____ISAAC);
-      this.conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____ISAAC);
+      this.conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____SOLOR);
+      this.conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____SOLOR);
       this.conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
       this.expressionBuilderService = Get.logicalExpressionBuilderService();
       this.sememeBuilderService     = Get.sememeBuilderService();
@@ -289,7 +289,7 @@ public class IBDFCreationUtility {
 
       final StampPosition stampPosition = new StampPositionImpl(
                                               Long.MAX_VALUE,
-                                                    MetaData.DEVELOPMENT_PATH____ISAAC.getConceptSequence());
+                                                    MetaData.DEVELOPMENT_PATH____SOLOR.getConceptSequence());
 
       readBackStamp = new StampCoordinateImpl(
           StampPrecedence.PATH,
@@ -321,7 +321,7 @@ public class IBDFCreationUtility {
              true,
              preExistingModule.isPresent() ? preExistingModule.get()
                    .getPrimordialUuid()
-                                           : MetaData.MODULE____ISAAC.getPrimordialUuid());
+                                           : MetaData.MODULE____SOLOR.getPrimordialUuid());
       } else {
          this.module = ComponentReference.fromConcept(
              preExistingModule.get()
@@ -360,13 +360,13 @@ public class IBDFCreationUtility {
        * @return the description type
        */
       public static DescriptionType convert(UUID typeUuid) {
-         if (MetaData.FULLY_SPECIFIED_NAME____ISAAC.getUuidList().contains(typeUuid)) {
+         if (MetaData.FULLY_SPECIFIED_NAME____SOLOR.getUuidList().contains(typeUuid)) {
             return FSN;
-         } else if (MetaData.SYNONYM____ISAAC.getUuidList().contains(typeUuid)) {
+         } else if (MetaData.SYNONYM____SOLOR.getUuidList().contains(typeUuid)) {
             return SYNONYM;
          }
 
-         if (MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC.getUuidList().contains(typeUuid)) {
+         if (MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getUuidList().contains(typeUuid)) {
             return DEFINITION;
          }
          LOG.error(typeUuid + " is not a known description type. ");
@@ -384,16 +384,16 @@ public class IBDFCreationUtility {
       public ConceptSpecification getConceptSpec() {
          switch (this) {
          case FSN:
-            return MetaData.FULLY_SPECIFIED_NAME____ISAAC;
+            return MetaData.FULLY_SPECIFIED_NAME____SOLOR;
 
          case SYNONYM:
-            return MetaData.SYNONYM____ISAAC;
+            return MetaData.SYNONYM____SOLOR;
 
          case DEFINITION:
-            return MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC;
+            return MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR;
 
          case UNKNOWN:
-             return MetaData.UNKNOWN_DESCRIPTION_TYPE____ISAAC;
+             return MetaData.UNKNOWN_DESCRIPTION_TYPE____SOLOR;
                     
          default:
             throw new RuntimeException("Unsupported descriptiontype '" + this + "'");
@@ -646,11 +646,11 @@ public class IBDFCreationUtility {
       }
 
       if (dialect == null) {
-         dialect = MetaData.US_ENGLISH_DIALECT____ISAAC.getPrimordialUuid();
+         dialect = MetaData.US_ENGLISH_DIALECT____SOLOR.getPrimordialUuid();
       }
 
       if (languageCode == null) {
-         languageCode = MetaData.ENGLISH_LANGUAGE____ISAAC.getPrimordialUuid();
+         languageCode = MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid();
       }
 
       if (descriptionPrimordialUUID == null) {
@@ -670,7 +670,7 @@ public class IBDFCreationUtility {
          this.sememeBuilderService.getDescriptionSememeBuilder(
              Get.identifierService()
                 .getConceptSequenceForUuids(
-                    (caseSignificant == null) ? MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____ISAAC.getPrimordialUuid()
+                    (caseSignificant == null) ? MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid()
             : caseSignificant),
              Get.identifierService()
                 .getConceptSequenceForUuids(
@@ -963,7 +963,7 @@ public class IBDFCreationUtility {
                                             concept.getPrimordialUuid()
                                                   .toString(),
                                                   Arrays.toString(targetUuid),
-                                                  MetaData.IS_A____ISAAC.getPrimordialUuid()
+                                                  MetaData.IS_A____SOLOR.getPrimordialUuid()
                                                         .toString()));
 
       final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
@@ -984,9 +984,9 @@ public class IBDFCreationUtility {
                                    .getPrimordialUuid());
          this.ls.addRelationship(
              getOriginStringForUuid(
-                 MetaData.IS_A____ISAAC.getPrimordialUuid()) + ":" + getOriginStringForUuid(sourceRelTypeUUID));
+                 MetaData.IS_A____SOLOR.getPrimordialUuid()) + ":" + getOriginStringForUuid(sourceRelTypeUUID));
       } else {
-         this.ls.addRelationship(getOriginStringForUuid(MetaData.IS_A____ISAAC.getPrimordialUuid()));
+         this.ls.addRelationship(getOriginStringForUuid(MetaData.IS_A____SOLOR.getPrimordialUuid()));
       }
 
       return sci;
@@ -1313,9 +1313,9 @@ public class IBDFCreationUtility {
                                    .toString(),
                             refexDescription,
                             DescriptionType.DEFINITION.name(),
-                            MetaData.US_ENGLISH_DIALECT____ISAAC.getPrimordialUuid()
+                            MetaData.US_ENGLISH_DIALECT____SOLOR.getPrimordialUuid()
                                   .toString(),
-                            MetaData.ENGLISH_LANGUAGE____ISAAC.getPrimordialUuid()
+                            MetaData.ENGLISH_LANGUAGE____SOLOR.getPrimordialUuid()
                                   .toString(),
                             new Boolean("true").toString(),
                             "DynamicSememeMarker");
@@ -1704,17 +1704,17 @@ public class IBDFCreationUtility {
 
          if (pt instanceof BPT_Refsets) {
             secondParent = setupWbPropertyMetadata(
-                MetaData.SOLOR_ASSEMBLAGE____ISAAC.getPrimordialUuid(),
+                MetaData.SOLOR_ASSEMBLAGE____SOLOR.getPrimordialUuid(),
                 (BPT_DualParentPropertyType) pt);
          } else if (pt instanceof BPT_Descriptions) {
             // should only do this once, in case we see a BPT_Descriptions more than once
             secondParent = setupWbPropertyMetadata(
-                MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____ISAAC.getPrimordialUuid(),
+                MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getPrimordialUuid(),
                 (BPT_DualParentPropertyType) pt);
          } else if (pt instanceof BPT_Relations) {
             // should only do this once, in case we see a BPT_Relations more than once
             secondParent = setupWbPropertyMetadata(
-                MetaData.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY____ISAAC.getPrimordialUuid(),
+                MetaData.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getPrimordialUuid(),
                 (BPT_DualParentPropertyType) pt);
          }
 
@@ -1827,17 +1827,17 @@ public class IBDFCreationUtility {
       addStaticStringAnnotation(
           terminologyMetadataRootConcept,
           converterSourceArtifactVersion,
-          MetaData.SOURCE_ARTIFACT_VERSION____ISAAC.getPrimordialUuid(),
+          MetaData.SOURCE_ARTIFACT_VERSION____SOLOR.getPrimordialUuid(),
           State.ACTIVE);
       addStaticStringAnnotation(
           terminologyMetadataRootConcept,
           converterOutputArtifactVersion,
-          MetaData.CONVERTED_IBDF_ARTIFACT_VERSION____ISAAC.getPrimordialUuid(),
+          MetaData.CONVERTED_IBDF_ARTIFACT_VERSION____SOLOR.getPrimordialUuid(),
           State.ACTIVE);
       addStaticStringAnnotation(
           terminologyMetadataRootConcept,
           converterVersion,
-          MetaData.CONVERTER_VERSION____ISAAC.getPrimordialUuid(),
+          MetaData.CONVERTER_VERSION____SOLOR.getPrimordialUuid(),
           State.ACTIVE);
 
       if (converterOutputArtifactClassifier.isPresent() &&
@@ -1845,7 +1845,7 @@ public class IBDFCreationUtility {
          addStaticStringAnnotation(
              terminologyMetadataRootConcept,
              converterOutputArtifactClassifier.get(),
-             MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER____ISAAC.getPrimordialUuid(),
+             MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER____SOLOR.getPrimordialUuid(),
              State.ACTIVE);
       }
 
@@ -1853,7 +1853,7 @@ public class IBDFCreationUtility {
          addStaticStringAnnotation(
              terminologyMetadataRootConcept,
              converterSourceReleaseDate.get(),
-             MetaData.SOURCE_RELEASE_DATE____ISAAC.getPrimordialUuid(),
+             MetaData.SOURCE_RELEASE_DATE____SOLOR.getPrimordialUuid(),
              State.ACTIVE);
       }
    }

@@ -208,8 +208,8 @@ public class Frills
 
       final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
-      conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____ISAAC);
-      conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____ISAAC);
+      conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____SOLOR);
+      conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____SOLOR);
       conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
 
       final DescriptionBuilderService descriptionBuilderService = LookupService.getService(
@@ -230,17 +230,17 @@ public class Frills
       DescriptionBuilder<?, ?> definitionBuilder = descriptionBuilderService.getDescriptionBuilder(
                                                        columnName,
                                                              builder,
-                                                             MetaData.SYNONYM____ISAAC,
-                                                             MetaData.ENGLISH_LANGUAGE____ISAAC);
+                                                             MetaData.SYNONYM____SOLOR,
+                                                             MetaData.ENGLISH_LANGUAGE____SOLOR);
 
-      definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____ISAAC);
+      definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
       builder.addDescription(definitionBuilder);
       definitionBuilder = descriptionBuilderService.getDescriptionBuilder(
           columnDescription,
           builder,
-          MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC,
-          MetaData.ENGLISH_LANGUAGE____ISAAC);
-      definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____ISAAC);
+          MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR,
+          MetaData.ENGLISH_LANGUAGE____SOLOR);
+      definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
       builder.addDescription(definitionBuilder);
 
       ConceptChronology newCon;
@@ -288,8 +288,8 @@ public class Frills
                : editCoord);
          final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
-         conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____ISAAC);
-         conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____ISAAC);
+         conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____SOLOR);
+         conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____SOLOR);
          conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
 
          final DescriptionBuilderService descriptionBuilderService = LookupService.getService(
@@ -311,10 +311,10 @@ public class Frills
             descriptionBuilderService.getDescriptionBuilder(
                 sememePreferredTerm,
                 builder,
-                MetaData.SYNONYM____ISAAC,
-                MetaData.ENGLISH_LANGUAGE____ISAAC);
+                MetaData.SYNONYM____SOLOR,
+                MetaData.ENGLISH_LANGUAGE____SOLOR);
 
-         definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____ISAAC);
+         definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
          builder.addDescription(definitionBuilder);
 
          final ConceptChronology newCon = builder.build(localEditCoord, ChangeCheckerMode.ACTIVE, new ArrayList<>())
@@ -326,9 +326,9 @@ public class Frills
             definitionBuilder = descriptionBuilderService.getDescriptionBuilder(
                 sememeDescription,
                 builder,
-                MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC,
-                MetaData.ENGLISH_LANGUAGE____ISAAC);
-            definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____ISAAC);
+                MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR,
+                MetaData.ENGLISH_LANGUAGE____SOLOR);
+            definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
 
             final SememeChronology definitionSememe = definitionBuilder.build(
                                                              localEditCoord,
@@ -548,38 +548,6 @@ public class Frills
    }
 
    /**
-    * Convenience method to find the nearest concept related to a sememe.  Recursively walks referenced components until it finds a concept.
-    *
-    * @param nid the nid
-    * @return the nearest concept sequence, or -1, if no concept can be found.
-    */
-   public static int findConcept(int nid) {
-      final Optional<? extends Chronology> c = Get.identifiedObjectService()
-                                                                            .getIdentifiedObjectChronology(nid);
-
-      if (c.isPresent()) {
-         if (null == c.get().getExternalizableObjectType()) {
-            LOG.warn("Unexpected object type: " + c.get().getExternalizableObjectType());
-         } else {
-            switch (c.get()
-                     .getExternalizableObjectType()) {
-            case SEMEME:
-               return findConcept(((SememeChronology) c.get()).getReferencedComponentNid());
-
-            case CONCEPT:
-               return ((ConceptChronology) c.get()).getConceptSequence();
-
-            default:
-               LOG.warn("Unexpected object type: " + c.get().getExternalizableObjectType());
-               break;
-            }
-         }
-      }
-
-      return -1;
-   }
-
-   /**
     * All done in a background thread, method returns immediately.
     *
     * @param nid the nid
@@ -787,8 +755,8 @@ public class Frills
                   : stamp);
 
                    if (latest.isPresent()) {
-                      if ((latest.get().getComponentNid() == MetaData.PREFERRED____ISAAC.getNid()) ||
-                          (latest.get().getComponentNid() == MetaData.ACCEPTABLE____ISAAC.getNid())) {
+                      if ((latest.get().getComponentNid() == MetaData.PREFERRED____SOLOR.getNid()) ||
+                          (latest.get().getComponentNid() == MetaData.ACCEPTABLE____SOLOR.getNid())) {
                          if ((dialectSequenceToAcceptabilityNidMap.get(dialectSequence) != null) &&
                              (dialectSequenceToAcceptabilityNidMap.get(
                                  dialectSequence) != latest.get().getComponentNid())) {
@@ -843,69 +811,6 @@ public class Frills
    }
 
    /**
-    * Get isA children of a concept.  Does not return the requested concept in any circumstance.
-    * @param conceptSequence The concept to look at
-    * @param recursive recurse down from the concept
-    * @param leafOnly only return leaf nodes
-    * @return the set of concept sequence ids that represent the children
-    */
-   public static Set<Integer> getAllChildrenOfConcept(int conceptSequence, boolean recursive, boolean leafOnly) {
-      final Set<Integer> temp = getAllChildrenOfConcept(new HashSet<>(), conceptSequence, recursive, leafOnly);
-
-      if (leafOnly && (temp.size() == 1)) {
-         temp.remove(conceptSequence);
-      }
-
-      return temp;
-   }
-
-   /**
-    * Recursively get Is a children of a concept.  May inadvertenly return the requested starting sequence when leafOnly is true, and
-    * there are no children.
-    *
-    * @param handledConceptSequenceIds the handled concept sequence ids
-    * @param conceptSequence the concept sequence
-    * @param recursive the recursive
-    * @param leafOnly the leaf only
-    * @return the all children of concept
-    */
-   private static Set<Integer> getAllChildrenOfConcept(Set<Integer> handledConceptSequenceIds,
-         int conceptSequence,
-         boolean recursive,
-         boolean leafOnly) {
-      final Set<Integer> results = new HashSet<>();
-
-      // This both prevents infinite recursion and avoids processing or returning of duplicates
-      if (handledConceptSequenceIds.contains(conceptSequence)) {
-         return results;
-      }
-
-      final AtomicInteger count    = new AtomicInteger();
-      final IntStream     children = Get.taxonomyService()
-                                        .getTaxonomyChildSequences(conceptSequence);
-
-      children.forEach(
-          (conSequence) -> {
-             count.getAndIncrement();
-
-             if (!leafOnly) {
-                results.add(conSequence);
-             }
-
-             if (recursive) {
-                results.addAll(getAllChildrenOfConcept(handledConceptSequenceIds, conSequence, recursive, leafOnly));
-             }
-          });
-
-      if (leafOnly && (count.get() == 0)) {
-         results.add(conceptSequence);
-      }
-
-      handledConceptSequenceIds.add(conceptSequence);
-      return results;
-   }
-
-   /**
     * Convenience method to return sequences of a distinct set of modules in
     * which versions of an Chronology have been defined.
     *
@@ -923,41 +828,6 @@ public class Frills
       return Collections.unmodifiableSet(moduleSequences);
    }
 
-   /**
-    * A convenience method to determine if a particular component has 0 or 1 annotations of a particular type.  If there is more than one
-    * annotation of a particular type, this method will throw a runtime exception.
-    *
-    * @param componentNid - the component to check for the assemblage
-    * @param assemblageConceptId - the assemblage type you are interested in (nid or concept sequence)
-    * @return the annotation sememe
-    */
-   public static Optional<SememeChronology> getAnnotationSememe(int componentNid,
-         int assemblageConceptId) {
-      final Set<Integer> allowedAssemblages = new HashSet<>();
-
-      allowedAssemblages.add(assemblageConceptId);
-
-      final Set<SememeChronology> sememeSet = Get.assemblageService()
-                                                                          .getSememesForComponentFromAssemblages(
-                                                                                componentNid,
-                                                                                      allowedAssemblages)
-                                                                          .collect(Collectors.toSet());
-
-      switch (sememeSet.size()) {
-      case 0:
-         return Optional.empty();
-
-      case 1:
-         return Optional.of(sememeSet.iterator()
-                                     .next());
-
-      default:
-         throw new RuntimeException(
-             "Component " + componentNid + " has " + sememeSet.size() + " annotations of type " +
-             Get.conceptDescriptionText(
-                 assemblageConceptId) + " (should only have zero or 1)");
-      }
-   }
 
    /**
     * Gets the annotation string value.
@@ -1141,62 +1011,6 @@ public class Frills
                                    .getNidForUuids(conceptUUID), manifoldCoordinate);
    }
 
-   /**
-    * If this description is flagged as an extended description type, return the type concept of the extension.
-    *
-    * @param stampCoordinate the stamp coordinate
-    * @param descriptionId - the nid or sequence of the description sememe to check for an extended type.
-    * @return the description extended type concept
-    */
-   public static Optional<UUID> getDescriptionExtendedTypeConcept(StampCoordinate stampCoordinate, int descriptionId) {
-      final Optional<SememeChronology> descriptionExtendedTypeAnnotationSememe =
-         getAnnotationSememe(
-             Get.identifierService()
-                .getSememeNid(
-                    descriptionId),
-             DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
-                                   .getConceptSequence());
-
-      if (descriptionExtendedTypeAnnotationSememe.isPresent()) {
-         @SuppressWarnings({ "rawtypes", "unchecked" })
-         final LatestVersion<DynamicSememeImpl> optionalLatestSememeVersion =
-            ((SememeChronology) (descriptionExtendedTypeAnnotationSememe.get())).getLatestVersion(
-                (stampCoordinate == null) ? Get.configurationService()
-                      .getDefaultStampCoordinate()
-                                          : stampCoordinate);
-
-         if (!optionalLatestSememeVersion.contradictions()
-                                         .isEmpty()) {
-            // TODO handle contradictions
-            LOG.warn(
-                "Component " + descriptionId + " " + " has DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE annotation with " +
-                optionalLatestSememeVersion.contradictions().size() + " contradictions");
-         }
-
-         final DynamicSememeData[] dataColumns = optionalLatestSememeVersion.get()
-                                                                            .getData();
-
-         if (dataColumns.length != 1) {
-            throw new RuntimeException(
-                "Invalidly specified DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE.  Should always have a column size of 1");
-         }
-
-         if (dataColumns[0].getDynamicSememeDataType() == DynamicSememeDataType.UUID) {
-            return Optional.of(((DynamicSememeUUIDImpl) dataColumns[0]).getDataUUID());
-         }
-
-         // This isn't supposed to happen, but we have some bad data where it did.
-         else if (dataColumns[0].getDynamicSememeDataType() == DynamicSememeDataType.STRING) {
-            LOG.warn("Extended description type data found with type string instead of type UUID!");
-            return Optional.of(UUID.fromString(((DynamicSememeStringImpl) dataColumns[0]).getDataString()));
-         }
-
-         throw new RuntimeException(
-             "Failed to find UUID DynamicSememeData type in DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE annotation dynamic sememe");
-      }
-
-      return Optional.empty();
-   }
 
    /**
     * Determine if a particular description sememe is flagged as preferred IN
@@ -1228,14 +1042,14 @@ public class Frills
 
                    if (latest.isPresent()) {
                       if (latest.get()
-                                .getComponentNid() == MetaData.PREFERRED____ISAAC.getNid()) {
+                                .getComponentNid() == MetaData.PREFERRED____SOLOR.getNid()) {
                          if ((answer.get() != null) && (answer.get() != true)) {
                             throw new RuntimeException("contradictory annotations about preferred status!");
                          }
 
                          answer.set(true);
                       } else if (latest.get()
-                                       .getComponentNid() == MetaData.ACCEPTABLE____ISAAC.getNid()) {
+                                       .getComponentNid() == MetaData.ACCEPTABLE____SOLOR.getNid()) {
                          if ((answer.get() != null) && (answer.get() != false)) {
                             throw new RuntimeException("contradictory annotations about preferred status!");
                          }
@@ -1613,7 +1427,7 @@ public class Frills
          final List<SearchResult> result = si.query(
                                                sctID + " ",
                                                      true,
-                                                     new Integer[] { MetaData.SCTID____ISAAC.getConceptSequence() },
+                                                     new Integer[] { MetaData.SCTID____SOLOR.getConceptSequence() },
                                                      5,
                                                      Long.MIN_VALUE);
 
@@ -1645,7 +1459,7 @@ public class Frills
          final List<SearchResult> result = si.query(
                                                vuID + " ",
                                                      true,
-                                                     new Integer[] { MetaData.VUID____ISAAC.getConceptSequence() },
+                                                     new Integer[] { MetaData.VUID____SOLOR.getConceptSequence() },
                                                      5,
                                                      Long.MIN_VALUE);
 
@@ -1679,7 +1493,7 @@ public class Frills
                : stamp)
                                                            .getLatestSememeVersionsForComponentFromAssemblage(
                                                                  componentNid,
-                                                                       MetaData.SCTID____ISAAC.getConceptSequence())
+                                                                       MetaData.SCTID____SOLOR.getConceptSequence())
                                                            .findFirstVersion();
 
          if (sememe.isPresent()) {
@@ -1904,7 +1718,7 @@ public class Frills
                                 : stamp)
             .getLatestSememeVersionsForComponentFromAssemblage(
                 componentNid,
-                MetaData.VUID____ISAAC.getConceptSequence())
+                MetaData.VUID____SOLOR.getConceptSequence())
             .forEach(latestSememe -> {
             // expected path
                    if (latestSememe.get()

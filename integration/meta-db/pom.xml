@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac.integration</groupId>
         <artifactId>db-builder</artifactId>
-        <version>4.28</version>
+        <version>4.38</version>
         <relativePath>../db-builder</relativePath>
     </parent>
     <artifactId>meta-db</artifactId>
@@ -111,11 +111,10 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>index-and-shutdown</id>
+                        <id>shutdown</id>
                         <goals>
-                            <goal>index-termstore</goal>
-                            <goal>stop-heap-ticker</goal>
-                            <goal>stop-tasks-ticker</goal>
+<!--                            <goal>stop-heap-ticker</goal>
+                            <goal>stop-tasks-ticker</goal>-->
                             <goal>shutdown-isaac</goal>
                         </goals>
                     </execution>

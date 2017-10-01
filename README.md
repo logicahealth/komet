@@ -32,6 +32,8 @@ mvn clean deploy -Psnapshot-deploy
 
 
 ## Performing a release
+
+Make sure that <offline> is set to false in your settings.xml file. 
 ```
 $ mvn jgitflow:release-start jgitflow:release-finish \
          -DreleaseVersion=3.08 -DdevelopmentVersion=3.09-SNAPSHOT

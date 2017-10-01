@@ -158,8 +158,8 @@ public class LookupService {
                System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
 
                if (GraphicsEnvironment.isHeadless()) {
-                  LOG.info("Installing headless toolkit");
-                  HeadlessToolkit.installToolkit();
+                  //LOG.info("Installing headless toolkit");
+                  //HeadlessToolkit.installToolkit();
                }
 
                LOG.debug("Starting JavaFX Platform");

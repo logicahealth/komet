@@ -148,7 +148,7 @@ public class RF2Mojo
 
    /** Default value from SNOMED_CT_CORE_MODULE. */
    @Parameter(required = false)
-   private ConceptSpecification moduleUUID = MetaData.SNOMED_CT_CORE_MODULES____ISAAC;
+   private ConceptSpecification moduleUUID = MetaData.SNOMED_CT_CORE_MODULES____SOLOR;
 
    /** The db. */
    private H2DatabaseHandle db;
@@ -209,7 +209,7 @@ public class RF2Mojo
             ComponentReference.fromConcept(super.importUtil.createConcept("RF2 Metadata " + this.contentNameVersion,
                                                                           true));
 
-         super.importUtil.addParent(rf2Metadata, MetaData.SOLOR_CONTENT_METADATA____ISAAC.getPrimordialUuid());
+         super.importUtil.addParent(rf2Metadata, MetaData.SOLOR_CONTENT_METADATA____SOLOR.getPrimordialUuid());
          super.importUtil.loadTerminologyMetadataAttributes(rf2Metadata,
                this.converterSourceArtifactVersion,
                Optional.ofNullable(this.rf2ReleaseDate),
@@ -489,7 +489,7 @@ public class RF2Mojo
             lastId = id;
             super.importUtil.addStaticStringAnnotation(ComponentReference.fromConcept(con),
                   sctID + "",
-                  MetaData.SCTID____ISAAC.getPrimordialUuid(),
+                  MetaData.SCTID____SOLOR.getPrimordialUuid(),
                   State.ACTIVE);
          }
 
@@ -610,7 +610,7 @@ public class RF2Mojo
                lastId = id;
                super.importUtil.addStaticStringAnnotation(ComponentReference.fromChronology(desc),
                      sctID + "",
-                     MetaData.SCTID____ISAAC.getPrimordialUuid(),
+                     MetaData.SCTID____SOLOR.getPrimordialUuid(),
                      State.ACTIVE);
             }
 
@@ -652,9 +652,9 @@ public class RF2Mojo
                      : UUID.fromString(langRS.getString("acceptabilityId")));
                boolean preferred;
 
-               if (MetaData.ACCEPTABLE____ISAAC.isIdentifiedBy(acceptabilityId)) {
+               if (MetaData.ACCEPTABLE____SOLOR.isIdentifiedBy(acceptabilityId)) {
                   preferred = false;
-               } else if (MetaData.PREFERRED____ISAAC.isIdentifiedBy(acceptabilityId)) {
+               } else if (MetaData.PREFERRED____SOLOR.isIdentifiedBy(acceptabilityId)) {
                   preferred = true;
                } else {
                   throw new RuntimeException("Unexpected acceptibility: " + acceptabilityId);
@@ -730,13 +730,13 @@ public class RF2Mojo
                final Rel r = rb.getRels()
                                .last();
 
-               if ((stated && MetaData.INFERRED____ISAAC.isIdentifiedBy(r.characteristicTypeId)) ||
-                     (!stated && MetaData.STATED____ISAAC.isIdentifiedBy(r.characteristicTypeId))) {
+               if ((stated && MetaData.INFERRED____SOLOR.isIdentifiedBy(r.characteristicTypeId)) ||
+                     (!stated && MetaData.STATED____SOLOR.isIdentifiedBy(r.characteristicTypeId))) {
                   throw new RuntimeException("Unexpected - table type and characteristic type do not match!");
                }
 
-               if (MetaData.INFERRED____ISAAC.isIdentifiedBy(r.characteristicTypeId) ||
-                     MetaData.STATED____ISAAC.isIdentifiedBy(r.characteristicTypeId)) {
+               if (MetaData.INFERRED____SOLOR.isIdentifiedBy(r.characteristicTypeId) ||
+                     MetaData.STATED____SOLOR.isIdentifiedBy(r.characteristicTypeId)) {
                   if (r.effectiveTime > newestRelTime) {
                      newestRelTime = r.effectiveTime;
                   }
@@ -744,7 +744,7 @@ public class RF2Mojo
                   if (r.relGroup.trim()
                                 .equals("0")) {
                      // Don't just check primordial, IS_A has multiple UUIDs
-                     if (MetaData.IS_A____ISAAC.isIdentifiedBy(r.typeId)) {
+                     if (MetaData.IS_A____SOLOR.isIdentifiedBy(r.typeId)) {
                         assertions.add(ConceptAssertion(Get.identifierService()
                                                            .getConceptSequenceForUuids(r.destinationId),
                                                         leb));
@@ -761,7 +761,7 @@ public class RF2Mojo
                                                          .getConceptSequenceForUuids(r.destinationId),
                                                          leb)));
                         } else {
-                           assertions.add(SomeRole(MetaData.ROLE_GROUP____ISAAC.getConceptSequence(),
+                           assertions.add(SomeRole(MetaData.ROLE_GROUP____SOLOR.getConceptSequence(),
                                                    And(SomeRole(Get.identifierService()
                                                          .getConceptSequenceForUuids(r.typeId),
                                                          ConceptAssertion(Get.identifierService()
@@ -801,7 +801,7 @@ public class RF2Mojo
                      super.importUtil.addStaticStringAnnotation(ComponentReference.fromChronology(assn,
                            () -> "Association"),
                            r.sctID + "",
-                           MetaData.SCTID____ISAAC.getPrimordialUuid(),
+                           MetaData.SCTID____SOLOR.getPrimordialUuid(),
                            State.ACTIVE);
                   }
                }
@@ -812,7 +812,7 @@ public class RF2Mojo
 
          // handle relationship groups
          for (final ArrayList<Assertion> groupAssertions: groupedAssertions.values()) {
-            assertions.add(SomeRole(MetaData.ROLE_GROUP____ISAAC.getConceptSequence(),
+            assertions.add(SomeRole(MetaData.ROLE_GROUP____SOLOR.getConceptSequence(),
                                     And(groupAssertions.toArray(new Assertion[groupAssertions.size()]))));
          }
 

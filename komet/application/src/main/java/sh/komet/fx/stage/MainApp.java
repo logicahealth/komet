@@ -170,7 +170,7 @@ public class MainApp
       // CHILLDE
       // Knowledge, Language, Dialect, Chronology
       // KOLDAC
-      stage.setTitle("KOMET Reflector");
+      stage.setTitle("SOLOR");
       stage.setScene(scene);
       FxGet.statusMessageService()
               .addScene(scene, controller::reportStatus);

@@ -406,7 +406,7 @@ public class DynamicSememeConstants
          addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION);
          addChild(DynamicSememeConstants.this.DYNAMIC_SEMEME_COLUMN_DATA_TYPES);
 
-         setParent(TermAux.ISAAC_METADATA);
+         setParent(TermAux.SOLOR_METADATA);
 
          // no parent, this can attach to root
       }

@@ -1,8 +1,9 @@
-/* 
+/*
+ * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
+         US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
- *
- * You may not use this file except in compliance with the License.
- *
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
@@ -10,78 +11,44 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
- *
- * US Veterans Health Administration contributions by government employees
- * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
- * 
- * Contribution by contractors to the US Veterans Health Administration
- * during this period are contractually contributed under the
- * Apache License, Version 2.0.
- *
- * See: https://www.usa.gov/government-works
- * 
- * Contributions prior to 2013:
- *
- * Copyright (C) International Health Terminology Standards Development Organisation.
- * Licensed under the Apache License, Version 2.0.
- *
  */
-
-
-
 package sh.isaac.provider.query.lucene.indexers;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.IOException;
-
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.TextField;
-
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
 import org.glassfish.hk2.runlevel.RunLevel;
-
 import org.jvnet.hk2.annotations.Service;
-
-import sh.isaac.api.component.sememe.SememeChronology;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.sememe.version.DynamicSememe;
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.sememe.SememeChronology;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.constants.DynamicSememeConstants;
+import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.api.index.AssemblageIndexService;
 import sh.isaac.api.index.SearchResult;
-import sh.isaac.MetaData;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
-import sh.isaac.api.index.IndexService;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.identity.StampedVersion;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
- * Lucene Manager for a Description index. Provides the description indexing
- * service.
+ * Lucene Manager for an assemblage index. Provides the description indexing
+ * service also.
  *
  * This has been redesigned such that is now creates multiple columns within the
  * index
@@ -99,15 +66,16 @@ import sh.isaac.api.identity.StampedVersion;
  * 
  * TODO: use IntPoint for description types, and other aspects of the search, rather than creating redundant
  * columns. 
- *
+ * 
+ * @author kec
  * @author aimeefurber
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-@Service(name = "description indexer")
+@Service(name = "assemblage index")
 @RunLevel(value = 2)
-public class DescriptionIndexer
-        extends LuceneIndexer
-         implements IndexService {
+public class AssemblageIndexer extends LuceneIndexer
+        implements AssemblageIndexService {
+   
    /** The Constant SETUP_NIDS_SEMAPHORE. */
    private static final Semaphore SETUP_NIDS_SEMAPHORE = new Semaphore(1);
 
@@ -116,30 +84,176 @@ public class DescriptionIndexer
 
    /** The Constant FIELD_INDEXED_STRING_VALUE. */
    private static final String FIELD_INDEXED_STRING_VALUE = "_string_content_";
-
-   //~--- fields --------------------------------------------------------------
-
+   
+   public final String ASSEMBLAGE_COMPONENT_COORDINATE = "assemblage-component-coordinate";
    /** The sequence type map. */
    private final HashMap<Integer, String> sequenceTypeMap = new HashMap<>();
-
-   /** The desc extended type sequence. */
+   
+      /** The desc extended type sequence. */
    private int descExtendedTypeSequence;
 
-   //~--- constructors --------------------------------------------------------
 
-   /**
-    * Instantiates a new description indexer.
-    *
-    * @throws IOException Signals that an I/O exception has occurred.
-    */
-
-   // for HK2 only
-   private DescriptionIndexer()
-            throws IOException {
-      super("descriptions");
+   public AssemblageIndexer() throws IOException {
+      super("assemblage-index");
    }
 
-   //~--- methods -------------------------------------------------------------
+   @Override
+   protected void addFields(Chronology chronicle, Document doc) {
+      for (UUID uuid: chronicle.getUuidList()) {
+         //TODO add UUID to index...
+      }
+      
+      if (chronicle instanceof SememeChronology) {
+         final SememeChronology sememeChronology = (SememeChronology) chronicle;
+         incrementIndexedItemCount("Assemblage");
+         // Field component nid was already added by calling method. Just need to add additional fields. 
+         doc.add(new IntPoint(ASSEMBLAGE_COMPONENT_COORDINATE, sememeChronology.getAssemblageSequence(), sememeChronology.getReferencedComponentNid()));
+         
+
+         if (sememeChronology.getSememeType() == VersionType.DESCRIPTION) {
+            indexDescription(doc,
+                             (SememeChronology) sememeChronology);
+            incrementIndexedItemCount("Description");
+         }
+      }
+   }
+
+   /**
+    * Setup nid constants.
+    */
+   private void setupNidConstants() {
+      // Can't put these in the start me, because if the database is not yet imported, then these calls will fail.
+      // TODO: could put them in service setup, if service levels are set properly. 
+      if (!SEQUENCES_SETUP.get()) {
+         SETUP_NIDS_SEMAPHORE.acquireUninterruptibly();
+
+         try {
+            if (!SEQUENCES_SETUP.get()) {
+               this.sequenceTypeMap.put(TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence(),
+                                        LuceneDescriptionType.FSN.name());
+               this.sequenceTypeMap.put(TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence(),
+                                        LuceneDescriptionType.DEFINITION.name());
+               this.sequenceTypeMap.put(TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
+               this.descExtendedTypeSequence = DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
+                     .getConceptSequence();
+            }
+
+            SEQUENCES_SETUP.set(true);
+         } finally {
+            SETUP_NIDS_SEMAPHORE.release();
+         }
+      }
+   }
+
+   /**
+    * Index description.
+    *
+    * @param doc the doc
+    * @param sememeChronology the sememe chronology
+    */
+   private void indexDescription(Document doc,
+                                 SememeChronology sememeChronology) {
+      doc.add(new IntPoint(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, sememeChronology.getAssemblageSequence()));
+
+      String                      lastDescText     = null;
+      String                      lastDescType     = null;
+      final TreeMap<Long, String> uniqueTextValues = new TreeMap<>();
+
+      for (final StampedVersion stampedVersion:
+            sememeChronology.getVersionList()) {
+         DescriptionVersion descriptionVersion = (DescriptionVersion) stampedVersion;
+         final String descType = this.sequenceTypeMap.get(descriptionVersion.getDescriptionTypeConceptSequence());
+
+         // No need to index if the text is the same as the previous version.
+         if ((lastDescText == null) ||
+               (lastDescType == null) ||
+               !lastDescText.equals(descriptionVersion.getText()) ||
+               !lastDescType.equals(descType)) {
+            // Add to the field that carries all text
+            addField(doc, FIELD_INDEXED_STRING_VALUE, descriptionVersion.getText(), true);
+
+            // Add to the field that carries type-only text
+            // TODO using IntPoint with description type? 
+            addField(doc, FIELD_INDEXED_STRING_VALUE + "_" + descType, descriptionVersion.getText(), true);
+            uniqueTextValues.put(descriptionVersion.getTime(), descriptionVersion.getText());
+            lastDescText = descriptionVersion.getText();
+            lastDescType = descType;
+         }
+      }
+   }
+
+
+   /**
+    * Adds the field.
+    *
+    * @param doc the doc
+    * @param fieldName the field name
+    * @param value the value
+    * @param tokenize the tokenize
+    */
+   private void addField(Document doc, String fieldName, String value, boolean tokenize) {
+      // index twice per field - once with the standard analyzer, once with the whitespace analyzer.
+      if (tokenize) {
+         doc.add(new TextField(fieldName, value, Field.Store.NO));
+      }
+
+      doc.add(new TextField(fieldName + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, value, Field.Store.NO));
+   }
+
+   @Override
+   protected boolean indexChronicle(Chronology chronicle) {
+      setupNidConstants();
+      return chronicle instanceof SememeChronology;
+   }
+   
+   @Override
+   public NidSet getAttachmentNidsForComponent(int componentNid) {
+      return getAttachmentsForComponent(componentNid, Long.MAX_VALUE);
+   }
+
+   @Override
+   public NidSet getAttachmentNidsInAssemblage(int assemblageSequence) {
+      return getAttachmentsInAssemblage(assemblageSequence, Long.MAX_VALUE);
+   }
+   
+   @Override
+   public NidSet getAttachmentsForComponentInAssemblage(int componentNid, int assemblageSequence) {
+      return getAttachmentsForComponentInAssemblage(componentNid, assemblageSequence, Long.MAX_VALUE);
+   }
+   
+   private NidSet getAttachmentsForComponent(int componentNid, Long targetGeneration) {
+      try {
+         // assemblage, component
+         Query query = IntPoint.newRangeQuery(ASSEMBLAGE_COMPONENT_COORDINATE, new int[] {Integer.MIN_VALUE, componentNid}, new int[] {Integer.MAX_VALUE, componentNid});
+         IndexSearcher searcher = getIndexSearcher(targetGeneration);
+         NidSetCollectionManager collectionManager = new NidSetCollectionManager(searcher);
+         return searcher.search(query, collectionManager);
+      } catch (IOException ex) {
+         throw new RuntimeException(ex);
+      }
+  }
+
+   private NidSet getAttachmentsInAssemblage(int assemblageSequence, Long targetGeneration) {
+      try {
+      Query query = IntPoint.newRangeQuery(ASSEMBLAGE_COMPONENT_COORDINATE, new int[] {assemblageSequence, Integer.MIN_VALUE}, new int[] {assemblageSequence, Integer.MAX_VALUE});
+         IndexSearcher searcher = getIndexSearcher(targetGeneration);
+         NidSetCollectionManager collectionManager = new NidSetCollectionManager(searcher);
+         return searcher.search(query, collectionManager);
+      } catch (IOException ex) {
+         throw new RuntimeException(ex);
+      }
+   }
+   
+   private NidSet getAttachmentsForComponentInAssemblage(int componentNid, int assemblageSequence, Long targetGeneration) {
+      try {
+      Query query = IntPoint.newRangeQuery(ASSEMBLAGE_COMPONENT_COORDINATE, new int[] {assemblageSequence, componentNid}, new int[] {assemblageSequence, componentNid});
+         IndexSearcher searcher = getIndexSearcher(targetGeneration);
+         NidSetCollectionManager collectionManager = new NidSetCollectionManager(searcher);
+         return searcher.search(query, collectionManager);
+      } catch (IOException ex) {
+         throw new RuntimeException(ex);
+      }
+   }
 
    /**
     * Search the specified description type.
@@ -294,179 +408,4 @@ public class DescriptionIndexer
                     targetGeneration,
                     filter);
    }
-
-   /**
-    * Adds the fields.
-    *
-    * @param chronicle the chronicle
-    * @param doc the doc
-    */
-   @SuppressWarnings("unchecked")
-   @Override
-   protected void addFields(Chronology chronicle, Document doc) {
-      if (chronicle instanceof SememeChronology) {
-         final SememeChronology sememeChronology = (SememeChronology) chronicle;
-
-         if (sememeChronology.getSememeType() == VersionType.DESCRIPTION) {
-            indexDescription(doc,
-                             (SememeChronology) sememeChronology);
-            incrementIndexedItemCount("Description");
-         }
-      }
-   }
-
-   /**
-    * Index chronicle.
-    *
-    * @param chronicle the chronicle
-    * @return true, if successful
-    */
-   @Override
-   protected boolean indexChronicle(Chronology chronicle) {
-      setupNidConstants();
-
-      if (chronicle instanceof SememeChronology) {
-         final SememeChronology sememeChronology = (SememeChronology) chronicle;
-
-         if (sememeChronology.getSememeType() == VersionType.DESCRIPTION) {
-            return true;
-         }
-      }
-
-      return false;
-   }
-
-   /**
-    * Adds the field.
-    *
-    * @param doc the doc
-    * @param fieldName the field name
-    * @param value the value
-    * @param tokenize the tokenize
-    */
-   private void addField(Document doc, String fieldName, String value, boolean tokenize) {
-      // index twice per field - once with the standard analyzer, once with the whitespace analyzer.
-      if (tokenize) {
-         doc.add(new TextField(fieldName, value, Field.Store.NO));
-      }
-
-      doc.add(new TextField(fieldName + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER, value, Field.Store.NO));
-   }
-
-   /**
-    * Index description.
-    *
-    * @param doc the doc
-    * @param sememeChronology the sememe chronology
-    */
-   private void indexDescription(Document doc,
-                                 SememeChronology sememeChronology) {
-      doc.add(new IntPoint(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, sememeChronology.getAssemblageSequence()));
-
-      String                      lastDescText     = null;
-      String                      lastDescType     = null;
-      final TreeMap<Long, String> uniqueTextValues = new TreeMap<>();
-
-      for (final StampedVersion stampedVersion:
-            sememeChronology.getVersionList()) {
-         DescriptionVersion descriptionVersion = (DescriptionVersion) stampedVersion;
-         final String descType = this.sequenceTypeMap.get(descriptionVersion.getDescriptionTypeConceptSequence());
-
-         // No need to index if the text is the same as the previous version.
-         if ((lastDescText == null) ||
-               (lastDescType == null) ||
-               !lastDescText.equals(descriptionVersion.getText()) ||
-               !lastDescType.equals(descType)) {
-            // Add to the field that carries all text
-            addField(doc, FIELD_INDEXED_STRING_VALUE, descriptionVersion.getText(), true);
-
-            // Add to the field that carries type-only text
-            // TODO using IntPoint with description type? 
-            addField(doc, FIELD_INDEXED_STRING_VALUE + "_" + descType, descriptionVersion.getText(), true);
-            uniqueTextValues.put(descriptionVersion.getTime(), descriptionVersion.getText());
-            lastDescText = descriptionVersion.getText();
-            lastDescType = descType;
-         }
-      }
-
-      // index the extended description types - matching the text values and times above with the times of these annotations.
-      String lastExtendedDescType = null;
-      String lastValue            = null;
-
-      for (final SememeChronology sememeChronicle: sememeChronology.getSememeList()) {
-         if (sememeChronicle.getSememeType() == VersionType.DYNAMIC) {
-            @SuppressWarnings("unchecked")
-            final SememeChronology sememeDynamicChronicle =
-               (SememeChronology) sememeChronicle;
-
-            for (final StampedVersion sv: sememeDynamicChronicle.getVersionList()) {
-               DynamicSememe sememeDynamic = (DynamicSememe) sv;
-               // If this sememe is the sememe recording a dynamic sememe extended type....
-               if (sememeDynamic.getAssemblageSequence() == this.descExtendedTypeSequence) {
-                  // this is a UUID, but we want to treat it as a string anyway
-                  final String extendedDescType = sememeDynamic.getData()[0]
-                                                               .getDataObject()
-                                                               .toString();
-                  String       value            = null;
-
-                  // Find the text that was active at the time of this refex - timestamp on the refex must not be
-                  // greater than the timestamp on the value
-                  for (final Entry<Long, String> x: uniqueTextValues.entrySet()) {
-                     if ((value == null) || (x.getKey() <= sememeDynamic.getTime())) {
-                        value = x.getValue();
-                     } else if (x.getKey() > sememeDynamic.getTime()) {
-                        break;
-                     }
-                  }
-
-                  if ((lastExtendedDescType == null) ||
-                        (lastValue == null) ||
-                        !lastExtendedDescType.equals(extendedDescType) ||
-                        !lastValue.equals(value)) {
-                     if ((extendedDescType == null) || (value == null)) {
-                        throw new RuntimeException("design failure");
-                     }
-
-                     // This is a UUID, but we only do exact matches - indexing ints as strings is faster when doing exact-match only
-                     // TODO index UUIDs using InetAddressPoint which is 128 bits, or BigIntegerPoint which is also 128 bits
-                     addField(doc,
-                              FIELD_INDEXED_STRING_VALUE + "_" + extendedDescType,
-                              value,
-                              false);  // Don't tokenize this
-                     lastValue            = value;
-                     lastExtendedDescType = extendedDescType;
-                  }
-               }
-            }
-         }
-      }
-   }
-
-   /**
-    * Setup nid constants.
-    */
-   private void setupNidConstants() {
-      // Can't put these in the start me, because if the database is not yet imported, then these calls will fail.
-      // TODO: could put them in service setup, if service levels are set properly. 
-      if (!SEQUENCES_SETUP.get()) {
-         SETUP_NIDS_SEMAPHORE.acquireUninterruptibly();
-
-         try {
-            if (!SEQUENCES_SETUP.get()) {
-               this.sequenceTypeMap.put(MetaData.FULLY_SPECIFIED_NAME____ISAAC.getConceptSequence(),
-                                        LuceneDescriptionType.FSN.name());
-               this.sequenceTypeMap.put(MetaData.DEFINITION_DESCRIPTION_TYPE____ISAAC.getConceptSequence(),
-                                        LuceneDescriptionType.DEFINITION.name());
-               this.sequenceTypeMap.put(MetaData.SYNONYM____ISAAC.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
-               this.descExtendedTypeSequence = DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
-                     .getConceptSequence();
-            }
-
-            SEQUENCES_SETUP.set(true);
-         } finally {
-            SETUP_NIDS_SEMAPHORE.release();
-         }
-      }
-   }
 }
-

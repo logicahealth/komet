@@ -109,10 +109,9 @@ public class MockSememeService
     * Write sememe.
     *
     * @param sememeChronicle the sememe chronicle
-    * @param constraints the constraints
     */
    @Override
-   public void writeSememe(SememeChronology sememeChronicle, SememeConstraints... constraints) {
+   public void writeSememe(SememeChronology sememeChronicle) {
       if (this.componentSememeMap.containsKey(sememeChronicle.getReferencedComponentNid())) {
          this.componentSememeMap.get(sememeChronicle.getReferencedComponentNid())
                                 .add(sememeChronicle.getSememeSequence());
@@ -297,46 +296,6 @@ public class MockSememeService
       throw new UnsupportedOperationException();
    }
 
-   /**
-    * Gets the sememe sequences for component from assemblages.
-    *
-    * @param componentNid the component nid
-    * @param allowedAssemblageSequences the allowed assemblage sequences
-    * @return the sememe sequences for component from assemblages
-    */
-   @Override
-   public SememeSequenceSet getSememeSequencesForComponentFromAssemblages(int componentNid,
-         Set<Integer> allowedAssemblageSequences) {
-      throw new UnsupportedOperationException();
-   }
-
-   /**
-    * Gets the sememe sequences for components from assemblage.
-    *
-    * @param componentNidSet the component nid set
-    * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the sememe sequences for components from assemblage
-    */
-   @Override
-   public SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet,
-         int assemblageConceptSequence) {
-      throw new UnsupportedOperationException();
-   }
-
-   /**
-    * Gets the sememe sequences for components from assemblage modified after position.
-    *
-    * @param componentNidSet the component nid set
-    * @param assemblageConceptSequence the assemblage concept sequence
-    * @param position the position
-    * @return the sememe sequences for components from assemblage modified after position
-    */
-   @Override
-   public SememeSequenceSet getSememeSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet,
-         int assemblageConceptSequence,
-         StampPosition position) {
-      throw new UnsupportedOperationException();
-   }
 
    /**
     * Gets the sememe sequences from assemblage.
@@ -370,19 +329,6 @@ public class MockSememeService
    @Override
    public <C extends SememeChronology> Stream<C> getSememesForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence) {
-      throw new UnsupportedOperationException();
-   }
-
-   /**
-    * Gets the sememes for component from assemblages.
-    *
-    * @param componentNid the component nid
-    * @param allowedAssemblageSequences the allowed assemblage sequences
-    * @return the sememes for component from assemblages
-    */
-   @Override
-   public <C extends SememeChronology> Stream<C> getSememesForComponentFromAssemblages(int componentNid,
-         Set<Integer> allowedAssemblageSequences) {
       throw new UnsupportedOperationException();
    }
 

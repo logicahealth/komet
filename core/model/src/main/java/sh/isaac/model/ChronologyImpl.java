@@ -71,6 +71,7 @@ import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.dag.Graph;
@@ -1328,5 +1329,24 @@ public abstract class ChronologyImpl
       this.unwrittenData        = null;
       this.versionListReference = null;
    }
+   
+   @Override
+   public SememeSequenceSet getRecursiveSememeSequences() {
+      SememeSequenceSet sequenceSet = Get.assemblageService().getSememeSequencesForComponent(this.getNid());
+      sequenceSet.stream().forEach((sememeSequence) -> addRecursiveSequences(sequenceSet, sememeSequence));
+      
+      return sequenceSet;
+   }
+   
+   private void addRecursiveSequences(SememeSequenceSet sememeSequenceSet, int sememeSequence) {
+      int sememeNid = Get.identifierService().getSememeNid(sememeSequence);
+      SememeSequenceSet sequenceSet = Get.assemblageService().getSememeSequencesForComponent(sememeNid);
+      sequenceSet.stream().forEach((sequence) -> {
+         sememeSequenceSet.add(sequence);
+         addRecursiveSequences(sememeSequenceSet, sequence);
+      });
+      
+   }
+
 }
 

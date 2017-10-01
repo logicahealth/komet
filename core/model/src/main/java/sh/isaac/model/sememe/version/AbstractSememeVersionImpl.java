@@ -107,11 +107,11 @@ public abstract class AbstractSememeVersionImpl
    
    @Override
    protected final boolean deepEquals2(VersionImpl other) {
-      if (!(other instanceof SememeVersionImpl)) {
+      if (!(other instanceof AbstractSememeVersionImpl)) {
          return false;
       }
-      SememeVersionImpl otherVersion = (SememeVersionImpl) other;
-      return deepEquals2(otherVersion);
+      AbstractSememeVersionImpl otherVersion = (AbstractSememeVersionImpl) other;
+      return deepEquals3(otherVersion);
    }
    protected abstract boolean deepEquals3(AbstractSememeVersionImpl other);
    

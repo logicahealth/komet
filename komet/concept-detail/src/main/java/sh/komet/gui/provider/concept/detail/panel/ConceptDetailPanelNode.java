@@ -87,6 +87,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -197,7 +198,16 @@ public class ConceptDetailPanelNode
    }
 
    private Animation addComponent(CategorizedVersions<ObservableCategorizedVersion> categorizedVersions) {
-      ComponentPanel panel = new ComponentPanel(conceptDetailManifold, categorizedVersions, stampOrderHashMap);
+      ObservableCategorizedVersion categorizedVersion; 
+      if (categorizedVersions.getLatestVersion().isPresent()) {
+         categorizedVersion = categorizedVersions.getLatestVersion().get();
+      } else if (!categorizedVersions.getUncommittedVersions().isEmpty()) {
+         categorizedVersion = categorizedVersions.getUncommittedVersions().get(0);
+      } else {
+          throw new IllegalStateException("Categorized version has no latest version or uncommitted version: \n" + 
+                  categorizedVersions );
+      }
+      ComponentPanel panel = new ComponentPanel(conceptDetailManifold, categorizedVersion, stampOrderHashMap);
 
       componentPanels.add(panel);
       panel.setOpacity(0);
@@ -293,7 +303,7 @@ public class ConceptDetailPanelNode
                              }
 
                              if (dv1.getDescriptionTypeConceptSequence()
-                                     == MetaData.FULLY_SPECIFIED_NAME____ISAAC.getConceptSequence()) {
+                                     == MetaData.FULLY_SPECIFIED_NAME____SOLOR.getConceptSequence()) {
                                 return -1;
                              }
 
@@ -559,6 +569,9 @@ public class ConceptDetailPanelNode
    @Override
    public void handleCommit(CommitRecord commitRecord) {
       if (conceptDetailManifold.getFocusedConcept() != null) {
+         ConceptSpecification focusedConceptSpec = conceptDetailManifold.getFocusedConcept();
+         ConceptChronology focusedConcept = Get.concept(focusedConceptSpec);
+         SememeSequenceSet recursiveSememes = focusedConcept.getRecursiveSememeSequences();
          if (commitRecord.getConceptsInCommit().contains(conceptDetailManifold.getFocusedConcept().getConceptSequence())) {
             Platform.runLater(() -> {
                setConcept(
@@ -567,7 +580,17 @@ public class ConceptDetailPanelNode
                        conceptDetailManifold.focusedConceptProperty()
                                .get());
             });
+         } else if (!recursiveSememes.and(commitRecord.getSememesInCommit()).isEmpty()) {
+            Platform.runLater(() -> {
+               setConcept(
+                       conceptDetailManifold.focusedConceptProperty(),
+                       null,
+                       conceptDetailManifold.focusedConceptProperty()
+                               .get());
+            });
          }
+         
+         
       }
    }
 

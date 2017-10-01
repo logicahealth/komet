@@ -220,7 +220,7 @@ public class ConceptSuite {
       testConceptBuilder.setPrimordialUuid(uuidString);
 
       final int authorSequence = TermAux.USER.getConceptSequence();
-      final int moduleSequence = TermAux.ISAAC_MODULE.getConceptSequence();
+      final int moduleSequence = TermAux.SOLOR_MODULE.getConceptSequence();
       final int pathSequence   = TermAux.DEVELOPMENT_PATH.getConceptSequence();
       final int stampSequence = Get.stampService()
                                    .getStampSequence(State.ACTIVE, time, authorSequence, moduleSequence, pathSequence);
@@ -255,7 +255,7 @@ public class ConceptSuite {
       createConcept(TermAux.EL_PLUS_PLUS_LOGIC_PROFILE, time);
       createConcept(TermAux.SNOROCKET_CLASSIFIER, time);
       createConcept(TermAux.USER, time);
-      createConcept(TermAux.ISAAC_MODULE, time);
+      createConcept(TermAux.SOLOR_MODULE, time);
       createConcept(TermAux.DEVELOPMENT_PATH, time);
    }
 

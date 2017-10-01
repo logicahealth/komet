@@ -37,51 +37,58 @@
 
 
 
-package sh.isaac.provider.query.lucene;
+package sh.isaac.provider.query.lucene.indexers;
+
+//~--- JDK imports ------------------------------------------------------------
+
+import java.io.IOException;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.lucene.index.FieldInvertState;
-import org.apache.lucene.search.similarities.ClassicSimilarity;
-import org.apache.lucene.search.similarities.TFIDFSimilarity;
-import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.search.Collector;
+import org.apache.lucene.search.LeafCollector;
+import org.apache.lucene.search.Scorer;
+
+import sh.isaac.api.collections.SequenceSet;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class ShortTextSimilarity.
  *
  * @author kec
  */
-class ShortTextSimilarity
-        extends ClassicSimilarity {
-   /**
-    * Instantiates a new short text similarity.
-    */
-   public ShortTextSimilarity() {}
+public class NoScoreCollector
+         implements Collector {
+   final SequenceSet docIds = new SequenceSet();
 
    //~--- methods -------------------------------------------------------------
 
-   /**
-    * Coord.
-    *
-    * @param overlap the overlap
-    * @param maxOverlap the max overlap
-    * @return the float
-    */
-   public float coord(int overlap, int maxOverlap) {
-      return 1.0f;
+   @Override
+   public boolean needsScores() {
+      return false;
    }
 
-   /**
-    * Tf.
-    *
-    * @param freq the freq
-    * @return the float
-    */
+   //~--- get methods ---------------------------------------------------------
+
+   public SequenceSet getDocIds() {
+      return docIds;
+   }
+
    @Override
-   public float tf(float freq) {
-      return 1.0f;
+   public LeafCollector getLeafCollector(LeafReaderContext context)
+            throws IOException {
+      final int docBase = context.docBase;
+
+      return new LeafCollector() {
+         // ignore scorer
+         public void setScorer(Scorer scorer)
+                  throws IOException {}
+         public void collect(int doc)
+                  throws IOException {
+            docIds.add(docBase + doc);
+         }
+      };
    }
 }
 

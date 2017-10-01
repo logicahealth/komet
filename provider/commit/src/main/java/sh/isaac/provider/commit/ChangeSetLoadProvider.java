@@ -191,7 +191,7 @@ public class ChangeSetLoadProvider
    private UUID readSememeDbId() {
       final Optional<SememeChronology> sdic = Get.assemblageService()
                                                                              .getSememesForComponentFromAssemblage(
-                                                                                TermAux.ISAAC_ROOT.getNid(),
+                                                                                TermAux.SOLOR_ROOT.getNid(),
                                                                                       TermAux.DATABASE_UUID.getConceptSequence())
                                                                              .findFirst();
 
@@ -308,7 +308,7 @@ public class ChangeSetLoadProvider
 
                Get.sememeBuilderService()
                   .getStringSememeBuilder(chronicleDbId.toString(),
-                                          TermAux.ISAAC_ROOT.getNid(),
+                                          TermAux.SOLOR_ROOT.getNid(),
                                           TermAux.DATABASE_UUID.getConceptSequence())
                   .build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
                   .get();

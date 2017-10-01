@@ -4,13 +4,13 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>provider</artifactId>
-        <version>4.28</version>
+        <version>4.38</version>
     </parent>
     <groupId>sh.isaac.provider</groupId>
     <artifactId>assemblage</artifactId>
     <packaging>jar</packaging>
     <name>ISAAC provider: Assemblage</name>
-    <dependencies>
+     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>
             <artifactId>model</artifactId>
