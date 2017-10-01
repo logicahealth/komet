@@ -218,6 +218,14 @@ public class KometStageController
          classifierService.classify();
       });
       items.add(completeClassify);
+      
+      MenuItem completeReindex = new MenuItem("Complete reindex");
+      completeReindex.setOnAction((ActionEvent event) -> {
+         Get.startIndexTask();
+      });
+      items.add(completeReindex);
+      
+      
       return items;
    }
 
