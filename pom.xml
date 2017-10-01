@@ -673,6 +673,16 @@
             <groupId>com.amashchenko.maven.plugin</groupId>
             <artifactId>gitflow-maven-plugin</artifactId>
             <version>${gitflow-maven-plugin-version}</version>
+            <configuration>
+               <pushReleases>true</pushReleases>
+               <autoVersionSubmodules>true</autoVersionSubmodules>
+               <scmCommentPrefix>[gitflow-plugin] </scmCommentPrefix>
+               <enableSshAgent>true</enableSshAgent>
+               <allowSnapshots>false</allowSnapshots>
+               <enableFeatureVersions>true</enableFeatureVersions>
+               <username>${git.user}</username>
+               <password>${git.password}</password>
+            </configuration>
          </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
