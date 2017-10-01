@@ -128,7 +128,6 @@ import sh.isaac.model.VersionImpl;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.externalizable.IsaacExternalizable;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
 

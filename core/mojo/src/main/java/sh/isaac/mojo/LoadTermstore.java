@@ -67,6 +67,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import com.cedarsoftware.util.io.JsonWriter;
+import java.util.concurrent.ExecutionException;
 
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.DataTarget;
@@ -363,7 +364,7 @@ public class LoadTermstore
                            throw new UnsupportedOperationException("Unknown ochre object type: " + object);
                         }
                      }
-                  } catch (final Exception e) {
+                  } catch (final UnsupportedOperationException e) {
                      this.itemFailure++;
                      getLog().error("Failure at " + this.conceptCount + " concepts, " + this.sememeCount +
                                     " sememes, " + this.stampAliasCount + " stampAlias, " + this.stampCommentCount +
@@ -413,7 +414,7 @@ public class LoadTermstore
             this.stampCommentCount = 0;
             this.skippedItems.clear();
          }
-
+         Get.startIndexTask().get();
          getLog().info("Completing processing on " + deferredActionNids.size() + " defered items");
 
          for (final int nid: deferredActionNids) {
@@ -438,13 +439,13 @@ public class LoadTermstore
             Get.identifierService()
                .clearUnusedIds();
          }
-      } catch (final Exception ex) {
+      } catch (final ExecutionException | IOException | InterruptedException | UnsupportedOperationException ex) {
          getLog().info("Loaded " + this.conceptCount + " concepts, " + this.sememeCount + " sememes, " +
                        this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComments" +
                        ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
                : ""));
          throw new MojoExecutionException(ex.getLocalizedMessage(), ex);
-      }
+      } 
    }
 
    /**

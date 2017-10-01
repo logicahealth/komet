@@ -61,7 +61,9 @@ public class SequenceSet<T extends SequenceSet<T>>
    /**
     * Instantiates a new sequence set.
     */
-   public SequenceSet() {}
+   public SequenceSet() {
+      super();
+   }
 
    /**
     * Instantiates a new sequence set.

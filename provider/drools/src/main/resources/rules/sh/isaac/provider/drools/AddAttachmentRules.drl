@@ -51,7 +51,7 @@ then
    PropertySheetMenuItem kometIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add KOMET issue", MetaData.KOMET_ISSUE_ASSEMBLAGE____SOLOR);
    kometIssuePropertySheetMenuItem.addPropertyToEdit("KOMET issue", MetaData.STRING_VALUE_FOR_SEMEME____SOLOR, PropertyEditorType.TEXT);
    /* */
-   PropertySheetMenuItem qaRuleIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add QA rule issue", MetaData.QA_RULE_ISSUE_ASSEMBLAGE____SOLOR);
+   PropertySheetMenuItem qaRuleIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add QA rule issue", MetaData.QUALITY_ASSURANCE_RULE_ISSUE_ASSEMBLAGE____SOLOR);
    qaRuleIssuePropertySheetMenuItem.addPropertyToEdit("QA rule issue", MetaData.STRING_VALUE_FOR_SEMEME____SOLOR, PropertyEditorType.TEXT);
    /* */
    PropertySheetMenuItem automationPropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add automation issue", MetaData.AUTOMATION_ISSUE_ASSEMBLAGE____SOLOR);

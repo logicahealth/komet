@@ -16,12 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>
-            <artifactId>metadata</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sh.isaac.misc</groupId>
-            <artifactId>util</artifactId>
+            <artifactId>model</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

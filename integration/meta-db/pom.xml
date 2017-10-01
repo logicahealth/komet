@@ -111,9 +111,8 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>index-and-shutdown</id>
+                        <id>shutdown</id>
                         <goals>
-                            <goal>index-termstore</goal>
                             <goal>stop-heap-ticker</goal>
                             <goal>stop-tasks-ticker</goal>
                             <goal>shutdown-isaac</goal>

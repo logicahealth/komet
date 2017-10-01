@@ -218,7 +218,7 @@ public class LetPropertySheet {
         if(this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().get().size() == 0) {
             ArrayList<Integer> moduleNIDs = new ArrayList<>();
             ObservableIntegerArray moduleIntegerArray = FXCollections.observableIntegerArray();
-            Get.taxonomyService().getAllRelationshipOriginSequences(MetaData.MODULE____ISAAC.getNid()).forEach(i -> {
+            Get.taxonomyService().getAllRelationshipOriginSequences(MetaData.MODULE____SOLOR.getNid()).forEach(i -> {
                 moduleNIDs.add(i);
             });
             int[] iArray = new int[moduleNIDs.size()];

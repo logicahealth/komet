@@ -62,13 +62,13 @@ import org.apache.lucene.document.TextField;
 import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.bootstrap.TermAux;
 
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.constants.DynamicSememeConstants;
 import sh.isaac.api.index.SearchResult;
-import sh.isaac.MetaData;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
@@ -318,8 +318,8 @@ public class DescriptionIndexer
    /**
     * Index chronicle.
     *
-    * @param chronicle the chronicle
-    * @return true, if successful
+    * @param chronicle the chronicle to decide if it should be indexed
+    * @return true, if the chronicle should be indexed
     */
    @Override
    protected boolean indexChronicle(Chronology chronicle) {
@@ -388,58 +388,6 @@ public class DescriptionIndexer
             lastDescType = descType;
          }
       }
-
-      // index the extended description types - matching the text values and times above with the times of these annotations.
-      String lastExtendedDescType = null;
-      String lastValue            = null;
-
-      for (final SememeChronology sememeChronicle: sememeChronology.getSememeList()) {
-         if (sememeChronicle.getSememeType() == VersionType.DYNAMIC) {
-            @SuppressWarnings("unchecked")
-            final SememeChronology sememeDynamicChronicle =
-               (SememeChronology) sememeChronicle;
-
-            for (final StampedVersion sv: sememeDynamicChronicle.getVersionList()) {
-               DynamicSememe sememeDynamic = (DynamicSememe) sv;
-               // If this sememe is the sememe recording a dynamic sememe extended type....
-               if (sememeDynamic.getAssemblageSequence() == this.descExtendedTypeSequence) {
-                  // this is a UUID, but we want to treat it as a string anyway
-                  final String extendedDescType = sememeDynamic.getData()[0]
-                                                               .getDataObject()
-                                                               .toString();
-                  String       value            = null;
-
-                  // Find the text that was active at the time of this refex - timestamp on the refex must not be
-                  // greater than the timestamp on the value
-                  for (final Entry<Long, String> x: uniqueTextValues.entrySet()) {
-                     if ((value == null) || (x.getKey() <= sememeDynamic.getTime())) {
-                        value = x.getValue();
-                     } else if (x.getKey() > sememeDynamic.getTime()) {
-                        break;
-                     }
-                  }
-
-                  if ((lastExtendedDescType == null) ||
-                        (lastValue == null) ||
-                        !lastExtendedDescType.equals(extendedDescType) ||
-                        !lastValue.equals(value)) {
-                     if ((extendedDescType == null) || (value == null)) {
-                        throw new RuntimeException("design failure");
-                     }
-
-                     // This is a UUID, but we only do exact matches - indexing ints as strings is faster when doing exact-match only
-                     // TODO index UUIDs using InetAddressPoint which is 128 bits, or BigIntegerPoint which is also 128 bits
-                     addField(doc,
-                              FIELD_INDEXED_STRING_VALUE + "_" + extendedDescType,
-                              value,
-                              false);  // Don't tokenize this
-                     lastValue            = value;
-                     lastExtendedDescType = extendedDescType;
-                  }
-               }
-            }
-         }
-      }
    }
 
    /**
@@ -453,11 +401,11 @@ public class DescriptionIndexer
 
          try {
             if (!SEQUENCES_SETUP.get()) {
-               this.sequenceTypeMap.put(MetaData.FULLY_SPECIFIED_NAME____SOLOR.getConceptSequence(),
+               this.sequenceTypeMap.put(TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence(),
                                         LuceneDescriptionType.FSN.name());
-               this.sequenceTypeMap.put(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getConceptSequence(),
+               this.sequenceTypeMap.put(TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence(),
                                         LuceneDescriptionType.DEFINITION.name());
-               this.sequenceTypeMap.put(MetaData.SYNONYM____SOLOR.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
+               this.sequenceTypeMap.put(TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
                this.descExtendedTypeSequence = DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
                      .getConceptSequence();
             }

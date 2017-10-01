@@ -10,7 +10,7 @@
     <artifactId>assemblage</artifactId>
     <packaging>jar</packaging>
     <name>ISAAC provider: Assemblage</name>
-    <dependencies>
+     <dependencies>
         <dependency>
             <groupId>sh.isaac.core</groupId>
             <artifactId>model</artifactId>

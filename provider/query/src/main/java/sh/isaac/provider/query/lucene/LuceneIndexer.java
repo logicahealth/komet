@@ -69,6 +69,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -92,6 +93,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -113,7 +115,6 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.util.Version;
-import sh.isaac.MetaData;
 
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
@@ -132,7 +133,6 @@ import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SememeIndexer;
-import sh.isaac.utility.Frills;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.chronicle.Chronology;
 
@@ -150,7 +150,7 @@ public abstract class LuceneIndexer
    public static final String DEFAULT_LUCENE_FOLDER = "lucene";
 
    /** The Constant LOG. */
-   private static final Logger LOG = LogManager.getLogger();
+   protected static final Logger LOG = LogManager.getLogger();
 
    /** The Constant LUCENE_VERSION. */
    public static final Version LUCENE_VERSION = Version.LUCENE_7_0_0;
@@ -172,6 +172,7 @@ public abstract class LuceneIndexer
 
    // this isn't indexed
    public static final String FIELD_COMPONENT_NID = "_component_nid_";
+      public static final String DOCVALUE_COMPONENT_NID = "_docvalue_component_nid_";
 
    //~--- fields --------------------------------------------------------------
 
@@ -315,6 +316,7 @@ public abstract class LuceneIndexer
 
                                        index(sc);
                                     });
+                  LOG.info("Indexing " + size + " sememes for " + getIndexerName() + " complete");
             }
             @Override
             public void handleChange(SememeChronology sc) {
@@ -436,7 +438,7 @@ public abstract class LuceneIndexer
       final List<ConceptSearchResult>             result = new ArrayList<>();
 
       searchResult.forEach((sr) -> {
-         final int conSequence = Frills.findConcept(sr.getNid());
+         final int conSequence = findConcept(sr.getNid());
 
          if (conSequence < 0) {
             LOG.error("Failed to find a concept that references nid " + sr.getNid());
@@ -452,6 +454,38 @@ public abstract class LuceneIndexer
       });
 
       return result;
+   }
+
+   /**
+    * Convenience method to find the nearest concept related to a sememe.  Recursively walks referenced components until it finds a concept.
+    *
+    * @param nid the nid
+    * @return the nearest concept sequence, or -1, if no concept can be found.
+    */
+   public static int findConcept(int nid) {
+      final Optional<? extends Chronology> c = Get.identifiedObjectService()
+                                                                            .getIdentifiedObjectChronology(nid);
+
+      if (c.isPresent()) {
+         if (null == c.get().getExternalizableObjectType()) {
+            LOG.warn("Unexpected object type: " + c.get().getExternalizableObjectType());
+         } else {
+            switch (c.get()
+                     .getExternalizableObjectType()) {
+            case SEMEME:
+               return findConcept(((SememeChronology) c.get()).getReferencedComponentNid());
+
+            case CONCEPT:
+               return ((ConceptChronology) c.get()).getConceptSequence();
+
+            default:
+               LOG.warn("Unexpected object type: " + c.get().getExternalizableObjectType());
+               break;
+            }
+         }
+      }
+
+      return -1;
    }
 
    /**
@@ -658,10 +692,10 @@ public abstract class LuceneIndexer
    }
 
    /**
-    * Index chronicle.
+    * Determine if the chronicle should be indexed.
     *
-    * @param chronicle the chronicle
-    * @return true, if successful
+    * @param chronicle the chronicle to decide if it should be indexed
+    * @return true, if the chronicle should be indexed
     */
    protected abstract boolean indexChronicle(Chronology chronicle);
 
@@ -731,19 +765,7 @@ public abstract class LuceneIndexer
     */
    protected final List<SearchResult> search(Query q, int sizeLimit, Long targetGeneration, Predicate<Integer> filter) {
       try {
-         if ((targetGeneration != null) && (targetGeneration != Long.MIN_VALUE)) {
-            if (targetGeneration == Long.MAX_VALUE) {
-               this.searcherManager.maybeRefreshBlocking();
-            } else {
-               try {
-                  this.reopenThread.waitForGeneration(targetGeneration);
-               } catch (final InterruptedException e) {
-                  throw new RuntimeException(e);
-               }
-            }
-         }
-
-         final IndexSearcher searcher = this.searcherManager.acquire();
+         IndexSearcher searcher = getIndexSearcher(targetGeneration);
 
          try {
             LOG.debug("Running query: {}", q.toString());
@@ -793,6 +815,22 @@ public abstract class LuceneIndexer
       } catch (final IOException ex) {
          throw new RuntimeException(ex);
       }
+   }
+
+   public IndexSearcher getIndexSearcher(Long targetGeneration) throws RuntimeException, IOException {
+      if ((targetGeneration != null) && (targetGeneration != Long.MIN_VALUE)) {
+         if (targetGeneration == Long.MAX_VALUE) {
+            this.searcherManager.maybeRefreshBlocking();
+         } else {
+            try {
+               this.reopenThread.waitForGeneration(targetGeneration);
+            } catch (final InterruptedException e) {
+               throw new RuntimeException(e);
+            }
+         }
+      }
+      final IndexSearcher searcher = this.searcherManager.acquire();
+      return searcher;
    }
 
    /**
@@ -970,9 +1008,10 @@ public abstract class LuceneIndexer
             final Document doc = new Document();
             doc.add(new StoredField(FIELD_COMPONENT_NID,
                     this.chronicle.getNid()));
+            doc.add(new NumericDocValuesField(DOCVALUE_COMPONENT_NID, this.chronicle.getNid()));
             addFields(this.chronicle, doc);
             // Note that the addDocument operation could cause duplicate documents to be
-            // added to the index if a new LUCENE_VERSION is added after initial index
+            // added to the index if a new version is added after initial index
             // creation. It does this to avoid the performance penalty of
             // finding and deleting documents prior to inserting a new one.
             //
@@ -982,6 +1021,7 @@ public abstract class LuceneIndexer
             // so the search results will be the same. Duplicates can be removed
             // by regenerating the index.
             final long indexGeneration = LuceneIndexer.this.indexWriter.addDocument(doc);
+            
             releaseLatch(getNid(), indexGeneration);
             return indexGeneration;
          } catch (IOException ex) {

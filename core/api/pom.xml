@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.roaringbitmap</groupId>
             <artifactId>RoaringBitmap</artifactId>
-            <version>0.6.44</version>
+            <version>0.6.51</version>
         </dependency>
         <dependency>
             <groupId>gov.va.oia</groupId>
