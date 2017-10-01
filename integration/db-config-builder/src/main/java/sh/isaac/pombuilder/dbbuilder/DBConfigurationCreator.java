@@ -323,10 +323,10 @@ public class DBConfigurationCreator {
       goals = new Goals();
       goals.getGoal()
            .add("index-termstore");
-      goals.getGoal()
-           .add("stop-heap-ticker");
-      goals.getGoal()
-           .add("stop-tasks-ticker");
+//      goals.getGoal()
+//           .add("stop-heap-ticker");
+//      goals.getGoal()
+//           .add("stop-tasks-ticker");
       goals.getGoal()
            .add("shutdown-isaac");
       pe.setGoals(goals);
