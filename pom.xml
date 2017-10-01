@@ -674,14 +674,16 @@
             <artifactId>gitflow-maven-plugin</artifactId>
             <version>${gitflow-maven-plugin-version}</version>
             <configuration>
-               <pushReleases>true</pushReleases>
-               <autoVersionSubmodules>true</autoVersionSubmodules>
-               <scmCommentPrefix>[gitflow-plugin] </scmCommentPrefix>
-               <enableSshAgent>true</enableSshAgent>
-               <allowSnapshots>false</allowSnapshots>
-               <enableFeatureVersions>true</enableFeatureVersions>
-               <username>${git.user}</username>
-               <password>${git.password}</password>
+              <allowSnapshots>false</allowSnapshots>
+              <autoVersionSubmodules>true</autoVersionSubmodules>
+              <enableFeatureVersions>true</enableFeatureVersions>
+              <enableSshAgent>true</enableSshAgent>
+              <fetchRemote>false</fetchRemote>
+              <installProject>true</installProject>
+              <pushReleases>false</pushReleases>
+              <scmCommentPrefix>[gitflow-plugin] </scmCommentPrefix>
+              <username>${git.user}</username>
+              <password>${git.password}</password>
             </configuration>
          </plugin>
          <plugin>
