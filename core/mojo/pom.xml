@@ -42,6 +42,9 @@
                         <goals>
                             <goal>descriptor</goal>
                         </goals>
+                        <configuration>
+                           <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
