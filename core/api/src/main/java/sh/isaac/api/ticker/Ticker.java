@@ -34,33 +34,30 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.isaac.api.ticker;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.time.Duration;
 
 import java.util.function.Consumer;
+import javafx.application.Platform;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.reactfx.EventStreams;
 import org.reactfx.Subscription;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * Created by kec on 4/9/15.
  */
 public class Ticker {
-   /** The tick subscription. */
+
+   /**
+    * The tick subscription.
+    */
    private Subscription tickSubscription;
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * Start.
     *
@@ -68,21 +65,28 @@ public class Ticker {
     * @param consumer the consumer
     */
    public void start(int intervalInSeconds, Consumer consumer) {
-      stop();
-      this.tickSubscription = EventStreams.ticks(Duration.ofSeconds(intervalInSeconds))
-            .subscribe(tick -> {
-                          consumer.accept(tick);
-                       });
+      if (Platform.isFxApplicationThread()) {
+         stop();
+         this.tickSubscription = EventStreams.ticks(Duration.ofSeconds(intervalInSeconds))
+                 .subscribe(tick -> {
+                    consumer.accept(tick);
+                 });
+      } else {
+         Platform.runLater(() -> start(intervalInSeconds, consumer));
+      }
    }
 
    /**
     * Stop.
     */
    public void stop() {
-      if (this.tickSubscription != null) {
-         this.tickSubscription.unsubscribe();
-         this.tickSubscription = null;
+      if (Platform.isFxApplicationThread()) {
+         if (this.tickSubscription != null) {
+            this.tickSubscription.unsubscribe();
+            this.tickSubscription = null;
+         }
+      } else {
+         Platform.runLater(() -> stop());
       }
    }
 }
-
