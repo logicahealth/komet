@@ -222,9 +222,6 @@ public class BinaryDataWriterProvider
          this.pauseBlock.acquireUninterruptibly();
          this.buffer.clear();
          ochreObject.putExternal(this.buffer);
-         this.output.writeByte(ochreObject.getExternalizableObjectType()
-                                          .getToken());
-         this.output.writeByte(ochreObject.getDataFormatVersion());
          this.output.writeInt(this.buffer.getLimit());
          this.output.write(this.buffer.getData(), 0, this.buffer.getLimit());
       } catch (final IOException e) {

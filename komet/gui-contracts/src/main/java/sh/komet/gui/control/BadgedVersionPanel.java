@@ -484,7 +484,7 @@ public abstract class BadgedVersionPanel
             case UNKNOWN:
             case DESCRIPTION:
             default:
-               throw new UnsupportedOperationException("Can't handle: " + sememeType);
+               throw new UnsupportedOperationException("al Can't handle: " + sememeType);
          }
       } else {
          componentText.setText(version.getClass()

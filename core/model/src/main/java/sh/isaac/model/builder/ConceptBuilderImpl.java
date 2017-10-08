@@ -485,4 +485,11 @@ public class ConceptBuilderImpl
       DescriptionBuilder<?, ?> descriptionBuilder = getPreferredDescriptionBuilder();
       return Optional.of(descriptionBuilder.getDescriptionText());
    }
+
+   @Override
+   public String toString() {
+      return "ConceptBuilderImpl{" + conceptName + '}';
+   }
+   
+   
 }

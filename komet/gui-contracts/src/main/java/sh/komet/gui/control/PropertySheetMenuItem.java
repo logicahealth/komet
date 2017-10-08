@@ -223,7 +223,7 @@ public class PropertySheetMenuItem
                                        propertySpec.nameOnPropertySheet)));
                        break;
                     default:
-                       throw new RuntimeException("Can't handle: " + propertySpec);
+                       throw new RuntimeException("an Can't handle: " + propertySpec);
                  }
               });
       return items;

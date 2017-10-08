@@ -132,7 +132,7 @@ public class OchreExternalizableStatsTestFilter
     */
    @Override
    public boolean test(IsaacExternalizable isaacExternalizable) {
-      switch (isaacExternalizable.getExternalizableObjectType()) {
+      switch (isaacExternalizable.getIsaacObjectType()) {
       case CONCEPT:
          this.concepts.incrementAndGet();
          break;
@@ -154,7 +154,7 @@ public class OchreExternalizableStatsTestFilter
           break;
           
       default:
-         throw new UnsupportedOperationException("Can't handle: " + isaacExternalizable.getClass().getName() + 
+         throw new UnsupportedOperationException("ah Can't handle: " + isaacExternalizable.getClass().getName() + 
                  ": " + isaacExternalizable);
       }
 

@@ -599,7 +599,7 @@ public class IsaacTaxonomy {
          } else if (builtObject instanceof SememeChronology) {
             sememeService.writeSememe((SememeChronology) builtObject);
          } else {
-            throw new UnsupportedOperationException("Can't handle: " + builtObject);
+            throw new UnsupportedOperationException("b Can't handle: " + builtObject);
          }
       });
    }

@@ -60,14 +60,12 @@ public class StampComment
     * @param in the in
     */
    public StampComment(ByteArrayDataBuffer in) {
-      final byte version = in.getByte();
-
-      if (version == getDataFormatVersion()) {
+      if (in.getObjectDataFormatVersion() == IsaacObjectType.STAMP_COMMENT.getDataFormatVersion()) {
          this.stampSequence = StampUniversal.get(in)
                                             .getStampSequence();
          this.comment       = in.readUTF();
       } else {
-         throw new UnsupportedOperationException("Can't handle version: " + version);
+         throw new UnsupportedOperationException("Can't handle version: " + in.getObjectDataFormatVersion());
       }
    }
 
@@ -91,7 +89,7 @@ public class StampComment
     */
    @Override
    public void putExternal(ByteArrayDataBuffer out) {
-      out.putByte(getDataFormatVersion());
+      IsaacObjectType.STAMP_COMMENT.writeTypeVersionHeader(out);
       StampUniversal.get(this.stampSequence)
                     .writeExternal(out);
       out.putUTF(this.comment);
@@ -119,23 +117,13 @@ public class StampComment
    }
 
    /**
-    * Gets the data format version.
-    *
-    * @return the data format version
-    */
-   @Override
-   public final byte getDataFormatVersion() {
-      return 0;
-   }
-
-   /**
     * Gets the ochre object type.
     *
     * @return the ochre object type
     */
    @Override
-   public IsaacExternalizableObjectType getExternalizableObjectType() {
-      return IsaacExternalizableObjectType.STAMP_COMMENT;
+   public IsaacObjectType getIsaacObjectType() {
+      return IsaacObjectType.STAMP_COMMENT;
    }
 
    /**

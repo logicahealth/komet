@@ -94,6 +94,9 @@ public class StampUniversal implements IsaacExternalizable {
     * @param in the in
     */
    public StampUniversal(ByteArrayDataBuffer in) {
+      if (IsaacObjectType.STAMP.getDataFormatVersion() != in.getObjectDataFormatVersion()) {
+         throw new UnsupportedOperationException("Data format version not supported: " + in.getObjectDataFormatVersion());
+      }
       this.status     = State.getFromBoolean(in.getBoolean());
       this.time       = in.getLong();
       this.authorUuid = new UUID(in.getLong(), in.getLong());
@@ -232,17 +235,13 @@ public class StampUniversal implements IsaacExternalizable {
 
    @Override
    public void putExternal(ByteArrayDataBuffer out) {
+      IsaacObjectType.STAMP.writeTypeVersionHeader(out);
       this.writeExternal(out);
    }
 
    @Override
-   public byte getDataFormatVersion() {
-      return 0;
-   }
-
-   @Override
-   public IsaacExternalizableObjectType getExternalizableObjectType() {
-      return IsaacExternalizableObjectType.STAMP;
+   public IsaacObjectType getIsaacObjectType() {
+      return IsaacObjectType.STAMP;
    }
 }
 

@@ -112,10 +112,8 @@ public class IsaacClipboard
       if (identifiedObject instanceof IsaacExternalizable) {
          IsaacExternalizable externalizableObject = (IsaacExternalizable) identifiedObject;
          ByteArrayDataBuffer dataBuffer = new ByteArrayDataBuffer();
-
-         externalizableObject.getExternalizableObjectType()
-                 .writeToByteArrayDataBuffer(dataBuffer);
          externalizableObject.putExternal(dataBuffer);
+         
 
          if (identifiedObject instanceof ConceptChronology) {
             this.put(ISAAC_CONCEPT, ByteBuffer.wrap(dataBuffer.getData()));

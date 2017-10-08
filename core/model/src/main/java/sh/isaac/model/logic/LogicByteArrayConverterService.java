@@ -83,7 +83,7 @@ public class LogicByteArrayConverterService
          break;
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + dataTarget);
+         throw new UnsupportedOperationException("u Can't handle: " + dataTarget);
       }
 
       return logicGraph.getData(dataTarget);

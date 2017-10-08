@@ -62,7 +62,7 @@ public enum PremiseType {
          case STATED:
             return INFERRED;
          default:
-            throw new UnsupportedOperationException("Can't handle: " + this);
+            throw new UnsupportedOperationException("h Can't handle: " + this);
       }
    }
 }

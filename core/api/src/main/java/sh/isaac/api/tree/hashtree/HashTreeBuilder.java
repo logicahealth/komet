@@ -34,10 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
-/*
+ /*
 * To change this license header, choose License Headers in Project Properties.
 * To change this template file, choose Tools | Templates
 * and open the template in the editor.
@@ -45,47 +42,84 @@
 package sh.isaac.api.tree.hashtree;
 
 //~--- JDK imports ------------------------------------------------------------
-
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.mahout.math.map.OpenIntObjectHashMap;
+import org.apache.mahout.math.set.OpenIntHashSet;
+import org.roaringbitmap.RoaringBitmap;
+import sh.isaac.api.Get;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.tree.TreeNodeVisitData;
+import static sh.isaac.api.tree.hashtree.AbstractHashTree.MULTI_PARENT_SETS;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class HashTreeBuilder.
  *
  * @author kec
  */
 public class HashTreeBuilder {
-   /** The Constant builderCount. */
+
+   
+   /**
+    * The Constant builderCount.
+    */
    private static final AtomicInteger builderCount = new AtomicInteger();
 
    //~--- fields --------------------------------------------------------------
-
-   /** The child sequence parent sequence stream map. */
-   final OpenIntObjectHashMap<IntStream.Builder> childSequence_ParentSequenceStream_Map = new OpenIntObjectHashMap<>();
-
-   /** The parent sequence child sequence stream map. */
-   final OpenIntObjectHashMap<IntStream.Builder> parentSequence_ChildSequenceStream_Map = new OpenIntObjectHashMap<>();
-
-   /** The builder id. */
-   final int builderId;
-
-   //~--- constructors --------------------------------------------------------
+   /**
+    * The child sequence parent sequence stream map.
+    */
+   final OpenIntObjectHashMap<RoaringBitmap> childSequence_ParentSequenceSet_Map = new OpenIntObjectHashMap<>();
 
    /**
-    * Instantiates a new hash tree builder.
+    * The parent sequence child sequence stream map.
     */
-   public HashTreeBuilder() {
+   final OpenIntObjectHashMap<RoaringBitmap> parentSequence_ChildSequenceSet_Map = new OpenIntObjectHashMap<>();
+
+   protected final ManifoldCoordinate manifoldCoordinate;
+
+   /**
+    * The concept sequences with parents.
+    */
+   final RoaringBitmap conceptSequencesWithParents = new RoaringBitmap();
+
+   /**
+    * The concept sequences with children.
+    */
+   final RoaringBitmap conceptSequencesWithChildren = new RoaringBitmap();
+
+   /**
+    * The concept sequences.
+    */
+   final RoaringBitmap conceptSequences = new RoaringBitmap();
+
+   /**
+    * The builder id.
+    */
+   final int builderId;
+
+   String[] watchUuids = new String[]{"598edc74-ae81-3f3e-bc26-69a1d48d8203",
+      "65dabbf3-3f57-3989-ab0c-f8824e0e0aa2", "fcea27cf-fb3c-3d49-8b68-6a416b3d237d"};
+   RoaringBitmap watchSequences = new RoaringBitmap();
+
+   //~--- constructors --------------------------------------------------------
+   /**
+    * Instantiates a new hash tree builder.
+    *
+    * @param manifoldCoordinate
+    */
+   public HashTreeBuilder(ManifoldCoordinate manifoldCoordinate) {
       this.builderId = builderCount.getAndIncrement();
+      this.manifoldCoordinate = manifoldCoordinate;
+      for (String uuidStr : watchUuids) {
+         watchSequences.add(Get.identifierService().getConceptSequenceForUuids(UUID.fromString(uuidStr)));
+      }
    }
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * Adds the.
     *
@@ -93,19 +127,28 @@ public class HashTreeBuilder {
     * @param child the child
     */
    public void add(int parent, int child) {
-      if (!this.childSequence_ParentSequenceStream_Map.containsKey(child)) {
-         this.childSequence_ParentSequenceStream_Map.put(child, IntStream.builder());
+      conceptSequences.add(parent);
+      conceptSequences.add(child);
+      conceptSequencesWithParents.add(child);
+      conceptSequencesWithChildren.add(parent);
+
+      if (!this.childSequence_ParentSequenceSet_Map.containsKey(child)) {
+         RoaringBitmap rbm = new RoaringBitmap();
+         rbm.add(parent);
+         this.childSequence_ParentSequenceSet_Map.put(child, rbm);
+      } else {
+         this.childSequence_ParentSequenceSet_Map.get(child)
+                 .add(parent);
       }
 
-      this.childSequence_ParentSequenceStream_Map.get(child)
-            .add(parent);
-
-      if (!this.parentSequence_ChildSequenceStream_Map.containsKey(parent)) {
-         this.parentSequence_ChildSequenceStream_Map.put(parent, IntStream.builder());
+      if (!this.parentSequence_ChildSequenceSet_Map.containsKey(parent)) {
+         RoaringBitmap rbm = new RoaringBitmap();
+         rbm.add(child);
+         this.parentSequence_ChildSequenceSet_Map.put(parent, rbm);
+      } else {
+         this.parentSequence_ChildSequenceSet_Map.get(parent)
+                 .add(child);
       }
-
-      this.parentSequence_ChildSequenceStream_Map.get(parent)
-            .add(child);
    }
 
    /**
@@ -114,71 +157,92 @@ public class HashTreeBuilder {
     * @param another the another
     */
    public void combine(HashTreeBuilder another) {
-      another.childSequence_ParentSequenceStream_Map.forEachPair((int childSequence,
-            IntStream.Builder parentsFromAnother) -> {
-               if (this.childSequence_ParentSequenceStream_Map.containsKey(childSequence)) {
-                  final IntStream.Builder parentsStream =
-                     this.childSequence_ParentSequenceStream_Map.get(childSequence);
-
-                  parentsFromAnother.build()
-                                    .forEach((int c) -> parentsStream.add(c));
-               } else {
-                  this.childSequence_ParentSequenceStream_Map.put(childSequence, parentsFromAnother);
-               }
-
-               return true;
-            });
-      another.parentSequence_ChildSequenceStream_Map.forEachPair((int parentSequence,
-            IntStream.Builder childrenFromAnother) -> {
-               if (this.parentSequence_ChildSequenceStream_Map.containsKey(parentSequence)) {
-                  final IntStream.Builder childrenStream =
-                     this.parentSequence_ChildSequenceStream_Map.get(parentSequence);
-
-                  childrenFromAnother.build()
-                                     .forEach((int p) -> childrenStream.add(p));
-               } else {
-                  this.parentSequence_ChildSequenceStream_Map.put(parentSequence, childrenFromAnother);
-               }
-
-               return true;
-            });
+      this.conceptSequences.or(another.conceptSequences);
+      this.conceptSequencesWithChildren.or(another.conceptSequencesWithChildren);
+      this.conceptSequencesWithParents.or(another.conceptSequencesWithParents);
+      another.childSequence_ParentSequenceSet_Map.forEachPair((int childSequence,
+              RoaringBitmap parentsFromAnother) -> {
+         if (this.childSequence_ParentSequenceSet_Map.containsKey(childSequence)) {
+            this.childSequence_ParentSequenceSet_Map.get(childSequence).or(parentsFromAnother);
+         } else {
+            this.childSequence_ParentSequenceSet_Map.put(childSequence, parentsFromAnother);
+         }
+         return true;
+      });
+      another.parentSequence_ChildSequenceSet_Map.forEachPair((int parentSequence,
+              RoaringBitmap childrenFromAnother) -> {
+         if (this.parentSequence_ChildSequenceSet_Map.containsKey(parentSequence)) {
+            this.parentSequence_ChildSequenceSet_Map.get(parentSequence).or(childrenFromAnother);
+         } else {
+            this.parentSequence_ChildSequenceSet_Map.put(parentSequence, childrenFromAnother);
+         }
+         return true;
+      });
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the simple directed graph graph.
     *
     * @return the simple directed graph graph
     */
    public HashTreeWithBitSets getSimpleDirectedGraphGraph() {
-      final HashTreeWithBitSets graph = new HashTreeWithBitSets(this.childSequence_ParentSequenceStream_Map.size());
+      RoaringBitmap roots = conceptSequences.clone();
+      roots.xor(conceptSequencesWithParents);
+      if (roots.getCardinality() == 1) {
+         int rootSequence = roots.first();
+ 
+         final HashTreeWithBitSets graph = new HashTreeWithBitSets(this.childSequence_ParentSequenceSet_Map.size(),
+                 manifoldCoordinate);
 
-      this.childSequence_ParentSequenceStream_Map.forEachPair((int childSequence,
-            IntStream.Builder parentSequenceStreamBuilder) -> {
-               final int[] parentSequenceArray = parentSequenceStreamBuilder.build()
-                                                                            .distinct()
-                                                                            .toArray();
+         this.childSequence_ParentSequenceSet_Map.forEachPair((int childSequence,
+                 RoaringBitmap parentSequenceSet) -> {
+            if (!parentSequenceSet.isEmpty()) {
+               graph.addParents(childSequence, parentSequenceSet.toArray());
+            }
+            return true;
+         });
+         this.parentSequence_ChildSequenceSet_Map.forEachPair((int parentSequence,
+                 RoaringBitmap childSequenceSet) -> {
+            if (!childSequenceSet.isEmpty()) {
+               graph.addChildren(parentSequence, childSequenceSet.toArray());
+            }
+            return true;
+         });
 
-               if (parentSequenceArray.length > 0) {
-                  graph.addParents(childSequence, parentSequenceArray);
-               }
+         TreeNodeVisitData visitData = graph.depthFirstProcess(rootSequence, (TreeNodeVisitData t, int thisSequence) -> {
+            if (watchSequences.contains(thisSequence)) {
+               printWatch(thisSequence, "dfs: ");
+            }
+         });
 
-               return true;
-            });
-      this.parentSequence_ChildSequenceStream_Map.forEachPair((int parentSequence,
-            IntStream.Builder childSequenceStreamBuilder) -> {
-               final int[] childSequenceArray = childSequenceStreamBuilder.build()
-                                                                          .distinct()
-                                                                          .toArray();
+         System.out.println("Nodes visited: " + visitData.getNodesVisited());
+         for (int sequence: watchSequences) {
+            OpenIntHashSet multiParents = visitData.getUserNodeSet(MULTI_PARENT_SETS, sequence);
+            System.out.println(Get.conceptDescriptionText(sequence) + " multiParentSet: " + multiParents);
+         }
+         
+         return graph;
+      } else {
+         throw new UnsupportedOperationException("Too many roots: " + roots);
+      }
 
-               if (childSequenceArray.length > 0) {
-                  graph.addChildren(parentSequence, childSequenceArray);
-               }
+   }
 
-               return true;
-            });
-      return graph;
+
+   private void printWatch(int thisSequence, String prefix) {
+      System.out.println("\n" + prefix + " watch: " + Get.conceptDescriptionText(thisSequence));
+      childSequence_ParentSequenceSet_Map.forEachPair((sequence, bitMap) -> {
+         if (bitMap.contains(thisSequence)) {
+            System.out.println(prefix + Get.conceptDescriptionText(thisSequence) + " found in parent set of: " + sequence + " " + Get.conceptDescriptionText(sequence));
+         }
+         return true; //To change body of generated lambdas, choose Tools | Templates.
+      });
+      parentSequence_ChildSequenceSet_Map.forEachPair((sequence, bitMap) -> {
+         if (bitMap.contains(thisSequence)) {
+            System.out.println(prefix + Get.conceptDescriptionText(thisSequence) + " found in child set of: " + sequence + " " + Get.conceptDescriptionText(sequence));
+         }
+         return true; //To change body of generated lambdas, choose Tools | Templates.
+      });
    }
 }
-

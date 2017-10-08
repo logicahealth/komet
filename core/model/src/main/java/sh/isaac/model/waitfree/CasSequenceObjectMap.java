@@ -472,7 +472,7 @@ public class CasSequenceObjectMap<T extends WaitFreeComparable> {
     * @return the write sequence
     */
    public int getWriteSequence(byte[] data) {
-      return (((data[0]) << 24) | ((data[1] & 0xff) << 16) | ((data[2] & 0xff) << 8) | ((data[3] & 0xff)));
+      return (((data[2]) << 24) | ((data[3] & 0xff) << 16) | ((data[4] & 0xff) << 8) | ((data[5] & 0xff)));
    }
 
    /**

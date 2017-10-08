@@ -280,7 +280,7 @@ public class IdentifierProvider
                this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
             }
          }
-      } catch (final Exception e) {
+      } catch (final IOException e) {
          LookupService.getService(SystemStatusService.class)
                       .notifyServiceConfigurationFailure("Identifier Provider", e);
          throw new RuntimeException(e);
@@ -547,6 +547,16 @@ public class IdentifierProvider
    public int getMaxNid() {
       return UuidIntMapMap.getNextNidProvider()
                           .get();
+   }
+
+   @Override
+   public int getMaxConceptSequence() {
+      return conceptSequenceMap.nextSequence;
+   }
+
+   @Override
+   public int getMaxSememeSequence() {
+      return sememeSequenceMap.nextSequence;
    }
 
    /**

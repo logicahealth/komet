@@ -228,7 +228,7 @@ public class GraphToAxiomTranslator {
                " Concept: " + conceptNid + " graph: " + logicGraph);
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + logicNode.getNodeSemantic());
+         throw new UnsupportedOperationException("ar Can't handle: " + logicNode.getNodeSemantic());
       }
 
       return Optional.empty();

@@ -118,7 +118,7 @@ public class Cube extends Box {
                  new KeyFrame(Duration.seconds(1),
                          new KeyValue(c.rz.angleProperty(), 360d)));
       } else {
-         throw new UnsupportedOperationException("Can't handle: " + axis);
+         throw new UnsupportedOperationException("ai Can't handle: " + axis);
       }
 
       animation.setCycleCount(Timeline.INDEFINITE);

@@ -46,7 +46,6 @@ package sh.isaac.model.logic.node.external;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 
@@ -56,6 +55,7 @@ import java.util.UUID;
 
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
@@ -94,13 +94,11 @@ public class ConceptNodeWithUuids
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    public ConceptNodeWithUuids(LogicalExpressionImpl logicGraphVersion,
-                               DataInputStream dataInputStream)
-            throws IOException {
+                               ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
-      this.conceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
+      this.conceptUuid = new UUID(dataInputStream.getLong(), dataInputStream.getLong());
    }
 
    /**
@@ -198,12 +196,11 @@ public class ConceptNodeWithUuids
     * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
-   public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
-            throws IOException {
+   public void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
       switch (dataTarget) {
       case EXTERNAL:
-         dataOutput.writeLong(this.conceptUuid.getMostSignificantBits());
-         dataOutput.writeLong(this.conceptUuid.getLeastSignificantBits());
+         dataOutput.putLong(this.conceptUuid.getMostSignificantBits());
+         dataOutput.putLong(this.conceptUuid.getLeastSignificantBits());
          break;
 
       case INTERNAL:

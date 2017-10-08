@@ -1637,7 +1637,7 @@ public class Frills
     * @return the version type
     */
    public static Class<? extends StampedVersion> getVersionType(Chronology obj) {
-      switch (obj.getExternalizableObjectType()) {
+      switch (obj.getIsaacObjectType()) {
       case SEMEME: {
          @SuppressWarnings({ "rawtypes", "unchecked" })
          final SememeChronology sememeChronology =
@@ -1677,7 +1677,7 @@ public class Frills
       default:
          throw new RuntimeException(
              "Object with NID=" + obj.getNid() + " is of unsupported OchreExternalizableObjectType " +
-             obj.getExternalizableObjectType());
+             obj.getIsaacObjectType());
       }
    }
 

@@ -41,9 +41,6 @@ package sh.isaac.model.logic.node.internal;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.IOException;
 
 import java.util.UUID;
 
@@ -51,6 +48,7 @@ import java.util.UUID;
 
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
@@ -79,11 +77,9 @@ public final class RoleNodeAllWithSequences
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    public RoleNodeAllWithSequences(LogicalExpressionImpl logicGraphVersion,
-                                   DataInputStream dataInputStream)
-            throws IOException {
+                                   ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
    }
 
@@ -134,11 +130,9 @@ public final class RoleNodeAllWithSequences
     *
     * @param dataOutput the data output
     * @param dataTarget the data target
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
-   public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
-            throws IOException {
+   public void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
       switch (dataTarget) {
       case EXTERNAL:
          final RoleNodeAllWithUuids externalForm = new RoleNodeAllWithUuids(this);

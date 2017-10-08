@@ -52,6 +52,7 @@ import java.util.UUID;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
@@ -87,13 +88,11 @@ public final class ConceptNodeWithSequences
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    public ConceptNodeWithSequences(LogicalExpressionImpl logicGraphVersion,
-                                   DataInputStream dataInputStream)
-            throws IOException {
+                                   ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
-      this.conceptSequence = dataInputStream.readInt();
+      this.conceptSequence = dataInputStream.getInt();
    }
 
    /**
@@ -203,11 +202,9 @@ public final class ConceptNodeWithSequences
     *
     * @param dataOutput the data output
     * @param dataTarget the data target
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
-   public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
-            throws IOException {
+   public void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
       switch (dataTarget) {
       case EXTERNAL:
          final ConceptNodeWithUuids externalForm = new ConceptNodeWithUuids(this);
@@ -217,7 +214,7 @@ public final class ConceptNodeWithSequences
 
       case INTERNAL:
          super.writeData(dataOutput, dataTarget);
-         dataOutput.writeInt(this.conceptSequence);
+         dataOutput.putInt(this.conceptSequence);
          break;
 
       default:

@@ -145,7 +145,7 @@ public class AssemblageProvider
          Files.createDirectories(this.sememePath);
          LOG.info("Setting up sememe provider at " + this.sememePath.toAbsolutePath().toString());
          this.sememeMap = new CasSequenceObjectMap<>(
-                 new AssemblageSerializer(ChronologyImpl.DATA_FORMAT_VERSION),
+                 new AssemblageSerializer(),
                  this.sememePath,
                  "seg.",
                  ".sememe.map");

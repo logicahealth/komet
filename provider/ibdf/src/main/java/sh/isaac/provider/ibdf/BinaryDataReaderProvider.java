@@ -59,7 +59,7 @@ import java.util.stream.StreamSupport;
 
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 
@@ -154,21 +154,18 @@ public class BinaryDataReaderProvider
    @Override
    public boolean tryAdvance(Consumer<? super IsaacExternalizable> action) {
       try {
-         final int                           startBytes        = this.input.available();
-         final IsaacExternalizableObjectType type = IsaacExternalizableObjectType.fromDataStream(this.input);
-         final byte                          dataFormatVersion = this.input.readByte();
-         final int                           recordSize        = this.input.readInt();
-         final byte[]                        objectData        = new byte[recordSize];
-
+         final int                           startBytesAvailable        = this.input.available();
+         final int                           recordSizeInBytes        = this.input.readInt();
+         final byte[]                        objectData        = new byte[recordSizeInBytes];
          this.input.readFully(objectData);
+         
          ByteArrayDataBuffer byteArrayDataBuffer = new ByteArrayDataBuffer(objectData);
          byteArrayDataBuffer.setExternalData(true);
-         byteArrayDataBuffer.setObjectDataFormatVersion(dataFormatVersion);
-         IsaacExternalizableUnparsed unparsedObject = new IsaacExternalizableUnparsed(type, byteArrayDataBuffer);
+         IsaacExternalizableUnparsed unparsedObject = new IsaacExternalizableUnparsed(byteArrayDataBuffer);
          action.accept(unparsedObject.parse());
 
          this.objects++;
-         completedUnitsOfWork(startBytes - this.input.available());
+         completedUnitsOfWork(startBytesAvailable - this.input.available());
          return true;
       } catch (final EOFException ex) {
          close();

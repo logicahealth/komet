@@ -41,8 +41,7 @@ package sh.isaac.model.logic.node;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataInputStream;
-import java.io.IOException;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -61,11 +60,9 @@ public abstract class SubstitutionNodeLiteral
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    public SubstitutionNodeLiteral(LogicalExpressionImpl logicGraphVersion,
-                                  DataInputStream dataInputStream)
-            throws IOException {
+                                  ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
    }
 

@@ -41,9 +41,6 @@ package sh.isaac.model.logic.node.internal;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.IOException;
 
 import java.util.Arrays;
 
@@ -52,6 +49,7 @@ import java.util.Arrays;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
@@ -86,13 +84,11 @@ public abstract class TypedNodeWithSequences
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    public TypedNodeWithSequences(LogicalExpressionImpl logicGraphVersion,
-                                 DataInputStream dataInputStream)
-            throws IOException {
+                                 ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
-      this.typeConceptSequence = dataInputStream.readInt();
+      this.typeConceptSequence = dataInputStream.getInt();
    }
 
    /**
@@ -218,13 +214,11 @@ public abstract class TypedNodeWithSequences
     *
     * @param dataOutput the data output
     * @param dataTarget the data target
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
-   protected void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
-            throws IOException {
+   protected void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
       super.writeData(dataOutput, dataTarget);
-      dataOutput.writeInt(this.typeConceptSequence);
+      dataOutput.putInt(this.typeConceptSequence);
    }
 
    //~--- get methods ---------------------------------------------------------

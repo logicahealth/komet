@@ -46,7 +46,6 @@ package sh.isaac.model.logic.node.external;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 
@@ -56,6 +55,7 @@ import java.util.UUID;
 
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
@@ -103,14 +103,12 @@ public class TemplateNodeWithUuids
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    public TemplateNodeWithUuids(LogicalExpressionImpl logicGraphVersion,
-                                DataInputStream dataInputStream)
-            throws IOException {
+                                ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
-      this.templateConceptUuid   = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
-      this.assemblageConceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
+      this.templateConceptUuid   = new UUID(dataInputStream.getLong(), dataInputStream.getLong());
+      this.assemblageConceptUuid = new UUID(dataInputStream.getLong(), dataInputStream.getLong());
    }
 
    /**
@@ -215,18 +213,16 @@ public class TemplateNodeWithUuids
     *
     * @param dataOutput the data output
     * @param dataTarget the data target
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
-   public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
-            throws IOException {
+   public void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
       switch (dataTarget) {
       case EXTERNAL:
          super.writeData(dataOutput, dataTarget);
-         dataOutput.writeLong(this.templateConceptUuid.getMostSignificantBits());
-         dataOutput.writeLong(this.templateConceptUuid.getLeastSignificantBits());
-         dataOutput.writeLong(this.assemblageConceptUuid.getMostSignificantBits());
-         dataOutput.writeLong(this.assemblageConceptUuid.getLeastSignificantBits());
+         dataOutput.putLong(this.templateConceptUuid.getMostSignificantBits());
+         dataOutput.putLong(this.templateConceptUuid.getLeastSignificantBits());
+         dataOutput.putLong(this.assemblageConceptUuid.getMostSignificantBits());
+         dataOutput.putLong(this.assemblageConceptUuid.getLeastSignificantBits());
          break;
 
       case INTERNAL:

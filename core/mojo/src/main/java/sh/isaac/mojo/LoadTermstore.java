@@ -251,8 +251,8 @@ public class LoadTermstore
                   this.itemCount++;
 
                   try {
-                     if (null != object.getExternalizableObjectType()) {
-                        switch (object.getExternalizableObjectType()) {
+                     if (null != object.getIsaacObjectType()) {
+                        switch (object.getIsaacObjectType()) {
                         case CONCEPT:
                            if (!this.activeOnly || isActive((Chronology) object)) {
                               Get.conceptService()

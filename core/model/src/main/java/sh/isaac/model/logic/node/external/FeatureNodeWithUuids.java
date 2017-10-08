@@ -46,8 +46,6 @@ package sh.isaac.model.logic.node.external;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.UUID;
@@ -55,6 +53,7 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DataTarget;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
@@ -88,8 +87,7 @@ public class FeatureNodeWithUuids
     * @param internalNode the internal node
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public FeatureNodeWithUuids(FeatureNodeWithSequences internalNode)
-            throws IOException {
+   public FeatureNodeWithUuids(FeatureNodeWithSequences internalNode) {
       super(internalNode);
       this.operator = internalNode.getOperator();
 
@@ -101,15 +99,13 @@ public class FeatureNodeWithUuids
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
-    * @throws IOException Signals that an I/O exception has occurred.
     */
 
 // UUID unitsConceptUuid;
    public FeatureNodeWithUuids(LogicalExpressionImpl logicGraphVersion,
-                               DataInputStream dataInputStream)
-            throws IOException {
+                               ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
-      this.operator = concreteDomainOperators[dataInputStream.readByte()];
+      this.operator = concreteDomainOperators[dataInputStream.getByte()];
 
 //    unitsConceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
    }
@@ -202,15 +198,13 @@ public class FeatureNodeWithUuids
     *
     * @param dataOutput the data output
     * @param dataTarget the data target
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
-   public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
-            throws IOException {
+   public void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
       switch (dataTarget) {
       case EXTERNAL:
          super.writeNodeData(dataOutput, dataTarget);
-         dataOutput.writeByte(this.operator.ordinal());
+         dataOutput.putByte((byte) this.operator.ordinal());
 
 //       dataOutput.writeLong(unitsConceptUuid.getMostSignificantBits());
 //       dataOutput.writeLong(unitsConceptUuid.getLeastSignificantBits());

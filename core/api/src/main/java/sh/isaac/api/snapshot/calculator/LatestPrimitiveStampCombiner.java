@@ -118,7 +118,7 @@ public class LatestPrimitiveStampCombiner
             break;
 
          default:
-            throw new UnsupportedOperationException("Can't handle: " + relativePosition);
+            throw new UnsupportedOperationException("m Can't handle: " + relativePosition);
          }
       } else {
          tStampSet.or(uStampSet);

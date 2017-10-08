@@ -41,7 +41,6 @@ package sh.isaac.model.logic.node;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 
@@ -50,6 +49,7 @@ import java.io.IOException;
 import org.apache.mahout.math.list.ShortArrayList;
 
 import sh.isaac.api.DataTarget;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 
@@ -99,19 +99,17 @@ public abstract class ConnectorNode
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    public ConnectorNode(LogicalExpressionImpl logicGraphVersion,
-                        DataInputStream dataInputStream)
-            throws IOException {
+                        ByteArrayDataBuffer dataInputStream)  {
       super(logicGraphVersion, dataInputStream);
 
-      final short childrenSize = dataInputStream.readShort();
+      final short childrenSize = dataInputStream.getShort();
 
       this.childIndices = new ShortArrayList(childrenSize);
 
       for (int index = 0; index < childrenSize; index++) {
-         this.childIndices.add(dataInputStream.readShort());
+         this.childIndices.add(dataInputStream.getShort());
       }
    }
 
@@ -248,14 +246,13 @@ public abstract class ConnectorNode
     * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
-   protected void writeData(DataOutput dataOutput, DataTarget dataTarget)
-            throws IOException {
+   protected void writeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
       sort();
       super.writeData(dataOutput, dataTarget);
-      dataOutput.writeShort(this.childIndices.size());
+      dataOutput.putShort((short) this.childIndices.size());
 
       for (final short value: this.childIndices.elements()) {
-         dataOutput.writeShort(value);
+         dataOutput.putShort(value);
       }
    }
 

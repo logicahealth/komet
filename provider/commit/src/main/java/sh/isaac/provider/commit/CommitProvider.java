@@ -711,7 +711,7 @@ public class CommitProvider
     */
    @Override
    public void importNoChecks(IsaacExternalizable ochreExternalizable) {
-      switch (ochreExternalizable.getExternalizableObjectType()) {
+      switch (ochreExternalizable.getIsaacObjectType()) {
       case CONCEPT:
          final ConceptChronology conceptChronology = (ConceptChronology) ochreExternalizable;
 
@@ -744,7 +744,7 @@ public class CommitProvider
          break;
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + ochreExternalizable.getClass().getName() + 
+         throw new UnsupportedOperationException("ap Can't handle: " + ochreExternalizable.getClass().getName() + 
                  ": " + ochreExternalizable);
       }
    }
@@ -956,7 +956,7 @@ public class CommitProvider
       try {
          this.uncommittedSequenceLock.lock();
 
-         switch (sememeOrConceptChronicle.getExternalizableObjectType()) {
+         switch (sememeOrConceptChronicle.getIsaacObjectType()) {
          case CONCEPT: {
             final int sequence           = Get.identifierService()
                                               .getConceptSequence(sememeOrConceptChronicle.getNid());

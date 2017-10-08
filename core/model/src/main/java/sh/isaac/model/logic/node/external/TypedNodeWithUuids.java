@@ -46,7 +46,6 @@ package sh.isaac.model.logic.node.external;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 
@@ -57,6 +56,7 @@ import java.util.UUID;
 
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
@@ -97,13 +97,11 @@ public abstract class TypedNodeWithUuids
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    public TypedNodeWithUuids(LogicalExpressionImpl logicGraphVersion,
-                             DataInputStream dataInputStream)
-            throws IOException {
+                             ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
-      this.typeConceptUuid = new UUID(dataInputStream.readLong(), dataInputStream.readLong());
+      this.typeConceptUuid = new UUID(dataInputStream.getLong(), dataInputStream.getLong());
    }
 
    /**
@@ -198,13 +196,12 @@ public abstract class TypedNodeWithUuids
     * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
-   public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
-            throws IOException {
+   public void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
       switch (dataTarget) {
       case EXTERNAL:
          super.writeData(dataOutput, dataTarget);
-         dataOutput.writeLong(this.typeConceptUuid.getMostSignificantBits());
-         dataOutput.writeLong(this.typeConceptUuid.getLeastSignificantBits());
+         dataOutput.putLong(this.typeConceptUuid.getMostSignificantBits());
+         dataOutput.putLong(this.typeConceptUuid.getLeastSignificantBits());
          break;
 
       case INTERNAL:

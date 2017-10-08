@@ -44,7 +44,7 @@ public class ConceptDetailPanelProviderFactory implements DetailNodeFactory {
    @Override
    public DetailNode createDetailNode(Manifold manifold, Consumer<Node> nodeConsumer, DetailType type) {
       if (type != DetailType.Concept) {
-         throw new UnsupportedOperationException("Can't handle: " + type); 
+         throw new UnsupportedOperationException("aj Can't handle: " + type); 
       }
       return new ConceptDetailPanelNode(manifold, nodeConsumer);
    }

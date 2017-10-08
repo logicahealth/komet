@@ -466,11 +466,11 @@ public abstract class LuceneIndexer
                                                                             .getIdentifiedObjectChronology(nid);
 
       if (c.isPresent()) {
-         if (null == c.get().getExternalizableObjectType()) {
-            LOG.warn("Unexpected object type: " + c.get().getExternalizableObjectType());
+         if (null == c.get().getIsaacObjectType()) {
+            LOG.warn("Unexpected object type: " + c.get().getIsaacObjectType());
          } else {
             switch (c.get()
-                     .getExternalizableObjectType()) {
+                     .getIsaacObjectType()) {
             case SEMEME:
                return findConcept(((SememeChronology) c.get()).getReferencedComponentNid());
 
@@ -478,7 +478,7 @@ public abstract class LuceneIndexer
                return ((ConceptChronology) c.get()).getConceptSequence();
 
             default:
-               LOG.warn("Unexpected object type: " + c.get().getExternalizableObjectType());
+               LOG.warn("Unexpected object type: " + c.get().getIsaacObjectType());
                break;
             }
          }

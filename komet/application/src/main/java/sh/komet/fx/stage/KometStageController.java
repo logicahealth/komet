@@ -34,13 +34,9 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
 package sh.komet.fx.stage;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.net.URL;
 
 import java.util.ArrayList;
@@ -48,7 +44,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import javafx.application.Platform;
 
 import javafx.beans.value.ObservableValue;
@@ -56,7 +51,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 
 import javafx.fxml.FXML;
-
 
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
@@ -76,6 +70,7 @@ import javafx.scene.layout.Priority;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.komet.gui.treeview.MultiParentTreeView;
 import sh.isaac.komet.iconography.Iconography;
@@ -99,54 +94,52 @@ import static sh.isaac.api.constants.Constants.USER_CSS_LOCATION_PROPERTY;
 import sh.isaac.api.coordinate.EditCoordinate;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * Root node of scene is given a UUID for unique identification.
  *
  * @author kec
  */
 public class KometStageController
-         implements StatusMessageConsumer {
-   private static final Manifold FLOWR_MANIFOLD    = Manifold.make(Manifold.FLOWR_SEARCH_GROUP_NAME);
-   private static final Manifold SEARCH_MANIFOLD   = Manifold.make(Manifold.SIMPLE_SEARCH_GROUP_NAME);
+        implements StatusMessageConsumer {
+
+   private static final Manifold FLOWR_MANIFOLD = Manifold.make(Manifold.FLOWR_SEARCH_GROUP_NAME);
+   private static final Manifold SEARCH_MANIFOLD = Manifold.make(Manifold.SIMPLE_SEARCH_GROUP_NAME);
    private static final Manifold TAXONOMY_MANIFOLD = Manifold.make(Manifold.TAXONOMY_GROUP_NAME);
 
    //~--- fields --------------------------------------------------------------
-
-   private int                                  tabPanelCount = 0;
-   private final ArrayList<MultiParentTreeView> treeViewList  = new ArrayList<>();
-   ArrayList<TabPane>                           tabPanes      = new ArrayList();
+   private int tabPanelCount = 0;
+   private final ArrayList<MultiParentTreeView> treeViewList = new ArrayList<>();
+   ArrayList<TabPane> tabPanes = new ArrayList();
    @FXML  // ResourceBundle that was given to the FXMLLoader
-   private ResourceBundle                       resources;
+   private ResourceBundle resources;
    @FXML  // URL location of the FXML file that was given to the FXMLLoader
-   private URL                                  location;
+   private URL location;
    @FXML                                                                          // fx:id="bottomBorderBox"
-   private HBox                                 bottomBorderBox;                  // Value injected by FXMLLoader
+   private HBox bottomBorderBox;                  // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="verticalEditorSplitPane"
-   private SplitPane                            verticalEditorSplitPane;          // Value injected by FXMLLoader
+   private SplitPane verticalEditorSplitPane;          // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="editorButtonBar"
-   private ButtonBar                            editorButtonBar;                  // Value injected by FXMLLoader
+   private ButtonBar editorButtonBar;                  // Value injected by FXMLLoader
    @FXML  // fx:id="editorCenterHorizontalSplitPane"
-   private SplitPane                            editorCenterHorizontalSplitPane;  // Value injected by FXMLLoader
+   private SplitPane editorCenterHorizontalSplitPane;  // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="editorLeftPane"
-   private HBox                                 editorLeftPane;                   // Value injected by FXMLLoader
+   private HBox editorLeftPane;                   // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="leftBorderBox"
-   private HBox                                 leftBorderBox;                    // Value injected by FXMLLoader
+   private HBox leftBorderBox;                    // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="rightBorderBox"
-   private HBox                                 rightBorderBox;                   // Value injected by FXMLLoader
+   private HBox rightBorderBox;                   // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="editToolBar"
-   private ToolBar                              editToolBar;                      // Value injected by FXMLLoader
+   private ToolBar editToolBar;                      // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="statusMessage"
-   private Label                                statusMessage;                    // Value injected by FXMLLoader
+   private Label statusMessage;                    // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="vanityBox"
-   private Button                               vanityBox;                        // Value injected by FXMLLoader
+   private Button vanityBox;                        // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="topGridPane"
-   private GridPane                             topGridPane;                      // Value injected by FXMLLoader
+   private GridPane topGridPane;                      // Value injected by FXMLLoader
    @FXML                                                                          // fx:id="classifierMenuButton"
-   private MenuButton                           classifierMenuButton;             // Value injected by FXMLLoader
+   private MenuButton classifierMenuButton;             // Value injected by FXMLLoader
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * When the button action event is triggered, refresh the user CSS file.
     *
@@ -155,11 +148,11 @@ public class KometStageController
    @FXML
    public void handleRefreshUserCss(ActionEvent event) {
       vanityBox.getScene()
-               .getStylesheets()
-               .remove(System.getProperty(USER_CSS_LOCATION_PROPERTY));
+              .getStylesheets()
+              .remove(System.getProperty(USER_CSS_LOCATION_PROPERTY));
       vanityBox.getScene()
-               .getStylesheets()
-               .add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
+              .getStylesheets()
+              .add(System.getProperty(USER_CSS_LOCATION_PROPERTY));
       System.out.println("Updated css: " + System.getProperty(USER_CSS_LOCATION_PROPERTY));
    }
 
@@ -170,44 +163,44 @@ public class KometStageController
 
    @FXML  // This method is called by the FXMLLoader when initialization is complete
    void initialize() {
-      assert bottomBorderBox != null:
-             "fx:id=\"bottomBorderBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-      assert verticalEditorSplitPane != null:
-             "fx:id=\"verticalEditorSplitPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-      assert editorButtonBar != null:
-             "fx:id=\"editorButtonBar\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-      assert editorCenterHorizontalSplitPane != null:
-             "fx:id=\"editorCenterHorizontalSplitPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-      assert editorLeftPane != null:
-             "fx:id=\"editorLeftPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-      assert editToolBar != null:
-             "fx:id=\"editToolBar\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-      assert leftBorderBox != null:
-             "fx:id=\"leftBorderBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-      assert rightBorderBox != null:
-             "fx:id=\"rightBorderBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-      assert statusMessage != null:
-             "fx:id=\"statusMessage\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-      assert vanityBox != null: "fx:id=\"vanityBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-      assert topGridPane != null:
-             "fx:id=\"topGridPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
-      assert classifierMenuButton != null:
-             "fx:id=\"classifierMenuButton\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+      assert bottomBorderBox != null :
+              "fx:id=\"bottomBorderBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+      assert verticalEditorSplitPane != null :
+              "fx:id=\"verticalEditorSplitPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+      assert editorButtonBar != null :
+              "fx:id=\"editorButtonBar\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+      assert editorCenterHorizontalSplitPane != null :
+              "fx:id=\"editorCenterHorizontalSplitPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+      assert editorLeftPane != null :
+              "fx:id=\"editorLeftPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+      assert editToolBar != null :
+              "fx:id=\"editToolBar\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+      assert leftBorderBox != null :
+              "fx:id=\"leftBorderBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+      assert rightBorderBox != null :
+              "fx:id=\"rightBorderBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+      assert statusMessage != null :
+              "fx:id=\"statusMessage\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+      assert vanityBox != null : "fx:id=\"vanityBox\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+      assert topGridPane != null :
+              "fx:id=\"topGridPane\" was not injected: check your FXML file 'KometStageScene.fxml'.";
+      assert classifierMenuButton != null :
+              "fx:id=\"classifierMenuButton\" was not injected: check your FXML file 'KometStageScene.fxml'.";
       leftBorderBox.getChildren()
-                   .add(createWrappedTabPane());
+              .add(createWrappedTabPane());
       editorLeftPane.getChildren()
-                    .add(createWrappedTabPane());
+              .add(createWrappedTabPane());
       rightBorderBox.getChildren()
-                    .add(createWrappedTabPane());
+              .add(createWrappedTabPane());
       classifierMenuButton.setGraphic(Iconography.ICON_CLASSIFIER1.getIconographic());
       classifierMenuButton.getItems().clear();
       classifierMenuButton.getItems().addAll(getClassifyMenuItems());
       Platform.runLater(
-          () -> {
-             treeViewList.forEach(treeView -> treeView.init());
-          });
+              () -> {
+                 treeViewList.forEach(treeView -> treeView.init());
+              });
    }
-   
+
    private List<MenuItem> getClassifyMenuItems() {
       ArrayList<MenuItem> items = new ArrayList<>();
       MenuItem completeClassify = new MenuItem("Complete classify");
@@ -218,14 +211,13 @@ public class KometStageController
          classifierService.classify();
       });
       items.add(completeClassify);
-      
+
       MenuItem completeReindex = new MenuItem("Complete reindex");
       completeReindex.setOnAction((ActionEvent event) -> {
          Get.startIndexTask();
       });
       items.add(completeReindex);
-      
-      
+
       return items;
    }
 
@@ -235,29 +227,28 @@ public class KometStageController
 
       tab.setGraphic(Iconography.TAXONOMY_ICON.getIconographic());
 
-
       treeViewList.add(treeView);
       tab.setContent(new BorderPane(treeView));
       tabPane.getTabs()
-             .add(tab);
+              .add(tab);
    }
 
    private void addSimpleSearchTab(TabPane tabPane) {
-      SimpleSearchViewFactory factory    = new SimpleSearchViewFactory();
-      Tab                     searchTab  = new Tab(factory.getMenuText());
-      BorderPane              searchPane = new BorderPane();
+      SimpleSearchViewFactory factory = new SimpleSearchViewFactory();
+      Tab searchTab = new Tab(factory.getMenuText());
+      BorderPane searchPane = new BorderPane();
 
       searchTab.setGraphic(factory.getMenuIcon());
       searchTab.setContent(searchPane);
 
       ExplorationNode explorationNode = factory.createExplorationNode(
-                                            SEARCH_MANIFOLD,
-                                                  (theNewExplorationNode) -> {
-               searchPane.setCenter(theNewExplorationNode);
-            });
+              SEARCH_MANIFOLD,
+              (theNewExplorationNode) -> {
+                 searchPane.setCenter(theNewExplorationNode);
+              });
 
       tabPane.getTabs()
-             .add(searchTab);
+              .add(searchTab);
    }
 
    private void addTabFactory(DetailNodeFactory factory, TabPane tabPane, ArrayList<MenuItem> menuItems) {
@@ -266,10 +257,10 @@ public class KometStageController
          tabFactoryMenuItem.setOnAction(
                  (event) -> {
                     Tab tab = new Tab(factory.getMenuText(), factory.getMenuIcon());
-                    
+
                     tab.setGraphic(factory.getMenuIcon());
                     tab.setTooltip(new Tooltip(""));
-                    
+
                     BorderPane borderPaneForTab = new BorderPane();
                     DetailNode detailNode = factory.createDetailNode(
                             TAXONOMY_MANIFOLD,
@@ -277,7 +268,7 @@ public class KometStageController
                                borderPaneForTab.setCenter(theNewDetailNode);
                             },
                             type);
-                    
+
                     tab.textProperty()
                             .bind(detailNode.getTitle());
                     tab.getTooltip()
@@ -297,56 +288,56 @@ public class KometStageController
       MenuItem tabFactoryMenuItem = new MenuItem(factory.getMenuText(), factory.getMenuIcon());
 
       tabFactoryMenuItem.setOnAction(
-          (event) -> {
-             Tab tab = new Tab(factory.getMenuText(), factory.getMenuIcon());
+              (event) -> {
+                 Tab tab = new Tab(factory.getMenuText(), factory.getMenuIcon());
 
-             tab.setTooltip(new Tooltip(""));
+                 tab.setTooltip(new Tooltip(""));
 
-             BorderPane borderPaneForTab = new BorderPane();
-             ExplorationNode explorationNode = factory.createExplorationNode(
-                                                   TAXONOMY_MANIFOLD.deepClone(),
-                                                         (theNewDetailNode) -> {
-                  borderPaneForTab.setCenter(theNewDetailNode);
-               });
+                 BorderPane borderPaneForTab = new BorderPane();
+                 ExplorationNode explorationNode = factory.createExplorationNode(
+                         TAXONOMY_MANIFOLD.deepClone(),
+                         (theNewDetailNode) -> {
+                            borderPaneForTab.setCenter(theNewDetailNode);
+                         });
 
-             explorationNode.getTitleNode().ifPresent((titleNode) -> tab.graphicProperty().set(titleNode));
-             
-             tab.textProperty()
-                .bind(explorationNode.getTitle());
-             tab.getTooltip()
-                .textProperty()
-                .bind(explorationNode.getToolTip());
-             tab.setContent(borderPaneForTab);
-             tabPane.getTabs()
-                    .add(tab);
-          });
+                 explorationNode.getTitleNode().ifPresent((titleNode) -> tab.graphicProperty().set(titleNode));
+
+                 tab.textProperty()
+                         .bind(explorationNode.getTitle());
+                 tab.getTooltip()
+                         .textProperty()
+                         .bind(explorationNode.getToolTip());
+                 tab.setContent(borderPaneForTab);
+                 tabPane.getTabs()
+                         .add(tab);
+              });
       menuItems.add(tabFactoryMenuItem);
    }
 
    private Pane createWrappedTabPane() {
-      Pane    pane    = DndTabPaneFactory.createDefaultDnDPane(FeedbackType.OUTLINE, true, this::setupTabPane);
+      Pane pane = DndTabPaneFactory.createDefaultDnDPane(FeedbackType.OUTLINE, true, this::setupTabPane);
       TabPane tabPane = (TabPane) pane.getChildren()
-                                      .get(0);
+              .get(0);
 
       tabPanes.add(tabPane);
 
       ArrayList<MenuItem> menuItems = new ArrayList<>();
 
       Get.services(ExplorationNodeFactory.class)
-         .forEach(
-             (factory) -> {
-                addTabFactory(factory, tabPane, menuItems);
-             });
+              .forEach(
+                      (factory) -> {
+                         addTabFactory(factory, tabPane, menuItems);
+                      });
       Get.services(DetailNodeFactory.class)
-         .forEach(
-             (factory) -> {
-                addTabFactory(factory, tabPane, menuItems);
-             });
+              .forEach(
+                      (factory) -> {
+                         addTabFactory(factory, tabPane, menuItems);
+                      });
       menuItems.sort(
-          (o1, o2) -> {
-             return o1.getText()
-                      .compareTo(o2.getText());
-          });
+              (o1, o2) -> {
+                 return o1.getText()
+                         .compareTo(o2.getText());
+              });
 
       Pane wrapped = TabWrapper.wrap(pane, menuItems.toArray(new MenuItem[menuItems.size()]));
 
@@ -360,24 +351,38 @@ public class KometStageController
       tab.setGraphic(factory.getMenuIcon());
       tab.setTooltip(new Tooltip("A Square"));
 
-      BorderPane graphPane  = new BorderPane();
+      BorderPane graphPane = new BorderPane();
       DetailNode detailNode = factory.createDetailNode(
-                                  manifold,
-                                      (theNewDetailNode) -> {
-                                         graphPane.setCenter(theNewDetailNode);
-                                      },
-                                  DetailType.Concept);
+              manifold,
+              (theNewDetailNode) -> {
+                 graphPane.setCenter(theNewDetailNode);
+              },
+              DetailType.Concept);
 
       tab.textProperty()
-         .bind(detailNode.getTitle());
+              .bind(detailNode.getTitle());
       detailNode.getTitleNode().ifPresent((titleNode) -> tab.graphicProperty().set(titleNode));
       tab.getTooltip()
-         .textProperty()
-         .bind(detailNode.getToolTip());
+              .textProperty()
+              .bind(detailNode.getToolTip());
       tab.setContent(graphPane);
       tabPane.getTabs()
-             .add(tab);
+              .add(tab);
       return tabCountInPanel;
+   }
+
+   private void printSelectionDetails(ObservableValue<? extends IdentifiedObject> observable,
+           IdentifiedObject oldValue,
+           IdentifiedObject newValue) {
+      Get.executor().submit(() -> {
+         StringBuffer buff = new StringBuffer();
+         buff.append("selected:\n");
+         if (newValue instanceof ConceptChronology) {
+            ConceptChronology concept = (ConceptChronology) newValue;
+            buff.append(concept.toString());
+         }
+         System.out.println(buff);
+      });
    }
 
    private TabPane setupTabPane(TabPane tabPane) {
@@ -388,62 +393,68 @@ public class KometStageController
 
       if (tabPanelCount == 1) {
          FLOWR_MANIFOLD.focusedConceptProperty()
-                       .addListener(
-                           (ObservableValue<? extends IdentifiedObject> observable,
-                            IdentifiedObject oldValue,
-                            IdentifiedObject newValue) -> {
-                              FxGet.statusMessageService()
-                                   .reportSceneStatus(
-                                       statusMessage.getScene(),
-                                       FLOWR_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
-                           });
-         SEARCH_MANIFOLD.focusedConceptProperty()
-                        .addListener(
-                            (ObservableValue<? extends IdentifiedObject> observable,
-                             IdentifiedObject oldValue,
-                             IdentifiedObject newValue) -> {
-                               FxGet.statusMessageService()
+                 .addListener(this::printSelectionDetails);
+         FLOWR_MANIFOLD.focusedConceptProperty()
+                 .addListener(
+                         (ObservableValue<? extends IdentifiedObject> observable,
+                                 IdentifiedObject oldValue,
+                                 IdentifiedObject newValue) -> {
+                            FxGet.statusMessageService()
                                     .reportSceneStatus(
-                                        statusMessage.getScene(),
-                                        SEARCH_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
-                            });
+                                            statusMessage.getScene(),
+                                            FLOWR_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
+                         });
+         SEARCH_MANIFOLD.focusedConceptProperty()
+                 .addListener(this::printSelectionDetails);
+         SEARCH_MANIFOLD.focusedConceptProperty()
+                 .addListener(
+                         (ObservableValue<? extends IdentifiedObject> observable,
+                                 IdentifiedObject oldValue,
+                                 IdentifiedObject newValue) -> {
+                            FxGet.statusMessageService()
+                                    .reportSceneStatus(
+                                            statusMessage.getScene(),
+                                            SEARCH_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
+                         });
          TAXONOMY_MANIFOLD.focusedConceptProperty()
-                          .addListener(
-                              (ObservableValue<? extends IdentifiedObject> observable,
-                               IdentifiedObject oldValue,
-                               IdentifiedObject newValue) -> {
-                                 FxGet.statusMessageService()
-                                      .reportSceneStatus(
-                                          statusMessage.getScene(),
-                                          TAXONOMY_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
-                              });
+                 .addListener(this::printSelectionDetails);
+         TAXONOMY_MANIFOLD.focusedConceptProperty()
+                 .addListener(
+                         (ObservableValue<? extends IdentifiedObject> observable,
+                                 IdentifiedObject oldValue,
+                                 IdentifiedObject newValue) -> {
+                            FxGet.statusMessageService()
+                                    .reportSceneStatus(
+                                            statusMessage.getScene(),
+                                            TAXONOMY_MANIFOLD.getGroupName() + " selected: " + newValue.toUserString());
+                         });
          addMultiParentTreeViewTab(tabPane);
          addSimpleSearchTab(tabPane);
       } else {
          if (tabPanelCount == 2) {
-            for (DetailNodeFactory factory: Get.services(DetailNodeFactory.class)) {
+            for (DetailNodeFactory factory : Get.services(DetailNodeFactory.class)) {
                tabCountInPanel = setupConceptTab(
-                   tabCountInPanel,
-                   factory,
-                   tabPane,
-                   Manifold.make(Manifold.TAXONOMY_GROUP_NAME));
+                       tabCountInPanel,
+                       factory,
+                       tabPane,
+                       Manifold.make(Manifold.TAXONOMY_GROUP_NAME));
             }
          }
 
          if (tabPanelCount == 3) {
             // add FLOWR query flowrTab
             QueryViewFactory queryViewFactory = new QueryViewFactory();
-            Tab              flowrTab         = new Tab();
+            Tab flowrTab = new Tab();
 
             flowrTab.setGraphic(queryViewFactory.getMenuIcon());
             flowrTab.setTooltip(new Tooltip("For, Let, Order, Where, Return query construction panel"));
 
             BorderPane searchPane = new BorderPane();
             ExplorationNode explorationNode = queryViewFactory.createExplorationNode(
-                                                  FLOWR_MANIFOLD,
-                                                        (theNewExplorationNode) -> {
-                     searchPane.setCenter(theNewExplorationNode);
-                  });
+                    FLOWR_MANIFOLD,
+                    (theNewExplorationNode) -> {
+                       searchPane.setCenter(theNewExplorationNode);
+                    });
 
             explorationNode.getTitleNode().ifPresent((titleNode) -> flowrTab.graphicProperty().set(titleNode));
             flowrTab.textProperty().bind(explorationNode.getTitle());
@@ -452,32 +463,31 @@ public class KometStageController
                     .bind(explorationNode.getToolTip());
             flowrTab.setContent(searchPane);
             tabPane.getTabs()
-                   .add(flowrTab);
+                    .add(flowrTab);
 
             // Add progress
-            TaskProgressNodeFactory factory      = new TaskProgressNodeFactory();
-            Tab                     tab          = new Tab();
-            BorderPane              activityPane = new BorderPane();
+            TaskProgressNodeFactory factory = new TaskProgressNodeFactory();
+            Tab tab = new Tab();
+            BorderPane activityPane = new BorderPane();
             ExplorationNode activityNode = factory.createExplorationNode(
-                                               FLOWR_MANIFOLD,
-                                                     (theNewExplorationNode) -> {
-                     activityPane.setCenter(theNewExplorationNode);
-                  });
- 
+                    FLOWR_MANIFOLD,
+                    (theNewExplorationNode) -> {
+                       activityPane.setCenter(theNewExplorationNode);
+                    });
+
             tab.setContent(activityPane);
             tab.textProperty()
-               .bind(activityNode.getTitle());
+                    .bind(activityNode.getTitle());
             activityNode.getTitleNode().ifPresent((titleNode) -> tab.graphicProperty().set(titleNode));
             tab.setTooltip(new Tooltip("Activity panel"));
             tab.getTooltip()
-               .textProperty()
-               .bind(activityNode.getToolTip());
+                    .textProperty()
+                    .bind(activityNode.getToolTip());
             tabPane.getTabs()
-                   .add(tab);
+                    .add(tab);
          }
       }
 
       return tabPane;
    }
 }
-

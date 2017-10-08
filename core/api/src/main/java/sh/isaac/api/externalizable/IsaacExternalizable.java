@@ -53,20 +53,11 @@ public interface IsaacExternalizable {
     */
    void putExternal(ByteArrayDataBuffer out);
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the data format version.
-    *
-    * @return the data format version
-    */
-   byte getDataFormatVersion();
-
    /**
     * Gets the externalizable object type.
     *
     * @return the type of the object.
     */
-   IsaacExternalizableObjectType getExternalizableObjectType();
+   IsaacObjectType getIsaacObjectType();
 }
 
