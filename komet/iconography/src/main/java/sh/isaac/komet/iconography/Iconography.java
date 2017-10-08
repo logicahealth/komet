@@ -186,7 +186,7 @@ public enum Iconography {
          case OCT_ICON:
             return new OctIconView().setStyleClass(cssClass);
          default:
-            throw new UnsupportedOperationException("Can't handle: " + source);
+            throw new UnsupportedOperationException("ao Can't handle: " + source);
       }
    }
 

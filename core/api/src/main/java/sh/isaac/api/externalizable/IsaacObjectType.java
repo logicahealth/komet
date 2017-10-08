@@ -47,58 +47,70 @@ package sh.isaac.api.externalizable;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.DataInput;
-import java.io.DataOutput;
 import java.io.IOException;
 
 //~--- enums ------------------------------------------------------------------
 
 /**
- * The Enum IsaacExternalizableObjectType.
+ * The Enum IsaacObjectType.
  *
  * @author kec
  */
-public enum IsaacExternalizableObjectType {
+public enum IsaacObjectType {
    /**
-    * An external representation of a concept. An identifier with status. Descriptions and definitions of concepts
+    * A concept. An identifier with status. Descriptions and definitions of concepts
     * are provided as SEMEMEs.
     */
-   CONCEPT((byte) 1),
+   CONCEPT((byte) 1, (byte) 1),
 
    /**
-    * An external representation of a semantic unit of meaning, associated with a concept or another SEMEME.
+    * A semantic unit of meaning, associated with a concept or another SEMEME.
     */
-   SEMEME((byte) 2),
+   SEMEME((byte) 2, (byte) 1),
 
    /**
-    * An external representation of a stamp comment.
+    * A stamp comment.
     */
-   STAMP_COMMENT((byte) 4),
+   STAMP_COMMENT((byte) 4, (byte) 1),
 
    /**
-    * An external representation of a stamp alias.
+    * A stamp alias.
     */
-   STAMP_ALIAS((byte) 5),
+   STAMP_ALIAS((byte) 5, (byte) 1),
 
    /**
-    * An external representation of a stamp.
+    * A stamp.
     */
-   STAMP((byte) 6);
+   STAMP((byte) 6, (byte) 1),
+
+   /**
+    * A logical expression.
+    */
+   LOGICAL_EXPRESSION((byte) 7, (byte) 1);
 
    /** The token. */
    private final byte token;
+   private final byte dataFormatVersion;
 
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new ochre externalizable object type.
+    * Instantiates a new object type.
     *
     * @param token the token
     */
-   private IsaacExternalizableObjectType(byte token) {
-      this.token = token;
+   private IsaacObjectType(byte token, byte dataFormatVersion) {
+      this.token             = token;
+      this.dataFormatVersion = dataFormatVersion;
    }
 
    //~--- methods -------------------------------------------------------------
+
+   public static IsaacObjectType fromByteArrayDataBuffer(ByteArrayDataBuffer input) {
+      final byte token = input.getByte();
+
+      return fromToken(token);
+   }
 
    /**
     * From data stream.
@@ -107,52 +119,83 @@ public enum IsaacExternalizableObjectType {
     * @return the ochre externalizable object type
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public static IsaacExternalizableObjectType fromDataStream(DataInput input)
+   public static IsaacObjectType fromDataStream(DataInput input)
             throws IOException {
       final byte token = input.readByte();
+
       return fromToken(token);
    }
 
-   public static IsaacExternalizableObjectType fromByteArrayDataBuffer(ByteArrayDataBuffer input) {
-      final byte token = input.getByte();
-      return fromToken(token);
-   }
-
-   public static IsaacExternalizableObjectType fromToken(final byte token) throws UnsupportedOperationException {
+   public static IsaacObjectType fromToken(final byte token)
+            throws UnsupportedOperationException {
       switch (token) {
-         case 1:
-            return CONCEPT;
-         case 2:
-            return SEMEME;
-         case 3:
-            throw new UnsupportedOperationException("Commit record deprecated: " + token);
-         case 4:
-            return STAMP_COMMENT;
-         case 5:
-            return STAMP_ALIAS;
-         case 6:
-            return STAMP;
-         default:
-            throw new UnsupportedOperationException("Can't handle: " + token);
+      case 1:
+         return CONCEPT;
+
+      case 2:
+         return SEMEME;
+
+      case 3:
+         throw new UnsupportedOperationException("Commit record deprecated: " + token);
+
+      case 4:
+         return STAMP_COMMENT;
+
+      case 5:
+         return STAMP_ALIAS;
+
+      case 6:
+         return STAMP;
+
+      case 7:
+         return LOGICAL_EXPRESSION;
+
+      default:
+         UnsupportedOperationException ex = new UnsupportedOperationException("i Can't handle: " + token);
+         ex.printStackTrace();
+         throw ex;
       }
    }
 
-   /**
-    * To data stream.
-    *
-    * @param out the out
-    * @throws IOException Signals that an I/O exception has occurred.
-    */
-   public void writeToDataStream(DataOutput out)
-            throws IOException {
-      out.writeByte(this.token);
+   public void readAndValidateHeader(ByteArrayDataBuffer data) {
+      byte readToken = data.getByte();
+
+      if (this.token != readToken) {
+         throw new IllegalStateException("Expecting token for: " + this + " found: " + readToken);
+      }
+
+      data.setObjectDataFormatVersion(data.getByte());
    }
 
-   public void writeToByteArrayDataBuffer(ByteArrayDataBuffer out) {
+   /**
+    * Writes the data format version to the output stream, and also sets the
+    * object data format version on the ByteArrayDataBuffer.
+    * @param out
+    */
+   public void writeObjectDataFormatVersion(ByteArrayDataBuffer out) {
+      out.setObjectDataFormatVersion(this.dataFormatVersion);
+      out.putByte(this.dataFormatVersion);
+   }
+
+   public void writeObjectTypeToken(ByteArrayDataBuffer out) {
       out.putByte(this.token);
    }
 
+   /**
+    * Writes the type token and the data format version to the output stream, and sets the
+    * object data format version on the ByteArrayDataBuffer.
+    * @param out
+    */
+   public void writeTypeVersionHeader(ByteArrayDataBuffer out) {
+      writeObjectTypeToken(out);
+      writeObjectDataFormatVersion(out);
+   }
+
    //~--- get methods ---------------------------------------------------------
+
+   public byte getDataFormatVersion() {
+      return dataFormatVersion;
+   }
 
    /**
     * Gets the token.

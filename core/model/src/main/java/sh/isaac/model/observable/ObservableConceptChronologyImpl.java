@@ -68,7 +68,7 @@ import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
 
@@ -285,13 +285,8 @@ public class ObservableConceptChronologyImpl
    }
 
    @Override
-   public byte getDataFormatVersion() {
-      return getConceptChronology().getDataFormatVersion();
-   }
-
-   @Override
-   public IsaacExternalizableObjectType getExternalizableObjectType() {
-      return getConceptChronology().getExternalizableObjectType();
+   public IsaacObjectType getIsaacObjectType() {
+      return getConceptChronology().getIsaacObjectType();
    }
 
    @Override

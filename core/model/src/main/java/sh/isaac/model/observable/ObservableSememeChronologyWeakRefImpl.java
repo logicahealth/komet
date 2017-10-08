@@ -38,7 +38,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableVersion;
@@ -263,13 +263,8 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    }
 
    @Override
-   public byte getDataFormatVersion() {
-      return getChronology().getDataFormatVersion();
-   }
-
-   @Override
-   public IsaacExternalizableObjectType getExternalizableObjectType() {
-      return getChronology().getExternalizableObjectType();
+   public IsaacObjectType getIsaacObjectType() {
+      return getChronology().getIsaacObjectType();
    }
 
    @Override

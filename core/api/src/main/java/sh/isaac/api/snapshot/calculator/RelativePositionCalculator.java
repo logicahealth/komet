@@ -541,7 +541,7 @@ public class RelativePositionCalculator
                                     break;
 
                                  default:
-                                    throw new UnsupportedOperationException("Can't handle: " +
+                                    throw new UnsupportedOperationException("n Can't handle: " +
                                     fastRelativePosition(stampSequence,
                                           prevStamp,
                                           this.coordinate.getStampPrecedence()));

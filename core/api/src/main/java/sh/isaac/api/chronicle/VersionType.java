@@ -203,7 +203,7 @@ public enum VersionType {
          return DESCRIPTION;
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + token);
+         throw new UnsupportedOperationException("d Can't handle: " + token);
       }
    }
 
@@ -237,7 +237,7 @@ public enum VersionType {
 
       // TODO implement Observable pattern
       default:
-         throw new RuntimeException("Can't handle: " + this);
+         throw new RuntimeException("f Can't handle: " + this);
       }
    }
 
@@ -280,7 +280,7 @@ public enum VersionType {
          return StringVersion.class;
 
       default:
-         throw new RuntimeException("Can't handle: " + this);
+         throw new RuntimeException("g Can't handle: " + this);
       }
    }
 }

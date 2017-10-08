@@ -41,9 +41,6 @@ package sh.isaac.model.logic.node.internal;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.IOException;
 
 import java.util.UUID;
 
@@ -52,6 +49,7 @@ import java.util.UUID;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
@@ -94,15 +92,13 @@ public final class FeatureNodeWithSequences
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
-    * @throws IOException Signals that an I/O exception has occurred.
     */
 
 // int unitsConceptSequence;
    public FeatureNodeWithSequences(LogicalExpressionImpl logicGraphVersion,
-                                   DataInputStream dataInputStream)
-            throws IOException {
+                                   ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
-      this.operator = concreteDomainOperators[dataInputStream.readByte()];
+      this.operator = concreteDomainOperators[dataInputStream.getByte()];
 
 //    unitsConceptSequence = dataInputStream.readInt();
    }
@@ -212,11 +208,9 @@ public final class FeatureNodeWithSequences
     *
     * @param dataOutput the data output
     * @param dataTarget the data target
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
-   public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
-            throws IOException {
+   public void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
       switch (dataTarget) {
       case EXTERNAL:
          final FeatureNodeWithUuids externalForm = new FeatureNodeWithUuids(this);
@@ -226,7 +220,7 @@ public final class FeatureNodeWithSequences
 
       case INTERNAL:
          super.writeNodeData(dataOutput, dataTarget);
-         dataOutput.writeByte(this.operator.ordinal());
+         dataOutput.putByte((byte) this.operator.ordinal());
 
 //       dataOutput.writeInt(unitsConceptSequence);
          break;

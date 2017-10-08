@@ -72,6 +72,8 @@ import sh.isaac.api.tree.TreeNodeVisitData;
  */
 public class IsomorphicResultsBottomUp
          implements IsomorphicResults {
+   
+   private static final String CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE = "ConceptsReferencedAtNodeOrAbove";
    /**
     * Nodes that are relationship roots in the referenceExpression.
     */
@@ -521,13 +523,13 @@ public class IsomorphicResultsBottomUp
 
          if (children.length == 0) {
             comparisonSearchNodeSet.add(new IsomorphicSearchBottomUpNode(logicNode.getNodeSemantic(),
-                  this.comparisonVisitData.getConceptsReferencedAtNodeOrAbove(i),
+                  this.comparisonVisitData.getUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, i),
                   -1,
                   i));
          } else {
             for (final LogicNode child: children) {
                comparisonSearchNodeSet.add(new IsomorphicSearchBottomUpNode(logicNode.getNodeSemantic(),
-                     this.comparisonVisitData.getConceptsReferencedAtNodeOrAbove(i),
+                     this.comparisonVisitData.getUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, i),
                      child.getNodeIndex(),
                      i));
             }
@@ -595,13 +597,15 @@ public class IsomorphicResultsBottomUp
                                if (referenceLogicNode.getChildren().length == 0) {
                                   final IsomorphicSearchBottomUpNode from =
                                      new IsomorphicSearchBottomUpNode(referenceLogicNode.getNodeSemantic(),
-                                                                      this.referenceVisitData.getConceptsReferencedAtNodeOrAbove(
+                                                                      this.referenceVisitData.getUserNodeSet(
+                                                                              CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE,
                                                                          referenceNodeId),
                                                                       -1,
                                                                       Integer.MIN_VALUE);
                                   final IsomorphicSearchBottomUpNode to =
                                      new IsomorphicSearchBottomUpNode(referenceLogicNode.getNodeSemantic(),
-                                                                      this.referenceVisitData.getConceptsReferencedAtNodeOrAbove(
+                                                                      this.referenceVisitData.getUserNodeSet(
+                                                                              CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE,
                                                                          referenceNodeId),
                                                                       -1,
                                                                       Integer.MAX_VALUE);
@@ -623,14 +627,16 @@ public class IsomorphicResultsBottomUp
                                                    final IsomorphicSearchBottomUpNode from =
                                                       new IsomorphicSearchBottomUpNode(
                                                          referenceLogicNode.getNodeSemantic(),
-                                                               this.referenceVisitData.getConceptsReferencedAtNodeOrAbove(
+                                                               this.referenceVisitData.getUserNodeSet(
+                                                                       CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE,
                                                                   referenceNodeId),
                                                                possibleSolution.getSolution()[child.getNodeIndex()],
                                                                Integer.MIN_VALUE);
                                                    final IsomorphicSearchBottomUpNode to =
                                                       new IsomorphicSearchBottomUpNode(
                                                          referenceLogicNode.getNodeSemantic(),
-                                                               this.referenceVisitData.getConceptsReferencedAtNodeOrAbove(
+                                                               this.referenceVisitData.getUserNodeSet(
+                                                                       CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE,
                                                                   referenceNodeId),
                                                                possibleSolution.getSolution()[child.getNodeIndex()],
                                                                Integer.MAX_VALUE);

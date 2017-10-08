@@ -363,5 +363,17 @@ public interface IdentifierService
     * @return the uuids for nid
     */
    List<UUID> getUuidsForNid(int nid);
+
+   /**
+    * 
+    * @return the maximum concept sequence
+    */
+   public int getMaxConceptSequence();
+   
+   /**
+    * 
+    * @return the maximum sememe sequence
+    */
+   public int getMaxSememeSequence();
 }
 

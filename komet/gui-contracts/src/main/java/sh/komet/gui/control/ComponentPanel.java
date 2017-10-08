@@ -173,7 +173,7 @@ public final class ComponentPanel
             break;
 
          default:
-            throw new UnsupportedOperationException("Can't handle: " + expandControl.getExpandAction());
+            throw new UnsupportedOperationException("am Can't handle: " + expandControl.getExpandAction());
       }
    }
 

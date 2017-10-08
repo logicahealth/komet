@@ -130,7 +130,7 @@ public class LanguageCoordinates {
          return "sv";
       }
 
-      throw new UnsupportedOperationException("Can't handle: " + nid);
+      throw new UnsupportedOperationException("r Can't handle: " + nid);
    }
 
    /**
@@ -182,7 +182,7 @@ public class LanguageCoordinates {
                    .getNidForUuids(TermAux.SWEDISH_LANGUAGE.getUuids());
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + iso639text);
+         throw new UnsupportedOperationException("s Can't handle: " + iso639text);
       }
    }
 
@@ -235,7 +235,7 @@ public class LanguageCoordinates {
                    .getConceptSequenceForUuids(TermAux.SWEDISH_LANGUAGE.getUuids());
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + iso639text);
+         throw new UnsupportedOperationException("t Can't handle: " + iso639text);
       }
    }
 

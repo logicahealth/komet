@@ -66,7 +66,7 @@ import java.util.stream.StreamSupport;
 import sh.isaac.api.Get;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 
@@ -206,21 +206,18 @@ public class BinaryDataReaderQueueProvider
    @Override
    public boolean tryAdvance(Consumer<? super IsaacExternalizableUnparsed> action) {
       try {
-         final int                           startBytes        = this.input.available();
-         final IsaacExternalizableObjectType type = IsaacExternalizableObjectType.fromDataStream(this.input);
-         final byte                          dataFormatVersion = this.input.readByte();
-         final int                           recordSize        = this.input.readInt();
-         final byte[]                        objectData        = new byte[recordSize];
+         final int                           startBytesAvailable        = this.input.available();
+         final int                           recordSizeInBytes        = this.input.readInt();
+         final byte[]                        objectData        = new byte[recordSizeInBytes];
 
          this.input.readFully(objectData);
 
          final ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(objectData);
 
          buffer.setExternalData(true);
-         buffer.setObjectDataFormatVersion(dataFormatVersion);
-         action.accept(new IsaacExternalizableUnparsed(type, buffer));
+         action.accept(new IsaacExternalizableUnparsed(buffer));
          this.objects++;
-         completedUnitsOfWork(startBytes - this.input.available());
+         completedUnitsOfWork(startBytesAvailable - this.input.available());
          return true;
       } catch (final EOFException ex) {
          shutdown();

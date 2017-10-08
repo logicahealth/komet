@@ -41,8 +41,6 @@ package sh.isaac.model.logic.node.internal;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.UUID;
@@ -52,6 +50,7 @@ import java.util.UUID;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
@@ -97,14 +96,12 @@ public final class TemplateNodeWithSequences
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    public TemplateNodeWithSequences(LogicalExpressionImpl logicGraphVersion,
-                                    DataInputStream dataInputStream)
-            throws IOException {
+                                    ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
-      this.templateConceptSequence   = dataInputStream.readInt();
-      this.assemblageConceptSequence = dataInputStream.readInt();
+      this.templateConceptSequence   = dataInputStream.getInt();
+      this.assemblageConceptSequence = dataInputStream.getInt();
    }
 
    /**
@@ -230,8 +227,7 @@ public final class TemplateNodeWithSequences
     * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
-   public void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
-            throws IOException {
+   public void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
       switch (dataTarget) {
       case EXTERNAL:
          final TemplateNodeWithUuids externalForm = new TemplateNodeWithUuids(this);
@@ -241,8 +237,8 @@ public final class TemplateNodeWithSequences
 
       case INTERNAL:
          super.writeData(dataOutput, dataTarget);
-         dataOutput.writeInt(this.templateConceptSequence);
-         dataOutput.writeInt(this.assemblageConceptSequence);
+         dataOutput.putInt(this.templateConceptSequence);
+         dataOutput.putInt(this.assemblageConceptSequence);
          break;
 
       default:

@@ -47,6 +47,7 @@ import java.util.stream.IntStream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -59,6 +60,10 @@ import sh.isaac.api.collections.ConceptSequenceSet;
  */
 public class SimpleHashTree
         extends AbstractHashTree {
+
+   public SimpleHashTree(ManifoldCoordinate manifoldCoordinate) {
+      super(manifoldCoordinate);
+   }
    /**
     * Adds the child.
     *
@@ -66,8 +71,6 @@ public class SimpleHashTree
     * @param childSequence the child sequence
     */
    public void addChild(int parentSequence, int childSequence) {
-      this.maxSequence = Math.max(parentSequence, this.maxSequence);
-      this.maxSequence = Math.max(childSequence, this.maxSequence);
 
       if (this.parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
          this.parentSequence_ChildSequenceArray_Map.put(parentSequence,

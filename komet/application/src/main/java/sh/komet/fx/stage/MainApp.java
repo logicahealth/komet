@@ -49,7 +49,6 @@ import java.util.UUID;
 import javafx.application.Application;
 import javafx.application.Platform;
 
-import javafx.event.EventHandler;
 
 import javafx.fxml.FXMLLoader;
 

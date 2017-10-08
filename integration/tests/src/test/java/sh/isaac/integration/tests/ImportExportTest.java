@@ -74,12 +74,13 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.DataWriterService;
-import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.MetaData;
+import sh.isaac.api.LookupService;
 import sh.isaac.model.logic.LogicByteArrayConverterService;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderOchreProvider;
 
@@ -190,7 +191,7 @@ public class ImportExportTest {
             .forEach((ochreExternalizable) -> {
                         writer.put(ochreExternalizable);
 
-                        if (ochreExternalizable.getExternalizableObjectType() == IsaacExternalizableObjectType.STAMP_ALIAS) {
+                        if (ochreExternalizable.getIsaacObjectType() == IsaacObjectType.STAMP_ALIAS) {
                            LOG.info(ochreExternalizable);
                         }
                      });
@@ -254,8 +255,13 @@ public class ImportExportTest {
          reader.getStream()
                .filter(importStats)
                .forEach((object) -> {
-                           importCount.incrementAndGet();
-                           commitService.importNoChecks(object);
+            try {
+               importCount.incrementAndGet();
+               commitService.importNoChecks(object);
+            } catch (Throwable e) {
+               e.printStackTrace();
+               throw e;
+            }
                         });
          commitService.postProcessImportNoChecks();
          LOG.info("imported components: " + importStats);

@@ -42,14 +42,12 @@ package sh.isaac.model.logic.node;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -59,13 +57,14 @@ import java.util.UUID;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.component.sememe.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -115,12 +114,12 @@ public abstract class AbstractLogicNode
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public AbstractLogicNode(LogicalExpressionImpl logicGraphVersion,
-                            DataInputStream dataInputStream)
-            throws IOException {
-      this.nodeIndex         = dataInputStream.readShort();
+   public AbstractLogicNode(LogicalExpressionImpl logicGraphVersion, ByteArrayDataBuffer dataInputStream) {
+      if (dataInputStream.getObjectDataFormatVersion() != 1) {
+         System.out.println("Format version error: " + dataInputStream.getObjectDataFormatVersion());
+      }
+      this.nodeIndex         = dataInputStream.getShort();
       this.logicalExpression = logicGraphVersion;
       logicGraphVersion.addNode(this);
    }
@@ -190,16 +189,17 @@ public abstract class AbstractLogicNode
    public String fragmentToString(String nodeIdSuffix) {
       final StringBuilder builder = new StringBuilder();
 
-      this.logicalExpression.processDepthFirst(this,
-            (LogicNode logicNode,
-             TreeNodeVisitData graphVisitData) -> {
-               for (int i = 0; i < graphVisitData.getDistance(logicNode.getNodeIndex()); i++) {
-                  builder.append("    ");
-               }
+      this.logicalExpression.processDepthFirst(
+          this,
+              (LogicNode logicNode,
+               TreeNodeVisitData graphVisitData) -> {
+                 for (int i = 0; i < graphVisitData.getDistance(logicNode.getNodeIndex()); i++) {
+                    builder.append("    ");
+                 }
 
-               builder.append(logicNode.toString(nodeIdSuffix));
-               builder.append("\n");
-            });
+                 builder.append(logicNode.toString(nodeIdSuffix));
+                 builder.append("\n");
+              });
       return builder.toString();
    }
 
@@ -219,6 +219,11 @@ public abstract class AbstractLogicNode
    @Override
    public void sort() {
       // override on nodes with multiple children.
+   }
+
+   @Override
+   public String toSimpleString() {
+      return "";
    }
 
    /**
@@ -242,11 +247,6 @@ public abstract class AbstractLogicNode
       return "";
    }
 
-   @Override
-   public String toSimpleString() {
-      return "";
-   }
-
    /**
     * Compare fields.
     *
@@ -267,20 +267,16 @@ public abstract class AbstractLogicNode
     *
     * @param dataOutput the data output
     * @param dataTarget the data target
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   protected void writeData(DataOutput dataOutput, DataTarget dataTarget)
-            throws IOException {}
+   protected void writeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {}
 
    /**
     * Write node data.
     *
     * @param dataOutput the data output
     * @param dataTarget the data target
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   protected abstract void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
-            throws IOException;
+   protected abstract void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget);
 
    //~--- get methods ---------------------------------------------------------
 
@@ -292,18 +288,14 @@ public abstract class AbstractLogicNode
     */
    @Override
    public byte[] getBytes(DataTarget dataTarget) {
-      try {
-         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            final DataOutputStream output = new DataOutputStream(outputStream);
-
-            output.writeByte(getNodeSemantic().ordinal());
-            output.writeShort(this.nodeIndex);
-            writeNodeData(output, dataTarget);
-            return outputStream.toByteArray();
-         }
-      } catch (final IOException e) {
-         throw new RuntimeException(e);
-      }
+      ByteArrayDataBuffer output = new ByteArrayDataBuffer();
+      output.setObjectDataFormatVersion(LogicalExpressionImpl.SERIAL_FORMAT_VERSION);
+      output.putByte(LogicalExpressionImpl.SERIAL_FORMAT_VERSION);
+      output.putByte((byte) getNodeSemantic().ordinal());
+      output.putShort(this.nodeIndex);
+      writeNodeData(output, dataTarget);
+      output.trimToSize();
+      return output.getData();
    }
 
    /**
@@ -365,8 +357,8 @@ public abstract class AbstractLogicNode
       } else if (this.nodeIndex == nodeIndex) {
          // nothing to do...
       } else {
-         throw new IllegalStateException("LogicNode index cannot be changed once set. NodeId: " + this.nodeIndex +
-                                         " attempted: " + nodeIndex);
+         throw new IllegalStateException(
+             "LogicNode index cannot be changed once set. NodeId: " + this.nodeIndex + " attempted: " + nodeIndex);
       }
    }
 
@@ -410,35 +402,35 @@ public abstract class AbstractLogicNode
    }
 
    @Override
-   public LatestVersion<DescriptionVersion> getPreferredDescription(StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
+   public LatestVersion<DescriptionVersion> getPreferredDescription(StampCoordinate stampCoordinate,
+         LanguageCoordinate languageCoordinate) {
       int sequenceForDescription = -1;
 
       switch (getNodeSemantic()) {
-         case CONCEPT:
-            ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) this;
+      case CONCEPT:
+         ConceptNodeWithSequences conceptNode = (ConceptNodeWithSequences) this;
 
-            sequenceForDescription = conceptNode.getConceptSequence();
-            break;
+         sequenceForDescription = conceptNode.getConceptSequence();
+         break;
 
-         case DEFINITION_ROOT:
-            sequenceForDescription = this.getSequenceForConceptBeingDefined();
-            break;
+      case DEFINITION_ROOT:
+         sequenceForDescription = this.getSequenceForConceptBeingDefined();
+         break;
 
-         default:
-            sequenceForDescription = getNodeSemantic()
-                    .getConceptSequence();
+      default:
+         sequenceForDescription = getNodeSemantic().getConceptSequence();
       }
 
-      LatestVersion<DescriptionVersion> latestDescription = languageCoordinate.getPreferredDescription(sequenceForDescription, stampCoordinate);
+      LatestVersion<DescriptionVersion> latestDescription = languageCoordinate.getPreferredDescription(
+                                                                sequenceForDescription,
+                                                                      stampCoordinate);
 
-      return latestDescription;   
+      return latestDescription;
    }
 
    @Override
    public int getSequenceForConceptBeingDefined() {
       return logicalExpression.getConceptSequence();
    }
-   
-   
 }
 

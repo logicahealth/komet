@@ -63,7 +63,7 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizable;
-import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.ChronologyImpl;
@@ -175,8 +175,10 @@ public class ConceptChronologyImpl
     * @return the concept chronology impl
     */
    public static ConceptChronologyImpl make(ByteArrayDataBuffer data) {
+      if (IsaacObjectType.CONCEPT.getDataFormatVersion() != data.getObjectDataFormatVersion()) {
+         throw new UnsupportedOperationException("Data format version not supported: " + data.getObjectDataFormatVersion());
+      }
       final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl();
-
       conceptChronology.readData(data);
       return conceptChronology;
    }
@@ -194,8 +196,8 @@ public class ConceptChronologyImpl
       builder.append(toUserString());
       builder.append(" <");
       builder.append(getConceptSequence());
-      builder.append("> ");
-      toString(builder);
+      builder.append("> \n");
+      toString(builder, true);
       return builder.toString();
    }
 
@@ -299,16 +301,6 @@ public class ConceptChronologyImpl
    @Override
    public int getConceptSequence() {
       return getContainerSequence();
-   }
-
-   /**
-    * Gets the data format version.
-    *
-    * @return the data format version
-    */
-   @Override
-   public byte getDataFormatVersion() {
-      return 0;
    }
 
    /**
@@ -443,8 +435,8 @@ public class ConceptChronologyImpl
     * @return the ochre object type
     */
    @Override
-   public IsaacExternalizableObjectType getExternalizableObjectType() {
-      return IsaacExternalizableObjectType.CONCEPT;
+   public IsaacObjectType getIsaacObjectType() {
+      return IsaacObjectType.CONCEPT;
    }
 
    @Override

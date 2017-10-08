@@ -881,7 +881,7 @@ public class LogicalExpressionBuilderOchreImpl
          return definition.StringSubstitution(fieldSpecification);
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + axiom.getSemantic());
+         throw new UnsupportedOperationException("ac Can't handle: " + axiom.getSemantic());
       }
    }
 
@@ -1053,7 +1053,7 @@ public class LogicalExpressionBuilderOchreImpl
          return stringSubstitution(substitutionNodeString.getSubstitutionFieldSpecification());
       }
 
-      throw new UnsupportedOperationException("Can't handle: " + logicNode.getNodeSemantic());
+      throw new UnsupportedOperationException("ad Can't handle: " + logicNode.getNodeSemantic());
    }
 
    /**

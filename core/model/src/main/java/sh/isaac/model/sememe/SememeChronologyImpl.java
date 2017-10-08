@@ -53,7 +53,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.MutableSememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.sememe.version.ComponentNidVersionImpl;
 import sh.isaac.model.sememe.version.DescriptionVersionImpl;
@@ -201,7 +201,7 @@ public class SememeChronologyImpl extends ChronologyImpl
                                            bb));
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + token);
+         throw new UnsupportedOperationException("ae Can't handle: " + token);
       }
    }
 
@@ -212,8 +212,10 @@ public class SememeChronologyImpl extends ChronologyImpl
     * @return the sememe chronology impl
     */
    public static SememeChronologyImpl make(ByteArrayDataBuffer data) {
+      if (IsaacObjectType.SEMEME.getDataFormatVersion() != data.getObjectDataFormatVersion()) {
+         throw new UnsupportedOperationException("Data format version not supported: " + data.getObjectDataFormatVersion());
+      }
       final SememeChronologyImpl sememeChronology = new SememeChronologyImpl();
-
       sememeChronology.readData(data);
       return sememeChronology;
    }
@@ -226,7 +228,14 @@ public class SememeChronologyImpl extends ChronologyImpl
    @Override
    public String toString() {
       final StringBuilder builder = new StringBuilder();
+      toString(builder, true);
+      return builder.toString();
+   }
 
+   @Override
+   public void toString(StringBuilder builder, boolean addAttachments) {
+      
+      
       builder.append("SememeChronology{");
 
       if (this.sememeTypeToken == -1) {
@@ -236,37 +245,43 @@ public class SememeChronologyImpl extends ChronologyImpl
       }
 
       builder.append("\n assemblage:")
-             .append(Get.conceptDescriptionText(this.assemblageSequence))
-             .append(" <")
-             .append(this.assemblageSequence)
-             .append(">\n rc:");
-
+              .append(Get.conceptDescriptionText(this.assemblageSequence))
+              .append(" <")
+              .append(this.assemblageSequence)
+              .append(">\n rc:");
+      
       switch (Get.identifierService()
-                 .getChronologyTypeForNid(this.referencedComponentNid)) {
-      case CONCEPT:
-         builder.append("CONCEPT: ")
-                .append(Get.conceptDescriptionText(this.referencedComponentNid));
-         break;
-
-      case SEMEME:
-         builder.append("SEMEME: ")
-                .append(Get.assemblageService()
-                           .getSememe(this.referencedComponentNid));
-         break;
-
-      default:
-         builder.append(Get.identifierService()
-                           .getChronologyTypeForNid(this.referencedComponentNid))
-                .append(" ")
-                .append(this.referencedComponentNid);
+              .getChronologyTypeForNid(this.referencedComponentNid)) {
+         case CONCEPT:
+            builder.append("CONCEPT: ")
+                    .append(Get.conceptDescriptionText(this.referencedComponentNid));
+            break;
+            
+         case SEMEME:
+            SememeChronology sememeChronicle = Get.assemblageService()
+                    .getSememe(this.referencedComponentNid);
+            builder.append("SEMEME: ")
+                    .append(sememeChronicle.getVersionType()).append(" <")
+                    .append(sememeChronicle.getSememeSequence())
+                    .append(">\n from assemblage:")
+                    .append(Get.conceptDescriptionText(sememeChronicle.getAssemblageSequence()))
+                    .append(" <")
+                    .append(sememeChronicle.getAssemblageSequence())
+                    .append(">\n");
+            
+            break;
+            
+         default:
+            builder.append(Get.identifierService()
+                    .getChronologyTypeForNid(this.referencedComponentNid))
+                    .append(" ")
+                    .append(this.referencedComponentNid);
       }
 
       builder.append(" <")
-             .append(this.referencedComponentNid)
-             .append(">\n ");
-      super.toString(builder);
-      builder.append('}');
-      return builder.toString();
+              .append(this.referencedComponentNid)
+              .append(">\n ");
+      super.toString(builder, addAttachments);
    }
 
    /**
@@ -284,7 +299,6 @@ public class SememeChronologyImpl extends ChronologyImpl
     *
     * @param <M> the generic type
     * @param stampSequence the stamp sequence
-    * @param versionSequence the version sequence
     * @return the m
     * @throws UnsupportedOperationException the unsupported operation exception
     */
@@ -318,7 +332,7 @@ public class SememeChronologyImpl extends ChronologyImpl
                   stampSequence);
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + getSememeType());
+         throw new UnsupportedOperationException("af Can't handle: " + getSememeType());
       }
    }
 
@@ -385,23 +399,13 @@ public class SememeChronologyImpl extends ChronologyImpl
    }
 
    /**
-    * Gets the data format version.
-    *
-    * @return the data format version
-    */
-   @Override
-   public byte getDataFormatVersion() {
-      return 0;
-   }
-
-   /**
     * Gets the ochre object type.
     *
     * @return the ochre object type
     */
    @Override
-   public IsaacExternalizableObjectType getExternalizableObjectType() {
-      return IsaacExternalizableObjectType.SEMEME;
+   public IsaacObjectType getIsaacObjectType() {
+      return IsaacObjectType.SEMEME;
    }
 
    /**

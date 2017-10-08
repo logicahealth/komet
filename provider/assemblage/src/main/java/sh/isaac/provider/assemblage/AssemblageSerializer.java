@@ -42,6 +42,7 @@ package sh.isaac.provider.assemblage;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 import sh.isaac.model.waitfree.WaitFreeMergeSerializer;
 
@@ -54,11 +55,9 @@ import sh.isaac.model.waitfree.WaitFreeMergeSerializer;
  */
 public class AssemblageSerializer
          implements WaitFreeMergeSerializer<SememeChronologyImpl> {
-   
-   private final byte dataFormatVersion;
 
-   public AssemblageSerializer(byte dataFormatVersion) {
-      this.dataFormatVersion = dataFormatVersion;
+   public AssemblageSerializer() {
+
    }
    /**
     * Deserialize.
@@ -68,6 +67,7 @@ public class AssemblageSerializer
     */
    @Override
    public SememeChronologyImpl deserialize(ByteArrayDataBuffer db) {
+      IsaacObjectType.SEMEME.readAndValidateHeader(db);
       return SememeChronologyImpl.make(db);
    }
 
@@ -83,9 +83,9 @@ public class AssemblageSerializer
    public SememeChronologyImpl merge(SememeChronologyImpl a,
          SememeChronologyImpl b,
          int writeSequence) {
-      final byte[]              dataBytes = a.mergeData(writeSequence, b.getDataToWrite(dataFormatVersion, writeSequence));
+      final byte[]              dataBytes = a.mergeData(writeSequence, b.getDataToWrite(writeSequence));
       final ByteArrayDataBuffer db        = new ByteArrayDataBuffer(dataBytes);
-
+      IsaacObjectType.SEMEME.readAndValidateHeader(db);
       return SememeChronologyImpl.make(db);
    }
 
@@ -97,7 +97,7 @@ public class AssemblageSerializer
     */
    @Override
    public void serialize(ByteArrayDataBuffer d, SememeChronologyImpl a) {
-      final byte[] data = a.getDataToWrite(dataFormatVersion);
+      final byte[] data = a.getDataToWrite();
 
       d.put(data, 0, data.length);
    }

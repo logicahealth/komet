@@ -62,7 +62,7 @@ import sh.isaac.api.component.sememe.version.MutableSememeVersion;
 import sh.isaac.api.component.sememe.version.StringVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
@@ -326,13 +326,8 @@ public class ObservableSememeChronologyImpl
    }
 
    @Override
-   public byte getDataFormatVersion() {
-      return getSememeChronology().getDataFormatVersion();
-   }
-
-   @Override
-   public IsaacExternalizableObjectType getExternalizableObjectType() {
-      return getSememeChronology().getExternalizableObjectType();
+   public IsaacObjectType getIsaacObjectType() {
+      return getSememeChronology().getIsaacObjectType();
    }
 
    @Override

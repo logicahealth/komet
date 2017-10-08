@@ -141,7 +141,7 @@ public class TimeFlushBufferedOutputStream
                scheduledJob = null;
                LOG.info("Stopping time flush buffer thread, as no instances are registered");
             } else {
-               LOG.debug("Calling flush on " + INSTANCES.size() + " buffered writers");
+               LOG.trace("Calling flush on " + INSTANCES.size() + " buffered writers");
 
                synchronized (INSTANCES) {
                   final Iterator<WeakReference<TimeFlushBufferedOutputStream>> it = INSTANCES.iterator();

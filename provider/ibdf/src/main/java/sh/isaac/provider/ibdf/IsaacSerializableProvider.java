@@ -24,6 +24,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.externalizable.StampUniversal;
 import sh.isaac.api.identity.IdentifiedObject;
 
@@ -37,11 +38,12 @@ public class IsaacSerializableProvider implements SerializationService {
 
    @Override
    public ByteBuffer toBytes(IdentifiedObject object) {
-      //TODO support versions, by serilizing the chronicle, but returning the correct version of the chronicle...
       IsaacExternalizable externalizable = (IsaacExternalizable) object;
+      IsaacObjectType objectType = externalizable.getIsaacObjectType();
       ByteArrayDataBuffer dataBuffer = new ByteArrayDataBuffer();
       dataBuffer.setExternalData(true);
-      externalizable.getExternalizableObjectType().writeToByteArrayDataBuffer(dataBuffer);
+      objectType.writeObjectTypeToken(dataBuffer);
+      objectType.writeObjectDataFormatVersion(dataBuffer);
       externalizable.putExternal(dataBuffer);
       return ByteBuffer.wrap(dataBuffer.getData());
    }

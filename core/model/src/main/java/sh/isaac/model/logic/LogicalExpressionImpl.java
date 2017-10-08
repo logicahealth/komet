@@ -59,6 +59,7 @@ import sh.isaac.api.DataSource;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
@@ -114,6 +115,10 @@ import sh.isaac.model.logic.node.internal.TypedNodeWithSequences;
 public class LogicalExpressionImpl
         implements LogicalExpression {
 
+   private static final String CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE = "ConceptsReferencedAtNodeOrAbove";
+
+   public static final byte SERIAL_FORMAT_VERSION = 1;
+
    /**
     * The Constant NODE_SEMANTICS.
     */
@@ -160,12 +165,17 @@ public class LogicalExpressionImpl
     * @param dataSource the data source
     */
    public LogicalExpressionImpl(byte[][] nodeDataArray, DataSource dataSource) {
-      try {
+      if (nodeDataArray == null) {
+         this.logicNodes = new ArrayList<>(0);
+      } else {
          this.logicNodes = new ArrayList<>(nodeDataArray.length);
-
          for (final byte[] nodeDataArray1 : nodeDataArray) {
-            final DataInputStream dataInputStream = new DataInputStream(new ByteArrayInputStream(nodeDataArray1));
-            final byte nodeSemanticIndex = dataInputStream.readByte();
+            final ByteArrayDataBuffer dataInputStream = new ByteArrayDataBuffer(nodeDataArray1);
+            dataInputStream.setObjectDataFormatVersion(dataInputStream.getByte());
+            if (dataInputStream.getObjectDataFormatVersion() != SERIAL_FORMAT_VERSION) {
+               throw new IllegalStateException("Data format: " + dataInputStream.getObjectDataFormatVersion() + " does not equal SERIAL_FORMAT_VERSION");
+            }
+            final byte nodeSemanticIndex = dataInputStream.getByte();
             final NodeSemantic nodeSemantic = NODE_SEMANTICS[nodeSemanticIndex];
 
             switch (nodeSemantic) {
@@ -204,7 +214,7 @@ public class LogicalExpressionImpl
                         break;
 
                      default:
-                        throw new UnsupportedOperationException("Can't handle: " + dataSource);
+                        throw new UnsupportedOperationException("v Can't handle: " + dataSource);
                   }
 
                   break;
@@ -220,7 +230,7 @@ public class LogicalExpressionImpl
                         break;
 
                      default:
-                        throw new UnsupportedOperationException("Can't handle: " + dataSource);
+                        throw new UnsupportedOperationException("w Can't handle: " + dataSource);
                   }
 
                   break;
@@ -236,7 +246,7 @@ public class LogicalExpressionImpl
                         break;
 
                      default:
-                        throw new UnsupportedOperationException("Can't handle: " + dataSource);
+                        throw new UnsupportedOperationException("x Can't handle: " + dataSource);
                   }
 
                   break;
@@ -272,7 +282,7 @@ public class LogicalExpressionImpl
                         break;
 
                      default:
-                        throw new UnsupportedOperationException("Can't handle: " + dataSource);
+                        throw new UnsupportedOperationException("y Can't handle: " + dataSource);
                   }
 
                   break;
@@ -288,7 +298,7 @@ public class LogicalExpressionImpl
                         break;
 
                      default:
-                        throw new UnsupportedOperationException("Can't handle: " + dataSource);
+                        throw new UnsupportedOperationException("z Can't handle: " + dataSource);
                   }
 
                   break;
@@ -318,14 +328,13 @@ public class LogicalExpressionImpl
                   break;
 
                default:
-                  throw new UnsupportedOperationException("Can't handle: " + nodeSemantic);
+                  throw new UnsupportedOperationException("aa Can't handle: " + nodeSemantic);
             }
          }
-
          this.logicNodes.trimToSize();
-      } catch (final IOException e) {
-         throw new RuntimeException(e);
       }
+
+      
    }
 
    /**
@@ -379,10 +388,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the role node all with sequences
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final RoleNodeAllWithSequences AllRole(DataInputStream dataInputStream)
-           throws IOException {
+   public final RoleNodeAllWithSequences AllRole(ByteArrayDataBuffer dataInputStream) {
       return new RoleNodeAllWithSequences(this, dataInputStream);
    }
 
@@ -402,10 +409,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the role node all with uuids
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final RoleNodeAllWithUuids AllRoleWithUuids(DataInputStream dataInputStream)
-           throws IOException {
+   public final RoleNodeAllWithUuids AllRoleWithUuids(ByteArrayDataBuffer dataInputStream) {
       return new RoleNodeAllWithUuids(this, dataInputStream);
    }
 
@@ -424,10 +429,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the and node
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final AndNode And(DataInputStream dataInputStream)
-           throws IOException {
+   public final AndNode And(ByteArrayDataBuffer dataInputStream) {
       return new AndNode(this, dataInputStream);
    }
 
@@ -446,10 +449,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the literal node boolean
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final LiteralNodeBoolean BooleanLiteral(DataInputStream dataInputStream)
-           throws IOException {
+   public final LiteralNodeBoolean BooleanLiteral(ByteArrayDataBuffer dataInputStream) {
       return new LiteralNodeBoolean(this, dataInputStream);
    }
 
@@ -458,10 +459,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the substitution node boolean
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final SubstitutionNodeBoolean BooleanSubstitution(DataInputStream dataInputStream)
-           throws IOException {
+   public final SubstitutionNodeBoolean BooleanSubstitution(ByteArrayDataBuffer dataInputStream) {
       return new SubstitutionNodeBoolean(this, dataInputStream);
    }
 
@@ -480,10 +479,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the concept node with sequences
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final ConceptNodeWithSequences Concept(DataInputStream dataInputStream)
-           throws IOException {
+   public final ConceptNodeWithSequences Concept(ByteArrayDataBuffer dataInputStream) {
       return new ConceptNodeWithSequences(this, dataInputStream);
    }
 
@@ -502,10 +499,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the substitution node concept
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final SubstitutionNodeConcept ConceptSubstitution(DataInputStream dataInputStream)
-           throws IOException {
+   public final SubstitutionNodeConcept ConceptSubstitution(ByteArrayDataBuffer dataInputStream) {
       return new SubstitutionNodeConcept(this, dataInputStream);
    }
 
@@ -524,10 +519,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the concept node with uuids
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final ConceptNodeWithUuids ConceptWithUuids(DataInputStream dataInputStream)
-           throws IOException {
+   public final ConceptNodeWithUuids ConceptWithUuids(ByteArrayDataBuffer dataInputStream) {
       return new ConceptNodeWithUuids(this, dataInputStream);
    }
 
@@ -546,10 +539,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the disjoint with node
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final DisjointWithNode DisjointWith(DataInputStream dataInputStream)
-           throws IOException {
+   public final DisjointWithNode DisjointWith(ByteArrayDataBuffer dataInputStream) {
       return new DisjointWithNode(this, dataInputStream);
    }
 
@@ -558,10 +549,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the feature node with sequences
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final FeatureNodeWithSequences Feature(DataInputStream dataInputStream)
-           throws IOException {
+   public final FeatureNodeWithSequences Feature(ByteArrayDataBuffer dataInputStream) {
       return new FeatureNodeWithSequences(this, dataInputStream);
    }
 
@@ -587,10 +576,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the feature node with uuids
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final FeatureNodeWithUuids FeatureWithUuids(DataInputStream dataInputStream)
-           throws IOException {
+   public final FeatureNodeWithUuids FeatureWithUuids(ByteArrayDataBuffer dataInputStream) {
       return new FeatureNodeWithUuids(this, dataInputStream);
    }
 
@@ -599,10 +586,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the literal node float
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final LiteralNodeFloat FloatLiteral(DataInputStream dataInputStream)
-           throws IOException {
+   public final LiteralNodeFloat FloatLiteral(ByteArrayDataBuffer dataInputStream) {
       return new LiteralNodeFloat(this, dataInputStream);
    }
 
@@ -621,10 +606,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the substitution node float
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final SubstitutionNodeFloat FloatSubstitution(DataInputStream dataInputStream)
-           throws IOException {
+   public final SubstitutionNodeFloat FloatSubstitution(ByteArrayDataBuffer dataInputStream) {
       return new SubstitutionNodeFloat(this, dataInputStream);
    }
 
@@ -643,10 +626,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the literal node instant
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final LiteralNodeInstant InstantLiteral(DataInputStream dataInputStream)
-           throws IOException {
+   public final LiteralNodeInstant InstantLiteral(ByteArrayDataBuffer dataInputStream) {
       return new LiteralNodeInstant(this, dataInputStream);
    }
 
@@ -665,10 +646,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the substitution node instant
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final SubstitutionNodeInstant InstantSubstitution(DataInputStream dataInputStream)
-           throws IOException {
+   public final SubstitutionNodeInstant InstantSubstitution(ByteArrayDataBuffer dataInputStream) {
       return new SubstitutionNodeInstant(this, dataInputStream);
    }
 
@@ -687,10 +666,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the literal node integer
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final LiteralNodeInteger IntegerLiteral(DataInputStream dataInputStream)
-           throws IOException {
+   public final LiteralNodeInteger IntegerLiteral(ByteArrayDataBuffer dataInputStream) {
       return new LiteralNodeInteger(this, dataInputStream);
    }
 
@@ -709,10 +686,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the substitution node integer
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final SubstitutionNodeInteger IntegerSubstitution(DataInputStream dataInputStream)
-           throws IOException {
+   public final SubstitutionNodeInteger IntegerSubstitution(ByteArrayDataBuffer dataInputStream) {
       return new SubstitutionNodeInteger(this, dataInputStream);
    }
 
@@ -741,10 +716,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the necessary set node
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final NecessarySetNode NecessarySet(DataInputStream dataInputStream)
-           throws IOException {
+   public final NecessarySetNode NecessarySet(ByteArrayDataBuffer dataInputStream) {
       return new NecessarySetNode(this, dataInputStream);
    }
 
@@ -763,10 +736,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the or node
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final OrNode Or(DataInputStream dataInputStream)
-           throws IOException {
+   public final OrNode Or(ByteArrayDataBuffer dataInputStream) {
       return new OrNode(this, dataInputStream);
    }
 
@@ -788,10 +759,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the root node
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final RootNode Root(DataInputStream dataInputStream)
-           throws IOException {
+   public final RootNode Root(ByteArrayDataBuffer dataInputStream) {
       final RootNode rootNode = new RootNode(this, dataInputStream);
 
       this.rootNodeIndex = rootNode.getNodeIndex();
@@ -803,10 +772,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the role node some with sequences
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final RoleNodeSomeWithSequences SomeRole(DataInputStream dataInputStream)
-           throws IOException {
+   public final RoleNodeSomeWithSequences SomeRole(ByteArrayDataBuffer dataInputStream) {
       return new RoleNodeSomeWithSequences(this, dataInputStream);
    }
 
@@ -826,10 +793,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the role node some with uuids
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final RoleNodeSomeWithUuids SomeRoleWithUuids(DataInputStream dataInputStream)
-           throws IOException {
+   public final RoleNodeSomeWithUuids SomeRoleWithUuids(ByteArrayDataBuffer dataInputStream) {
       return new RoleNodeSomeWithUuids(this, dataInputStream);
    }
 
@@ -838,10 +803,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the literal node string
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final LiteralNodeString StringLiteral(DataInputStream dataInputStream)
-           throws IOException {
+   public final LiteralNodeString StringLiteral(ByteArrayDataBuffer dataInputStream) {
       return new LiteralNodeString(this, dataInputStream);
    }
 
@@ -860,10 +823,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the substitution node string
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final SubstitutionNodeString StringSubstitution(DataInputStream dataInputStream)
-           throws IOException {
+   public final SubstitutionNodeString StringSubstitution(ByteArrayDataBuffer dataInputStream) {
       return new SubstitutionNodeString(this, dataInputStream);
    }
 
@@ -892,10 +853,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the sufficient set node
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final SufficientSetNode SufficientSet(DataInputStream dataInputStream)
-           throws IOException {
+   public final SufficientSetNode SufficientSet(ByteArrayDataBuffer dataInputStream) {
       return new SufficientSetNode(this, dataInputStream);
    }
 
@@ -904,10 +863,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the template node with sequences
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final TemplateNodeWithSequences Template(DataInputStream dataInputStream)
-           throws IOException {
+   public final TemplateNodeWithSequences Template(ByteArrayDataBuffer dataInputStream) {
       return new TemplateNodeWithSequences(this, dataInputStream);
    }
 
@@ -927,10 +884,8 @@ public class LogicalExpressionImpl
     *
     * @param dataInputStream the data input stream
     * @return the template node with uuids
-    * @throws IOException Signals that an I/O exception has occurred.
     */
-   public final TemplateNodeWithUuids TemplateWithUuids(DataInputStream dataInputStream)
-           throws IOException {
+   public final TemplateNodeWithUuids TemplateWithUuids(ByteArrayDataBuffer dataInputStream) {
       return new TemplateNodeWithUuids(this, dataInputStream);
    }
 
@@ -1092,7 +1047,8 @@ public class LogicalExpressionImpl
 
             builder.append(logicNode.toSimpleString());
             builder.append("\n");
-         }});
+         }
+      });
       builder.deleteCharAt(builder.length() - 1);
       return builder.toString();
    }
@@ -1140,16 +1096,21 @@ public class LogicalExpressionImpl
 
       graphVisitData.startNodeVisit(logicNode.getNodeIndex(), depth);
 
-      final ConceptSequenceSet conceptsAtNodeOrAbove = new ConceptSequenceSet();
+      final ConceptSequenceSet conceptsReferencedByNode = new ConceptSequenceSet();
 
-      logicNode.addConceptsReferencedByNode(conceptsAtNodeOrAbove);
-      graphVisitData.getConceptsReferencedAtNodeOrAbove(logicNode.getNodeIndex());
+      logicNode.addConceptsReferencedByNode(conceptsReferencedByNode);
+
+      graphVisitData.getUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, logicNode.getNodeIndex());
+
       logicNode.addConceptsReferencedByNode(
-              ConceptSequenceSet.of(graphVisitData.getConceptsReferencedAtNodeOrAbove(logicNode.getNodeIndex())));
-      conceptsAtNodeOrAbove.addAll(
-              graphVisitData.getConceptsReferencedAtNodeOrAbove(
-                      graphVisitData.getPredecessorSequence(logicNode.getNodeIndex())));
-      graphVisitData.setConceptsReferencedAtNodeOrAbove(logicNode.getNodeIndex(), conceptsAtNodeOrAbove);
+              ConceptSequenceSet.of(graphVisitData.getUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, logicNode.getNodeIndex())));
+
+      int predecessorSequence = graphVisitData.getPredecessorSequence(logicNode.getNodeIndex());
+      if (predecessorSequence >= 0) {
+         conceptsReferencedByNode.addAll(
+                 graphVisitData.getUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, predecessorSequence));
+         graphVisitData.setUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, logicNode.getNodeIndex(), conceptsReferencedByNode);
+      }
 
       if (consumer != null) {
          consumer.accept(logicNode, graphVisitData);
@@ -1375,7 +1336,7 @@ public class LogicalExpressionImpl
                break;
 
             default:
-               throw new UnsupportedOperationException("Can't handle: " + oldLogicNode.getNodeSemantic());
+               throw new UnsupportedOperationException("ab Can't handle: " + oldLogicNode.getNodeSemantic());
          }
 
          if (anotherToThisNodeIdMap != null) {

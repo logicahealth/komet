@@ -126,7 +126,7 @@ public class LatestPrimitiveStampCollector
             break;
 
          default:
-            throw new UnsupportedOperationException("Can't handle: " + relativePosition);
+            throw new UnsupportedOperationException("j Can't handle: " + relativePosition);
          }
       } else {
          // Complicated case, current results contain at least one contradiction (size > 1)
@@ -159,14 +159,14 @@ public class LatestPrimitiveStampCollector
                break;
 
             default:
-               throw new UnsupportedOperationException("Can't handle: " + relativePositions.toArray()[0]);
+               throw new UnsupportedOperationException("k Can't handle: " + relativePositions.toArray()[0]);
             }
          } else {
             oldResult.add(possibleNewLatestStamp);
 
 //          String stampInfo = Stamp.stampArrayToString(oldResult.stream().toArray());
 //          System.out.println(stampInfo);
-            throw new UnsupportedOperationException("Can't compute latest stamp for: " + possibleNewLatestStamp);
+            throw new UnsupportedOperationException("l Can't compute latest stamp for: " + possibleNewLatestStamp);
          }
       }
    }

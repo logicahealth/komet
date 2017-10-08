@@ -41,13 +41,13 @@ package sh.isaac.model.logic.node;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DataTarget;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.assertions.substitution.SubstitutionFieldSpecification;
 import sh.isaac.model.logic.LogicalExpressionImpl;
@@ -69,17 +69,15 @@ public abstract class SubstitutionNode
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    public SubstitutionNode(LogicalExpressionImpl logicGraphVersion,
-                           DataInputStream dataInputStream)
-            throws IOException {
+                           ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
 
-      final int    length = dataInputStream.readInt();
+      final int    length = dataInputStream.getInt();
       final byte[] bytes  = new byte[length];
 
-      dataInputStream.read(bytes, 0, length);
+      dataInputStream.get(bytes, 0, length);
       throw new UnsupportedOperationException("deserializer for substitution field specification not implemented");
    }
 
@@ -189,17 +187,15 @@ public abstract class SubstitutionNode
     *
     * @param dataOutput the data output
     * @param dataTarget the data target
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
-   protected final void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
-            throws IOException {
+   protected final void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
       super.writeData(dataOutput, dataTarget);
 
       final byte[] bytes = this.substitutionFieldSpecification.getBytes();
 
-      dataOutput.writeInt(bytes.length);
-      dataOutput.write(bytes);
+      dataOutput.putInt(bytes.length);
+      dataOutput.put(bytes);
    }
 
    //~--- get methods ---------------------------------------------------------

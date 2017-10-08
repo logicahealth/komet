@@ -35,17 +35,13 @@
  *
  */
 
-
-
-/*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
- */
 package sh.isaac.api.tree;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.HashMap;
+import java.util.Set;
+import java.util.TreeSet;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
@@ -100,16 +96,41 @@ public class TreeNodeVisitData {
     list at the index. */
    protected final IntArrayList siblingGroupSequenceList;
 
-   /** The concepts referenced at node or above. For each node, the set of all it's ancestors is provided, where the node
-    is represented by the index of the list, and where each
-    member of the set is the identifier of the nodes ancestors. */
-   private OpenIntHashSet[] conceptsReferencedAtNodeOrAbove;
+   /** The processor may use this userNodeSet for their own purposes, such as the concepts referenced at node or above. 
+    */
+   HashMap<String, OpenIntHashSet[]> userNodeMap = new HashMap<>();
 
    /** The graph size. */
    private final int graphSize;
    
    /** The startSequence for this traversal. */
    private int startSequence = -1;
+   
+   /** set to hold any discovered cycles */
+   private final Set<int[]> cycleSet = new TreeSet<>((int[] o1, int[] o2) -> {
+      if (o1.length != o2.length) {
+         return o1.length - o2.length;
+      }
+      // See if sets have same membership, just different order
+      ConceptSequenceSet set1 = ConceptSequenceSet.of(o1);
+      ConceptSequenceSet set2 = ConceptSequenceSet.of(o2);
+      
+      if (set1.equals(set2)) {
+         return 0;
+      }
+      
+      for (int i = 0; i < o1.length; i++) {
+         if (o1[i] != o2[i]) {
+            return o1[i] - o2[i];
+         }
+      }
+      return 0;
+   });
+
+   public Set<int[]> getCycleSet() {
+      return cycleSet;
+   }
+
 
    /**
     * The start sequence for this traversal. If only one root, then this is the 
@@ -175,64 +196,68 @@ public class TreeNodeVisitData {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the concepts referenced at node or above.
+    * Gets the userNodeSet.
     *
+    * @param nodeSetKey
     * @param nodeSequence the node sequence
     * @return the concepts referenced at node or above
     */
-   public OpenIntHashSet getConceptsReferencedAtNodeOrAbove(int nodeSequence) {
+   public OpenIntHashSet getUserNodeSet(String nodeSetKey, int nodeSequence) {
       if (nodeSequence >= 0) {
          // lazy creation to save memory since not all tree traversals want to
          // use this capability.
-         if (this.conceptsReferencedAtNodeOrAbove == null) {
-            this.conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[this.graphSize];
+         if (!this.userNodeMap.containsKey(nodeSetKey)) {
+            this.userNodeMap.put(nodeSetKey, new OpenIntHashSet[this.graphSize]);
+         }
+         
+         OpenIntHashSet[] userNodeSet = this.userNodeMap.get(nodeSetKey);
+         if (userNodeSet[nodeSequence] == null) {
+            userNodeSet[nodeSequence] = new OpenIntHashSet((int) Math.log(this.graphSize));
          }
 
-         if (this.conceptsReferencedAtNodeOrAbove[nodeSequence] == null) {
-            this.conceptsReferencedAtNodeOrAbove[nodeSequence] = new OpenIntHashSet(this.graphSize);
-         }
-
-         return this.conceptsReferencedAtNodeOrAbove[nodeSequence];
+         return userNodeSet[nodeSequence];
       }
 
-      return new OpenIntHashSet(this.graphSize);
+      throw new UnsupportedOperationException("Node sequence < 0: " +  nodeSequence);
    }
 
    //~--- set methods ---------------------------------------------------------
 
    /**
-    * Set concepts referenced at node or above.
+    * Set the user node set.
     *
+    * @param nodeSetKey
     * @param nodeSequence the node sequence
     * @param conceptSet the concept set
     */
-   public void setConceptsReferencedAtNodeOrAbove(int nodeSequence, ConceptSequenceSet conceptSet) {
+   public void setUserNodeSet(String nodeSetKey, int nodeSequence, ConceptSequenceSet conceptSet) {
       if (nodeSequence >= 0) {
          // lazy creation to save memory since not all tree traversals want to
          // use this capability.
-         if (this.conceptsReferencedAtNodeOrAbove == null) {
-            this.conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[this.graphSize];
+         if (!this.userNodeMap.containsKey(nodeSetKey)) {
+            this.userNodeMap.put(nodeSetKey, new OpenIntHashSet[this.graphSize]);
          }
 
-         this.conceptsReferencedAtNodeOrAbove[nodeSequence] = conceptSet.asOpenIntHashSet();
+         this.userNodeMap.get(nodeSetKey)[nodeSequence] = conceptSet.asOpenIntHashSet();
       }
    }
 
    /**
-    * Set concepts referenced at node or above.
+    * Set the user node set.
     *
+    * @param nodeSetKey
     * @param nodeSequence the node sequence
     * @param conceptSet the concept set
     */
-   public void setConceptsReferencedAtNodeOrAbove(int nodeSequence, OpenIntHashSet conceptSet) {
+   public void setUserNodeSet(String nodeSetKey, int nodeSequence, OpenIntHashSet conceptSet) {
       if (nodeSequence >= 0) {
          // lazy creation to save memory since not all tree traversals want to
          // use this capability.
-         if (this.conceptsReferencedAtNodeOrAbove == null) {
-            this.conceptsReferencedAtNodeOrAbove = new OpenIntHashSet[this.graphSize];
+         if (!this.userNodeMap.containsKey(nodeSetKey)) {
+            this.userNodeMap.put(nodeSetKey, new OpenIntHashSet[this.graphSize]);
          }
 
-         this.conceptsReferencedAtNodeOrAbove[nodeSequence] = conceptSet;
+         this.userNodeMap.get(nodeSetKey)[nodeSequence] = conceptSet;
       }
    }
 

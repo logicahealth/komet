@@ -41,7 +41,6 @@ package sh.isaac.model.logic.node;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 
@@ -50,6 +49,7 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DataTarget;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
@@ -72,13 +72,11 @@ public class LiteralNodeFloat
     *
     * @param logicGraphVersion the logic graph version
     * @param dataInputStream the data input stream
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    public LiteralNodeFloat(LogicalExpressionImpl logicGraphVersion,
-                           DataInputStream dataInputStream)
-            throws IOException {
+                           ByteArrayDataBuffer dataInputStream) {
       super(logicGraphVersion, dataInputStream);
-      this.literalValue = dataInputStream.readFloat();
+      this.literalValue = dataInputStream.getFloat();
    }
 
    /**
@@ -190,10 +188,9 @@ public class LiteralNodeFloat
     * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
-   protected void writeNodeData(DataOutput dataOutput, DataTarget dataTarget)
-            throws IOException {
+   protected void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
       super.writeData(dataOutput, dataTarget);
-      dataOutput.writeFloat(this.literalValue);
+      dataOutput.putFloat(this.literalValue);
    }
 
    //~--- get methods ---------------------------------------------------------

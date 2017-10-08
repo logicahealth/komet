@@ -94,9 +94,9 @@ public interface BinaryDataDifferService {
     * @param newContentMap the new content map
     * @return the map
     */
-   public Map<ChangeType, List<IsaacExternalizable>> identifyVersionChanges(Map<IsaacExternalizableObjectType,
+   public Map<ChangeType, List<IsaacExternalizable>> identifyVersionChanges(Map<IsaacObjectType,
               Set<IsaacExternalizable>> oldContentMap,
-         Map<IsaacExternalizableObjectType, Set<IsaacExternalizable>> newContentMap);
+         Map<IsaacObjectType, Set<IsaacExternalizable>> newContentMap);
 
    /**
     * Initialize.
@@ -130,7 +130,7 @@ public interface BinaryDataDifferService {
     * @return the map
     * @throws Exception the exception
     */
-   public Map<IsaacExternalizableObjectType, Set<IsaacExternalizable>> processVersion(File versionFile)
+   public Map<IsaacObjectType, Set<IsaacExternalizable>> processVersion(File versionFile)
             throws Exception;
 
    /**
@@ -142,8 +142,8 @@ public interface BinaryDataDifferService {
     * @param ibdfFileOutputDir the ibdf file output dir
     * @param analysisFilesOutputDir the analysis files output dir
     */
-   public void writeFilesForAnalysis(Map<IsaacExternalizableObjectType, Set<IsaacExternalizable>> newContentMap,
-                                     Map<IsaacExternalizableObjectType, Set<IsaacExternalizable>> oldContentMap,
+   public void writeFilesForAnalysis(Map<IsaacObjectType, Set<IsaacExternalizable>> newContentMap,
+                                     Map<IsaacObjectType, Set<IsaacExternalizable>> oldContentMap,
                                      Map<ChangeType, List<IsaacExternalizable>> changedComponents,
                                      String ibdfFileOutputDir,
                                      String analysisFilesOutputDir);

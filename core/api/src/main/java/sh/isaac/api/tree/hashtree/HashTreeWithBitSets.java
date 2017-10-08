@@ -34,10 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
-/*
+ /*
 * To change this license header, choose License Headers in Project Properties.
 * To change this template file, choose Tools | Templates
 * and open the template in the editor.
@@ -45,19 +42,17 @@
 package sh.isaac.api.tree.hashtree;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.SequenceSet;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * A {@code Tree} implemented using a {@code OpenIntObjectHashMap<int[]>}.
  *
@@ -65,35 +60,46 @@ import sh.isaac.api.collections.SequenceSet;
  */
 public class HashTreeWithBitSets
         extends AbstractHashTree {
-   /** The concept sequences with parents. */
+
+   /**
+    * The concept sequences with parents.
+    */
    final ConceptSequenceSet conceptSequencesWithParents;
 
-   /** The concept sequences with children. */
+   /**
+    * The concept sequences with children.
+    */
    final ConceptSequenceSet conceptSequencesWithChildren;
 
-   /** The concept sequences. */
+   /**
+    * The concept sequences.
+    */
    final ConceptSequenceSet conceptSequences;
 
    //~--- constructors --------------------------------------------------------
-
    /**
     * Instantiates a new hash tree with bit sets.
+    *
+    * @param manifoldCoordinate
     */
-   public HashTreeWithBitSets() {
-      this.conceptSequencesWithParents  = new ConceptSequenceSet();
+   public HashTreeWithBitSets(ManifoldCoordinate manifoldCoordinate) {
+      super(manifoldCoordinate);
+      this.conceptSequencesWithParents = new ConceptSequenceSet();
       this.conceptSequencesWithChildren = new ConceptSequenceSet();
-      this.conceptSequences             = new ConceptSequenceSet();
+      this.conceptSequences = new ConceptSequenceSet();
    }
 
    /**
     * Instantiates a new hash tree with bit sets.
     *
     * @param initialSize the initial size
+    * @param manifoldCoordinate
     */
-   public HashTreeWithBitSets(int initialSize) {
-      this.conceptSequencesWithParents  = new ConceptSequenceSet();
+   public HashTreeWithBitSets(int initialSize, ManifoldCoordinate manifoldCoordinate) {
+      super(manifoldCoordinate);
+      this.conceptSequencesWithParents = new ConceptSequenceSet();
       this.conceptSequencesWithChildren = new ConceptSequenceSet();
-      this.conceptSequences             = new ConceptSequenceSet();
+      this.conceptSequences = new ConceptSequenceSet();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -105,7 +111,13 @@ public class HashTreeWithBitSets
     * @param childSequenceArray the child sequence array
     */
    public void addChildren(int parentSequence, int[] childSequenceArray) {
-      this.maxSequence = Math.max(parentSequence, this.maxSequence);
+      this.conceptSequences.add(parentSequence);
+      if (childSequenceArray == null) {
+         return;
+      }
+      for (int childSequence: childSequenceArray) {
+         this.conceptSequences.add(childSequence);
+      }
 
       if (childSequenceArray.length > 0) {
          if (!this.parentSequence_ChildSequenceArray_Map.containsKey(parentSequence)) {
@@ -114,19 +126,15 @@ public class HashTreeWithBitSets
             final OpenIntHashSet combinedSet = new OpenIntHashSet();
 
             Arrays.stream(this.parentSequence_ChildSequenceArray_Map.get(parentSequence))
-                  .forEach((sequence) -> combinedSet.add(sequence));
+                    .forEach((sequence) -> combinedSet.add(sequence));
             Arrays.stream(childSequenceArray)
-                  .forEach((sequence) -> combinedSet.add(sequence));
+                    .forEach((sequence) -> combinedSet.add(sequence));
             this.parentSequence_ChildSequenceArray_Map.put(parentSequence, combinedSet.keys()
-                  .elements());
+                    .elements());
          }
-
-         IntStream.of(childSequenceArray).forEach((int sequence) -> {
-                              this.conceptSequences.add(sequence);
-                           });
-         this.maxSequence = Math.max(IntStream.of(childSequenceArray)
-               .max()
-               .getAsInt(), this.maxSequence);
+         for (int childSequence: childSequenceArray) {
+            this.conceptSequences.add(childSequence);
+         }
          this.conceptSequencesWithChildren.add(parentSequence);
       }
    }
@@ -138,8 +146,7 @@ public class HashTreeWithBitSets
     * @param parentSequenceArray the parent sequence array
     */
    public void addParents(int childSequence, int[] parentSequenceArray) {
-      this.maxSequence = Math.max(childSequence, this.maxSequence);
-
+      this.conceptSequences.add(childSequence);
       if (parentSequenceArray.length > 0) {
          if (!this.childSequence_ParentSequenceArray_Map.containsKey(childSequence)) {
             this.childSequence_ParentSequenceArray_Map.put(childSequence, parentSequenceArray);
@@ -147,20 +154,17 @@ public class HashTreeWithBitSets
             final OpenIntHashSet combinedSet = new OpenIntHashSet();
 
             Arrays.stream(this.childSequence_ParentSequenceArray_Map.get(childSequence))
-                  .forEach((sequence) -> combinedSet.add(sequence));
+                    .forEach((sequence) -> combinedSet.add(sequence));
             Arrays.stream(parentSequenceArray)
-                  .forEach((sequence) -> combinedSet.add(sequence));
+                    .forEach((sequence) -> combinedSet.add(sequence));
             this.childSequence_ParentSequenceArray_Map.put(childSequence, combinedSet.keys()
-                  .elements());
+                    .elements());
          }
 
          this.childSequence_ParentSequenceArray_Map.put(childSequence, parentSequenceArray);
-         IntStream.of(parentSequenceArray).forEach((int sequence) -> {
-                              this.conceptSequences.add(sequence);
-                           });
-         this.maxSequence = Math.max(IntStream.of(parentSequenceArray)
-               .max()
-               .getAsInt(), this.maxSequence);
+         for (int parentSequence: parentSequenceArray) {
+            this.conceptSequences.add(parentSequence);
+         }
          this.conceptSequencesWithParents.add(childSequence);
       }
    }
@@ -194,7 +198,6 @@ public class HashTreeWithBitSets
    }
 
    //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the leaf sequences.
     *
@@ -206,15 +209,6 @@ public class HashTreeWithBitSets
       leavesSet.or(this.conceptSequencesWithParents);
       leavesSet.andNot(this.conceptSequencesWithChildren);
       return leavesSet.stream();
-   }
-
-   /**
-    * Gets the max sequence.
-    *
-    * @return the max sequence
-    */
-   public int getMaxSequence() {
-      return this.maxSequence;
    }
 
    /**
@@ -250,4 +244,3 @@ public class HashTreeWithBitSets
       return getRootSequenceStream().toArray();
    }
 }
-

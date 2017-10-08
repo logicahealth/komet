@@ -233,7 +233,7 @@ public class SememeBuilderImpl<C extends SememeChronology>
       }
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + this.sememeType);
+         throw new UnsupportedOperationException("p Can't handle: " + this.sememeType);
       }
 
       this.sememeBuilders.forEach((builder) -> builder.build(stampSequence, builtObjects));
@@ -347,7 +347,7 @@ public class SememeBuilderImpl<C extends SememeChronology>
       }
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + this.sememeType);
+         throw new UnsupportedOperationException("q Can't handle: " + this.sememeType);
       }
 
       Task<Void> primaryNested;

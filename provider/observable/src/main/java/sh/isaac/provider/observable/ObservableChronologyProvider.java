@@ -173,7 +173,7 @@ public class ObservableChronologyProvider
                break;
 
             default:
-               throw new UnsupportedOperationException("Can't handle: " + oct);
+               throw new UnsupportedOperationException("as Can't handle: " + oct);
          }
 
          if (referencedComponent != null) {

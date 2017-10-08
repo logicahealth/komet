@@ -60,15 +60,13 @@ public final class StampAlias
     * @param in the in
     */
    public StampAlias(ByteArrayDataBuffer in) {
-      final byte version = in.getByte();
-
-      if (version == getDataFormatVersion()) {
+      if (in.getObjectDataFormatVersion() == IsaacObjectType.STAMP_ALIAS.getDataFormatVersion()) {
          this.stampSequence = StampUniversal.get(in)
                                             .getStampSequence();
          this.stampAlias    = StampUniversal.get(in)
                                             .getStampSequence();
       } else {
-         throw new UnsupportedOperationException("Can't handle version: " + version);
+         throw new UnsupportedOperationException("Can't handle version: " + in.getObjectDataFormatVersion());
       }
    }
 
@@ -130,7 +128,7 @@ public final class StampAlias
     */
    @Override
    public void putExternal(ByteArrayDataBuffer out) {
-      out.putByte(getDataFormatVersion());
+      IsaacObjectType.STAMP_ALIAS.writeTypeVersionHeader(out);
       StampUniversal.get(this.stampSequence)
                     .writeExternal(out);
       StampUniversal.get(this.stampAlias)
@@ -150,23 +148,13 @@ public final class StampAlias
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the data format version.
-    *
-    * @return the data format version
-    */
-   @Override
-   public byte getDataFormatVersion() {
-      return 0;
-   }
-
-   /**
     * Gets the Isaac object type.
     *
     * @return the Isaac object type
     */
    @Override
-   public IsaacExternalizableObjectType getExternalizableObjectType() {
-      return IsaacExternalizableObjectType.STAMP_ALIAS;
+   public IsaacObjectType getIsaacObjectType() {
+      return IsaacObjectType.STAMP_ALIAS;
    }
 
    /**

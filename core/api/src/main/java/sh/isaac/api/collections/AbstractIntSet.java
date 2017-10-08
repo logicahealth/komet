@@ -477,10 +477,10 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> {
    }
 
    /**
-    * Xor.
+    * Xor. The underlying set is modified. 
     *
     * @param otherSet the other set
-    * @return the t
+    * @return the modified set that represents the result of the operation. 
     */
    public T xor(T otherSet) {
       if (this.readOnly) {

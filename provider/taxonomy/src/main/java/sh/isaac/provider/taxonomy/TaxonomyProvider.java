@@ -94,6 +94,8 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.collections.RoaringIntSet;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -351,7 +353,7 @@ public class TaxonomyProvider
       }
 
       long          stamp         = this.stampedLock.tryOptimisticRead();
-      final boolean wasEverKindOf = recursiveFindAncestor(childId, parentId, new HashSet<>());
+      final boolean wasEverKindOf = recursiveFindAncestor(childId, parentId, new NidSet());
 
       if (this.stampedLock.validate(stamp)) {
          return wasEverKindOf;
@@ -360,7 +362,7 @@ public class TaxonomyProvider
       stamp = this.stampedLock.readLock();
 
       try {
-         return recursiveFindAncestor(childId, parentId, new HashSet<>());
+         return recursiveFindAncestor(childId, parentId, new NidSet());
       } finally {
          this.stampedLock.unlock(stamp);
       }
@@ -548,7 +550,7 @@ public class TaxonomyProvider
          break;
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + logicalLogicNode.getNodeSemantic());
+         throw new UnsupportedOperationException("at Can't handle: " + logicalLogicNode.getNodeSemantic());
       }
    }
 
@@ -610,7 +612,7 @@ public class TaxonomyProvider
     * @param examined the examined
     * @return true, if successful
     */
-   private boolean recursiveFindAncestor(int childSequence, int parentSequence, HashSet<Integer> examined) {
+   private boolean recursiveFindAncestor(int childSequence, int parentSequence, NidSet examined) {
       // currently unpacking from array to object.
       // TODO operate directly on array if unpacking is a performance bottleneck.
       if (examined.contains(childSequence)) {
@@ -626,15 +628,20 @@ public class TaxonomyProvider
          final int[] conceptSequencesForType = childTaxonomyRecords.getConceptSequencesForType(this.isaSequence)
                                                                    .toArray();
 
-         if (Arrays.stream(conceptSequencesForType)
-                   .anyMatch((int parentSequenceOfType) -> parentSequenceOfType == parentSequence)) {
-            return true;
+         for (int parentSequenceOfType: conceptSequencesForType) {
+            if (parentSequenceOfType == parentSequence) {
+               return true;
+            }
          }
 
-         return Arrays.stream(conceptSequencesForType)
-                      .anyMatch((int intermediateChild) -> recursiveFindAncestor(intermediateChild,
+         
+         for (int intermediateChild: conceptSequencesForType) {
+            if (recursiveFindAncestor(intermediateChild,
                             parentSequence,
-                            examined));
+                            examined)) {
+               return true;
+            }
+         }
       }
 
       return false;
@@ -654,19 +661,24 @@ public class TaxonomyProvider
       final Optional<TaxonomyRecordPrimitive> record = this.originDestinationTaxonomyRecordMap.get(childSequence);
 
       if (record.isPresent()) {
+         
          final TaxonomyRecordUnpacked childTaxonomyRecords = new TaxonomyRecordUnpacked(record.get().getArray());
+         
          final int[] activeConceptSequences = childTaxonomyRecords.getConceptSequencesForType(this.isaSequence, tc)
                                                                   .toArray();
 
-         if (Arrays.stream(activeConceptSequences)
-                   .anyMatch((int activeParentSequence) -> activeParentSequence == parentSequence)) {
-            return true;
+         for (int parentSequenceOfType: activeConceptSequences) {
+            if (parentSequenceOfType == parentSequence) {
+               return true;
+            }
          }
-
-         return Arrays.stream(activeConceptSequences)
-                      .anyMatch((int intermediateChild) -> recursiveFindAncestor(intermediateChild,
+         for (int intermediateChild: activeConceptSequences) {
+            if (recursiveFindAncestor(intermediateChild,
                             parentSequence,
-                            tc));
+                            tc)) {
+               return true;
+            }
+         }
       }
 
       return false;
@@ -1675,7 +1687,7 @@ public class TaxonomyProvider
       IntStream       conceptSequenceStream = Get.identifierService()
                                                  .getParallelConceptSequenceStream();
       GraphCollector  collector             = new GraphCollector(this.originDestinationTaxonomyRecordMap, tc);
-      HashTreeBuilder graphBuilder          = conceptSequenceStream.collect(HashTreeBuilder::new, collector, collector);
+      HashTreeBuilder graphBuilder          = conceptSequenceStream.collect(() -> new HashTreeBuilder(tc), collector, collector);
 
       if (this.stampedLock.validate(stamp)) {
          temp = graphBuilder.getSimpleDirectedGraphGraph();
@@ -1689,7 +1701,7 @@ public class TaxonomyProvider
          conceptSequenceStream = Get.identifierService()
                                     .getParallelConceptSequenceStream();
          collector             = new GraphCollector(this.originDestinationTaxonomyRecordMap, tc);
-         graphBuilder          = conceptSequenceStream.collect(HashTreeBuilder::new, collector, collector);
+         graphBuilder          = conceptSequenceStream.collect(() -> new HashTreeBuilder(tc), collector, collector);
          temp                  = graphBuilder.getSimpleDirectedGraphGraph();
          this.treeCache.put(tc.hashCode(), temp);
          return temp;
@@ -1842,6 +1854,11 @@ public class TaxonomyProvider
       @Override
       public Tree getTaxonomyTree() {
          return TaxonomyProvider.this.getTaxonomyTree(this.tc);
+      }
+
+      @Override
+      public ManifoldCoordinate getManifoldCoordinate() {
+         return this.tc;
       }
    }
 }

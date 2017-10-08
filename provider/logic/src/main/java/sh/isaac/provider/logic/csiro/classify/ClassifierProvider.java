@@ -55,12 +55,14 @@ import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.tree.hashtree.HashTreeBuilder;
 import sh.isaac.api.tree.hashtree.HashTreeWithBitSets;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.configuration.ManifoldCoordinates;
+import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.provider.logic.csiro.classify.tasks.AggregateClassifyTask;
 import sh.isaac.provider.taxonomy.TaxonomyProvider;
 import sh.isaac.provider.taxonomy.graph.GraphCollector;
@@ -139,12 +141,13 @@ public class ClassifierProvider
    protected HashTreeWithBitSets getInferredTaxonomyGraph() {
       final IntStream conceptSequenceStream = Get.identifierService()
                                                  .getParallelConceptSequenceStream();
+      final ManifoldCoordinate manifoldCoordinate = ManifoldCoordinates.getInferredManifoldCoordinate(
+                                StampCoordinates.getDevelopmentLatestActiveOnly(),
+                                Get.configurationService().getDefaultLanguageCoordinate());
       final GraphCollector collector =
          new GraphCollector(((TaxonomyProvider) Get.taxonomyService()).getOriginDestinationTaxonomyRecords(),
-                            ManifoldCoordinates.getInferredManifoldCoordinate(
-                                StampCoordinates.getDevelopmentLatestActiveOnly(),
-                                Get.configurationService().getDefaultLanguageCoordinate()));
-      final HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(HashTreeBuilder::new,
+                            manifoldCoordinate);
+      final HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(() -> new HashTreeBuilder(manifoldCoordinate),
                                                                              collector,
                                                                              collector);
       final HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraphGraph();
@@ -160,12 +163,13 @@ public class ClassifierProvider
    protected HashTreeWithBitSets getStatedTaxonomyGraph() {
       final IntStream conceptSequenceStream = Get.identifierService()
                                                  .getParallelConceptSequenceStream();
+      final ManifoldCoordinate manifoldCoordinate = ManifoldCoordinates.getStatedManifoldCoordinate(
+                                StampCoordinates.getDevelopmentLatestActiveOnly(),
+                                Get.configurationService().getDefaultLanguageCoordinate());
       final GraphCollector collector =
          new GraphCollector(((TaxonomyProvider) Get.taxonomyService()).getOriginDestinationTaxonomyRecords(),
-                            ManifoldCoordinates.getStatedManifoldCoordinate(
-                                StampCoordinates.getDevelopmentLatestActiveOnly(),
-                                Get.configurationService().getDefaultLanguageCoordinate()));
-      final HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(HashTreeBuilder::new,
+                            manifoldCoordinate);
+      final HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(() -> new HashTreeBuilder(manifoldCoordinate),
                                                                              collector,
                                                                              collector);
       final HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraphGraph();

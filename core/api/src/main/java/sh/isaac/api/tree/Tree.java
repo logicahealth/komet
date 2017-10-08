@@ -155,5 +155,13 @@ public interface Tree {
     * @return sequence identifiers for the root concept[s] of this tree.
     */
    int[] getRootSequences();
+   
+   /**
+    * Determine if the childSequence is a descendent of the parentSequence. 
+    * @param childSequence
+    * @param parentSequence
+    * @return true if the childSequence is a descendent of the parentSequence by any route. 
+    */
+   boolean isDescendentOf(int childSequence, int parentSequence);
 }
 

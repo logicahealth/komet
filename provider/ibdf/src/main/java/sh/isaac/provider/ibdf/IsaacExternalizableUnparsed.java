@@ -42,14 +42,13 @@ package sh.isaac.provider.ibdf;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.externalizable.IsaacExternalizableObjectType;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.sememe.SememeChronologyImpl;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.StampUniversal;
-import sh.isaac.api.identity.IdentifiedObject;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -63,32 +62,26 @@ public class IsaacExternalizableUnparsed {
    private final ByteArrayDataBuffer data;
 
    /** The type of the object. */
-   IsaacExternalizableObjectType type;
+   IsaacObjectType type;
 
    //~--- constructors --------------------------------------------------------
    public IsaacExternalizableUnparsed(IsaacExternalizable externalizable) {
-      this.type = externalizable.getExternalizableObjectType();
+      this.type = externalizable.getIsaacObjectType();
       this.data = new ByteArrayDataBuffer();
-      this.type.writeToByteArrayDataBuffer(data);
+      this.type.writeTypeVersionHeader(data);
       externalizable.putExternal(this.data);
       this.data.trimToSize();
-      this.data.setPosition(1);
-   }
-
-   /**
-    * Instantiates a new isaac externalizable unparsed.
-    *
-    * @param type the type
-    * @param data the data
-    */
-   public IsaacExternalizableUnparsed(IsaacExternalizableObjectType type, ByteArrayDataBuffer data) {
-      this.data = data;
-      this.type = type;
+      this.data.setPosition(2);
    }
 
    public IsaacExternalizableUnparsed(ByteArrayDataBuffer data) {
+      if (data.getObjectDataFormatVersion() > 0) {
+         throw new IllegalStateException("Improperly initialized. object data format versions should not be set yet: " + data.getObjectDataFormatVersion());
+      }
       this.data = data;
-      this.type = IsaacExternalizableObjectType.fromByteArrayDataBuffer(data);
+      this.type = IsaacObjectType.fromByteArrayDataBuffer(data);
+      this.data.setObjectDataFormatVersion(this.data.getByte());
+      
    }
    //~--- methods -------------------------------------------------------------
 
@@ -115,7 +108,7 @@ public class IsaacExternalizableUnparsed {
          return new StampUniversal(data);
 
       default:
-         throw new UnsupportedOperationException("Can't handle: " + this.type);
+         throw new UnsupportedOperationException("aq Can't handle: " + this.type);
       }
    }
    

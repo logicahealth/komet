@@ -1169,6 +1169,9 @@ public class ByteArrayDataBuffer {
     */
    private long getLongResult(int position) {
       long result;
+      if (this.data.length <= position + 7) {
+         throw new ArrayIndexOutOfBoundsException();
+      }
 
       result = ((((long) this.data[position]) << 56) | (((long) this.data[position + 1] & 0xff) << 48)
                 | (((long) this.data[position + 2] & 0xff) << 40) | (((long) this.data[position + 3] & 0xff) << 32)

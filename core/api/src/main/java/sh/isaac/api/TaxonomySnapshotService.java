@@ -46,6 +46,7 @@ import java.util.stream.IntStream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.Tree;
 
 //~--- interfaces -------------------------------------------------------------
@@ -145,5 +146,11 @@ public interface TaxonomySnapshotService {
     * @return the taxonomy tree
     */
    Tree getTaxonomyTree();
+ 
+   /**
+    * Get the ManifoldCoordinate which defines the parent/child relationships of this tree.
+    * @return ManifoldCoordinate
+    */
+   ManifoldCoordinate getManifoldCoordinate();
 }
 

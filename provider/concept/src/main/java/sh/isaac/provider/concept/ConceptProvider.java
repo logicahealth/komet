@@ -225,7 +225,7 @@ public class ConceptProvider
             dataVersion = Byte.parseByte(cradleProps.getProperty(CRADLE_DATA_VERSION_PROPERTY));
          }
 
-         this.conceptMap = new CasSequenceObjectMap<>(new ConceptSerializer(dataVersion),
+         this.conceptMap = new CasSequenceObjectMap<>(new ConceptSerializer(),
                this.ochreConceptPath,
                "seg.",
                ".ochre-concepts.map");
