@@ -23,8 +23,15 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import jetbrains.exodus.ArrayByteIterable;
+import jetbrains.exodus.ByteIterable;
+import jetbrains.exodus.bindings.IntegerBinding;
+import jetbrains.exodus.env.Cursor;
 import jetbrains.exodus.env.Environment;
 import jetbrains.exodus.env.Environments;
+import jetbrains.exodus.env.Store;
+import jetbrains.exodus.env.StoreConfig;
+import jetbrains.exodus.env.Transaction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
@@ -36,6 +43,8 @@ import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.model.waitfree.CasSequenceObjectMap;
 
 /**
  *
@@ -48,15 +57,16 @@ public class XodusConceptProvider
          implements ConceptService {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
+   private static final String CONCEPT_STORE = "concept-store";
 
-   Environment env;
+   Environment environment;
    /**
     * Start me.
     */
    @PostConstruct
    private void startMe() {
       LOG.info("Starting Xodus ConceptProvider post-construct");
-      env = Environments.newInstance("myAppData");
+      environment = Environments.newInstance("myAppData");
    }
 
    /**
@@ -65,11 +75,40 @@ public class XodusConceptProvider
    @PreDestroy
    private void stopMe() {
       LOG.info("Stopping Xodus ConceptProvider.");
-      env.close();
+      environment.close();
    }
    
    @Override
-   public void writeConcept(ConceptChronology concept) {
+   public void writeConcept(final ConceptChronology concept) {
+      environment.executeInTransaction((Transaction txn) -> {
+         // opening a store without key duplicates and with prefixing
+         Store store = environment.openStore(CONCEPT_STORE, StoreConfig.WITHOUT_DUPLICATES_WITH_PREFIXING, txn);
+         
+         ConceptChronologyImpl conceptImpl = (ConceptChronologyImpl) concept;
+         ArrayByteIterable key = IntegerBinding.intToEntry(concept.getConceptSequence());
+         ByteIterable oldValue = store.get(txn, key);
+         if (oldValue != null) {
+            int writeSequence = CasSequenceObjectMap.getWriteSequence(oldValue.getBytesUnsafe());
+            // TODO: need a real compare and swap operation for Xodus...
+            // maybe implement add, and have each version be a key duplicate? 
+            
+            // Cursors can navigate multiple values for same key
+            // Cursor c = store.openCursor(txn);
+            
+            
+            while (writeSequence != conceptImpl.getWriteSequence()) {
+               
+            } 
+            ArrayByteIterable value = new ArrayByteIterable(conceptImpl.getDataToWrite());
+            store.put(txn, key, value);
+            
+         } else {
+            ArrayByteIterable value = new ArrayByteIterable(conceptImpl.getDataToWrite());
+            store.put(txn, key, value);
+         }
+         txn.commit();
+      });
+      
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

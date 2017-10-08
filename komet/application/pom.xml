@@ -16,7 +16,7 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <mainClass>sh.komet.fx.stage.MainApp</mainClass>
       <log4j.version>2.8.1</log4j.version>
-      <solor.db.version>1.6</solor.db.version>
+      <solor.db.version>1.7</solor.db.version>
    </properties>
 
    <organization>
