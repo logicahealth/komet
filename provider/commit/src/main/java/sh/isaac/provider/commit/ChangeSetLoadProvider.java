@@ -65,6 +65,7 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
+import sh.isaac.api.AssemblageService;
 import sh.isaac.api.ChangeSetLoadService;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
@@ -76,11 +77,11 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.component.sememe.version.SememeVersion;
+import sh.isaac.api.component.sememe.version.StringVersion;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.util.metainf.MetaInfReader;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.api.component.sememe.version.StringVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -151,35 +152,40 @@ public class ChangeSetLoadProvider
       final CommitService commitService = Get.commitService();
 
       Files.newDirectoryStream(this.changesetPath, path -> path.toFile().isFile() && path.toString().endsWith(".ibdf"))
-           .forEach(path -> {
-                       LOG.debug("File {}", path.toAbsolutePath());
+           .forEach(
+               path -> {
+                  LOG.debug("File {}", path.toAbsolutePath());
 
-                       try {
-                          if ((this.processedChangesets !=
-                               null) && this.processedChangesets.containsKey(path.getFileName().toString())) {
-                             skipped.incrementAndGet();
-                             LOG.debug("Skipping already processed changeset file");
-                          } else {
-                             loaded.incrementAndGet();
-                             LOG.debug("Importing changeset file");
-                             Get.binaryDataReader(path).getStream().forEach(o -> {
-                                            commitService.importNoChecks(o);
-                                         });
-                             commitService.postProcessImportNoChecks();
+                  try {
+                     if ((this.processedChangesets != null) &&
+                         this.processedChangesets.containsKey(path.getFileName().toString())) {
+                        skipped.incrementAndGet();
+                        LOG.debug("Skipping already processed changeset file");
+                     } else {
+                        loaded.incrementAndGet();
+                        LOG.debug("Importing changeset file");
+                        Get.binaryDataReader(path)
+                           .getStream()
+                           .forEach(
+                               o -> {
+                                  commitService.importNoChecks(o);
+                               });
+                        commitService.postProcessImportNoChecks();
 
-                             if (this.processedChangesets != null) {
-                                this.processedChangesets.put(path.getFileName()
-                                      .toString(), true);
-                             }
-                          }
-                       } catch (final FileNotFoundException e) {
-                          LOG.error("Change Set Load Provider failed to load file {}", path.toAbsolutePath());
-                          throw new RuntimeException(e);
-                       }
-                    });
-      LOG.info("Finished Change Set Load Provider load.  Loaded {}, Skipped {} because they were previously processed",
-               loaded.get(),
-               skipped.get());
+                        if (this.processedChangesets != null) {
+                           this.processedChangesets.put(path.getFileName()
+                                 .toString(), true);
+                        }
+                     }
+                  } catch (final FileNotFoundException e) {
+                     LOG.error("Change Set Load Provider failed to load file {}", path.toAbsolutePath());
+                     throw new RuntimeException(e);
+                  }
+               });
+      LOG.info(
+          "Finished Change Set Load Provider load.  Loaded {}, Skipped {} because they were previously processed",
+          loaded.get(),
+          skipped.get());
       return loaded.get();
    }
 
@@ -189,22 +195,26 @@ public class ChangeSetLoadProvider
     * @return the uuid
     */
    private UUID readSememeDbId() {
-      final Optional<SememeChronology> sdic = Get.assemblageService()
-                                                                             .getSememesForComponentFromAssemblage(
-                                                                                TermAux.SOLOR_ROOT.getNid(),
-                                                                                      TermAux.DATABASE_UUID.getConceptSequence())
-                                                                             .findFirst();
+      Optional<AssemblageService> optionalService = Get.optionalService(AssemblageService.class);
 
-      if (sdic.isPresent()) {
-         final LatestVersion<StringVersion> sdi =
-            ((SememeChronology) sdic.get()).getLatestVersion(StampCoordinates.getDevelopmentLatest());
+      if (optionalService.isPresent()) {
+         Optional<SememeChronology> sdic = optionalService.get()
+                                                          .getSememesForComponentFromAssemblage(
+                                                                TermAux.SOLOR_ROOT.getNid(),
+                                                                      TermAux.DATABASE_UUID.getConceptSequence())
+                                                          .findFirst();
 
-         if (sdi.isPresent()) {
-            try {
-               return UUID.fromString(sdi.get()
-                                         .getString());
-            } catch (final Exception e) {
-               LOG.warn("The Database UUID annotation on Isaac Root does not contain a valid UUID!", e);
+         if (sdic.isPresent()) {
+            final LatestVersion<StringVersion> sdi = ((SememeChronology) sdic.get()).getLatestVersion(
+                                                         StampCoordinates.getDevelopmentLatest());
+
+            if (sdi.isPresent()) {
+               try {
+                  return UUID.fromString(sdi.get()
+                                            .getString());
+               } catch (final Exception e) {
+                  LOG.warn("The Database UUID annotation on Isaac Root does not contain a valid UUID!", e);
+               }
             }
          }
       }
@@ -227,8 +237,8 @@ public class ChangeSetLoadProvider
 
          if (!this.changesetPath.toFile()
                                 .isDirectory()) {
-            throw new RuntimeException("Cannot initialize Changeset Store - was unable to create " +
-                                       this.changesetPath.toAbsolutePath());
+            throw new RuntimeException(
+                "Cannot initialize Changeset Store - was unable to create " + this.changesetPath.toAbsolutePath());
          }
 
          final UUID chronicleDbId = Get.conceptService()
@@ -307,9 +317,10 @@ public class ChangeSetLoadProvider
                }
 
                Get.sememeBuilderService()
-                  .getStringSememeBuilder(chronicleDbId.toString(),
-                                          TermAux.SOLOR_ROOT.getNid(),
-                                          TermAux.DATABASE_UUID.getConceptSequence())
+                  .getStringSememeBuilder(
+                      chronicleDbId.toString(),
+                      TermAux.SOLOR_ROOT.getNid(),
+                      TermAux.DATABASE_UUID.getConceptSequence())
                   .build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
                   .get();
                Get.commitService()
