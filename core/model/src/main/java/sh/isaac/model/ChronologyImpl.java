@@ -99,7 +99,7 @@ public abstract class ChronologyImpl
          STAMPED_LOCKS[i] = new StampedLock();
       }
    }
-
+  
    //~--- fields --------------------------------------------------------------
    /**
     * Position in the data where chronicle data ends, and version data starts.

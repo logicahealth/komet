@@ -10,6 +10,17 @@
     <packaging>pom</packaging>
     <name>ISAAC provider: (MMP)</name>
     <description>Aggregator project for provider ISAAC provider modules</description>
+    <profiles>
+    <profile>
+         <id>bdb</id>
+         <activation>
+            <activeByDefault>false</activeByDefault>
+         </activation>
+         <modules>
+            <module>bdb-chronology</module>
+         </modules>
+      </profile>
+    </profiles>
     <modules>
         <module>commit</module>
         <module>coordinate</module>
@@ -28,5 +39,6 @@
         <module>taxonomy</module>
         <module>assemblage</module>
         <module>drools</module>
+        <module>xodus-chronology</module>
     </modules>
 </project>
