@@ -3,7 +3,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>sh.isaac</groupId>
    <artifactId>isaac</artifactId>
-   <version>4.39-SNAPSHOT</version>
+   <version>4.39</version>
 
    <name>ISAAC: (MMP) Informatics Analytic Architecture</name>
 
