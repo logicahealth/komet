@@ -799,6 +799,10 @@ public class Get
 
       return service;
    }
+   
+   public static <T> Optional<T> optionalService(Class<T> clazz) {
+      return Optional.ofNullable(LookupService.getService(clazz));
+   }
    /**
     * Gets the service.
     *
