@@ -22,9 +22,9 @@ import java.util.function.Consumer;
 import javafx.scene.control.MenuItem;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
@@ -41,7 +41,7 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 @Service
-@Singleton
+@RunLevel(value = 1)
 public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKometService {
 
    /**

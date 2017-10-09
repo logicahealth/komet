@@ -42,6 +42,7 @@ package sh.isaac.api;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.stream.IntStream;
+import javafx.concurrent.Task;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -56,6 +57,11 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 /**
  * The Interface TaxonomyService.
+ * 
+ * Many of the calls that use a manifold coordinate create a taxonomy tree in the background, 
+ * and do not cache the results. So they are deprecated for now in favor of moving all these
+ * methods to getSnapshot(). 
+ * 
  *
  * @author kec
  */
@@ -94,6 +100,7 @@ public interface TaxonomyService
     * relationships, or {@code IntStream.empty()} if there are no such
     * relationships.
     */
+   @Deprecated
    IntStream getAllCircularRelationshipOriginSequences(ManifoldCoordinate tc);
 
    /**
@@ -107,6 +114,7 @@ public interface TaxonomyService
     * circular, or {@code IntStream.empty()} if there are no such
     * relationships.
     */
+   @Deprecated
    IntStream getAllCircularRelationshipTypeSequences(int originId, ManifoldCoordinate tc);
 
    /**
@@ -126,6 +134,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the all relationship destination sequences
     */
+   @Deprecated
    IntStream getAllRelationshipDestinationSequences(int originId, ManifoldCoordinate tc);
 
    /**
@@ -139,6 +148,7 @@ public interface TaxonomyService
     * relationships
     * @return the all relationship destination sequences not of type
     */
+   @Deprecated
    IntStream getAllRelationshipDestinationSequencesNotOfType(int originId,
          ConceptSequenceSet typeSequenceSet,
          ManifoldCoordinate tc);
@@ -164,6 +174,7 @@ public interface TaxonomyService
     * @return conceptSequences of all relationship destination concepts
     * (including is-a relationships)
     */
+   @Deprecated
    IntStream getAllRelationshipDestinationSequencesOfType(int originId,
          ConceptSequenceSet typeSequenceSet,
          ManifoldCoordinate tc);
@@ -183,6 +194,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the all relationship origin sequences
     */
+   @Deprecated
    IntStream getAllRelationshipOriginSequences(int destinationId, ManifoldCoordinate tc);
 
    /**
@@ -202,6 +214,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the all relationship origin sequences of type
     */
+   @Deprecated
    IntStream getAllRelationshipOriginSequencesOfType(int destinationId,
          ConceptSequenceSet typeSequenceSet,
          ManifoldCoordinate tc);
@@ -216,6 +229,7 @@ public interface TaxonomyService
     * @return concept sequences of all relationship types between the origin
     * and destination that meet the taxonomy coordinate criterion.
     */
+   @Deprecated
    IntStream getAllTypesForRelationship(int originId, int destinationId, ManifoldCoordinate tc);
 
    /**
@@ -225,6 +239,7 @@ public interface TaxonomyService
     * @param tc coordinate used to compute the taxonomy
     * @return the ancestor concept sequences for the childId concept.
     */
+   @Deprecated
    ConceptSequenceSet getAncestorOfSequenceSet(int childId, ManifoldCoordinate tc);
 
    /**
@@ -237,6 +252,7 @@ public interface TaxonomyService
     * parentId concept according to the constraints of the
     * {@code ManifoldCoordinate}
     */
+   @Deprecated
    boolean isChildOf(int childId, int parentId, ManifoldCoordinate tc);
 
    /**
@@ -246,6 +262,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the child of sequence set
     */
+   @Deprecated
    ConceptSequenceSet getChildOfSequenceSet(int parentId, ManifoldCoordinate tc);
 
    /**
@@ -257,6 +274,7 @@ public interface TaxonomyService
     * @return true if the childId concept is a kind of the ancestorId concept
     * according to the constraints of the {@code ManifoldCoordinate}
     */
+   @Deprecated
    boolean isKindOf(int childId, int ancestorId, ManifoldCoordinate tc);
 
    /**
@@ -266,15 +284,8 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the kind of sequence set
     */
+   @Deprecated
    ConceptSequenceSet getKindOfSequenceSet(int rootId, ManifoldCoordinate tc);
-
-   /**
-    * Gets the roots.
-    *
-    * @param sc the sc
-    * @return the roots
-    */
-   IntStream getRoots(ManifoldCoordinate sc);
 
    /**
     * Gets the snapshot.
@@ -282,7 +293,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the snapshot
     */
-   TaxonomySnapshotService getSnapshot(ManifoldCoordinate tc);
+   Task<TaxonomySnapshotService> getSnapshot(ManifoldCoordinate tc);
 
    /**
     * Gets the taxonomy child sequences.
@@ -299,6 +310,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the taxonomy child sequences
     */
+   @Deprecated
    IntStream getTaxonomyChildSequences(int parentId, ManifoldCoordinate tc);
 
    /**
@@ -316,6 +328,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the taxonomy parent sequences
     */
+   @Deprecated
    IntStream getTaxonomyParentSequences(int childId, ManifoldCoordinate tc);
 
    /**
@@ -324,6 +337,7 @@ public interface TaxonomyService
     * @param tc the tc
     * @return the taxonomy tree
     */
-   Tree getTaxonomyTree(ManifoldCoordinate tc);
+   @Deprecated
+   Task<Tree> getTaxonomyTree(ManifoldCoordinate tc);
 }
 

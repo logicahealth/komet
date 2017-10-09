@@ -51,6 +51,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.Get;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import static sh.isaac.api.tree.hashtree.AbstractHashTree.MULTI_PARENT_SETS;
 
@@ -117,7 +118,7 @@ public class HashTreeBuilder {
       for (String uuidStr : watchUuids) {
          watchSequences.add(Get.identifierService().getConceptSequenceForUuids(UUID.fromString(uuidStr)));
       }
-   }
+    }
 
    //~--- methods -------------------------------------------------------------
    /**

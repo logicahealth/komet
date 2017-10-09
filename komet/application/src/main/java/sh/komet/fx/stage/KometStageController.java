@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 //~--- non-JDK imports --------------------------------------------------------
-import javafx.application.Platform;
 
 import javafx.beans.value.ObservableValue;
 
@@ -67,6 +66,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import sh.isaac.MetaData;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
@@ -108,7 +108,6 @@ public class KometStageController
 
    //~--- fields --------------------------------------------------------------
    private int tabPanelCount = 0;
-   private final ArrayList<MultiParentTreeView> treeViewList = new ArrayList<>();
    ArrayList<TabPane> tabPanes = new ArrayList();
    @FXML  // ResourceBundle that was given to the FXMLLoader
    private ResourceBundle resources;
@@ -195,10 +194,6 @@ public class KometStageController
       classifierMenuButton.setGraphic(Iconography.ICON_CLASSIFIER1.getIconographic());
       classifierMenuButton.getItems().clear();
       classifierMenuButton.getItems().addAll(getClassifyMenuItems());
-      Platform.runLater(
-              () -> {
-                 treeViewList.forEach(treeView -> treeView.init());
-              });
    }
 
    private List<MenuItem> getClassifyMenuItems() {
@@ -223,11 +218,9 @@ public class KometStageController
 
    private void addMultiParentTreeViewTab(TabPane tabPane) {
       Tab tab = new Tab("Taxonomy");
-      MultiParentTreeView treeView = new MultiParentTreeView(TAXONOMY_MANIFOLD);
+      MultiParentTreeView treeView = new MultiParentTreeView(TAXONOMY_MANIFOLD, MetaData.SOLOR_CONCEPT____SOLOR);
 
       tab.setGraphic(Iconography.TAXONOMY_ICON.getIconographic());
-
-      treeViewList.add(treeView);
       tab.setContent(new BorderPane(treeView));
       tabPane.getTabs()
               .add(tab);
@@ -241,7 +234,7 @@ public class KometStageController
       searchTab.setGraphic(factory.getMenuIcon());
       searchTab.setContent(searchPane);
 
-      ExplorationNode explorationNode = factory.createExplorationNode(
+      factory.createExplorationNode(
               SEARCH_MANIFOLD,
               (theNewExplorationNode) -> {
                  searchPane.setCenter(theNewExplorationNode);

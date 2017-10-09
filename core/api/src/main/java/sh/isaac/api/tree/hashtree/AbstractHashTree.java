@@ -82,9 +82,8 @@ public abstract class AbstractHashTree
     * Map from a parentIndex sequence key to an array of childIndex sequences.
     */
    protected final OpenIntObjectHashMap<int[]> parentSequence_ChildSequenceArray_Map;
-
-   protected final TaxonomySnapshotService taxonomySnapshot;
-
+   
+   protected final ManifoldCoordinate manifoldCoordinate;
 
    //~--- constructors --------------------------------------------------------
    /**
@@ -93,9 +92,9 @@ public abstract class AbstractHashTree
     * @param manifoldCoordinate
     */
    public AbstractHashTree(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
       this.childSequence_ParentSequenceArray_Map = new OpenIntObjectHashMap<>();
       this.parentSequence_ChildSequenceArray_Map = new OpenIntObjectHashMap<>();
-      this.taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldCoordinate);
    }
 
    /**
@@ -105,9 +104,9 @@ public abstract class AbstractHashTree
     * @param initialSize the initial size
     */
    public AbstractHashTree(ManifoldCoordinate manifoldCoordinate, int initialSize) {
+      this.manifoldCoordinate = manifoldCoordinate;
       this.childSequence_ParentSequenceArray_Map = new OpenIntObjectHashMap<>(initialSize);
       this.parentSequence_ChildSequenceArray_Map = new OpenIntObjectHashMap<>(initialSize);
-      this.taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldCoordinate);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -162,7 +161,7 @@ public abstract class AbstractHashTree
     */
    @Override
    public final Tree createAncestorTree(int childSequence) {
-      final SimpleHashTree tree = new SimpleHashTree(taxonomySnapshot.getManifoldCoordinate());
+      final SimpleHashTree tree = new SimpleHashTree(manifoldCoordinate);
 
       addParentsAsChildren(tree, childSequence, getParentSequences(childSequence));
       return tree;

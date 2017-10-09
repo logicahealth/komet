@@ -81,6 +81,7 @@ import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.MetaData;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.model.logic.LogicByteArrayConverterService;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderOchreProvider;
 
@@ -280,33 +281,39 @@ public class ImportExportTest {
       dependsOnMethods = { "testClassify" }
    )
    public void testInferredTaxonomy() {
-      LOG.info("Testing inferred taxonomy");
-
-      final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
-                                                       .getDefaultManifoldCoordinate()
-                                                       .makeCoordinateAnalog(PremiseType.INFERRED);
-      final int[] roots = Get.taxonomyService()
-                             .getRoots(manifoldCoordinate)
-                             .toArray();
-
-      StringBuilder rootsMessage = new StringBuilder();
-      for (int root: roots) {
-         rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
+      try {
+         LOG.info("Testing inferred taxonomy");
+         
+         final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
+                 .getDefaultManifoldCoordinate()
+                 .makeCoordinateAnalog(PremiseType.INFERRED);
+         Task<TaxonomySnapshotService> snapshotTask = Get.taxonomyService().getSnapshot(manifoldCoordinate);
+         TaxonomySnapshotService taxonomySnapshotService = snapshotTask.get();
+         
+         final int[] roots = taxonomySnapshotService.getRoots().toArray();
+         
+         StringBuilder rootsMessage = new StringBuilder();
+         for (int root: roots) {
+            rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
+         }
+         
+         Assert.assertEquals(roots.length, 1, rootsMessage.toString());
+         
+         final Tree taxonomyTree  = taxonomySnapshotService.getTaxonomyTree();
+         final AtomicInteger taxonomyCount = new AtomicInteger(0);
+         
+         taxonomyTree.depthFirstProcess(roots[0],
+                 (TreeNodeVisitData t,
+                         int conceptSequence) -> {
+                    taxonomyCount.incrementAndGet();
+                 });
+         Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
+         logTree(roots[0], taxonomyTree);
+      } catch (InterruptedException ex) {
+         Assert.fail("Interrupted", ex);
+      } catch (ExecutionException ex) {
+         Assert.fail("Execution exception", ex);
       }
-      
-      Assert.assertEquals(roots.length, 1, rootsMessage.toString());
-
-      final Tree          taxonomyTree  = Get.taxonomyService()
-                                             .getTaxonomyTree(manifoldCoordinate);
-      final AtomicInteger taxonomyCount = new AtomicInteger(0);
-
-      taxonomyTree.depthFirstProcess(roots[0],
-                                     (TreeNodeVisitData t,
-                                      int conceptSequence) -> {
-                                        taxonomyCount.incrementAndGet();
-                                     });
-      Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
-      logTree(roots[0], taxonomyTree);
    }
 
    /**
@@ -350,32 +357,38 @@ public class ImportExportTest {
       dependsOnMethods = { "testLoad" }
    )
    public void testStatedTaxonomy() {
-      LOG.info("Testing stated taxonomy");
-
-      final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
-                                                       .getDefaultManifoldCoordinate()
-                                                       .makeCoordinateAnalog(PremiseType.STATED);
-      final int[] roots = Get.taxonomyService()
-                             .getRoots(manifoldCoordinate)
-                             .toArray();
-      StringBuilder rootsMessage = new StringBuilder();
-      for (int root: roots) {
-         rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
+      try {
+         LOG.info("Testing stated taxonomy");
+         
+         final ManifoldCoordinate manifoldCoordinate = Get.configurationService()
+                 .getDefaultManifoldCoordinate()
+                 .makeCoordinateAnalog(PremiseType.STATED);
+         Task<TaxonomySnapshotService> snapshotTask = Get.taxonomyService().getSnapshot(manifoldCoordinate);
+         TaxonomySnapshotService taxonomySnapshotService = snapshotTask.get();
+         
+         final int[] roots = taxonomySnapshotService.getRoots().toArray();
+         StringBuilder rootsMessage = new StringBuilder();
+         for (int root: roots) {
+            rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");
+         }
+         
+         Assert.assertEquals(roots.length, 1, rootsMessage.toString());
+         
+         final Tree          taxonomyTree  = taxonomySnapshotService.getTaxonomyTree();
+         final AtomicInteger taxonomyCount = new AtomicInteger(0);
+         
+         taxonomyTree.depthFirstProcess(roots[0],
+                 (TreeNodeVisitData t,
+                         int conceptSequence) -> {
+                    taxonomyCount.incrementAndGet();
+                 });
+         logTree(roots[0], taxonomyTree);
+         Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
+      } catch (InterruptedException ex) {
+         Assert.fail("Interrupted", ex);
+      } catch (ExecutionException ex) {
+         Assert.fail("Execution exception", ex);
       }
-      
-      Assert.assertEquals(roots.length, 1, rootsMessage.toString());
-
-      final Tree          taxonomyTree  = Get.taxonomyService()
-                                             .getTaxonomyTree(manifoldCoordinate);
-      final AtomicInteger taxonomyCount = new AtomicInteger(0);
-
-      taxonomyTree.depthFirstProcess(roots[0],
-                                     (TreeNodeVisitData t,
-                                      int conceptSequence) -> {
-                                        taxonomyCount.incrementAndGet();
-                                     });
-      logTree(roots[0], taxonomyTree);
-      Assert.assertEquals(taxonomyCount.get(), this.importStats.concepts.get());
    }
 
    /**

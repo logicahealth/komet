@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -58,6 +59,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
+
 import javafx.collections.FXCollections;
 
 import javafx.concurrent.Task;
@@ -92,12 +94,14 @@ import org.controlsfx.dialog.ExceptionDialog;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 import static sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory.MENU_TEXT;
 
@@ -143,23 +147,26 @@ public class MultiParentTreeView
    private Optional<UUID>                    selectedItem      = Optional.empty();
    private final ArrayList<UUID>             expandedUUIDs     = new ArrayList<>();
    private BooleanProperty                   displayFSN        = new SimpleBooleanProperty();
-   private final Manifold            manifold;
    private Tree                              taxonomyTree      = null;
+   private final Manifold                    manifold;
    private final StackPane                   stackPane;
+   private final ProgressIndicator           taxonomyTreeFetchProgress;
    private MultiParentTreeItem               rootTreeItem;
    private final TreeView<ConceptChronology> treeView;
 
    //~--- constructors --------------------------------------------------------
 
-   public MultiParentTreeView(Manifold manifold) {
+   public MultiParentTreeView(Manifold manifold, ConceptSpecification rootSpec) {
       long startTime = System.currentTimeMillis();
 
       getStyleClass().setAll(MULTI_PARENT_TREE_NODE.toString());
       this.manifold = manifold;
-      manifold.getManifoldCoordinate().premiseTypeProperty().addListener((observable) -> {
-         this.taxonomyTree = null;
-         refresh();
-      });
+      manifold.getManifoldCoordinate()
+              .premiseTypeProperty()
+              .addListener(
+                  (observable) -> {
+                     refresh();
+                  });
       treeView = new TreeView<>();
 
       // treeView.setSkin(new MultiParentTreeViewSkin<>(treeView));
@@ -201,37 +208,37 @@ public class MultiParentTreeView
           });
       toolBar.getItems()
              .add(descriptionType);
-      
-      ChoiceBox<PremiseType> premiseChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(PremiseType.values()));
-      premiseChoiceBox.setValue(PremiseType.INFERRED);      
-      premiseChoiceBox.valueProperty().addListener(this::taxonomyPremiseChanged);
-      
+
+      ChoiceBox<PremiseType> premiseChoiceBox = new ChoiceBox<>(
+                                                    FXCollections.observableArrayList(PremiseType.values()));
+
+      premiseChoiceBox.setValue(PremiseType.INFERRED);
+      premiseChoiceBox.valueProperty()
+                      .addListener(this::taxonomyPremiseChanged);
       toolBar.getItems()
              .add(premiseChoiceBox);
       this.setTop(toolBar);
       stackPane = new StackPane();
       this.setCenter(stackPane);
-
-      ProgressIndicator pi = new ProgressIndicator();
-
-      pi.setMaxHeight(100.0);
-      pi.setMaxWidth(100.0);
-      pi.getStyleClass()
-        .add("progressIndicator");
-      StackPane.setAlignment(pi, Pos.CENTER);
+      taxonomyTreeFetchProgress = new ProgressIndicator();
+      taxonomyTreeFetchProgress.setMaxHeight(100.0);
+      taxonomyTreeFetchProgress.setMaxWidth(100.0);
+      taxonomyTreeFetchProgress.getStyleClass()
+                               .add("progressIndicator");
+      StackPane.setAlignment(taxonomyTreeFetchProgress, Pos.CENTER);
       stackPane.getChildren()
-               .add(pi);
+               .add(treeView);
+      stackPane.getChildren()
+               .add(taxonomyTreeFetchProgress);
       LOG.debug("Tree View construct time: {}", System.currentTimeMillis() - startTime);
+      Platform.runLater(() -> init(rootSpec.getPrimordialUuid()));
    }
 
    //~--- methods -------------------------------------------------------------
 
-   private void taxonomyPremiseChanged(ObservableValue<? extends PremiseType> observable, PremiseType oldValue, PremiseType newValue) {
-      this.manifold.getManifoldCoordinate().premiseTypeProperty().set(newValue);
-   }
    /**
-    * Convenience method for other code to add buttons, etc to the tool bar displayed above
-    * the tree view
+    * Convenience method for other code to add buttons, etc to the tool bar displayed above the tree view
+    *
     * @param node
     */
    public void addToToolBar(Node node) {
@@ -240,105 +247,16 @@ public class MultiParentTreeView
    }
 
    /**
-    * Tell the tree to stop whatever threading operations it has running,
-    * since the application is exiting.
+    * Tell the tree to stop whatever threading operations it has running, since the application is exiting.
+    *
     * @see gov.va.isaac.interfaces.utility.ShutdownBroadcastListenerI#shutdown()
     */
    public static void globalShutdownRequested() {
       shutdownRequested = true;
       LOG.info("Global Tree shutdown called!");
    }
-
-   public void init() {
-      init(MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid());
-   }
-
-   public void refresh() {
-      if (refreshInProgress.get() > 0) {
-         LOG.debug("Skipping refresh due to in-progress refresh");
-         return;
-      }
-
-      synchronized (refreshInProgress) {
-         // Check again, because first check was before the sync block.
-         if (refreshInProgress.get() > 0) {
-            LOG.debug("Skipping refresh due to in-progress refresh");
-            return;
-         }
-
-         refreshInProgress.incrementAndGet();
-      }
-
-      if (initializationCountDownLatch.getCount() > 1) {
-         // called before initial init() run, so run init()
-         init();
-      }
-
-      Task<Object> task = new Task<Object>() {
-         @Override
-         protected Object call()
-                  throws Exception {
-            // Waiting to ensure that init() completed
-            initializationCountDownLatch.await();
-            return new Object();
-         }
-         @Override
-         protected void succeeded() {
-            LOG.debug("Succeeded waiting for init() to complete");
-
-            // record which items are expanded
-            saveExpanded();
-            LOG.debug("Removing existing children...");
-            rootTreeItem.clearChildren();
-            rootTreeItem.resetChildrenCalculators();
-            LOG.debug("Removed existing children.");
-            LOG.debug("Re-adding children...");
-            Get.executor()
-               .execute(() -> rootTreeItem.addChildren());
-            restoreExpanded();
-
-            synchronized (refreshInProgress) {
-               refreshInProgress.decrementAndGet();
-            }
-         }
-         @Override
-         protected void failed() {
-            synchronized (refreshInProgress) {
-               refreshInProgress.decrementAndGet();
-            }
-
-            Throwable ex    = getException();
-            String    title = "Unexpected error waiting for init() to complete";
-            String    msg   = ex.getClass()
-                                .getName();
-
-            LOG.error(title, ex);
-
-            if (!shutdownRequested) {
-               showErrorDialog(ex, title, msg);
-            }
-         }
-         private void showErrorDialog(Throwable ex, String title, String msg) {
-            ExceptionDialog errorDialog = new ExceptionDialog(ex);
-
-            errorDialog.initModality(Modality.WINDOW_MODAL);
-            errorDialog.initStyle(StageStyle.UNDECORATED);
-            errorDialog.setTitle(title);
-            errorDialog.setContentText(msg);
-            errorDialog.showAndWait();
-         }
-      };
-
-      Get.executor()
-         .execute(task);
-   }
-
+   
    public void showConcept(final UUID conceptUUID, final BooleanProperty workingIndicator) {
-      if (initializationCountDownLatch.getCount() > 1) {
-         // Called before initial init() run, so run init().
-         // showConcept Task will internally await() init() completion.
-         init();
-      }
 
       // Do work in background.
       Task<MultiParentTreeItem> task = new Task<MultiParentTreeItem>() {
@@ -459,13 +377,13 @@ public class MultiParentTreeView
    /**
     * The first call you make to this should pass in the root node.
     *
-    * After that you can call it repeatedly to walk down the tree (you need to know the path first)
-    * This will handle the waiting for each node to open, before moving on to the next node.
+    * After that you can call it repeatedly to walk down the tree (you need to know the path first) This will handle the
+    * waiting for each node to open, before moving on to the next node.
     *
     * This should be called on a background thread.
     *
-    * @return the found child, or null, if not found. found child will have
-    *         already been told to expand and fetch its children.
+    * @return the found child, or null, if not found. found child will have already been told to expand and fetch its
+    * children.
     * @throws InterruptedException
     */
    private MultiParentTreeItem findChild(final MultiParentTreeItem item,
@@ -485,9 +403,7 @@ public class MultiParentTreeView
 
          // Iterate through children and look for child with target UUID.
          for (TreeItem<ConceptChronology> child: item.getChildren()) {
-            if ((child != null) &&
-                  (child.getValue() != null) &&
-                  child.getValue().isIdentifiedBy(targetChildUUID)) {
+            if ((child != null) && (child.getValue() != null) && child.getValue().isIdentifiedBy(targetChildUUID)) {
                // Found it.
                found.set((MultiParentTreeItem) child);
                break;
@@ -580,10 +496,6 @@ public class MultiParentTreeView
                        Get.executor()
                           .execute(() -> sourceTreeItem.addChildrenConceptsAndGrandchildrenItems());
                     });
-            stackPane.getChildren()
-                     .add(treeView);
-            stackPane.getChildren()
-                     .remove(0);  // remove the progress indicator
 
             // Final decrement of initializationCountDownLatch to 0,
             // indicating that initial init() is complete
@@ -597,6 +509,80 @@ public class MultiParentTreeView
                dlg.initModality(Modality.WINDOW_MODAL);
                dlg.initStyle(StageStyle.UTILITY);
                dlg.showAndWait();
+            }
+         }
+      };
+
+      Get.executor()
+         .execute(task);
+   }
+
+   /**
+    * refresh() is called when the premise type changes.
+    *
+    */
+   private void refresh() {
+      taxonomyTreeFetchProgress.setVisible(true);
+      this.taxonomyTree = null;
+
+      if (refreshInProgress.get() > 0) {
+         LOG.debug("Skipping refresh due to in-progress refresh");
+         return;
+      }
+
+      synchronized (refreshInProgress) {
+         // Check again, because first check was before the sync block.
+         if (refreshInProgress.get() > 0) {
+            LOG.debug("Skipping refresh due to in-progress refresh");
+            return;
+         }
+
+         refreshInProgress.incrementAndGet();
+      }
+
+      Task<Object> task = new Task<Object>() {
+         @Override
+         protected Object call()
+                  throws Exception {
+            // Waiting to ensure that init() completed
+            initializationCountDownLatch.await();
+            return new Object();
+         }
+         @Override
+         protected void succeeded() {
+            LOG.debug("Succeeded waiting for init() to complete");
+
+            // record which items are expanded
+            saveExpanded();
+            LOG.debug("Removing existing children...");
+            rootTreeItem.clearChildren();
+            rootTreeItem.resetChildrenCalculators();
+            LOG.debug("Removed existing children.");
+            LOG.debug("Re-adding children...");
+            taxonomyTreeFetchProgress.setVisible(false);
+            Get.executor()
+               .execute(() -> rootTreeItem.addChildren());
+            restoreExpanded();
+
+            synchronized (refreshInProgress) {
+               refreshInProgress.decrementAndGet();
+            }
+         }
+         @Override
+         protected void failed() {
+            synchronized (refreshInProgress) {
+               refreshInProgress.decrementAndGet();
+            }
+
+            Throwable ex    = getException();
+            String    title = "Unexpected error waiting for init() to complete";
+            String    msg   = ex.getClass()
+                                .getName();
+
+            if (!shutdownRequested) {
+               LOG.error(title, ex);
+               FxGet.statusMessageService()
+                    .reportStatus(ex.getLocalizedMessage());
             }
          }
       };
@@ -681,6 +667,14 @@ public class MultiParentTreeView
       }
    }
 
+   private void taxonomyPremiseChanged(ObservableValue<? extends PremiseType> observable,
+         PremiseType oldValue,
+         PremiseType newValue) {
+      this.manifold.getManifoldCoordinate()
+                   .premiseTypeProperty()
+                   .set(newValue);
+   }
+
    //~--- get methods ---------------------------------------------------------
 
    public static MultiParentTreeItemDisplayPolicies getDefaultDisplayPolicies() {
@@ -700,14 +694,6 @@ public class MultiParentTreeView
    //~--- get methods ---------------------------------------------------------
 
    @Override
-   public Optional<Node> getTitleNode() {
-      Label titleLabel = new Label();
-      titleLabel.graphicProperty().bind(iconProperty);
-      titleLabel.textProperty().bind(titleProperty);
-      return Optional.of(titleLabel);
-   }
- 
-   @Override
    public Manifold getManifold() {
       return this.manifold;
    }
@@ -722,17 +708,36 @@ public class MultiParentTreeView
    }
 
    protected Tree getTaxonomyTree() {
-      if (taxonomyTree == null) {
-         taxonomyTree = Get.taxonomyService()
-                           .getTaxonomyTree(manifold);
+      if (Platform.isFxApplicationThread()) {
+         throw new IllegalStateException("Don't call from the FxApplication thread. This call may block. ");
       }
 
+      if (taxonomyTree == null) {
+      Platform.runLater(() -> taxonomyTreeFetchProgress.setVisible(true));
+         try {
+            taxonomyTree = Get.taxonomyService().getSnapshot(manifold).get().getTaxonomyTree();
+         } catch (InterruptedException | ExecutionException ex) {
+            throw new RuntimeException(ex);
+         }
+      }
+      Platform.runLater(() -> taxonomyTreeFetchProgress.setVisible(false));
       return taxonomyTree;
    }
 
    @Override
    public ReadOnlyProperty<String> getTitle() {
       return titleProperty;
+   }
+
+   @Override
+   public Optional<Node> getTitleNode() {
+      Label titleLabel = new Label();
+
+      titleLabel.graphicProperty()
+                .bind(iconProperty);
+      titleLabel.textProperty()
+                .bind(titleProperty);
+      return Optional.of(titleLabel);
    }
 
    @Override

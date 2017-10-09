@@ -54,15 +54,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.StampedLock;
 import java.util.stream.IntStream;
+import javafx.concurrent.Task;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -95,7 +96,6 @@ import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.RoaringIntSet;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -105,15 +105,12 @@ import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.api.tree.Tree;
-import sh.isaac.api.tree.TreeNodeVisitData;
-import sh.isaac.api.tree.hashtree.HashTreeBuilder;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.logic.IsomorphicResultsBottomUp;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
-import sh.isaac.provider.taxonomy.graph.GraphCollector;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.component.sememe.version.LogicGraphVersion;
 
@@ -1424,40 +1421,13 @@ public class TaxonomyProvider
     */
    @Override
    public ConceptSequenceSet getKindOfSequenceSet(int rootId, ManifoldCoordinate tc) {
-      rootId = Get.identifierService()
-                  .getConceptSequence(rootId);
-
-      long stamp = this.stampedLock.tryOptimisticRead();
-
-      // TODO Look at performance of getTaxonomyTree...
-      Tree                     tree      = getTaxonomyTree(tc);
-      final ConceptSequenceSet kindOfSet = ConceptSequenceSet.of(rootId);
-
-      tree.depthFirstProcess(rootId,
-                             (TreeNodeVisitData t,
-                              int conceptSequence) -> {
-                                kindOfSet.add(conceptSequence);
-                             });
-
-      if (this.stampedLock.validate(stamp)) {
-         return kindOfSet;
-      }
-
-      stamp = this.stampedLock.readLock();
-
       try {
-         tree = getTaxonomyTree(tc);
-
-         final ConceptSequenceSet kindOfSet2 = ConceptSequenceSet.of(rootId);
-
-         tree.depthFirstProcess(rootId,
-                                (TreeNodeVisitData t,
-                                 int conceptSequence) -> {
-                                   kindOfSet2.add(conceptSequence);
-                                });
-         return kindOfSet2;
-      } finally {
-         this.stampedLock.unlock(stamp);
+         rootId = Get.identifierService()
+                 .getConceptSequence(rootId);
+         Task<TaxonomySnapshotService> snapshot = getSnapshot(tc);
+         return snapshot.get().getKindOfSequenceSet(rootId);
+      } catch (InterruptedException | ExecutionException ex) {
+         throw new RuntimeException(ex);
       }
    }
 
@@ -1516,38 +1486,22 @@ public class TaxonomyProvider
    }
 
    /**
-    * Gets the roots.
-    *
-    * @param tc the tc
-    * @return the roots
-    */
-   @Override
-   public IntStream getRoots(ManifoldCoordinate tc) {
-      long stamp = this.stampedLock.tryOptimisticRead();
-      Tree tree  = getTaxonomyTree(tc);
-
-      if (!this.stampedLock.validate(stamp)) {
-         stamp = this.stampedLock.readLock();
-
-         try {
-            tree = getTaxonomyTree(tc);
-         } finally {
-            this.stampedLock.unlock(stamp);
-         }
-      }
-
-      return tree.getRootSequenceStream();
-   }
-
-   /**
     * Gets the snapshot.
     *
     * @param tc the tc
     * @return the snapshot
     */
    @Override
-   public TaxonomySnapshotService getSnapshot(ManifoldCoordinate tc) {
-      return new TaxonomySnapshotProvider(tc);
+   public Task<TaxonomySnapshotService> getSnapshot(ManifoldCoordinate tc) {
+      Task<TaxonomySnapshotService> getSnapshotTask = new Task<TaxonomySnapshotService>() {
+         @Override
+         protected TaxonomySnapshotService call() throws Exception {
+            Task<Tree> treeSnapshotTask = getTaxonomyTree(tc);
+            return new TaxonomySnapshotProvider(tc, treeSnapshotTask.get());
+         }
+      };
+      Get.executor().execute(getSnapshotTask);
+      return getSnapshotTask;
    }
 
    /**
@@ -1673,41 +1627,26 @@ public class TaxonomyProvider
     * @return the taxonomy tree
     */
    @Override
-   public Tree getTaxonomyTree(ManifoldCoordinate tc) {
+   public Task<Tree> getTaxonomyTree(ManifoldCoordinate tc) {
       // TODO determine if the returned tree is thread safe for multiple accesses in parallel, if not, may need a pool of these.
-      Tree temp = this.treeCache.get(tc.hashCode());
+      final Tree temp = this.treeCache.get(tc.hashCode());
 
       {
          if (temp != null) {
-            return temp;
+            return new Task<Tree>() {
+               @Override
+               protected Tree call() throws Exception {
+                  return temp;
+               }
+            };
          }
       }
-
-      long            stamp                 = this.stampedLock.tryOptimisticRead();
-      IntStream       conceptSequenceStream = Get.identifierService()
-                                                 .getParallelConceptSequenceStream();
-      GraphCollector  collector             = new GraphCollector(this.originDestinationTaxonomyRecordMap, tc);
-      HashTreeBuilder graphBuilder          = conceptSequenceStream.collect(() -> new HashTreeBuilder(tc), collector, collector);
-
-      if (this.stampedLock.validate(stamp)) {
-         temp = graphBuilder.getSimpleDirectedGraphGraph();
+      TreeBuilderTask treeBuilderTask = new TreeBuilderTask(originDestinationTaxonomyRecordMap, tc, stampedLock);
+      treeBuilderTask.valueProperty().addListener((observable) -> {
          this.treeCache.put(tc.hashCode(), temp);
-         return temp;
-      }
-
-      stamp = this.stampedLock.readLock();
-
-      try {
-         conceptSequenceStream = Get.identifierService()
-                                    .getParallelConceptSequenceStream();
-         collector             = new GraphCollector(this.originDestinationTaxonomyRecordMap, tc);
-         graphBuilder          = conceptSequenceStream.collect(() -> new HashTreeBuilder(tc), collector, collector);
-         temp                  = graphBuilder.getSimpleDirectedGraphGraph();
-         this.treeCache.put(tc.hashCode(), temp);
-         return temp;
-      } finally {
-         this.stampedLock.unlock(stamp);
-      }
+      });
+      Get.executor().execute(treeBuilderTask);
+      return treeBuilderTask;
    }
 
    //~--- inner classes -------------------------------------------------------
@@ -1718,7 +1657,8 @@ public class TaxonomyProvider
    private class TaxonomySnapshotProvider
             implements TaxonomySnapshotService {
       /** The tc. */
-      ManifoldCoordinate tc;
+      final ManifoldCoordinate tc;
+      final Tree treeSnapshot;
 
       //~--- constructors -----------------------------------------------------
 
@@ -1727,8 +1667,9 @@ public class TaxonomyProvider
        *
        * @param tc the tc
        */
-      public TaxonomySnapshotProvider(ManifoldCoordinate tc) {
+      public TaxonomySnapshotProvider(ManifoldCoordinate tc, Tree treeSnapshot) {
          this.tc = tc;
+         this.treeSnapshot = treeSnapshot;
       }
 
       //~--- get methods ------------------------------------------------------
@@ -1821,7 +1762,7 @@ public class TaxonomyProvider
        */
       @Override
       public IntStream getRoots() {
-         return TaxonomyProvider.this.getRoots(this.tc);
+         return treeSnapshot.getRootSequenceStream();
       }
 
       /**
@@ -1853,7 +1794,7 @@ public class TaxonomyProvider
        */
       @Override
       public Tree getTaxonomyTree() {
-         return TaxonomyProvider.this.getTaxonomyTree(this.tc);
+         return this.treeSnapshot;
       }
 
       @Override

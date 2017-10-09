@@ -120,16 +120,6 @@ public class Snapshot {
    }
 
    /**
-    * Gets the taxonomy snapshot service.
-    *
-    * @return the taxonomy snapshot service
-    */
-   public TaxonomySnapshotService getTaxonomySnapshotService() {
-      return Get.taxonomyService()
-                .getSnapshot(this.manifoldCoordinate);
-   }
-
-   /**
     * Gets the visible.
     *
     * @param <V> the value type

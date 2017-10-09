@@ -21,6 +21,7 @@ import javafx.application.Platform;
 import javafx.scene.Node;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.MetaData;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.interfaces.ExplorationNode;
@@ -39,9 +40,8 @@ public class TreeViewExplorationNodeFactory
 
    @Override
    public ExplorationNode createExplorationNode(Manifold manifold, Consumer<Node> nodeConsumer) {
-      MultiParentTreeView multiParentTreeView = new MultiParentTreeView(manifold);
+      MultiParentTreeView multiParentTreeView = new MultiParentTreeView(manifold, MetaData.SOLOR_CONCEPT____SOLOR);
       nodeConsumer.accept(multiParentTreeView);
-      Platform.runLater(() -> multiParentTreeView.init());
       return multiParentTreeView;
    }
 
