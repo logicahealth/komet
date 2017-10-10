@@ -242,12 +242,12 @@ public class REL {
    public UUID getInverseRelHash(Function<String, Relationship> nameToRelMapper) {
       // reverse the direction of the rels, and the source/target
       final String relInverse  = nameToRelMapper.apply(this.rel)
-                                                .getFSNName();
+                                                .getFQName();
       String       relaInverse = null;
 
       if (this.rela != null) {
          relaInverse = nameToRelMapper.apply(this.rela)
-                                      .getFSNName();
+                                      .getFQName();
       }
 
       return UUID.nameUUIDFromBytes(new String(relInverse + relaInverse + this.targetUUID +

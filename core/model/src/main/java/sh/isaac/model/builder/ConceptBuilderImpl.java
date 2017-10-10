@@ -90,9 +90,9 @@ public class ConceptBuilderImpl
    private final List<LogicalExpression> logicalExpressions = new ArrayList<>();
 
    /**
-    * The fsn description builder.
+    * The FQN description builder.
     */
-   private transient DescriptionBuilder<?, ?> fsnDescriptionBuilder = null;
+   private transient DescriptionBuilder<?, ?> fqnDescriptionBuilder = null;
 
    /**
     * The preferred description builder.
@@ -128,16 +128,16 @@ public class ConceptBuilderImpl
    /**
     * Instantiates a new concept builder ochre impl.
     *
-    * @param conceptName - Optional - if specified, a FSN will be created using this value (but see additional
+    * @param conceptName - Optional - if specified, a FQN will be created using this value (but see additional
     * information on semanticTag)
     * @param semanticTag - Optional - if specified, conceptName must be specified, and two descriptions will be created
-    * using the following forms: FSN: - "conceptName (semanticTag)" Preferred: "conceptName" If not specified: If the
-    * specified FSN contains a semantic tag, the FSN will be created using that value. A preferred term will be created
-    * by stripping the supplied semantic tag. If the specified FSN does not contain a semantic tag, no preferred term
+    * using the following forms: FQN: - "conceptName (semanticTag)" Preferred: "conceptName" If not specified: If the
+    * specified FQN contains a semantic tag, the FQN will be created using that value. A preferred term will be created
+    * by stripping the supplied semantic tag. If the specified FQN does not contain a semantic tag, no preferred term
     * will be created.
     * @param logicalExpression - Optional
-    * @param defaultLanguageForDescriptions - Optional - used as the language for the created FSN and preferred term
-    * @param defaultDialectAssemblageForDescriptions - Optional - used as the language for the created FSN and preferred
+    * @param defaultLanguageForDescriptions - Optional - used as the language for the created FQN and preferred term
+    * @param defaultDialectAssemblageForDescriptions - Optional - used as the language for the created FQN and preferred
     * term
     * @param defaultLogicCoordinate - Optional - used during the creation of the logical expression, if either a
     * logicalExpression is passed, or if @link {@link #addLogicalExpression(LogicalExpression)} or
@@ -406,7 +406,7 @@ public class ConceptBuilderImpl
    @Override
    public DescriptionBuilder<?, ?> getFullySpecifiedDescriptionBuilder() {
       synchronized (this) {
-         if ((this.fsnDescriptionBuilder == null) && StringUtils.isNotBlank(this.conceptName)) {
+         if ((this.fqnDescriptionBuilder == null) && StringUtils.isNotBlank(this.conceptName)) {
             final StringBuilder descriptionTextBuilder = new StringBuilder();
 
             descriptionTextBuilder.append(this.conceptName);
@@ -428,16 +428,16 @@ public class ConceptBuilderImpl
                throw new IllegalStateException("language and dialect are required if a concept name is provided");
             }
 
-            this.fsnDescriptionBuilder = LookupService.getService(DescriptionBuilderService.class)
+            this.fqnDescriptionBuilder = LookupService.getService(DescriptionBuilderService.class)
                     .getDescriptionBuilder(descriptionTextBuilder.toString(),
                             this,
-                            TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE,
+                            TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE,
                             this.defaultLanguageForDescriptions)
                     .addPreferredInDialectAssemblage(this.defaultDialectAssemblageForDescriptions);
          }
       }
 
-      return this.fsnDescriptionBuilder;
+      return this.fqnDescriptionBuilder;
    }
 
    /**

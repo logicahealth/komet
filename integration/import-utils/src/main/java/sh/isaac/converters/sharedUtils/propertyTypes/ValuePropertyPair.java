@@ -113,8 +113,8 @@ public class ValuePropertyPair
          result = this.property.getPropertySubType() - o.property.getPropertySubType();
 
          if (result == 0) {
-            result = this.property.getSourcePropertyNameFSN()
-                                   .compareTo(o.property.getSourcePropertyNameFSN());
+            result = this.property.getSourcePropertyNameFQN()
+                                   .compareTo(o.property.getSourcePropertyNameFQN());
 
             if (result == 0) {
                result = this.value.compareTo(o.value);

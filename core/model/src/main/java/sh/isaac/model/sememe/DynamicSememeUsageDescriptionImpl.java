@@ -160,7 +160,7 @@ public class DynamicSememeUsageDescriptionImpl
             }
 
             if (ds.getDescriptionTypeConceptSequence() ==
-                  TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence()) {
+                  TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getConceptSequence()) {
                this.name = ds.getText();
             }
 

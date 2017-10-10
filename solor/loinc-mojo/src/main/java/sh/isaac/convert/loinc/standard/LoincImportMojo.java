@@ -456,7 +456,7 @@ public class LoincImportMojo
              false,
              null,
              State.ACTIVE);
-         ConsoleUtil.println("Root concept FSN is 'LOINC' and the UUID is " + rootConcept.getPrimordialUuid());
+         ConsoleUtil.println("Root concept FQN is 'LOINC' and the UUID is " + rootConcept.getPrimordialUuid());
          this.concepts_.put(rootConcept.getPrimordialUuid(), rootConcept);
 
          // Build up the Class metadata
@@ -817,9 +817,9 @@ public class LoincImportMojo
             final Property p = pt.getProperty(this.fieldMapInverse.get(fieldIndex));
 
             if (pt instanceof PT_Annotations) {
-               if ((p.getSourcePropertyNameFSN().equals(
-                     "COMMON_TEST_RANK") || p.getSourcePropertyNameFSN().equals(
-                         "COMMON_ORDER_RANK") || p.getSourcePropertyNameFSN().equals("COMMON_SI_TEST_RANK")) &&
+               if ((p.getSourcePropertyNameFQN().equals(
+                     "COMMON_TEST_RANK") || p.getSourcePropertyNameFQN().equals(
+                         "COMMON_ORDER_RANK") || p.getSourcePropertyNameFQN().equals("COMMON_SI_TEST_RANK")) &&
                      fields[fieldIndex].equals("0")) {
                   continue;  // Skip attributes of these types when the value is 0
                }
@@ -1037,7 +1037,7 @@ public class LoincImportMojo
                                            codeText,
                                            this.propertyToPropertyType_.get("CODE_TEXT").getProperty("CODE_TEXT"));
 
-         this.importUtil.addDescriptions(concept, Arrays.asList(vpp));  // This will get added as FSN
+         this.importUtil.addDescriptions(concept, Arrays.asList(vpp));  // This will get added as FULLY_QUALIFIED_NAME
 
          HashSet<UUID> parents = this.multiaxialPathsToRoot.get(concept.getPrimordialUuid());
 

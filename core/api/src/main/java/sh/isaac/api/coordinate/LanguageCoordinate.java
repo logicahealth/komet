@@ -80,15 +80,15 @@ public interface LanguageCoordinate extends Coordinate {
    int[] getDialectAssemblagePreferenceList();
 
    /**
-    * Convenience method - returns true if FSN is at the top of the latestDescription list.
+    * Convenience method - returns true if FQN is at the top of the latestDescription list.
     *
-    * @return true, if FSN preferred
+    * @return true, if FQN preferred
     */
-   public default boolean isFSNPreferred() {
+   public default boolean isFQNPreferred() {
       for (final int descType : getDescriptionTypePreferenceList()) {
          if (descType
                  == Get.identifierService().getConceptSequenceForUuids(
-                         TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getPrimordialUuid())) {
+                         TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getPrimordialUuid())) {
             return true;
          }
 

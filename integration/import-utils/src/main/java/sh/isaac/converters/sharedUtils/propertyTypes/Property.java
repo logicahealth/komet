@@ -72,7 +72,7 @@ public class Property {
 
    /** The property sub type. */
    private int propertySubType =
-      Integer.MAX_VALUE;  // Used for subtypes of descriptions, at the moment - FSN, synonym, etc.
+      Integer.MAX_VALUE;  // Used for subtypes of descriptions, at the moment - FQN, synonym, etc.
 
    /** The property UUID. */
    private UUID propertyUUID = null;
@@ -83,8 +83,8 @@ public class Property {
    /** The data columns for dynamic refex. */
    private DynamicSememeColumnInfo[] dataColumnsForDynamicRefex = null;
 
-   /** The source property name FS N. */
-   private final String sourcePropertyNameFSN;
+   /** The source property name Fully Qualified Name. */
+   private final String sourcePropertyNameFQN;
 
    /** The source property alt name. */
    private final String sourcePropertyAltName;
@@ -114,26 +114,26 @@ public class Property {
     * Instantiates a new property.
     *
     * @param owner the owner
-    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyNameFQN the source property name FQN
     */
-   public Property(PropertyType owner, String sourcePropertyNameFSN) {
-      this(owner, sourcePropertyNameFSN, null, null, false, Integer.MAX_VALUE, null);
+   public Property(PropertyType owner, String sourcePropertyNameFQN) {
+      this(owner, sourcePropertyNameFQN, null, null, false, Integer.MAX_VALUE, null);
    }
 
    /**
     * owner must be set via the set method after using this constructor!.
     *
-    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyNameFQN the source property name FQN
     * @param sourcePropertyAltName the source property alt name
     * @param sourcePropertyDefinition the source property definition
     * @param wbRelType the wb rel type
     */
-   public Property(String sourcePropertyNameFSN,
+   public Property(String sourcePropertyNameFQN,
                    String sourcePropertyAltName,
                    String sourcePropertyDefinition,
                    UUID wbRelType) {
       this(null,
-           sourcePropertyNameFSN,
+           sourcePropertyNameFQN,
            sourcePropertyAltName,
            sourcePropertyDefinition,
            false,
@@ -146,7 +146,7 @@ public class Property {
     * Instantiates a new property.
     *
     * @param owner the owner
-    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyNameFQN the source property name FQN
     * @param sourcePropertyAltName the source property alt name
     * @param sourcePropertyDefinition the source property definition
     * @param disabled the disabled
@@ -154,14 +154,14 @@ public class Property {
     * @param columnInforForDynamicRefex the column infor for dynamic refex
     */
    public Property(PropertyType owner,
-                   String sourcePropertyNameFSN,
+                   String sourcePropertyNameFQN,
                    String sourcePropertyAltName,
                    String sourcePropertyDefinition,
                    boolean disabled,
                    int propertySubType,
                    DynamicSememeColumnInfo[] columnInforForDynamicRefex) {
       this.owner                    = owner;
-      this.sourcePropertyNameFSN    = sourcePropertyNameFSN;
+      this.sourcePropertyNameFQN    = sourcePropertyNameFQN;
       this.sourcePropertyAltName    = sourcePropertyAltName;
       this.sourcePropertyDefinition = sourcePropertyDefinition;
       this.isDisabled               = disabled;
@@ -307,12 +307,12 @@ public class Property {
    }
 
    /**
-    * Gets the source property name FSN.
+    * Gets the source property name Fully Qualified Name.
     *
-    * @return the source property name FSN
+    * @return the source property name FQN
     */
-   public String getSourcePropertyNameFSN() {
-      return this.sourcePropertyNameFSN;
+   public String getSourcePropertyNameFQN() {
+      return this.sourcePropertyNameFQN;
    }
 
    /**
@@ -322,7 +322,7 @@ public class Property {
     */
    public UUID getUUID() {
       if (this.propertyUUID == null) {
-         this.propertyUUID = this.owner.getPropertyUUID(this.sourcePropertyNameFSN);
+         this.propertyUUID = this.owner.getPropertyUUID(this.sourcePropertyNameFQN);
       }
 
       return this.propertyUUID;

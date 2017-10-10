@@ -371,8 +371,8 @@ public abstract class BadgedVersionPanel
       if (isLatestPanel()) {
          int descriptionType = description.getDescriptionTypeConceptSequence();
 
-         if (descriptionType == TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence()) {
-            componentType.setText("FSN");
+         if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getConceptSequence()) {
+            componentType.setText("FQN");
          } else if (descriptionType == TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence()) {
             componentType.setText("SYN");
          } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {

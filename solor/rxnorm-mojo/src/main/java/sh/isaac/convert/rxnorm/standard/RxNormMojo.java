@@ -175,7 +175,7 @@ public class RxNormMojo
     * The map to isa.
     */
    private final HashMap<String, Boolean> mapToIsa =
-      new HashMap<>();  // FSN, true or false - true for rel only, false for a rel and association representation
+      new HashMap<>();  // FULLY_QUALIFIED_NAME, true or false - true for rel only, false for a rel and association representation
 
    /**
     * The sct id to UUID.
@@ -331,7 +331,7 @@ public class RxNormMojo
          super.execute();
          init();
          this.allCUIRefsetConcept = ComponentReference.fromConcept(
-             this.ptRefsets.getProperty(this.ptRefsets.CUI_CONCEPTS.getSourcePropertyNameFSN())
+             this.ptRefsets.getProperty(this.ptRefsets.CUI_CONCEPTS.getSourcePropertyNameFQN())
                            .getUUID());
          this.cpcRefsetConcept = ComponentReference.fromConcept(
              this.ptRefsets.getProperty(cpcRefsetConceptKey)
@@ -1312,18 +1312,18 @@ public class RxNormMojo
                   // lookup the other columns for the row with this newly added RSAB terminology
                   getSABMetadata.setString(
                       1,
-                      (p.getSourcePropertyAltName() == null) ? p.getSourcePropertyNameFSN()
+                      (p.getSourcePropertyAltName() == null) ? p.getSourcePropertyNameFQN()
                         : p.getSourcePropertyAltName());
                   getSABMetadata.setString(
                       2,
-                      (p.getSourcePropertyAltName() == null) ? p.getSourcePropertyNameFSN()
+                      (p.getSourcePropertyAltName() == null) ? p.getSourcePropertyNameFQN()
                         : p.getSourcePropertyAltName());
 
                   try (ResultSet rs2 = getSABMetadata.executeQuery()) {
                      if (rs2.next()) {
                         for (final Property metadataProperty: sourceMetadata.getProperties()) {
                            final String columnName = (metadataProperty.getSourcePropertyAltName() == null)
-                                                     ? metadataProperty.getSourcePropertyNameFSN()
+                                                     ? metadataProperty.getSourcePropertyNameFQN()
                                                      : metadataProperty.getSourcePropertyAltName();
                            final String columnValue = rs2.getString(columnName);
 
@@ -1618,28 +1618,28 @@ public class RxNormMojo
       for (final Relationship r: sortedRels) {
          r.setSwap(this.db.getConnection(), this.tablePrefix);
 
-         if (!actuallyUsedRelsOrRelas.contains(r.getFSNName()) &&
-               !actuallyUsedRelsOrRelas.contains(r.getInverseFSNName())) {
+         if (!actuallyUsedRelsOrRelas.contains(r.getFQName()) &&
+               !actuallyUsedRelsOrRelas.contains(r.getInverseFQName())) {
             continue;
          }
 
          Property      p          = null;
-         final Boolean relTypeMap = this.mapToIsa.get(r.getFSNName());
+         final Boolean relTypeMap = this.mapToIsa.get(r.getFQName());
 
          if (relTypeMap != null)                                                                       // true or false, make it a rel
          {
-            p = new Property(((r.getAltName() == null) ? r.getFSNName()
+            p = new Property(((r.getAltName() == null) ? r.getFQName()
                   : r.getAltName()), ((r.getAltName() == null) ? null
-                  : r.getFSNName()), r.getDescription(), MetaData.IS_A____SOLOR.getPrimordialUuid());  // map to isA
+                  : r.getFQName()), r.getDescription(), MetaData.IS_A____SOLOR.getPrimordialUuid());  // map to isA
             this.ptRelationships.addProperty(
                 p);  // conveniently, the only thing we will treat as relationships are things mapped to isa.
          }
 
          if ((relTypeMap == null) || (relTypeMap == false))  // don't make it an association if set to true
          {
-            p = new PropertyAssociation(null, ((r.getAltName() == null) ? r.getFSNName()
+            p = new PropertyAssociation(null, ((r.getAltName() == null) ? r.getFQName()
                   : r.getAltName()), ((r.getAltName() == null) ? null
-                  : r.getFSNName()), ((r.getInverseAltName() == null) ? r.getInverseFSNName()
+                  : r.getFQName()), ((r.getInverseAltName() == null) ? r.getInverseFQName()
                   : r.getInverseAltName()), r.getDescription(), false);
             this.ptAssociations.addProperty(p);
          }
@@ -1647,14 +1647,13 @@ public class RxNormMojo
          final ComponentReference cr = ComponentReference.fromConcept(p.getUUID());
 
          // associations already handle inverse names
-         if (!(p instanceof PropertyAssociation) && (r.getInverseFSNName() != null)) {
-            this.importUtil.addDescription(
-                cr,
-                ((r.getInverseAltName() == null) ? r.getInverseFSNName()
+         if (!(p instanceof PropertyAssociation) && (r.getInverseFQName() != null)) {
+            this.importUtil.addDescription(cr,
+                ((r.getInverseAltName() == null) ? r.getInverseFQName()
                   : r.getInverseAltName()),
-                DescriptionType.FSN,
+                DescriptionType.FULLY_QUALIFIED_NAME,
                 false,
-                this.ptDescriptions.getProperty("Inverse FSN")
+                this.ptDescriptions.getProperty("Inverse FQN")
                                    .getUUID(),
                 State.ACTIVE);
          }
@@ -1664,16 +1663,16 @@ public class RxNormMojo
             final UUID descUUID = ConverterUUID.createNamespaceUUIDFromStrings(
                                       cr.getPrimordialUuid()
                                         .toString(),
-                                      r.getInverseFSNName(),
+                                      r.getInverseFQName(),
                                       DescriptionType.SYNONYM.name(),
                                       "false",
                                       "inverse");
 
-            // Yes, this looks funny, no its not a copy/paste error.  We swap the FSN and alt names for... it a long story.  42.
+            // Yes, this looks funny, no its not a copy/paste error.  We swap the FULLY_QUALIFIED_NAME and alt names for... it a long story.  42.
             this.importUtil.addDescription(
                 cr,
                 descUUID,
-                r.getInverseFSNName(),
+                r.getInverseFQName(),
                 DescriptionType.SYNONYM,
                 false,
                 null,
@@ -1703,8 +1702,8 @@ public class RxNormMojo
             this.importUtil.addUUIDAnnotation(
                 cr,
                 (this.mapToIsa.containsKey(
-                    generalRel.getFSNName()) ? this.ptRelationships.getProperty(generalRel.getFSNName())
-                                             : this.ptAssociations.getProperty(generalRel.getFSNName())).getUUID(),
+                    generalRel.getFQName()) ? this.ptRelationships.getProperty(generalRel.getFQName())
+                                             : this.ptAssociations.getProperty(generalRel.getFQName())).getUUID(),
                 this.ptRelationshipMetadata.getProperty("General Rel Type")
                                            .getUUID());
          }
@@ -1715,8 +1714,8 @@ public class RxNormMojo
             this.importUtil.addUUIDAnnotation(
                 cr,
                 (this.mapToIsa.containsKey(
-                    generalRel.getFSNName()) ? this.ptRelationships.getProperty(generalRel.getFSNName())
-                                             : this.ptAssociations.getProperty(generalRel.getFSNName())).getUUID(),
+                    generalRel.getFQName()) ? this.ptRelationships.getProperty(generalRel.getFQName())
+                                             : this.ptAssociations.getProperty(generalRel.getFQName())).getUUID(),
                 this.ptRelationshipMetadata.getProperty("Inverse General Rel Type")
                                            .getUUID());
          }
@@ -1755,13 +1754,13 @@ public class RxNormMojo
    /**
     * Make description type.
     *
-    * @param fsnName the fsn name
+    * @param fqName the fully qualified name
     * @param altName the alt name
     * @param description the description
     * @param tty_classes the tty classes
     * @return the property
     */
-   private Property makeDescriptionType(String fsnName,
+   private Property makeDescriptionType(String fqName,
          String altName,
          String description,
          final Set<String> tty_classes) {
@@ -1778,11 +1777,11 @@ public class RxNormMojo
       int descriptionTypeRanking;
 
       // Note - ValuePropertyPairWithSAB overrides the sorting based on these values to kick RXNORM sabs to the top, where
-      // they will get used as FSN.
-      if (fsnName.equals("FN") && tty_classes.contains("preferred")) {
-         descriptionTypeRanking = BPT_Descriptions.FSN;
-      } else if (fsnName.equals("FN")) {
-         descriptionTypeRanking = BPT_Descriptions.FSN + 1;
+      // they will get used as FULLY_QUALIFIED_NAME.
+      if (fqName.equals("FN") && tty_classes.contains("preferred")) {
+         descriptionTypeRanking = BPT_Descriptions.FULLY_QUALIFIED_NAME;
+      } else if (fqName.equals("FN")) {
+         descriptionTypeRanking = BPT_Descriptions.FULLY_QUALIFIED_NAME + 1;
       }  // preferred gets applied with others as well, in some cases. Don't want 'preferred' 'obsolete' at the top.
 
       // Just preferred, and we make it the top synonym.
@@ -1862,7 +1861,7 @@ public class RxNormMojo
 
          default:
             preferredSubRank = 20;
-            ConsoleUtil.printErrorln("Unranked preferred TTY type! " + fsnName + " " + altName);
+            ConsoleUtil.printErrorln("Unranked preferred TTY type! " + fqName + " " + altName);
             break;
          }
 
@@ -1889,7 +1888,7 @@ public class RxNormMojo
          throw new RuntimeException("Unexpected class type " + Arrays.toString(tty_classes.toArray()));
       }
 
-      return new Property(null, fsnName, altName, description, false, descriptionTypeRanking, null);
+      return new Property(null, fqName, altName, description, false, descriptionTypeRanking, null);
    }
 
    /**
@@ -2068,7 +2067,7 @@ public class RxNormMojo
                 ConverterUUID.createNamespaceUUIDFromStrings(cuiConcept.getPrimordialUuid()
                       .toString(), atom.rxaui));
 
-            // used for sorting description to figure out what to use for FSN
+            // used for sorting description to figure out what to use for FULLY_QUALIFIED_NAME
             cuiDescriptions.add(desc);
             desc.addStringAttribute(this.ptUMLSAttributes.getProperty("RXAUI")
                   .getUUID(), atom.rxaui);
@@ -2129,7 +2128,7 @@ public class RxNormMojo
                             (vpp) -> {
                                items.add(
                                    vpp.getProperty()
-                                      .getSourcePropertyNameFSN() + " " + vpp.getProperty().getPropertySubType());
+                                      .getSourcePropertyNameFQN() + " " + vpp.getProperty().getPropertySubType());
                             });  // Numbers come from the rankings down below in makeDescriptionType(...)
 
          final HashSet<String> ranksLookedAt = new HashSet<>();
@@ -2487,12 +2486,12 @@ public class RxNormMojo
 
       final Relationship r = this.nameToRel.get(eitherRelType);
 
-      if (r.getFSNName()
+      if (r.getFQName()
            .equals(eitherRelType)) {
-         return r.getInverseFSNName();
-      } else if (r.getInverseFSNName()
+         return r.getInverseFQName();
+      } else if (r.getInverseFQName()
                   .equals(eitherRelType)) {
-         return r.getFSNName();
+         return r.getFQName();
       } else {
          throw new RuntimeException("gak");
       }
@@ -2590,11 +2589,11 @@ public class RxNormMojo
    private boolean isRelPrimary(String relName, String relaName) {
       if (relaName != null) {
          return this.nameToRel.get(relaName)
-                              .getFSNName()
+                              .getFQName()
                               .equals(relaName);
       } else {
          return this.nameToRel.get(relName)
-                              .getFSNName()
+                              .getFQName()
                               .equals(relName);
       }
    }

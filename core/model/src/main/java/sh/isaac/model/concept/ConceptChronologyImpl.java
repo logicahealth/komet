@@ -321,7 +321,7 @@ public class ConceptChronologyImpl
     * @return the fully specified description
     */
    @Override
-   public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate,
+   public LatestVersion<DescriptionVersion> getFullyQualifiedNameDescription(LanguageCoordinate languageCoordinate,
          StampCoordinate stampCoordinate) {
       return languageCoordinate.getFullySpecifiedDescription(getConceptDescriptionList(), stampCoordinate);
    }

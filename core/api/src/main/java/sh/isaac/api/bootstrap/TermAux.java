@@ -148,8 +148,8 @@ public class TermAux {
                                                                                      "8bfba944-3965-3946-9bcb-1e80a5da63a2"));
 
    /** ConceptProxy for: "Fully specified description type. IsaacMetadataAuxiliary has "fully specified name", TermAux has "Fully specified name (core metadata concept)" */
-   public static ConceptSpecification FULLY_SPECIFIED_DESCRIPTION_TYPE =
-      new ConceptProxy("Fully specified name (core metadata concept)",
+   public static ConceptSpecification FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE =
+      new ConceptProxy("Fully qualified name (core metadata concept)",
                        UUID.fromString("00791270-77c9-32b6-b34f-d932569bd2bf"));
 
    /** ConceptProxy for: "Definition description type". IsaacMetadataAuxiliary has "definition description type", TermAux has "Definition (core metadata concept)" */
@@ -375,7 +375,7 @@ public class TermAux {
    public static ConceptSpecification DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE = new ConceptProxy("Description regex match (query clause)", "regex match", UUID.fromString("d9c1ff9e-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification CONCEPT_FOR_COMPONENT_QUERY_CLAUSE = new ConceptProxy("Concept for component (query clause)", "concept for component", UUID.fromString("d9c20070-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE = new ConceptProxy("Concept is descendent of (query clause)", "descendent of", UUID.fromString("d9c20142-579e-11e7-907b-a6006ad3dba0"));
-   public static ConceptSpecification FULLY_SPECIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Fully specified name for concept (query clause)", "fully specified name for concept", UUID.fromString("f8eb8a8c-57aa-11e7-907b-a6006ad3dba0"));
+   public static ConceptSpecification FULLY_QUALIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Fully specified name for concept (query clause)", "fully specified name for concept", UUID.fromString("f8eb8a8c-57aa-11e7-907b-a6006ad3dba0"));
    
    public static ConceptSpecification ASSEMBLAGE_CONTAINS_STRING_QUERY_CLAUSE = new ConceptProxy("Assemblage contains string (query clause)", "assemblage contains string", UUID.fromString("d9c207c8-579e-11e7-907b-a6006ad3dba0"));
    public static ConceptSpecification ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE = new ConceptProxy("Assemblage contains concept (query clause)", "assemblage contains concept", UUID.fromString("d9c208a4-579e-11e7-907b-a6006ad3dba0"));

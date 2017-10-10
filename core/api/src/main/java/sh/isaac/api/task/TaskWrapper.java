@@ -37,69 +37,65 @@
 
 
 
-package sh.isaac.api.constants;
+package sh.isaac.api.task;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.function.Function;
+import javafx.application.Platform;
+
+//~--- non-JDK imports --------------------------------------------------------
+
+
+import javafx.concurrent.Task;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class MetadataConceptConstantGroup.
+ *
+ * @author kec
+ * @param <R> The type of object returned by this wrapper
+ * @param <T> The type of object returned by the wrapped task
  */
-public abstract class MetadataConceptConstantGroup
-        extends MetadataConceptConstant {
-   /** The children. */
-   private final List<MetadataConceptConstant> children = new ArrayList<>();
+public class TaskWrapper<R, T> extends Task<R> {
+   final Task<T> wrappedTask;
+   final Function<T,R> adapter;
 
    //~--- constructors --------------------------------------------------------
 
-   /**
-    * Instantiates a new metadata concept constant group.
-    *
-    * @param fqn the fully qualified name
-    * @param uuid the uuid
-    */
-   protected MetadataConceptConstantGroup(String fqn, UUID uuid) {
-      super(fqn, uuid);
+   public TaskWrapper(Task<T> wrappedTask, Function<T,R> adapter, String title) {
+      this.wrappedTask = wrappedTask;
+      this.adapter = adapter;
+      
+      if (Platform.isFxApplicationThread()) {
+         linkProperties(title);
+      } else {
+         Platform.runLater(() -> this.linkProperties(title));
+      }
+      
    }
-
-   /**
-    * Instantiates a new metadata concept constant group.
-    *
-    * @param fqn the fully qualified name
-    * @param uuid the uuid
-    * @param definition the definition
-    */
-   protected MetadataConceptConstantGroup(String fqn, UUID uuid, String definition) {
-      super(fqn, uuid, definition);
-   }
-
    //~--- methods -------------------------------------------------------------
 
-   /**
-    * Adds the child.
-    *
-    * @param child the child
-    */
-   protected void addChild(MetadataConceptConstant child) {
-      this.children.add(child);
-      child.setParent(this);
+   private void linkProperties(String title) {
+      updateTitle(title);
+      // Wire up all the properties so they use this wrapped task
+      this.wrappedTask.messageProperty().addListener((observable, oldValue, newValue) -> {
+         this.updateMessage​(newValue);
+      });
+      this.updateMessage(this.wrappedTask.getMessage());
+      this.wrappedTask.progressProperty().addListener((observable, oldValue, newValue) -> {
+         this.updateProgress(newValue.doubleValue(), this.wrappedTask.getTotalWork());
+      });
+      this.wrappedTask.totalWorkProperty().addListener((observable, oldValue, newValue) -> {
+         this.updateProgress(this.wrappedTask.getProgress(), newValue.doubleValue());
+      });
+      this.updateProgress(this.wrappedTask.getProgress(), this.wrappedTask.getTotalWork());
    }
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the children.
-    *
-    * @return The constants that should be created under this constant in the
-    * taxonomy (if any). Will not return null.
-    */
-   public List<MetadataConceptConstant> getChildren() {
-      return this.children;
+   @Override
+   protected R call() throws Exception {
+      return adapter.apply(wrappedTask.get());
    }
+
 }
 

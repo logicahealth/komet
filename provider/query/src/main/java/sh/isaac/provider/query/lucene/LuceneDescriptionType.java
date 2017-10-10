@@ -45,8 +45,8 @@ package sh.isaac.provider.query.lucene;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public enum LuceneDescriptionType {
-   /** The fsn. */
-   FSN,
+   /** The fully qualified name. */
+   FULLY_QUALIFIED_NAME,
 
    /** The synonym. */
    SYNONYM,

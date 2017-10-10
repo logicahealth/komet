@@ -79,7 +79,7 @@ import sh.isaac.api.query.clauses.DescriptionActiveLuceneMatch;
 import sh.isaac.api.query.clauses.DescriptionActiveRegexMatch;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.api.query.clauses.DescriptionRegexMatch;
-import sh.isaac.api.query.clauses.FullySpecifiedNameForConcept;
+import sh.isaac.api.query.clauses.FullyQualifiedNameForConcept;
 import sh.isaac.api.query.clauses.PreferredNameForConcept;
 import sh.isaac.api.query.clauses.AssemblageContainsConcept;
 import sh.isaac.api.query.clauses.AssemblageContainsKindOfConcept;
@@ -518,8 +518,8 @@ public abstract class Query {
     * @param clause the clause
     * @return the fully specified name for concept
     */
-   protected FullySpecifiedNameForConcept FullySpecifiedNameForConcept(Clause clause) {
-      return new FullySpecifiedNameForConcept(this, clause);
+   protected FullyQualifiedNameForConcept FullySpecifiedNameForConcept(Clause clause) {
+      return new FullyQualifiedNameForConcept(this, clause);
    }
 
    /**

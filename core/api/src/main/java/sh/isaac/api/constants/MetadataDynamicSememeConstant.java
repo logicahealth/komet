@@ -73,56 +73,56 @@ public class MetadataDynamicSememeConstant
    /**
     * Instantiates a new metadata dynamic sememe constant.
     *
-    * @param fsn the fsn
+    * @param fqn the fully qualified name
     * @param uuid - optional - the UUID to assign to this sememe
     * @param sememeDescription - describe the purpose of the use of this dynamic sememe
     * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
     */
-   public MetadataDynamicSememeConstant(String fsn,
+   public MetadataDynamicSememeConstant(String fqn,
          UUID uuid,
          String sememeDescription,
          DynamicSememeColumnInfo[] columns) {
-      this(fsn, uuid, sememeDescription, columns, null, null, null, null);
+      this(fqn, uuid, sememeDescription, columns, null, null, null, null);
    }
 
    /**
     * Instantiates a new metadata dynamic sememe constant.
     *
-    * @param fsn the fsn
+    * @param fqn the fully qualified name
     * @param uuid - optional - the UUID to assign to this sememe
     * @param sememeDescription - describe the purpose of the use of this dynamic sememe
     * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
     * @param synonyms - optional - extra synonyms
     */
-   public MetadataDynamicSememeConstant(String fsn,
+   public MetadataDynamicSememeConstant(String fqn,
          UUID uuid,
          String sememeDescription,
          DynamicSememeColumnInfo[] columns,
          String[] synonyms) {
-      this(fsn, uuid, sememeDescription, columns, synonyms, null, null, null);
+      this(fqn, uuid, sememeDescription, columns, synonyms, null, null, null);
    }
 
    /**
     * Instantiates a new metadata dynamic sememe constant.
     *
-    * @param fsn the fsn
+    * @param fqn the fully qualified name
     * @param uuid - optional - the UUID to assign to this sememe
     * @param alternateName - optional - the non-preferred synonym to add to this concept
     * @param sememeDescription - describe the purpose of the use of this dynamic sememe
     * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
     */
-   public MetadataDynamicSememeConstant(String fsn,
+   public MetadataDynamicSememeConstant(String fqn,
          UUID uuid,
          String alternateName,
          String sememeDescription,
          DynamicSememeColumnInfo[] columns) {
-      this(fsn, uuid, sememeDescription, columns, new String[] { alternateName }, null, null, null);
+      this(fqn, uuid, sememeDescription, columns, new String[] { alternateName }, null, null, null);
    }
 
    /**
     * Instantiates a new metadata dynamic sememe constant.
     *
-    * @param fsn the fsn
+    * @param fqn the Fully qualified name
     * @param uuid - optional - the UUID to assign to this sememe
     * @param sememeDescription - describe the purpose of the use of this dynamic sememe
     * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
@@ -132,20 +132,20 @@ public class MetadataDynamicSememeConstant
     * be performed.  The Integer array should be something like "new Integer[]{0, 2, 3}" - where the 0 indexed values correspond to the columns that
     * should also be indexed.
     */
-   public MetadataDynamicSememeConstant(String fsn,
+   public MetadataDynamicSememeConstant(String fqn,
          UUID uuid,
          String sememeDescription,
          DynamicSememeColumnInfo[] columns,
          String[] synonyms,
          String[] definitions,
          Integer[] requiresIndex) {
-      this(fsn, uuid, sememeDescription, columns, synonyms, definitions, null, null);
+      this(fqn, uuid, sememeDescription, columns, synonyms, definitions, null, null);
    }
 
    /**
     * Instantiates a new metadata dynamic sememe constant.
     *
-    * @param fsn the fsn
+    * @param fqn the fully qualified name
     * @param uuid - optional - the UUID to assign to this sememe
     * @param sememeDescription - describe the purpose of the use of this dynamic sememe
     * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
@@ -153,9 +153,9 @@ public class MetadataDynamicSememeConstant
     * @param definitions - optional - extra definitions
     * @param referencedComponentRestriction - optional - used to limit the type of nid that can be used as the referenced component in an instance
     * of this sememe.
-    * @param refererenceComponentSubRestriction the refererence component sub restriction
+    * @param refererenceComponentSubRestriction the reference component sub restriction
     */
-   public MetadataDynamicSememeConstant(String fsn,
+   public MetadataDynamicSememeConstant(String fqn,
          UUID uuid,
          String sememeDescription,
          DynamicSememeColumnInfo[] columns,
@@ -163,7 +163,7 @@ public class MetadataDynamicSememeConstant
          String[] definitions,
          ObjectChronologyType referencedComponentRestriction,
          VersionType refererenceComponentSubRestriction) {
-      super(fsn, uuid);
+      super(fqn, uuid);
 
       if (definitions != null) {
          for (final String s: definitions) {

@@ -85,7 +85,7 @@ import sh.isaac.api.query.clauses.DescriptionActiveLuceneMatch;
 import sh.isaac.api.query.clauses.DescriptionActiveRegexMatch;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.api.query.clauses.DescriptionRegexMatch;
-import sh.isaac.api.query.clauses.FullySpecifiedNameForConcept;
+import sh.isaac.api.query.clauses.FullyQualifiedNameForConcept;
 import sh.isaac.api.query.clauses.PreferredNameForConcept;
 import sh.isaac.api.query.clauses.AssemblageContainsConcept;
 import sh.isaac.api.query.clauses.AssemblageContainsKindOfConcept;
@@ -155,7 +155,7 @@ public class JaxbForQuery {
                DescriptionActiveRegexMatch.class,
                DescriptionLuceneMatch.class,
                DescriptionRegexMatch.class,
-               FullySpecifiedNameForConcept.class,
+               FullyQualifiedNameForConcept.class,
                PreferredNameForConcept.class,
                AssemblageContainsConcept.class,
                AssemblageContainsKindOfConcept.class,

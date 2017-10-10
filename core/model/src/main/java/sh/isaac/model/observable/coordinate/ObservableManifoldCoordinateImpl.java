@@ -41,6 +41,7 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.Objects;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -289,6 +290,20 @@ public class ObservableManifoldCoordinateImpl
    @Override
    public PremiseType getTaxonomyType() {
       return premiseTypeProperty().get();
+   }
+   /**
+    * Hash code.
+    *
+    * @return the int
+    */
+   @Override
+   public int hashCode() {
+      int hash = 3;
+
+      hash = 53 * hash + Objects.hashCode(this.getTaxonomyType());
+      hash = 53 * hash + Objects.hashCode(this.getStampCoordinate());
+      hash = 53 * hash + Objects.hashCode(this.getLanguageCoordinate());
+      return hash;
    }
 
    /**

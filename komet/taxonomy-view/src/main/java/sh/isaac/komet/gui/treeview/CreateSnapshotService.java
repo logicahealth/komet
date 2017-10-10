@@ -37,35 +37,56 @@
 
 
 
-package sh.isaac.converters.sharedUtils.propertyTypes;
+package sh.isaac.komet.gui.treeview;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+
+import sh.isaac.api.Get;
+import sh.isaac.api.TaxonomySnapshotService;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.task.TaskWrapper;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * Fields to treat as annotations (attributes).
  *
- * @author Daniel Armbrust
+ * @author kec
  */
-public class BPT_Annotations
-        extends PropertyType {
-   /**
-    * Instantiates a new BP T annotations.
-    */
-   public BPT_Annotations() {
-      super("Attribute Types", true, DynamicSememeDataType.STRING);
+public class CreateSnapshotService
+        extends Service<TaxonomySnapshotService> {
+   ManifoldCoordinate manifoldCoordinate;
+
+   //~--- constructors --------------------------------------------------------
+
+   public CreateSnapshotService(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
    }
 
-   /**
-    * Instantiates a new BP T annotations.
-    *
-    * @param fqnPrefix the fqn prefix
-    */
-   public BPT_Annotations(String fqnPrefix) {
-      super(fqnPrefix + " Attribute Types", true, DynamicSememeDataType.STRING);
+   //~--- methods -------------------------------------------------------------
+
+   @Override
+   protected Task<TaxonomySnapshotService> createTask() {
+      return new TaskWrapper(
+          Get.taxonomyService().getSnapshot(manifoldCoordinate),
+              (t) -> {
+                 return t;
+              },
+          "Snapshot service generating taxonomy");
+   }
+
+   //~--- get methods ---------------------------------------------------------
+
+   public ManifoldCoordinate getManifoldCoordinate() {
+      return manifoldCoordinate;
+   }
+
+   //~--- set methods ---------------------------------------------------------
+
+   public void setManifoldCoordinate(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
    }
 }
 

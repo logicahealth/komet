@@ -125,7 +125,7 @@ public interface ConceptChronology
     * @param stampCoordinate the stamp coordinate
     * @return the fully specified description
     */
-   LatestVersion<? extends DescriptionVersion> getFullySpecifiedDescription(LanguageCoordinate languageCoordinate,
+   LatestVersion<? extends DescriptionVersion> getFullyQualifiedNameDescription(LanguageCoordinate languageCoordinate,
          StampCoordinate stampCoordinate);
    
    /**
@@ -136,7 +136,7 @@ public interface ConceptChronology
     * @return the fully specified description
     */
    default LatestVersion<? extends DescriptionVersion> getFullySpecifiedDescription(ManifoldCoordinate coordinate) {
-      return getFullySpecifiedDescription(coordinate, coordinate);
+      return getFullyQualifiedNameDescription(coordinate, coordinate);
    }
 
    /**

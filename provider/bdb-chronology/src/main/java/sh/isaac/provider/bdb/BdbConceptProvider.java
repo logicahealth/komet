@@ -41,6 +41,7 @@ package sh.isaac.provider.bdb;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import com.sleepycat.bind.tuple.IntegerBinding;
 import java.io.File;
 
 import java.nio.file.Path;
@@ -62,6 +63,9 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
+import com.sleepycat.je.Database;
+import com.sleepycat.je.DatabaseConfig;
+import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
@@ -75,6 +79,7 @@ import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.model.concept.ConceptChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -92,6 +97,7 @@ public class BdbConceptProvider
    //~--- fields --------------------------------------------------------------
 
    private Environment myDbEnvironment;
+   private Database conceptDatabase;
 
    //~--- methods -------------------------------------------------------------
 
@@ -103,8 +109,12 @@ public class BdbConceptProvider
 
    @Override
    public void writeConcept(ConceptChronology concept) {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      DatabaseEntry key = new DatabaseEntry();
+      IntegerBinding.intToEntry(concept.getConceptSequence(), key);
+      DatabaseEntry value = new DatabaseEntry(((ConceptChronologyImpl)concept).getDataToWrite());
+      // Put it as normal
+      // Need to check for swap and write...
+      conceptDatabase.put(null, key, value); 
    }
 
    /**
@@ -118,7 +128,16 @@ public class BdbConceptProvider
          EnvironmentConfig envConfig = new EnvironmentConfig();
 
          envConfig.setAllowCreate(true);
-         myDbEnvironment = new Environment(new File("/export/dbEnv"), envConfig);
+         myDbEnvironment = new Environment(new File("dbEnv"), envConfig);
+
+         // Open the database. Create it if it does not already exist.
+         DatabaseConfig dbConfig = new DatabaseConfig();
+
+         dbConfig.setAllowCreate(true);
+         dbConfig.setDeferredWrite(true);
+         dbConfig.setSortedDuplicates(true);
+
+         conceptDatabase = myDbEnvironment.openDatabase(null, "concepts", dbConfig);
       } catch (DatabaseException dbe) {
          throw new RuntimeException(dbe);
       }
@@ -132,6 +151,8 @@ public class BdbConceptProvider
       LOG.info("Stopping BDB ConceptProvider.");
 
       if (myDbEnvironment != null) {
+         conceptDatabase.sync();
+         conceptDatabase.close();
          myDbEnvironment.close();
       }
    }

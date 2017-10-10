@@ -69,20 +69,20 @@ public class PropertyAssociation
     * Instantiates a new property association.
     *
     * @param owner the owner
-    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyNameFQN the source property name fully qualified name
     * @param sourcePropertyAltName the source property alt name
     * @param associationInverseName the association inverse name
     * @param associationDescription the association description
     * @param disabled the disabled
     */
    public PropertyAssociation(PropertyType owner,
-                              String sourcePropertyNameFSN,
+                              String sourcePropertyNameFQN,
                               String sourcePropertyAltName,
                               String associationInverseName,
                               String associationDescription,
                               boolean disabled) {
       this(owner,
-           sourcePropertyNameFSN,
+           sourcePropertyNameFQN,
            sourcePropertyAltName,
            associationInverseName,
            associationDescription,
@@ -95,7 +95,7 @@ public class PropertyAssociation
     * Instantiates a new property association.
     *
     * @param owner the owner
-    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyNameFQN the source property name FQN
     * @param sourcePropertyAltName the source property alt name
     * @param associationInverseName the association inverse name
     * @param associationDescription the association description
@@ -104,7 +104,7 @@ public class PropertyAssociation
     * @param associationComponentTypeSubRestriction the association component type sub restriction
     */
    public PropertyAssociation(PropertyType owner,
-                              String sourcePropertyNameFSN,
+                              String sourcePropertyNameFQN,
                               String sourcePropertyAltName,
                               String associationInverseName,
                               String associationDescription,
@@ -112,7 +112,7 @@ public class PropertyAssociation
                               ObjectChronologyType associationComponentTypeRestriction,
                               VersionType associationComponentTypeSubRestriction) {
       super(owner,
-            sourcePropertyNameFSN,
+            sourcePropertyNameFQN,
             sourcePropertyAltName,
             associationDescription,
             disabled,

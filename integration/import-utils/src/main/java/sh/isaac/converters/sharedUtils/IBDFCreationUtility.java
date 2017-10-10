@@ -189,7 +189,7 @@ public class IBDFCreationUtility {
     * If creating a module per version, you should specify both module parameters - for the version specific module to create, and the parent grouping module.
     * The namespace will be specified based on the parent grouping module.
     *
-    * @param moduleToCreate - if present, a new concept will be created, using this value as the FSN / preferred term for use as the module
+    * @param moduleToCreate - if present, a new concept will be created, using this value as the FULLY_QUALIFIED_NAME / preferred term for use as the module
     * @param preExistingModule - if moduleToCreate is not present, lookup the concept with this UUID to use as the module.  if moduleToCreate is present
     *   use preExistingModule as the parent concept for the moduleToCreate, rather than the default of MODULE.
     * @param outputDirectory - The path to write the output files to
@@ -341,8 +341,8 @@ public class IBDFCreationUtility {
     * The Enum DescriptionType.
     */
    public static enum DescriptionType {
-      /** Fully specified name. */
-      FSN,
+      /** Fully qualified name. */
+      FULLY_QUALIFIED_NAME,
 
       /** Synonym. */
       SYNONYM,
@@ -360,8 +360,8 @@ public class IBDFCreationUtility {
        * @return the description type
        */
       public static DescriptionType convert(UUID typeUuid) {
-         if (MetaData.FULLY_SPECIFIED_NAME____SOLOR.getUuidList().contains(typeUuid)) {
-            return FSN;
+         if (MetaData.FULLY_QUALIFIED_NAME____SOLOR.getUuidList().contains(typeUuid)) {
+            return FULLY_QUALIFIED_NAME;
          } else if (MetaData.SYNONYM____SOLOR.getUuidList().contains(typeUuid)) {
             return SYNONYM;
          }
@@ -383,8 +383,8 @@ public class IBDFCreationUtility {
        */
       public ConceptSpecification getConceptSpec() {
          switch (this) {
-         case FSN:
-            return MetaData.FULLY_SPECIFIED_NAME____SOLOR;
+         case FULLY_QUALIFIED_NAME:
+            return MetaData.FULLY_QUALIFIED_NAME____SOLOR;
 
          case SYNONYM:
             return MetaData.SYNONYM____SOLOR;
@@ -783,7 +783,7 @@ public class IBDFCreationUtility {
    }
 
    /**
-    * Add a batch of WB descriptions, following WB rules in always generating a FSN (picking the value based on the propertySubType order).
+    * Add a batch of WB descriptions, following WB rules in always generating a FULLY_QUALIFIED_NAME (picking the value based on the propertySubType order).
     * And then adding other types as specified by the propertySubType value, setting preferred / acceptable according to their ranking.
     *
     * @param concept the concept
@@ -796,7 +796,7 @@ public class IBDFCreationUtility {
 
       Collections.sort(descriptions);
 
-      boolean haveFSN                 = false;
+      boolean haveFQN                 = false;
       boolean havePreferredSynonym    = false;
       boolean havePreferredDefinition = false;
 
@@ -804,14 +804,14 @@ public class IBDFCreationUtility {
          DescriptionType descriptionType = null;
          boolean         preferred;
 
-         if (!haveFSN) {
-            descriptionType = DescriptionType.FSN;
+         if (!haveFQN) {
+            descriptionType = DescriptionType.FULLY_QUALIFIED_NAME;
             preferred       = true;
-            haveFSN         = true;
+            haveFQN         = true;
          } else {
             if (vpp.getProperty()
                    .getPropertySubType() < BPT_Descriptions.SYNONYM) {
-               descriptionType = DescriptionType.FSN;
+               descriptionType = DescriptionType.FULLY_QUALIFIED_NAME;
                preferred       = false;  // true case is handled above
             } else if ((vpp.getProperty().getPropertySubType() >= BPT_Descriptions.SYNONYM) &&
                        ((vpp.getProperty().getPropertySubType() < BPT_Descriptions.DEFINITION) ||
@@ -867,7 +867,7 @@ public class IBDFCreationUtility {
    }
 
    /**
-    * Add a workbench official "Fully Specified Name".  Convenience method for adding a description of type FSN
+    * Add a workbench official "Fully Specified Name".  Convenience method for adding a description of type FULLY_QUALIFIED_NAME
     *
     * @param concept the concept
     * @param fullySpecifiedName the fully specified name
@@ -875,7 +875,7 @@ public class IBDFCreationUtility {
     */
    public SememeChronology addFullySpecifiedName(ComponentReference concept,
          String fullySpecifiedName) {
-      return addDescription(concept, fullySpecifiedName, DescriptionType.FSN, true, null, State.ACTIVE);
+      return addDescription(concept, fullySpecifiedName, DescriptionType.FULLY_QUALIFIED_NAME, true, null, State.ACTIVE);
    }
 
    /**
@@ -1406,26 +1406,26 @@ public class IBDFCreationUtility {
     * Create a concept, automatically setting as many fields as possible (adds a description, calculates
     * the UUID, status current, etc).
     *
-    * @param fsn the fsn
-    * @param createSynonymFromFSN the create synonym from FSN
+    * @param fqn the fqn
+    * @param createSynonymFromFQN the create synonym from FULLY_QUALIFIED_NAME
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology createConcept(String fsn, boolean createSynonymFromFSN) {
-      return createConcept(ConverterUUID.createNamespaceUUIDFromString(fsn), fsn, createSynonymFromFSN);
+   public ConceptChronology createConcept(String fqn, boolean createSynonymFromFQN) {
+      return createConcept(ConverterUUID.createNamespaceUUIDFromString(fqn), fqn, createSynonymFromFQN);
    }
 
    /**
     * Create a concept, link it to a parent via is_a, setting as many fields as possible automatically.
     *
-    * @param fsn the fsn
-    * @param createSynonymFromFSN the create synonym from FSN
+    * @param fqn the fqn
+    * @param createSynonymFromFQN the create synonym from FULLY_QUALIFIED_NAME
     * @param parentConceptPrimordial the parent concept primordial
     * @return the concept chronology<? extends concept version<?>>
     */
-   public ConceptChronology createConcept(String fsn,
-         boolean createSynonymFromFSN,
+   public ConceptChronology createConcept(String fqn,
+         boolean createSynonymFromFQN,
          UUID parentConceptPrimordial) {
-      final ConceptChronology concept = createConcept(fsn, createSynonymFromFSN);
+      final ConceptChronology concept = createConcept(fqn, createSynonymFromFQN);
 
       addParent(ComponentReference.fromConcept(concept), parentConceptPrimordial);
       return concept;
@@ -1436,14 +1436,14 @@ public class IBDFCreationUtility {
     * status current, etc.
     *
     * @param conceptPrimordialUuid the concept primordial uuid
-    * @param fsn the fsn
-    * @param createSynonymFromFSN the create synonym from FSN
+    * @param fqn the fqn
+    * @param createSynonymFromFQN the create synonym from FULLY_QUALIFIED_NAME
     * @return the concept chronology<? extends concept version<?>>
     */
    public ConceptChronology createConcept(UUID conceptPrimordialUuid,
-         String fsn,
-         boolean createSynonymFromFSN) {
-      return createConcept(conceptPrimordialUuid, fsn, createSynonymFromFSN, null, State.ACTIVE);
+         String fqn,
+         boolean createSynonymFromFQN) {
+      return createConcept(conceptPrimordialUuid, fqn, createSynonymFromFQN, null, State.ACTIVE);
    }
 
    /**
@@ -1472,19 +1472,19 @@ public class IBDFCreationUtility {
     * Create a concept, link it to a parent via is_a, setting as many fields as possible automatically.
     *
     * @param conceptPrimordialUuid the concept primordial uuid
-    * @param fsn the fsn
-    * @param createSynonymFromFSN the create synonym from FSN
+    * @param fqn the fqn
+    * @param createSynonymFromFQN the create synonym from FULLY_QUALIFIED_NAME
     * @param relParentPrimordial the rel parent primordial
     * @return the concept chronology<? extends concept version<?>>
     */
    public final ConceptChronology createConcept(UUID conceptPrimordialUuid,
-         String fsn,
-         boolean createSynonymFromFSN,
+         String fqn,
+         boolean createSynonymFromFQN,
          UUID relParentPrimordial) {
       final ConceptChronology concept = createConcept(
                                                                          conceptPrimordialUuid,
-                                                                               fsn,
-                                                                               createSynonymFromFSN);
+                                                                               fqn,
+                                                                               createSynonymFromFQN);
 
       addParent(ComponentReference.fromConcept(concept), relParentPrimordial);
       return concept;
@@ -1494,15 +1494,15 @@ public class IBDFCreationUtility {
     * Create a concept, automatically setting as many fields as possible (adds a description (en US)).
     *
     * @param conceptPrimordialUuid the concept primordial uuid
-    * @param fsn the fsn
-    * @param createSynonymFromFSN the create synonym from FSN
+    * @param fqn the fqn
+    * @param createSynonymFromFQN the create synonym from FULLY_QUALIFIED_NAME
     * @param time - set to now if null
     * @param status the status
     * @return the concept chronology<? extends concept version<?>>
     */
    public ConceptChronology createConcept(UUID conceptPrimordialUuid,
-         String fsn,
-         boolean createSynonymFromFSN,
+         String fqn,
+         boolean createSynonymFromFQN,
          Long time,
          State status) {
       final ConceptChronology cc = createConcept(
@@ -1512,13 +1512,13 @@ public class IBDFCreationUtility {
                                                                           null);
       final ComponentReference concept = ComponentReference.fromConcept(cc);
 
-      addFullySpecifiedName(concept, fsn);
+      addFullySpecifiedName(concept, fqn);
 
-      if (createSynonymFromFSN) {
+      if (createSynonymFromFQN) {
          addDescription(
              concept,
-             fsn.endsWith(METADATA_SEMANTIC_TAG) ? fsn.substring(0, fsn.lastIndexOf(METADATA_SEMANTIC_TAG))
-               : fsn,
+             fqn.endsWith(METADATA_SEMANTIC_TAG) ? fqn.substring(0, fqn.lastIndexOf(METADATA_SEMANTIC_TAG))
+               : fqn,
              DescriptionType.SYNONYM,
              true,
              null,
@@ -1532,7 +1532,7 @@ public class IBDFCreationUtility {
     * Utility method to build and store a concept.
     *
     * @param primordial - optional
-    * @param fsnName the fsn name
+    * @param fqn the fqn 
     * @param preferredName - optional
     * @param altName - optional
     * @param definition - optional
@@ -1541,7 +1541,7 @@ public class IBDFCreationUtility {
     * @return the concept chronology<? extends concept version<?>>
     */
    public ConceptChronology createConcept(UUID primordial,
-         String fsnName,
+         String fqn,
          String preferredName,
          String altName,
          String definition,
@@ -1550,9 +1550,9 @@ public class IBDFCreationUtility {
       final ConceptChronology concept = createConcept(
                                                                          (primordial == null)
                                                                          ? ConverterUUID.createNamespaceUUIDFromString(
-                                                                               fsnName)
+                                                                               fqn)
             : primordial,
-                                                                               fsnName,
+                                                                               fqn,
                                                                                StringUtils.isEmpty(preferredName) ? true
             : false);
       final LogicalExpressionBuilder leb = this.expressionBuilderService.getLogicalExpressionBuilder();
@@ -1727,9 +1727,9 @@ public class IBDFCreationUtility {
                // don't feed in the 'definition' if it is an association, because that will be done by the configureConceptAsDynamicRefex method
                final ConceptChronology concept = createConcept(
                                                                                   p.getUUID(),
-                                                                                        p.getSourcePropertyNameFSN() +
+                                                                                        p.getSourcePropertyNameFQN() +
                                                                                         METADATA_SEMANTIC_TAG,
-                                                                                        p.getSourcePropertyNameFSN(),
+                                                                                        p.getSourcePropertyNameFQN(),
                                                                                         p.getSourcePropertyAltName(),
                                                                                         ((p instanceof
                                                                                           PropertyAssociation) ? null
@@ -1743,7 +1743,7 @@ public class IBDFCreationUtility {
                       findFirstNotEmptyString(
                           p.getSourcePropertyDefinition(),
                           p.getSourcePropertyAltName(),
-                          p.getSourcePropertyNameFSN()),
+                          p.getSourcePropertyNameFQN()),
                       p.getDataColumnsForDynamicRefex(),
                       null,
                       null);

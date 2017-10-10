@@ -236,7 +236,7 @@ public class Relationship {
     * @return the alt name
     */
    public String getAltName() {
-      return preferredNameMap.get(getFSNName());
+      return preferredNameMap.get(getFQName());
    }
 
    /**
@@ -250,11 +250,11 @@ public class Relationship {
    }
 
    /**
-    * Gets the FSN name.
+    * Gets the FQN name.
     *
-    * @return the FSN name
+    * @return the FQN name
     */
-   public String getFSNName() {
+   public String getFQName() {
       return this.swap ? this.name2
                        : this.name1;
    }
@@ -265,8 +265,8 @@ public class Relationship {
     * @return the inverse alt name
     */
    public String getInverseAltName() {
-      return (getInverseFSNName() == null) ? null
-            : preferredNameMap.get(getInverseFSNName());
+      return (getInverseFQName() == null) ? null
+            : preferredNameMap.get(getInverseFQName());
    }
 
    /**
@@ -284,7 +284,7 @@ public class Relationship {
     *
     * @return the inverse FSN name
     */
-   public String getInverseFSNName() {
+   public String getInverseFQName() {
       return this.swap ? this.name1
                        : this.name2;
    }

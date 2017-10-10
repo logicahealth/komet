@@ -263,7 +263,7 @@ public class Frills
     * This method returns an uncommitted refexUsageDescriptor concept chronology.
     * A DynamicSememeUsageDescription may be constructed by passing it to the DynamicSememeUsageDescriptionImpl ctor.
     *
-    * @param sememeFSN the sememe FSN
+    * @param sememeFQN the sememe FQN
     * @param sememePreferredTerm the sememe preferred term
     * @param sememeDescription the sememe description
     * @param columns the columns
@@ -274,7 +274,7 @@ public class Frills
     * @return the concept chronology<? extends concept version<?>>
     */
    @SuppressWarnings("deprecation")
-   public static ConceptChronology buildUncommittedNewDynamicSememeUsageDescription(String sememeFSN,
+   public static ConceptChronology buildUncommittedNewDynamicSememeUsageDescription(String sememeFQN,
          String sememePreferredTerm,
          String sememeDescription,
          DynamicSememeColumnInfo[] columns,
@@ -306,7 +306,7 @@ public class Frills
          NecessarySet(And(ConceptAssertion(parentConcept, defBuilder)));
 
          final LogicalExpression parentDef = defBuilder.build();
-         final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(sememeFSN, null, parentDef);
+         final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(sememeFQN, null, parentDef);
          DescriptionBuilder<? extends SememeChronology, ? extends MutableDescriptionVersion> definitionBuilder =
             descriptionBuilderService.getDescriptionBuilder(
                 sememePreferredTerm,
@@ -445,7 +445,7 @@ public class Frills
     *
     * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
     *
-    * @param sememeFSN the sememe FSN
+    * @param sememeFQN the sememe FQN
     * @param sememePreferredTerm - The preferred term for this refex concept that will be created.
     * @param sememeDescription - A user friendly string the explains the overall intended purpose of this sememe (what it means, what it stores)
     * @param columns - The column information for this new refex.  May be an empty list or null.
@@ -458,7 +458,7 @@ public class Frills
     * @return a reference to the newly created sememe item
     */
    @SuppressWarnings("deprecation")
-   public static DynamicSememeUsageDescription createNewDynamicSememeUsageDescriptionConcept(String sememeFSN,
+   public static DynamicSememeUsageDescription createNewDynamicSememeUsageDescriptionConcept(String sememeFQN,
          String sememePreferredTerm,
          String sememeDescription,
          DynamicSememeColumnInfo[] columns,
@@ -467,8 +467,7 @@ public class Frills
          VersionType referencedComponentSubRestriction,
          EditCoordinate editCoord) {
       final ConceptChronology newDynamicSememeUsageDescriptionConcept =
-         buildUncommittedNewDynamicSememeUsageDescription(
-             sememeFSN,
+         buildUncommittedNewDynamicSememeUsageDescription(sememeFQN,
              sememePreferredTerm,
              sememeDescription,
              columns,
@@ -479,9 +478,8 @@ public class Frills
 
       try {
          Get.commitService()
-            .commit(
-                "creating new dynamic sememe assemblage (DynamicSememeUsageDescription): NID=" +
-                newDynamicSememeUsageDescriptionConcept.getNid() + ", FSN=" + sememeFSN + ", PT=" +
+            .commit("creating new dynamic sememe assemblage (DynamicSememeUsageDescription): NID=" +
+                newDynamicSememeUsageDescriptionConcept.getNid() + ", FQN=" + sememeFQN + ", PT=" +
                 sememePreferredTerm + ", DESC=" + sememeDescription)
             .get();
       } catch (InterruptedException | ExecutionException e) {
@@ -619,7 +617,7 @@ public class Frills
    public String[] readDynamicSememeColumnNameDescription(UUID columnDescriptionConcept) {
       String columnName           = null;
       String columnDescription    = null;
-      String fsn                  = null;
+      String fqn                  = null;
       String acceptableSynonym    = null;
       String acceptableDefinition = null;
 
@@ -646,8 +644,8 @@ public class Frills
                final DescriptionVersion d = descriptionVersion.get();
 
                if (d.getDescriptionTypeConceptSequence() ==
-                     TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence()) {
-                  fsn = d.getText();
+                     TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getConceptSequence()) {
+                  fqn = d.getText();
                } else if (d.getDescriptionTypeConceptSequence() ==
                           TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence()) {
                   if (Frills.isDescriptionPreferred(d.getNid(), null)) {
@@ -672,9 +670,9 @@ public class Frills
       if (columnName == null) {
          LOG.warn(
              "No preferred synonym found on '" + columnDescriptionConcept + "' to use " +
-             "for the column name - using FSN");
-         columnName = ((fsn == null) ? "ERROR - see log"
-                                     : fsn);
+             "for the column name - using FQN");
+         columnName = ((fqn == null) ? "ERROR - see log"
+                                     : fqn);
       }
 
       if ((columnDescription == null) && (acceptableDefinition != null)) {
@@ -1077,7 +1075,7 @@ public class Frills
     * @param conceptNid The concept to read descriptions for
     * @param descriptionType expected to be one of
     * {@link MetaData#SYNONYM} or
-    * {@link MetaData#FULLY_SPECIFIED_NAME} or
+    * {@link MetaData#FULLY_QUALIFIED_NAME} or
     * {@link MetaData#DEFINITION_DESCRIPTION_TYPE}
     * @param stamp - optional - if not provided gets the default from the
     * config service

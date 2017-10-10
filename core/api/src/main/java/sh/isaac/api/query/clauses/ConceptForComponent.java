@@ -168,7 +168,7 @@ public class ConceptForComponent
 
    @Override
    public Clause[] getAllowedSubstutitionClauses() {
-      return new Clause[] {new ConceptForComponent(), new FullySpecifiedNameForConcept(), new PreferredNameForConcept()};
+      return new Clause[] {new ConceptForComponent(), new FullyQualifiedNameForConcept(), new PreferredNameForConcept()};
    }
 
    @Override

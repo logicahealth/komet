@@ -96,51 +96,51 @@ public class BPT_Associations
    /**
     * Adds the property.
     *
-    * @param propertyNameFSN the property name FSN
+    * @param propertyNameFQN the property name FQN
     * @return the property
     */
 
    // Override all of these as unsupported, as, we require only PropertyAssociation object here.
    @Override
-   public Property addProperty(String propertyNameFSN) {
+   public Property addProperty(String propertyNameFQN) {
       throw new UnsupportedOperationException();
    }
 
    /**
     * Adds the property.
     *
-    * @param propertyNameFSN the property name FSN
+    * @param propertyNameFQN the property name FQN
     * @param propertySubType the property sub type
     * @return the property
     */
    @Override
-   public Property addProperty(String propertyNameFSN, int propertySubType) {
+   public Property addProperty(String propertyNameFQN, int propertySubType) {
       throw new UnsupportedOperationException();
    }
 
    /**
     * Adds the property.
     *
-    * @param propertyNameFSN the property name FSN
+    * @param propertyNameFQN the property name FQN
     * @param minVersion the min version
     * @param maxVersion the max version
     * @return the property
     */
    @Override
-   public Property addProperty(String propertyNameFSN, int minVersion, int maxVersion) {
+   public Property addProperty(String propertyNameFQN, int minVersion, int maxVersion) {
       throw new UnsupportedOperationException();
    }
 
    /**
     * Adds the property.
     *
-    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyNameFQN the source property name FQN
     * @param sourcePropertyPreferredName the source property preferred name
     * @param sourcePropertyDefinition the source property definition
     * @return the property
     */
    @Override
-   public Property addProperty(String sourcePropertyNameFSN,
+   public Property addProperty(String sourcePropertyNameFQN,
                                String sourcePropertyPreferredName,
                                String sourcePropertyDefinition) {
       throw new UnsupportedOperationException();
@@ -149,21 +149,21 @@ public class BPT_Associations
    /**
     * Adds the property.
     *
-    * @param propertyNameFSN the property name FSN
+    * @param propertyNameFQN the property name FQN
     * @param minVersion the min version
     * @param maxVersion the max version
     * @param disabled the disabled
     * @return the property
     */
    @Override
-   public Property addProperty(String propertyNameFSN, int minVersion, int maxVersion, boolean disabled) {
+   public Property addProperty(String propertyNameFQN, int minVersion, int maxVersion, boolean disabled) {
       throw new UnsupportedOperationException();
    }
 
    /**
     * Adds the property.
     *
-    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyNameFQN the source property name FQN
     * @param sourcePropertyAltName the source property alt name
     * @param sourcePropertyDefinition the source property definition
     * @param disabled the disabled
@@ -172,7 +172,7 @@ public class BPT_Associations
     * @return the property
     */
    @Override
-   public Property addProperty(String sourcePropertyNameFSN,
+   public Property addProperty(String sourcePropertyNameFQN,
                                String sourcePropertyAltName,
                                String sourcePropertyDefinition,
                                boolean disabled,
@@ -184,7 +184,7 @@ public class BPT_Associations
    /**
     * Adds the property.
     *
-    * @param sourcePropertyNameFSN the source property name FSN
+    * @param sourcePropertyNameFQN the source property name FQN
     * @param sourcePropertyPreferredName the source property preferred name
     * @param sourcePropertyDefinition the source property definition
     * @param minVersion the min version
@@ -194,7 +194,7 @@ public class BPT_Associations
     * @return the property
     */
    @Override
-   public Property addProperty(String sourcePropertyNameFSN,
+   public Property addProperty(String sourcePropertyNameFQN,
                                String sourcePropertyPreferredName,
                                String sourcePropertyDefinition,
                                int minVersion,

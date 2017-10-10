@@ -42,6 +42,7 @@ package sh.isaac.model.observable.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
+import java.util.Objects;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -258,8 +259,12 @@ public class ObservableStampCoordinateImpl
 
       return this.stampCoordinate.getStampPrecedence();
    }
-   
-      
+
+   @Override
+   public int hashCode() {
+      return this.stampCoordinate.hashCode();
+   }
+
    
    @Override
    public ObservableStampCoordinateImpl deepClone() {

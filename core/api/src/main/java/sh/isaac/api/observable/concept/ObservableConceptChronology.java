@@ -115,7 +115,7 @@ public interface ObservableConceptChronology
     * @return the fully specified description
     */
    @Override
-   LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
+   LatestVersion<ObservableDescriptionVersion> getFullyQualifiedNameDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate);
 
@@ -128,7 +128,7 @@ public interface ObservableConceptChronology
    @Override
    default LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
            ManifoldCoordinate manifoldCoordinate) {
-      return getFullySpecifiedDescription(manifoldCoordinate, manifoldCoordinate);
+      return getFullyQualifiedNameDescription(manifoldCoordinate, manifoldCoordinate);
       
    }
 

@@ -397,7 +397,7 @@ public class CoordinateFactoryProvider
     */
    @Override
    public int getFullySpecifiedConceptSequence() {
-      return TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence();
+      return TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getConceptSequence();
    }
 
    /**
@@ -528,8 +528,8 @@ public class CoordinateFactoryProvider
 
       if (!preferredForDialect.isPresent()) {
          descriptionsForLanguageOfType.forEach(
-             (fsn) -> {
-                preferredForDialect.addLatest(fsn);
+             (fqn) -> {
+                preferredForDialect.addLatest(fqn);
              });
       }
 

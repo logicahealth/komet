@@ -131,7 +131,7 @@ public enum ClauseSemantic {
    /**
     * Substitute the fully specified description for a concept.
     */
-   FULLY_SPECIFIED_NAME_FOR_CONCEPT,
+   FULLY_QUALIFIED_NAME_FOR_CONCEPT,
 
    /**
     * Substitute the preferred name for a concept.

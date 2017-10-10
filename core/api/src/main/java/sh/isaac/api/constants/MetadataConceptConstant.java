@@ -195,7 +195,7 @@ public abstract class MetadataConceptConstant
    /**
     * Gets the primary name.
     *
-    * @return The name for this concept, used to construct the FSN and preferred term.
+    * @return The name for this concept, used to construct the FQN and preferred term.
     * This method is identical to {@link #getFullySpecifiedConceptDescriptionText()}
     */
    public String getPrimaryName() {

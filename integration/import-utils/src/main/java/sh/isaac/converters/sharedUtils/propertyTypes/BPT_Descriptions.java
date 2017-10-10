@@ -48,13 +48,13 @@ public class BPT_Descriptions
         extends BPT_DualParentPropertyType {
    // These values can be used as the starting point for establishing the hierarchy of synonym types.
    // Descriptions are typically sorted (ascending) by the propertySubType values.
-   // The lowest number found will be used as the FSN.
+   // The lowest number found will be used as the FQN.
    // The next higher number will be used as the 'preferred' synonym.
    // The next higher number will be used as the 'acceptable' synonym - continuing until the value is above the description threshold.
 
-   /** The Constant FSN. */
+   /** The Constant FQN. */
    // Then, the first found description will be the 'preferred' description - the rest will be 'acceptable'.
-   public static final int FSN = 0;
+   public static final int FULLY_QUALIFIED_NAME = 0;
 
    /** The Constant SYNONYM. */
    public static final int SYNONYM = 200;

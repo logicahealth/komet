@@ -48,24 +48,24 @@ import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 
 /**
  * Lucene Manager for an assemblage index. Provides the description indexing
- * service also.
- *
- * This has been redesigned such that is now creates multiple columns within the
- * index
- *
- * There is a 'everything' column, which gets all descriptions, to support the
- * standard search where you want to match on a text value anywhere it appears.
- *
- * There are 3 columns to support FSN / Synonym / Definition - to support
- * searching that subset of descriptions. There are also data-defined columns to
- * support extended definition types - for example - loinc description types -
- * to support searching terminology specific fields.
- *
- * Each of the columns above is also x2, as everything is indexed both with a
- * standard analyzer, and with a whitespace analyzer.
- * 
- * TODO: use IntPoint for description types, and other aspects of the search, rather than creating redundant
- * columns. 
+ service also.
+
+ This has been redesigned such that is now creates multiple columns within the
+ index
+
+ There is a 'everything' column, which gets all descriptions, to support the
+ standard search where you want to match on a text value anywhere it appears.
+
+ There are 3 columns to support FULLY_QUALIFIED_NAME / Synonym / Definition - to support
+ searching that subset of descriptions. There are also data-defined columns to
+ support extended definition types - for example - loinc description types -
+ to support searching terminology specific fields.
+
+ Each of the columns above is also x2, as everything is indexed both with a
+ standard analyzer, and with a whitespace analyzer.
+ 
+ TODO: use IntPoint for description types, and other aspects of the search, rather than creating redundant
+ columns. 
  * 
  * @author kec
  * @author aimeefurber
@@ -129,8 +129,8 @@ public class AssemblageIndexer extends LuceneIndexer
 
          try {
             if (!SEQUENCES_SETUP.get()) {
-               this.sequenceTypeMap.put(TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE.getConceptSequence(),
-                                        LuceneDescriptionType.FSN.name());
+               this.sequenceTypeMap.put(TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getConceptSequence(),
+                                        LuceneDescriptionType.FULLY_QUALIFIED_NAME.name());
                this.sequenceTypeMap.put(TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence(),
                                         LuceneDescriptionType.DEFINITION.name());
                this.sequenceTypeMap.put(TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());

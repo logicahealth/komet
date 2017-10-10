@@ -58,17 +58,17 @@ public interface ConceptBuilderService {
    /**
     * Gets the concept builder.
     *
-    * @param conceptName - Optional - if specified, a FSN will be created using this value (but see additional information on semanticTag)
+    * @param conceptName - Optional - if specified, a FQN will be created using this value (but see additional information on semanticTag)
     * @param semanticTag - Optional - if specified, conceptName must be specified, and two descriptions will be created using the following forms:
-    * - FSN: "conceptName (semanticTag)"
+    * - FQN: "conceptName (semanticTag)"
     * - Preferred: "conceptName"
     * If not specified:
-    *    - If the specified FSN contains a semantic tag, the FSN will be created using that value. A preferred term will be created by stripping the
+    *    - If the specified FQN contains a semantic tag, the FQN will be created using that value. A preferred term will be created by stripping the
     * supplied semantic tag.
-    *   - If the specified FSN does not contain a semantic tag, no preferred term will be created.
+    *   - If the specified FQN does not contain a semantic tag, no preferred term will be created.
     * @param logicalExpression - Optional
-    * @param languageForDescriptions - Optional - used as the language for the created FSN and preferred term
-    * @param dialectForDescriptions - Optional - used as the language for the created FSN and preferred term
+    * @param languageForDescriptions - Optional - used as the language for the created FQN and preferred term
+    * @param dialectForDescriptions - Optional - used as the language for the created FQN and preferred term
     * @param logicCoordinate - Optional - used during the creation of the logical expression, if any are passed for creation.
     * @return the concept builder
     */
@@ -82,14 +82,14 @@ public interface ConceptBuilderService {
    /**
     * Gets the default concept builder.
     *
-    * @param conceptName - Optional - if specified, a FSN will be created using this value (but see additional information on semanticTag)
+    * @param conceptName - Optional - if specified, a FQN will be created using this value (but see additional information on semanticTag)
     * @param semanticTag - Optional - if specified, conceptName must be specified, and two descriptions will be created using the following forms:
-    * - FSN: "conceptName (semanticTag)"
+    * - FQN: "conceptName (semanticTag)"
     * - Preferred: "conceptName"
     * If not specified:
-    *    - If the specified FSN contains a semantic tag, the FSN will be created using that value. A preferred term will be created by stripping the
+    *    - If the specified FQN contains a semantic tag, the FQN will be created using that value. A preferred term will be created by stripping the
     * supplied semantic tag.
-    *   - If the specified FSN does not contain a semantic tag, no preferred term will be created.
+    *   - If the specified FQN does not contain a semantic tag, no preferred term will be created.
     * @param logicalExpression - Optional
     * @return the default concept builder
     */

@@ -111,7 +111,7 @@ rule "if property specification is DESCRIPTION_TYPE____SOLOR then "
 when
    $property: PropertySheetItemConceptWrapper(getPropertySpecification() == MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____SOLOR)
 then
-   $property.getAllowedValues().add(MetaData.FULLY_SPECIFIED_NAME____SOLOR.getConceptSequence());
+   $property.getAllowedValues().add(MetaData.FULLY_QUALIFIED_NAME____SOLOR.getConceptSequence());
    $property.getAllowedValues().add(MetaData.SYNONYM____SOLOR.getConceptSequence());
    $property.getAllowedValues().add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getConceptSequence());
    

@@ -66,7 +66,7 @@ import sh.isaac.api.constants.DynamicSememeConstants;
  *
  * <ul>
  * <li>The int value is used to align the column order with the data array here.  The column number should be 0 indexed.
- * <li>The UUID is a concept reference where the concept should have a preferred semantic name / FSN that is
+ * <li>The UUID is a concept reference where the concept should have a preferred semantic name / FQN that is
  *       suitable for the name of the DynamicSememe data column, and a description suitable for use as the description of the
  *       Dynamic Sememe data column.  Note, while any concept can be used here, and there are no specific requirements for this
  *       concept - there is a convenience method for creating one of these concepts in
@@ -116,7 +116,7 @@ public interface DynamicSememeUsageDescription {
    /**
     * (Convenience method).
     *
-    * @return returns the FSN of the assemblage concept this was read from
+    * @return returns the FQN of the assemblage concept this was read from
     */
    public String getDynamicSememeName();
 

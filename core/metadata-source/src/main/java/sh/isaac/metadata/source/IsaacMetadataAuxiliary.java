@@ -338,9 +338,9 @@ public class IsaacMetadataAuxiliary
          createConcept("Description type");
          pushParent(current());
 
-         final ConceptBuilder fsn = createConcept("Fully specified name");
+         final ConceptBuilder fsn = createConcept("Fully qualified name");
 
-         fsn.mergeFromSpec(TermAux.FULLY_SPECIFIED_DESCRIPTION_TYPE);
+         fsn.mergeFromSpec(TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE);
          fsn.addUuids(UUID.fromString("5e1fe940-8faf-11db-b606-0800200c9a66"));       // RF1 FSN
 
          final ConceptBuilder syn = createConcept(TermAux.SYNONYM_DESCRIPTION_TYPE);
@@ -556,7 +556,7 @@ public class IsaacMetadataAuxiliary
    createConcept(TermAux.DESCRIPTION_REGEX_MATCH_QUERY_CLAUSE);
    createConcept(TermAux.CONCEPT_FOR_COMPONENT_QUERY_CLAUSE);
    createConcept(TermAux.CONCEPT_IS_DESCENDENT_OF_QUERY_CLAUSE);
-   createConcept(TermAux.FULLY_SPECIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE);
+   createConcept(TermAux.FULLY_QUALIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE);
    
    createConcept(TermAux.ASSEMBLAGE_CONTAINS_STRING_QUERY_CLAUSE);
    createConcept(TermAux.ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE);

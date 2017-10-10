@@ -72,12 +72,12 @@ import sh.isaac.api.component.sememe.version.DescriptionVersion;
  */
 @XmlRootElement
 @XmlAccessorType(value = XmlAccessType.NONE)
-public class FullySpecifiedNameForConcept
+public class FullyQualifiedNameForConcept
         extends ParentClause {
    /**
     * Instantiates a new fully specified name for concept.
     */
-   public FullySpecifiedNameForConcept() {}
+   public FullyQualifiedNameForConcept() {}
 
    /**
     * Instantiates a new fully specified name for concept.
@@ -85,7 +85,7 @@ public class FullySpecifiedNameForConcept
     * @param enclosingQuery the enclosing query
     * @param child the child
     */
-   public FullySpecifiedNameForConcept(Query enclosingQuery, Clause child) {
+   public FullyQualifiedNameForConcept(Query enclosingQuery, Clause child) {
       super(enclosingQuery, child);
    }
 
@@ -112,7 +112,7 @@ public class FullySpecifiedNameForConcept
             .getConceptChronologyStream(conceptSequenceSet)
             .forEach((conceptChronology) -> {
                         final LatestVersion<? extends DescriptionVersion> desc =
-                           conceptChronology.getFullySpecifiedDescription(languageCoordinate, stampCoordinate);
+                           conceptChronology.getFullyQualifiedNameDescription(languageCoordinate, stampCoordinate);
 
                         if (desc.isPresent()) {
                            outgoingFullySpecifiedNids.add(desc
@@ -147,7 +147,7 @@ public class FullySpecifiedNameForConcept
    public WhereClause getWhereClause() {
       final WhereClause whereClause = new WhereClause();
 
-      whereClause.setSemantic(ClauseSemantic.FULLY_SPECIFIED_NAME_FOR_CONCEPT);
+      whereClause.setSemantic(ClauseSemantic.FULLY_QUALIFIED_NAME_FOR_CONCEPT);
 
       for (final Clause clause: getChildren()) {
          whereClause.getChildren()
@@ -159,11 +159,11 @@ public class FullySpecifiedNameForConcept
    
       @Override
    public ConceptSpecification getClauseConcept() {
-      return TermAux.FULLY_SPECIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE;
+      return TermAux.FULLY_QUALIFIED_NAME_FOR_CONCEPT_QUERY_CLAUSE;
    }
    @Override
    public Clause[] getAllowedSubstutitionClauses() {
-      return new Clause[] {new ConceptForComponent(), new FullySpecifiedNameForConcept(), new PreferredNameForConcept()};
+      return new Clause[] {new ConceptForComponent(), new FullyQualifiedNameForConcept(), new PreferredNameForConcept()};
    }
 
    @Override

@@ -195,14 +195,14 @@ public class ObservableConceptChronologyImpl
     * @return the fully specified description
     */
    @Override
-   public LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
+   public LatestVersion<ObservableDescriptionVersion> getFullyQualifiedNameDescription(
            LanguageCoordinate languageCoordinate,
            StampCoordinate stampCoordinate) {
-      final LatestVersion<? extends DescriptionVersion> optionalFsn =
-         this.getConceptChronology().getFullySpecifiedDescription(languageCoordinate,
+      final LatestVersion<? extends DescriptionVersion> optionalFqn =
+         this.getConceptChronology().getFullyQualifiedNameDescription(languageCoordinate,
                                                                  stampCoordinate);
 
-      return getSpecifiedDescription(optionalFsn);
+      return getSpecifiedDescription(optionalFqn);
    }
 
    /**
