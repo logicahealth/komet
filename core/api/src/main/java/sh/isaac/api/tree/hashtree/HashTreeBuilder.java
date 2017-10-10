@@ -51,7 +51,6 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.Get;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import static sh.isaac.api.tree.hashtree.AbstractHashTree.MULTI_PARENT_SETS;
 
@@ -225,7 +224,17 @@ public class HashTreeBuilder {
          
          return graph;
       } else {
-         throw new UnsupportedOperationException("Too many roots: " + roots);
+         final StringBuilder builder = new StringBuilder("Too many roots: \n");
+         for (int sequence: roots.toArray()) {
+            builder.append(sequence).append(": ").append(Get.conceptDescriptionText(sequence)).append("\n");
+            printWatch(sequence, "root: ");
+         }
+         // try again
+         
+      RoaringBitmap roots2 = conceptSequences.clone();
+      roots2.xor(conceptSequencesWithParents);
+          builder.append(" second try: ").append(roots2);
+         throw new UnsupportedOperationException(builder.toString());
       }
 
    }
