@@ -254,5 +254,6 @@ public class HashTreeBuilder {
          }
          return true; //To change body of generated lambdas, choose Tools | Templates.
       });
+      System.out.println();
    }
 }

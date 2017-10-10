@@ -98,6 +98,7 @@ import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 
 import static sh.isaac.komet.gui.treeview.TreeViewExplorationNodeFactory.MENU_TEXT;
+import sh.komet.gui.control.ChoiceBoxControls;
 
 import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
 
@@ -174,38 +175,13 @@ public class MultiParentTreeView
                      }
                   });
 
-      Button descriptionType = new Button();
+      ChoiceBox<ConceptSpecification> descriptionTypeChoiceBox = ChoiceBoxControls.getDescriptionTypeForDisplay(manifold);
 
-      descriptionType.setPadding(new Insets(2.0));
-
-      Node displayFqn = Iconography.LONG_TEXT.getIconographic();
-
-      Tooltip.install(
-          displayFqn,
-          new Tooltip("Displaying the Fully Qualified Name - click to display the Preferred Term"));
-      displayFqn.visibleProperty()
-                .bind(displayFQN);
-
-      Node displayPreferred = Iconography.SHORT_TEXT.getIconographic();
-
-      displayPreferred.visibleProperty()
-                      .bind(displayFQN.not());
-      Tooltip.install(
-          displayPreferred,
-          new Tooltip("Displaying the Preferred Term - click to display the Fully Qualified Name"));
-      descriptionType.setGraphic(new StackPane(displayFqn, displayPreferred));
-      descriptionType.setOnAction(
-          (ActionEvent event) -> {
-             displayFQN.set(displayFQN.not()
-                                      .get());
-          });
       toolBar.getItems()
-             .add(descriptionType);
+             .add(descriptionTypeChoiceBox);
 
-      ChoiceBox<PremiseType> premiseChoiceBox = new ChoiceBox<>(
-                                                    FXCollections.observableArrayList(PremiseType.values()));
+      ChoiceBox<ConceptSpecification> premiseChoiceBox = ChoiceBoxControls.getTaxonomyPremiseTypes(manifold);
 
-      premiseChoiceBox.setValue(PremiseType.INFERRED);
       premiseChoiceBox.valueProperty()
                       .addListener(this::taxonomyPremiseChanged);
       toolBar.getItems()
@@ -527,13 +503,13 @@ public class MultiParentTreeView
       restoreExpanded();
    }
 
-   private void taxonomyPremiseChanged(ObservableValue<? extends PremiseType> observable,
-         PremiseType oldValue,
-         PremiseType newValue) {
+   private void taxonomyPremiseChanged(ObservableValue<? extends ConceptSpecification> observable,
+         ConceptSpecification oldValue,
+         ConceptSpecification newValue) {
       saveExpanded();
       this.manifold.getManifoldCoordinate()
                    .premiseTypeProperty()
-                   .set(newValue);
+                   .set(PremiseType.fromConcept(newValue));
       rootTreeItem.clearChildren();
       rootTreeItem.resetChildrenCalculators();
       this.createSnapshotService.restart();

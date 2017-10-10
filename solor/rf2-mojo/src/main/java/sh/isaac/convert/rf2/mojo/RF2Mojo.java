@@ -730,13 +730,13 @@ public class RF2Mojo
                final Rel r = rb.getRels()
                                .last();
 
-               if ((stated && MetaData.INFERRED____SOLOR.isIdentifiedBy(r.characteristicTypeId)) ||
-                     (!stated && MetaData.STATED____SOLOR.isIdentifiedBy(r.characteristicTypeId))) {
+               if ((stated && MetaData.INFERRED_PREMISE_TYPE____SOLOR.isIdentifiedBy(r.characteristicTypeId)) ||
+                     (!stated && MetaData.STATED_PREMISE_TYPE____SOLOR.isIdentifiedBy(r.characteristicTypeId))) {
                   throw new RuntimeException("Unexpected - table type and characteristic type do not match!");
                }
 
-               if (MetaData.INFERRED____SOLOR.isIdentifiedBy(r.characteristicTypeId) ||
-                     MetaData.STATED____SOLOR.isIdentifiedBy(r.characteristicTypeId)) {
+               if (MetaData.INFERRED_PREMISE_TYPE____SOLOR.isIdentifiedBy(r.characteristicTypeId) ||
+                     MetaData.STATED_PREMISE_TYPE____SOLOR.isIdentifiedBy(r.characteristicTypeId)) {
                   if (r.effectiveTime > newestRelTime) {
                      newestRelTime = r.effectiveTime;
                   }

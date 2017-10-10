@@ -39,6 +39,9 @@
 
 package sh.isaac.api.coordinate;
 
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.component.concept.ConceptSpecification;
+
 /**
  * The Enum PremiseType.
  *
@@ -75,6 +78,16 @@ public enum PremiseType {
    @Override
    public String toString() {
       return displayName;
+   }
+   
+   public static PremiseType fromConcept(ConceptSpecification conceptSpecification) {
+      if (conceptSpecification.getConceptSequence() == TermAux.INFERRED_PREMISE_TYPE.getConceptSequence()) {
+         return INFERRED;
+      }
+      if (conceptSpecification.getConceptSequence() == TermAux.STATED_PREMISE_TYPE.getConceptSequence()) {
+         return STATED;
+      }
+      throw new IllegalStateException("PremiseType.fromConcept can't handle: " + conceptSpecification);
    }
 }
 

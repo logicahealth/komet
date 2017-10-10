@@ -320,20 +320,13 @@ public class IsaacMetadataAuxiliary
          createConcept("Axiom origin");
          pushParent(current());
 
-         final ConceptBuilder stated = createConcept("Stated");
-
-         stated.setPrimordialUuid(
+         createConcept(TermAux.STATED_PREMISE_TYPE).addUuids(
              UUID.fromString(
-                "3b0dbd3b-2e53-3a30-8576-6c7fa7773060"));  // merge with "stated relationship" SCT ID:    900000000000010007
-         stated.addUuids(
+                 "3fde38f6-e079-3cdc-a819-eda3ec74732d"));
+         createConcept(TermAux.INFERRED_PREMISE_TYPE).addUuids(
              UUID.fromString(
-                 "3fde38f6-e079-3cdc-a819-eda3ec74732d"));  // merge with "stated (defining characteristic type)"
-
-         final ConceptBuilder inferred = createConcept("Inferred");
-
-         inferred.setPrimordialUuid(
-             "1290e6ba-48d0-31d2-8d62-e133373c63f5");  // merge with "Inferred" SCT ID:    900000000000011006
-         inferred.addUuids(UUID.fromString("a4c6bf72-8fb6-11db-b606-0800200c9a66"));  // merge with ""defining"
+                 "a4c6bf72-8fb6-11db-b606-0800200c9a66"));
+                 
          popParent();
          createConcept("Description type");
          pushParent(current());
