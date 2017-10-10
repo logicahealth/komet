@@ -143,7 +143,7 @@ public class TermAux {
                                                                          "f680c868-f7e5-5d0e-91f2-615eca8f8fd2"));
 
    /** ConceptProxy for: "Synonym description type". SCT ID:    900000000000013009 */
-   public static ConceptSpecification SYNONYM_DESCRIPTION_TYPE = new ConceptProxy("Synonym",
+   public static ConceptSpecification REGULAR_NAME_DESCRIPTION_TYPE = new ConceptProxy("Regular name",
                                                                                   UUID.fromString(
                                                                                      "8bfba944-3965-3946-9bcb-1e80a5da63a2"));
 

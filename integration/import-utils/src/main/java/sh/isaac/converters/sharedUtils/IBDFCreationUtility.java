@@ -345,7 +345,7 @@ public class IBDFCreationUtility {
       FULLY_QUALIFIED_NAME,
 
       /** Synonym. */
-      SYNONYM,
+      REGULAR_NAME,
 
       /** Definition. */
       DEFINITION,
@@ -362,8 +362,8 @@ public class IBDFCreationUtility {
       public static DescriptionType convert(UUID typeUuid) {
          if (MetaData.FULLY_QUALIFIED_NAME____SOLOR.getUuidList().contains(typeUuid)) {
             return FULLY_QUALIFIED_NAME;
-         } else if (MetaData.SYNONYM____SOLOR.getUuidList().contains(typeUuid)) {
-            return SYNONYM;
+         } else if (MetaData.REGULAR_NAME____SOLOR.getUuidList().contains(typeUuid)) {
+            return REGULAR_NAME;
          }
 
          if (MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getUuidList().contains(typeUuid)) {
@@ -386,8 +386,8 @@ public class IBDFCreationUtility {
          case FULLY_QUALIFIED_NAME:
             return MetaData.FULLY_QUALIFIED_NAME____SOLOR;
 
-         case SYNONYM:
-            return MetaData.SYNONYM____SOLOR;
+         case REGULAR_NAME:
+            return MetaData.REGULAR_NAME____SOLOR; 
 
          case DEFINITION:
             return MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR;
@@ -816,7 +816,7 @@ public class IBDFCreationUtility {
             } else if ((vpp.getProperty().getPropertySubType() >= BPT_Descriptions.SYNONYM) &&
                        ((vpp.getProperty().getPropertySubType() < BPT_Descriptions.DEFINITION) ||
                         (vpp.getProperty().getPropertySubType() == Integer.MAX_VALUE))) {
-               descriptionType = DescriptionType.SYNONYM;
+               descriptionType = DescriptionType.REGULAR_NAME;
 
                if (!havePreferredSynonym) {
                   preferred            = true;
@@ -1267,11 +1267,10 @@ public class IBDFCreationUtility {
           null);
 
       if (!StringUtils.isBlank(inverseName)) {
-         final SememeChronology inverseDesc = addDescription(
-                                                                        ComponentReference.fromConcept(
+         final SememeChronology inverseDesc = addDescription(ComponentReference.fromConcept(
                                                                               associationTypeConcept),
                                                                               inverseName,
-                                                                              DescriptionType.SYNONYM,
+                                                                              DescriptionType.REGULAR_NAME,
                                                                               false,
                                                                               null,
                                                                               State.ACTIVE);
@@ -1515,11 +1514,10 @@ public class IBDFCreationUtility {
       addFullySpecifiedName(concept, fqn);
 
       if (createSynonymFromFQN) {
-         addDescription(
-             concept,
+         addDescription(concept,
              fqn.endsWith(METADATA_SEMANTIC_TAG) ? fqn.substring(0, fqn.lastIndexOf(METADATA_SEMANTIC_TAG))
                : fqn,
-             DescriptionType.SYNONYM,
+             DescriptionType.REGULAR_NAME,
              true,
              null,
              State.ACTIVE);
@@ -1575,20 +1573,18 @@ public class IBDFCreationUtility {
       addRelationshipGraph(ComponentReference.fromConcept(concept), null, logicalExpression, true, null, null);
 
       if (StringUtils.isNotEmpty(preferredName)) {
-         addDescription(
-             ComponentReference.fromConcept(concept),
+         addDescription(ComponentReference.fromConcept(concept),
              preferredName,
-             DescriptionType.SYNONYM,
+             DescriptionType.REGULAR_NAME,
              true,
              null,
              State.ACTIVE);
       }
 
       if (StringUtils.isNotEmpty(altName)) {
-         addDescription(
-             ComponentReference.fromConcept(concept),
+         addDescription(ComponentReference.fromConcept(concept),
              altName,
-             DescriptionType.SYNONYM,
+             DescriptionType.REGULAR_NAME,
              false,
              null,
              State.ACTIVE);
@@ -1770,11 +1766,10 @@ public class IBDFCreationUtility {
 
                   // add the inverse name, if it has one
                   if (!StringUtils.isBlank(item.getAssociationInverseName())) {
-                     final SememeChronology inverseDesc = addDescription(
-                                                                                    ComponentReference.fromConcept(
+                     final SememeChronology inverseDesc = addDescription(ComponentReference.fromConcept(
                                                                                           concept),
                                                                                           item.getAssociationInverseName(),
-                                                                                          DescriptionType.SYNONYM,
+                                                                                          DescriptionType.REGULAR_NAME,
                                                                                           false,
                                                                                           null,
                                                                                           State.ACTIVE);

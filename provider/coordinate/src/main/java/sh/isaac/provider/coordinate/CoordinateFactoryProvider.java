@@ -543,7 +543,7 @@ public class CoordinateFactoryProvider
     */
    @Override
    public int getSynonymConceptSequence() {
-      return TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence();
+      return TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getConceptSequence();
    }
 
    /**

@@ -183,7 +183,7 @@ public class IsaacTaxonomy {
          });
 
          cc.getSynonyms().forEach((definition) -> {
-            addDescription(definition, cb, TermAux.SYNONYM_DESCRIPTION_TYPE, false);
+            addDescription(definition, cb, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, false);
          });
 
          if (cc instanceof MetadataConceptConstantGroup) {
@@ -488,7 +488,7 @@ public class IsaacTaxonomy {
       }
 
       if (org.apache.commons.lang3.StringUtils.isNotBlank(nonPreferredSynonym)) {
-         this.current.addDescription(nonPreferredSynonym, TermAux.SYNONYM_DESCRIPTION_TYPE);
+         this.current.addDescription(nonPreferredSynonym, TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
       }
 
       this.conceptBuilders.put(name, this.current);
@@ -545,7 +545,7 @@ public class IsaacTaxonomy {
    }
 
    /**
-    * type should be either {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or {@link TermAux#SYNONYM_DESCRIPTION_TYPE} This
+    * type should be either {@link TermAux#DEFINITION_DESCRIPTION_TYPE} or {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE} This
     * currently only creates english language descriptions.
     *
     * @param description the description

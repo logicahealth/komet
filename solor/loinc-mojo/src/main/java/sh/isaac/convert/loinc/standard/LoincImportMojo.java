@@ -389,10 +389,9 @@ public class LoincImportMojo
                                                                false,
                                                                sourceOrgConcept.getPrimordialUuid()));
 
-                  this.importUtil.addDescription(
-                      c,
+                  this.importUtil.addDescription(c,
                       line[1],
-                      DescriptionType.SYNONYM,
+                      DescriptionType.REGULAR_NAME,
                       true,
                       this.propertyToPropertyType_.get("NAME")
                                                   .getProperty("NAME")
@@ -449,10 +448,9 @@ public class LoincImportMojo
                                                                 true,
                                                                 MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()));
 
-         this.importUtil.addDescription(
-             rootConcept,
+         this.importUtil.addDescription(rootConcept,
              "Logical Observation Identifiers Names and Codes",
-             DescriptionType.SYNONYM,
+             DescriptionType.REGULAR_NAME,
              false,
              null,
              State.ACTIVE);

@@ -381,7 +381,7 @@ public class ConceptBuilderImpl
       addUuids(conceptSpec.getUuids());
 
       if (!this.conceptName.equals(conceptSpec.getFullySpecifiedConceptDescriptionText())) {
-         addDescription(conceptSpec.getFullySpecifiedConceptDescriptionText(), TermAux.SYNONYM_DESCRIPTION_TYPE);
+         addDescription(conceptSpec.getFullySpecifiedConceptDescriptionText(), TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
       }
 
       return this;
@@ -470,7 +470,7 @@ public class ConceptBuilderImpl
                this.preferredDescriptionBuilder = LookupService.getService(DescriptionBuilderService.class)
                        .getDescriptionBuilder(prefName,
                                this,
-                               TermAux.SYNONYM_DESCRIPTION_TYPE,
+                               TermAux.REGULAR_NAME_DESCRIPTION_TYPE,
                                this.defaultLanguageForDescriptions)
                        .addPreferredInDialectAssemblage(this.defaultDialectAssemblageForDescriptions);
             }

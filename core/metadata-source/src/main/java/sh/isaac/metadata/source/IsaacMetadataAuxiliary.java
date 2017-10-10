@@ -343,7 +343,7 @@ public class IsaacMetadataAuxiliary
          fsn.mergeFromSpec(TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE);
          fsn.addUuids(UUID.fromString("5e1fe940-8faf-11db-b606-0800200c9a66"));       // RF1 FSN
 
-         final ConceptBuilder syn = createConcept(TermAux.SYNONYM_DESCRIPTION_TYPE);
+         final ConceptBuilder syn = createConcept(TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
 
          syn.addUuids(UUID.fromString("d6fad981-7df6-3388-94d8-238cc0465a79"));
          createConcept("Definition description type").mergeFromSpec(TermAux.DEFINITION_DESCRIPTION_TYPE);

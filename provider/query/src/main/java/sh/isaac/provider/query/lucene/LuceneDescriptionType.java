@@ -49,7 +49,7 @@ public enum LuceneDescriptionType {
    FULLY_QUALIFIED_NAME,
 
    /** The synonym. */
-   SYNONYM,
+   REGULAR_NAME,
 
    /** The definition. */
    DEFINITION;

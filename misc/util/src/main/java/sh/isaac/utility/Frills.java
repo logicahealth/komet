@@ -230,7 +230,7 @@ public class Frills
       DescriptionBuilder<?, ?> definitionBuilder = descriptionBuilderService.getDescriptionBuilder(
                                                        columnName,
                                                              builder,
-                                                             MetaData.SYNONYM____SOLOR,
+                                                             MetaData.REGULAR_NAME____SOLOR,
                                                              MetaData.ENGLISH_LANGUAGE____SOLOR);
 
       definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
@@ -311,7 +311,7 @@ public class Frills
             descriptionBuilderService.getDescriptionBuilder(
                 sememePreferredTerm,
                 builder,
-                MetaData.SYNONYM____SOLOR,
+                MetaData.REGULAR_NAME____SOLOR,
                 MetaData.ENGLISH_LANGUAGE____SOLOR);
 
          definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
@@ -647,7 +647,7 @@ public class Frills
                      TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getConceptSequence()) {
                   fqn = d.getText();
                } else if (d.getDescriptionTypeConceptSequence() ==
-                          TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence()) {
+                          TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getConceptSequence()) {
                   if (Frills.isDescriptionPreferred(d.getNid(), null)) {
                      columnName = d.getText();
                   } else {

@@ -1664,16 +1664,15 @@ public class RxNormMojo
                                       cr.getPrimordialUuid()
                                         .toString(),
                                       r.getInverseFQName(),
-                                      DescriptionType.SYNONYM.name(),
+                                      DescriptionType.REGULAR_NAME.name(),
                                       "false",
                                       "inverse");
 
             // Yes, this looks funny, no its not a copy/paste error.  We swap the FULLY_QUALIFIED_NAME and alt names for... it a long story.  42.
-            this.importUtil.addDescription(
-                cr,
+            this.importUtil.addDescription(cr,
                 descUUID,
                 r.getInverseFQName(),
-                DescriptionType.SYNONYM,
+                DescriptionType.REGULAR_NAME,
                 false,
                 null,
                 null,

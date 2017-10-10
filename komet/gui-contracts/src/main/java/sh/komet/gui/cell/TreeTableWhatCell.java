@@ -46,7 +46,7 @@ public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedV
               int descriptionType = description.getDescriptionTypeConceptSequence();
               if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getConceptSequence()) {
                  setText("FQN");
-              } else if (descriptionType == TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence()) {
+              } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getConceptSequence()) {
                  setText("SYN");
               } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
                  setText("DEF");

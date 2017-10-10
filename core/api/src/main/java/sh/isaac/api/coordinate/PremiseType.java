@@ -48,12 +48,18 @@ public enum PremiseType {
    /**
     * Compute the taxonomy from stated axioms.
     */
-   STATED,
+   STATED("Stated taxonomy"),
 
    /**
     * Compute the taxonomy from inferred axioms.
     */
-   INFERRED;
+   INFERRED("Inferred taxonomy");
+   
+   String displayName;
+
+   private PremiseType(String displayName) {
+      this.displayName = displayName;
+   }
    
    public PremiseType next() {
       switch(this) {
@@ -64,6 +70,11 @@ public enum PremiseType {
          default:
             throw new UnsupportedOperationException("h Can't handle: " + this);
       }
+   }
+
+   @Override
+   public String toString() {
+      return displayName;
    }
 }
 

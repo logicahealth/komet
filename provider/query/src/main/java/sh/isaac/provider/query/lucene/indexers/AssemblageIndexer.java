@@ -133,7 +133,7 @@ public class AssemblageIndexer extends LuceneIndexer
                                         LuceneDescriptionType.FULLY_QUALIFIED_NAME.name());
                this.sequenceTypeMap.put(TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence(),
                                         LuceneDescriptionType.DEFINITION.name());
-               this.sequenceTypeMap.put(TermAux.SYNONYM_DESCRIPTION_TYPE.getConceptSequence(), LuceneDescriptionType.SYNONYM.name());
+               this.sequenceTypeMap.put(TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getConceptSequence(), LuceneDescriptionType.REGULAR_NAME.name());
                this.descExtendedTypeSequence = DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
                      .getConceptSequence();
             }
