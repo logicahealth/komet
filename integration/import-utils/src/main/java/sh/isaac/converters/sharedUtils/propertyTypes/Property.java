@@ -46,8 +46,8 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import sh.isaac.api.constants.DynamicSememeConstants;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 
 //~--- classes ----------------------------------------------------------------
@@ -81,7 +81,7 @@ public class Property {
    private UUID useWBPropertyTypeInstead = null;  // see comments in setter
 
    /** The data columns for dynamic refex. */
-   private DynamicSememeColumnInfo[] dataColumnsForDynamicRefex = null;
+   private DynamicColumnInfo[] dataColumnsForDynamicRefex = null;
 
    /** The source property name Fully Qualified Name. */
    private final String sourcePropertyNameFQN;
@@ -159,7 +159,7 @@ public class Property {
                    String sourcePropertyDefinition,
                    boolean disabled,
                    int propertySubType,
-                   DynamicSememeColumnInfo[] columnInforForDynamicRefex) {
+                   DynamicColumnInfo[] columnInforForDynamicRefex) {
       this.owner                    = owner;
       this.sourcePropertyNameFQN    = sourcePropertyNameFQN;
       this.sourcePropertyAltName    = sourcePropertyAltName;
@@ -172,9 +172,9 @@ public class Property {
       // at the time this code runs.  We make sure it is set down below, in the getter.
       if ((columnInforForDynamicRefex == null) && (owner != null) && (this.owner.getDefaultColumnInfo() != null)) {
          // Create a single required column, with the column name just set to 'value'
-         this.dataColumnsForDynamicRefex = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null,
+         this.dataColumnsForDynamicRefex = new DynamicColumnInfo[] { new DynamicColumnInfo(null,
                0,
-               DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
+               DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getUUID(),
                this.owner.getDefaultColumnInfo(),
                null,
                true,
@@ -197,7 +197,7 @@ public class Property {
     *
     * @return the data columns for dynamic refex
     */
-   public DynamicSememeColumnInfo[] getDataColumnsForDynamicRefex() {
+   public DynamicColumnInfo[] getDataColumnsForDynamicRefex() {
       if ((this.dataColumnsForDynamicRefex != null) &&
             (this.dataColumnsForDynamicRefex.length == 1) &&
             (this.dataColumnsForDynamicRefex[0].getAssemblageConcept() == null)) {
@@ -239,7 +239,7 @@ public class Property {
          // Create a single required column, with the column name concept tied back to the assemblage concept itself.
          // leave the assemblageConceptUUID null for now - it should be set to "getUUID()" but that isn't always ready
          // at the time this code runs.  We make sure it is set down below, in the getter.
-         this.dataColumnsForDynamicRefex = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null,
+         this.dataColumnsForDynamicRefex = new DynamicColumnInfo[] { new DynamicColumnInfo(null,
                0,
                getUUID(),
                this.owner.getDefaultColumnInfo(),

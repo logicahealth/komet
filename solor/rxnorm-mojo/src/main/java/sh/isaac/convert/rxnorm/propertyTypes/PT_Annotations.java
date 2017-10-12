@@ -41,9 +41,9 @@ package sh.isaac.convert.rxnorm.propertyTypes;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import sh.isaac.api.constants.DynamicSememeConstants;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.converters.sharedUtils.propertyTypes.BPT_Annotations;
 
 //~--- classes ----------------------------------------------------------------
@@ -68,10 +68,10 @@ public class PT_Annotations
                   null,
                   false,
                   -1,
-                  new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null,
+                  new DynamicColumnInfo[] { new DynamicColumnInfo(null,
                         0,
-                        DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
-                        DynamicSememeDataType.UUID,
+                        DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getUUID(),
+                        DynamicDataType.UUID,
                         null,
                         true,
                         null,
@@ -88,10 +88,10 @@ public class PT_Annotations
                   null,
                   false,
                   -1,
-                  new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null,
+                  new DynamicColumnInfo[] { new DynamicColumnInfo(null,
                         0,
-                        DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
-                        DynamicSememeDataType.UUID,
+                        DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getUUID(),
+                        DynamicDataType.UUID,
                         null,
                         true,
                         null,
@@ -103,10 +103,10 @@ public class PT_Annotations
                   "The name of the column in RXNCONSO.RRF or RXNREL.RRF that contains the identifier to which the attribute is attached, e.g., CUI, AUI.",
                   false,
                   1,
-                  new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null,
+                  new DynamicColumnInfo[] { new DynamicColumnInfo(null,
                         0,
-                        DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
-                        DynamicSememeDataType.UUID,
+                        DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getUUID(),
+                        DynamicDataType.UUID,
                         null,
                         true,
                         null,
@@ -127,10 +127,10 @@ public class PT_Annotations
                   null,
                   false,
                   -1,
-                  new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null,
+                  new DynamicColumnInfo[] { new DynamicColumnInfo(null,
                         0,
-                        DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
-                        DynamicSememeDataType.UUID,
+                        DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getUUID(),
+                        DynamicDataType.UUID,
                         null,
                         true,
                         null,
@@ -146,10 +146,10 @@ public class PT_Annotations
                   "Generic rel type for this relationship",
                   false,
                   -1,
-                  new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null,
+                  new DynamicColumnInfo[] { new DynamicColumnInfo(null,
                         0,
-                        DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
-                        DynamicSememeDataType.UUID,
+                        DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getUUID(),
+                        DynamicDataType.UUID,
                         null,
                         true,
                         null,

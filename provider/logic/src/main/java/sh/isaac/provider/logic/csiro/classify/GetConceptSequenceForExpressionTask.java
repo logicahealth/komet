@@ -58,7 +58,6 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeSnapshotService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -66,7 +65,8 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.model.logic.LogicalExpressionImpl;
-import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
+import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
+import sh.isaac.api.component.semantic.SemanticSnapshotService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -150,13 +150,13 @@ public class GetConceptSequenceForExpressionTask
    protected Integer call()
             throws Exception {
       try {
-         final SememeSnapshotService<LogicGraphVersionImpl> sememeSnapshot = Get.assemblageService()
+         final SemanticSnapshotService<LogicGraphVersionImpl> sememeSnapshot = Get.assemblageService()
                                                                                .getSnapshot(LogicGraphVersionImpl.class,
                                                                                            this.stampCoordinate);
 
          updateMessage("Searching existing definitions...");
 
-         final LatestVersion<LogicGraphVersionImpl> match = sememeSnapshot.getLatestSememeVersionsFromAssemblage(
+         final LatestVersion<LogicGraphVersionImpl> match = sememeSnapshot.getLatestSemanticVersionsFromAssemblage(
                                                                this.logicCoordinate.getStatedAssemblageSequence())
                                                                          .filterVersion((LatestVersion<LogicGraphVersionImpl> t) -> {
                   final LogicGraphVersionImpl lgs = t.get();

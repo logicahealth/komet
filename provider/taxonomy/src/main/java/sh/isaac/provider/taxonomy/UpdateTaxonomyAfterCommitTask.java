@@ -53,9 +53,9 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomyService;
 import sh.isaac.api.commit.CommitRecord;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.task.TimedTask;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -133,10 +133,10 @@ public class UpdateTaxonomyAfterCommitTask
                               this.workDone++;
                               this.updateProgress(this.workDone, this.totalWork);
 
-                              if (this.commitRecord.getSememesInCommit()
+                              if (this.commitRecord.getSemanticSequencesInCommit()
                                     .contains(sememeSequence)) {
                                  this.updateMessage("Updating taxonomy for: " + sememeSequence);
-                                 this.taxonomyService.updateTaxonomy((SememeChronology) Get.assemblageService()
+                                 this.taxonomyService.updateTaxonomy((SemanticChronology) Get.assemblageService()
                                            .getSememe(sememeSequence));
                                  this.sememeSequencesForUnhandledChanges.remove(sememeSequence);
                               }

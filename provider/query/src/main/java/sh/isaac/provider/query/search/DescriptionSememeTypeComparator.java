@@ -48,7 +48,7 @@ import org.apache.logging.log4j.Logger;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 

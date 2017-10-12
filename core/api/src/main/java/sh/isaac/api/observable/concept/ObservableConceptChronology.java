@@ -55,7 +55,7 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 
 //~--- interfaces -------------------------------------------------------------
 

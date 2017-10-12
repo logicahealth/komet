@@ -53,21 +53,21 @@ import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.commit.ChangeCheckerMode;
-import sh.isaac.api.component.sememe.SememeBuilder;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.task.OptionalWaitTask;
-import sh.isaac.model.sememe.SememeChronologyImpl;
-import sh.isaac.model.sememe.version.ComponentNidVersionImpl;
-import sh.isaac.model.sememe.version.DescriptionVersionImpl;
-import sh.isaac.model.sememe.version.DynamicSememeImpl;
-import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
-import sh.isaac.model.sememe.version.LongVersionImpl;
-import sh.isaac.model.sememe.version.StringVersionImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
+import sh.isaac.model.semantic.version.DescriptionVersionImpl;
+import sh.isaac.model.semantic.version.DynamicImpl;
+import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
+import sh.isaac.model.semantic.version.LongVersionImpl;
+import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -77,9 +77,9 @@ import sh.isaac.api.chronicle.Chronology;
  * @author kec
  * @param <C> the generic type
  */
-public class SememeBuilderImpl<C extends SememeChronology>
+public class SememeBuilderImpl<C extends SemanticChronology>
         extends ComponentBuilder<C>
-         implements SememeBuilder<C> {
+         implements SemanticBuilder<C> {
    /** The referenced component nid. */
    int referencedComponentNid = Integer.MAX_VALUE;
 
@@ -152,28 +152,28 @@ public class SememeBuilderImpl<C extends SememeChronology>
                                           .getNidForUuids(this.referencedComponentBuilder.getUuids());
       }
 
-      SememeChronologyImpl sememeChronicle;
+      SemanticChronologyImpl sememeChronicle;
       final int            sememeNid = Get.identifierService()
                                           .getNidForUuids(this.getUuids());
 
       if (Get.assemblageService()
-             .hasSememe(sememeNid)) {
-         sememeChronicle = (SememeChronologyImpl) Get.assemblageService()
+             .hasSemanticChronology(sememeNid)) {
+         sememeChronicle = (SemanticChronologyImpl) Get.assemblageService()
                .getSememe(sememeNid);
 
-         if ((sememeChronicle.getSememeType() != this.sememeType) ||
+         if ((sememeChronicle.getVersionType() != this.sememeType) ||
                !sememeChronicle.isIdentifiedBy(getPrimordialUuid()) ||
                (sememeChronicle.getAssemblageSequence() != this.assemblageConceptSequence) ||
                (sememeChronicle.getReferencedComponentNid() != this.referencedComponentNid)) {
             throw new RuntimeException("Builder is being used to attempt a mis-matched edit of an existing sememe!");
          }
       } else {
-         sememeChronicle = new SememeChronologyImpl(this.sememeType,
+         sememeChronicle = new SemanticChronologyImpl(this.sememeType,
                getPrimordialUuid(),
                sememeNid,
                this.assemblageConceptSequence,
                this.referencedComponentNid,
-               Get.identifierService().getSememeSequenceForUuids(this.getUuids()));
+               Get.identifierService().getSemanticSequenceForUuids(this.getUuids()));
       }
 
       sememeChronicle.setAdditionalUuids(this.additionalUuids);
@@ -221,11 +221,11 @@ public class SememeBuilderImpl<C extends SememeChronology>
       }
 
       case DYNAMIC: {
-         final DynamicSememeImpl dsi = (DynamicSememeImpl) sememeChronicle.createMutableVersion(stampSequence);
+         final DynamicImpl dsi = (DynamicImpl) sememeChronicle.createMutableVersion(stampSequence);
 
          if ((this.parameters != null) && (this.parameters.length > 0)) {
             // See notes in SememeBuilderProvider - this casting / wrapping nonesense it to work around Java being stupid.
-            dsi.setData(((AtomicReference<DynamicSememeData[]>) this.parameters[0]).get());
+            dsi.setData(((AtomicReference<DynamicData[]>) this.parameters[0]).get());
          }
 
          // TODO Dan this needs to fire the validator!
@@ -260,28 +260,28 @@ public class SememeBuilderImpl<C extends SememeChronology>
                                           .getNidForUuids(this.referencedComponentBuilder.getUuids());
       }
 
-      SememeChronologyImpl sememeChronicle;
+      SemanticChronologyImpl sememeChronicle;
       final int            sememeNid = Get.identifierService()
                                           .getNidForUuids(this.getUuids());
 
       if (Get.assemblageService()
-             .hasSememe(sememeNid)) {
-         sememeChronicle = (SememeChronologyImpl) Get.assemblageService()
+             .hasSemanticChronology(sememeNid)) {
+         sememeChronicle = (SemanticChronologyImpl) Get.assemblageService()
                .getSememe(sememeNid);
 
-         if ((sememeChronicle.getSememeType() != this.sememeType) ||
+         if ((sememeChronicle.getVersionType() != this.sememeType) ||
                !sememeChronicle.isIdentifiedBy(getPrimordialUuid()) ||
                (sememeChronicle.getAssemblageSequence() != this.assemblageConceptSequence) ||
                (sememeChronicle.getReferencedComponentNid() != this.referencedComponentNid)) {
             throw new RuntimeException("Builder is being used to attempt a mis-matched edit of an existing sememe!");
          }
       } else {
-         sememeChronicle = new SememeChronologyImpl(this.sememeType,
+         sememeChronicle = new SemanticChronologyImpl(this.sememeType,
                getPrimordialUuid(),
                sememeNid,
                this.assemblageConceptSequence,
                this.referencedComponentNid,
-               Get.identifierService().getSememeSequenceForUuids(this.getUuids()));
+               Get.identifierService().getSemanticSequenceForUuids(this.getUuids()));
       }
 
       sememeChronicle.setAdditionalUuids(this.additionalUuids);
@@ -334,12 +334,12 @@ public class SememeBuilderImpl<C extends SememeChronology>
       }
 
       case DYNAMIC: {
-         final DynamicSememeImpl dsi = (DynamicSememeImpl) sememeChronicle.createMutableVersion(this.state,
+         final DynamicImpl dsi = (DynamicImpl) sememeChronicle.createMutableVersion(this.state,
                                                                                                 editCoordinate);
 
          if ((this.parameters != null) && (this.parameters.length > 0)) {
             // See notes in SememeBuilderProvider - this casting / wrapping nonesense it to work around Java being stupid.
-            dsi.setData(((AtomicReference<DynamicSememeData[]>) this.parameters[0]).get());
+            dsi.setData(((AtomicReference<DynamicData[]>) this.parameters[0]).get());
          }
 
          // TODO DAN this needs to fire the validator!

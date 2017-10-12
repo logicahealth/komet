@@ -50,16 +50,16 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
 
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
-import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableLogicGraphVersion;
+import sh.isaac.api.observable.semantic.version.ObservableLogicGraphVersion;
 import sh.isaac.model.observable.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
+import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -81,7 +81,7 @@ public class ObservableLogicGraphVersionImpl
     * @param version the stamped version
     * @param chronology the chronology
     */
-   public ObservableLogicGraphVersionImpl(LogicGraphVersion version, ObservableSememeChronology chronology) {
+   public ObservableLogicGraphVersionImpl(LogicGraphVersion version, ObservableSemanticChronology chronology) {
       super(version, chronology);
    }
 
@@ -113,7 +113,7 @@ public class ObservableLogicGraphVersionImpl
       LogicGraphVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
       ObservableLogicGraphVersionImpl newObservableVersion = new ObservableLogicGraphVersionImpl(
                                                                  newVersion,
-                                                                       (ObservableSememeChronology) chronology);
+                                                                       (ObservableSemanticChronology) chronology);
 
       ((ObservableChronologyImpl) chronology).getVersionList()
             .add(newObservableVersion);

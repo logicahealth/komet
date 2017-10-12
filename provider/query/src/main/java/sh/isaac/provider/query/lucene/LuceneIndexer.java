@@ -123,7 +123,6 @@ import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.ConceptSearchResult;
 import sh.isaac.api.index.IndexedGenerationCallable;
@@ -134,6 +133,7 @@ import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.provider.query.lucene.indexers.SememeIndexer;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -299,18 +299,18 @@ public abstract class LuceneIndexer
                   return;
                }
 
-               final int size = commitRecord.getSememesInCommit()
+               final int size = commitRecord.getSemanticSequencesInCommit()
                                             .size();
 
                if (size < 100) {
-                  LOG.info("submitting sememes " + commitRecord.getSememesInCommit().toString() + " to indexer " +
+                  LOG.info("submitting sememes " + commitRecord.getSemanticSequencesInCommit().toString() + " to indexer " +
                            getIndexerName() + " due to commit");
                } else {
                   LOG.info("submitting " + size + " sememes to indexer " + getIndexerName() + " due to commit");
                }
 
-               commitRecord.getSememesInCommit().stream().forEach(sememeId -> {
-                                       final SememeChronology sc = Get.assemblageService()
+               commitRecord.getSemanticSequencesInCommit().stream().forEach(sememeId -> {
+                                       final SemanticChronology sc = Get.assemblageService()
                                                                          .getSememe(sememeId);
 
                                        index(sc);
@@ -318,7 +318,7 @@ public abstract class LuceneIndexer
                   LOG.info("Indexing " + size + " sememes for " + getIndexerName() + " complete");
             }
             @Override
-            public void handleChange(SememeChronology sc) {
+            public void handleChange(SemanticChronology sc) {
                // noop
             }
             @Override
@@ -472,7 +472,7 @@ public abstract class LuceneIndexer
             switch (c.get()
                      .getIsaacObjectType()) {
             case SEMEME:
-               return findConcept(((SememeChronology) c.get()).getReferencedComponentNid());
+               return findConcept(((SemanticChronology) c.get()).getReferencedComponentNid());
 
             case CONCEPT:
                return ((ConceptChronology) c.get()).getConceptSequence();

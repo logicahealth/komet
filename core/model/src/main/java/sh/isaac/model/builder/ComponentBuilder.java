@@ -55,9 +55,9 @@ import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.State;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommittableComponent;
-import sh.isaac.api.component.sememe.SememeBuilder;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.task.OptionalWaitTask;
+import sh.isaac.api.component.semantic.SemanticBuilder;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -76,7 +76,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    private UUID primordialUuid = null;
 
    /** The sememe builders. */
-   protected final List<SememeBuilder<?>> sememeBuilders = new ArrayList<>();
+   protected final List<SemanticBuilder<?>> sememeBuilders = new ArrayList<>();
 
    /** The state. */
    protected State state = State.ACTIVE;
@@ -90,7 +90,7 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
     * @return the component builder
     */
    @Override
-   public ComponentBuilder<T> addSememe(SememeBuilder<?> sememeBuilder) {
+   public ComponentBuilder<T> addSemantic(SemanticBuilder<?> sememeBuilder) {
       this.sememeBuilders.add(sememeBuilder);
       return this;
    }

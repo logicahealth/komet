@@ -82,7 +82,7 @@ import sh.isaac.model.logic.node.SufficientSetNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithSequences;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 
 //~--- classes ----------------------------------------------------------------
 

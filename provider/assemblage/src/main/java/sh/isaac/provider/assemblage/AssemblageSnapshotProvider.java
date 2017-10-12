@@ -52,15 +52,15 @@ import sh.isaac.api.AssemblageService;
 import sh.isaac.api.ProgressTracker;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.SememeSequenceSet;
+import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.collections.StampSequenceSet;
-import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.api.stream.VersionStream;
 import sh.isaac.api.stream.VersionStreamWrapper;
-import sh.isaac.model.sememe.SememeChronologyImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.api.component.semantic.SemanticSnapshotService;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -70,8 +70,8 @@ import sh.isaac.model.sememe.SememeChronologyImpl;
  * @author kec
  * @param <V> the value type
  */
-public class AssemblageSnapshotProvider<V extends SememeVersion>
-         implements SememeSnapshotService<V> {
+public class AssemblageSnapshotProvider<V extends SemanticVersion>
+         implements SemanticSnapshotService<V> {
    /**
     * The version type.
     */
@@ -121,11 +121,11 @@ public class AssemblageSnapshotProvider<V extends SememeVersion>
    @Override
    public Stream<LatestVersion<V>> getLatestDescriptionVersionsForComponent(int componentNid) {
       return getLatestSememeVersions(
-          this.sememeProvider.getSememeSequencesForComponent(componentNid)
+          this.sememeProvider.getSemanticChronologySequencesForComponent(componentNid)
                              .parallelStream()
                              .filter(
                                  sememeSequence -> (this.sememeProvider.getSememe(sememeSequence)
-                                       .getSememeType() == VersionType.DESCRIPTION)));
+                                       .getVersionType() == VersionType.DESCRIPTION)));
    }
 
    /**
@@ -135,8 +135,8 @@ public class AssemblageSnapshotProvider<V extends SememeVersion>
     * @return the latest sememe version
     */
    @Override
-   public LatestVersion<V> getLatestSememeVersion(int sememeSequenceOrNid) {
-      final SememeChronologyImpl sc = (SememeChronologyImpl) this.sememeProvider.getSememe(sememeSequenceOrNid);
+   public LatestVersion<V> getLatestSemanticVersion(int sememeSequenceOrNid) {
+      final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.sememeProvider.getSememe(sememeSequenceOrNid);
       final int[]            stampSequences  = sc.getVersionStampSequences();
       final int[]     latestSequences = this.calculator.getLatestStampSequencesAsSet(stampSequences);
 
@@ -172,7 +172,7 @@ public class AssemblageSnapshotProvider<V extends SememeVersion>
     * @param progressTrackers the progress trackers
     * @return the latest sememe versions
     */
-   private VersionStream<V> getLatestSememeVersions(SememeSequenceSet sememeSequenceSet,
+   private VersionStream<V> getLatestSememeVersions(SemanticSequenceSet sememeSequenceSet,
          ProgressTracker... progressTrackers) {
       Arrays.stream(progressTrackers)
             .forEach(
@@ -189,8 +189,8 @@ public class AssemblageSnapshotProvider<V extends SememeVersion>
     * @return the latest sememe versions for component
     */
    @Override
-   public VersionStream<V> getLatestSememeVersionsForComponent(int componentNid) {
-      return getLatestSememeVersions(this.sememeProvider.getSememeSequencesForComponent(componentNid));
+   public VersionStream<V> getLatestSemanticVersionsForComponent(int componentNid) {
+      return getLatestSememeVersions(this.sememeProvider.getSemanticChronologySequencesForComponent(componentNid));
    }
 
    /**
@@ -201,10 +201,10 @@ public class AssemblageSnapshotProvider<V extends SememeVersion>
     * @return the latest sememe versions for component from assemblage
     */
    @Override
-   public VersionStream<V> getLatestSememeVersionsForComponentFromAssemblage(int componentNid,
+   public VersionStream<V> getLatestSemanticVersionsForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence) {
       return getLatestSememeVersions(
-          this.sememeProvider.getSememeSequencesForComponentFromAssemblage(componentNid, assemblageConceptSequence));
+          this.sememeProvider.getSemanticChronologySequencesForComponentFromAssemblage(componentNid, assemblageConceptSequence));
    }
 
    /**
@@ -215,19 +215,18 @@ public class AssemblageSnapshotProvider<V extends SememeVersion>
     * @return the latest sememe versions from assemblage
     */
    @Override
-   public VersionStream<V> getLatestSememeVersionsFromAssemblage(int assemblageConceptSequence,
+   public VersionStream<V> getLatestSemanticVersionsFromAssemblage(int assemblageConceptSequence,
          ProgressTracker... progressTrackers) {
       return getLatestSememeVersions(
-          this.sememeProvider.getSememeSequencesFromAssemblage(assemblageConceptSequence),
+          this.sememeProvider.getSemanticChronologySequencesFromAssemblage(assemblageConceptSequence),
           progressTrackers);
    }
 
    private Stream<LatestVersion<V>> getLatestSememeVersionsUnwrapped(IntStream sememeSequenceStream,
          ProgressTracker... progressTrackers) {
-      return sememeSequenceStream.mapToObj(
-          (int sememeSequence) -> {
+      return sememeSequenceStream.mapToObj((int sememeSequence) -> {
              try {
-                final SememeChronologyImpl sc = (SememeChronologyImpl) this.sememeProvider.getSememe(sememeSequence);
+                final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.sememeProvider.getSememe(sememeSequence);
                 final int[]                stampSequences = sc.getVersionStampSequences();
                 final int[] latestStampSequences = this.calculator.getLatestStampSequencesAsSet(
                                                                   stampSequences);

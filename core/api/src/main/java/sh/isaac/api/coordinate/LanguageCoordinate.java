@@ -43,8 +43,8 @@ import java.util.List;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 /**
@@ -62,7 +62,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @return an optional latestDescription best matching the {@code LanguageCoordinate} constraints.
     */
    LatestVersion<DescriptionVersion> getDescription(
-           List<SememeChronology> descriptionList,
+           List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate);
 
    /**
@@ -106,7 +106,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @return the fully specified latestDescription
     */
    LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
-           List<SememeChronology> descriptionList,
+           List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate);
 
    /**
@@ -156,7 +156,7 @@ public interface LanguageCoordinate extends Coordinate {
     * @return the preferred latestDescription
     */
    LatestVersion<DescriptionVersion> getPreferredDescription(
-           List<SememeChronology> descriptionList,
+           List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate);
 
    /**
@@ -187,8 +187,8 @@ public interface LanguageCoordinate extends Coordinate {
             case CONCEPT:
                // returned below
                break;
-            case SEMEME:
-               return Get.assemblageService().getSememe(conceptId).getSememeType().toString();
+            case SEMANTIC:
+               return Get.assemblageService().getSememe(conceptId).getVersionType().toString();
             case UNKNOWN_NID:
                return "unknown for nid: " + conceptId;
             default:

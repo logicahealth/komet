@@ -59,9 +59,9 @@ import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -154,15 +154,15 @@ public class GenerateIndexes
          // by user, or by some other attribute that is attached to the concept.  But there simply isn't much on the concept at present, and I have
          // no use case for indexing the concepts.  The IndexService APIs would need enhancement if we allowed indexing things other than sememes.
          final long sememeCount = (int) Get.identifierService()
-                                           .getSememeSequenceStream()
+                                           .getSemanticSequenceStream()
                                            .count();
 
          log.info("Sememes to index: " + sememeCount);
          this.componentCount = sememeCount;
 
-         for (final SememeChronology sememe:
-               (Iterable<SememeChronology>) Get.assemblageService()
-                     .getParallelSememeStream()::iterator) {
+         for (final SemanticChronology sememe:
+               (Iterable<SemanticChronology>) Get.assemblageService()
+                     .getParallelSemanticChronologyStream()::iterator) {
             for (final IndexService i: this.indexers) {
                try {
                   if (sememe == null) {

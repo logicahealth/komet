@@ -54,9 +54,9 @@ import javafx.concurrent.Task;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.commit.ChronologyChangeListener;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -68,7 +68,7 @@ import sh.isaac.api.chronicle.Chronology;
 public class WriteSememeChronicle
         extends Task<Void> {
    /** The sc. */
-   private SememeChronology sc;
+   private SemanticChronology sc;
 
    /** The write semaphore. */
    private final Semaphore writeSemaphore;
@@ -91,7 +91,7 @@ public class WriteSememeChronicle
  written to the AssemblageService.  Parameter 1 is the Sememe, Parameter two is true to indicate that the
  change checker is active for this implementation.
     */
-   public WriteSememeChronicle(SememeChronology sc,
+   public WriteSememeChronicle(SemanticChronology sc,
                                Semaphore writeSemaphore,
                                ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners,
                                BiConsumer<Chronology, Boolean> uncommittedTracking) {
@@ -100,7 +100,7 @@ public class WriteSememeChronicle
       this.changeListeners     = changeListeners;
       this.uncommittedTracking = uncommittedTracking;
       updateTitle("Write and notify sememe change");
-      updateMessage("write: " + sc.getSememeType() + " " + sc.getSememeSequence());
+      updateMessage("write: " + sc.getVersionType() + " " + sc.getSemanticSequence());
       updateProgress(-1, Long.MAX_VALUE);  // Indeterminate progress
       LookupService.getService(ActiveTasks.class)
                    .get()
@@ -120,8 +120,8 @@ public class WriteSememeChronicle
             throws Exception {
       try {
          Get.assemblageService()
-            .writeSememe(this.sc);
-         this.sc = Get.assemblageService().getSememe(this.sc.getSememeSequence());
+            .writeSemantic(this.sc);
+         this.sc = Get.assemblageService().getSememe(this.sc.getSemanticSequence());
          this.uncommittedTracking.accept(this.sc, false);
          updateProgress(1, 2);
          updateMessage("notifying: " + this.sc.getAssemblageSequence());
@@ -139,7 +139,7 @@ public class WriteSememeChronicle
             }
                                       });
          updateProgress(2, 2);
-         updateMessage("complete: " + this.sc.getSememeType() + " " + this.sc.getSememeSequence());
+         updateMessage("complete: " + this.sc.getVersionType() + " " + this.sc.getSemanticSequence());
          return null;
       } finally {
          this.writeSemaphore.release();

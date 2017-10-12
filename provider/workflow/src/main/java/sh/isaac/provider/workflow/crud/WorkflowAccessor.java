@@ -63,16 +63,13 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.commit.Stamp;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription;
-import sh.isaac.api.constants.DynamicSememeConstants;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
-import sh.isaac.model.sememe.DynamicSememeUsageDescriptionImpl;
+import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.provider.workflow.BPMNInfo;
 import sh.isaac.provider.workflow.WorkflowProvider;
 import sh.isaac.provider.workflow.model.WorkflowContentStore;
@@ -83,6 +80,9 @@ import sh.isaac.provider.workflow.model.contents.ProcessDetail.ProcessStatus;
 import sh.isaac.provider.workflow.model.contents.ProcessHistory;
 import sh.isaac.provider.workflow.model.contents.ProcessHistory.ProcessHistoryComparator;
 import sh.isaac.utility.Frills;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -286,19 +286,19 @@ public class WorkflowAccessor {
          case CONCEPT:
             return formatStringConceptInformation(nid, stampCoord, langCoord);
 
-         case SEMEME:
-            final SememeChronology sememe = Get.assemblageService()
+         case SEMANTIC:
+            final SemanticChronology sememe = Get.assemblageService()
                                                .getSememe(nid);
 
-            switch (sememe.getSememeType()) {
+            switch (sememe.getVersionType()) {
             case DESCRIPTION:
-               final LatestVersion<DescriptionVersion> descSem = ((SememeChronology) sememe).getLatestVersion(
+               final LatestVersion<DescriptionVersion> descSem = ((SemanticChronology) sememe).getLatestVersion(
                                                                      stampCoord);
 
                return formatStringDescriptionInformation(descSem);
 
             case DYNAMIC:
-               final LatestVersion<DynamicSememe> dynSem = ((SememeChronology) sememe).getLatestVersion(stampCoord);
+               final LatestVersion<DynamicVersion> dynSem = ((SemanticChronology) sememe).getLatestVersion(stampCoord);
                final int                          assemblageSeq = dynSem.get()
                                                                         .getAssemblageSequence();
 
@@ -307,17 +307,16 @@ public class WorkflowAccessor {
 
                String                              target           = null;
                String                              value            = null;
-               final DynamicSememeUsageDescription sememeDefinition = DynamicSememeUsageDescriptionImpl.read(nid);
+               final DynamicUsageDescription sememeDefinition = DynamicUsageDescriptionImpl.read(nid);
 
-               for (final DynamicSememeColumnInfo info: sememeDefinition.getColumnInfo()) {
+               for (final DynamicColumnInfo info: sememeDefinition.getColumnInfo()) {
                   if (info.getColumnDescriptionConcept()
-                          .equals(DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE
+                          .equals(DynamicConstants.get().DYNAMIC_COLUMN_VALUE
                                 .getUUID())) {
                      value = info.getDefaultColumnValue()
                                  .dataToString();
                   } else if (info.getColumnDescriptionConcept()
-                                 .equals(
-                                     DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT
+                                 .equals(DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT
                                            .getUUID())) {
                      target = info.getDefaultColumnValue()
                                   .dataToString();
@@ -332,7 +331,7 @@ public class WorkflowAccessor {
                   return formatStringValueInformation(value);
                }
             default:
-               throw new Exception("Unsupported Sememe Type: " + sememe.getSememeType());
+               throw new Exception("Unsupported Sememe Type: " + sememe.getVersionType());
             }
          default:
             throw new Exception("Unsupported Object Chronology Type: " + oct);
@@ -576,7 +575,7 @@ public class WorkflowAccessor {
                           .getConcept(compNid);
             break;
 
-         case SEMEME:
+         case SEMANTIC:
             objChron = Get.assemblageService()
                           .getSememe(compNid);
             break;

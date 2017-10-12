@@ -75,7 +75,7 @@ import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.indexers.AssemblageIndexer;
 import sh.isaac.provider.query.lucene.indexers.SememeIndexer;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 

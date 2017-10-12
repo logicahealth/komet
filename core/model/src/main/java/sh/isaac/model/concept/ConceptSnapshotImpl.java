@@ -62,7 +62,7 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 

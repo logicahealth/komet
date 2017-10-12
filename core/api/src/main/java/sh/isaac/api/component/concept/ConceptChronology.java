@@ -52,16 +52,16 @@ import java.util.List;
 
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -116,7 +116,7 @@ public interface ConceptChronology
     *
     * @return the concept description list
     */
-   List<SememeChronology> getConceptDescriptionList();
+   List<SemanticChronology> getConceptDescriptionList();
 
    /**
     * Gets the fully specified description.

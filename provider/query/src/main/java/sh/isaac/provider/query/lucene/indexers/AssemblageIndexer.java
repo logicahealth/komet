@@ -36,15 +36,15 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.constants.DynamicSememeConstants;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.AssemblageIndexService;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 /**
  * Lucene Manager for an assemblage index. Provides the description indexing
@@ -103,16 +103,16 @@ public class AssemblageIndexer extends LuceneIndexer
          //TODO add UUID to index...
       }
       
-      if (chronicle instanceof SememeChronology) {
-         final SememeChronology sememeChronology = (SememeChronology) chronicle;
+      if (chronicle instanceof SemanticChronology) {
+         final SemanticChronology sememeChronology = (SemanticChronology) chronicle;
          incrementIndexedItemCount("Assemblage");
          // Field component nid was already added by calling method. Just need to add additional fields. 
          doc.add(new IntPoint(ASSEMBLAGE_COMPONENT_COORDINATE, sememeChronology.getAssemblageSequence(), sememeChronology.getReferencedComponentNid()));
          
 
-         if (sememeChronology.getSememeType() == VersionType.DESCRIPTION) {
+         if (sememeChronology.getVersionType() == VersionType.DESCRIPTION) {
             indexDescription(doc,
-                             (SememeChronology) sememeChronology);
+                             (SemanticChronology) sememeChronology);
             incrementIndexedItemCount("Description");
          }
       }
@@ -134,7 +134,7 @@ public class AssemblageIndexer extends LuceneIndexer
                this.sequenceTypeMap.put(TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence(),
                                         LuceneDescriptionType.DEFINITION.name());
                this.sequenceTypeMap.put(TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getConceptSequence(), LuceneDescriptionType.REGULAR_NAME.name());
-               this.descExtendedTypeSequence = DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
+               this.descExtendedTypeSequence = DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE
                      .getConceptSequence();
             }
 
@@ -152,7 +152,7 @@ public class AssemblageIndexer extends LuceneIndexer
     * @param sememeChronology the sememe chronology
     */
    private void indexDescription(Document doc,
-                                 SememeChronology sememeChronology) {
+                                 SemanticChronology sememeChronology) {
       doc.add(new IntPoint(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE, sememeChronology.getAssemblageSequence()));
 
       String                      lastDescText     = null;
@@ -203,7 +203,7 @@ public class AssemblageIndexer extends LuceneIndexer
    @Override
    protected boolean indexChronicle(Chronology chronicle) {
       setupNidConstants();
-      return chronicle instanceof SememeChronology;
+      return chronicle instanceof SemanticChronology;
    }
    
    @Override

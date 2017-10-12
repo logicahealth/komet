@@ -81,13 +81,13 @@ import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.LruCache;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.SememeSequenceSet;
+import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeSnapshotService;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.sememe.version.StringVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.SemanticSnapshotService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -218,7 +218,7 @@ public class IdentifierProvider
                             .forEach(
                                 (sememeSequence) -> {
                                    if (!Get.assemblageService()
-                                           .hasSememe(sememeSequence)) {
+                                           .hasSemanticChronology(sememeSequence)) {
                                       final int nid = this.sememeSequenceMap.getNid(sememeSequence)
                                                                             .getAsInt();
 
@@ -317,7 +317,7 @@ public class IdentifierProvider
    @Override
    public ObjectChronologyType getChronologyTypeForNid(int nid) {
       if (this.sememeSequenceMap.containsNid(nid)) {
-         return ObjectChronologyType.SEMEME;
+         return ObjectChronologyType.SEMANTIC;
       }
 
       if (this.conceptSequenceMap.containsNid(nid)) {
@@ -499,9 +499,9 @@ public class IdentifierProvider
          return Get.conceptService()
                    .getOptionalConcept(nid);
 
-      case SEMEME:
+      case SEMANTIC:
          return Get.assemblageService()
-                   .getOptionalSememe(nid);
+                   .getOptionalSemanticChronology(nid);
 
       case UNKNOWN_NID:
          return Optional.empty();
@@ -527,10 +527,10 @@ public class IdentifierProvider
       }
 
       final int authoritySequence = getConceptSequenceForUuids(identifierAuthorityUuid);
-      final SememeSnapshotService<StringVersion> snapshot = Get.assemblageService()
+      final SemanticSnapshotService<StringVersion> snapshot = Get.assemblageService()
                                                               .getSnapshot(StringVersion.class, stampCoordinate);
 
-      return snapshot.getLatestSememeVersionsForComponentFromAssemblage(nid, authoritySequence)
+      return snapshot.getLatestSemanticVersionsForComponentFromAssemblage(nid, authoritySequence)
                      .filter((LatestVersion<StringVersion> latestSememe) -> latestSememe.isPresent())
                      .map((LatestVersion<StringVersion> latestSememe) -> 
                             latestSememe.get()
@@ -555,7 +555,7 @@ public class IdentifierProvider
    }
 
    @Override
-   public int getMaxSememeSequence() {
+   public int getMaxSemanticSequence() {
       return sememeSequenceMap.nextSequence;
    }
 
@@ -637,7 +637,7 @@ public class IdentifierProvider
     * @return the parallel sememe sequence stream
     */
    @Override
-   public IntStream getParallelSememeSequenceStream() {
+   public IntStream getParallelSemanticSequenceStream() {
       return this.sememeSequenceMap.getSequenceStream()
                                    .parallel();
    }
@@ -666,7 +666,7 @@ public class IdentifierProvider
     * @return the sememe nid
     */
    @Override
-   public int getSememeNid(int sememeId) {
+   public int getSemanticNid(int sememeId) {
       if (sememeId < 0) {
          return sememeId;
       }
@@ -681,10 +681,9 @@ public class IdentifierProvider
     * @return the sememe nids for sememe sequences
     */
    @Override
-   public IntStream getSememeNidsForSememeSequences(IntStream sememSequences) {
-      return sememSequences.map(
-          (sequence) -> {
-             return getSememeNid(sequence);
+   public IntStream getSemanticNidsForSemanticSequences(IntStream sememSequences) {
+      return sememSequences.map((sequence) -> {
+             return getSemanticNid(sequence);
           });
    }
 
@@ -695,7 +694,7 @@ public class IdentifierProvider
     * @return the sememe sequence
     */
    @Override
-   public int getSememeSequence(int sememeId) {
+   public int getSemanticSequence(int sememeId) {
       if (sememeId >= 0) {
          return sememeId;
       }
@@ -710,8 +709,8 @@ public class IdentifierProvider
     * @return the sememe sequence for uuids
     */
    @Override
-   public int getSememeSequenceForUuids(Collection<UUID> uuids) {
-      return getSememeSequence(getNidForUuids(uuids));
+   public int getSemanticSequenceForUuids(Collection<UUID> uuids) {
+      return getSemanticSequence(getNidForUuids(uuids));
    }
 
    /**
@@ -721,8 +720,8 @@ public class IdentifierProvider
     * @return the sememe sequence for uuids
     */
    @Override
-   public int getSememeSequenceForUuids(UUID... uuids) {
-      return getSememeSequence(getNidForUuids(uuids));
+   public int getSemanticSequenceForUuids(UUID... uuids) {
+      return getSemanticSequence(getNidForUuids(uuids));
    }
 
    /**
@@ -731,7 +730,7 @@ public class IdentifierProvider
     * @return the sememe sequence stream
     */
    @Override
-   public IntStream getSememeSequenceStream() {
+   public IntStream getSemanticSequenceStream() {
       return this.sememeSequenceMap.getSequenceStream();
    }
 
@@ -742,8 +741,8 @@ public class IdentifierProvider
     * @return the sememe sequences for sememe nids
     */
    @Override
-   public SememeSequenceSet getSememeSequencesForSememeNids(int[] sememeNidArray) {
-      final SememeSequenceSet sequences = new SememeSequenceSet();
+   public SemanticSequenceSet getSemanticSequencesForSemanticNids(int[] sememeNidArray) {
+      final SemanticSequenceSet sequences = new SemanticSequenceSet();
 
       IntStream.of(sememeNidArray)
                .forEach((nid) -> sequences.add(this.sememeSequenceMap.getSequenceFast(nid)));
@@ -848,8 +847,8 @@ public class IdentifierProvider
     * @return the uuid primordial from sememe id
     */
    @Override
-   public Optional<UUID> getUuidPrimordialFromSememeId(int sememeId) {
-      return getUuidPrimordialForNid(getSememeNid(sememeId));
+   public Optional<UUID> getUuidPrimordialFromSemanticId(int sememeId) {
+      return getUuidPrimordialForNid(getSemanticNid(sememeId));
    }
 
    /**

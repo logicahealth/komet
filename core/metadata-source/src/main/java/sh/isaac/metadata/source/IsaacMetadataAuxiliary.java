@@ -62,10 +62,10 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.IsaacTaxonomy;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptBuilder;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import sh.isaac.api.constants.DynamicSememeConstants;
-import sh.isaac.api.constants.MetadataDynamicSememeConstant;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.constants.MetadataDynamicConstant;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.model.observable.ObservableFields;
 
@@ -203,13 +203,13 @@ public class IsaacMetadataAuxiliary
          pushParent(current());
          createConcept("SCTID").mergeFromSpec(TermAux.SNOMED_IDENTIFIER);
          createConcept("Generated UUID").setPrimordialUuid("2faa9262-8fb2-11db-b606-0800200c9a66");
-         createConcept(new MetadataDynamicSememeConstant("LOINC_NUM",
+         createConcept(new MetadataDynamicConstant("LOINC_NUM",
                null,
                "LOINC Identifier",
                "Carries the LOINC_NUM native identifier",
-               new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,
-                     DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getPrimordialUuid(),
-                     DynamicSememeDataType.STRING,
+               new DynamicColumnInfo[] { new DynamicColumnInfo(0,
+                     DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(),
+                     DynamicDataType.STRING,
                      null,
                      true,
                      true) }));

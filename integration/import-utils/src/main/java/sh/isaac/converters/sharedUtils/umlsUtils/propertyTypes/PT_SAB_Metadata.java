@@ -41,9 +41,9 @@ package sh.isaac.converters.sharedUtils.umlsUtils.propertyTypes;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import sh.isaac.api.constants.DynamicSememeConstants;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
 
 //~--- classes ----------------------------------------------------------------
@@ -60,7 +60,7 @@ public class PT_SAB_Metadata
     */
    public PT_SAB_Metadata() {
       // from http://www.nlm.nih.gov/research/umls/rxnorm/docs/2013/rxnorm_doco_full_2013-2.html#s12_8
-      super("Source Vocabulary Metadata", true, DynamicSememeDataType.STRING);
+      super("Source Vocabulary Metadata", true, DynamicDataType.STRING);
       indexByAltNames();
       addProperty("Versioned CUI", "VCUI", "CUI of the versioned SRC concept for a source");
       addProperty("Root CUI", "RCUI", "CUI of the root SRC concept for a source");
@@ -90,10 +90,10 @@ public class PT_SAB_Metadata
                   "0,1,2,3,4 - explained in the License Agreement.",
                   false,
                   -1,
-                  new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null,
+                  new DynamicColumnInfo[] { new DynamicColumnInfo(null,
                         0,
-                        DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
-                        DynamicSememeDataType.UUID,
+                        DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getUUID(),
+                        DynamicDataType.UUID,
                         null,
                         true,
                         null,
@@ -110,10 +110,10 @@ public class PT_SAB_Metadata
                   "The type of relationship label (Section 2.4.2 of UMLS Reference Manual)",
                   false,
                   -1,
-                  new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(null,
+                  new DynamicColumnInfo[] { new DynamicColumnInfo(null,
                         0,
-                        DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getUUID(),
-                        DynamicSememeDataType.UUID,
+                        DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getUUID(),
+                        DynamicDataType.UUID,
                         null,
                         true,
                         null,

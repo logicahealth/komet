@@ -75,13 +75,13 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitService;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.StringVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.util.metainf.MetaInfReader;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -198,14 +198,14 @@ public class ChangeSetLoadProvider
       Optional<AssemblageService> optionalService = Get.optionalService(AssemblageService.class);
 
       if (optionalService.isPresent()) {
-         Optional<SememeChronology> sdic = optionalService.get()
-                                                          .getSememesForComponentFromAssemblage(
+         Optional<SemanticChronology> sdic = optionalService.get()
+                                                          .getSemanticChronologyForComponentFromAssemblage(
                                                                 TermAux.SOLOR_ROOT.getNid(),
                                                                       TermAux.DATABASE_UUID.getConceptSequence())
                                                           .findFirst();
 
          if (sdic.isPresent()) {
-            final LatestVersion<StringVersion> sdi = ((SememeChronology) sdic.get()).getLatestVersion(
+            final LatestVersion<StringVersion> sdi = ((SemanticChronology) sdic.get()).getLatestVersion(
                                                          StampCoordinates.getDevelopmentLatest());
 
             if (sdi.isPresent()) {
@@ -316,8 +316,8 @@ public class ChangeSetLoadProvider
                   LOG.warn("No database identify was found stored in a sememe, after loading changesets.");
                }
 
-               Get.sememeBuilderService()
-                  .getStringSememeBuilder(
+               Get.semanticBuilderService()
+                  .getStringSemanticBuilder(
                       chronicleDbId.toString(),
                       TermAux.SOLOR_ROOT.getNid(),
                       TermAux.DATABASE_UUID.getConceptSequence())

@@ -49,8 +49,8 @@ public enum ComponentCollectionTypes {
    /** All concepts collection. */
    ALL_CONCEPTS,
 
-   /** All sememes collection. */
-   ALL_SEMEMES,
+   /** All semantics collection. */
+   ALL_SEMANTICS,
 
    /** Custom set. */
    CUSTOM_SET;

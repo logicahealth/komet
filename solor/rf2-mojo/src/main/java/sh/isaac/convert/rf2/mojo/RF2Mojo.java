@@ -79,7 +79,6 @@ import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
@@ -102,6 +101,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -588,7 +588,7 @@ public class RF2Mojo
             if (descriptionType == DescriptionType.UNKNOWN) {
                getLog().error("Unknown description type for: " + descRS.getString("TYPEID") + "|"+ id + "|" + term);
             }
-            final SememeChronology desc =
+            final SemanticChronology desc =
                super.importUtil.addDescription(ComponentReference.fromConcept(conceptId),
                                                id,
                                                term,
@@ -786,7 +786,7 @@ public class RF2Mojo
                } else {
                   // kick it over into an association bucket
                   // TODO should I toss these when processing inferred?
-                  final SememeChronology assn =
+                  final SemanticChronology assn =
                      super.importUtil.addAssociation(ComponentReference.fromConcept(r.sourceId),
                                                      r.id,
                                                      r.destinationId,

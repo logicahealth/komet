@@ -49,8 +49,6 @@ import java.util.stream.Stream;
 //import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshotService;
-import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -58,6 +56,8 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.component.semantic.SemanticSnapshotService;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -114,7 +114,7 @@ public class Snapshot {
     * @param type the type
     * @return the sememe snapshot service
     */
-   public <V extends SememeVersion> SememeSnapshotService<V> getSememeSnapshotService(Class<V> type) {
+   public <V extends SemanticVersion> SemanticSnapshotService<V> getSememeSnapshotService(Class<V> type) {
       return Get.assemblageService()
                 .getSnapshot(type, this.stampCoordinate);
    }

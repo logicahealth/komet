@@ -51,15 +51,15 @@ import javafx.beans.property.StringProperty;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.sememe.version.DescriptionVersionImpl;
+import sh.isaac.model.semantic.version.DescriptionVersionImpl;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -99,7 +99,7 @@ public class ObservableDescriptionVersionImpl
     * @param stampedVersion the stamped version
     * @param chronology the chronology
     */
-   public ObservableDescriptionVersionImpl(DescriptionVersion stampedVersion, ObservableSememeChronology chronology) {
+   public ObservableDescriptionVersionImpl(DescriptionVersion stampedVersion, ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
    }
 
@@ -173,7 +173,7 @@ public class ObservableDescriptionVersionImpl
       DescriptionVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
       ObservableDescriptionVersionImpl newObservableVersion = new ObservableDescriptionVersionImpl(
                                                                   newVersion,
-                                                                        (ObservableSememeChronology) chronology);
+                                                                        (ObservableSemanticChronology) chronology);
 
       ((ObservableChronologyImpl) chronology).getVersionList()
             .add(newObservableVersion);

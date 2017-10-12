@@ -52,17 +52,17 @@ import java.util.Map;
 import com.cedarsoftware.util.io.JsonWriter;
 
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
-import sh.isaac.api.component.sememe.version.LongVersion;
-import sh.isaac.api.component.sememe.version.StringVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -145,11 +145,11 @@ public class Writers {
       public void write(Object obj, boolean showType, Writer output, Map<String, Object> args)
                throws IOException {
          @SuppressWarnings("unchecked")
-         final SememeChronology sc         = (SememeChronology) obj;
+         final SemanticChronology sc         = (SemanticChronology) obj;
          final JsonWriter                         mainWriter = Support.getWriter(args);
 
          output.write("\"sememeType\":\"");
-         output.write(sc.getSememeType()
+         output.write(sc.getVersionType()
                         .name());
          output.write("\",");
          mainWriter.newLine();
@@ -158,7 +158,7 @@ public class Writers {
          output.write("\",");
          mainWriter.newLine();
          output.write("\"sememeSequence\":\"");
-         output.write(sc.getSememeSequence() + "");
+         output.write(sc.getSemanticSequence() + "");
          output.write("\",");
          mainWriter.newLine();
          output.write("\"uuidList\":[");
@@ -189,7 +189,7 @@ public class Writers {
          output.write(sc.getReferencedComponentNid() + "");
          output.write("\",");
 
-         final List<SememeVersion> versions = sc.getVersionList();
+         final List<SemanticVersion> versions = sc.getVersionList();
 
          mainWriter.newLine();
          output.write("\"versions\":[");
@@ -197,7 +197,7 @@ public class Writers {
 
          boolean first = true;
 
-         for (final SememeVersion sv: versions) {
+         for (final SemanticVersion sv: versions) {
             if (first) {
                first = false;
                output.write("{");
@@ -241,8 +241,8 @@ public class Writers {
                output.write("\"componentNid\":\"");
                output.write(cns.getComponentNid() + "");
                output.write("\"");
-            } else if (sv instanceof DynamicSememe<?>) {
-               final DynamicSememe<?> ds = (DynamicSememe<?>) sv;
+            } else if (sv instanceof DynamicVersion<?>) {
+               final DynamicVersion<?> ds = (DynamicVersion<?>) sv;
 
                output.write("\"data\":\"");
                output.write(ds.dataToString());

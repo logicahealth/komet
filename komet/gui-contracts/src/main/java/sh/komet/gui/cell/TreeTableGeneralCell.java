@@ -56,19 +56,19 @@ import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
-import sh.isaac.api.component.sememe.version.LongVersion;
-import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.StringVersion;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 
 import sh.komet.gui.control.FixedSizePane;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -130,9 +130,9 @@ public class TreeTableGeneralCell
    protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion version) {
       setWrapText(false);
 
-      SememeVersion sememeVersion = version.unwrap();
+      SemanticVersion sememeVersion = version.unwrap();
       VersionType sememeType = sememeVersion.getChronology()
-              .getSememeType();
+              .getVersionType();
 
       this.setGraphic(null);
       this.setContentDisplay(ContentDisplay.TEXT_ONLY);
@@ -159,7 +159,7 @@ public class TreeTableGeneralCell
                     .add(StyleClasses.CONCEPT_COMPONENT_REFERENCE.toString());
             break;
 
-         case SEMEME:
+         case SEMANTIC:
             referencedComponentText.getStyleClass()
                     .add(StyleClasses.SEMEME_COMPONENT_REFERENCE.toString());
             referencedComponentTextNoNewLine.getStyleClass()
@@ -204,10 +204,10 @@ public class TreeTableGeneralCell
                   addTextToCell(assemblageNameText, conceptText, referencedComponentText);
                   break;
 
-               case SEMEME:
-                  SememeChronology sememe = Get.assemblageService()
+               case SEMANTIC:
+                  SemanticChronology sememe = Get.assemblageService()
                           .getSememe(componentNidVersion.getComponentNid());
-                  LatestVersion<SememeVersion> latest = sememe.getLatestVersion(manifold);
+                  LatestVersion<SemanticVersion> latest = sememe.getLatestVersion(manifold);
 
                   if (latest.isPresent()) {
                      Text sememeText = new Text(latest.get().toUserString());

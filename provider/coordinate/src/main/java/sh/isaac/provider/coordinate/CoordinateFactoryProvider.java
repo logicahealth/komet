@@ -62,8 +62,6 @@ import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeSnapshotService;
 import sh.isaac.api.coordinate.CoordinateFactory;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -78,8 +76,10 @@ import sh.isaac.model.configuration.ManifoldCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.SemanticSnapshotService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -439,7 +439,7 @@ public class CoordinateFactoryProvider
     */
    @Override
    public LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SememeChronology> descriptionList,
+         List<SemanticChronology> descriptionList,
          LanguageCoordinate languageCoordinate) {
       for (final int descType: languageCoordinate.getDescriptionTypePreferenceList()) {
          final LatestVersion<DescriptionVersion> match = getSpecifiedDescription(
@@ -467,10 +467,10 @@ public class CoordinateFactoryProvider
     */
    @Override
    public LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SememeChronology> descriptionList,
+         List<SemanticChronology> descriptionList,
          int typeSequence,
          LanguageCoordinate languageCoordinate) {
-      final SememeSnapshotService<ComponentNidVersion> acceptabilitySnapshot = Get.assemblageService()
+      final SemanticSnapshotService<ComponentNidVersion> acceptabilitySnapshot = Get.assemblageService()
                                                                                  .getSnapshot(ComponentNidVersion.class,
                                                                                              stampCoordinate);
       final List<DescriptionVersion> descriptionsForLanguageOfType = new ArrayList<>();
@@ -479,7 +479,7 @@ public class CoordinateFactoryProvider
                      .forEach((descriptionChronicle) -> {
                             @SuppressWarnings("unchecked")
                             final LatestVersion<DescriptionVersion> latestDescription =
-                               ((SememeChronology) descriptionChronicle).getLatestVersion(stampCoordinate);
+                               ((SemanticChronology) descriptionChronicle).getLatestVersion(stampCoordinate);
 
                             if (latestDescription.isPresent()) {
                                final LatestVersion<DescriptionVersion> latestDescriptionVersion = latestDescription;
@@ -510,7 +510,7 @@ public class CoordinateFactoryProvider
                       if (!preferredForDialect.isPresent()) {
                          descriptionsForLanguageOfType.forEach((DescriptionVersion description) -> {
                                 final Stream<LatestVersion<ComponentNidVersion>> acceptability =
-                                   acceptabilitySnapshot.getLatestSememeVersionsForComponentFromAssemblage(
+                                   acceptabilitySnapshot.getLatestSemanticVersionsForComponentFromAssemblage(
                                        description.getNid(),
                                        dialectAssemblageSequence);
 

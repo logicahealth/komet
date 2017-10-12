@@ -68,16 +68,16 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.SememeSequenceSet;
+import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.commit.ChangeSetListener;
 import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.MultipleDataWriterService;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -198,11 +198,11 @@ public class ChangeSetWriterHandler
                                                      .size());
                                   }
 
-                                  if ((commitRecord.getSememesInCommit() != null) &&
-                                      (commitRecord.getSememesInCommit().size() > 0)) {
-                                     sequenceSetChange(commitRecord.getSememesInCommit());
+                                  if ((commitRecord.getSemanticSequencesInCommit() != null) &&
+                                      (commitRecord.getSemanticSequencesInCommit().size() > 0)) {
+                                     sequenceSetChange(commitRecord.getSemanticSequencesInCommit());
                                      LOG.debug("handle Post Commit: {} sememes",
-                                               commitRecord.getSememesInCommit()
+                                               commitRecord.getSemanticSequencesInCommit()
                                                      .size());
                                   }
                                } catch (final Exception e) {
@@ -273,9 +273,9 @@ public class ChangeSetWriterHandler
 
    /*
     */
-   private void sequenceSetChange(SememeSequenceSet sememeSequenceSet) {
+   private void sequenceSetChange(SemanticSequenceSet sememeSequenceSet) {
       sememeSequenceSet.stream().forEach((sememeSequence) -> {
-                                   final SememeChronology sememe = Get.assemblageService()
+                                   final SemanticChronology sememe = Get.assemblageService()
                                                                                                   .getSememe(
                                                                                                      sememeSequence);
 

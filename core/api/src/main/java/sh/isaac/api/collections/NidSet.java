@@ -149,13 +149,13 @@ public class NidSet
    /**
     * Of.
     *
-    * @param sememeSequenceSet the sememe sequence set
+    * @param semanticSequenceSet the semantic sequence set
     * @return the nid set
     */
-   public static NidSet of(SememeSequenceSet sememeSequenceSet) {
+   public static NidSet of(SemanticSequenceSet semanticSequenceSet) {
       final IdentifierService sp = Get.identifierService();
 
-      return new NidSet(sememeSequenceSet.stream().map((sequence) -> sp.getSememeNid(sequence)));
+      return new NidSet(semanticSequenceSet.stream().map((sequence) -> sp.getSemanticNid(sequence)));
    }
 
    /**

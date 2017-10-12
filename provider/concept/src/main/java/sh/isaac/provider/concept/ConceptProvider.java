@@ -84,14 +84,14 @@ import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.model.observable.ObservableConceptChronologyImpl;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -638,7 +638,7 @@ public class ConceptProvider
        * @param conceptId the concept id
        * @return the description list
        */
-      private List<SememeChronology> getDescriptionList(int conceptId) {
+      private List<SemanticChronology> getDescriptionList(int conceptId) {
          final int conceptNid = Get.identifierService()
                                    .getConceptNid(conceptId);
 

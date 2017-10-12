@@ -100,7 +100,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableSnapshotService;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.query.Clause;
 import sh.isaac.api.query.ComponentCollectionTypes;
 import sh.isaac.api.query.Or;
@@ -225,11 +225,11 @@ public class QueryController
       }
 
       if (allDescriptions.isSelected()) {
-         queryBuilder.from(ComponentCollectionTypes.ALL_SEMEMES);
+         queryBuilder.from(ComponentCollectionTypes.ALL_SEMANTICS);
       }
 
       if (allSememes.isSelected()) {
-         queryBuilder.from(ComponentCollectionTypes.ALL_SEMEMES);
+         queryBuilder.from(ComponentCollectionTypes.ALL_SEMANTICS);
       }
 
       TreeItem<QueryClause> itemToProcess = this.root;

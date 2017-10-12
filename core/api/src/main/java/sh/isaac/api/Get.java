@@ -81,8 +81,6 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeBuilderService;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.CoordinateFactory;
 import sh.isaac.api.externalizable.BinaryDataDifferService;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
@@ -98,10 +96,12 @@ import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.SemanticBuilderService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -164,11 +164,11 @@ public class Get
    /** The path service. */
    private static PathService pathService;
 
-   /** The sememe builder service. */
-   private static SememeBuilderService<?> sememeBuilderService;
+   /** The semantic builder service. */
+   private static SemanticBuilderService<?> semanticBuilderService;
 
-   /** The sememe service. */
-   private static AssemblageService sememeService;
+   /** The assemblage service. */
+   private static AssemblageService assemblageService;
 
    /** The coordinate factory. */
    private static CoordinateFactory coordinateFactory;
@@ -508,9 +508,9 @@ public class Get
     * @return the inferred definition chronology for the specified concept
     * according to the default logic coordinate.
     */
-   public static Optional<SememeChronology> inferredDefinitionChronology(int conceptId) {
+   public static Optional<SemanticChronology> inferredDefinitionChronology(int conceptId) {
       conceptId = identifierService().getConceptNid(conceptId);
-      return assemblageService().getSememesForComponentFromAssemblage(conceptId,
+      return assemblageService().getSemanticChronologyForComponentFromAssemblage(conceptId,
             configurationService().getDefaultLogicCoordinate()
                                   .getInferredAssemblageSequence())
                             .findAny();
@@ -624,8 +624,8 @@ public class Get
       logicalExpressionBuilderService = null;
       logicService                    = null;
       pathService                     = null;
-      sememeBuilderService            = null;
-      sememeService                   = null;
+      semanticBuilderService            = null;
+      assemblageService                   = null;
       taxonomyService                 = null;
       workExecutors                   = null;
       stampService                    = null;
@@ -637,29 +637,29 @@ public class Get
    }
 
    /**
-    * Sememe builder service. 
+    * Semantic builder service. 
     *
-    * @return the sememe builder service<? extends sememe chronology<? extends sememe version<?>>>
+    * @return the semantic builder service
     */
-   public static SememeBuilderService<? extends SememeChronology> sememeBuilderService() {
-      if (sememeBuilderService == null) {
-         sememeBuilderService = getService(SememeBuilderService.class);
+   public static SemanticBuilderService<? extends SemanticChronology> semanticBuilderService() {
+      if (semanticBuilderService == null) {
+         semanticBuilderService = getService(SemanticBuilderService.class);
       }
 
-      return sememeBuilderService;
+      return semanticBuilderService;
    }
 
    /**
-    * Sememe service.
+    * Assemblage service.
     *
-    * @return the sememe service
+    * @return the assemblage service
     */
    public static AssemblageService assemblageService() {
-      if (sememeService == null) {
-         sememeService = getService(AssemblageService.class);
+      if (assemblageService == null) {
+         assemblageService = getService(AssemblageService.class);
       }
 
-      return sememeService;
+      return assemblageService;
    }
 
    public static SerializationService serializer() {
@@ -672,16 +672,16 @@ public class Get
    
    
    /**
-    * Sememe service available.
+    * Assemblage service available.
     *
     * @return true, if successful
     */
-   public static boolean sememeServiceAvailable() {
-      if (sememeService == null) {
-         sememeService = LookupService.getService(AssemblageService.class);
+   public static boolean assemblageServiceAvailable() {
+      if (assemblageService == null) {
+         assemblageService = LookupService.getService(AssemblageService.class);
       }
 
-      return sememeService != null;
+      return assemblageService != null;
    }
 
    /**
@@ -701,7 +701,7 @@ public class Get
     * Perform indexing according to all installed indexers.
     *
     * Cause all index generators implementing the {@link IndexService} to first
-    * <code>clearIndex()</code> then iterate over all sememes in the database
+    * <code>clearIndex()</code> then iterate over all semanticChronologies in the database
     * and pass those chronicles to {@link IndexService#index(sh.isaac.api.chronicle.ObjectChronology)}
     * and when complete, to call <code>commitWriter()</code>.
     * {@link IndexService} services will be discovered using the HK2 dependency injection framework.
@@ -728,9 +728,9 @@ public class Get
     * @return the stated definition chronology for the specified concept
     * according to the default logic coordinate.
     */
-   public static Optional<SememeChronology> statedDefinitionChronology(int conceptId) {
+   public static Optional<SemanticChronology> statedDefinitionChronology(int conceptId) {
       conceptId = identifierService().getConceptNid(conceptId);
-      return assemblageService().getSememesForComponentFromAssemblage(conceptId,
+      return assemblageService().getSemanticChronologyForComponentFromAssemblage(conceptId,
             configurationService().getDefaultLogicCoordinate()
                                   .getStatedAssemblageSequence())
                             .findAny();

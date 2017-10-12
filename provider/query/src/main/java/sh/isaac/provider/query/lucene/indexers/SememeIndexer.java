@@ -76,42 +76,42 @@ import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeBoolean;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeByteArray;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeDouble;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeFloat;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeInteger;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeLong;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeNid;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememePolymorphic;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeSequence;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeString;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeUUID;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.tree.TreeNodeVisitData;
-import sh.isaac.model.sememe.dataTypes.DynamicSememeLongImpl;
-import sh.isaac.model.sememe.dataTypes.DynamicSememeNidImpl;
-import sh.isaac.model.sememe.dataTypes.DynamicSememeStringImpl;
+import sh.isaac.model.semantic.types.DynamicLongImpl;
+import sh.isaac.model.semantic.types.DynamicNidImpl;
+import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
-import sh.isaac.api.component.sememe.version.LongVersion;
-import sh.isaac.api.component.sememe.version.StringVersion;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicBoolean;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicByteArray;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicDouble;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicFloat;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicLong;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicPolymorphic;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicSequence;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
  * This class provides indexing for all String, Nid, Long and Logic Graph sememe types.
  *
- * Additionally, this class provides flexible indexing of all DynamicSememe data types.
+ * Additionally, this class provides flexible indexing of all DynamicVersion data types.
  *
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
@@ -193,8 +193,8 @@ public class SememeIndexer
    /**
     * A convenience method.
     *
-    * Search DynamicSememeData columns, treating them as text - and handling the search in the same mechanism as if this were a
-    * call to the method {@link LuceneIndexer#query(String, boolean, Integer, int, long)}
+    * Search DynamicData columns, treating them as text - and handling the search in the same mechanism as if this were a
+ call to the method {@link LuceneIndexer#query(String, boolean, Integer, int, long)}
     *
     * Calls the method {@link #query(DynamicSememeDataBI, Integer, boolean, Integer[], int, long) with a null parameter for
     * the searchColumns, and wraps the queryString into a DynamicSememeString.
@@ -212,7 +212,7 @@ public class SememeIndexer
          Integer[] sememeConceptSequence,
          int sizeLimit,
          Long targetGeneration) {
-      return query(new DynamicSememeStringImpl(queryString),
+      return query(new DynamicStringImpl(queryString),
                    prefixSearch,
                    sememeConceptSequence,
                    null,
@@ -235,7 +235,7 @@ public class SememeIndexer
     */
 
    // TODO fix this limitation on the column restriction...
-   public final List<SearchResult> query(final DynamicSememeData queryData,
+   public final List<SearchResult> query(final DynamicData queryData,
          final boolean prefixSearch,
          Integer[] sememeConceptSequence,
          Integer[] searchColumns,
@@ -243,12 +243,12 @@ public class SememeIndexer
          Long targetGeneration) {
       Query q = null;
 
-      if (queryData instanceof DynamicSememeString) {
+      if (queryData instanceof DynamicString) {
          q = new QueryWrapperForColumnHandling() {
             @Override
             Query buildQuery(String columnName) {
                // This is the only query type that needs tokenizing, etc.
-               String queryString = ((DynamicSememeString) queryData).getDataString();
+               String queryString = ((DynamicString) queryData).getDataString();
 
                // '-' signs are operators to lucene... but we want to allow nid lookups.  So escape any leading hyphens
                // and any hyphens that are preceeded by spaces.  This way, we don't mess up UUID handling.
@@ -263,9 +263,9 @@ public class SememeIndexer
             }
          }.buildColumnHandlingQuery(sememeConceptSequence, searchColumns);
       } else {
-         if ((queryData instanceof DynamicSememeBoolean) ||
-               (queryData instanceof DynamicSememeNid) ||
-               (queryData instanceof DynamicSememeUUID)) {
+         if ((queryData instanceof DynamicBoolean) ||
+               (queryData instanceof DynamicNid) ||
+               (queryData instanceof DynamicUUID)) {
             q = new QueryWrapperForColumnHandling() {
                @Override
                Query buildQuery(String columnName) {
@@ -273,19 +273,19 @@ public class SememeIndexer
                                                 queryData.getDataObject().toString()));
                }
             }.buildColumnHandlingQuery(sememeConceptSequence, searchColumns);
-         } else if ((queryData instanceof DynamicSememeDouble) ||
-                    (queryData instanceof DynamicSememeFloat) ||
-                    (queryData instanceof DynamicSememeInteger) ||
-                    (queryData instanceof DynamicSememeLong) ||
-                    (queryData instanceof DynamicSememeSequence)) {
+         } else if ((queryData instanceof DynamicDouble) ||
+                    (queryData instanceof DynamicFloat) ||
+                    (queryData instanceof DynamicInteger) ||
+                    (queryData instanceof DynamicLong) ||
+                    (queryData instanceof DynamicSequence)) {
             q = new QueryWrapperForColumnHandling() {
                @Override
                Query buildQuery(String columnName) {
                   Query temp = buildNumericQuery(queryData, queryData, columnName);
 
-                  if (((queryData instanceof DynamicSememeLong) && ((DynamicSememeLong) queryData).getDataLong() < 0) ||
-                        ((queryData instanceof DynamicSememeInteger) &&
-                         ((DynamicSememeInteger) queryData).getDataInteger() < 0)) {
+                  if (((queryData instanceof DynamicLong) && ((DynamicLong) queryData).getDataLong() < 0) ||
+                        ((queryData instanceof DynamicInteger) &&
+                         ((DynamicInteger) queryData).getDataInteger() < 0)) {
                      // Looks like a nid... wrap in an or clause that would do a match on the exact term if it was indexed as a nid, rather than a numeric
                      final BooleanQuery.Builder wrapper = new BooleanQuery.Builder();
 
@@ -298,11 +298,11 @@ public class SememeIndexer
                   return temp;
                }
             }.buildColumnHandlingQuery(sememeConceptSequence, searchColumns);
-         } else if (queryData instanceof DynamicSememeByteArray) {
+         } else if (queryData instanceof DynamicByteArray) {
             throw new RuntimeException("DynamicSememeByteArray isn't indexed");
-         } else if (queryData instanceof DynamicSememePolymorphic) {
+         } else if (queryData instanceof DynamicPolymorphic) {
             throw new RuntimeException("This should have been impossible (polymorphic?)");
-         } else if (queryData instanceof DynamicSememeArray) {
+         } else if (queryData instanceof DynamicArray) {
             throw new RuntimeException("DynamicSememeArray isn't a searchable type");
          } else {
             LOG.error("This should have been impossible (no match on col type)");
@@ -321,22 +321,22 @@ public class SememeIndexer
     */
    @Override
    protected void addFields(Chronology chronicle, Document doc) {
-      final SememeChronology sememeChronology = (SememeChronology) chronicle;
+      final SemanticChronology sememeChronology = (SemanticChronology) chronicle;
 
       doc.add(new TextField(FIELD_SEMEME_ASSEMBLAGE_SEQUENCE,
                             sememeChronology.getAssemblageSequence() + "",
                             Field.Store.NO));
 
       for (final Object sv: sememeChronology.getVersionList()) {
-         if (sv instanceof DynamicSememe) {
-            final DynamicSememe dsv     = (DynamicSememe) sv;
+         if (sv instanceof DynamicVersion) {
+            final DynamicVersion dsv     = (DynamicVersion) sv;
             final Integer[]        columns = this.lric.whatColumnsToIndex(dsv.getAssemblageSequence());
 
             if (columns != null) {
                final int dataColCount = dsv.getData().length;
 
                for (final int col: columns) {
-                  final DynamicSememeData dataCol = (col >= dataColCount) ? null
+                  final DynamicData dataCol = (col >= dataColCount) ? null
                         : dsv.getData(col);
 
                   // Only pass in a column number if we were asked to index more than one column for this sememe
@@ -351,17 +351,17 @@ public class SememeIndexer
          else if (sv instanceof StringVersion) {
             final StringVersion ssv = (StringVersion) sv;
 
-            handleType(doc, new DynamicSememeStringImpl(ssv.getString()), -1);
+            handleType(doc, new DynamicStringImpl(ssv.getString()), -1);
             incrementIndexedItemCount("Sememe String");
          } else if (sv instanceof LongVersion) {
             final LongVersion lsv = (LongVersion) sv;
 
-            handleType(doc, new DynamicSememeLongImpl(lsv.getLongValue()), -1);
+            handleType(doc, new DynamicLongImpl(lsv.getLongValue()), -1);
             incrementIndexedItemCount("Sememe Long");
          } else if (sv instanceof ComponentNidVersion) {
             final ComponentNidVersion csv = (ComponentNidVersion) sv;
 
-            handleType(doc, new DynamicSememeNidImpl(csv.getComponentNid()), -1);
+            handleType(doc, new DynamicNidImpl(csv.getComponentNid()), -1);
             incrementIndexedItemCount("Sememe Component Nid");
          } else if (sv instanceof LogicGraphVersion) {
             final LogicGraphVersion lgsv = (LogicGraphVersion) sv;
@@ -371,8 +371,7 @@ public class SememeIndexer
                                       logicNode.addConceptsReferencedByNode(css);
                                    });
             css.forEachKey(sequence -> {
-                           handleType(
-                               doc, new DynamicSememeNidImpl(Get.identifierService().getConceptNid(sequence)), -1);
+                           handleType(doc, new DynamicNidImpl(Get.identifierService().getConceptNid(sequence)), -1);
                            return true;
                         });
          } else {
@@ -405,14 +404,14 @@ public class SememeIndexer
     */
    @Override
    protected boolean indexChronicle(Chronology chronicle) {
-      if (chronicle instanceof SememeChronology) {
-         final SememeChronology sememeChronology = (SememeChronology) chronicle;
+      if (chronicle instanceof SemanticChronology) {
+         final SemanticChronology sememeChronology = (SemanticChronology) chronicle;
 
-         if ((sememeChronology.getSememeType() == VersionType.DYNAMIC) ||
-               (sememeChronology.getSememeType() == VersionType.STRING) ||
-               (sememeChronology.getSememeType() == VersionType.LONG) ||
-               (sememeChronology.getSememeType() == VersionType.COMPONENT_NID) ||
-               (sememeChronology.getSememeType() == VersionType.LOGIC_GRAPH)) {
+         if ((sememeChronology.getVersionType() == VersionType.DYNAMIC) ||
+               (sememeChronology.getVersionType() == VersionType.STRING) ||
+               (sememeChronology.getVersionType() == VersionType.LONG) ||
+               (sememeChronology.getVersionType() == VersionType.COMPONENT_NID) ||
+               (sememeChronology.getVersionType() == VersionType.LOGIC_GRAPH)) {
             return true;
          }
       }
@@ -430,8 +429,8 @@ public class SememeIndexer
     * @param columnName the column name
     * @return the query
     */
-   private Query buildNumericQuery(DynamicSememeData queryDataLower,
-                                   DynamicSememeData queryDataUpper,
+   private Query buildNumericQuery(DynamicData queryDataLower,
+                                   DynamicData queryDataUpper,
                                    String columnName) {
       // Convert both to the same type (if they differ) - go largest data type to smallest, so we don't lose precision
       // Also - if they pass in longs that would fit in an int, also generate an int query.
@@ -441,14 +440,14 @@ public class SememeIndexer
          boolean            fitsInFloat = false;
          boolean            fitsInInt   = false;
 
-         if ((queryDataLower instanceof DynamicSememeDouble) || (queryDataUpper instanceof DynamicSememeDouble)) {
+         if ((queryDataLower instanceof DynamicDouble) || (queryDataUpper instanceof DynamicDouble)) {
             final Double upperVal = ((queryDataUpper == null) ? null
-                  : ((queryDataUpper instanceof DynamicSememeDouble)
-                     ? ((DynamicSememeDouble) queryDataUpper).getDataDouble()
+                  : ((queryDataUpper instanceof DynamicDouble)
+                     ? ((DynamicDouble) queryDataUpper).getDataDouble()
                      : ((Number) queryDataUpper.getDataObject()).doubleValue()));
             final Double lowerVal = ((queryDataLower == null) ? null
-                  : ((queryDataLower instanceof DynamicSememeDouble)
-                     ? ((DynamicSememeDouble) queryDataLower).getDataDouble()
+                  : ((queryDataLower instanceof DynamicDouble)
+                     ? ((DynamicDouble) queryDataLower).getDataDouble()
                      : ((Number) queryDataLower.getDataObject()).doubleValue()));
 
             bqBuilder.add(DoublePoint.newRangeQuery(columnName, lowerVal, upperVal),
@@ -461,18 +460,18 @@ public class SememeIndexer
          }
 
          if (fitsInFloat ||
-               (queryDataLower instanceof DynamicSememeFloat) ||
-               (queryDataUpper instanceof DynamicSememeFloat)) {
+               (queryDataLower instanceof DynamicFloat) ||
+               (queryDataUpper instanceof DynamicFloat)) {
             final Float upperVal = ((queryDataUpper == null) ? null
                   : ((queryDataUpper == null) ? null
-                                              : ((queryDataUpper instanceof DynamicSememeFloat)
-                                                 ? ((DynamicSememeFloat) queryDataUpper).getDataFloat()
+                                              : ((queryDataUpper instanceof DynamicFloat)
+                                                 ? ((DynamicFloat) queryDataUpper).getDataFloat()
                   : ((fitsInFloat &&
                       ((Number) queryDataUpper.getDataObject()).doubleValue() > Float.MAX_VALUE) ? Float.MAX_VALUE
                   : ((Number) queryDataUpper.getDataObject()).floatValue()))));
             final Float lowerVal = ((queryDataLower == null) ? null
-                  : ((queryDataLower instanceof DynamicSememeFloat)
-                     ? ((DynamicSememeFloat) queryDataLower).getDataFloat()
+                  : ((queryDataLower instanceof DynamicFloat)
+                     ? ((DynamicFloat) queryDataLower).getDataFloat()
                      : ((fitsInFloat &&
                          ((Number) queryDataLower.getDataObject()).doubleValue() < Float.MIN_VALUE) ? Float.MIN_VALUE
                   : ((Number) queryDataLower.getDataObject()).floatValue())));
@@ -481,12 +480,12 @@ public class SememeIndexer
                    Occur.SHOULD);
          }
 
-         if ((queryDataLower instanceof DynamicSememeLong) || (queryDataUpper instanceof DynamicSememeLong)) {
+         if ((queryDataLower instanceof DynamicLong) || (queryDataUpper instanceof DynamicLong)) {
             final Long upperVal = ((queryDataUpper == null) ? null
-                  : ((queryDataUpper instanceof DynamicSememeLong) ? ((DynamicSememeLong) queryDataUpper).getDataLong()
+                  : ((queryDataUpper instanceof DynamicLong) ? ((DynamicLong) queryDataUpper).getDataLong()
                   : ((Number) queryDataUpper.getDataObject()).longValue()));
             final Long lowerVal = ((queryDataLower == null) ? null
-                  : ((queryDataLower instanceof DynamicSememeLong) ? ((DynamicSememeLong) queryDataLower).getDataLong()
+                  : ((queryDataLower instanceof DynamicLong) ? ((DynamicLong) queryDataLower).getDataLong()
                   : ((Number) queryDataLower.getDataObject()).longValue()));
 
             bqBuilder.add(LongPoint.newRangeQuery(columnName, lowerVal, upperVal),
@@ -499,24 +498,24 @@ public class SememeIndexer
          }
 
          if (fitsInInt ||
-               (queryDataLower instanceof DynamicSememeInteger) ||
-               (queryDataUpper instanceof DynamicSememeInteger) ||
-               (queryDataLower instanceof DynamicSememeSequence) ||
-               (queryDataUpper instanceof DynamicSememeSequence)) {
+               (queryDataLower instanceof DynamicInteger) ||
+               (queryDataUpper instanceof DynamicInteger) ||
+               (queryDataLower instanceof DynamicSequence) ||
+               (queryDataUpper instanceof DynamicSequence)) {
             final Integer upperVal = ((queryDataUpper == null) ? null
-                  : ((queryDataUpper instanceof DynamicSememeInteger)
-                     ? ((DynamicSememeInteger) queryDataUpper).getDataInteger()
-                     : ((queryDataUpper instanceof DynamicSememeSequence)
-                        ? ((DynamicSememeSequence) queryDataUpper).getDataSequence()
+                  : ((queryDataUpper instanceof DynamicInteger)
+                     ? ((DynamicInteger) queryDataUpper).getDataInteger()
+                     : ((queryDataUpper instanceof DynamicSequence)
+                        ? ((DynamicSequence) queryDataUpper).getDataSequence()
                         : ((fitsInInt &&
                             ((Number) queryDataUpper.getDataObject()).longValue() >
                             Integer.MAX_VALUE) ? Integer.MAX_VALUE
                                                : ((Number) queryDataUpper.getDataObject()).intValue()))));
             final Integer lowerVal = ((queryDataLower == null) ? null
-                  : ((queryDataLower instanceof DynamicSememeInteger)
-                     ? ((DynamicSememeInteger) queryDataLower).getDataInteger()
-                     : ((queryDataLower instanceof DynamicSememeSequence)
-                        ? ((DynamicSememeSequence) queryDataLower).getDataSequence()
+                  : ((queryDataLower instanceof DynamicInteger)
+                     ? ((DynamicInteger) queryDataLower).getDataInteger()
+                     : ((queryDataLower instanceof DynamicSequence)
+                        ? ((DynamicSequence) queryDataLower).getDataSequence()
                         : ((fitsInInt &&
                             ((Number) queryDataLower.getDataObject()).longValue() <
                             Integer.MIN_VALUE) ? Integer.MIN_VALUE
@@ -546,7 +545,7 @@ public class SememeIndexer
     * @param dataCol the data col
     * @param colNumber the col number
     */
-   private void handleType(Document doc, DynamicSememeData dataCol, int colNumber) {
+   private void handleType(Document doc, DynamicData dataCol, int colNumber) {
       // Not the greatest design for diskspace / performance... but if we want to be able to support searching across
       // all fields / all sememes - and also support searching per-field within a single sememe, we need to double index
       // all of the data.  Once with a standard field name, and once with a field name that includes the column number.
@@ -560,116 +559,116 @@ public class SememeIndexer
       // We also duplicate again, on string fields by indexing with the white space analyzer, in addition to the normal one.
       if (dataCol == null) {
          // noop
-      } else if (dataCol instanceof DynamicSememeBoolean) {
+      } else if (dataCol instanceof DynamicBoolean) {
          doc.add(new StringField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
-                                 ((DynamicSememeBoolean) dataCol).getDataBoolean() + "",
+                                 ((DynamicBoolean) dataCol).getDataBoolean() + "",
                                  Store.NO));
 
          if (colNumber >= 0) {
             doc.add(new StringField(COLUMN_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
-                                    ((DynamicSememeBoolean) dataCol).getDataBoolean() + "",
+                                    ((DynamicBoolean) dataCol).getDataBoolean() + "",
                                     Store.NO));
          }
 
          incrementIndexedItemCount("Dynamic Sememe Boolean");
-      } else if (dataCol instanceof DynamicSememeByteArray) {
+      } else if (dataCol instanceof DynamicByteArray) {
          LOG.warn("Sememe Indexer configured to index a field that isn''t indexable (byte array)");
-      } else if (dataCol instanceof DynamicSememeDouble) {
-         doc.add(new DoublePoint(COLUMN_FIELD_DATA, ((DynamicSememeDouble) dataCol).getDataDouble()));
+      } else if (dataCol instanceof DynamicDouble) {
+         doc.add(new DoublePoint(COLUMN_FIELD_DATA, ((DynamicDouble) dataCol).getDataDouble()));
 
          if (colNumber >= 0) {
             doc.add(new DoublePoint(COLUMN_FIELD_DATA + "_" + colNumber,
-                                    ((DynamicSememeDouble) dataCol).getDataDouble()));
+                                    ((DynamicDouble) dataCol).getDataDouble()));
          }
 
          incrementIndexedItemCount("Dynamic Sememe Double");
-      } else if (dataCol instanceof DynamicSememeFloat) {
-         doc.add(new FloatPoint(COLUMN_FIELD_DATA, ((DynamicSememeFloat) dataCol).getDataFloat()));
+      } else if (dataCol instanceof DynamicFloat) {
+         doc.add(new FloatPoint(COLUMN_FIELD_DATA, ((DynamicFloat) dataCol).getDataFloat()));
 
          if (colNumber >= 0) {
             doc.add(new FloatPoint(COLUMN_FIELD_DATA + "_" + colNumber,
-                                   ((DynamicSememeFloat) dataCol).getDataFloat()));
+                                   ((DynamicFloat) dataCol).getDataFloat()));
          }
 
          incrementIndexedItemCount("Dynamic Sememe Float");
-      } else if (dataCol instanceof DynamicSememeInteger) {
-         doc.add(new IntPoint(COLUMN_FIELD_DATA, ((DynamicSememeInteger) dataCol).getDataInteger()));
+      } else if (dataCol instanceof DynamicInteger) {
+         doc.add(new IntPoint(COLUMN_FIELD_DATA, ((DynamicInteger) dataCol).getDataInteger()));
 
          if (colNumber >= 0) {
             doc.add(new IntPoint(COLUMN_FIELD_DATA + "_" + colNumber,
-                                 ((DynamicSememeInteger) dataCol).getDataInteger()));
+                                 ((DynamicInteger) dataCol).getDataInteger()));
          }
 
          incrementIndexedItemCount("Dynamic Sememe Integer");
-      } else if (dataCol instanceof DynamicSememeSequence) {
-         doc.add(new IntPoint(COLUMN_FIELD_DATA, ((DynamicSememeSequence) dataCol).getDataSequence()));
+      } else if (dataCol instanceof DynamicSequence) {
+         doc.add(new IntPoint(COLUMN_FIELD_DATA, ((DynamicSequence) dataCol).getDataSequence()));
 
          if (colNumber >= 0) {
             doc.add(new IntPoint(COLUMN_FIELD_DATA + "_" + colNumber,
-                                 ((DynamicSememeSequence) dataCol).getDataSequence()));
+                                 ((DynamicSequence) dataCol).getDataSequence()));
          }
 
          incrementIndexedItemCount("Dynamic Sememe Sequence");
-      } else if (dataCol instanceof DynamicSememeLong) {
-         doc.add(new LongPoint(COLUMN_FIELD_DATA, ((DynamicSememeLong) dataCol).getDataLong()));
+      } else if (dataCol instanceof DynamicLong) {
+         doc.add(new LongPoint(COLUMN_FIELD_DATA, ((DynamicLong) dataCol).getDataLong()));
 
          if (colNumber >= 0) {
             doc.add(new LongPoint(COLUMN_FIELD_DATA + "_" + colNumber,
-                                  ((DynamicSememeLong) dataCol).getDataLong()));
+                                  ((DynamicLong) dataCol).getDataLong()));
          }
 
          incrementIndexedItemCount("Dynamic Sememe Long");
-      } else if (dataCol instanceof DynamicSememeNid) {
+      } else if (dataCol instanceof DynamicNid) {
          // No need for ranges on a nid, no need for tokenization (so textField, instead of string field).
          doc.add(new StringField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
-                                 ((DynamicSememeNid) dataCol).getDataNid() + "",
+                                 ((DynamicNid) dataCol).getDataNid() + "",
                                  Store.NO));
 
          if (colNumber >= 0) {
             doc.add(new StringField(COLUMN_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
-                                    ((DynamicSememeNid) dataCol).getDataNid() + "",
+                                    ((DynamicNid) dataCol).getDataNid() + "",
                                     Store.NO));
          }
 
          incrementIndexedItemCount("Dynamic Sememe Nid");
-      } else if (dataCol instanceof DynamicSememePolymorphic) {
+      } else if (dataCol instanceof DynamicPolymorphic) {
          LOG.error("This should have been impossible (polymorphic?)");
-      } else if (dataCol instanceof DynamicSememeString) {
-         doc.add(new TextField(COLUMN_FIELD_DATA, ((DynamicSememeString) dataCol).getDataString(), Store.NO));
+      } else if (dataCol instanceof DynamicString) {
+         doc.add(new TextField(COLUMN_FIELD_DATA, ((DynamicString) dataCol).getDataString(), Store.NO));
 
          if (colNumber >= 0) {
             doc.add(new TextField(COLUMN_FIELD_DATA + "_" + colNumber,
-                                  ((DynamicSememeString) dataCol).getDataString(),
+                                  ((DynamicString) dataCol).getDataString(),
                                   Store.NO));
          }
 
          // yes, indexed 4 different times - twice with the standard analyzer, twice with the whitespace analyzer.
          doc.add(new TextField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
-                               ((DynamicSememeString) dataCol).getDataString(),
+                               ((DynamicString) dataCol).getDataString(),
                                Store.NO));
 
          if (colNumber >= 0) {
             doc.add(new TextField(COLUMN_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
-                                  ((DynamicSememeString) dataCol).getDataString(),
+                                  ((DynamicString) dataCol).getDataString(),
                                   Store.NO));
          }
 
          incrementIndexedItemCount("Dynamic Sememe String");
-      } else if (dataCol instanceof DynamicSememeUUID) {
+      } else if (dataCol instanceof DynamicUUID) {
          // Use the whitespace analyzer on UUIDs
          doc.add(new StringField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
-                                 ((DynamicSememeUUID) dataCol).getDataUUID().toString(),
+                                 ((DynamicUUID) dataCol).getDataUUID().toString(),
                                  Store.NO));
 
          if (colNumber >= 0) {
             doc.add(new StringField(COLUMN_FIELD_DATA + "_" + colNumber + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
-                                    ((DynamicSememeUUID) dataCol).getDataUUID().toString(),
+                                    ((DynamicUUID) dataCol).getDataUUID().toString(),
                                     Store.NO));
          }
 
          incrementIndexedItemCount("Dynamic Sememe UUID");
-      } else if (dataCol instanceof DynamicSememeArray) {
-         for (final DynamicSememeData nestedData: ((DynamicSememeArray) dataCol).getDataArray()) {
+      } else if (dataCol instanceof DynamicArray) {
+         for (final DynamicData nestedData: ((DynamicArray) dataCol).getDataArray()) {
             handleType(doc, nestedData, colNumber);
          }
       } else {

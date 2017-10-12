@@ -88,22 +88,15 @@ import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.DynamicSememe;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
-import sh.isaac.api.component.sememe.version.MutableDescriptionVersion;
-import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.StringVersion;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnUtility;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUsageDescription;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUtility;
-import sh.isaac.api.constants.DynamicSememeConstants;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.MutableDescriptionVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
@@ -129,19 +122,26 @@ import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
-import sh.isaac.model.sememe.DynamicSememeUsageDescriptionImpl;
-import sh.isaac.model.sememe.dataTypes.DynamicSememeStringImpl;
-import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
-import sh.isaac.model.sememe.version.ComponentNidVersionImpl;
-import sh.isaac.model.sememe.version.DescriptionVersionImpl;
-import sh.isaac.model.sememe.version.DynamicSememeImpl;
-import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
-import sh.isaac.model.sememe.version.LongVersionImpl;
-import sh.isaac.model.sememe.version.StringVersionImpl;
+import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
+import sh.isaac.model.semantic.types.DynamicStringImpl;
+import sh.isaac.model.semantic.types.DynamicUUIDImpl;
+import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
+import sh.isaac.model.semantic.version.DescriptionVersionImpl;
+import sh.isaac.model.semantic.version.DynamicImpl;
+import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
+import sh.isaac.model.semantic.version.LongVersionImpl;
+import sh.isaac.model.semantic.version.StringVersionImpl;
 
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnUtility;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -149,11 +149,11 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
  * The Class Frills.
  */
 
-//This is a service, simply to implement the DynamicSememeColumnUtility interface.  Everythign else is static, and may be used directly
+//This is a service, simply to implement the DynamicColumnUtility interface.  Everythign else is static, and may be used directly
 @Service
 @Singleton
 public class Frills
-         implements DynamicSememeColumnUtility {
+         implements DynamicColumnUtility {
    /** The LOG. */
    private static final Logger LOG = LogManager.getLogger(Frills.class);
 
@@ -167,28 +167,28 @@ public class Frills
 
    /**
     * Build, without committing, a new concept using the provided columnName and columnDescription values which is suitable
-    * for use as a column descriptor within {@link DynamicSememeUsageDescription}.
+    * for use as a column descriptor within {@link DynamicUsageDescription}.
     *
-    * The new concept will be created under the concept {@link DynamicSememeConstants#DYNAMIC_SEMEME_COLUMNS}
-    *
-    * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
-    * to be created) would look roughly like this:
-    *
-    * DynamicSememeUtility.createNewDynamicSememeUsageDescriptionConcept(
-    *       "The name of the Sememe",
-    *       "The description of the Sememe",
-    *       new DynamicSememeColumnInfo[]{new DynamicSememeColumnInfo(
-    *               0,
-    *               DynamicSememeColumnInfo.createNewDynamicSememeColumnInfoConcept(
-    *                       "column name",
-    *                       "column description"
-    *                       )
-    *               DynamicSememeDataType.STRING,
-    *               new DynamicSememeStringImpl("default value")
-    *               )}
-    *       )
-    *
-    * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
+    * The new concept will be created under the concept {@link DynamicConstants#DYNAMIC_COLUMNS}
+
+ A complete usage pattern (where both the refex assemblage concept and the column name concept needs
+ to be created) would look roughly like this:
+
+ DynamicUtility.createNewDynamicSememeUsageDescriptionConcept(
+       "The name of the Sememe",
+       "The description of the Sememe",
+       new DynamicColumnInfo[]{new DynamicColumnInfo(
+               0,
+               DynamicColumnInfo.createNewDynamicSememeColumnInfoConcept(
+                       "column name",
+                       "column description"
+                       )
+               DynamicDataType.STRING,
+               new DynamicSememeStringImpl("default value")
+               )}
+       )
+
+ //TODO [REFEX] figure out language details (how we know what language to put on the name/description
     *
     * @param columnName the column name
     * @param columnDescription the column description
@@ -217,11 +217,8 @@ public class Frills
       final LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class)
                                                                .getLogicalExpressionBuilder();
 
-      NecessarySet(
-          And(
-              ConceptAssertion(
-                  Get.conceptService()
-                     .getConcept(DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMNS
+      NecessarySet(And(ConceptAssertion(Get.conceptService()
+                     .getConcept(DynamicConstants.get().DYNAMIC_COLUMNS
                            .getNid()),
                   defBuilder)));
 
@@ -261,7 +258,7 @@ public class Frills
 
    /**
     * This method returns an uncommitted refexUsageDescriptor concept chronology.
-    * A DynamicSememeUsageDescription may be constructed by passing it to the DynamicSememeUsageDescriptionImpl ctor.
+    * A DynamicUsageDescription may be constructed by passing it to the DynamicSememeUsageDescriptionImpl ctor.
     *
     * @param sememeFQN the sememe FQN
     * @param sememePreferredTerm the sememe preferred term
@@ -277,7 +274,7 @@ public class Frills
    public static ConceptChronology buildUncommittedNewDynamicSememeUsageDescription(String sememeFQN,
          String sememePreferredTerm,
          String sememeDescription,
-         DynamicSememeColumnInfo[] columns,
+         DynamicColumnInfo[] columns,
          Integer parentConceptNidOrSequence,
          ObjectChronologyType referencedComponentRestriction,
          VersionType referencedComponentSubRestriction,
@@ -297,9 +294,8 @@ public class Frills
          final LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class)
                                                                   .getLogicalExpressionBuilder();
          final ConceptChronology parentConcept = Get.conceptService()
-                                                    .getConcept(
-                                                          (parentConceptNidOrSequence == null)
-                                                          ? DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSEMBLAGES
+                                                    .getConcept((parentConceptNidOrSequence == null)
+                                                          ? DynamicConstants.get().DYNAMIC_ASSEMBLAGES
                                                                 .getNid()
                : parentConceptNidOrSequence);
 
@@ -307,7 +303,7 @@ public class Frills
 
          final LogicalExpression parentDef = defBuilder.build();
          final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(sememeFQN, null, parentDef);
-         DescriptionBuilder<? extends SememeChronology, ? extends MutableDescriptionVersion> definitionBuilder =
+         DescriptionBuilder<? extends SemanticChronology, ? extends MutableDescriptionVersion> definitionBuilder =
             descriptionBuilderService.getDescriptionBuilder(
                 sememePreferredTerm,
                 builder,
@@ -330,15 +326,14 @@ public class Frills
                 MetaData.ENGLISH_LANGUAGE____SOLOR);
             definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
 
-            final SememeChronology definitionSememe = definitionBuilder.build(
+            final SemanticChronology definitionSememe = definitionBuilder.build(
                                                              localEditCoord,
                                                                    ChangeCheckerMode.ACTIVE)
                                                                           .getNoThrow();
 
-            Get.sememeBuilderService()
-               .getDynamicSememeBuilder(
-                   definitionSememe.getNid(),
-                   DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION
+            Get.semanticBuilderService()
+               .getDynamicBuilder(definitionSememe.getNid(),
+                   DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION
                                          .getSequence(),
                    null)
                .build(localEditCoord, ChangeCheckerMode.ACTIVE)
@@ -347,16 +342,15 @@ public class Frills
 
          if (columns != null) {
             // Ensure that we process in column order - we don't always keep track of that later - we depend on the data being stored in the right order.
-            final TreeSet<DynamicSememeColumnInfo> sortedColumns = new TreeSet<>(Arrays.asList(columns));
+            final TreeSet<DynamicColumnInfo> sortedColumns = new TreeSet<>(Arrays.asList(columns));
 
-            for (final DynamicSememeColumnInfo ci: sortedColumns) {
-               final DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class)
+            for (final DynamicColumnInfo ci: sortedColumns) {
+               final DynamicData[] data = LookupService.getService(DynamicUtility.class)
                                                              .configureDynamicSememeDefinitionDataForColumn(ci);
 
-               Get.sememeBuilderService()
-                  .getDynamicSememeBuilder(
-                      newCon.getNid(),
-                      DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION
+               Get.semanticBuilderService()
+                  .getDynamicBuilder(newCon.getNid(),
+                      DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION
                                             .getSequence(),
                       data)
                   .build(localEditCoord, ChangeCheckerMode.ACTIVE)
@@ -364,16 +358,15 @@ public class Frills
             }
          }
 
-         final DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class)
+         final DynamicData[] data = LookupService.getService(DynamicUtility.class)
                                                        .configureDynamicSememeRestrictionData(
                                                              referencedComponentRestriction,
                                                                    referencedComponentSubRestriction);
 
          if (data != null) {
-            Get.sememeBuilderService()
-               .getDynamicSememeBuilder(
-                   newCon.getNid(),
-                   DynamicSememeConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
+            Get.semanticBuilderService()
+               .getDynamicBuilder(newCon.getNid(),
+                   DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
                                          .getSequence(),
                    data)
                .build(localEditCoord, ChangeCheckerMode.ACTIVE)
@@ -388,28 +381,28 @@ public class Frills
 
    /**
     * Create a new concept using the provided columnName and columnDescription values which is suitable
-    * for use as a column descriptor within {@link DynamicSememeUsageDescription}.
+    * for use as a column descriptor within {@link DynamicUsageDescription}.
     *
-    * The new concept will be created under the concept {@link DynamicSememeConstants#DYNAMIC_SEMEME_COLUMNS}
-    *
-    * A complete usage pattern (where both the refex assemblage concept and the column name concept needs
-    * to be created) would look roughly like this:
-    *
-    * DynamicSememeUtility.createNewDynamicSememeUsageDescriptionConcept(
-    *       "The name of the Sememe",
-    *       "The description of the Sememe",
-    *       new DynamicSememeColumnInfo[]{new DynamicSememeColumnInfo(
-    *               0,
-    *               DynamicSememeColumnInfo.createNewDynamicSememeColumnInfoConcept(
-    *                       "column name",
-    *                       "column description"
-    *                       )
-    *               DynamicSememeDataType.STRING,
-    *               new DynamicSememeStringImpl("default value")
-    *               )}
-    *       )
-    *
-    * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
+    * The new concept will be created under the concept {@link DynamicConstants#DYNAMIC_COLUMNS}
+
+ A complete usage pattern (where both the refex assemblage concept and the column name concept needs
+ to be created) would look roughly like this:
+
+ DynamicUtility.createNewDynamicSememeUsageDescriptionConcept(
+       "The name of the Sememe",
+       "The description of the Sememe",
+       new DynamicColumnInfo[]{new DynamicColumnInfo(
+               0,
+               DynamicColumnInfo.createNewDynamicSememeColumnInfoConcept(
+                       "column name",
+                       "column description"
+                       )
+               DynamicDataType.STRING,
+               new DynamicSememeStringImpl("default value")
+               )}
+       )
+
+ //TODO [REFEX] figure out language details (how we know what language to put on the name/description
     *
     * @param columnName the column name
     * @param columnDescription the column description
@@ -437,11 +430,11 @@ public class Frills
    }
 
    /**
-    * See {@link DynamicSememeUsageDescription} for the full details on what this builds.
+    * See {@link DynamicUsageDescription} for the full details on what this builds.
     *
     * Does all the work to create a new concept that is suitable for use as an Assemblage Concept for a new style Dynamic Sememe.
     *
-    * The concept will be created under the concept {@link DynamicSememeConstants#DYNAMIC_SEMEME_ASSEMBLAGES} if a parent is not specified
+    * The concept will be created under the concept {@link DynamicConstants#DYNAMIC_ASSEMBLAGES} if a parent is not specified
     *
     * //TODO [REFEX] figure out language details (how we know what language to put on the name/description
     *
@@ -449,19 +442,19 @@ public class Frills
     * @param sememePreferredTerm - The preferred term for this refex concept that will be created.
     * @param sememeDescription - A user friendly string the explains the overall intended purpose of this sememe (what it means, what it stores)
     * @param columns - The column information for this new refex.  May be an empty list or null.
-    * @param parentConceptNidOrSequence  - optional - if null, uses {@link DynamicSememeConstants#DYNAMIC_SEMEME_ASSEMBLAGES}
+    * @param parentConceptNidOrSequence  - optional - if null, uses {@link DynamicConstants#DYNAMIC_ASSEMBLAGES}
     * @param referencedComponentRestriction - optional - may be null - if provided - this restricts the type of object referenced by the nid or
     * UUID that is set for the referenced component in an instance of this sememe.  If {@link ObjectChronologyType#UNKNOWN_NID} is passed, it is ignored, as
     * if it were null.
-    * @param referencedComponentSubRestriction - optional - may be null - subtype restriction for {@link ObjectChronologyType#SEMEME} restrictions
+    * @param referencedComponentSubRestriction - optional - may be null - subtype restriction for {@link ObjectChronologyType#SEMANTIC} restrictions
     * @param editCoord - optional - the coordinate to use during create of the sememe concept (and related descriptions) - if not provided, uses system default.
     * @return a reference to the newly created sememe item
     */
    @SuppressWarnings("deprecation")
-   public static DynamicSememeUsageDescription createNewDynamicSememeUsageDescriptionConcept(String sememeFQN,
+   public static DynamicUsageDescription createNewDynamicSememeUsageDescriptionConcept(String sememeFQN,
          String sememePreferredTerm,
          String sememeDescription,
-         DynamicSememeColumnInfo[] columns,
+         DynamicColumnInfo[] columns,
          Integer parentConceptNidOrSequence,
          ObjectChronologyType referencedComponentRestriction,
          VersionType referencedComponentSubRestriction,
@@ -486,7 +479,7 @@ public class Frills
          throw new RuntimeException("Commit of Dynamic Sememe Failed!", e);
       }
 
-      return new DynamicSememeUsageDescriptionImpl(newDynamicSememeUsageDescriptionConcept.getNid());
+      return new DynamicUsageDescriptionImpl(newDynamicSememeUsageDescriptionConcept.getNid());
    }
 
    /**
@@ -501,10 +494,9 @@ public class Frills
       }
 
       final boolean temp = Get.assemblageService()
-                              .getSememesForComponentFromAssemblage(
-                                  Get.identifierService()
+                              .getSemanticChronologyForComponentFromAssemblage(Get.identifierService()
                                      .getConceptNid(conceptSequence),
-                                  DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME
+                                  DynamicConstants.get().DYNAMIC_ASSOCIATION_SEMEME
                                         .getConceptSequence())
                               .anyMatch(sememe -> true);
 
@@ -519,7 +511,7 @@ public class Frills
     * @return true, if successful
     */
    public static boolean definesDynamicSememe(int conceptSequence) {
-      return DynamicSememeUsageDescriptionImpl.isDynamicSememe(conceptSequence);
+      return DynamicUsageDescriptionImpl.isDynamicSememe(conceptSequence);
    }
 
    /**
@@ -534,7 +526,7 @@ public class Frills
       }
 
       final boolean temp = Get.assemblageService()
-                              .getSememesForComponentFromAssemblage(
+                              .getSemanticChronologyForComponentFromAssemblage(
                                   Get.identifierService()
                                      .getConceptNid(conceptSequence),
                                   IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_SEMEME_TYPE
@@ -614,7 +606,7 @@ public class Frills
     */
    @SuppressWarnings("unchecked")
    @Override
-   public String[] readDynamicSememeColumnNameDescription(UUID columnDescriptionConcept) {
+   public String[] readDynamicColumnNameDescription(UUID columnDescriptionConcept) {
       String columnName           = null;
       String columnDescription    = null;
       String fqn                  = null;
@@ -625,13 +617,13 @@ public class Frills
          final ConceptChronology cc = Get.conceptService()
                                          .getConcept(columnDescriptionConcept);
 
-         for (final SememeChronology dc: cc.getConceptDescriptionList()) {
+         for (final SemanticChronology dc: cc.getConceptDescriptionList()) {
             if ((columnName != null) && (columnDescription != null)) {
                break;
             }
 
             @SuppressWarnings("rawtypes")
-            final LatestVersion<DescriptionVersion> descriptionVersion = ((SememeChronology) dc).getLatestVersion(
+            final LatestVersion<DescriptionVersion> descriptionVersion = ((SemanticChronology) dc).getLatestVersion(
                                  Get.configurationService()
                                                                                          .getDefaultStampCoordinate()
                                                                                          .makeCoordinateAnalog(
@@ -741,12 +733,12 @@ public class Frills
       final Map<Integer, Integer> dialectSequenceToAcceptabilityNidMap = new ConcurrentHashMap<>();
 
       Get.assemblageService()
-         .getSememesForComponent(descriptionSememeNid)
+         .getSemanticChronologyForComponent(descriptionSememeNid)
          .forEach(nestedSememe -> {
-                if (nestedSememe.getSememeType() == VersionType.COMPONENT_NID) {
+                if (nestedSememe.getVersionType() == VersionType.COMPONENT_NID) {
                    final int dialectSequence = nestedSememe.getAssemblageSequence();
                    @SuppressWarnings({ "rawtypes", "unchecked" })
-                   final LatestVersion<ComponentNidVersion> latest = ((SememeChronology) nestedSememe).getLatestVersion(
+                   final LatestVersion<ComponentNidVersion> latest = ((SemanticChronology) nestedSememe).getLatestVersion(
                                                                          (stamp == null)
                                                                                ? Get.configurationService()
                                                                                      .getDefaultStampCoordinate()
@@ -854,29 +846,28 @@ public class Frills
                                                   .getConceptSequenceForUuids(assemblageConceptUuid.get());
 
          Get.assemblageService()
-            .getSnapshot(
-                SememeVersion.class,
+            .getSnapshot(SemanticVersion.class,
                 (stamp == null) ? Get.configurationService()
                                      .getDefaultStampCoordinate()
                                 : stamp)
-            .getLatestSememeVersionsForComponentFromAssemblage(componentNid, assemblageConceptSequence)
+            .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, assemblageConceptSequence)
             .forEach(latestSememe -> {
                    if (latestSememe.get()
                                    .getChronology()
-                                   .getSememeType() == VersionType.STRING) {
+                                   .getVersionType() == VersionType.STRING) {
                       values.add(((StringVersionImpl) latestSememe.get()).getString());
                    } else if (latestSememe.get()
                                           .getChronology()
-                                          .getSememeType() == VersionType.COMPONENT_NID) {
+                                          .getVersionType() == VersionType.COMPONENT_NID) {
                       values.add(((ComponentNidVersionImpl) latestSememe.get()).getComponentNid() + "");
                    } else if (latestSememe.get()
                                           .getChronology()
-                                          .getSememeType() == VersionType.LONG) {
+                                          .getVersionType() == VersionType.LONG) {
                       values.add(((LongVersionImpl) latestSememe.get()).getLongValue() + "");
                    } else if (latestSememe.get()
                                           .getChronology()
-                                          .getSememeType() == VersionType.DYNAMIC) {
-                      final DynamicSememeData[] data = ((DynamicSememeImpl) latestSememe.get()).getData();
+                                          .getVersionType() == VersionType.DYNAMIC) {
+                      final DynamicData[] data = ((DynamicImpl) latestSememe.get()).getData();
 
                       if (data.length > 0) {
                          LOG.warn(
@@ -916,7 +907,7 @@ public class Frills
     * @param sc the sc
     * @return true, if association
     */
-   public static boolean isAssociation(SememeChronology sc) {
+   public static boolean isAssociation(SemanticChronology sc) {
       return definesAssociation(sc.getAssemblageSequence());
    }
 
@@ -942,8 +933,8 @@ public class Frills
     * @return the optional
     */
    public static Optional<Boolean> isConceptFullyDefined(int conceptNid, boolean stated) {
-      final Optional<SememeChronology> sememe = Get.assemblageService()
-                                                                            .getSememesForComponentFromAssemblage(
+      final Optional<SemanticChronology> sememe = Get.assemblageService()
+                                                                            .getSemanticChronologyForComponentFromAssemblage(
                                                                                   conceptNid,
                                                                                         (stated
                                                                                          ? LogicCoordinates.getStandardElProfile()
@@ -954,7 +945,7 @@ public class Frills
 
       if (sememe.isPresent()) {
          @SuppressWarnings({ "unchecked", "rawtypes" })
-         final LatestVersion<LogicGraphVersion> sv = ((SememeChronology) sememe.get()).getLatestVersion(StampCoordinates.getDevelopmentLatest());
+         final LatestVersion<LogicGraphVersion> sv = ((SemanticChronology) sememe.get()).getLatestVersion(StampCoordinates.getDevelopmentLatest());
 
          if (sv.isPresent()) {
             return Optional.of(isConceptFullyDefined((LogicGraphVersion) sv.get()));
@@ -1028,11 +1019,11 @@ public class Frills
 
       // Ignore the language annotation... treat preferred in any language as good enough for our purpose here...
       Get.assemblageService()
-         .getSememesForComponent(descriptionSememeNid)
+         .getSemanticChronologyForComponent(descriptionSememeNid)
          .forEach(nestedSememe -> {
-                if (nestedSememe.getSememeType() == VersionType.COMPONENT_NID) {
+                if (nestedSememe.getVersionType() == VersionType.COMPONENT_NID) {
                    @SuppressWarnings({ "rawtypes", "unchecked" })
-                   final LatestVersion<ComponentNidVersion> latest = ((SememeChronology) nestedSememe).getLatestVersion(
+                   final LatestVersion<ComponentNidVersion> latest = ((SemanticChronology) nestedSememe).getLatestVersion(
                                                                                (stamp == null)
                                                                                ? Get.configurationService()
                                                                                      .getDefaultStampCoordinate()
@@ -1087,11 +1078,11 @@ public class Frills
       final ArrayList<DescriptionVersion> results = new ArrayList<>();
 
       Get.assemblageService()
-         .getSememesForComponent(conceptNid)
+         .getSemanticChronologyForComponent(conceptNid)
          .forEach(descriptionC -> {
-                if (descriptionC.getSememeType() == VersionType.DESCRIPTION) {
+                if (descriptionC.getVersionType() == VersionType.DESCRIPTION) {
                    @SuppressWarnings({ "unchecked", "rawtypes" })
-                   final LatestVersion<DescriptionVersion> latest = ((SememeChronology) descriptionC).getLatestVersion(
+                   final LatestVersion<DescriptionVersion> latest = ((SemanticChronology) descriptionC).getLatestVersion(
                                                                               (stamp == null)
                                                                               ? Get.configurationService()
                                                                                     .getDefaultStampCoordinate()
@@ -1214,9 +1205,9 @@ public class Frills
                   break;
                }
 
-               case SEMEME: {
+               case SEMANTIC: {
                   seq = Get.identifierService()
-                           .getSememeSequenceForUuids(uuidId.get());
+                           .getSemanticSequenceForUuids(uuidId.get());
                   break;
                }
 
@@ -1277,12 +1268,12 @@ public class Frills
     * @return the inferred definition chronology for the specified concept
     * according to the default logic coordinate.
     */
-   public static Optional<SememeChronology> getInferredDefinitionChronology(int conceptId,
+   public static Optional<SemanticChronology> getInferredDefinitionChronology(int conceptId,
          LogicCoordinate logicCoordinate) {
       conceptId = Get.identifierService()
                      .getConceptNid(conceptId);
       return Get.assemblageService()
-                .getSememesForComponentFromAssemblage(conceptId, logicCoordinate.getInferredAssemblageSequence())
+                .getSemanticChronologyForComponentFromAssemblage(conceptId, logicCoordinate.getInferredAssemblageSequence())
                 .findAny();
    }
 
@@ -1291,14 +1282,14 @@ public class Frills
     *
     * @param id The int sequence or NID of the Concept for which the logic graph is requested
     * @param stated boolean indicating stated vs inferred definition chronology should be used
-    * @return An Optional containing a LogicGraphVersion SememeChronology
+    * @return An Optional containing a LogicGraphVersion SemanticChronology
     */
-   public static Optional<SememeChronology> getLogicGraphChronology(int id,
+   public static Optional<SemanticChronology> getLogicGraphChronology(int id,
          boolean stated) {
       LOG.debug("Getting {} logic graph chronology for {}", (stated ? "stated"
             : "inferred"), Optional.ofNullable(Frills.getIdInfo(id)));
 
-      final Optional<SememeChronology> defChronologyOptional =
+      final Optional<SemanticChronology> defChronologyOptional =
          stated ? Get.statedDefinitionChronology(
              id)
                 : Get.inferredDefinitionChronology(id);
@@ -1308,8 +1299,8 @@ public class Frills
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id)));
 
          @SuppressWarnings("unchecked")
-         final SememeChronology sememeChronology =
-            (SememeChronology) defChronologyOptional.get();
+         final SemanticChronology sememeChronology =
+            (SemanticChronology) defChronologyOptional.get();
 
          return Optional.of(sememeChronology);
       } else {
@@ -1327,9 +1318,9 @@ public class Frills
     * @param stampCoordinate The StampCoordinate for which the logic graph is requested
     * @param languageCoordinate The LanguageCoordinate for which the logic graph is requested
     * @param logicCoordinate the LogicCoordinate for which the logic graph is requested
-    * @return An Optional containing a LogicGraphVersion SememeChronology
+    * @return An Optional containing a LogicGraphVersion SemanticChronology
     */
-   public static Optional<SememeChronology> getLogicGraphChronology(int id,
+   public static Optional<SemanticChronology> getLogicGraphChronology(int id,
          boolean stated,
          StampCoordinate stampCoordinate,
          LanguageCoordinate languageCoordinate,
@@ -1337,7 +1328,7 @@ public class Frills
       LOG.debug("Getting {} logic graph chronology for {}", (stated ? "stated"
             : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
 
-      final Optional<SememeChronology> defChronologyOptional = stated ? getStatedDefinitionChronology(
+      final Optional<SemanticChronology> defChronologyOptional = stated ? getStatedDefinitionChronology(
                                                                                               id,
                                                                                                     logicCoordinate)
             : getInferredDefinitionChronology(id, logicCoordinate);
@@ -1347,8 +1338,8 @@ public class Frills
                : "inferred"), Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
 
          @SuppressWarnings("unchecked")
-         final SememeChronology sememeChronology =
-            (SememeChronology) defChronologyOptional.get();
+         final SemanticChronology sememeChronology =
+            (SemanticChronology) defChronologyOptional.get();
 
          return Optional.of(sememeChronology);
       } else {
@@ -1361,19 +1352,19 @@ public class Frills
    /**
     * Gets the logic graph version.
     *
-    * @param logicGraphSememeChronology The SememeChronology<? extends LogicGraphVersion> chronology for which the logic graph version is requested
+    * @param logicGraphSememeChronology The SemanticChronology<? extends LogicGraphVersion> chronology for which the logic graph version is requested
     * @param stampCoordinate StampCoordinate to be used for selecting latest version
-    * @return An Optional containing a LogicGraphVersion SememeChronology
+    * @return An Optional containing a LogicGraphVersion SemanticChronology
     */
    public static LatestVersion<LogicGraphVersion> getLogicGraphVersion(
-         SememeChronology logicGraphSememeChronology,
+         SemanticChronology logicGraphSememeChronology,
          StampCoordinate stampCoordinate) {
       LOG.debug(
           "Getting logic graph sememe for {}",
           Optional.ofNullable(Frills.getIdInfo(logicGraphSememeChronology.getReferencedComponentNid())));
 
       @SuppressWarnings({ "unchecked", "rawtypes" })
-      final LatestVersion<LogicGraphVersion> latest = ((SememeChronology) logicGraphSememeChronology).getLatestVersion(
+      final LatestVersion<LogicGraphVersion> latest = ((SemanticChronology) logicGraphSememeChronology).getLatestVersion(
                                                                 stampCoordinate);
 
       if (latest.isPresent()) {
@@ -1395,7 +1386,7 @@ public class Frills
     * @param sc the sc
     * @return true, if mapping
     */
-   public static boolean isMapping(SememeChronology sc) {
+   public static boolean isMapping(SemanticChronology sc) {
       return definesMapping(sc.getAssemblageSequence());
    }
 
@@ -1406,7 +1397,7 @@ public class Frills
     * @return true if there is a nested sememe, false otherwise
     */
    public static boolean hasNestedSememe(Chronology chronology) {
-      return !chronology.getSememeList()
+      return !chronology.getSemanticChronologyList()
                         .isEmpty();
    }
 
@@ -1489,7 +1480,7 @@ public class Frills
                                                                        (stamp == null) ? Get.configurationService()
                                                                              .getDefaultStampCoordinate()
                : stamp)
-                                                           .getLatestSememeVersionsForComponentFromAssemblage(
+                                                           .getLatestSemanticVersionsForComponentFromAssemblage(
                                                                  componentNid,
                                                                        MetaData.SCTID____SOLOR.getConceptSequence())
                                                            .findFirstVersion();
@@ -1619,12 +1610,12 @@ public class Frills
     * @return the stated definition chronology for the specified concept
     * according to the default logic coordinate.
     */
-   public static Optional<SememeChronology> getStatedDefinitionChronology(int conceptId,
+   public static Optional<SemanticChronology> getStatedDefinitionChronology(int conceptId,
          LogicCoordinate logicCoordinate) {
       conceptId = Get.identifierService()
                      .getConceptNid(conceptId);
       return Get.assemblageService()
-                .getSememesForComponentFromAssemblage(conceptId, logicCoordinate.getStatedAssemblageSequence())
+                .getSemanticChronologyForComponentFromAssemblage(conceptId, logicCoordinate.getStatedAssemblageSequence())
                 .findAny();
    }
 
@@ -1638,10 +1629,10 @@ public class Frills
       switch (obj.getIsaacObjectType()) {
       case SEMEME: {
          @SuppressWarnings({ "rawtypes", "unchecked" })
-         final SememeChronology sememeChronology =
-            (SememeChronology) obj;
+         final SemanticChronology sememeChronology =
+            (SemanticChronology) obj;
 
-         switch (sememeChronology.getSememeType()) {
+         switch (sememeChronology.getVersionType()) {
          case COMPONENT_NID:
             return ComponentNidVersionImpl.class;
 
@@ -1649,7 +1640,7 @@ public class Frills
             return DescriptionVersionImpl.class;
 
          case DYNAMIC:
-            return DynamicSememeImpl.class;
+            return DynamicImpl.class;
 
          case LOGIC_GRAPH:
             return LogicGraphVersionImpl.class;
@@ -1665,7 +1656,7 @@ public class Frills
          default:
             throw new RuntimeException(
                 "Sememe with NID=" + obj.getNid() + " is of unsupported SememeType " +
-                sememeChronology.getSememeType());
+                sememeChronology.getVersionType());
          }
       }
 
@@ -1709,27 +1700,26 @@ public class Frills
          final ArrayList<Long> vuids = new ArrayList<>(1);
 
          Get.assemblageService()
-            .getSnapshot(
-                SememeVersion.class,
+            .getSnapshot(SemanticVersion.class,
                 (stamp == null) ? Get.configurationService()
                                      .getDefaultStampCoordinate()
                                 : stamp)
-            .getLatestSememeVersionsForComponentFromAssemblage(
+            .getLatestSemanticVersionsForComponentFromAssemblage(
                 componentNid,
                 MetaData.VUID____SOLOR.getConceptSequence())
             .forEach(latestSememe -> {
             // expected path
                    if (latestSememe.get()
                                    .getChronology()
-                                   .getSememeType() == VersionType.STRING) {
+                                   .getVersionType() == VersionType.STRING) {
                       vuids.add(Long.parseLong(((StringVersion) latestSememe.get()).getString()));
                    }
 
                    // Data model bug path (can go away, after bug is fixed)
                    else if (latestSememe.get()
                                         .getChronology()
-                                        .getSememeType() == VersionType.DYNAMIC) {
-                      vuids.add(Long.parseLong(((DynamicSememe) latestSememe.get()).getData()[0]
+                                        .getVersionType() == VersionType.DYNAMIC) {
+                      vuids.add(Long.parseLong(((DynamicVersion) latestSememe.get()).getData()[0]
                             .dataToString()));
                    }
                 });

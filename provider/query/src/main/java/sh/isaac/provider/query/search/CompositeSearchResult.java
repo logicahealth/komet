@@ -58,13 +58,13 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.StringVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -331,7 +331,7 @@ public class CompositeSearchResult {
                return Optional.empty();
             case CONCEPT:
                return Optional.ofNullable(Get.defaultConceptSnapshotService().getConceptSnapshot(componentNid));
-            case SEMEME:
+            case SEMANTIC:
                return locateContainingConcept(Get.assemblageService()
                        .getSememe(componentNid)
                        .getReferencedComponentNid());
@@ -376,12 +376,12 @@ public class CompositeSearchResult {
     *
     * @return the matching description components
     */
-   public Set<SememeChronology> getMatchingDescriptionComponents() {
-      final Set<SememeChronology> setToReturn = new HashSet<>();
+   public Set<SemanticChronology> getMatchingDescriptionComponents() {
+      final Set<SemanticChronology> setToReturn = new HashSet<>();
 
-      this.matchingComponents.stream().filter((comp) -> ((comp instanceof SememeChronology) &&
-              ((SememeChronology) comp).getSememeType() == VersionType.DESCRIPTION)).forEachOrdered((comp) -> {
-                 setToReturn.add(((SememeChronology) comp));
+      this.matchingComponents.stream().filter((comp) -> ((comp instanceof SemanticChronology) &&
+              ((SemanticChronology) comp).getVersionType() == VersionType.DESCRIPTION)).forEachOrdered((comp) -> {
+                 setToReturn.add(((SemanticChronology) comp));
       });
 
       return Collections.unmodifiableSet(setToReturn);
@@ -411,10 +411,10 @@ public class CompositeSearchResult {
             // in the near future - so ignore the SCTID case for now.
             strings.add(iol.getPrimordialUuid()
                     .toString());
-         } else if ((iol instanceof SememeChronology) &&
-                 ((SememeChronology) iol).getSememeType() == VersionType.DESCRIPTION) {
+         } else if ((iol instanceof SemanticChronology) &&
+                 ((SemanticChronology) iol).getVersionType() == VersionType.DESCRIPTION) {
             final LatestVersion<DescriptionVersion> ds =
-                    ((SememeChronology) iol).getLatestVersion(stampCoord.orElse(Get.configurationService()
+                    ((SemanticChronology) iol).getLatestVersion(stampCoord.orElse(Get.configurationService()
                             .getDefaultStampCoordinate()));
             
             if (ds.isPresent()) {
@@ -423,10 +423,10 @@ public class CompositeSearchResult {
             } else {
                strings.add("No description available on stamp coordinate!");
             }
-         } else if ((iol instanceof SememeChronology) &&
-                 ((SememeChronology) iol).getSememeType() == VersionType.STRING) {
+         } else if ((iol instanceof SemanticChronology) &&
+                 ((SemanticChronology) iol).getVersionType() == VersionType.STRING) {
             final LatestVersion<StringVersion> ds =
-                    ((SememeChronology) iol).getLatestVersion(stampCoord.orElse(Get.configurationService()
+                    ((SemanticChronology) iol).getLatestVersion(stampCoord.orElse(Get.configurationService()
                             .getDefaultStampCoordinate()));
             
             if (ds.isPresent()) {
@@ -435,10 +435,10 @@ public class CompositeSearchResult {
             } else {
                strings.add("No sememe available on stamp coordinate!");
             }
-         } else if ((iol instanceof SememeChronology) &&
-                 ((SememeChronology) iol).getSememeType() == VersionType.DYNAMIC) {
-            final LatestVersion<DynamicSememe> ds =
-                    ((SememeChronology) iol).getLatestVersion(stampCoord.orElse(Get.configurationService()
+         } else if ((iol instanceof SemanticChronology) &&
+                 ((SemanticChronology) iol).getVersionType() == VersionType.DYNAMIC) {
+            final LatestVersion<DynamicVersion> ds =
+                    ((SemanticChronology) iol).getLatestVersion(stampCoord.orElse(Get.configurationService()
                             .getDefaultStampCoordinate()));
             
             if (ds.isPresent()) {

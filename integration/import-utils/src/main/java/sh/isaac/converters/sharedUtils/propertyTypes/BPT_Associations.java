@@ -46,7 +46,7 @@ import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -177,7 +177,7 @@ public class BPT_Associations
                                String sourcePropertyDefinition,
                                boolean disabled,
                                int propertySubType,
-                               DynamicSememeColumnInfo[] dataColumnForDynamicRefex) {
+                               DynamicColumnInfo[] dataColumnForDynamicRefex) {
       throw new UnsupportedOperationException();
    }
 

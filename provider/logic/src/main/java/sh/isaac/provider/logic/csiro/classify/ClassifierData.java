@@ -61,11 +61,11 @@ import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
+import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.axioms.GraphToAxiomTranslator;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -178,7 +178,7 @@ public class ClassifierData
     * @param sc the sc
     */
    @Override
-   public void handleChange(SememeChronology sc) {
+   public void handleChange(SemanticChronology sc) {
       if (sc.getAssemblageSequence() == this.logicCoordinate.getStatedAssemblageSequence()) {
          log.info("Stated form change: " + sc);
 

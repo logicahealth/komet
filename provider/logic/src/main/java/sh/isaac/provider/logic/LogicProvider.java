@@ -63,15 +63,15 @@ import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierService;
-import sh.isaac.api.component.sememe.SememeSnapshotService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.logic.LogicalExpressionImpl;
-import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
+import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierProvider;
+import sh.isaac.api.component.semantic.SemanticSnapshotService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -154,12 +154,12 @@ public class LogicProvider
    public LatestVersion<? extends LogicalExpression> getLogicalExpression(int conceptId,
          int logicAssemblageId,
          StampCoordinate stampCoordinate) {
-      final SememeSnapshotService<LogicGraphVersionImpl> ssp = Get.assemblageService()
+      final SemanticSnapshotService<LogicGraphVersionImpl> ssp = Get.assemblageService()
                                                                  .getSnapshot(LogicGraphVersionImpl.class,
                                                                        stampCoordinate);
       
       final List<LatestVersion<LogicalExpression>> latestVersions =
-         ssp.getLatestSememeVersionsForComponentFromAssemblage(conceptId,
+         ssp.getLatestSemanticVersionsForComponentFromAssemblage(conceptId,
                                                                logicAssemblageId)
             .map((LatestVersion<LogicGraphVersionImpl> lgs) -> {
                     final LogicalExpression expressionValue =

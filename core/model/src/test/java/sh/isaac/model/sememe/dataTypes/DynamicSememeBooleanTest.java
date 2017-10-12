@@ -41,6 +41,7 @@ package sh.isaac.model.sememe.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.model.semantic.types.DynamicBooleanImpl;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
@@ -51,7 +52,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -86,13 +87,13 @@ public class DynamicSememeBooleanTest {
     */
    private void test(boolean value)
             throws PropertyVetoException, IOException {
-      final DynamicSememeBooleanImpl i = new DynamicSememeBooleanImpl(value);
+      final DynamicBooleanImpl i = new DynamicBooleanImpl(value);
 
       assertEquals(value, i.getDataBoolean());
       assertEquals(value, i.getDataObject());
       assertEquals(value, i.getDataObjectProperty()
                            .get());
-      assertEquals(i.getDynamicSememeDataType(), DynamicSememeDataType.BOOLEAN);
+      assertEquals(i.getDynamicSememeDataType(), DynamicDataType.BOOLEAN);
    }
 }
 

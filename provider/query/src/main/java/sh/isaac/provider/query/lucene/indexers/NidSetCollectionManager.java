@@ -33,7 +33,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.SequenceSet;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import static sh.isaac.provider.query.lucene.LuceneIndexer.DOCVALUE_COMPONENT_NID;
 

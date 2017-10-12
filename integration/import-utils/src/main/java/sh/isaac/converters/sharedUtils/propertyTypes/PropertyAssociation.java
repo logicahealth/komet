@@ -43,9 +43,9 @@ package sh.isaac.converters.sharedUtils.propertyTypes;
 
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import sh.isaac.api.constants.DynamicSememeConstants;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+import sh.isaac.api.constants.DynamicConstants;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -163,10 +163,10 @@ public class PropertyAssociation
     * @return the data columns for dynamic refex
     */
    @Override
-   public DynamicSememeColumnInfo[] getDataColumnsForDynamicRefex() {
-      final DynamicSememeColumnInfo[] columns = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(0,
-                                                                                                            DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(),
-                                                                                                            DynamicSememeDataType.UUID,
+   public DynamicColumnInfo[] getDataColumnsForDynamicRefex() {
+      final DynamicColumnInfo[] columns = new DynamicColumnInfo[] { new DynamicColumnInfo(0,
+                                                                                                            DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getUUID(),
+                                                                                                            DynamicDataType.UUID,
                                                                                                             null,
                                                                                                             false,
                                                                                                             true) };

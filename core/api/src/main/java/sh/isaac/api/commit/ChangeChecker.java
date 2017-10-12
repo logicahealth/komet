@@ -51,7 +51,7 @@ import java.util.Collection;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -80,7 +80,7 @@ public interface ChangeChecker
     * @param alertCollection the alert collection
     * @param checkPhase the check phase
     */
-   void check(SememeChronology sc,
+   void check(SemanticChronology sc,
               Collection<Alert> alertCollection,
               CheckPhase checkPhase);
 }

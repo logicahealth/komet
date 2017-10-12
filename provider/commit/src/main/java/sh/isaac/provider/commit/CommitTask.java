@@ -56,7 +56,7 @@ import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.SememeSequenceSet;
+import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.Alert;
 import sh.isaac.api.commit.AlertType;
@@ -67,9 +67,9 @@ import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.commit.UncommittedStamp;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -92,10 +92,10 @@ public class CommitTask
    final ConceptSequenceSet conceptsToCheck = new ConceptSequenceSet();
 
    /** The sememes to commit. */
-   final SememeSequenceSet sememesToCommit = new SememeSequenceSet();
+   final SemanticSequenceSet sememesToCommit = new SemanticSequenceSet();
 
    /** The sememes to check. */
-   final SememeSequenceSet sememesToCheck = new SememeSequenceSet();
+   final SemanticSequenceSet sememesToCheck = new SemanticSequenceSet();
 
    /** The commit comment. */
    final String commitComment;
@@ -137,8 +137,8 @@ public class CommitTask
    private CommitTask(String commitComment,
                       ConceptSequenceSet uncommittedConceptsWithChecksSequenceSet,
                       ConceptSequenceSet uncommittedConceptsNoChecksSequenceSet,
-                      SememeSequenceSet uncommittedSememesWithChecksSequenceSet,
-                      SememeSequenceSet uncommittedSememesNoChecksSequenceSet,
+                      SemanticSequenceSet uncommittedSememesWithChecksSequenceSet,
+                      SemanticSequenceSet uncommittedSememesNoChecksSequenceSet,
                       long lastCommit,
                       ConcurrentSkipListSet<ChangeChecker> checkers,
                       ConcurrentSkipListSet<Alert> alertCollection,
@@ -197,7 +197,7 @@ public class CommitTask
                                           }
                                        });
          this.sememesToCommit.stream().forEach((sememeSequence) -> {
-                                         final SememeChronology sc = Get.assemblageService()
+                                         final SemanticChronology sc = Get.assemblageService()
                                                                         .getSememe(sememeSequence);
 
                                          if (this.sememesToCheck.contains(sememeSequence)) {
@@ -246,7 +246,7 @@ public class CommitTask
                                                                new OpenIntIntHashMap(),
                                                                ConceptSequenceSet.of(this.conceptsToCheck).or(
                                                                   this.conceptsToCommit),
-                                                               SememeSequenceSet.of(this.sememesToCheck).or(
+                                                               SemanticSequenceSet.of(this.sememesToCheck).or(
                                                                   this.sememesToCommit),
                                                                this.commitComment);
 
@@ -292,8 +292,8 @@ public class CommitTask
    public static CommitTask get(String commitComment,
                                 ConceptSequenceSet uncommittedConceptsWithChecksSequenceSet,
                                 ConceptSequenceSet uncommittedConceptsNoChecksSequenceSet,
-                                SememeSequenceSet uncommittedSememesWithChecksSequenceSet,
-                                SememeSequenceSet uncommittedSememesNoChecksSequenceSet,
+                                SemanticSequenceSet uncommittedSememesWithChecksSequenceSet,
+                                SemanticSequenceSet uncommittedSememesNoChecksSequenceSet,
                                 long lastCommit,
                                 ConcurrentSkipListSet<ChangeChecker> checkers,
                                 ConcurrentSkipListSet<Alert> alertCollection,

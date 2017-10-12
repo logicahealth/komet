@@ -25,8 +25,8 @@ import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 /**
  *

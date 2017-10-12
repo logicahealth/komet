@@ -43,7 +43,7 @@ package sh.isaac.provider.assemblage;
 
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.model.sememe.SememeChronologyImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.waitfree.WaitFreeMergeSerializer;
 
 //~--- classes ----------------------------------------------------------------
@@ -54,7 +54,7 @@ import sh.isaac.model.waitfree.WaitFreeMergeSerializer;
  * @author kec
  */
 public class AssemblageSerializer
-         implements WaitFreeMergeSerializer<SememeChronologyImpl> {
+         implements WaitFreeMergeSerializer<SemanticChronologyImpl> {
 
    public AssemblageSerializer() {
 
@@ -66,9 +66,9 @@ public class AssemblageSerializer
     * @return the sememe chronology impl
     */
    @Override
-   public SememeChronologyImpl deserialize(ByteArrayDataBuffer db) {
+   public SemanticChronologyImpl deserialize(ByteArrayDataBuffer db) {
       IsaacObjectType.SEMEME.readAndValidateHeader(db);
-      return SememeChronologyImpl.make(db);
+      return SemanticChronologyImpl.make(db);
    }
 
    /**
@@ -80,13 +80,13 @@ public class AssemblageSerializer
     * @return the sememe chronology impl
     */
    @Override
-   public SememeChronologyImpl merge(SememeChronologyImpl a,
-         SememeChronologyImpl b,
+   public SemanticChronologyImpl merge(SemanticChronologyImpl a,
+         SemanticChronologyImpl b,
          int writeSequence) {
       final byte[]              dataBytes = a.mergeData(writeSequence, b.getDataToWrite(writeSequence));
       final ByteArrayDataBuffer db        = new ByteArrayDataBuffer(dataBytes);
       IsaacObjectType.SEMEME.readAndValidateHeader(db);
-      return SememeChronologyImpl.make(db);
+      return SemanticChronologyImpl.make(db);
    }
 
    /**
@@ -96,7 +96,7 @@ public class AssemblageSerializer
     * @param a the a
     */
    @Override
-   public void serialize(ByteArrayDataBuffer d, SememeChronologyImpl a) {
+   public void serialize(ByteArrayDataBuffer d, SemanticChronologyImpl a) {
       final byte[] data = a.getDataToWrite();
 
       d.put(data, 0, data.length);

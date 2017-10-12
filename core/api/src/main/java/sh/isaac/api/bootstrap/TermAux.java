@@ -157,7 +157,7 @@ public class TermAux {
       new ConceptProxy("Definition",
                        UUID.fromString("700546a3-09c7-3fc2-9eb9-53d318659a09"));
 
-   /** ConceptProxy for: "Description type in source terminology". Needed within DynamicSememeMetadata constants, which can't reference IsaacMetadataAuxiliary */
+   /** ConceptProxy for: "Description type in source terminology". Needed within DynamicMetadata constants, which can't reference IsaacMetadataAuxiliary */
    public static ConceptSpecification DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY =
       new ConceptProxy("Description type in source terminology",
                        UUID.fromString("ef7d9808-a839-5119-a604-b777268eb719"));

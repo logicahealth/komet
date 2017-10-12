@@ -78,21 +78,17 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeBuilder;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
-import sh.isaac.api.component.sememe.version.LongVersion;
-import sh.isaac.api.component.sememe.version.SememeVersion;
-import sh.isaac.api.component.sememe.version.StringVersion;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableStringVersion;
+import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.komet.iconography.Iconography;
 
@@ -103,6 +99,10 @@ import sh.komet.gui.style.StyleClasses;
 
 import static sh.komet.gui.style.StyleClasses.ADD_ATTACHMENT;
 import sh.komet.gui.util.FxGet;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -397,10 +397,10 @@ public abstract class BadgedVersionPanel
    }
 
    protected final void setupOther(Version version) {
-      if (version instanceof SememeVersion) {
-         SememeVersion sememeVersion = (SememeVersion) version;
+      if (version instanceof SemanticVersion) {
+         SemanticVersion sememeVersion = (SemanticVersion) version;
          VersionType sememeType = sememeVersion.getChronology()
-                 .getSememeType();
+                 .getVersionType();
 
          componentType.setText(sememeType.toString());
 
@@ -434,13 +434,13 @@ public abstract class BadgedVersionPanel
                                      sememeVersion.getAssemblageSequence()) + "\n" + getManifold().getPreferredDescriptionText(nid));
                      break;
 
-                  case SEMEME:
-                     SememeChronology sc = Get.assemblageService()
+                  case SEMANTIC:
+                     SemanticChronology sc = Get.assemblageService()
                              .getSememe(nid);
 
                      componentText.setText(
                              getManifold().getPreferredDescriptionText(
-                                     sememeVersion.getAssemblageSequence()) + "\nReferences: " + sc.getSememeType().toString());
+                                     sememeVersion.getAssemblageSequence()) + "\nReferences: " + sc.getVersionType().toString());
                      break;
 
                   case UNKNOWN_NID:

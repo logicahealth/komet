@@ -66,17 +66,17 @@ import sh.isaac.api.State;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.memory.HeapUseTicker;
 import sh.isaac.api.progress.ActiveTasksTicker;
 import sh.isaac.model.builder.ConceptBuilderImpl;
 import sh.isaac.model.coordinate.LogicCoordinateImpl;
-import sh.isaac.model.sememe.SememeChronologyImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -229,9 +229,9 @@ public class ConceptSuite {
          if (obj instanceof ConceptChronologyImpl) {
             Get.conceptService()
                .writeConcept((ConceptChronology) obj);
-         } else if (obj instanceof SememeChronologyImpl) {
+         } else if (obj instanceof SemanticChronologyImpl) {
             Get.assemblageService()
-               .writeSememe((SememeChronology) obj);
+               .writeSemantic((SemanticChronology) obj);
          } else {
             throw new UnsupportedOperationException("ag Can't handle: " + obj);
          }

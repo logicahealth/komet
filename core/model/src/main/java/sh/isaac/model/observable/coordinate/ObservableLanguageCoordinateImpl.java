@@ -63,14 +63,14 @@ import javax.xml.bind.annotation.XmlTransient;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.model.coordinate.LanguageCoordinateImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -222,7 +222,7 @@ public final class ObservableLanguageCoordinateImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getDescription(
-           List<SememeChronology> descriptionList,
+           List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return this.languageCoordinate.getDescription(descriptionList, stampCoordinate);
    }
@@ -266,7 +266,7 @@ public final class ObservableLanguageCoordinateImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
-           List<SememeChronology> descriptionList,
+           List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return this.languageCoordinate.getFullySpecifiedDescription(descriptionList, stampCoordinate);
    }
@@ -294,7 +294,7 @@ public final class ObservableLanguageCoordinateImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getPreferredDescription(
-           List<SememeChronology> descriptionList,
+           List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return this.languageCoordinate.getPreferredDescription(descriptionList, stampCoordinate);
    }

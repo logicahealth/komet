@@ -84,8 +84,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.convert.rxnorm.propertyTypes.PT_Annotations;
 import sh.isaac.convert.rxnorm.propertyTypes.ValuePropertyPairWithSAB;
@@ -116,7 +115,8 @@ import sh.isaac.converters.sharedUtils.umlsUtils.rrf.REL;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.rxnorm.rrf.RXNCONSO;
 import sh.isaac.rxnorm.rrf.RXNSAT;
-import sh.isaac.api.component.sememe.version.StringVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -1277,7 +1277,7 @@ public class RxNormMojo
 
       {
          ConsoleUtil.println("Creating Source Vocabulary types");
-         this.ptSABs = new PropertyType("Source Vocabularies", true, DynamicSememeDataType.STRING) {}
+         this.ptSABs = new PropertyType("Source Vocabularies", true, DynamicDataType.STRING) {}
          ;
          this.ptSABs.indexByAltNames();
 
@@ -1898,11 +1898,11 @@ public class RxNormMojo
    private void prepareSCTMaps()
             throws SQLException {
       Get.assemblageService()
-         .getSememeSequencesFromAssemblage(MetaData.SCTID____SOLOR.getConceptSequence())
+         .getSemanticChronologySequencesFromAssemblage(MetaData.SCTID____SOLOR.getConceptSequence())
          .stream()
          .forEach(sememe -> {
                 @SuppressWarnings({ "unchecked", "rawtypes" })
-                final LatestVersion<StringVersion> lv = ((SememeChronology) Get.assemblageService()
+                final LatestVersion<StringVersion> lv = ((SemanticChronology) Get.assemblageService()
                                                                               .getSememe(
                                                                                     sememe)).getLatestVersion(StampCoordinates.getDevelopmentLatest());
                 final StringVersion ss    = lv.get();
@@ -2158,7 +2158,7 @@ public class RxNormMojo
                 });
          }
 
-         final List<SememeChronology> addedDescriptions = this.importUtil.addDescriptions(
+         final List<SemanticChronology> addedDescriptions = this.importUtil.addDescriptions(
                                                                                  cuiConcept,
                                                                                        cuiDescriptions);
 
@@ -2169,7 +2169,7 @@ public class RxNormMojo
          final HashSet<String> uniqueUMLSCUI = new HashSet<>();
 
          for (int i = 0; i < cuiDescriptions.size(); i++) {
-            final SememeChronology desc      = addedDescriptions.get(i);
+            final SemanticChronology desc      = addedDescriptions.get(i);
             final ValuePropertyPairWithSAB            descPP    = cuiDescriptions.get(i);
             final BiFunction<String, String, Boolean> functions = (atn, atv) -> {
                // Pull these up to the concept.

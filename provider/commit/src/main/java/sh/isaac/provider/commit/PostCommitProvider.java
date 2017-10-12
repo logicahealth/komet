@@ -66,7 +66,7 @@ import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.PostCommitService;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -128,7 +128,7 @@ public class PostCommitProvider
     * @param sc the sc
     */
    @Override
-   public void handleChange(SememeChronology sc) {
+   public void handleChange(SemanticChronology sc) {
       // not interested
    }
 

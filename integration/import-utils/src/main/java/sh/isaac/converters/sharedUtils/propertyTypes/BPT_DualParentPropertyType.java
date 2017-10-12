@@ -45,7 +45,7 @@ import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -79,7 +79,7 @@ public abstract class BPT_DualParentPropertyType
    protected BPT_DualParentPropertyType(String propertyTypeDescription,
          String descriptionWithCodeSystemName,
          boolean createAsDynamicRefex,
-         DynamicSememeDataType defaultDynamicRefexColumnType) {
+         DynamicDataType defaultDynamicRefexColumnType) {
       super(propertyTypeDescription, createAsDynamicRefex, defaultDynamicRefexColumnType);
       this.secondParentName = descriptionWithCodeSystemName;
    }

@@ -21,14 +21,14 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.component.sememe.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableComponentNidVersion;
+import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.sememe.version.ComponentNidVersionImpl;
+import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 /**
  *
@@ -49,7 +49,7 @@ public class ObservableComponentNidVersionImpl
     * @param chronology the chronology
     */
    public ObservableComponentNidVersionImpl(ComponentNidVersion version,
-                                    ObservableSememeChronology chronology) {
+                                    ObservableSemanticChronology chronology) {
       super(version, 
               chronology);
    }
@@ -58,7 +58,7 @@ public class ObservableComponentNidVersionImpl
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       ComponentNidVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
       ObservableComponentNidVersionImpl newObservableVersion = 
-              new ObservableComponentNidVersionImpl(newVersion, (ObservableSememeChronology) chronology);
+              new ObservableComponentNidVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
       ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
    }

@@ -46,31 +46,31 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 
 /**
  * Observable update rules:
  * 1. A Chronology update will be sent to the ObservableChronology with the
- * same nid, to update the contents of the ObservableChronology, if it is
- * in memory.
- *
- * 2. A SememeChronology update will be sent to the ObservableConceptChronology
- * of it's assemblage if it is in memory. If it is in memory, and the ObservableList
- * of the assemblage's sememes is is memory, then the observable sememe list will
- * be properly updated.
- *
- * 3. A SememeChronology update will be sent to the ObservableChronology of the referenced
- * component if it is in memory, and will update the sememe for component ObservableList
- * if it is instantiated.
- *
- * 4. A SememeChronology update will be sent to the taxonomy manager. The taxonomy
- * manager will check for updated to the stated and inferred taxonomy.
- *
- * 5. A SememeChronology update will be sent to the LogicService. The logic service
- * will determine if changes impact incremental or fully classified data, and will update
- * the logic status accordingly.
+ same nid, to update the contents of the ObservableChronology, if it is
+ in memory.
+
+ 2. A SemanticChronology update will be sent to the ObservableConceptChronology
+ of it's assemblage if it is in memory. If it is in memory, and the ObservableList
+ of the assemblage's semanticChronology is is memory, then the observable Semantic list will
+ be properly updated.
+
+ 3. A SemanticChronology update will be sent to the ObservableChronology of the referenced
+ component if it is in memory, and will update the Semantic for component ObservableList
+ if it is instantiated.
+
+ 4. A SemanticChronology update will be sent to the taxonomy manager. The taxonomy
+ manager will check for updated to the stated and inferred taxonomy.
+
+ 5. A SemanticChronology update will be sent to the LogicService. The logic service
+ will determine if changes impact incremental or fully classified data, and will update
+ the logic status accordingly.
  *
  *
  *
@@ -85,9 +85,9 @@ public interface ChronologyChangeListener {
 
    /**
     * Don't do work on or block the calling thread.
-    * @param sc a SememeChronology that has changed, but has not been committed.
+    * @param sc a SemanticChronology that has changed, but has not been committed.
     */
-   void handleChange(SememeChronology sc);
+   void handleChange(SemanticChronology sc);
 
    /**
     * Don't do work on or block the calling thread.

@@ -54,10 +54,10 @@ import java.util.function.Function;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.provider.query.lucene.LuceneDescriptionType;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -116,8 +116,8 @@ public class Search {
                            final ArrayList<CompositeSearchResult> keep          = new ArrayList<>();
                            final HashSet<Integer>                 refsetMembers = new HashSet<>();
 
-                           Get.assemblageService().getSememesFromAssemblage(Get.identifierService()
-                                 .getSememeSequence(memberOfRefsetNid)).forEach(sememeC -> {
+                           Get.assemblageService().getSemanticChronologyFromAssemblage(Get.identifierService()
+                                 .getSemanticSequence(memberOfRefsetNid)).forEach(sememeC -> {
                                           refsetMembers.add(sememeC.getReferencedComponentNid());
                                        });
 
@@ -227,7 +227,7 @@ public class Search {
          .forEach(descriptionC -> {
                      @SuppressWarnings({ "rawtypes", "unchecked" })
                      final LatestVersion<DescriptionVersion> latest =
-                        ((SememeChronology) descriptionC).getLatestVersion((stampCoord == null)
+                        ((SemanticChronology) descriptionC).getLatestVersion((stampCoord == null)
                                                                            ? Get.configurationService()
                                                                                  .getDefaultStampCoordinate()
                : stampCoord);

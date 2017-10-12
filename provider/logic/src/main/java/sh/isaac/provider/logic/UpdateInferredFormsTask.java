@@ -54,11 +54,11 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeSnapshotService;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.progress.ActiveTasks;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.SemanticSnapshotService;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -148,7 +148,7 @@ public class UpdateInferredFormsTask
    protected Integer call()
             throws Exception {
       try {
-         final SememeSnapshotService<LogicGraphVersion> sememeSnapshot = Get.assemblageService()
+         final SemanticSnapshotService<LogicGraphVersion> sememeSnapshot = Get.assemblageService()
                                                                            .getSnapshot(LogicGraphVersion.class,
                                                                                  this.stampCoordinate);
 
@@ -161,7 +161,7 @@ public class UpdateInferredFormsTask
 
                                               updateMessage("Updating concept: " + concept.toUserString());
                                               updateValue(this.processedCount.get());
-                                              sememeSnapshot.getLatestSememeVersionsForComponentFromAssemblage(
+                                              sememeSnapshot.getLatestSemanticVersionsForComponentFromAssemblage(
                                                   conceptSequence,
                                                   this.logicCoordinate.getInferredAssemblageSequence()).forEach((LatestVersion<LogicGraphVersion> latestLogicGraph) -> {
                         processLogicGraphSememe(latestLogicGraph);

@@ -54,7 +54,7 @@ import org.apache.mahout.math.map.AbstractIntIntMap;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 
 import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.SememeSequenceSet;
+import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.collections.StampSequenceSet;
 
 //~--- classes ----------------------------------------------------------------
@@ -77,10 +77,10 @@ public class CommitRecord {
    protected String commitComment;
 
    /** The concepts in commit. */
-   protected ConceptSequenceSet conceptsInCommit;
+   protected ConceptSequenceSet conceptSequencesInCommit;
 
-   /** The sememes in commit. */
-   protected SememeSequenceSet sememesInCommit;
+   /** The semantic sequences in a commit. */
+   protected SemanticSequenceSet semanticSequencesInCommit;
 
    //~--- constructors --------------------------------------------------------
 
@@ -95,21 +95,21 @@ public class CommitRecord {
     * @param commitTime the commit time
     * @param stampsInCommit the stamps in commit
     * @param stampAliases the stamp aliases
-    * @param conceptsInCommit the concepts in commit
-    * @param sememesInCommit the sememes in commit
+    * @param conceptSequencesInCommit the concepts in commit
+    * @param semanticSequencesInCommit the semantics in commit
     * @param commitComment the commit comment
     */
    public CommitRecord(Instant commitTime,
                        StampSequenceSet stampsInCommit,
                        OpenIntIntHashMap stampAliases,
-                       ConceptSequenceSet conceptsInCommit,
-                       SememeSequenceSet sememesInCommit,
+                       ConceptSequenceSet conceptSequencesInCommit,
+                       SemanticSequenceSet semanticSequencesInCommit,
                        String commitComment) {
       this.commitTime       = commitTime;
       this.stampsInCommit   = StampSequenceSet.of(stampsInCommit);
       this.stampAliases     = stampAliases.copy();
-      this.conceptsInCommit = ConceptSequenceSet.of(conceptsInCommit);
-      this.sememesInCommit  = SememeSequenceSet.of(sememesInCommit);
+      this.conceptSequencesInCommit = ConceptSequenceSet.of(conceptSequencesInCommit);
+      this.semanticSequencesInCommit  = SemanticSequenceSet.of(semanticSequencesInCommit);
       this.commitComment    = commitComment;
    }
 
@@ -123,8 +123,8 @@ public class CommitRecord {
    @Override
    public String toString() {
       return "CommitRecord{" + "commitTime=" + this.commitTime + ", stampsInCommit=" + this.stampsInCommit +
-             ", stampAliases=" + this.stampAliases + ", commitComment=" + this.commitComment + ", conceptsInCommit=" +
-             this.conceptsInCommit + ", sememesInCommit=" + this.sememesInCommit + '}';
+             ", stampAliases=" + this.stampAliases + ", commitComment=" + this.commitComment + ", conceptSequencesInCommit=" +
+             this.conceptSequencesInCommit + ", semanticSequencesInCommit=" + this.semanticSequencesInCommit + '}';
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -153,16 +153,16 @@ public class CommitRecord {
     * @return the concepts in commit
     */
    public ConceptSequenceSet getConceptsInCommit() {
-      return this.conceptsInCommit;
+      return this.conceptSequencesInCommit;
    }
 
    /**
-    * Gets the sememes in commit.
+    * Gets the semantic sequences in commit.
     *
-    * @return the sememes in commit
+    * @return the semantic sequences in commit
     */
-   public SememeSequenceSet getSememesInCommit() {
-      return this.sememesInCommit;
+   public SemanticSequenceSet getSemanticSequencesInCommit() {
+      return this.semanticSequencesInCommit;
    }
 
    /**

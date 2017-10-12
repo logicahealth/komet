@@ -52,8 +52,8 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 
@@ -92,7 +92,7 @@ public abstract class PropertyType {
    /** The default data column. */
 
    // will be handled in the same way - relationships are not dynamic sememes, assoications are, for example.
-   private final DynamicSememeDataType defaultDataColumn;  // If the property is specified without further column instructions, and createAsDynamicRefex is true,
+   private final DynamicDataType defaultDataColumn;  // If the property is specified without further column instructions, and createAsDynamicRefex is true,
 
    // use this information to configure the (single) data column.
 
@@ -112,7 +112,7 @@ public abstract class PropertyType {
     */
    protected PropertyType(String propertyTypeDescription,
                           boolean createAsDynamicRefex,
-                          DynamicSememeDataType defaultDynamicRefexColumnType) {
+                          DynamicDataType defaultDynamicRefexColumnType) {
       this.properties              = new HashMap<>();
       this.propertyTypeDescription = propertyTypeDescription;
       this.createAsDynamicRefex    = createAsDynamicRefex;
@@ -236,7 +236,7 @@ public abstract class PropertyType {
                                String sourcePropertyDefinition,
                                boolean disabled,
                                int propertySubType,
-                               DynamicSememeColumnInfo[] dataColumnForDynamicRefex) {
+                               DynamicColumnInfo[] dataColumnForDynamicRefex) {
       return addProperty(new Property(this,
                                       sourcePropertyNameFQN,
                                       sourcePropertyAltName,
@@ -318,7 +318,7 @@ public abstract class PropertyType {
     *
     * @return the default column info
     */
-   protected DynamicSememeDataType getDefaultColumnInfo() {
+   protected DynamicDataType getDefaultColumnInfo() {
       return this.defaultDataColumn;
    }
 

@@ -52,9 +52,9 @@ import java.util.stream.Stream;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -93,7 +93,7 @@ public interface ConceptService
     * @param conceptId either a concept sequence or a concept nid.
     * @return the list of descriptions.
     */
-   default List<SememeChronology> getConceptDescriptions(int conceptId) {
+   default List<SemanticChronology> getConceptDescriptions(int conceptId) {
       return getConcept(conceptId).getConceptDescriptionList();
    }
 

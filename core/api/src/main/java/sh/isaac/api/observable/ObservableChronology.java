@@ -58,7 +58,7 @@ import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.identity.StampedVersion;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -102,7 +102,7 @@ public interface ObservableChronology
     *
     * @return the list property<? extends observable sememe chronology<? extends observable sememe version<?>>>
     */
-   ListProperty<? extends ObservableSememeChronology> sememeListProperty();
+   ListProperty<? extends ObservableSemanticChronology> sememeListProperty();
 
    /**
     * Uuid list property.
@@ -125,7 +125,7 @@ public interface ObservableChronology
     *
     * @return a list of SememeChronology objects, where this object is the referenced component.
     */
-   ObservableList<ObservableSememeChronology> getObservableSememeList();
+   ObservableList<ObservableSemanticChronology> getObservableSememeList();
 
    /**
     * Gets the sememe list from assemblage.
@@ -133,7 +133,7 @@ public interface ObservableChronology
     * @param assemblageSequence the assemblage sequence
     * @return the sememe list from assemblage
     */
-   ObservableList<ObservableSememeChronology> getObservableSememeListFromAssemblage(int assemblageSequence);
+   ObservableList<ObservableSemanticChronology> getObservableSememeListFromAssemblage(int assemblageSequence);
 
    /**
     * Gets the sememe list from assemblage of type.
@@ -142,7 +142,7 @@ public interface ObservableChronology
     * @param type the type
     * @return the sememe list from assemblage of type
     */
-   ObservableList<ObservableSememeChronology> getObservableSememeListFromAssemblageOfType(
+   ObservableList<ObservableSemanticChronology> getObservableSememeListFromAssemblageOfType(
            int assemblageSequence,
            VersionType type);
 

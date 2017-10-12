@@ -61,7 +61,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.SememeSequenceSet;
+import sh.isaac.api.collections.SemanticSequenceSet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -120,9 +120,9 @@ public class ForSetSpecification {
                   .getConceptSequenceStream())));
             break;
 
-         case ALL_SEMEMES:
-            forSet.or(NidSet.of(SememeSequenceSet.of(Get.identifierService()
-                  .getSememeSequenceStream())));
+         case ALL_SEMANTICS:
+            forSet.or(NidSet.of(SemanticSequenceSet.of(Get.identifierService()
+                  .getSemanticSequenceStream())));
             break;
 
          case CUSTOM_SET:

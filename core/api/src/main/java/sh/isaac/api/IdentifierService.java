@@ -59,7 +59,7 @@ import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.chronicle.ObjectChronologyType;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.SememeSequenceSet;
+import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
 
@@ -87,7 +87,7 @@ public interface IdentifierService
    void addUuidForNid(UUID uuid, int nid);
 
    /**
-    * A method to remove refs to sememe or concept sequences that never had data stored.
+    * A method to remove refs to semantic or concept sequences that never had data stored.
     * This should not be necessary in normal operation.  This supports patterns where objects are
     * being deserialized from an ibdf file (causing refs to be stored here) but then not loaded into the DB.
     */
@@ -240,69 +240,69 @@ public interface IdentifierService
    IntStream getParallelConceptSequenceStream();
 
    /**
-    * Gets the parallel sememe sequence stream.
+    * Gets the parallel semantic sequence stream.
     *
-    * @return the parallel sememe sequence stream
+    * @return the parallel semantic sequence stream
     */
-   IntStream getParallelSememeSequenceStream();
+   IntStream getParallelSemanticSequenceStream();
 
    /**
-    * Gets the sememe nid.
+    * Gets the semantic nid.
     *
-    * @param sememeId the sememe id
-    * @return the sememe nid
+    * @param semanticId the semantic id
+    * @return the semantic nid
     */
-   int getSememeNid(int sememeId);
+   int getSemanticNid(int semanticId);
 
    /**
-    * Gets the sememe nids for sememe sequences.
+    * Gets the semantic nids for semantic sequences.
     *
-    * @param sememSequences the semem sequences
-    * @return the sememe nids for sememe sequences
+    * @param semanticSequences the semem sequences
+    * @return the semantic nids for semantic sequences
     */
-   IntStream getSememeNidsForSememeSequences(IntStream sememSequences);
+   IntStream getSemanticNidsForSemanticSequences(IntStream semanticSequences);
 
    /**
-    * NOTE: this method will generate a new sememe sequence if one does not already exist.
+    * NOTE: this method will generate a new semantic sequence if one does not already exist.
     * When retrieving sememes using the sequence, use the {@code SememeService.getOptionalSememe(int sememeSequence)} to safely
-    * retrieve sememes without the risk of null pointer exceptions if the sememe is not yet written to the store
+    * retrieve sememes without the risk of null pointer exceptions if the semantic is not yet written to the store
     * (as would be the case frequently when importing change sets, or loading a database).
     *
-    * @param sememeId the sememe id
-    * @return a concept sequence for the provided sememeId.
+    * @param semanticId the semantic id
+    * @return a concept sequence for the provided semanticId.
     */
-   int getSememeSequence(int sememeId);
+   int getSemanticSequence(int semanticId);
 
    /**
-    * Gets the sememe sequence for uuids.
+    * Gets the semantic sequence for uuids.
     *
     * @param uuids the uuids
-    * @return the sememe sequence for uuids
+    * @return the semantic sequence for uuids
     */
-   int getSememeSequenceForUuids(Collection<UUID> uuids);
+   int getSemanticSequenceForUuids(Collection<UUID> uuids);
 
    /**
-    * Gets the sememe sequence for uuids.
+    * Gets the semantic sequence for uuids.
     *
     * @param uuids the uuids
-    * @return the sememe sequence for uuids
+    * @return the semantic sequence for uuids
     */
-   int getSememeSequenceForUuids(UUID... uuids);
+   int getSemanticSequenceForUuids(UUID... uuids);
 
    /**
-    * Gets the sememe sequence stream.
+    * Gets the semantic sequence stream.
     *
-    * @return the sememe sequence stream
+    * @return the semantic sequence stream
     */
-   IntStream getSememeSequenceStream();
+   IntStream getSemanticSequenceStream();
 
    /**
-    * Gets the sememe sequences for sememe nids.
+    * Gets the semantic sequences for semantic nids.
     *
-    * @param sememeNidArray the sememe nid array
-    * @return the sememe sequences for sememe nids
+    * @param semanticNidArray the semantic nid array
+    * @return the semantic sequences for semantic nids
     */
-   SememeSequenceSet getSememeSequencesForSememeNids(int[] sememeNidArray);
+   SemanticSequenceSet getSemanticSequencesForSemanticNids(int[] semanticNidArray);
 
    /**
     * Checks for uuid.
@@ -349,12 +349,12 @@ public interface IdentifierService
    Optional<UUID> getUuidPrimordialFromConceptId(int conceptId);
 
    /**
-    * Gets the uuid primordial from sememe id.
+    * Gets the uuid primordial from semantic id.
     *
-    * @param sememeId the sememe id
-    * @return the uuid primordial from sememe id
+    * @param semanticId the semantic id
+    * @return the uuid primordial from semantic id
     */
-   Optional<UUID> getUuidPrimordialFromSememeId(int sememeId);
+   Optional<UUID> getUuidPrimordialFromSemanticId(int semanticId);
 
    /**
     * Gets the uuids for nid.
@@ -372,8 +372,8 @@ public interface IdentifierService
    
    /**
     * 
-    * @return the maximum sememe sequence
+    * @return the maximum semantic sequence
     */
-   public int getMaxSememeSequence();
+   public int getMaxSemanticSequence();
 }
 

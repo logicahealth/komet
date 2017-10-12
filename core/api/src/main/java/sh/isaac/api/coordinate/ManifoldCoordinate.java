@@ -45,8 +45,8 @@ import java.util.List;
 import java.util.UUID;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -97,7 +97,7 @@ public interface ManifoldCoordinate
     * constraints.
     */
    default LatestVersion<DescriptionVersion> getDescription(
-           List<SememeChronology> descriptionList) {
+           List<SemanticChronology> descriptionList) {
       return getLanguageCoordinate().getDescription(descriptionList, getStampCoordinate());
    };
    
@@ -112,7 +112,7 @@ public interface ManifoldCoordinate
               getStampCoordinate());
    }
    
-   default LatestVersion<DescriptionVersion> getPreferredDescription(List<SememeChronology> descriptionList) {
+   default LatestVersion<DescriptionVersion> getPreferredDescription(List<SemanticChronology> descriptionList) {
       return getLanguageCoordinate().getPreferredDescription(descriptionList, getStampCoordinate());
    }
 
@@ -154,7 +154,7 @@ public interface ManifoldCoordinate
       return getLanguageCoordinate().getFullySpecifiedDescription(conceptId, getStampCoordinate());
    }
    
-   default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(List<SememeChronology> descriptionList) {
+   default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(List<SemanticChronology> descriptionList) {
       return getLanguageCoordinate().getFullySpecifiedDescription(descriptionList, getStampCoordinate());
    }
 

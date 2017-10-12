@@ -59,7 +59,7 @@ import org.apache.logging.log4j.Logger;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.constants.DynamicSememeConstants;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.converters.sharedUtils.ConsoleUtil;
@@ -95,11 +95,11 @@ public class ConverterUUID {
       MetaData.IS_A____SOLOR, MetaData.REGULAR_NAME____SOLOR, MetaData.FULLY_QUALIFIED_NAME____SOLOR, MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR,
       MetaData.US_ENGLISH_DIALECT____SOLOR, MetaData.GB_ENGLISH_DIALECT____SOLOR, MetaData.CONVERTED_IBDF_ARTIFACT_CLASSIFIER____SOLOR,
       MetaData.CONVERTED_IBDF_ARTIFACT_VERSION____SOLOR, MetaData.CONVERTER_VERSION____SOLOR, MetaData.SOURCE_ARTIFACT_VERSION____SOLOR,
-      MetaData.SOURCE_RELEASE_DATE____SOLOR, MetaData.SCTID____SOLOR, DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION,
-      DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION,
-      DynamicSememeConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION,
-      DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION,
-      DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME
+      MetaData.SOURCE_RELEASE_DATE____SOLOR, MetaData.SCTID____SOLOR, DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION,
+      DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION,
+      DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION,
+      DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION,
+      DynamicConstants.get().DYNAMIC_ASSOCIATION_SEMEME
    };
 
    //~--- enums ---------------------------------------------------------------

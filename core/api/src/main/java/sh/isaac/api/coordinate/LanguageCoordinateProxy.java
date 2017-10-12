@@ -18,8 +18,8 @@ package sh.isaac.api.coordinate;
 
 import java.util.List;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 /**
  *
@@ -35,7 +35,7 @@ public interface LanguageCoordinateProxy extends LanguageCoordinate {
    LanguageCoordinate getLanguageCoordinate();
 
    @Override
-   public default LatestVersion<DescriptionVersion> getDescription(List<SememeChronology> descriptionList, StampCoordinate stampCoordinate) {
+   public default LatestVersion<DescriptionVersion> getDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
       return getLanguageCoordinate().getDescription(descriptionList, stampCoordinate);
    }
 
@@ -50,7 +50,7 @@ public interface LanguageCoordinateProxy extends LanguageCoordinate {
    }
 
    @Override
-   public default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(List<SememeChronology> descriptionList, StampCoordinate stampCoordinate) {
+   public default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
       return getLanguageCoordinate().getFullySpecifiedDescription(descriptionList, stampCoordinate);
    }
 
@@ -60,7 +60,7 @@ public interface LanguageCoordinateProxy extends LanguageCoordinate {
    }
 
    @Override
-   public default LatestVersion<DescriptionVersion> getPreferredDescription(List<SememeChronology> descriptionList, StampCoordinate stampCoordinate) {
+   public default LatestVersion<DescriptionVersion> getPreferredDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
       return getLanguageCoordinate().getPreferredDescription(descriptionList, stampCoordinate);
    }
 

@@ -45,13 +45,13 @@ import java.util.List;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableSememeVersion;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -62,7 +62,7 @@ import sh.isaac.model.observable.ObservableFields;
  */
 public class ObservableSememeVersionImpl
         extends ObservableVersionImpl
-         implements ObservableSememeVersion {
+         implements ObservableSemanticVersion {
 
    /** The author sequence property. */
    ReadOnlyIntegerProperty assemblageSequenceProperty;
@@ -76,16 +76,16 @@ public class ObservableSememeVersionImpl
     * @param stampedVersion the stamped version
     * @param chronology the chronology
     */
-   public ObservableSememeVersionImpl(SememeVersion stampedVersion, ObservableSememeChronology chronology) {
+   public ObservableSememeVersionImpl(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
       super(stampedVersion, 
               chronology);
    }
 
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      SememeVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+      SemanticVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
       ObservableSememeVersionImpl newObservableVersion = 
-              new ObservableSememeVersionImpl(newVersion, (ObservableSememeChronology) chronology);
+              new ObservableSememeVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
       ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
    }
@@ -140,7 +140,7 @@ public class ObservableSememeVersionImpl
     */
    @Override
    public int getAssemblageSequence() {
-      return ((SememeVersion) this.stampedVersionProperty.get()).getAssemblageSequence();
+      return ((SemanticVersion) this.stampedVersionProperty.get()).getAssemblageSequence();
    }
 
    /**
@@ -149,8 +149,8 @@ public class ObservableSememeVersionImpl
     * @return the chronology
     */
    @Override
-   public ObservableSememeChronology getChronology() {
-      return (ObservableSememeChronology) this.chronology;
+   public ObservableSemanticChronology getChronology() {
+      return (ObservableSemanticChronology) this.chronology;
    }
 
    /**
@@ -160,7 +160,7 @@ public class ObservableSememeVersionImpl
     */
    @Override
    public int getReferencedComponentNid() {
-      return ((SememeVersion) this.stampedVersionProperty.get()).getReferencedComponentNid();
+      return ((SemanticVersion) this.stampedVersionProperty.get()).getReferencedComponentNid();
    }
 
    /**
@@ -169,8 +169,8 @@ public class ObservableSememeVersionImpl
     * @return the sememe sequence
     */
    @Override
-   public int getSememeSequence() {
-      return ((SememeVersion) this.stampedVersionProperty.get()).getSememeSequence();
+   public int getSemanticSequence() {
+      return ((SemanticVersion) this.stampedVersionProperty.get()).getSemanticSequence();
    }
    @Override
    protected void updateVersion() {

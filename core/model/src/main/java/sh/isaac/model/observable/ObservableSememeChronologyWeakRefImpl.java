@@ -31,9 +31,8 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.SememeSequenceSet;
+import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.dag.Graph;
@@ -42,16 +41,17 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 /**
  *
  * @author kec
  */
-public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeChronology {
+public class ObservableSememeChronologyWeakRefImpl implements ObservableSemanticChronology {
 
    private final int sememeId;
-   WeakReference<ObservableSememeChronology> reference;
+   WeakReference<ObservableSemanticChronology> reference;
    ObservableChronologyService observableChronologyService;
 
    public ObservableSememeChronologyWeakRefImpl(int sememeId, ObservableChronologyService observableChronologyService) {
@@ -62,8 +62,8 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    /**
     * @return the chronology
     */
-   private ObservableSememeChronology getChronology() {
-      ObservableSememeChronology chronology;
+   private ObservableSemanticChronology getChronology() {
+      ObservableSemanticChronology chronology;
       if (reference == null) {
          chronology = observableChronologyService.getObservableSememeChronology(sememeId);
          reference = new WeakReference(chronology);
@@ -108,7 +108,7 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    }
 
    @Override
-   public ListProperty<? extends ObservableSememeChronology> sememeListProperty() {
+   public ListProperty<? extends ObservableSemanticChronology> sememeListProperty() {
       return getChronology().sememeListProperty();
    }
 
@@ -123,17 +123,17 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    }
 
    @Override
-   public ObservableList<ObservableSememeChronology> getObservableSememeList() {
+   public ObservableList<ObservableSemanticChronology> getObservableSememeList() {
       return getChronology().getObservableSememeList();
    }
 
    @Override
-   public ObservableList<ObservableSememeChronology> getObservableSememeListFromAssemblage(int assemblageSequence) {
+   public ObservableList<ObservableSemanticChronology> getObservableSememeListFromAssemblage(int assemblageSequence) {
       return getChronology().getObservableSememeListFromAssemblage(assemblageSequence);
    }
 
    @Override
-   public ObservableList<ObservableSememeChronology> getObservableSememeListFromAssemblageOfType(int assemblageSequence, VersionType type) {
+   public ObservableList<ObservableSemanticChronology> getObservableSememeListFromAssemblageOfType(int assemblageSequence, VersionType type) {
       return getChronology().getObservableSememeListFromAssemblageOfType(assemblageSequence, type);
    }
 
@@ -153,8 +153,8 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    }
 
    @Override
-   public VersionType getSememeType() {
-      return getChronology().getSememeType();
+   public VersionType getVersionType() {
+      return getChronology().getVersionType();
    }
 
    @Override
@@ -173,18 +173,18 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    }
 
    @Override
-   public <V extends SememeChronology> List<V> getSememeList() {
-      return getChronology().getSememeList();
+   public <V extends SemanticChronology> List<V> getSemanticChronologyList() {
+      return getChronology().getSemanticChronologyList();
    }
 
    @Override
-   public <V extends SememeChronology> List<V> getSememeListFromAssemblage(int assemblageSequence) {
-      return getChronology().getSememeListFromAssemblage(assemblageSequence);
+   public <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblage(int assemblageSequence) {
+      return getChronology().getSemanticChronologyListFromAssemblage(assemblageSequence);
    }
 
    @Override
-   public <V extends SememeChronology> List<V> getSememeListFromAssemblageOfType(int assemblageSequence, VersionType type) {
-      return getChronology().getSememeListFromAssemblageOfType(assemblageSequence, type);
+   public <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblageOfType(int assemblageSequence, VersionType type) {
+      return getChronology().getSemanticChronologyListFromAssemblageOfType(assemblageSequence, type);
    }
 
    @Override
@@ -223,8 +223,8 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    }
 
    @Override
-   public int getSememeSequence() {
-      return getChronology().getSememeSequence();
+   public int getSemanticSequence() {
+      return getChronology().getSemanticSequence();
    }
 
    @Override
@@ -243,7 +243,7 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    }
 
    @Override
-   public void handleChange(SememeChronology sc) {
+   public void handleChange(SemanticChronology sc) {
       getChronology().handleChange(sc);
    }
 
@@ -313,8 +313,8 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    }
 
    @Override
-   public SememeSequenceSet getRecursiveSememeSequences() {
-      return getChronology().getRecursiveSememeSequences();
+   public SemanticSequenceSet getRecursiveSemanticSequences() {
+      return getChronology().getRecursiveSemanticSequences();
    }
    
 }

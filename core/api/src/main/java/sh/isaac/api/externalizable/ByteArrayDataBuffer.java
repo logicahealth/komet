@@ -462,7 +462,7 @@ public class ByteArrayDataBuffer {
    public void putSememeSequence(int sememeSequence) {
       if (this.externalData) {
          final UUID uuid =
-            this.identifierService.getUuidPrimordialForNid(this.identifierService.getSememeNid(sememeSequence))
+            this.identifierService.getUuidPrimordialForNid(this.identifierService.getSemanticNid(sememeSequence))
                                   .get();
 
          putLong(uuid.getMostSignificantBits());
@@ -1254,7 +1254,7 @@ public class ByteArrayDataBuffer {
     */
    public int getSememeSequence() {
       if (this.externalData) {
-         return this.identifierService.getSememeSequenceForUuids(new UUID(getLong(), getLong()));
+         return this.identifierService.getSemanticSequenceForUuids(new UUID(getLong(), getLong()));
       }
 
       return getInt();

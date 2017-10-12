@@ -48,10 +48,10 @@ import java.util.List;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -141,7 +141,7 @@ public interface LanguageCoordinateService {
     * @return the specified description
     */
    LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SememeChronology> descriptionList,
+         List<SemanticChronology> descriptionList,
          LanguageCoordinate languageCoordinate);
 
    /**
@@ -154,7 +154,7 @@ public interface LanguageCoordinateService {
     * @return the specified description
     */
    LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SememeChronology> descriptionList,
+         List<SemanticChronology> descriptionList,
          int typeSequence,
          LanguageCoordinate languageCoordinate);
 

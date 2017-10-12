@@ -49,16 +49,16 @@ package sh.isaac.api.commit;
  * @author kec
  */
 public enum AlertType {
-   /** The information. */
+   /** An information alert. */
    INFORMATION,
 
-   /** The warning. */
+   /** A warning alert. */
    WARNING,
 
-   /** The error. */
+   /** An error alert. */
    ERROR,
 
-   /** The confirmation. */
+   /** A confirmation alert. */
    CONFIRMATION;
 }
 

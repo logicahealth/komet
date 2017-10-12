@@ -49,15 +49,15 @@ import javafx.beans.property.LongProperty;
 import javafx.beans.property.ReadOnlyProperty;
 
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.component.sememe.version.LongVersion;
-import sh.isaac.api.component.sememe.version.MutableLongVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.MutableLongVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
-import sh.isaac.api.observable.sememe.version.ObservableLongVersion;
+import sh.isaac.api.observable.semantic.version.ObservableLongVersion;
 import sh.isaac.model.observable.CommitAwareLongProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.sememe.version.LongVersionImpl;
+import sh.isaac.model.semantic.version.LongVersionImpl;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -79,7 +79,7 @@ public class ObservableLongVersionImpl
     * @param version the stamped version
     * @param chronology the chronology
     */
-   public ObservableLongVersionImpl(LongVersion version, ObservableSememeChronology chronology) {
+   public ObservableLongVersionImpl(LongVersion version, ObservableSemanticChronology chronology) {
       super(version, chronology);
    }
 
@@ -111,7 +111,7 @@ public class ObservableLongVersionImpl
       LongVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
       ObservableLongVersionImpl newObservableVersion = new ObservableLongVersionImpl(
                                                            newVersion,
-                                                                 (ObservableSememeChronology) chronology);
+                                                                 (ObservableSemanticChronology) chronology);
 
       ((ObservableChronologyImpl) chronology).getVersionList()
             .add(newObservableVersion);

@@ -54,12 +54,12 @@ import sh.isaac.api.chronicle.Version;
 
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.StampUniversal;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -117,13 +117,13 @@ public class IsaacClipboard
 
          if (identifiedObject instanceof ConceptChronology) {
             this.put(ISAAC_CONCEPT, ByteBuffer.wrap(dataBuffer.getData()));
-         } else if (identifiedObject instanceof SememeChronology) {
-            SememeChronology sememeChronology = (SememeChronology) identifiedObject;
+         } else if (identifiedObject instanceof SemanticChronology) {
+            SemanticChronology sememeChronology = (SemanticChronology) identifiedObject;
 
-            if (null == sememeChronology.getSememeType()) {
+            if (null == sememeChronology.getVersionType()) {
                throw new IllegalStateException("SememeType cannot be null");
             } else {
-               switch (sememeChronology.getSememeType()) {
+               switch (sememeChronology.getVersionType()) {
                   case DESCRIPTION:
                      this.put(ISAAC_DESCRIPTION, ByteBuffer.wrap(dataBuffer.getData()));
                      break;
@@ -149,10 +149,10 @@ public class IsaacClipboard
             ConceptVersion conceptVersion = (ConceptVersion) version;
             conceptVersion.getChronology().putExternal(dataBuffer);
             this.put(ISAAC_CONCEPT_VERSION, ByteBuffer.wrap(dataBuffer.getData()));
-         } else if (version instanceof SememeVersion) {
-            SememeVersion sememeVersion = (SememeVersion) version;
+         } else if (version instanceof SemanticVersion) {
+            SemanticVersion sememeVersion = (SemanticVersion) version;
             sememeVersion.getChronology().putExternal(dataBuffer);
-            switch (sememeVersion.getChronology().getSememeType()) {
+            switch (sememeVersion.getChronology().getVersionType()) {
                case DESCRIPTION:
                   this.put(ISAAC_DESCRIPTION_VERSION, ByteBuffer.wrap(dataBuffer.getData()));
                   break;

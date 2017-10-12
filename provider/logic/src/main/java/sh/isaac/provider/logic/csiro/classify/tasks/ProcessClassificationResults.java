@@ -59,13 +59,10 @@ import sh.isaac.api.IdentifierService;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.SememeSequenceSet;
+import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitService;
-import sh.isaac.api.component.sememe.SememeBuilder;
-import sh.isaac.api.component.sememe.SememeBuilderService;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
@@ -80,8 +77,11 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import sh.isaac.api.AssemblageService;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
-import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticBuilderService;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -192,9 +192,9 @@ public class ProcessClassificationResults
     * @param sememeService the sememe service
     * @throws IllegalStateException the illegal state exception
     */
-   private void testForProperSetSize(SememeSequenceSet inferredSememeSequences,
+   private void testForProperSetSize(SemanticSequenceSet inferredSememeSequences,
            int conceptSequence,
-           SememeSequenceSet statedSememeSequences,
+           SemanticSequenceSet statedSememeSequences,
            AssemblageService sememeService)
            throws IllegalStateException {
       if (inferredSememeSequences.size() > 1) {
@@ -248,19 +248,19 @@ public class ProcessClassificationResults
       final IdentifierService idService = Get.identifierService();
       final AtomicInteger sufficientSets = new AtomicInteger();
       final LogicalExpressionBuilderService logicalExpressionBuilderService = Get.logicalExpressionBuilderService();
-      final SememeBuilderService sememeBuilderService = Get.sememeBuilderService();
+      final SemanticBuilderService sememeBuilderService = Get.semanticBuilderService();
       final CommitService commitService = Get.commitService();
 
       // TODO Dan notes, for reasons not yet understood, this parallelStream call isn't working.  JVisualVM tells me that all of this
       // work is occurring on a single thread.  Need to figure out why...
       affectedConcepts.parallelStream().forEach((conceptSequence) -> {
          try {
-            final SememeSequenceSet inferredSememeSequences
-                    = sememeService.getSememeSequencesForComponentFromAssemblage(
+            final SemanticSequenceSet inferredSememeSequences
+                    = sememeService.getSemanticChronologySequencesForComponentFromAssemblage(
                             idService.getConceptNid(conceptSequence),
                             this.logicCoordinate.getInferredAssemblageSequence());
-            final SememeSequenceSet statedSememeSequences
-                    = sememeService.getSememeSequencesForComponentFromAssemblage(
+            final SemanticSequenceSet statedSememeSequences
+                    = sememeService.getSemanticChronologySequencesForComponentFromAssemblage(
                             idService.getConceptNid(conceptSequence),
                             this.logicCoordinate.getStatedAssemblageSequence());
 
@@ -271,13 +271,13 @@ public class ProcessClassificationResults
                     statedSememeSequences,
                     sememeService);
 
-            // SememeChronology<LogicGraphSememe> statedChronology = (SememeChronology<LogicGraphSememe>) assemblageService.getSememe(statedSememeSequences.stream().findFirst().getAsInt());
-            final SememeChronology rawStatedChronology
+            // SemanticChronology<LogicGraphSememe> statedChronology = (SemanticChronology<LogicGraphSememe>) assemblageService.getSememe(statedSememeSequences.stream().findFirst().getAsInt());
+            final SemanticChronology rawStatedChronology
                     = sememeService.getSememe(statedSememeSequences.stream()
                             .findFirst()
                             .getAsInt());
             final LatestVersion<LogicGraphVersion> latestStatedDefinitionOptional
-                    = ((SememeChronology) rawStatedChronology).getLatestVersion(this.stampCoordinate);
+                    = ((SemanticChronology) rawStatedChronology).getLatestVersion(this.stampCoordinate);
 
             if (latestStatedDefinitionOptional.isPresent()) {
                final LogicalExpressionBuilder inferredBuilder
@@ -323,8 +323,8 @@ public class ProcessClassificationResults
                   final LogicalExpression inferredExpression = inferredBuilder.build();
 
                   if (inferredSememeSequences.isEmpty()) {
-                     final SememeBuilder builder
-                             = sememeBuilderService.getLogicalExpressionSememeBuilder(
+                     final SemanticBuilder builder
+                             = sememeBuilderService.getLogicalExpressionBuilder(
                                      inferredExpression,
                                      idService.getConceptNid(conceptSequence),
                                      this.logicCoordinate.getInferredAssemblageSequence());
@@ -333,7 +333,7 @@ public class ProcessClassificationResults
                      builder.build(EditCoordinates.getClassifierSolorOverlay(),
                              ChangeCheckerMode.INACTIVE);
                   } else {
-                     final SememeChronology inferredChronology
+                     final SemanticChronology inferredChronology
                              = sememeService.getSememe(inferredSememeSequences.stream()
                                      .findFirst()
                                      .getAsInt());
@@ -347,7 +347,7 @@ public class ProcessClassificationResults
                                 .getLogicalExpression()
                                 .equals(inferredExpression)) {
                            final MutableLogicGraphVersion newVersion
-                                   = ((SememeChronology) inferredChronology).createMutableVersion(
+                                   = ((SemanticChronology) inferredChronology).createMutableVersion(
                                            sh.isaac.api.State.ACTIVE,
                                            EditCoordinates.getClassifierSolorOverlay());
 

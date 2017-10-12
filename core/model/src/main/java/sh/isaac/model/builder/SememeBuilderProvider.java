@@ -50,12 +50,12 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.CommittableComponent;
-import sh.isaac.api.component.sememe.SememeBuilder;
-import sh.isaac.api.component.sememe.SememeBuilderService;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticBuilderService;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -66,8 +66,8 @@ import sh.isaac.api.logic.LogicalExpression;
  * @param <C> the generic type
  */
 @Service
-public class SememeBuilderProvider<C extends SememeChronology>
-         implements SememeBuilderService<C> {
+public class SememeBuilderProvider<C extends SemanticChronology>
+         implements SemanticBuilderService<C> {
    /**
     * Gets the component sememe builder.
     *
@@ -77,7 +77,7 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the component sememe builder
     */
    @Override
-   public SememeBuilder<C> getComponentSememeBuilder(int memeComponentNid,
+   public SemanticBuilder<C> getComponentSemanticBuilder(int memeComponentNid,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
          int assemblageConceptSequence) {
       return new SememeBuilderImpl(referencedComponent,
@@ -95,7 +95,7 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the component sememe builder
     */
    @Override
-   public SememeBuilder<C> getComponentSememeBuilder(int memeComponentNid,
+   public SemanticBuilder<C> getComponentSemanticBuilder(int memeComponentNid,
          int referencedComponentNid,
          int assemblageConceptSequence) {
       return new SememeBuilderImpl(referencedComponentNid,
@@ -115,7 +115,7 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the description sememe builder
     */
    @Override
-   public SememeBuilder<? extends SememeChronology> getDescriptionSememeBuilder(
+   public SemanticBuilder<? extends SemanticChronology> getDescriptionBuilder(
            int caseSignificanceConceptSequence,
            int descriptionTypeConceptSequence,
            int languageConceptSequence,
@@ -139,7 +139,7 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the description sememe builder
     */
    @Override
-   public SememeBuilder<? extends SememeChronology> getDescriptionSememeBuilder(
+   public SemanticBuilder<? extends SemanticChronology> getDescriptionBuilder(
            int caseSignificanceConceptSequence,
            int languageConceptSequence,
            int descriptionTypeConceptSequence,
@@ -160,7 +160,7 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the dynamic sememe builder
     */
    @Override
-   public SememeBuilder<? extends SememeChronology> getDynamicSememeBuilder(
+   public SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
            int assemblageConceptSequence) {
       return new SememeBuilderImpl(referencedComponent, assemblageConceptSequence, VersionType.DYNAMIC);
@@ -174,7 +174,7 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the dynamic sememe builder
     */
    @Override
-   public SememeBuilder<? extends SememeChronology> getDynamicSememeBuilder(
+   public SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(
            int referencedComponentNid,
            int assemblageConceptSequence) {
       return new SememeBuilderImpl(referencedComponentNid, assemblageConceptSequence, VersionType.DYNAMIC);
@@ -189,10 +189,10 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the dynamic sememe builder
     */
    @Override
-   public SememeBuilder<? extends SememeChronology> getDynamicSememeBuilder(
+   public SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
            int assemblageConceptSequence,
-           DynamicSememeData[] data) {
+           DynamicData[] data) {
       // Java makes a mess out of passing an array of data into a method that takes the array ... syntax.  If you pass one, it unwraps your array, and passes in the
       // parts individually.  If you pass more than one, it doens't unwrap the parts.  In the first case, it also makes it impossible to cast back from Object[] to
       // the array type we want... so just wrap it in something to stop java from being stupid.
@@ -211,10 +211,10 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the dynamic sememe builder
     */
    @Override
-   public SememeBuilder<? extends SememeChronology> getDynamicSememeBuilder(
+   public SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(
            int referencedComponentNid,
            int assemblageConceptSequence,
-           DynamicSememeData[] data) {
+           DynamicData[] data) {
       // Java makes a mess out of passing an array of data into a method that takes the array ... syntax.  If you pass one, it unwraps your array, and passes in the
       // parts individually.  If you pass more than one, it doens't unwrap the parts.  In the first case, it also makes it impossible to cast back from Object[] to
       // the array type we want... so just wrap it in something to stop java from being stupid.
@@ -233,7 +233,7 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the logical expression sememe builder
     */
    @Override
-   public SememeBuilder<C> getLogicalExpressionSememeBuilder(LogicalExpression expression,
+   public SemanticBuilder<C> getLogicalExpressionBuilder(LogicalExpression expression,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
          int assemblageConceptSequence) {
       return new SememeBuilderImpl(referencedComponent,
@@ -251,7 +251,7 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the logical expression sememe builder
     */
    @Override
-   public SememeBuilder<C> getLogicalExpressionSememeBuilder(LogicalExpression expression,
+   public SemanticBuilder<C> getLogicalExpressionBuilder(LogicalExpression expression,
          int referencedComponentNid,
          int assemblageConceptSequence) {
       return new SememeBuilderImpl(referencedComponentNid,
@@ -269,7 +269,7 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the long sememe builder
     */
    @Override
-   public SememeBuilder<C> getLongSememeBuilder(long longValue,
+   public SemanticBuilder<C> getLongSemanticBuilder(long longValue,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
          int assemblageConceptSequence) {
       return new SememeBuilderImpl(referencedComponent,
@@ -287,7 +287,7 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the long sememe builder
     */
    @Override
-   public SememeBuilder<C> getLongSememeBuilder(long longValue,
+   public SemanticBuilder<C> getLongSemanticBuilder(long longValue,
          int referencedComponentNid,
          int assemblageConceptSequence) {
       return new SememeBuilderImpl(referencedComponentNid,
@@ -304,7 +304,7 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the membership sememe builder
     */
    @Override
-   public SememeBuilder<C> getMembershipSememeBuilder(
+   public SemanticBuilder<C> getMembershipSemanticBuilder(
            IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
            int assemblageConceptSequence) {
       return new SememeBuilderImpl(referencedComponent, assemblageConceptSequence, VersionType.MEMBER, new Object[] {});
@@ -318,7 +318,7 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the membership sememe builder
     */
    @Override
-   public SememeBuilder<C> getMembershipSememeBuilder(int referencedComponentNid, int assemblageConceptSequence) {
+   public SemanticBuilder<C> getMembershipSemanticBuilder(int referencedComponentNid, int assemblageConceptSequence) {
       return new SememeBuilderImpl(referencedComponentNid,
                                    assemblageConceptSequence,
                                    VersionType.MEMBER,
@@ -334,7 +334,7 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the string sememe builder
     */
    @Override
-   public SememeBuilder<C> getStringSememeBuilder(String memeString,
+   public SemanticBuilder<C> getStringSemanticBuilder(String memeString,
          IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
          int assemblageConceptSequence) {
       return new SememeBuilderImpl(referencedComponent,
@@ -352,7 +352,7 @@ public class SememeBuilderProvider<C extends SememeChronology>
     * @return the string sememe builder
     */
    @Override
-   public SememeBuilder<C> getStringSememeBuilder(String memeString,
+   public SemanticBuilder<C> getStringSemanticBuilder(String memeString,
          int referencedComponentNid,
          int assemblageConceptSequence) {
       return new SememeBuilderImpl(referencedComponentNid,

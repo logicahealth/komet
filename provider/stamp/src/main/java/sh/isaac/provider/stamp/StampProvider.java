@@ -91,7 +91,7 @@ import sh.isaac.api.collections.ConcurrentSequenceSerializedObjectMap;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.commit.UncommittedStamp;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.task.TimedTask;
 

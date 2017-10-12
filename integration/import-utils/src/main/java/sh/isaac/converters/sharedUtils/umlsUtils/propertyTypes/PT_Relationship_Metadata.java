@@ -41,7 +41,7 @@ package sh.isaac.converters.sharedUtils.umlsUtils.propertyTypes;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.converters.sharedUtils.propertyTypes.PropertyType;
 
 //~--- classes ----------------------------------------------------------------
@@ -57,7 +57,7 @@ public class PT_Relationship_Metadata
     * Instantiates a new p T relationship metadata.
     */
    public PT_Relationship_Metadata() {
-      super("Relationship Metadata", true, DynamicSememeDataType.UUID);
+      super("Relationship Metadata", true, DynamicDataType.UUID);
       indexByAltNames();
       addProperty("General Rel Type");
       addProperty("Inverse General Rel Type");

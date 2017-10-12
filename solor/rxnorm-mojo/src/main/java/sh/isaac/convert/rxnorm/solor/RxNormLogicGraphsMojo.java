@@ -71,8 +71,6 @@ import sh.isaac.api.Util;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DynamicSememe;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.logic.LogicalExpression;
@@ -100,8 +98,10 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.FloatLiteral;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import sh.isaac.api.index.IndexService;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
-import sh.isaac.api.component.sememe.version.MutableLogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -229,11 +229,11 @@ public class RxNormLogicGraphsMojo
 //                         try
 //                         {
 //                                 @SuppressWarnings({ "rawtypes", "unchecked" })
-//                                 Optional<LatestVersion<DynamicSememe>> ds = ((SememeChronology)sememe).getLatestVersion(DynamicSememe.class, Get.configurationService().getDefaultStampCoordinate());
+//                                 Optional<LatestVersion<DynamicSememe>> ds = ((SemanticChronology)sememe).getLatestVersion(DynamicVersion.class, Get.configurationService().getDefaultStampCoordinate());
 //                                 if (ds.isPresent())
 //                                 {
 //                                         @SuppressWarnings("rawtypes")
-//                                         DynamicSememe dsv = ds.get().value();
+//                                         DynamicVersion dsv = ds.get().value();
 //                                         int descriptionSememe = dsv.getReferencedComponentNid();
 //                                         int conceptNid = Get.sememeService().getSememe(descriptionSememe).getReferencedComponentNid();
 //                                         String value = dsv.getData()[0].getDataObject().toString();
@@ -334,11 +334,11 @@ public class RxNormLogicGraphsMojo
 //                                 if (existing != null)
 //                                 {
 //                                         //I should find one and only 1, as we read it above, from the logic expression service, and it validates.
-//                                         SememeChronology<?> sc = Get.sememeService().getSememesForComponentFromAssemblage(item.getKey(), 
+//                                         SemanticChronology<?> sc = Get.sememeService().getSememesForComponentFromAssemblage(item.getKey(), 
 //                                                         LogicCoordinates.getStandardElProfile().getStatedAssemblageSequence()).findFirst().get();
 //                                         
 //                                         @SuppressWarnings("unchecked")
-//                                         MutableLogicGraphVersion mls = ((SememeChronology<LogicGraphSememe>)sc).createMutableVersion(MutableLogicGraphVersion.class, 
+//                                         MutableLogicGraphVersion mls = ((SemanticChronology<LogicGraphSememe>)sc).createMutableVersion(MutableLogicGraphVersion.class, 
 //                                                         sh.isaac.api.State.ACTIVE, 
 //                                                         ec); 
 //                                         

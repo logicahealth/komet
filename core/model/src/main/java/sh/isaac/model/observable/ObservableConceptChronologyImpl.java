@@ -56,21 +56,21 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
-import sh.isaac.api.observable.sememe.ObservableSememeChronology;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.observable.sememe.version.ObservableDescriptionVersion;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -252,7 +252,7 @@ public class ObservableConceptChronologyImpl
            LatestVersion<? extends DescriptionVersion> description) {
       if (description.isPresent()) {
          final int specifiedStampSequence = ((DescriptionVersion) description.get()).getStampSequence();
-         final ObservableSememeChronology observableSpecified =
+         final ObservableSemanticChronology observableSpecified =
             new ObservableSememeChronologyImpl(((DescriptionVersion) description.get()).getChronology());
 
          
@@ -295,7 +295,7 @@ public class ObservableConceptChronologyImpl
    }
 
    @Override
-   public List<SememeChronology> getConceptDescriptionList() {
+   public List<SemanticChronology> getConceptDescriptionList() {
       return getConceptChronology().getConceptDescriptionList();
    }
 
@@ -326,3 +326,5 @@ public class ObservableConceptChronologyImpl
    
    
 }
+//~--- JDK imports ------------------------------------------------------------
+//~--- JDK imports ------------------------------------------------------------

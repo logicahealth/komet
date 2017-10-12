@@ -74,17 +74,11 @@ import sh.isaac.api.collections.UuidIntMapMap;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeBuilder;
-import sh.isaac.api.component.sememe.SememeBuilderService;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeColumnInfo;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeDataType;
-import sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeUtility;
-import sh.isaac.api.component.sememe.version.dynamicSememe.dataTypes.DynamicSememeArray;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.constants.Constants;
-import sh.isaac.api.constants.DynamicSememeConstants;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPrecedence;
@@ -112,14 +106,20 @@ import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.coordinate.StampCoordinateImpl;
 import sh.isaac.model.coordinate.StampPositionImpl;
-import sh.isaac.model.sememe.dataTypes.DynamicSememeStringImpl;
-import sh.isaac.model.sememe.dataTypes.DynamicSememeUUIDImpl;
+import sh.isaac.model.semantic.types.DynamicStringImpl;
+import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticBuilderService;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -150,7 +150,7 @@ public class IBDFCreationUtility {
    private ComponentReference module = null;
 
    /** The refset allowed column types. */
-   private final HashMap<UUID, DynamicSememeColumnInfo[]> refexAllowedColumnTypes = new HashMap<>();
+   private final HashMap<UUID, DynamicColumnInfo[]> refexAllowedColumnTypes = new HashMap<>();
 
    /** The concept has stated graph. */
    private final HashSet<UUID> conceptHasStatedGraph = new HashSet<>();
@@ -177,7 +177,7 @@ public class IBDFCreationUtility {
    private final LogicalExpressionBuilderService expressionBuilderService;
 
    /** The sememe builder service. */
-   private final SememeBuilderService<?> sememeBuilderService;
+   private final SemanticBuilderService<?> sememeBuilderService;
 
    /** The writer. */
    private final DataWriterService writer;
@@ -223,59 +223,49 @@ public class IBDFCreationUtility {
       this.terminologyPathSeq = MetaData.DEVELOPMENT_PATH____SOLOR.getConceptSequence();
 
       // TODO automate this somehow....
-      registerDynamicSememeColumnInfo(
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION
+      registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION
                                 .getUUID(),
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION
+          DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION
                                 .getDynamicSememeColumns());
-      registerDynamicSememeColumnInfo(
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME
+      registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_ASSOCIATION_SEMEME
                                 .getUUID(),
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME
+          DynamicConstants.get().DYNAMIC_ASSOCIATION_SEMEME
                                 .getDynamicSememeColumns());
-      registerDynamicSememeColumnInfo(
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME
+      registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME
                                 .getUUID(),
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME
+          DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME
                                 .getDynamicSememeColumns());
-      registerDynamicSememeColumnInfo(
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
+      registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
                                 .getUUID(),
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
+          DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
                                 .getDynamicSememeColumns());
-      registerDynamicSememeColumnInfo(
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION
+      registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION
                                 .getUUID(),
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION
+          DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION
                                 .getDynamicSememeColumns());
-      registerDynamicSememeColumnInfo(
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION
+      registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
                                 .getUUID(),
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION
+          DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
                                 .getDynamicSememeColumns());
-      registerDynamicSememeColumnInfo(
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_COMMENT_ATTRIBUTE
+      registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_COMMENT_ATTRIBUTE
                                 .getUUID(),
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_COMMENT_ATTRIBUTE
+          DynamicConstants.get().DYNAMIC_COMMENT_ATTRIBUTE
                                 .getDynamicSememeColumns());
-      registerDynamicSememeColumnInfo(
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
+      registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE
                                 .getUUID(),
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
+          DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE
                                 .getDynamicSememeColumns());
-      registerDynamicSememeColumnInfo(
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_RELATIONSHIP_TYPE
+      registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_EXTENDED_RELATIONSHIP_TYPE
                                 .getUUID(),
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_RELATIONSHIP_TYPE
+          DynamicConstants.get().DYNAMIC_EXTENDED_RELATIONSHIP_TYPE
                                 .getDynamicSememeColumns());
 
       // TODO figure out how to get rid of this copy/paste mess too
-      registerDynamicSememeColumnInfo(
-          MetaData.LOINC_NUM____SOLOR.getPrimordialUuid(),
-          new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(
+      registerDynamicSememeColumnInfo(MetaData.LOINC_NUM____SOLOR.getPrimordialUuid(),
+          new DynamicColumnInfo[] { new DynamicColumnInfo(
               0,
-              DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_VALUE.getPrimordialUuid(),
-              DynamicSememeDataType.STRING,
+              DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(),
+              DynamicDataType.STRING,
               null,
               true,
               true) });
@@ -284,7 +274,7 @@ public class IBDFCreationUtility {
       this.conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____SOLOR);
       this.conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
       this.expressionBuilderService = Get.logicalExpressionBuilderService();
-      this.sememeBuilderService     = Get.sememeBuilderService();
+      this.sememeBuilderService     = Get.semanticBuilderService();
       this.defaultTime              = defaultTime;
 
       final StampPosition stampPosition = new StampPositionImpl(
@@ -417,14 +407,14 @@ public class IBDFCreationUtility {
     * @param time - if null, uses the component time
     * @return the sememe chronology
     */
-   public SememeChronology addAnnotation(ComponentReference referencedComponent,
+   public SemanticChronology addAnnotation(ComponentReference referencedComponent,
          UUID uuidForCreatedAnnotation,
-         DynamicSememeData value,
+         DynamicData value,
          UUID refexDynamicTypeUuid,
          State state,
          Long time) {
-      return addAnnotation(referencedComponent, uuidForCreatedAnnotation, ((value == null) ? new DynamicSememeData[] {}
-            : new DynamicSememeData[] { value }), refexDynamicTypeUuid, state, time, null);
+      return addAnnotation(referencedComponent, uuidForCreatedAnnotation, ((value == null) ? new DynamicData[] {}
+            : new DynamicData[] { value }), refexDynamicTypeUuid, state, time, null);
    }
 
    /**
@@ -441,9 +431,9 @@ public class IBDFCreationUtility {
     * @return the sememe chronology
     */
    @SuppressWarnings("unchecked")
-   public SememeChronology addAnnotation(ComponentReference referencedComponent,
+   public SemanticChronology addAnnotation(ComponentReference referencedComponent,
          UUID uuidForCreatedAnnotation,
-         DynamicSememeData[] values,
+         DynamicData[] values,
          UUID refexDynamicTypeUuid,
          State state,
          Long time,
@@ -451,7 +441,7 @@ public class IBDFCreationUtility {
       validateDataTypes(refexDynamicTypeUuid, values);
 
       @SuppressWarnings("rawtypes")
-      final SememeBuilder sb = this.sememeBuilderService.getDynamicSememeBuilder(
+      final SemanticBuilder sb = this.sememeBuilderService.getDynamicBuilder(
                                    referencedComponent.getNid(),
                                    Get.identifierService()
                                       .getConceptSequenceForUuids(refexDynamicTypeUuid),
@@ -465,7 +455,7 @@ public class IBDFCreationUtility {
                                         .toString());
 
          if (values != null) {
-            for (final DynamicSememeData d: values) {
+            for (final DynamicData d: values) {
                if (d == null) {
                   temp.append("null");
                } else {
@@ -482,7 +472,7 @@ public class IBDFCreationUtility {
       sb.setPrimordialUuid(uuidForCreatedAnnotation);
 
       final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
-      final SememeChronology sc = (SememeChronology) sb.build(
+      final SemanticChronology sc = (SemanticChronology) sb.build(
                                                         createStamp(
                                                               state,
                                                                     selectTime(time, referencedComponent),
@@ -522,7 +512,7 @@ public class IBDFCreationUtility {
     * @param module the module
     * @return the sememe chronology
     */
-   public SememeChronology addAssociation(ComponentReference concept,
+   public SemanticChronology addAssociation(ComponentReference concept,
          UUID associationPrimordialUuid,
          UUID targetUuid,
          UUID associationTypeUuid,
@@ -535,10 +525,9 @@ public class IBDFCreationUtility {
          configureConceptAsAssociation(associationTypeUuid, null);
       }
 
-      return addAnnotation(
-          concept,
+      return addAnnotation(concept,
           associationPrimordialUuid,
-          new DynamicSememeData[] { new DynamicSememeUUIDImpl(targetUuid) },
+          new DynamicData[] { new DynamicUUIDImpl(targetUuid) },
           associationTypeUuid,
           state,
           time,
@@ -556,7 +545,7 @@ public class IBDFCreationUtility {
     * @param state the state
     * @return the sememe chronology
     */
-   public SememeChronology addDescription(ComponentReference concept,
+   public SemanticChronology addDescription(ComponentReference concept,
          String descriptionValue,
          DescriptionType wbDescriptionType,
          boolean preferred,
@@ -589,7 +578,7 @@ public class IBDFCreationUtility {
     * @param status the status
     * @return the sememe chronology
     */
-   public SememeChronology addDescription(ComponentReference concept,
+   public SemanticChronology addDescription(ComponentReference concept,
          UUID descriptionPrimordialUUID,
          String descriptionValue,
          DescriptionType wbDescriptionType,
@@ -629,7 +618,7 @@ public class IBDFCreationUtility {
     * @return the sememe chronology
     */
    @SuppressWarnings("unchecked")
-   public SememeChronology addDescription(ComponentReference concept,
+   public SemanticChronology addDescription(ComponentReference concept,
          UUID descriptionPrimordialUUID,
          String descriptionValue,
          DescriptionType wbDescriptionType,
@@ -666,8 +655,8 @@ public class IBDFCreationUtility {
       }
 
       @SuppressWarnings({ "rawtypes" })
-      final SememeBuilder<? extends SememeChronology> descBuilder =
-         this.sememeBuilderService.getDescriptionSememeBuilder(
+      final SemanticBuilder<? extends SemanticChronology> descBuilder =
+         this.sememeBuilderService.getDescriptionBuilder(
              Get.identifierService()
                 .getConceptSequenceForUuids(
                     (caseSignificant == null) ? MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid()
@@ -683,8 +672,8 @@ public class IBDFCreationUtility {
       descBuilder.setPrimordialUuid(descriptionPrimordialUUID);
 
       final List<Chronology> builtObjects = new ArrayList<>();
-      final SememeChronology newDescription =
-         (SememeChronology) descBuilder.build(
+      final SemanticChronology newDescription =
+         (SemanticChronology) descBuilder.build(
              createStamp(
                  state,
                  selectTime(time, concept),
@@ -694,7 +683,7 @@ public class IBDFCreationUtility {
       if (preferred == null) {
          // noop
       } else {
-         final SememeBuilder<?> acceptabilityTypeBuilder = this.sememeBuilderService.getComponentSememeBuilder(
+         final SemanticBuilder<?> acceptabilityTypeBuilder = this.sememeBuilderService.getComponentSemanticBuilder(
                                                                preferred ? TermAux.PREFERRED.getNid()
                : TermAux.ACCEPTABLE.getNid(),
                                                                      newDescription.getNid(),
@@ -717,12 +706,11 @@ public class IBDFCreationUtility {
             : ":" + getOriginStringForUuid(sourceDescriptionTypeUUID)));
 
       if (sourceDescriptionTypeUUID != null) {
-         addAnnotation(
-             ComponentReference.fromChronology(newDescription, () -> "Description"),
+         addAnnotation(ComponentReference.fromChronology(newDescription, () -> "Description"),
              null,
              ((sourceDescriptionTypeUUID == null) ? null
-               : new DynamicSememeUUIDImpl(sourceDescriptionTypeUUID)),
-             DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_DESCRIPTION_TYPE
+               : new DynamicUUIDImpl(sourceDescriptionTypeUUID)),
+             DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE
                                    .getPrimordialUuid(),
              null,
              null);
@@ -743,14 +731,14 @@ public class IBDFCreationUtility {
     * @param module - optional
     * @return the sememe chronology
     */
-   public SememeChronology addDescriptionAcceptibility(ComponentReference description,
+   public SemanticChronology addDescriptionAcceptibility(ComponentReference description,
          UUID acceptabilityPrimordialUUID,
          UUID dialectRefset,
          boolean preferred,
          State state,
          Long time,
          UUID module) {
-      final SememeBuilder sb = this.sememeBuilderService.getComponentSememeBuilder(
+      final SemanticBuilder sb = this.sememeBuilderService.getComponentSemanticBuilder(
                                    preferred ? TermAux.PREFERRED.getNid()
             : TermAux.ACCEPTABLE.getNid(),
                                    description.getNid(),
@@ -770,7 +758,7 @@ public class IBDFCreationUtility {
 
       final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SememeChronology sc = (SememeChronology) sb.build(
+      final SemanticChronology sc = (SemanticChronology) sb.build(
                                                              createStamp(state, selectTime(time, description), module),
                                                                    builtObjects);
 
@@ -790,9 +778,9 @@ public class IBDFCreationUtility {
     * @param descriptions the descriptions
     * @return the list
     */
-   public List<SememeChronology> addDescriptions(ComponentReference concept,
+   public List<SemanticChronology> addDescriptions(ComponentReference concept,
          List<? extends ValuePropertyPair> descriptions) {
-      final ArrayList<SememeChronology> result = new ArrayList<>(descriptions.size());
+      final ArrayList<SemanticChronology> result = new ArrayList<>(descriptions.size());
 
       Collections.sort(descriptions);
 
@@ -873,7 +861,7 @@ public class IBDFCreationUtility {
     * @param fullySpecifiedName the fully specified name
     * @return the sememe chronology
     */
-   public SememeChronology addFullySpecifiedName(ComponentReference concept,
+   public SemanticChronology addFullySpecifiedName(ComponentReference concept,
          String fullySpecifiedName) {
       return addDescription(concept, fullySpecifiedName, DescriptionType.FULLY_QUALIFIED_NAME, true, null, State.ACTIVE);
    }
@@ -886,7 +874,7 @@ public class IBDFCreationUtility {
     * @param targetUuid the target uuid
     * @return the sememe chronology
     */
-   public SememeChronology addParent(ComponentReference concept, UUID targetUuid) {
+   public SemanticChronology addParent(ComponentReference concept, UUID targetUuid) {
       return addParent(concept, null, new UUID[] { targetUuid }, null, null);
    }
 
@@ -901,7 +889,7 @@ public class IBDFCreationUtility {
     * @param time the time
     * @return the sememe chronology
     */
-   public SememeChronology addParent(ComponentReference concept,
+   public SemanticChronology addParent(ComponentReference concept,
          UUID targetUuid,
          Property p,
          Long time) {
@@ -923,7 +911,7 @@ public class IBDFCreationUtility {
     * @param time - if null, default is used
     * @return the sememe chronology
     */
-   public SememeChronology addParent(ComponentReference concept,
+   public SemanticChronology addParent(ComponentReference concept,
          UUID relPrimordialUuid,
          UUID[] targetUuid,
          UUID sourceRelTypeUUID,
@@ -951,7 +939,7 @@ public class IBDFCreationUtility {
 
       final LogicalExpression logicalExpression = leb.build();
       @SuppressWarnings("rawtypes")
-      final SememeBuilder sb = this.sememeBuilderService.getLogicalExpressionSememeBuilder(
+      final SemanticBuilder sb = this.sememeBuilderService.getLogicalExpressionBuilder(
                                    logicalExpression,
                                    concept.getNid(),
                                    this.conceptBuilderService.getDefaultLogicCoordinate()
@@ -968,7 +956,7 @@ public class IBDFCreationUtility {
 
       final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SememeChronology sci = (SememeChronology) sb.build(
+      final SemanticChronology sci = (SemanticChronology) sb.build(
                                                             createStamp(State.ACTIVE, selectTime(time, concept)),
                                                                   builtObjects);
 
@@ -977,10 +965,9 @@ public class IBDFCreationUtility {
       }
 
       if (sourceRelTypeUUID != null) {
-         addUUIDAnnotation(
-             ComponentReference.fromChronology(sci, () -> "Graph"),
+         addUUIDAnnotation(ComponentReference.fromChronology(sci, () -> "Graph"),
              sourceRelTypeUUID,
-             DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENDED_RELATIONSHIP_TYPE
+             DynamicConstants.get().DYNAMIC_EXTENDED_RELATIONSHIP_TYPE
                                    .getPrimordialUuid());
          this.ls.addRelationship(
              getOriginStringForUuid(
@@ -1001,14 +988,13 @@ public class IBDFCreationUtility {
     * @param time the time
     * @return the sememe chronology
     */
-   public SememeChronology addRefsetMembership(ComponentReference referencedComponent,
+   public SemanticChronology addRefsetMembership(ComponentReference referencedComponent,
          UUID refexDynamicTypeUuid,
          State state,
          Long time) {
-      return addAnnotation(
-          referencedComponent,
+      return addAnnotation(referencedComponent,
           null,
-          (DynamicSememeData[]) null,
+          (DynamicData[]) null,
           refexDynamicTypeUuid,
           state,
           time,
@@ -1025,7 +1011,7 @@ public class IBDFCreationUtility {
     * @param module the module
     * @return the sememe chronology
     */
-   public SememeChronology addRelationshipGraph(ComponentReference concept,
+   public SemanticChronology addRelationshipGraph(ComponentReference concept,
          LogicalExpression logicalExpression,
          boolean stated,
          Long time,
@@ -1044,7 +1030,7 @@ public class IBDFCreationUtility {
     * @param module the module
     * @return the sememe chronology
     */
-   public SememeChronology addRelationshipGraph(ComponentReference concept,
+   public SemanticChronology addRelationshipGraph(ComponentReference concept,
          UUID graphPrimordialUuid,
          LogicalExpression logicalExpression,
          boolean stated,
@@ -1061,7 +1047,7 @@ public class IBDFCreationUtility {
       temp.add(concept.getPrimordialUuid());
 
       @SuppressWarnings("rawtypes")
-      final SememeBuilder sb = this.sememeBuilderService.getLogicalExpressionSememeBuilder(
+      final SemanticBuilder sb = this.sememeBuilderService.getLogicalExpressionBuilder(
                                    logicalExpression,
                                    concept.getNid(),
                                    stated ? this.conceptBuilderService.getDefaultLogicCoordinate()
@@ -1089,7 +1075,7 @@ public class IBDFCreationUtility {
 
       final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SememeChronology sci = (SememeChronology) sb.build(
+      final SemanticChronology sci = (SemanticChronology) sb.build(
                                                             createStamp(
                                                                   State.ACTIVE,
                                                                         selectTime(time, concept),
@@ -1113,12 +1099,12 @@ public class IBDFCreationUtility {
     * @param state the state
     * @return the sememe chronology
     */
-   public SememeChronology addStaticStringAnnotation(ComponentReference referencedComponent,
+   public SemanticChronology addStaticStringAnnotation(ComponentReference referencedComponent,
          String annotationValue,
          UUID refsetUuid,
          State state) {
       @SuppressWarnings("rawtypes")
-      final SememeBuilder sb = this.sememeBuilderService.getStringSememeBuilder(
+      final SemanticBuilder sb = this.sememeBuilderService.getStringSemanticBuilder(
                                    annotationValue,
                                    referencedComponent.getNid(),
                                    Get.identifierService()
@@ -1133,7 +1119,7 @@ public class IBDFCreationUtility {
 
       final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
       @SuppressWarnings("unchecked")
-      final SememeChronology sc = (SememeChronology) sb.build(
+      final SemanticChronology sc = (SemanticChronology) sb.build(
                                                        createStamp(state, selectTime(null, referencedComponent)),
                                                              builtObjects);
 
@@ -1157,14 +1143,13 @@ public class IBDFCreationUtility {
     * @param status the status
     * @return the sememe chronology
     */
-   public SememeChronology addStringAnnotation(ComponentReference referencedComponent,
+   public SemanticChronology addStringAnnotation(ComponentReference referencedComponent,
          String annotationValue,
          UUID refsetUuid,
          State status) {
-      return addAnnotation(
-          referencedComponent,
+      return addAnnotation(referencedComponent,
           null,
-          new DynamicSememeData[] { new DynamicSememeStringImpl(annotationValue) },
+          new DynamicData[] { new DynamicStringImpl(annotationValue) },
           refsetUuid,
           status,
           null,
@@ -1181,15 +1166,14 @@ public class IBDFCreationUtility {
     * @param status the status
     * @return the sememe chronology
     */
-   public SememeChronology addStringAnnotation(ComponentReference referencedComponent,
+   public SemanticChronology addStringAnnotation(ComponentReference referencedComponent,
          UUID uuidForCreatedAnnotation,
          String annotationValue,
          UUID refsetUuid,
          State status) {
-      return addAnnotation(
-          referencedComponent,
+      return addAnnotation(referencedComponent,
           uuidForCreatedAnnotation,
-          new DynamicSememeData[] { new DynamicSememeStringImpl(annotationValue) },
+          new DynamicData[] { new DynamicStringImpl(annotationValue) },
           refsetUuid,
           status,
           null,
@@ -1218,11 +1202,10 @@ public class IBDFCreationUtility {
     * @param refsetUuid the refset uuid
     * @return the sememe chronology
     */
-   public SememeChronology addUUIDAnnotation(ComponentReference object, UUID value, UUID refsetUuid) {
-      return addAnnotation(
-          object,
+   public SemanticChronology addUUIDAnnotation(ComponentReference object, UUID value, UUID refsetUuid) {
+      return addAnnotation(object,
           null,
-          new DynamicSememeData[] { new DynamicSememeUUIDImpl(value) },
+          new DynamicData[] { new DynamicUUIDImpl(value) },
           refsetUuid,
           null,
           null,
@@ -1245,10 +1228,10 @@ public class IBDFCreationUtility {
     */
    @Deprecated
    public void configureConceptAsAssociation(UUID associationTypeConcept, String inverseName) {
-      final DynamicSememeColumnInfo[] colInfo = new DynamicSememeColumnInfo[] { new DynamicSememeColumnInfo(
+      final DynamicColumnInfo[] colInfo = new DynamicColumnInfo[] { new DynamicColumnInfo(
                                                     0,
-                                                          DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(),
-                                                          DynamicSememeDataType.UUID,
+                                                          DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(),
+                                                          DynamicDataType.UUID,
                                                           null,
                                                           true,
                                                           true) };
@@ -1259,15 +1242,14 @@ public class IBDFCreationUtility {
           colInfo,
           null,
           null);
-      addRefsetMembership(
-          ComponentReference.fromConcept(associationTypeConcept),
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME
+      addRefsetMembership(ComponentReference.fromConcept(associationTypeConcept),
+          DynamicConstants.get().DYNAMIC_ASSOCIATION_SEMEME
                                 .getUUID(),
           State.ACTIVE,
           null);
 
       if (!StringUtils.isBlank(inverseName)) {
-         final SememeChronology inverseDesc = addDescription(ComponentReference.fromConcept(
+         final SemanticChronology inverseDesc = addDescription(ComponentReference.fromConcept(
                                                                               associationTypeConcept),
                                                                               inverseName,
                                                                               DescriptionType.REGULAR_NAME,
@@ -1275,9 +1257,8 @@ public class IBDFCreationUtility {
                                                                               null,
                                                                               State.ACTIVE);
 
-         addRefsetMembership(
-             ComponentReference.fromChronology(inverseDesc),
-             DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME
+         addRefsetMembership(ComponentReference.fromChronology(inverseDesc),
+             DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME
                                    .getUUID(),
              State.ACTIVE,
              selectTime(null, ComponentReference.fromChronology(inverseDesc)));
@@ -1297,7 +1278,7 @@ public class IBDFCreationUtility {
     */
    public void configureConceptAsDynamicRefex(ComponentReference concept,
          String refexDescription,
-         DynamicSememeColumnInfo[] columns,
+         DynamicColumnInfo[] columns,
          ObjectChronologyType referencedComponentTypeRestriction,
          VersionType referencedComponentTypeSubRestriction) {
       if (refexDescription == null) {
@@ -1318,7 +1299,7 @@ public class IBDFCreationUtility {
                                   .toString(),
                             new Boolean("true").toString(),
                             "DynamicSememeMarker");
-      final SememeChronology desc = addDescription(
+      final SemanticChronology desc = addDescription(
                                                               concept,
                                                                     temp,
                                                                     refexDescription,
@@ -1328,41 +1309,38 @@ public class IBDFCreationUtility {
                                                                     State.ACTIVE);
 
       // Annotate the description as the 'special' type that means this concept is suitable for use as an assemblage concept
-      addAnnotation(
-          ComponentReference.fromChronology(desc),
+      addAnnotation(ComponentReference.fromChronology(desc),
           null,
-          (DynamicSememeData) null,
-          DynamicSememeConstants.get().DYNAMIC_SEMEME_DEFINITION_DESCRIPTION
+          (DynamicData) null,
+          DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION
                                 .getUUID(),
           State.ACTIVE,
           null);
 
       // define the data columns (if any)
       if ((columns != null) && (columns.length > 0)) {
-         for (final DynamicSememeColumnInfo col: columns) {
-            final DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class)
+         for (final DynamicColumnInfo col: columns) {
+            final DynamicData[] data = LookupService.getService(DynamicUtility.class)
                                                           .configureDynamicSememeDefinitionDataForColumn(col);
 
-            addAnnotation(
-                concept,
+            addAnnotation(concept,
                 null,
                 data,
-                DynamicSememeConstants.get().DYNAMIC_SEMEME_EXTENSION_DEFINITION
+                DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION
                                       .getUUID(),
                 State.ACTIVE,
                 null,
                 null);
          }
 
-         final DynamicSememeArray<DynamicSememeData> indexInfo = LookupService.getService(DynamicSememeUtility.class)
+         final DynamicArray<DynamicData> indexInfo = LookupService.getService(DynamicUtility.class)
                                                                               .configureColumnIndexInfo(columns);
 
          if (indexInfo != null) {
-            addAnnotation(
-                concept,
+            addAnnotation(concept,
                 null,
-                new DynamicSememeData[] { indexInfo },
-                DynamicSememeConstants.get().DYNAMIC_SEMEME_INDEX_CONFIGURATION
+                new DynamicData[] { indexInfo },
+                DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
                                       .getPrimordialUuid(),
                 State.ACTIVE,
                 null,
@@ -1373,17 +1351,16 @@ public class IBDFCreationUtility {
       registerDynamicSememeColumnInfo(concept.getPrimordialUuid(), columns);
 
       // Add the restriction information (if any)
-      final DynamicSememeData[] data = LookupService.getService(DynamicSememeUtility.class)
+      final DynamicData[] data = LookupService.getService(DynamicUtility.class)
                                                     .configureDynamicSememeRestrictionData(
                                                           referencedComponentTypeRestriction,
                                                                 referencedComponentTypeSubRestriction);
 
       if (data != null) {
-         addAnnotation(
-             concept,
+         addAnnotation(concept,
              null,
              data,
-             DynamicSememeConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
+             DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
                                    .getUUID(),
              State.ACTIVE,
              null,
@@ -1615,29 +1592,28 @@ public class IBDFCreationUtility {
     */
    public Property createMultiColumnDynamicStringSememe(String sememeName,
          String[] columnNames,
-         DynamicSememeDataType[] columnTypes) {
-      final DynamicSememeColumnInfo[] cols = new DynamicSememeColumnInfo[columnNames.length];
+         DynamicDataType[] columnTypes) {
+      final DynamicColumnInfo[] cols = new DynamicColumnInfo[columnNames.length];
 
       for (int i = 0; i < cols.length; i++) {
          String                colName;
-         DynamicSememeDataType type;
+         DynamicDataType type;
 
          if (columnNames[i].startsWith("[]")) {
             colName = columnNames[i].substring(2, columnNames[i].length());
-            type    = DynamicSememeDataType.ARRAY;
+            type    = DynamicDataType.ARRAY;
          } else {
             colName = columnNames[i];
-            type    = (columnTypes == null) ? DynamicSememeDataType.STRING
+            type    = (columnTypes == null) ? DynamicDataType.STRING
                                             : columnTypes[i];
          }
 
-         final UUID descriptionConcept = createConcept(
-                                             colName,
+         final UUID descriptionConcept = createConcept(colName,
                                                    true,
-                                                   DynamicSememeConstants.get().DYNAMIC_SEMEME_COLUMNS
+                                                   DynamicConstants.get().DYNAMIC_COLUMNS
                                                          .getPrimordialUuid()).getPrimordialUuid();
 
-         cols[i] = new DynamicSememeColumnInfo(i, descriptionConcept, type, null, false, true);
+         cols[i] = new DynamicColumnInfo(i, descriptionConcept, type, null, false, true);
       }
 
       return new Property(null, sememeName, null, null, false, Integer.MAX_VALUE, cols);
@@ -1757,16 +1733,15 @@ public class IBDFCreationUtility {
                       item.getAssociationComponentTypeSubRestriction());
 
                   // Add this concept to the association sememe
-                  addRefsetMembership(
-                      ComponentReference.fromConcept(concept),
-                      DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_SEMEME
+                  addRefsetMembership(ComponentReference.fromConcept(concept),
+                      DynamicConstants.get().DYNAMIC_ASSOCIATION_SEMEME
                                             .getUUID(),
                       State.ACTIVE,
                       null);
 
                   // add the inverse name, if it has one
                   if (!StringUtils.isBlank(item.getAssociationInverseName())) {
-                     final SememeChronology inverseDesc = addDescription(ComponentReference.fromConcept(
+                     final SemanticChronology inverseDesc = addDescription(ComponentReference.fromConcept(
                                                                                           concept),
                                                                                           item.getAssociationInverseName(),
                                                                                           DescriptionType.REGULAR_NAME,
@@ -1774,9 +1749,8 @@ public class IBDFCreationUtility {
                                                                                           null,
                                                                                           State.ACTIVE);
 
-                     addRefsetMembership(
-                         ComponentReference.fromChronology(inverseDesc),
-                         DynamicSememeConstants.get().DYNAMIC_SEMEME_ASSOCIATION_INVERSE_NAME
+                     addRefsetMembership(ComponentReference.fromChronology(inverseDesc),
+                         DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME
                                                .getUUID(),
                          State.ACTIVE,
                          selectTime(null, ComponentReference.fromChronology(inverseDesc)));
@@ -1859,7 +1833,7 @@ public class IBDFCreationUtility {
     * @param sememeUUID the sememe UUID
     * @param columnInfo the column info
     */
-   public final void registerDynamicSememeColumnInfo(UUID sememeUUID, DynamicSememeColumnInfo[] columnInfo) {
+   public final void registerDynamicSememeColumnInfo(UUID sememeUUID, DynamicColumnInfo[] columnInfo) {
       this.refexAllowedColumnTypes.put(sememeUUID, columnInfo);
    }
 
@@ -1941,21 +1915,21 @@ public class IBDFCreationUtility {
     * @param refexDynamicTypeUuid the refex dynamic type uuid
     * @param values the values
     */
-   private void validateDataTypes(UUID refexDynamicTypeUuid, DynamicSememeData[] values) {
+   private void validateDataTypes(UUID refexDynamicTypeUuid, DynamicData[] values) {
       // TODO this should be a much better validator - checking all of the various things in RefexDynamicCAB.validateData - or in
       // generateMetadataEConcepts - need to enforce the restrictions defined in the columns in the validators
       if (!this.refexAllowedColumnTypes.containsKey(refexDynamicTypeUuid)) {
          throw new RuntimeException("Attempted to store data on a concept not configured as a dynamic sememe");
       }
 
-      final DynamicSememeColumnInfo[] colInfo = this.refexAllowedColumnTypes.get(refexDynamicTypeUuid);
+      final DynamicColumnInfo[] colInfo = this.refexAllowedColumnTypes.get(refexDynamicTypeUuid);
 
       if ((values != null) && (values.length > 0)) {
          if (colInfo != null) {
             for (int i = 0; i < values.length; i++) {
-               DynamicSememeColumnInfo column = null;
+               DynamicColumnInfo column = null;
 
-               for (final DynamicSememeColumnInfo x: colInfo) {
+               for (final DynamicColumnInfo x: colInfo) {
                   if (x.getColumnOrder() == i) {
                      column = x;
                      break;
@@ -1969,7 +1943,7 @@ public class IBDFCreationUtility {
                      throw new RuntimeException("Missing column data for column " + column.getColumnName());
                   } else if ((values[i] != null) &&
                              (column.getColumnDataType() != values[i].getDynamicSememeDataType()) &&
-                             (column.getColumnDataType() != DynamicSememeDataType.POLYMORPHIC)) {
+                             (column.getColumnDataType() != DynamicDataType.POLYMORPHIC)) {
                      throw new RuntimeException(
                          "Datatype mismatch - " + column.getColumnDataType() + " - " +
                          values[i].getDynamicSememeDataType());
@@ -1980,7 +1954,7 @@ public class IBDFCreationUtility {
             throw new RuntimeException("Column count mismatch - this dynamic sememe doesn't allow columns!");
          }
       } else if (colInfo != null) {
-         for (final DynamicSememeColumnInfo ci: colInfo) {
+         for (final DynamicColumnInfo ci: colInfo) {
             if (ci.isColumnRequired()) {
                throw new RuntimeException("Missing column data for column " + ci.getColumnName());
             }

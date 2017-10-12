@@ -61,7 +61,7 @@ import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.ParentClause;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.WhereClause;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
 

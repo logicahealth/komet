@@ -124,7 +124,7 @@ public final class ComponentPanel
               .getObservableSememeList()
               .forEach(
                       (osc) -> {
-                         switch (osc.getSememeType()) {
+                         switch (osc.getVersionType()) {
                             case DESCRIPTION:
                             case LOGIC_GRAPH:
                                break;  // Ignore, description and logic graph where already added as an independent panel

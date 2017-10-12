@@ -100,8 +100,7 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
@@ -119,6 +118,7 @@ import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithSequences;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithSequences;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -291,9 +291,9 @@ public class TaxonomyProvider
     * @param sc the sc
     */
    @Override
-   public void handleChange(SememeChronology sc) {
-      if (sc.getSememeType() == VersionType.LOGIC_GRAPH) {
-         this.sememeSequencesForUnhandledChanges.add(sc.getSememeSequence());
+   public void handleChange(SemanticChronology sc) {
+      if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
+         this.sememeSequencesForUnhandledChanges.add(sc.getSemanticSequence());
       }
    }
 
@@ -346,7 +346,7 @@ public class TaxonomyProvider
     * @param logicGraphChronology the logic graph chronology
     */
    @Override
-   public void updateTaxonomy(SememeChronology logicGraphChronology) {
+   public void updateTaxonomy(SemanticChronology logicGraphChronology) {
       final int conceptSequence = this.identifierService.getConceptSequence(
                                       logicGraphChronology.getReferencedComponentNid());
       final Optional<TaxonomyRecordPrimitive> record = this.originDestinationTaxonomyRecordMap.get(conceptSequence);

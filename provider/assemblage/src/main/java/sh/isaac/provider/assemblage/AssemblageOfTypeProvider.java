@@ -46,12 +46,12 @@ import java.util.stream.Stream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.SememeSequenceSet;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.SememeServiceTyped;
+import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.SemanticServiceTyped;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -61,7 +61,7 @@ import sh.isaac.api.chronicle.VersionType;
  * @author kec
  */
 public class AssemblageOfTypeProvider
-         implements SememeServiceTyped {
+         implements SemanticServiceTyped {
    /** The type. */
    VersionType type;
 
@@ -89,7 +89,7 @@ public class AssemblageOfTypeProvider
     * @param sememeChronicle the sememe chronicle
     */
    @Override
-   public void writeSememe(SememeChronology sememeChronicle) {
+   public void writeSemanticChronology(SemanticChronology sememeChronicle) {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -103,7 +103,7 @@ public class AssemblageOfTypeProvider
     * @return the parallel sememe stream
     */
    @Override
-   public Stream<SememeChronology> getParallelSememeStream() {
+   public Stream<SemanticChronology> getParallelSemanticChronologyStream() {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -116,7 +116,7 @@ public class AssemblageOfTypeProvider
     * @return the sememe
     */
    @Override
-   public SememeChronology getSememe(int sememeSequence) {
+   public SemanticChronology getSemanticChronology(int sememeSequence) {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -129,7 +129,7 @@ public class AssemblageOfTypeProvider
     * @return the sememe sequences for component
     */
    @Override
-   public SememeSequenceSet getSememeSequencesForComponent(int componentNid) {
+   public SemanticSequenceSet getSemanticSequencesForComponent(int componentNid) {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -143,7 +143,7 @@ public class AssemblageOfTypeProvider
     * @return the sememe sequences for component from assemblage
     */
    @Override
-   public SememeSequenceSet getSememeSequencesForComponentFromAssemblage(int componentNid, int assemblageSequence) {
+   public SemanticSequenceSet getSemanticSequencesForComponentFromAssemblage(int componentNid, int assemblageSequence) {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -157,7 +157,7 @@ public class AssemblageOfTypeProvider
     * @return the sememe sequences for components from assemblage
     */
    @Override
-   public SememeSequenceSet getSememeSequencesForComponentsFromAssemblage(NidSet componentNidSet,
+   public SemanticSequenceSet getSemanticSequencesForComponentsFromAssemblage(NidSet componentNidSet,
          int assemblageSequence) {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
@@ -173,7 +173,7 @@ public class AssemblageOfTypeProvider
     * @return the sememe sequences for components from assemblage modified after position
     */
    @Override
-   public SememeSequenceSet getSememeSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet,
+   public SemanticSequenceSet getSemanticSequencesForComponentsFromAssemblageModifiedAfterPosition(NidSet componentNidSet,
          int assemblageSequence,
          StampPosition position) {
       // TODO Implement the Sememe Type provider class
@@ -188,7 +188,7 @@ public class AssemblageOfTypeProvider
     * @return the sememe sequences from assemblage
     */
    @Override
-   public SememeSequenceSet getSememeSequencesFromAssemblage(int assemblageSequence) {
+   public SemanticSequenceSet getSemanticSequencesFromAssemblage(int assemblageSequence) {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -202,7 +202,7 @@ public class AssemblageOfTypeProvider
     * @return the sememe sequences from assemblage modified after position
     */
    @Override
-   public SememeSequenceSet getSememeSequencesFromAssemblageModifiedAfterPosition(int assemblageSequence,
+   public SemanticSequenceSet getSemanticSequencesFromAssemblageModifiedAfterPosition(int assemblageSequence,
          StampPosition position) {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
@@ -216,7 +216,7 @@ public class AssemblageOfTypeProvider
     * @return the sememe stream
     */
    @Override
-   public <C extends SememeChronology> Stream<C> getSememeStream() {
+   public <C extends SemanticChronology> Stream<C> getSemanticChronologyStream() {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -230,7 +230,7 @@ public class AssemblageOfTypeProvider
     * @return the sememes for component
     */
    @Override
-   public <C extends SememeChronology> Stream<C> getSememesForComponent(int componentNid) {
+   public <C extends SemanticChronology> Stream<C> getSemanticChronologiesForComponent(int componentNid) {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -245,7 +245,7 @@ public class AssemblageOfTypeProvider
     * @return the sememes for component from assemblage
     */
    @Override
-   public <C extends SememeChronology> Stream<C> getSememesForComponentFromAssemblage(int componentNid, int assemblageSequence) {
+   public <C extends SemanticChronology> Stream<C> getSemanticChronologiesForComponentFromAssemblage(int componentNid, int assemblageSequence) {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
@@ -259,7 +259,7 @@ public class AssemblageOfTypeProvider
     * @return the sememes from assemblage
     */
    @Override
-   public <C extends SememeChronology> Stream<C> getSememesFromAssemblage(int assemblageSequence) {
+   public <C extends SemanticChronology> Stream<C> getSemanticChronologiesFromAssemblage(int assemblageSequence) {
       // TODO Implement the Sememe Type provider class
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.

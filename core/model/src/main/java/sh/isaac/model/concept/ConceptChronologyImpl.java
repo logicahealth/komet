@@ -53,9 +53,8 @@ import sh.isaac.api.Get;
 import sh.isaac.api.State;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
@@ -67,7 +66,8 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.model.ChronologyImpl;
-import sh.isaac.model.sememe.version.LogicGraphVersionImpl;
+import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -208,7 +208,7 @@ public class ConceptChronologyImpl
     */
    @Override
    public String toUserString() {
-      final List<SememeChronology> descList = getConceptDescriptionList();
+      final List<SemanticChronology> descList = getConceptDescriptionList();
 
       if (descList.isEmpty()) {
          return "no description for concept: " + getUuidList() + " " + getConceptSequence() + " " + getNid();
@@ -283,8 +283,8 @@ public class ConceptChronologyImpl
     * @return the concept description list
     */
    @Override
-   public List<SememeChronology> getConceptDescriptionList() {
-      if (Get.sememeServiceAvailable()) {
+   public List<SemanticChronology> getConceptDescriptionList() {
+      if (Get.assemblageServiceAvailable()) {
          return Get.assemblageService()
                    .getDescriptionsForComponent(getNid())
                    .collect(Collectors.toList());
@@ -348,7 +348,7 @@ public class ConceptChronologyImpl
 
       return Get.assemblageService()
                 .getSnapshot(LogicGraphVersion.class, stampCoordinate)
-                .getLatestSememeVersionsForComponentFromAssemblage(getNid(), assemblageSequence)
+                .getLatestSemanticVersionsForComponentFromAssemblage(getNid(), assemblageSequence)
                 .findFirstVersion();
    }
 
@@ -372,8 +372,8 @@ public class ConceptChronologyImpl
          assemblageSequence = logicCoordinate.getStatedAssemblageSequence();
       }
 
-      final Optional<SememeChronology> definitionChronologyOptional = Get.assemblageService()
-                                                                         .getSememesForComponentFromAssemblage(
+      final Optional<SemanticChronology> definitionChronologyOptional = Get.assemblageService()
+                                                                         .getSemanticChronologyForComponentFromAssemblage(
                                                                                getNid(),
                                                                                      assemblageSequence)
                                                                          .findFirst();

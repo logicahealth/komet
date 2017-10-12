@@ -64,9 +64,8 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.SememeSequenceSet;
+import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.dag.Graph;
@@ -76,7 +75,8 @@ import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.concept.ConceptChronologyImpl;
-import sh.isaac.model.sememe.SememeChronologyImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -349,10 +349,10 @@ public abstract class ChronologyImpl
       if (addAttachments) {
          builder.append("\n[[\n");
          AtomicInteger attachmentCount = new AtomicInteger(0);
-         Get.assemblageService().getSememesForComponent(this.getNid()).forEach((sememe) -> {
+         Get.assemblageService().getSemanticChronologyForComponent(this.getNid()).forEach((sememe) -> {
             builder.append("ATTACHMENT ").append(attachmentCount.incrementAndGet())
                     .append(":\n  ");
-            ((SememeChronologyImpl)sememe).toString(builder, false);
+            ((SemanticChronologyImpl)sememe).toString(builder, false);
           });
          builder.append("]]\n");
       }
@@ -522,9 +522,9 @@ public abstract class ChronologyImpl
          if (this instanceof ConceptChronologyImpl) {
             this.containerSequence = Get.identifierService()
                     .getConceptSequence(this.nid);
-         } else if (this instanceof SememeChronologyImpl) {
+         } else if (this instanceof SemanticChronologyImpl) {
             this.containerSequence = Get.identifierService()
-                    .getSememeSequence(this.nid);
+                    .getSemanticSequence(this.nid);
          } else {
             throw new UnsupportedOperationException("Can't handle " + this.getClass().getSimpleName());
          }
@@ -935,9 +935,9 @@ public abstract class ChronologyImpl
     * @return the sememe list
     */
    @Override
-   public <V extends SememeChronology> List<V> getSememeList() {
+   public <V extends SemanticChronology> List<V> getSemanticChronologyList() {
       return Get.assemblageService()
-              .<V>getSememesForComponent(this.nid)
+              .<V>getSemanticChronologyForComponent(this.nid)
               .collect(Collectors.toList());
    }
 
@@ -948,9 +948,9 @@ public abstract class ChronologyImpl
     * @return the sememe list from assemblage
     */
    @Override
-   public <V extends SememeChronology> List<V> getSememeListFromAssemblage(int assemblageSequence) {
+   public <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblage(int assemblageSequence) {
       return Get.assemblageService()
-              .<V>getSememesForComponentFromAssemblage(this.nid, assemblageSequence)
+              .<V>getSemanticChronologyForComponentFromAssemblage(this.nid, assemblageSequence)
               .collect(Collectors.toList());
    }
 
@@ -962,11 +962,11 @@ public abstract class ChronologyImpl
     * @return the sememe list from assemblage of type
     */
    @Override
-   public <V extends SememeChronology> List<V> getSememeListFromAssemblageOfType(int assemblageSequence,
+   public <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblageOfType(int assemblageSequence,
            VersionType type) {
       final List<V> results = Get.assemblageService()
               .ofType(type)
-              .<V>getSememesForComponentFromAssemblage(this.nid, assemblageSequence)
+              .<V>getSemanticChronologiesForComponentFromAssemblage(this.nid, assemblageSequence)
               .collect(Collectors.toList());
 
       return results;
@@ -1331,16 +1331,16 @@ public abstract class ChronologyImpl
    }
 
    @Override
-   public SememeSequenceSet getRecursiveSememeSequences() {
-      SememeSequenceSet sequenceSet = Get.assemblageService().getSememeSequencesForComponent(this.getNid());
+   public SemanticSequenceSet getRecursiveSemanticSequences() {
+      SemanticSequenceSet sequenceSet = Get.assemblageService().getSemanticChronologySequencesForComponent(this.getNid());
       sequenceSet.stream().forEach((sememeSequence) -> addRecursiveSequences(sequenceSet, sememeSequence));
 
       return sequenceSet;
    }
 
-   private void addRecursiveSequences(SememeSequenceSet sememeSequenceSet, int sememeSequence) {
-      int sememeNid = Get.identifierService().getSememeNid(sememeSequence);
-      SememeSequenceSet sequenceSet = Get.assemblageService().getSememeSequencesForComponent(sememeNid);
+   private void addRecursiveSequences(SemanticSequenceSet sememeSequenceSet, int sememeSequence) {
+      int sememeNid = Get.identifierService().getSemanticNid(sememeSequence);
+      SemanticSequenceSet sequenceSet = Get.assemblageService().getSemanticChronologySequencesForComponent(sememeNid);
       sequenceSet.stream().forEach((sequence) -> {
          sememeSequenceSet.add(sequence);
          addRecursiveSequences(sememeSequenceSet, sequence);

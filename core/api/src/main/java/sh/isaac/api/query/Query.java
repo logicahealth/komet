@@ -62,7 +62,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.SememeSequenceSet;
+import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
@@ -486,8 +486,8 @@ public abstract class Query {
             this.forSet.or(NidSet.of(ConceptSequenceSet.ofAllConceptSequences()));
             break;
 
-         case ALL_SEMEMES:
-            this.forSet.or(NidSet.of(SememeSequenceSet.ofAllSememeSequences()));
+         case ALL_SEMANTICS:
+            this.forSet.or(NidSet.of(SemanticSequenceSet.ofAllSemanticSequences()));
             break;
 
          case CUSTOM_SET:

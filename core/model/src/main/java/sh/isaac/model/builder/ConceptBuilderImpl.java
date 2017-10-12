@@ -55,7 +55,6 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
-import sh.isaac.api.component.sememe.SememeBuilderService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
@@ -63,6 +62,7 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.semantic.SemanticBuilderService;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -280,16 +280,16 @@ public class ConceptBuilderImpl
          throw new IllegalStateException("A logic coordinate is required when a logical expression is passed");
       }
 
-      final SememeBuilderService builderService = LookupService.getService(SememeBuilderService.class);
+      final SemanticBuilderService builderService = LookupService.getService(SemanticBuilderService.class);
 
       for (final LogicalExpression logicalExpression : this.logicalExpressions) {
-         this.sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(logicalExpression,
+         this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(logicalExpression,
                  this,
                  this.defaultLogicCoordinate.getStatedAssemblageSequence()));
       }
 
       for (final LogicalExpressionBuilder builder : this.logicalExpressionBuilders) {
-         this.sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(builder.build(),
+         this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(builder.build(),
                  this,
                  this.defaultLogicCoordinate.getStatedAssemblageSequence()));
       }
@@ -338,16 +338,16 @@ public class ConceptBuilderImpl
          throw new IllegalStateException("A logic coordinate is required when a logical expression is passed");
       }
 
-      final SememeBuilderService builderService = LookupService.getService(SememeBuilderService.class);
+      final SemanticBuilderService builderService = LookupService.getService(SemanticBuilderService.class);
 
       for (final LogicalExpression logicalExpression : this.logicalExpressions) {
-         this.sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(logicalExpression,
+         this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(logicalExpression,
                  this,
                  this.defaultLogicCoordinate.getStatedAssemblageSequence()));
       }
 
       for (final LogicalExpressionBuilder builder : this.logicalExpressionBuilders) {
-         this.sememeBuilders.add(builderService.getLogicalExpressionSememeBuilder(builder.build(),
+         this.sememeBuilders.add(builderService.getLogicalExpressionBuilder(builder.build(),
                  this,
                  this.defaultLogicCoordinate.getStatedAssemblageSequence()));
       }

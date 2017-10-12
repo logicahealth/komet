@@ -41,6 +41,7 @@ package sh.isaac.model.sememe.dataTypes;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.model.semantic.types.DynamicLongImpl;
 import java.beans.PropertyVetoException;
 
 import java.io.IOException;
@@ -86,7 +87,7 @@ public class DynamicSememeLongTest {
     */
    private void test(long value)
             throws PropertyVetoException, IOException {
-      final DynamicSememeLongImpl l = new DynamicSememeLongImpl(value);
+      final DynamicLongImpl l = new DynamicLongImpl(value);
 
       assertEquals(value, l.getDataLong());
       assertEquals(value, ((Long) l.getDataObject()).longValue());

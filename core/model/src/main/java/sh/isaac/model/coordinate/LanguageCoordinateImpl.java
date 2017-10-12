@@ -66,11 +66,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.component.sememe.SememeChronology;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.component.semantic.SemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -196,7 +196,7 @@ public class LanguageCoordinateImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getDescription(
-           List<SememeChronology> descriptionList,
+           List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return Get.languageCoordinateService()
                 .getSpecifiedDescription(stampCoordinate, descriptionList, this);
@@ -279,7 +279,7 @@ public class LanguageCoordinateImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(
-           List<SememeChronology> descriptionList,
+           List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return Get.languageCoordinateService()
                 .getSpecifiedDescription(stampCoordinate,
@@ -329,7 +329,7 @@ public class LanguageCoordinateImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getPreferredDescription(
-           List<SememeChronology> descriptionList,
+           List<SemanticChronology> descriptionList,
            StampCoordinate stampCoordinate) {
       return Get.languageCoordinateService()
                 .getSpecifiedDescription(stampCoordinate,

@@ -91,15 +91,13 @@ import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.SememeSequenceSet;
+import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.sememe.SememeChronology;
-import sh.isaac.api.component.sememe.version.DescriptionVersion;
-import sh.isaac.api.component.sememe.version.SememeVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
@@ -119,6 +117,8 @@ import sh.komet.gui.style.StyleClasses;
 
 import static sh.komet.gui.style.StyleClasses.ADD_DESCRIPTION_BUTTON;
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -203,7 +203,7 @@ public class ConceptDetailPanelNode
    }
 
    @Override
-   public void handleChange(SememeChronology sc) {
+   public void handleChange(SemanticChronology sc) {
       // ignore uncommitted changes...
    }
 
@@ -212,7 +212,7 @@ public class ConceptDetailPanelNode
       if (conceptDetailManifold.getFocusedConcept() != null) {
          ConceptSpecification focusedConceptSpec = conceptDetailManifold.getFocusedConcept();
          ConceptChronology    focusedConcept     = Get.concept(focusedConceptSpec);
-         SememeSequenceSet    recursiveSememes   = focusedConcept.getRecursiveSememeSequences();
+         SemanticSequenceSet    recursiveSememes   = focusedConcept.getRecursiveSemanticSequences();
 
          if (commitRecord.getConceptsInCommit()
                          .contains(conceptDetailManifold.getFocusedConcept()
@@ -225,7 +225,7 @@ public class ConceptDetailPanelNode
                        conceptDetailManifold.focusedConceptProperty()
                                             .get());
                 });
-         } else if (!recursiveSememes.and(commitRecord.getSememesInCommit())
+         } else if (!recursiveSememes.and(commitRecord.getSemanticSequencesInCommit())
                                      .isEmpty()) {
             Platform.runLater(
                 () -> {
@@ -329,15 +329,14 @@ public class ConceptDetailPanelNode
 
          // Sort them...
          observableConceptChronology.getObservableSememeList()
-                                    .filtered(
-                                        (sememeChronology) -> {
-                                           switch (sememeChronology.getSememeType()) {
+                                    .filtered((sememeChronology) -> {
+                                           switch (sememeChronology.getVersionType()) {
                                            case DESCRIPTION:
                                            case LOGIC_GRAPH:
                                               if (historySwitch.isSelected()) {
                                                  return true;
                                               } else {
-                                                 LatestVersion<SememeVersion> latest =
+                                                 LatestVersion<SemanticVersion> latest =
                                                     sememeChronology.getLatestVersion(
                                                         conceptDetailManifold);
 
@@ -352,9 +351,9 @@ public class ConceptDetailPanelNode
                                         })
                                     .sorted(
                                         (o1, o2) -> {
-                                           switch (o1.getSememeType()) {
+                                           switch (o1.getVersionType()) {
                                            case DESCRIPTION:
-                                              if (o2.getSememeType() == VersionType.DESCRIPTION) {
+                                              if (o2.getVersionType() == VersionType.DESCRIPTION) {
                                                  DescriptionVersion dv1 = (DescriptionVersion) o1.getVersionList()
                                                                                                  .get(0);
                                                  DescriptionVersion dv2 = (DescriptionVersion) o2.getVersionList()
@@ -376,7 +375,7 @@ public class ConceptDetailPanelNode
                                               return -1;
 
                                            case LOGIC_GRAPH:
-                                              if (o2.getSememeType() == VersionType.LOGIC_GRAPH) {
+                                              if (o2.getVersionType() == VersionType.LOGIC_GRAPH) {
                                                  if (o1.getAssemblageSequence() == o2.getAssemblageSequence()) {
                                                     return 0;
                                                  }
@@ -543,7 +542,7 @@ public class ConceptDetailPanelNode
          }
       }
 
-      chronology.getSememeList()
+      chronology.getSemanticChronologyList()
                 .forEach(
                     (extension) -> {
                        updateStampControls(extension);
