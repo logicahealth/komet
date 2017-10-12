@@ -52,6 +52,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -156,13 +157,15 @@ public class IsomorphicResultsBottomUp
 
       this.isomorphicExpression = new LogicalExpressionImpl(this.referenceExpression,
             this.isomorphicSolution.solution);
-      this.referenceVisitData.getNodeIdsForDepth(3).stream().forEach((nodeId) -> {
+      this.referenceVisitData.getNodeIdsForDepth(3).forEachKey((nodeId) -> {
                                          this.referenceRelationshipNodesMap.put(
                                          new RelationshipKey(nodeId, this.referenceExpression), nodeId);
+                                         return true;
                                       });
-      this.comparisonVisitData.getNodeIdsForDepth(3).stream().forEach((nodeId) -> {
+      this.comparisonVisitData.getNodeIdsForDepth(3).forEachKey((nodeId) -> {
                                           this.comparisonRelationshipNodesMap.put(
                                           new RelationshipKey(nodeId, this.comparisonExpression), nodeId);
+                                          return true;
                                        });
       computeAdditions();
       computeDeletions();
@@ -574,14 +577,14 @@ public class IsomorphicResultsBottomUp
       possibleSolutions.add(new IsomorphicSolution(seedSolution, this.referenceVisitData, this.comparisonVisitData));
 
       final Map<Integer, SortedSet<IsomorphicSearchBottomUpNode>> possibleMatches = new TreeMap<>();
-      SequenceSet<?>                                              nodesToTry = this.referenceVisitData.getLeafNodes();
+      OpenIntHashSet                                              nodesToTry = this.referenceVisitData.getLeafNodes();
 
       while (!nodesToTry.isEmpty()) {
          possibleMatches.clear();
 
-         final SequenceSet<?> nextSetToTry = new SequenceSet<>();
+         final OpenIntHashSet nextSetToTry = new OpenIntHashSet();
 
-         nodesToTry.stream().forEach((referenceNodeId) -> {
+         nodesToTry.forEachKey((referenceNodeId) -> {
                                final int predecessorSequence = this.referenceVisitData.getPredecessorSequence(
                                                                   referenceNodeId);  // only add if the node matches. ?
 
@@ -657,6 +660,7 @@ public class IsomorphicResultsBottomUp
                                }
 
                                nodesProcessed.add(referenceNodeId);
+                               return true;
                             });
 
          // Introducing tempPossibleSolutions secondary to limitation with lambdas, requiring a final object...

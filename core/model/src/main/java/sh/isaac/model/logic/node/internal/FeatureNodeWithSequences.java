@@ -43,6 +43,7 @@ package sh.isaac.model.logic.node.internal;
 
 
 import java.util.UUID;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -125,7 +126,7 @@ public final class FeatureNodeWithSequences
     * @param conceptSequenceSet the concept sequence set
     */
    @Override
-   public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
+   public void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet) {
       super.addConceptsReferencedByNode(conceptSequenceSet);
 
 //    conceptSequenceSet.add(unitsConceptSequence);

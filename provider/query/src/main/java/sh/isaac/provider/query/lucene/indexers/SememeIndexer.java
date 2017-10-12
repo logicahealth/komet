@@ -68,6 +68,7 @@ import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 import org.glassfish.hk2.runlevel.RunLevel;
 
@@ -364,14 +365,15 @@ public class SememeIndexer
             incrementIndexedItemCount("Sememe Component Nid");
          } else if (sv instanceof LogicGraphVersion) {
             final LogicGraphVersion lgsv = (LogicGraphVersion) sv;
-            final ConceptSequenceSet  css  = new ConceptSequenceSet();
+            final OpenIntHashSet  css  = new OpenIntHashSet();
 
             lgsv.getLogicalExpression().processDepthFirst((LogicNode logicNode,TreeNodeVisitData data) -> {
                                       logicNode.addConceptsReferencedByNode(css);
                                    });
-            css.stream().forEach(sequence -> {
+            css.forEachKey(sequence -> {
                            handleType(
                                doc, new DynamicSememeNidImpl(Get.identifierService().getConceptNid(sequence)), -1);
+                           return true;
                         });
          } else {
             LOG.error("Unexpected type handed to addFields in Sememe Indexer: " + sememeChronology.toString());

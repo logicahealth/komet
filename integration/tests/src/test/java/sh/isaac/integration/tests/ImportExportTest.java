@@ -290,7 +290,7 @@ public class ImportExportTest {
          Task<TaxonomySnapshotService> snapshotTask = Get.taxonomyService().getSnapshot(manifoldCoordinate);
          TaxonomySnapshotService taxonomySnapshotService = snapshotTask.get();
          
-         final int[] roots = taxonomySnapshotService.getRoots().toArray();
+         final int[] roots = taxonomySnapshotService.getRoots();
          
          StringBuilder rootsMessage = new StringBuilder();
          for (int root: roots) {
@@ -366,7 +366,7 @@ public class ImportExportTest {
          Task<TaxonomySnapshotService> snapshotTask = Get.taxonomyService().getSnapshot(manifoldCoordinate);
          TaxonomySnapshotService taxonomySnapshotService = snapshotTask.get();
          
-         final int[] roots = taxonomySnapshotService.getRoots().toArray();
+         final int[] roots = taxonomySnapshotService.getRoots();
          StringBuilder rootsMessage = new StringBuilder();
          for (int root: roots) {
             rootsMessage.append(Get.conceptDescriptionText(root)).append("; ");

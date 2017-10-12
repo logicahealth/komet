@@ -44,11 +44,11 @@ package sh.isaac.api.tree.hashtree;
 //~--- JDK imports ------------------------------------------------------------
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.mahout.math.list.IntArrayList;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.map.OpenIntObjectHashMap;
 import org.apache.mahout.math.set.OpenIntHashSet;
-import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.Get;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.TreeNodeVisitData;
@@ -72,29 +72,29 @@ public class HashTreeBuilder {
    /**
     * The child sequence parent sequence stream map.
     */
-   final OpenIntObjectHashMap<RoaringBitmap> childSequence_ParentSequenceSet_Map = new OpenIntObjectHashMap<>();
+   final OpenIntObjectHashMap<OpenIntHashSet> childSequence_ParentSequenceSet_Map = new OpenIntObjectHashMap<>();
 
    /**
     * The parent sequence child sequence stream map.
     */
-   final OpenIntObjectHashMap<RoaringBitmap> parentSequence_ChildSequenceSet_Map = new OpenIntObjectHashMap<>();
+   final OpenIntObjectHashMap<OpenIntHashSet> parentSequence_ChildSequenceSet_Map = new OpenIntObjectHashMap<>();
 
    protected final ManifoldCoordinate manifoldCoordinate;
 
    /**
     * The concept sequences with parents.
     */
-   final RoaringBitmap conceptSequencesWithParents = new RoaringBitmap();
+   final OpenIntHashSet conceptSequencesWithParents = new OpenIntHashSet();
 
    /**
     * The concept sequences with children.
     */
-   final RoaringBitmap conceptSequencesWithChildren = new RoaringBitmap();
+   final OpenIntHashSet conceptSequencesWithChildren = new OpenIntHashSet();
 
    /**
     * The concept sequences.
     */
-   final RoaringBitmap conceptSequences = new RoaringBitmap();
+   final OpenIntHashSet conceptSequences = new OpenIntHashSet();
 
    /**
     * The builder id.
@@ -103,7 +103,7 @@ public class HashTreeBuilder {
 
    String[] watchUuids = new String[]{"598edc74-ae81-3f3e-bc26-69a1d48d8203",
       "65dabbf3-3f57-3989-ab0c-f8824e0e0aa2", "fcea27cf-fb3c-3d49-8b68-6a416b3d237d"};
-   RoaringBitmap watchSequences = new RoaringBitmap();
+   IntArrayList watchSequences = new IntArrayList();
 
    //~--- constructors --------------------------------------------------------
    /**
@@ -133,18 +133,18 @@ public class HashTreeBuilder {
       conceptSequencesWithChildren.add(parent);
 
       if (!this.childSequence_ParentSequenceSet_Map.containsKey(child)) {
-         RoaringBitmap rbm = new RoaringBitmap();
-         rbm.add(parent);
-         this.childSequence_ParentSequenceSet_Map.put(child, rbm);
+         OpenIntHashSet intSet = new OpenIntHashSet();
+         intSet.add(parent);
+         this.childSequence_ParentSequenceSet_Map.put(child, intSet);
       } else {
          this.childSequence_ParentSequenceSet_Map.get(child)
                  .add(parent);
       }
 
       if (!this.parentSequence_ChildSequenceSet_Map.containsKey(parent)) {
-         RoaringBitmap rbm = new RoaringBitmap();
-         rbm.add(child);
-         this.parentSequence_ChildSequenceSet_Map.put(parent, rbm);
+         OpenIntHashSet intSet = new OpenIntHashSet();
+         intSet.add(child);
+         this.parentSequence_ChildSequenceSet_Map.put(parent, intSet);
       } else {
          this.parentSequence_ChildSequenceSet_Map.get(parent)
                  .add(child);
@@ -157,25 +157,38 @@ public class HashTreeBuilder {
     * @param another the another
     */
    public void combine(HashTreeBuilder another) {
-      this.conceptSequences.or(another.conceptSequences);
-      this.conceptSequencesWithChildren.or(another.conceptSequencesWithChildren);
-      this.conceptSequencesWithParents.or(another.conceptSequencesWithParents);
+      addToOne(this.conceptSequences, another.conceptSequences);
+      addToOne(this.conceptSequencesWithChildren, another.conceptSequencesWithChildren);
+      addToOne(this.conceptSequencesWithParents, another.conceptSequencesWithParents);
       another.childSequence_ParentSequenceSet_Map.forEachPair((int childSequence,
-              RoaringBitmap parentsFromAnother) -> {
+              OpenIntHashSet parentsFromAnother) -> {
          if (this.childSequence_ParentSequenceSet_Map.containsKey(childSequence)) {
-            this.childSequence_ParentSequenceSet_Map.get(childSequence).or(parentsFromAnother);
+            addToOne(this.childSequence_ParentSequenceSet_Map.get(childSequence), parentsFromAnother);
          } else {
             this.childSequence_ParentSequenceSet_Map.put(childSequence, parentsFromAnother);
          }
          return true;
       });
       another.parentSequence_ChildSequenceSet_Map.forEachPair((int parentSequence,
-              RoaringBitmap childrenFromAnother) -> {
+              OpenIntHashSet childrenFromAnother) -> {
          if (this.parentSequence_ChildSequenceSet_Map.containsKey(parentSequence)) {
-            this.parentSequence_ChildSequenceSet_Map.get(parentSequence).or(childrenFromAnother);
+            addToOne(this.parentSequence_ChildSequenceSet_Map.get(parentSequence), childrenFromAnother);
          } else {
             this.parentSequence_ChildSequenceSet_Map.put(parentSequence, childrenFromAnother);
          }
+         return true;
+      });
+   }
+   
+   private void addToOne(OpenIntHashSet one, OpenIntHashSet another) {
+      another.forEachKey((sequence) -> {
+         one.add(sequence);
+         return true;
+      });
+   }
+   private void removeFromOne(OpenIntHashSet one, OpenIntHashSet another) {
+      another.forEachKey((sequence) -> {
+         one.remove(sequence);
          return true;
       });
    }
@@ -187,25 +200,25 @@ public class HashTreeBuilder {
     * @return the simple directed graph graph
     */
    public HashTreeWithBitSets getSimpleDirectedGraphGraph() {
-      RoaringBitmap roots = conceptSequences.clone();
-      roots.xor(conceptSequencesWithParents);
-      if (roots.getCardinality() == 1) {
-         int rootSequence = roots.first();
+      OpenIntHashSet roots = (OpenIntHashSet) conceptSequences.clone();
+      removeFromOne(roots, conceptSequencesWithParents);
+      if (roots.size() == 1) {
+         int rootSequence = roots.keys().get(0);
  
          final HashTreeWithBitSets graph = new HashTreeWithBitSets(this.childSequence_ParentSequenceSet_Map.size(),
                  manifoldCoordinate);
 
          this.childSequence_ParentSequenceSet_Map.forEachPair((int childSequence,
-                 RoaringBitmap parentSequenceSet) -> {
+                 OpenIntHashSet parentSequenceSet) -> {
             if (!parentSequenceSet.isEmpty()) {
-               graph.addParents(childSequence, parentSequenceSet.toArray());
+               graph.addParents(childSequence, setToSortedArray(parentSequenceSet));
             }
             return true;
          });
          this.parentSequence_ChildSequenceSet_Map.forEachPair((int parentSequence,
-                 RoaringBitmap childSequenceSet) -> {
+                 OpenIntHashSet childSequenceSet) -> {
             if (!childSequenceSet.isEmpty()) {
-               graph.addChildren(parentSequence, childSequenceSet.toArray());
+               graph.addChildren(parentSequence, setToSortedArray(childSequenceSet));
             }
             return true;
          });
@@ -217,7 +230,7 @@ public class HashTreeBuilder {
          });
 
          System.out.println("Nodes visited: " + visitData.getNodesVisited());
-         for (int sequence: watchSequences) {
+         for (int sequence: watchSequences.toList()) {
             OpenIntHashSet multiParents = visitData.getUserNodeSet(MULTI_PARENT_SETS, sequence);
             System.out.println(Get.conceptDescriptionText(sequence) + " multiParentSet: " + multiParents);
          }
@@ -225,18 +238,24 @@ public class HashTreeBuilder {
          return graph;
       } else {
          final StringBuilder builder = new StringBuilder("Too many roots: \n");
-         for (int sequence: roots.toArray()) {
+         for (int sequence: roots.keys().elements()) {
             builder.append(sequence).append(": ").append(Get.conceptDescriptionText(sequence)).append("\n");
             printWatch(sequence, "root: ");
          }
          // try again
          
-      RoaringBitmap roots2 = conceptSequences.clone();
-      roots2.xor(conceptSequencesWithParents);
+      OpenIntHashSet roots2 = (OpenIntHashSet) conceptSequences.clone();
+      removeFromOne(roots2, conceptSequencesWithParents);
           builder.append(" second try: ").append(roots2);
          throw new UnsupportedOperationException(builder.toString());
       }
 
+   }
+   
+   private int[] setToSortedArray(OpenIntHashSet set) {
+      IntArrayList list = set.keys();
+      list.sort();
+      return list.elements();
    }
 
 

@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -133,7 +134,7 @@ public abstract class AbstractLogicNode
     * @param conceptSequenceSet the concept sequence set
     */
    @Override
-   public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
+   public void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet) {
       conceptSequenceSet.add(getNodeSemantic().getConceptSequence());
    }
 

@@ -49,7 +49,6 @@ package sh.isaac.provider.taxonomy.walk;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.ObjIntConsumer;
-import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -128,9 +127,9 @@ public class TaxonomyWalkCollector
 
       if (Get.conceptService()
              .isConceptActive(conceptSequence, this.manifoldCoordinate.getStampCoordinate())) {
-         final IntStream parentSequences = Get.taxonomyService()
+         final int[] parentSequences = Get.taxonomyService()
                                               .getTaxonomyParentSequences(conceptSequence, this.manifoldCoordinate);
-         final int parentCount = (int) parentSequences.count();
+         final int parentCount = parentSequences.length;
 
          if (parentCount == 0) {
             final ConceptChronology c = Get.conceptService()

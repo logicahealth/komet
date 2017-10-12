@@ -50,7 +50,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.ObjIntConsumer;
-import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -143,11 +142,13 @@ public class GraphCollector
 
          final TaxonomyRecordUnpacked taxonomyRecordUnpacked = isaacPrimitiveTaxonomyRecord.get()
                                                                                            .getTaxonomyRecordUnpacked();
-         final IntStream destinationStream =
+         final int[] destinationStream =
             taxonomyRecordUnpacked.getConceptSequencesForType(this.ISA_CONCEPT_SEQUENCE,
                                                               this.manifoldCoordinate);
 
-         destinationStream.forEach((int destinationSequence) -> graphBuilder.add(destinationSequence, originSequence));
+         for (int destinationSequence: destinationStream) {
+            graphBuilder.add(destinationSequence, originSequence);
+         }
       }
 
       this.originSequenceBeingProcessed = -1;

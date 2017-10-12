@@ -46,6 +46,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.UUID;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -125,7 +126,7 @@ public final class ConceptNodeWithSequences
     * @param conceptSequenceSet the concept sequence set
     */
    @Override
-   public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
+   public void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet) {
       super.addConceptsReferencedByNode(conceptSequenceSet);
       conceptSequenceSet.add(this.conceptSequence);
    }

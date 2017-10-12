@@ -51,10 +51,10 @@ import java.util.stream.Stream;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.ProgressTracker;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.SememeSequenceSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.component.sememe.SememeSnapshotService;
-import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.sememe.version.SememeVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
@@ -102,8 +102,8 @@ public class AssemblageSnapshotProvider<V extends SememeVersion>
     * @param sememeProvider the sememe provider
     */
    public AssemblageSnapshotProvider(Class<V> versionType,
-                                 StampCoordinate stampCoordinate,
-                                 AssemblageService sememeProvider) {
+                                     StampCoordinate stampCoordinate,
+                                     AssemblageService sememeProvider) {
       this.versionType     = versionType;
       this.stampCoordinate = stampCoordinate;
       this.sememeProvider  = sememeProvider;
@@ -120,9 +120,11 @@ public class AssemblageSnapshotProvider<V extends SememeVersion>
     */
    @Override
    public Stream<LatestVersion<V>> getLatestDescriptionVersionsForComponent(int componentNid) {
-      return getLatestSememeVersions(this.sememeProvider.getSememeSequencesForComponent(componentNid)
+      return getLatestSememeVersions(
+          this.sememeProvider.getSememeSequencesForComponent(componentNid)
                              .parallelStream()
-                             .filter(sememeSequence -> (this.sememeProvider.getSememe(sememeSequence)
+                             .filter(
+                                 sememeSequence -> (this.sememeProvider.getSememe(sememeSequence)
                                        .getSememeType() == VersionType.DESCRIPTION)));
    }
 
@@ -135,21 +137,19 @@ public class AssemblageSnapshotProvider<V extends SememeVersion>
    @Override
    public LatestVersion<V> getLatestSememeVersion(int sememeSequenceOrNid) {
       final SememeChronologyImpl sc = (SememeChronologyImpl) this.sememeProvider.getSememe(sememeSequenceOrNid);
-      final IntStream               stampSequences  = sc.getVersionStampSequences();
-      final StampSequenceSet        latestSequences = this.calculator.getLatestStampSequencesAsSet(stampSequences);
+      final int[]            stampSequences  = sc.getVersionStampSequences();
+      final int[]     latestSequences = this.calculator.getLatestStampSequencesAsSet(stampSequences);
 
-      if (latestSequences.isEmpty()) {
+      if (latestSequences.length == 0) {
          return new LatestVersion<>();
       }
 
       final LatestVersion<V> latest = new LatestVersion<>(this.versionType);
 
-      latestSequences.stream()
-                     .forEach(
-                         (stampSequence) -> {
-                            latest.addLatest((V) sc.getVersionForStamp(stampSequence)
+      for (int stampSequence: latestSequences) {
+         latest.addLatest((V) sc.getVersionForStamp(stampSequence)
                                   .get());
-                         });
+      }
       return latest;
    }
 
@@ -227,24 +227,20 @@ public class AssemblageSnapshotProvider<V extends SememeVersion>
       return sememeSequenceStream.mapToObj(
           (int sememeSequence) -> {
              try {
-                final SememeChronologyImpl sc = (SememeChronologyImpl) this.sememeProvider.getSememe(
-                                                       sememeSequence);
-                final IntStream stampSequences = sc.getVersionStampSequences();
-                final StampSequenceSet latestStampSequences = this.calculator.getLatestStampSequencesAsSet(
+                final SememeChronologyImpl sc = (SememeChronologyImpl) this.sememeProvider.getSememe(sememeSequence);
+                final int[]                stampSequences = sc.getVersionStampSequences();
+                final int[] latestStampSequences = this.calculator.getLatestStampSequencesAsSet(
                                                                   stampSequences);
 
-                if (latestStampSequences.isEmpty()) {
+                if (latestStampSequences.length == 0) {
                    return Optional.empty();
                 }
 
                 final LatestVersion<V> latest = new LatestVersion<>(this.versionType);
 
-                latestStampSequences.stream()
-                                    .forEach(
-                                        (stampSequence) -> {
-                                           latest.addLatest((V) sc.getVersionForStamp(stampSequence)
-                                                 .get());
-                                        });
+                for (int stampSequence: latestStampSequences) {
+                  latest.addLatest((V) sc.getVersionForStamp(stampSequence).get());
+                }
                 return Optional.of(latest);
              } finally {
                 Arrays.stream(progressTrackers)

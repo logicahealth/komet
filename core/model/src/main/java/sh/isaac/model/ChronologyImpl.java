@@ -52,7 +52,6 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.StampedLock;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -540,15 +539,18 @@ public abstract class ChronologyImpl
          setAdditionalChronicleFieldsFromBuffer(data);
          constructorEnd(data);
          // find if there are any uncommitted versions in the written data...
-         getVersionStampSequences().filter((stamp)
-                 -> Get.stampService().isUncommitted(stamp)).findAny().ifPresent((stamp) -> {
+         
+         for (int stamp: getVersionStampSequences()) {
+            if (Get.stampService().isUncommitted(stamp)) {
             this.unwrittenData = new ConcurrentSkipListMap<>();
             this.versionListReference = null;
             getVersionList().forEach((version) -> {
                this.unwrittenData.put(version.getStampSequence(), version);
             });
             this.writtenData = null;
-         });
+            break;
+            }
+         }
       }
    }
 
@@ -749,9 +751,11 @@ public abstract class ChronologyImpl
     */
    @Override
    public CommitStates getCommitState() {
-      if (getVersionStampSequences().anyMatch((stampSequence) -> Get.stampService()
-              .isUncommitted(stampSequence))) {
-         return CommitStates.UNCOMMITTED;
+      for(int stampSequence: getVersionStampSequences()) {
+         if (Get.stampService()
+              .isUncommitted(stampSequence)) {
+            return CommitStates.UNCOMMITTED;
+         }
       }
 
       return CommitStates.COMMITTED;
@@ -841,9 +845,9 @@ public abstract class ChronologyImpl
          }
       }
 
-      final StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
+      final int[] latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
-      if (latestStampSequences.isEmpty()) {
+      if (latestStampSequences.length == 0) {
          return new LatestVersion<>();
       }
 
@@ -862,9 +866,9 @@ public abstract class ChronologyImpl
          }
       }
 
-      final StampSequenceSet latestStampSequences = calc.getLatestCommittedStampSequencesAsSet(this.getVersionStampSequences());
+      final int[] latestStampSequences = calc.getLatestCommittedStampSequencesAsSet(this.getVersionStampSequences());
 
-      if (latestStampSequences.isEmpty()) {
+      if (latestStampSequences.length == 0) {
          return new LatestVersion<>();
       }
 
@@ -885,16 +889,14 @@ public abstract class ChronologyImpl
                       State.INACTIVE,
                       State.CANCELED,
                       State.PRIMORDIAL));
-      final StampSequenceSet latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
-
-      if (latestStampSequences.isEmpty()) {
-         return false;
+      final int[] latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
+      
+      for (int stampSequence: latestStampSequences) {
+         if (Get.stampService().getStatusForStamp(stampSequence) == State.ACTIVE) {
+            return true;
+         }
       }
-
-      return latestStampSequences.stream()
-              .anyMatch(
-                      stampSequence -> Get.stampService()
-                              .getStatusForStamp(stampSequence) == State.ACTIVE);
+      return false;
    }
 
    /**
@@ -1164,8 +1166,8 @@ public abstract class ChronologyImpl
     * @return a stream of the stampSequences for each version of this chronology.
     */
    @Override
-   public IntStream getVersionStampSequences() {
-      final IntStream.Builder builder = IntStream.builder();
+   public int[] getVersionStampSequences() {
+      final OpenIntHashSet builder = new OpenIntHashSet();
       List<? extends StampedVersion> versions = null;
 
       if (this.versionListReference != null) {
@@ -1173,7 +1175,7 @@ public abstract class ChronologyImpl
       }
 
       if (versions != null) {
-         versions.forEach((version) -> builder.accept(version.getStampSequence()));
+         versions.forEach((version) -> builder.add(version.getStampSequence()));
       } else if (this.writtenData != null) {
          final ByteArrayDataBuffer bb = new ByteArrayDataBuffer(this.writtenData);
 
@@ -1182,10 +1184,11 @@ public abstract class ChronologyImpl
 
       if (this.unwrittenData != null) {
          this.unwrittenData.keySet()
-                 .forEach((stamp) -> builder.accept(stamp));
+                 .forEach((stamp) -> builder.add(stamp));
       }
-
-      return builder.build();
+      
+      
+      return builder.keys().elements();
    }
 
    /**
@@ -1195,7 +1198,7 @@ public abstract class ChronologyImpl
     * @param bb the bb
     * @param builder the builder
     */
-   protected void getVersionStampSequences(int index, ByteArrayDataBuffer bb, IntStream.Builder builder) {
+   protected void getVersionStampSequences(int index, ByteArrayDataBuffer bb, OpenIntHashSet builder) {
       final int limit = bb.getLimit();
 
       while (index < limit) {
@@ -1206,7 +1209,7 @@ public abstract class ChronologyImpl
          if (versionLength > 0) {
             final int stampSequence = bb.getStampSequence();
 
-            builder.accept(stampSequence);
+            builder.add(stampSequence);
             index = index + versionLength;
          } else {
             index = Integer.MAX_VALUE;
@@ -1239,11 +1242,11 @@ public abstract class ChronologyImpl
     * @param stampSequences the stamp sequences
     * @return the versions for stamps
     */
-   private <V extends StampedVersion> List<V> getVersionsForStamps(StampSequenceSet stampSequences) {
-      final List<V> versions = new ArrayList<>(stampSequences.size());
-
-      stampSequences.stream()
-              .forEach((stampSequence) -> versions.add((V) getVersionForStamp(stampSequence).get()));
+   private <V extends StampedVersion> List<V> getVersionsForStamps(int[] stampSequences) {
+      final List<V> versions = new ArrayList<>(stampSequences.length);
+      for (int stampSequence: stampSequences) {
+         versions.add((V) getVersionForStamp(stampSequence).get());
+      }
       return versions;
    }
 

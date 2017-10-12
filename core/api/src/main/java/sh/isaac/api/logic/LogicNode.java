@@ -43,6 +43,7 @@ package sh.isaac.api.logic;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -75,7 +76,7 @@ public interface LogicNode
     * concepts associated with the node itself (node semantic concept + type concept, etc).
     * @param conceptSequenceSet The set to add the concept sequences to.
     */
-   void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet);
+   void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet);
 
    /**
     * Fragment to string.

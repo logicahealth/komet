@@ -143,13 +143,6 @@ public interface Tree {
    int[] getParentSequences(int childSequence);
 
    /**
-    * Gets the root sequence stream.
-    *
-    * @return IntStream of sequence identifiers for the root concept[s] of this tree.
-    */
-   IntStream getRootSequenceStream();
-
-   /**
     * Gets the root sequences.
     *
     * @return sequence identifiers for the root concept[s] of this tree.

@@ -204,7 +204,7 @@ public interface Chronology
     *
     * @return the version stamps for all the versions of this object chronology.
     */
-   IntStream getVersionStampSequences();
+   int[] getVersionStampSequences();
 
    /**
     * Gets the visible ordered version list.

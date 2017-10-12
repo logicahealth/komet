@@ -63,7 +63,7 @@ public interface TaxonomySnapshotService {
     * @param originId the origin id
     * @return the all relationship destination sequences
     */
-   IntStream getAllRelationshipDestinationSequences(int originId);
+   int[] getAllRelationshipDestinationSequences(int originId);
 
    /**
     * Gets the all relationship destination sequences of type.
@@ -72,7 +72,7 @@ public interface TaxonomySnapshotService {
     * @param typeSequenceSet the type sequence set
     * @return the all relationship destination sequences of type
     */
-   IntStream getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet);
+   int[] getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet);
 
    /**
     * Gets the all relationship origin sequences.
@@ -122,7 +122,7 @@ public interface TaxonomySnapshotService {
     *
     * @return the roots
     */
-   IntStream getRoots();
+   int[] getRoots();
 
    /**
     * Gets the taxonomy child sequences.
@@ -138,7 +138,7 @@ public interface TaxonomySnapshotService {
     * @param childId the child id
     * @return the taxonomy parent sequences
     */
-   IntStream getTaxonomyParentSequences(int childId);
+   int[] getTaxonomyParentSequences(int childId);
 
    /**
     * Gets the taxonomy tree.

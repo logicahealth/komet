@@ -43,6 +43,7 @@ package sh.isaac.api.tree.hashtree;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -132,13 +133,13 @@ public class SimpleHashTree
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the root sequence stream.
+    * NOTE: not a constant time operation.
     *
-    * @return the root sequence stream
+    * @return root sequences for this tree.
     */
    @Override
-   public IntStream getRootSequenceStream() {
-      final ConceptSequenceSet parents = new ConceptSequenceSet();
+   public int[] getRootSequences() {
+      final OpenIntHashSet parents = new OpenIntHashSet();
 
       this.parentSequence_ChildSequenceArray_Map.forEachKey((int parent) -> {
                parents.add(parent);
@@ -146,21 +147,12 @@ public class SimpleHashTree
             });
       this.parentSequence_ChildSequenceArray_Map.forEachPair((int parent,
             int[] children) -> {
-               IntStream.of(children)
-                        .forEach((child) -> parents.remove(child));
+               for (int child: children) {
+                  parents.remove(child);
+                       };
                return true;
             });
-      return parents.stream();
-   }
-
-   /**
-    * NOTE: not a constant time operation.
-    *
-    * @return root sequences for this tree.
-    */
-   @Override
-   public int[] getRootSequences() {
-      return getRootSequenceStream().toArray();
+      return parents.keys().elements();
    }
 }
 

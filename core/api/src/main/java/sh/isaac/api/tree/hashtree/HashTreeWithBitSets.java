@@ -64,17 +64,17 @@ public class HashTreeWithBitSets
    /**
     * The concept sequences with parents.
     */
-   final ConceptSequenceSet conceptSequencesWithParents;
+   final OpenIntHashSet conceptSequencesWithParents;
 
    /**
     * The concept sequences with children.
     */
-   final ConceptSequenceSet conceptSequencesWithChildren;
+   final OpenIntHashSet conceptSequencesWithChildren;
 
    /**
     * The concept sequences.
     */
-   final ConceptSequenceSet conceptSequences;
+   final OpenIntHashSet conceptSequences;
 
    //~--- constructors --------------------------------------------------------
    /**
@@ -84,9 +84,9 @@ public class HashTreeWithBitSets
     */
    public HashTreeWithBitSets(ManifoldCoordinate manifoldCoordinate) {
       super(manifoldCoordinate);
-      this.conceptSequencesWithParents = new ConceptSequenceSet();
-      this.conceptSequencesWithChildren = new ConceptSequenceSet();
-      this.conceptSequences = new ConceptSequenceSet();
+      this.conceptSequencesWithParents = new OpenIntHashSet();
+      this.conceptSequencesWithChildren = new OpenIntHashSet();
+      this.conceptSequences = new OpenIntHashSet();
    }
 
    /**
@@ -97,9 +97,9 @@ public class HashTreeWithBitSets
     */
    public HashTreeWithBitSets(int initialSize, ManifoldCoordinate manifoldCoordinate) {
       super(manifoldCoordinate);
-      this.conceptSequencesWithParents = new ConceptSequenceSet();
-      this.conceptSequencesWithChildren = new ConceptSequenceSet();
-      this.conceptSequences = new ConceptSequenceSet();
+      this.conceptSequencesWithParents = new OpenIntHashSet();
+      this.conceptSequencesWithChildren = new OpenIntHashSet();
+      this.conceptSequences = new OpenIntHashSet();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -198,40 +198,14 @@ public class HashTreeWithBitSets
    }
 
    //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the leaf sequences.
-    *
-    * @return the leaf sequences
-    */
-   public IntStream getLeafSequences() {
-      final SequenceSet leavesSet = new SequenceSet<>();
-
-      leavesSet.or(this.conceptSequencesWithParents);
-      leavesSet.andNot(this.conceptSequencesWithChildren);
-      return leavesSet.stream();
-   }
 
    /**
     * Gets the node sequences.
     *
     * @return the node sequences
     */
-   public SequenceSet<?> getNodeSequences() {
+   public OpenIntHashSet getNodeSequences() {
       return this.conceptSequences;
-   }
-
-   /**
-    * Gets the root sequence stream.
-    *
-    * @return the root sequence stream
-    */
-   @Override
-   public IntStream getRootSequenceStream() {
-      final SequenceSet rootSet = new SequenceSet<>();
-
-      rootSet.or(this.conceptSequencesWithChildren);
-      rootSet.andNot(this.conceptSequencesWithParents);
-      return rootSet.stream();
    }
 
    /**
@@ -241,6 +215,12 @@ public class HashTreeWithBitSets
     */
    @Override
    public int[] getRootSequences() {
-      return getRootSequenceStream().toArray();
+      OpenIntHashSet rootSet = (OpenIntHashSet) this.conceptSequencesWithChildren.clone();
+      this.conceptSequencesWithParents.forEachKey((sequence) ->{
+         rootSet.remove(sequence);
+         return true;
+      });
+      
+      return rootSet.keys().elements();
    }
 }

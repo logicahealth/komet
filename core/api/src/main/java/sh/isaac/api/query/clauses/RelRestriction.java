@@ -205,17 +205,17 @@ public class RelRestriction
       final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
                                                                                             .get(this.viewCoordinateKey);
 
-      Get.taxonomyService()
+      
+      for (int destinationSequence: Get.taxonomyService()
          .getAllRelationshipDestinationSequencesOfType(conceptVersion.getChronology()
                .getConceptSequence(),
                this.relTypeSet,
-               manifoldCoordinate)
-         .forEach((destinationSequence) -> {
+               manifoldCoordinate)) {
                      if (this.destinationSet.contains(destinationSequence)) {
                         getResultsCache().add(conceptVersion.getChronology()
                               .getNid());
                      }
-                  });
+      }
    }
 
    /**

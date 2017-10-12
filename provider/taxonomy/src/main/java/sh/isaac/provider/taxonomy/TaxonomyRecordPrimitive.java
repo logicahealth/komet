@@ -361,7 +361,7 @@ public class TaxonomyRecordPrimitive
     * @param tc the tc
     * @return the destination sequences not of type
     */
-   public IntStream getDestinationSequencesNotOfType(ConceptSequenceSet typeSequenceSet, ManifoldCoordinate tc) {
+   public int[] getDestinationSequencesNotOfType(ConceptSequenceSet typeSequenceSet, ManifoldCoordinate tc) {
       return getTaxonomyRecordUnpacked().getDestinationConceptSequencesNotOfType(typeSequenceSet, tc);
    }
 
@@ -382,7 +382,7 @@ public class TaxonomyRecordPrimitive
     * @param tc the tc
     * @return the destination sequences of type
     */
-   public IntStream getDestinationSequencesOfType(ConceptSequenceSet typeSequenceSet, ManifoldCoordinate tc) {
+   public int[] getDestinationSequencesOfType(ConceptSequenceSet typeSequenceSet, ManifoldCoordinate tc) {
       return getTaxonomyRecordUnpacked().getDestinationConceptSequencesOfType(typeSequenceSet, tc);
    }
 
@@ -453,7 +453,7 @@ public class TaxonomyRecordPrimitive
     * @param tc the tc
     * @return the parent sequences
     */
-   public IntStream getParentSequences(ManifoldCoordinate tc) {
+   public int[] getParentSequences(ManifoldCoordinate tc) {
       return getTaxonomyRecordUnpacked().getConceptSequencesForType(tc.getIsaConceptSequence(), tc);
    }
 
@@ -531,7 +531,7 @@ public class TaxonomyRecordPrimitive
     * @param tc the tc
     * @return the types for relationship
     */
-   public IntStream getTypesForRelationship(int destinationId, ManifoldCoordinate tc) {
+   public int[] getTypesForRelationship(int destinationId, ManifoldCoordinate tc) {
       return getTaxonomyRecordUnpacked().getTypesForRelationship(destinationId, tc);
    }
 

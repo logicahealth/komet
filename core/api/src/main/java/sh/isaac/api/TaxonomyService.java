@@ -135,7 +135,7 @@ public interface TaxonomyService
     * @return the all relationship destination sequences
     */
    @Deprecated
-   IntStream getAllRelationshipDestinationSequences(int originId, ManifoldCoordinate tc);
+   int[] getAllRelationshipDestinationSequences(int originId, ManifoldCoordinate tc);
 
    /**
     * Gets the all relationship destination sequences not of type.
@@ -149,7 +149,7 @@ public interface TaxonomyService
     * @return the all relationship destination sequences not of type
     */
    @Deprecated
-   IntStream getAllRelationshipDestinationSequencesNotOfType(int originId,
+   int[] getAllRelationshipDestinationSequencesNotOfType(int originId,
          ConceptSequenceSet typeSequenceSet,
          ManifoldCoordinate tc);
 
@@ -175,7 +175,7 @@ public interface TaxonomyService
     * (including is-a relationships)
     */
    @Deprecated
-   IntStream getAllRelationshipDestinationSequencesOfType(int originId,
+   int[] getAllRelationshipDestinationSequencesOfType(int originId,
          ConceptSequenceSet typeSequenceSet,
          ManifoldCoordinate tc);
 
@@ -230,7 +230,7 @@ public interface TaxonomyService
     * and destination that meet the taxonomy coordinate criterion.
     */
    @Deprecated
-   IntStream getAllTypesForRelationship(int originId, int destinationId, ManifoldCoordinate tc);
+   int[] getAllTypesForRelationship(int originId, int destinationId, ManifoldCoordinate tc);
 
    /**
     * Gets the ancestor of sequence set.
@@ -329,7 +329,7 @@ public interface TaxonomyService
     * @return the taxonomy parent sequences
     */
    @Deprecated
-   IntStream getTaxonomyParentSequences(int childId, ManifoldCoordinate tc);
+   int[] getTaxonomyParentSequences(int childId, ManifoldCoordinate tc);
 
    /**
     * Gets the taxonomy tree.

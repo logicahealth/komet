@@ -44,6 +44,7 @@ package sh.isaac.model.logic.node.internal;
 import java.io.IOException;
 
 import java.util.UUID;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -139,7 +140,7 @@ public final class TemplateNodeWithSequences
     * @param conceptSequenceSet the concept sequence set
     */
    @Override
-   public void addConceptsReferencedByNode(ConceptSequenceSet conceptSequenceSet) {
+   public void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet) {
       super.addConceptsReferencedByNode(conceptSequenceSet);
       conceptSequenceSet.add(this.templateConceptSequence);
       conceptSequenceSet.add(this.assemblageConceptSequence);

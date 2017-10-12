@@ -203,7 +203,7 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSememeCh
    }
 
    @Override
-   public IntStream getVersionStampSequences() {
+   public int[] getVersionStampSequences() {
       return getChronology().getVersionStampSequences();
    }
 

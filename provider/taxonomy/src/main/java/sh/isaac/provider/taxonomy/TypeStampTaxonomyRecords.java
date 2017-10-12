@@ -47,19 +47,17 @@ package sh.isaac.provider.taxonomy;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
-import java.util.stream.IntStream;
-import java.util.stream.IntStream.Builder;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.mahout.math.function.LongProcedure;
+import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenLongHashSet;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
@@ -156,11 +154,11 @@ public class TypeStampTaxonomyRecords {
    public boolean containsConceptSequenceViaType(ConceptSequenceSet typeSequenceSet,
          int flags,
          RelativePositionCalculator computer) {
-      final StampSequenceSet latestStamps =
+      final int[] latestStamps =
          computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeSequenceSet,
                                                                         flags));
 
-      return !latestStamps.isEmpty();
+      return latestStamps.length > 0;
    }
 
    /**
@@ -188,10 +186,10 @@ public class TypeStampTaxonomyRecords {
     * @return true, if successful
     */
    public boolean containsConceptSequenceViaType(int typeSequence, int flags, RelativePositionCalculator computer) {
-      final StampSequenceSet latestStamps = computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeSequence,
+      final int[] latestStamps = computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeSequence,
                                                                                                            flags));
 
-      return !latestStamps.isEmpty();
+      return latestStamps.length > 0;
    }
 
    /**
@@ -363,28 +361,29 @@ public class TypeStampTaxonomyRecords {
     * @param flags the flags
     * @return the stamps of type with flags
     */
-   public IntStream getStampsOfTypeWithFlags(ConceptSequenceSet typeSequenceSet, int flags) {
-      final Builder intStreamBuilder = IntStream.builder();
+   public int[] getStampsOfTypeWithFlags(ConceptSequenceSet typeSequenceSet, int flags) {
+      final IntArrayList intStreamBuilder = new IntArrayList();
 
       this.typeStampFlagsSet.forEachKey((long record) -> {
                                            final int stampAndFlag = (int) (record >>> 32);
 
                                            if (typeSequenceSet.isEmpty()) {  // wildcard
                                               if ((stampAndFlag & TaxonomyRecordPrimitive.FLAGS_BIT_MASK) == flags) {
-                                                 intStreamBuilder.accept(stampAndFlag
+                                                 intStreamBuilder.add(stampAndFlag
                                                  & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK);
                                               }
                                            } else if (typeSequenceSet.contains((int) record
                                            & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK)) {
                                               if ((stampAndFlag & TaxonomyRecordPrimitive.FLAGS_BIT_MASK) == flags) {
-                                                 intStreamBuilder.accept(stampAndFlag
+                                                 intStreamBuilder.add(stampAndFlag
                                                  & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK);
                                               }
                                            }
 
                                            return true;
                                         });
-      return intStreamBuilder.build();
+      intStreamBuilder.trimToSize();
+      return intStreamBuilder.elements();
    }
 
    /**
@@ -394,28 +393,29 @@ public class TypeStampTaxonomyRecords {
     * @param flags the flags
     * @return the stamps of type with flags
     */
-   public IntStream getStampsOfTypeWithFlags(int typeSequence, int flags) {
-      final Builder intStreamBuilder = IntStream.builder();
+   public int[] getStampsOfTypeWithFlags(int typeSequence, int flags) {
+      final IntArrayList intStreamBuilder = new IntArrayList();
 
       this.typeStampFlagsSet.forEachKey((long record) -> {
                                            final int stampAndFlag = (int) (record >>> 32);
 
                                            if (typeSequence == Integer.MAX_VALUE) {  // wildcard
                                               if ((stampAndFlag & TaxonomyRecordPrimitive.FLAGS_BIT_MASK) == flags) {
-                                                 intStreamBuilder.accept(stampAndFlag
+                                                 intStreamBuilder.add(stampAndFlag
                                                  & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK);
                                               }
                                            } else if ((record & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK) ==
                                            typeSequence) {
                                               if ((stampAndFlag & TaxonomyRecordPrimitive.FLAGS_BIT_MASK) == flags) {
-                                                 intStreamBuilder.accept(stampAndFlag
+                                                 intStreamBuilder.add(stampAndFlag
                                                  & TaxonomyRecordPrimitive.SEQUENCE_BIT_MASK);
                                               }
                                            }
 
                                            return true;
                                         });
-      return intStreamBuilder.build();
+      intStreamBuilder.trimToSize();
+      return intStreamBuilder.elements();
    }
 
    /**
@@ -423,9 +423,12 @@ public class TypeStampTaxonomyRecords {
     *
     * @return the type stamp flag stream
     */
-   public LongStream getTypeStampFlagStream() {
-      return LongStream.of(this.typeStampFlagsSet.keys()
-            .elements());
+   public long[] getTypeStampFlags() {
+      return this.typeStampFlagsSet.keys().elements();
+   }
+   
+   public void forEachTypeStampFlag(LongProcedure procedure) {
+      this.typeStampFlagsSet.forEachKey(procedure);
    }
 
    //~--- inner classes -------------------------------------------------------

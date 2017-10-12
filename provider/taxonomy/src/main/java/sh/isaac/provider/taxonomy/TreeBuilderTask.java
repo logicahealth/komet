@@ -121,8 +121,7 @@ public class TreeBuilderTask
 
    private Tree compute() {
       GraphCollector  collector = new GraphCollector(this.originDestinationTaxonomyRecordMap, this.manifoldCoordinate);
-      IntStream       conceptSequenceStream = Get.identifierService()
-                                                 .getParallelConceptSequenceStream();
+      IntStream       conceptSequenceStream = Get.identifierService().getParallelConceptSequenceStream();
       HashTreeBuilder graphBuilder          = conceptSequenceStream.filter(
                                                   (conceptSequence) -> {
                completedUnitOfWork();

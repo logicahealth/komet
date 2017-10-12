@@ -54,6 +54,7 @@ import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.list.IntArrayList;
+import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.DataSource;
 import sh.isaac.api.DataTarget;
@@ -1096,19 +1097,21 @@ public class LogicalExpressionImpl
 
       graphVisitData.startNodeVisit(logicNode.getNodeIndex(), depth);
 
-      final ConceptSequenceSet conceptsReferencedByNode = new ConceptSequenceSet();
+      final OpenIntHashSet conceptsReferencedByNode = new OpenIntHashSet();
 
       logicNode.addConceptsReferencedByNode(conceptsReferencedByNode);
 
       graphVisitData.getUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, logicNode.getNodeIndex());
 
-      logicNode.addConceptsReferencedByNode(
-              ConceptSequenceSet.of(graphVisitData.getUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, logicNode.getNodeIndex())));
+      logicNode.addConceptsReferencedByNode(graphVisitData.getUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, logicNode.getNodeIndex()));
 
       int predecessorSequence = graphVisitData.getPredecessorSequence(logicNode.getNodeIndex());
       if (predecessorSequence >= 0) {
-         conceptsReferencedByNode.addAll(
-                 graphVisitData.getUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, predecessorSequence));
+         
+         graphVisitData.getUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, predecessorSequence).forEachKey((node) -> {
+            conceptsReferencedByNode.add(node);
+            return true;
+         });
          graphVisitData.setUserNodeSet(CONCEPTS_REFERENCED_AT_NODE_OR_ABOVE, logicNode.getNodeIndex(), conceptsReferencedByNode);
       }
 

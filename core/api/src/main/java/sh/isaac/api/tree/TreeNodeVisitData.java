@@ -39,14 +39,12 @@ package sh.isaac.api.tree;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
-
-import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.SequenceSet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -57,13 +55,13 @@ import sh.isaac.api.collections.SequenceSet;
  */
 public class TreeNodeVisitData {
    /** The visit started. */
-   private SequenceSet<?> visitStarted = new SequenceSet<>();
+   private OpenIntHashSet visitStarted = new OpenIntHashSet();
 
    /** The visit ended. */
-   private SequenceSet<?> visitEnded = new SequenceSet<>();
+   private OpenIntHashSet visitEnded = new OpenIntHashSet();
 
    /** The leaf nodes. */
-   private SequenceSet<?> leafNodes = new SequenceSet<>();
+   private OpenIntHashSet leafNodes = new OpenIntHashSet();
 
    /** The max depth. */
    private int maxDepth = 0;
@@ -112,13 +110,12 @@ public class TreeNodeVisitData {
          return o1.length - o2.length;
       }
       // See if sets have same membership, just different order
-      ConceptSequenceSet set1 = ConceptSequenceSet.of(o1);
-      ConceptSequenceSet set2 = ConceptSequenceSet.of(o2);
+      Arrays.sort(o1);
+      Arrays.sort(o2);
       
-      if (set1.equals(set2)) {
+      if (Arrays.equals(o1, o2)) {
          return 0;
       }
-      
       for (int i = 0; i < o1.length; i++) {
          if (o1[i] != o2[i]) {
             return o1[i] - o2[i];
@@ -150,9 +147,9 @@ public class TreeNodeVisitData {
     */
    public TreeNodeVisitData(int graphSize) {
       this.graphSize                = graphSize;
-      this.visitStarted             = new SequenceSet<>();
-      this.visitEnded               = new SequenceSet<>();
-      this.leafNodes                = new SequenceSet<>();
+      this.visitStarted             = new OpenIntHashSet();
+      this.visitEnded               = new OpenIntHashSet();
+      this.leafNodes                = new OpenIntHashSet();
       this.distanceList             = new IntArrayList(new int[graphSize]);
       this.distanceList.fillFromToWith(0, graphSize - 1, -1);
       this.discoveryTimeList        = new IntArrayList(new int[graphSize]);
@@ -222,25 +219,6 @@ public class TreeNodeVisitData {
    }
 
    //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Set the user node set.
-    *
-    * @param nodeSetKey
-    * @param nodeSequence the node sequence
-    * @param conceptSet the concept set
-    */
-   public void setUserNodeSet(String nodeSetKey, int nodeSequence, ConceptSequenceSet conceptSet) {
-      if (nodeSequence >= 0) {
-         // lazy creation to save memory since not all tree traversals want to
-         // use this capability.
-         if (!this.userNodeMap.containsKey(nodeSetKey)) {
-            this.userNodeMap.put(nodeSetKey, new OpenIntHashSet[this.graphSize]);
-         }
-
-         this.userNodeMap.get(nodeSetKey)[nodeSequence] = conceptSet.asOpenIntHashSet();
-      }
-   }
 
    /**
     * Set the user node set.
@@ -357,19 +335,6 @@ public class TreeNodeVisitData {
       return this.graphSize;
    }
 
-   /**
-    * Gets the intermediate nodes.
-    *
-    * @return the intermediate nodes
-    */
-   public SequenceSet<?> getIntermediateNodes() {
-      final SequenceSet intermediateNodes = new SequenceSet<>();
-
-      intermediateNodes.or(this.visitEnded);
-      intermediateNodes.andNot(this.leafNodes);
-      return intermediateNodes;
-   }
-
    //~--- set methods ---------------------------------------------------------
 
    /**
@@ -388,7 +353,7 @@ public class TreeNodeVisitData {
     *
     * @return the leaf nodes
     */
-   public SequenceSet<?> getLeafNodes() {
+   public OpenIntHashSet getLeafNodes() {
       return this.leafNodes;
    }
 
@@ -407,8 +372,8 @@ public class TreeNodeVisitData {
     * @param depth the depth
     * @return the node ids for depth
     */
-   public SequenceSet<?> getNodeIdsForDepth(int depth) {
-      final SequenceSet<?> nodeIdsForDepth = new SequenceSet<>();
+   public OpenIntHashSet getNodeIdsForDepth(int depth) {
+      final OpenIntHashSet nodeIdsForDepth = new OpenIntHashSet();
 
       for (int i = 0; i < this.distanceList.size(); i++) {
          if (this.distanceList.get(i) == depth) {

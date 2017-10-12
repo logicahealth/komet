@@ -40,8 +40,6 @@ package sh.isaac.api.tree.hashtree;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.function.ObjIntConsumer;
 import java.util.stream.IntStream;
 
@@ -49,9 +47,9 @@ import java.util.stream.IntStream;
 import org.apache.mahout.math.map.OpenIntObjectHashMap;
 import org.apache.mahout.math.set.OpenIntHashSet;
 import sh.isaac.api.Get;
-import sh.isaac.api.TaxonomySnapshotService;
 
 import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.Tree;
@@ -277,7 +275,7 @@ public abstract class AbstractHashTree
                while (cycleArray[cycleStart] != lastSequenceInCycle) {
                   cycleStart++;
                }
-               cycleArray = Arrays.copyOfRange(cycleArray, cycleStart, cycleArray.length);
+               cycleArray = Arrays.copyOfRange(cycleArray, cycleStart, cycleArray.length-1);
             }
             if (cycleArray.length == 0) {
                cycleArray = findCycle(originalChildSequence, new int[]{originalChildSequence});
@@ -294,7 +292,7 @@ public abstract class AbstractHashTree
                           .append(Get.conceptDescriptionText(sequenceToTest));
                } else {
                   builder.append("Cycle found: \n");
-                  if (cycleArray.length == 2) {
+                  if (cycleArray.length == 1) {
                      builder.append("\n   SELF REFERENCE");
                   }
                   for (int sequence : cycleArray) {

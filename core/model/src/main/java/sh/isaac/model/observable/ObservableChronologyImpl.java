@@ -734,7 +734,7 @@ public abstract class ObservableChronologyImpl
     * @return the version stamp sequences
     */
    @Override
-   public final IntStream getVersionStampSequences() {
+   public final int[] getVersionStampSequences() {
       return this.chronicledObjectLocal.getVersionStampSequences();
    }
 
