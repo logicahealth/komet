@@ -362,13 +362,13 @@ public class ProcessClassificationResults
                throw new IllegalStateException(
                        "Empty latest version for stated definition. " + rawStatedChronology);
             }
-         } catch (final Exception e) {
+         } catch (final IllegalStateException e) {
             LogManager.getLogger()
                     .error("Error during writeback - skipping concept ", e);
          }
       });
 
-      final Task<Optional<CommitRecord>> commitTask = commitService.commit("classifier run");
+      final Task<Optional<CommitRecord>> commitTask = commitService.commit(Get.configurationService().getDefaultEditCoordinate(), "classifier run");
 
       try {
          final Optional<CommitRecord> commitRecord = commitTask.get();

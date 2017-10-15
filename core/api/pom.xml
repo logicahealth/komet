@@ -12,6 +12,10 @@
     <name>ISAAC core: API</name>
 
     <dependencies>
+         <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+         </dependency>        
       <dependency>
          <groupId>sh.isaac.core</groupId>
          <artifactId>log-config</artifactId>

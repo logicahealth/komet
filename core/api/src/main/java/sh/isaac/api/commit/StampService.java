@@ -44,6 +44,7 @@ package sh.isaac.api.commit;
 import java.time.Instant;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -182,7 +183,7 @@ public interface StampService
     *
     * @return the pending stamps for commit
     */
-   Map<UncommittedStamp, Integer> getPendingStampsForCommit();
+   ConcurrentHashMap<UncommittedStamp, Integer> getPendingStampsForCommit();
 
    //~--- set methods ---------------------------------------------------------
 
@@ -194,7 +195,7 @@ public interface StampService
     *
     * @param pendingStamps the pending stamps
     */
-   void setPendingStampsForCommit(Map<UncommittedStamp, Integer> pendingStamps);
+   void addPendingStampsForCommit(Map<UncommittedStamp, Integer> pendingStamps);
 
    //~--- get methods ---------------------------------------------------------
 

@@ -195,7 +195,7 @@ public class GetConceptSequenceForExpressionTask
 
          try {
             Get.commitService()
-               .commit("Expression commit.")
+               .commit(Get.configurationService().getDefaultEditCoordinate(), "Expression commit.")
                .get();
             updateMessage("Classifying new concept...");
             this.classifierProvider.classify()

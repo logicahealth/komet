@@ -397,7 +397,7 @@ public class WorkflowUpdater {
                Get.commitService()
                   .addUncommitted(conceptChron);
                Get.commitService()
-                  .commit("Reverting concept to how it was prior to workflow");
+                  .commit(Get.configurationService().getDefaultEditCoordinate(), "Reverting concept to how it was prior to workflow");
             } else if (Get.identifierService()
                           .getChronologyTypeForNid(compNid) == ObjectChronologyType.SEMANTIC) {
                final SemanticChronology semChron = Get.assemblageService()
@@ -422,7 +422,7 @@ public class WorkflowUpdater {
                   .addUncommitted(semChron)
                   .get();
                Get.commitService()
-                  .commit("Reverting sememe to how it was prior to workflow")
+                  .commit(Get.configurationService().getDefaultEditCoordinate(), "Reverting sememe to how it was prior to workflow")
                   .get();
             }
          }

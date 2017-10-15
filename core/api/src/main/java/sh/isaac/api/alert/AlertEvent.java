@@ -37,47 +37,64 @@
 
 
 
-/*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
- */
-package sh.isaac.api.commit;
+package sh.isaac.api.alert;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.Future;
+
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.semantic.SemanticChronology;
+import com.lmax.disruptor.EventFactory;
 
-//~--- interfaces -------------------------------------------------------------
+import sh.isaac.api.Get;
+
+//~--- classes ----------------------------------------------------------------
 
 /**
- * The Interface ChangeChecker.
+ * The AlertEvent class.
  *
  * @author kec
  */
-public interface ChangeChecker
-        extends Comparable<ChangeChecker> {
-   /**
-    * Check.
-    *
-    * @param cc the cc
-    * @param checkPhase the check phase
-    * @return CheckResult.PASS or CheckResult.FAIL
-    */
-   CheckResult check(ConceptChronology cc, 
-              CheckPhase checkPhase);
+public class AlertEvent {
+   public static final EventFactory<AlertEvent> factory = () -> new AlertEvent();
 
-   /**
-    * Check.
-    *
-    * @param sc the sc
-    * @param checkPhase the check phase
-    * @return CheckResult.PASS or CheckResult.FAIL
-    */
-   CheckResult check(SemanticChronology sc,
-              CheckPhase checkPhase);
+   //~--- fields --------------------------------------------------------------
+
+   private final List<Resolver> resolvers = new ArrayList();
+   private AlertObject          alertObject;
+
+   //~--- methods -------------------------------------------------------------
+
+   Optional<Future<Boolean>> testResolution() {
+      if (alertObject != null) {
+         return Optional.of(Get.executor()
+                               .submit(alertObject.getTester()));
+      }
+
+      return Optional.empty();
+   }
+
+   //~--- get methods ---------------------------------------------------------
+
+   public AlertObject getAlertObject() {
+      return alertObject;
+   }
+
+   //~--- set methods ---------------------------------------------------------
+
+   public void setAlertObject(AlertObject alertObject) {
+      this.alertObject = alertObject;
+      this.resolvers.clear();
+   }
+
+   //~--- get methods ---------------------------------------------------------
+
+   public List<Resolver> getResolvers() {
+      return resolvers;
+   }
 }
 

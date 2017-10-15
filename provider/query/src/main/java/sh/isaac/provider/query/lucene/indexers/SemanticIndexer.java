@@ -121,7 +121,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
  */
 //@Service(name = "sememe indexer")
 //@RunLevel(value = 2)
-public class SememeIndexer
+public class SemanticIndexer
         extends LuceneIndexer {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
@@ -136,7 +136,7 @@ public class SememeIndexer
 
    /** The lric. */
    @Inject
-   private SememeIndexerConfiguration lric;
+   private SemanticIndexerConfiguration lric;
 
    //~--- constructors --------------------------------------------------------
 
@@ -145,7 +145,7 @@ public class SememeIndexer
     *
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   private SememeIndexer()
+   private SemanticIndexer()
             throws IOException {
       // For HK2
       super(INDEX_NAME);
@@ -706,7 +706,7 @@ public class SememeIndexer
                throw new RuntimeException(
                    "If a list of search columns is provided, then the sememeConceptSequence variable must contain 1 (and only 1) sememe");
             } else {
-               sememeIndexedColumns = SememeIndexer.this.lric.whatColumnsToIndex(sememeConceptSequence[0]);
+               sememeIndexedColumns = SemanticIndexer.this.lric.whatColumnsToIndex(sememeConceptSequence[0]);
             }
          }
 

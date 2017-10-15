@@ -130,7 +130,7 @@ import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.util.WorkExecutors;
-import sh.isaac.provider.query.lucene.indexers.SememeIndexer;
+import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
 import sh.isaac.api.index.IndexService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -531,7 +531,7 @@ public abstract class LuceneIndexer
     * are detailed below.
     *
     * NOTE - subclasses of LuceneIndexer may have other query(...) methods that allow for more specific and or complex
-    * queries.  Specifically both {@link SememeIndexer} and {@link DescriptionIndexer} have their own
+    * queries.  Specifically both {@link SemanticIndexer} and {@link DescriptionIndexer} have their own
     * query(...) methods which allow for more advanced queries.
     *
     * @param query The query to apply.

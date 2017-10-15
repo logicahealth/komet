@@ -35,16 +35,31 @@
  *
  */
 
-
-
-/*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
- */
-package sh.isaac.api.commit;
+package sh.isaac.api.alert;
 
 /**
+ * 
+ * FILTERs: Accept, Deny, Neutral
+ * 
+ * Context wide filters, 
+ * Logger filters,
+ * Appender filters,
+ * Appender reference filters
+ * 
+ * ThreadContext Map -> For example,
+if the user's loginId is being captured in the ThreadContext Map then it is possible to enable debug
+logging for only that user
+* 
+* MapFilter
+The MapFilter allows filtering against data elements that are in a MapMessage.
+ * 
+ * 
+ * MarkerFilter
+The MarkerFilter compares the configured Marker value against the Marker that is included in the
+LogEvent. A match occurs when the Marker name matches either the Log Event's Marker or one of its
+parents.
+* 
+* LogEvent
  * A subset of javafx.scene.control.Alert.AlertType
  * @author kec
  */
@@ -58,7 +73,9 @@ public enum AlertType {
    /** An error alert. */
    ERROR,
 
-   /** A confirmation alert. */
+   /** A confirmation alert. Not sure about this one...
+    confirmation alerts would need some type of time out perhaps...
+    */
    CONFIRMATION;
 }
 

@@ -53,7 +53,6 @@ import javafx.concurrent.Task;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.commit.Alert;
 import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.CheckPhase;
 import sh.isaac.api.commit.ChronologyChangeListener;
@@ -76,9 +75,6 @@ public class WriteAndCheckConceptChronicle
    /** The checkers. */
    private final ConcurrentSkipListSet<ChangeChecker> checkers;
 
-   /** The alert collection. */
-   private final ConcurrentSkipListSet<Alert> alertCollection;
-
    /** The write semaphore. */
    private final Semaphore writeSemaphore;
 
@@ -95,7 +91,6 @@ public class WriteAndCheckConceptChronicle
     *
     * @param cc the cc
     * @param checkers the checkers
-    * @param alertCollection the alert collection
     * @param writeSemaphore the write semaphore
     * @param changeListeners the change listeners
     * @param uncommittedTracking A handle to call back to the caller to notify it that the concept has been
@@ -104,13 +99,11 @@ public class WriteAndCheckConceptChronicle
     */
    public WriteAndCheckConceptChronicle(ConceptChronology cc,
          ConcurrentSkipListSet<ChangeChecker> checkers,
-         ConcurrentSkipListSet<Alert> alertCollection,
          Semaphore writeSemaphore,
          ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners,
          BiConsumer<Chronology, Boolean> uncommittedTracking) {
       this.cc                  = cc;
       this.checkers            = checkers;
-      this.alertCollection     = alertCollection;
       this.writeSemaphore      = writeSemaphore;
       this.changeListeners     = changeListeners;
       this.uncommittedTracking = uncommittedTracking;
@@ -146,7 +139,7 @@ public class WriteAndCheckConceptChronicle
 
          if (this.cc.isUncommitted()) {
             this.checkers.stream().forEach((check) -> {
-                                     check.check(this.cc, this.alertCollection, CheckPhase.ADD_UNCOMMITTED);
+                                     check.check(this.cc, CheckPhase.ADD_UNCOMMITTED);
                                   });
          }
 

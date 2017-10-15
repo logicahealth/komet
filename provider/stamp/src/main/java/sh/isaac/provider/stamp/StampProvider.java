@@ -61,6 +61,7 @@ import java.util.OptionalInt;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
 
@@ -123,8 +124,8 @@ public class StampProvider
    /**
     * TODO: persist across restarts.
     */
-   private static final Map<UncommittedStamp, Integer> UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP
-           = new ConcurrentHashMap<>();
+   private static final AtomicReference<ConcurrentHashMap<UncommittedStamp, Integer>> UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP
+           = new AtomicReference(new ConcurrentHashMap<>());
 
    //~--- fields --------------------------------------------------------------
    /**
@@ -219,7 +220,8 @@ public class StampProvider
     */
    @Override
    public synchronized Task<Void> cancel(int authorSequence) {
-      UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.forEach((uncommittedStamp, stampSequence) -> {
+      Map<UncommittedStamp, Integer> map = UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get();
+      map.forEach((uncommittedStamp, stampSequence) -> {
          // for each uncommitted stamp matching the author, remove the uncommitted stamp
          // and replace with a canceled stamp.
          if (uncommittedStamp.authorSequence == authorSequence) {
@@ -230,7 +232,7 @@ public class StampProvider
                     uncommittedStamp.pathSequence);
 
             addStamp(stamp, stampSequence);
-            UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.remove(uncommittedStamp);
+            map.remove(uncommittedStamp);
          }
       });
 
@@ -422,7 +424,7 @@ public class StampProvider
                final int uncommittedSize = in.readInt();
 
                for (int i = 0; i < uncommittedSize; i++) {
-                  UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.put(new UncommittedStamp(in), in.readInt());
+                  UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().put(new UncommittedStamp(in), in.readInt());
                }
             }
 
@@ -456,11 +458,11 @@ public class StampProvider
             }
          });
 
-         final int size = UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.size();
+         final int size = UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().size();
 
          out.writeInt(size);
 
-         for (final Map.Entry<UncommittedStamp, Integer> entry : UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
+         for (final Map.Entry<UncommittedStamp, Integer> entry : UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().entrySet()) {
             entry.getKey()
                     .write(out);
             out.writeInt(entry.getValue());
@@ -503,7 +505,7 @@ public class StampProvider
          return s.get()
                  .getAuthorSequence();
       }
-      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
+      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().entrySet()) {
          if (entry.getValue() == stampSequence) {
             return entry.getKey().authorSequence;
          }
@@ -531,7 +533,7 @@ public class StampProvider
                  .getConceptSequence(s.get()
                          .getAuthorSequence());
       }
-      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
+      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().entrySet()) {
          if (entry.getValue() == stampSequence) {
             return entry.getKey().authorSequence;
          }
@@ -577,7 +579,7 @@ public class StampProvider
          return s.get()
                  .getModuleSequence();
       }
-      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
+      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().entrySet()) {
          if (entry.getValue() == stampSequence) {
             return entry.getKey().moduleSequence;
          }
@@ -605,7 +607,7 @@ public class StampProvider
                  .getConceptSequence(s.get()
                          .getModuleSequence());
       }
-      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
+      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().entrySet()) {
          if (entry.getValue() == stampSequence) {
             return entry.getKey().moduleSequence;
          }
@@ -646,7 +648,7 @@ public class StampProvider
          return s.get()
                  .getPathSequence();
       }
-      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
+      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().entrySet()) {
          if (entry.getValue() == stampSequence) {
             return entry.getKey().pathSequence;
          }
@@ -680,7 +682,7 @@ public class StampProvider
                                  .getPathSequence()));
          return this.stampSequencePathSequenceMap.get(stampSequence);
       }
-      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
+      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().entrySet()) {
          if (entry.getValue() == stampSequence) {
             return entry.getKey().pathSequence;
          }
@@ -695,11 +697,15 @@ public class StampProvider
     * @return the pending stamps for commit
     */
    @Override
-   synchronized public Map<UncommittedStamp, Integer> getPendingStampsForCommit() {
-      final Map<UncommittedStamp, Integer> pendingStampsForCommit
-              = new HashMap<>(UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP);
-
-      UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.clear();
+   public ConcurrentHashMap<UncommittedStamp, Integer> getPendingStampsForCommit() {
+      ConcurrentHashMap<UncommittedStamp, Integer> pendingStampsForCommit
+              = UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get();
+      
+      while (!UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.compareAndSet(pendingStampsForCommit, new ConcurrentHashMap<>())) {
+         pendingStampsForCommit
+              = UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get();
+      }
+      
       return pendingStampsForCommit;
    }
 
@@ -710,8 +716,8 @@ public class StampProvider
     * @param pendingStamps the pending stamps
     */
    @Override
-   synchronized public void setPendingStampsForCommit(Map<UncommittedStamp, Integer> pendingStamps) {
-      UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.putAll(pendingStamps);
+   synchronized public void addPendingStampsForCommit(Map<UncommittedStamp, Integer> pendingStamps) {
+      UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().putAll(pendingStamps);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -746,7 +752,7 @@ public class StampProvider
 
       if (time == Long.MAX_VALUE) {
          final UncommittedStamp usp = new UncommittedStamp(status, authorSequence, moduleSequence, pathSequence);
-         final Integer temp = UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get(usp);
+         final Integer temp = UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().get(usp);
 
          if (temp != null) {
             return temp;
@@ -754,13 +760,13 @@ public class StampProvider
             this.stampLock.lock();
 
             try {
-               if (UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.containsKey(usp)) {
-                  return UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get(usp);
+               if (UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().containsKey(usp)) {
+                  return UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().get(usp);
                }
 
                final int stampSequence = this.nextStampSequence.getAndIncrement();
 
-               UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.put(usp, stampSequence);
+               UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().put(usp, stampSequence);
                this.inverseStampMap.put(stampSequence, stampKey);
                return stampSequence;
             } finally {
@@ -824,7 +830,7 @@ public class StampProvider
                  .getStatus();
       }
       
-      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.entrySet()) {
+      for (Map.Entry<UncommittedStamp, Integer> entry: UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().entrySet()) {
          if (entry.getValue() == stampSequence) {
             return entry.getKey().status;
          }
@@ -850,7 +856,7 @@ public class StampProvider
          return s.get()
                  .getTime();
       }
-      if (UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.containsValue(stampSequence)) {
+      if (UNCOMMITTED_STAMP_TO_STAMP_SEQUENCE_MAP.get().containsValue(stampSequence)) {
          return Long.MAX_VALUE;
       }
 

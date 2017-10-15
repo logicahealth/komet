@@ -53,7 +53,6 @@ import javafx.concurrent.Task;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.commit.Alert;
 import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.CheckPhase;
 import sh.isaac.api.commit.ChronologyChangeListener;
@@ -77,9 +76,6 @@ public class WriteAndCheckSemanticChronology
    /** The checkers. */
    private final ConcurrentSkipListSet<ChangeChecker> checkers;
 
-   /** The alert collection. */
-   private final ConcurrentSkipListSet<Alert> alertCollection;
-
    /** The write semaphore. */
    private final Semaphore writeSemaphore;
 
@@ -96,7 +92,6 @@ public class WriteAndCheckSemanticChronology
     *
     * @param sc the sc
     * @param checkers the checkers
-    * @param alertCollection the alert collection
     * @param writeSemaphore the write semaphore
     * @param changeListeners the change listeners
     * @param uncommittedTracking A handle to call back to the caller to notify it that the sememe has been
@@ -105,13 +100,11 @@ public class WriteAndCheckSemanticChronology
     */
    public WriteAndCheckSemanticChronology(SemanticChronology sc,
          ConcurrentSkipListSet<ChangeChecker> checkers,
-         ConcurrentSkipListSet<Alert> alertCollection,
          Semaphore writeSemaphore,
          ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners,
          BiConsumer<Chronology, Boolean> uncommittedTracking) {
       this.sc                  = sc;
       this.checkers            = checkers;
-      this.alertCollection     = alertCollection;
       this.writeSemaphore      = writeSemaphore;
       this.changeListeners     = changeListeners;
       this.uncommittedTracking = uncommittedTracking;
@@ -144,7 +137,7 @@ public class WriteAndCheckSemanticChronology
 
          if (this.sc.getCommitState() == CommitStates.UNCOMMITTED) {
             this.checkers.stream().forEach((check) -> {
-                                     check.check(this.sc, this.alertCollection, CheckPhase.ADD_UNCOMMITTED);
+                                     check.check(this.sc, CheckPhase.ADD_UNCOMMITTED);
                                   });
          }
 

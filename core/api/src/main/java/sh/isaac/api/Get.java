@@ -70,6 +70,9 @@ import org.apache.logging.log4j.Logger;
 
 import org.jvnet.hk2.annotations.Service;
 
+import com.lmax.disruptor.dsl.Disruptor;
+
+import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.commit.ChangeSetWriterService;
@@ -81,27 +84,28 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticBuilderService;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.CoordinateFactory;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.BinaryDataDifferService;
 import sh.isaac.api.externalizable.BinaryDataReaderQueueService;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.BinaryDataServiceFactory;
 import sh.isaac.api.externalizable.DataWriterService;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacExternalizableSpliterator;
 import sh.isaac.api.index.GenerateIndexes;
+import sh.isaac.api.index.IndexService;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.metacontent.MetaContentService;
-import sh.isaac.api.progress.ActiveTasks;
-import sh.isaac.api.util.WorkExecutors;
-import sh.isaac.api.index.IndexService;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
-import sh.isaac.api.externalizable.IsaacExternalizable;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.SemanticBuilderService;
+import sh.isaac.api.progress.ActiveTasks;
+import sh.isaac.api.util.NamedThreadFactory;
+import sh.isaac.api.util.WorkExecutors;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -121,6 +125,10 @@ public class Get
          implements OchreCache {
    /** The LOG. */
    private static final Logger LOG = LogManager.getLogger();
+   private static Disruptor<AlertEvent> alertDisruptor = new Disruptor<>(
+                                                             AlertEvent::new,
+                                                                   512,
+                                                                   new NamedThreadFactory("alert-disruptor", true));
 
    /** The active task set. */
    private static ActiveTasks activeTaskSet;
@@ -189,11 +197,9 @@ public class Get
    private static PostCommitService postCommitService;
 
    /** The change set writer service. */
-   private static ChangeSetWriterService changeSetWriterService;
-   
+   private static ChangeSetWriterService      changeSetWriterService;
    private static ObservableChronologyService observableChronologyService;
-   
-   private static SerializationService serializationService;
+   private static SerializationService        serializationService;
 
    //~--- constructors --------------------------------------------------------
 
@@ -215,6 +221,32 @@ public class Get
       }
 
       return activeTaskSet;
+   }
+
+   /**
+    * Assemblage service.
+    *
+    * @return the assemblage service
+    */
+   public static AssemblageService assemblageService() {
+      if (assemblageService == null) {
+         assemblageService = getService(AssemblageService.class);
+      }
+
+      return assemblageService;
+   }
+
+   /**
+    * Assemblage service available.
+    *
+    * @return true, if successful
+    */
+   public static boolean assemblageServiceAvailable() {
+      if (assemblageService == null) {
+         assemblageService = LookupService.getService(AssemblageService.class);
+      }
+
+      return assemblageService != null;
    }
 
    /**
@@ -292,6 +324,18 @@ public class Get
       return commitService;
    }
 
+   public static ConceptChronology concept(ConceptSpecification spec) {
+      return conceptService().getConcept(spec);
+   }
+
+   public static ConceptChronology concept(int id) {
+      return conceptService().getConcept(id);
+   }
+
+   public static ConceptChronology concept(UUID uuid) {
+      return conceptService().getConcept(uuid);
+   }
+
    /**
     * Concept active service.
     *
@@ -328,17 +372,17 @@ public class Get
     * for
     * @return a description for this concept. If no description can be found,
     * {@code "No desc for: " + conceptId;} will be returned.
-    *  TODO: make getDescriptionOptional return a LatestVersion, which has optional value, rather than returning an 
+    *  TODO: make getDescriptionOptional return a LatestVersion, which has optional value, rather than returning an
     *  Optional&gt;LatestVersion>&lt;
     */
    public static String conceptDescriptionText(int conceptId) {
       final LatestVersion<DescriptionVersion> descriptionOptional =
-         defaultConceptSnapshotService().getDescriptionOptional(conceptId);
+         defaultConceptSnapshotService().getDescriptionOptional(
+             conceptId);
 
       if (descriptionOptional.isPresent()) {
-            return descriptionOptional
-                    .get()
-                    .getText();
+         return descriptionOptional.get()
+                                   .getText();
       }
 
       return "No desc for: " + conceptId;
@@ -365,10 +409,12 @@ public class Get
          final StringBuilder builder = new StringBuilder();
 
          builder.append("[");
-         Arrays.stream(conceptIds).forEach((conceptId) -> {
-                           builder.append(conceptDescriptionText(conceptId));
-                           builder.append(", ");
-                        });
+         Arrays.stream(conceptIds)
+               .forEach(
+                   (conceptId) -> {
+                      builder.append(conceptDescriptionText(conceptId));
+                      builder.append(", ");
+                   });
          builder.delete(builder.length() - 2, builder.length());
          builder.append("]");
          return builder.toString();
@@ -401,34 +447,6 @@ public class Get
 
       return conceptService;
    }
-   
-   public static ConceptChronology concept(int id) {
-      return conceptService().getConcept(id);
-   }
-
-   public static ConceptChronology concept(UUID uuid) {
-      return conceptService().getConcept(uuid);
-   }
-
-   public static ConceptChronology concept(ConceptSpecification spec) {
-      return conceptService().getConcept(spec);
-   }
-
-   /**
-    * Concept snapshot.
-    *
-    * @return a {@code ConceptSnapshotService} configured using the default
-    * {@code StampCoordinate} and {@code LanguageCoordinate} provided by the
-    * configuration service.
-    */
-   public static ConceptSnapshotService defaultConceptSnapshotService() {
-      if (conceptSnapshot == null) {
-         conceptSnapshot = getService(ConceptService.class).getSnapshot(Get.configurationService()
-               .getDefaultManifoldCoordinate());
-      }
-
-      return conceptSnapshot;
-   }
 
    /**
     * Note, this method may fail during bootstrap, if concept being requested is not already loaded
@@ -453,14 +471,6 @@ public class Get
 
       return configurationService;
    }
-   
-   /**
-    * 
-    * @return the default manifold coordinate from the configuration service. 
-    */
-   public static ManifoldCoordinate defaultCoordinate() {
-      return configurationService().getDefaultManifoldCoordinate();
-   }
 
    /**
     * Coordinate factory.
@@ -473,6 +483,35 @@ public class Get
       }
 
       return coordinateFactory;
+   }
+
+   /**
+    * Concept snapshot.
+    *
+    * @return a {@code ConceptSnapshotService} configured using the default
+    * {@code StampCoordinate} and {@code LanguageCoordinate} provided by the
+    * configuration service.
+    */
+   public static ConceptSnapshotService defaultConceptSnapshotService() {
+      if (conceptSnapshot == null) {
+         conceptSnapshot = getService(
+             ConceptService.class).getSnapshot(Get.configurationService()
+                   .getDefaultManifoldCoordinate());
+      }
+
+      return conceptSnapshot;
+   }
+
+   /**
+    *
+    * @return the default manifold coordinate from the configuration service.
+    */
+   public static ManifoldCoordinate defaultCoordinate() {
+      return configurationService().getDefaultManifoldCoordinate();
+   }
+
+   public static ThreadPoolExecutor executor() {
+      return workExecutors().getExecutor();
    }
 
    /**
@@ -510,10 +549,11 @@ public class Get
     */
    public static Optional<SemanticChronology> inferredDefinitionChronology(int conceptId) {
       conceptId = identifierService().getConceptNid(conceptId);
-      return assemblageService().getSemanticChronologyForComponentFromAssemblage(conceptId,
-            configurationService().getDefaultLogicCoordinate()
-                                  .getInferredAssemblageSequence())
-                            .findAny();
+      return assemblageService().getSemanticChronologyForComponentFromAssemblage(
+          conceptId,
+          configurationService().getDefaultLogicCoordinate()
+                                .getInferredAssemblageSequence())
+                                .findAny();
    }
 
    /**
@@ -568,6 +608,18 @@ public class Get
       return metaContentService;
    }
 
+   public static ObservableChronologyService observableChronologyService() {
+      if (observableChronologyService == null) {
+         observableChronologyService = getService(ObservableChronologyService.class);
+      }
+
+      return observableChronologyService;
+   }
+
+   public static ObservableSnapshotService observableSnapshotService(ManifoldCoordinate manifoldCoordinate) {
+      return observableChronologyService().getObservableSnapshotService(manifoldCoordinate);
+   }
+
    /**
     * Ochre externalizable stream.
     *
@@ -575,6 +627,10 @@ public class Get
     */
    public static Stream<IsaacExternalizable> ochreExternalizableStream() {
       return StreamSupport.stream(new IsaacExternalizableSpliterator(), false);
+   }
+
+   public static <T> Optional<T> optionalService(Class<T> clazz) {
+      return Optional.ofNullable(LookupService.getService(clazz));
    }
 
    /**
@@ -624,8 +680,8 @@ public class Get
       logicalExpressionBuilderService = null;
       logicService                    = null;
       pathService                     = null;
-      semanticBuilderService            = null;
-      assemblageService                   = null;
+      semanticBuilderService          = null;
+      assemblageService               = null;
       taxonomyService                 = null;
       workExecutors                   = null;
       stampService                    = null;
@@ -633,11 +689,15 @@ public class Get
       postCommitService               = null;
       changeSetWriterService          = null;
       observableChronologyService     = null;
-      serializationService = null;
+      serializationService            = null;
+   }
+
+   public static ScheduledExecutorService scheduledExecutor() {
+      return workExecutors().getScheduledThreadPoolExecutor();
    }
 
    /**
-    * Semantic builder service. 
+    * Semantic builder service.
     *
     * @return the semantic builder service
     */
@@ -649,39 +709,20 @@ public class Get
       return semanticBuilderService;
    }
 
-   /**
-    * Assemblage service.
-    *
-    * @return the assemblage service
-    */
-   public static AssemblageService assemblageService() {
-      if (assemblageService == null) {
-         assemblageService = getService(AssemblageService.class);
-      }
-
-      return assemblageService;
-   }
-
    public static SerializationService serializer() {
       if (serializationService == null) {
          serializationService = getService(SerializationService.class);
       }
+
       return serializationService;
    }
 
-   
-   
-   /**
-    * Assemblage service available.
-    *
-    * @return true, if successful
-    */
-   public static boolean assemblageServiceAvailable() {
-      if (assemblageService == null) {
-         assemblageService = LookupService.getService(AssemblageService.class);
-      }
+   public static <T> T service(Class<T> clazz) {
+      return getService(clazz);
+   }
 
-      return assemblageService != null;
+   public static <T> List<T> services(Class<T> clazz) {
+      return getServices(clazz);
    }
 
    /**
@@ -712,7 +753,7 @@ public class Get
     * @return Task that indicates progress.
     */
    public static Task<Void> startIndexTask(
-           @SuppressWarnings("unchecked") Class<? extends IndexService>... indexersToReindex) {
+         @SuppressWarnings("unchecked") Class<? extends IndexService>... indexersToReindex) {
       final GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);
 
       LookupService.getService(WorkExecutors.class)
@@ -730,10 +771,11 @@ public class Get
     */
    public static Optional<SemanticChronology> statedDefinitionChronology(int conceptId) {
       conceptId = identifierService().getConceptNid(conceptId);
-      return assemblageService().getSemanticChronologyForComponentFromAssemblage(conceptId,
-            configurationService().getDefaultLogicCoordinate()
-                                  .getStatedAssemblageSequence())
-                            .findAny();
+      return assemblageService().getSemanticChronologyForComponentFromAssemblage(
+          conceptId,
+          configurationService().getDefaultLogicCoordinate()
+                                .getStatedAssemblageSequence())
+                                .findAny();
    }
 
    /**
@@ -748,17 +790,6 @@ public class Get
 
       return taxonomyService;
    }
-   
-   public static ObservableChronologyService observableChronologyService() {
-      if (observableChronologyService == null) {
-         observableChronologyService = getService(ObservableChronologyService.class);
-      }
-      return observableChronologyService;
-   }
-   
-   public static ObservableSnapshotService observableSnapshotService(ManifoldCoordinate manifoldCoordinate) {
-      return observableChronologyService().getObservableSnapshotService(manifoldCoordinate);
-   }
 
    /**
     * Work executors.
@@ -772,15 +803,12 @@ public class Get
 
       return workExecutors;
    }
-   public static ThreadPoolExecutor executor() {
-      return workExecutors().getExecutor();
-   }
-   
-   public static ScheduledExecutorService scheduledExecutor() {
-      return workExecutors().getScheduledThreadPoolExecutor();
-   }
 
    //~--- get methods ---------------------------------------------------------
+
+   public static Disruptor<AlertEvent> alertDisruptor() {
+      return alertDisruptor;
+   }
 
    /**
     * Gets the service.
@@ -793,16 +821,13 @@ public class Get
       final T service = LookupService.getService(clazz);
 
       if (service == null) {
-         throw new RuntimeException("No service for contract '" + clazz.getName() +
-                                    "'... Is the service provider on the classpath?");
+         throw new RuntimeException(
+             "No service for contract '" + clazz.getName() + "'... Is the service provider on the classpath?");
       }
 
       return service;
    }
-   
-   public static <T> Optional<T> optionalService(Class<T> clazz) {
-      return Optional.ofNullable(LookupService.getService(clazz));
-   }
+
    /**
     * Gets the service.
     *
@@ -814,13 +839,6 @@ public class Get
       final List<T> services = LookupService.getServices(clazz);
 
       return services;
-   }
-
-   public static <T> T service(Class<T> clazz) {
-      return getService(clazz);
-   }
-   public static <T> List<T> services(Class<T> clazz) {
-      return getServices(clazz);
    }
 }
 

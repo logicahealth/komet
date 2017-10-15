@@ -69,6 +69,7 @@
       <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
       <commons-lang3.version>3.5</commons-lang3.version>
       <commons-logging.version>1.2</commons-logging.version>
+      <disruptor.version>3.3.7</disruptor.version>
       <docbkx-maven-plugin.version>2.0.17</docbkx-maven-plugin.version>
       <enforcer-api.version>1.4.1</enforcer-api.version>
       <fortify.version>16.10</fortify.version>
@@ -90,7 +91,7 @@
       <json-io.version>4.9.10</json-io.version>
       <junit.version>4.12</junit.version>
       <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
-      <log4j.version>2.8.1</log4j.version>
+      <log4j.version>2.9.1</log4j.version>
       <maven-assembly-plugin.version>3.0.0</maven-assembly-plugin.version>
       <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
       <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
@@ -149,6 +150,11 @@
 
    <dependencyManagement>
       <dependencies>
+         <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>${disruptor.version}</version>
+         </dependency>        
          <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-bom</artifactId>
@@ -654,7 +660,7 @@
                </archive>               -->
             </configuration>
          </plugin>
-        <plugin>
+         <plugin>
             <groupId>external.atlassian.jgitflow</groupId>
             <artifactId>jgitflow-maven-plugin</artifactId>
             <version>${jgitflow-maven-plugin.version}</version>
@@ -674,16 +680,16 @@
             <artifactId>gitflow-maven-plugin</artifactId>
             <version>${gitflow-maven-plugin-version}</version>
             <configuration>
-              <allowSnapshots>false</allowSnapshots>
-              <autoVersionSubmodules>true</autoVersionSubmodules>
-              <enableFeatureVersions>true</enableFeatureVersions>
-              <enableSshAgent>true</enableSshAgent>
-              <fetchRemote>false</fetchRemote>
-              <installProject>true</installProject>
-              <pushReleases>false</pushReleases>
-              <scmCommentPrefix>[gitflow-plugin] </scmCommentPrefix>
-              <username>${git.user}</username>
-              <password>${git.password}</password>
+               <allowSnapshots>false</allowSnapshots>
+               <autoVersionSubmodules>true</autoVersionSubmodules>
+               <enableFeatureVersions>true</enableFeatureVersions>
+               <enableSshAgent>true</enableSshAgent>
+               <fetchRemote>false</fetchRemote>
+               <installProject>true</installProject>
+               <pushReleases>false</pushReleases>
+               <scmCommentPrefix>[gitflow-plugin] </scmCommentPrefix>
+               <username>${git.user}</username>
+               <password>${git.password}</password>
             </configuration>
          </plugin>
          <plugin>

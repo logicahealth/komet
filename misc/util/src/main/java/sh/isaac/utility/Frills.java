@@ -417,7 +417,7 @@ public class Frills
 
       try {
          Get.commitService()
-            .commit("creating new dynamic sememe column: " + columnName)
+            .commit(Get.configurationService().getDefaultEditCoordinate(), "creating new dynamic sememe column: " + columnName)
             .get();
          return newCon;
       } catch (InterruptedException | ExecutionException e) {
@@ -471,7 +471,7 @@ public class Frills
 
       try {
          Get.commitService()
-            .commit("creating new dynamic sememe assemblage (DynamicSememeUsageDescription): NID=" +
+            .commit(Get.configurationService().getDefaultEditCoordinate(), "creating new dynamic sememe assemblage (DynamicSememeUsageDescription): NID=" +
                 newDynamicSememeUsageDescriptionConcept.getNid() + ", FQN=" + sememeFQN + ", PT=" +
                 sememePreferredTerm + ", DESC=" + sememeDescription)
             .get();

@@ -130,29 +130,6 @@ public interface CommitService
    Task<Void> addUncommittedNoChecks(SemanticChronology sc);
 
    /**
-    * Cancels all pending changes using the default EditCoordinate. The caller
-    * may chose to block on the returned task if synchronous operation is
-    * desired.
-    *
-    * @return task representing the cancel.
-    * @deprecated use corresponding method that specifies the edit coordinate.
-    */
-   @Deprecated
-   Task<Void> cancel();
-
-   /**
-    * Cancels all pending changes using the default EditCoordinate. The caller
-    * may chose to block on the returned task if synchronous operation is
-    * desired.
-    *
-    * @param chronicledConcept the concept to cancel changes upon.
-    * @return task representing the cancel.
-    * @deprecated use corresponding method that specifies the edit coordinate.
-    */
-   @Deprecated
-   Task<Void> cancel(ConceptChronology chronicledConcept);
-
-   /**
     * Cancels all pending changes using the provided EditCoordinate. The caller
     * may chose to block on the returned task if synchronous operation is
     * desired.
@@ -162,18 +139,6 @@ public interface CommitService
     * @return task representing the cancel.
     */
    Task<Void> cancel(EditCoordinate editCoordinate);
-
-   /**
-    * Cancels all pending changes using the default EditCoordinate. The caller
-    * may chose to block on the returned task if synchronous operation is
-    * desired.
-    *
-    * @param semanticChronicle the semantic to cancel changes upon.
-    * @return task representing the cancel.
-    * @deprecated use corresponding method that specifies the edit coordinate.
-    */
-   @Deprecated
-   Task<Void> cancel(SemanticChronology semanticChronicle);
 
    /**
     * Cancels all pending changes using the provided EditCoordinate. The caller
@@ -188,27 +153,6 @@ public interface CommitService
    Task<Void> cancel(Chronology chronicle, EditCoordinate editCoordinate);
 
    /**
-    * Commit.
-    *
-    * @param commitComment the commit comment
-    * @return the task
-    * @deprecated use corresponding method that specifies the edit coordinate.
-    */
-   @Deprecated
-   Task<Optional<CommitRecord>> commit(String commitComment);
-
-   /**
-    * Commit.
-    *
-    * @param chronicledConcept the chronicled concept
-    * @param commitComment the commit comment
-    * @return the task
-    * @deprecated use corresponding method that specifies the edit coordinate.
-    */
-   @Deprecated
-   Task<Optional<CommitRecord>> commit(ConceptChronology chronicledConcept, String commitComment);
-
-   /**
     * Commit all pending changes for the provided EditCoordinate. The caller may
     * chose to block on the returned task if synchronous operation is desired.
     *
@@ -218,17 +162,6 @@ public interface CommitService
     * @return task representing the cancel.
     */
    Task<Optional<CommitRecord>> commit(EditCoordinate editCoordinate, String commitComment);
-
-   /**
-    * Commit.
-    *
-    * @param semanticChronicle the sememe chronicle
-    * @param commitComment the commit comment
-    * @return the task
-    * @deprecated use corresponding method that specifies the edit coordinate.
-    */
-   @Deprecated
-   Task<Optional<CommitRecord>> commit(SemanticChronology semanticChronicle, String commitComment);
 
    /**
     * Commit all pending changes for the provided EditCoordinate. The caller may
@@ -285,13 +218,6 @@ public interface CommitService
    void removeChangeListener(ChronologyChangeListener changeListener);
 
    //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the alert list.
-    *
-    * @return the alert list
-    */
-   ObservableList<Alert> getAlertList();
 
    /**
     * Gets the aliases.

@@ -324,7 +324,7 @@ public class ChangeSetLoadProvider
                   .build(EditCoordinates.getDefaultUserMetadata(), ChangeCheckerMode.ACTIVE)
                   .get();
                Get.commitService()
-                  .commit("Storing database ID on root concept");
+                  .commit(Get.configurationService().getDefaultEditCoordinate(), "Storing database ID on root concept");
             }
          }
       } catch (final IOException | InterruptedException | RuntimeException | ExecutionException e) {
