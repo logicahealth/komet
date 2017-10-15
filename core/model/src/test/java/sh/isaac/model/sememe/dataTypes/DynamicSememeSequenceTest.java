@@ -95,7 +95,7 @@ public class DynamicSememeSequenceTest {
       assertEquals(value, ((Integer) i.getDataObject()).intValue());
       assertEquals(value, ((Integer) i.getDataObjectProperty()
                                       .get()).intValue());
-      assertEquals(i.getDynamicSememeDataType(), DynamicDataType.SEQUENCE);
+      assertEquals(i.getDynamicDataType(), DynamicDataType.SEQUENCE);
    }
 }
 

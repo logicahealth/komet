@@ -100,10 +100,10 @@ public interface DynamicData {
    public ReadOnlyObjectProperty<?> getDataObjectProperty();
 
    /**
-    * Gets the dynamic sememe data type.
+    * Gets the dynamic data type.
     *
     * @return The type information of the data
     */
-   public DynamicDataType getDynamicSememeDataType();
+   public DynamicDataType getDynamicDataType();
 }
 

@@ -61,7 +61,7 @@ public class NumberUtilities
     * Return the wrapped number, or throw an exception if not parseable as an integer, long, float or double.
     *
     * @param value the value
-    * @return the dynamic sememe data
+    * @return the dynamic data
     * @throws NumberFormatException the number format exception
     */
    public static DynamicData wrapIntoRefexHolder(Number value)

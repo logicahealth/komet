@@ -135,13 +135,13 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
             });
             //This loads the children of this child
             if (!childrenToProcess.isEmpty()) {
-               SequentialAggregateTaskWithIcon aggregateTask = new SequentialAggregateTaskWithIcon("Fetching children", childrenToProcess);
+               SequentialAggregateTaskWithIcon aggregateTask = new SequentialAggregateTaskWithIcon("Fetching children for " + this.conceptDescriptionText, childrenToProcess);
                Get.activeTasks().add(aggregateTask);
                Get.workExecutors().getPotentiallyBlockingExecutor().execute(aggregateTask);
             }
          }
       } catch (Exception e) {
-         LOG.error("Unexpected error computing children and/or grandchildren", e);
+         LOG.error("Unexpected error computing children and/or grandchildren for " + this.conceptDescriptionText, e);
       } finally {
          childLoadComplete();
       }
@@ -213,13 +213,13 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
 
             //This loads the childrens children
             if (!grandChildrenToProcess.isEmpty()) {
-               SequentialAggregateTaskWithIcon aggregateTask = new SequentialAggregateTaskWithIcon("Fetching grandchildren", grandChildrenToProcess);
+               SequentialAggregateTaskWithIcon aggregateTask = new SequentialAggregateTaskWithIcon("Fetching grandchildren for " + this.conceptDescriptionText, grandChildrenToProcess);
                Get.activeTasks().add(aggregateTask);
                Get.workExecutors().getPotentiallyBlockingExecutor().execute(aggregateTask);
             }
          }
       } catch (InterruptedException e) {
-         LOG.error("Unexpected error computing children and/or grandchildren", e);
+         LOG.error("Unexpected error computing children and/or grandchildren for " + this.conceptDescriptionText, e);
       } finally {
          childLoadComplete();
       }

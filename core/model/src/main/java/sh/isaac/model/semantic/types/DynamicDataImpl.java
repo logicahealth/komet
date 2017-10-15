@@ -119,7 +119,7 @@ public abstract class DynamicDataImpl
                      throw new RuntimeException(
                          "An implementation of DynamicSememeUtility is not available on the classpath");
                   } else {
-                     this.nameCache = ls.readDynamicSememeUsageDescription(assemblageSequence)
+                     this.nameCache = ls.readDynamicUsageDescription(assemblageSequence)
                                          .getColumnInfo()[columnNumber]
                                          .getColumnName();
                   }
@@ -138,7 +138,7 @@ public abstract class DynamicDataImpl
     */
    @Override
    public String dataToString() {
-      switch (this.getDynamicSememeDataType()) {
+      switch (this.getDynamicDataType()) {
       case BOOLEAN:
       case DOUBLE:
       case FLOAT:
@@ -224,7 +224,7 @@ public abstract class DynamicDataImpl
     */
    @Override
    public String toString() {
-      return "(" + getDynamicSememeDataType().name() + " - " + getName() + " - " + getDataObject() + ")";
+      return "(" + getDynamicDataType().name() + " - " + getName() + " - " + getDataObject() + ")";
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -247,7 +247,7 @@ public abstract class DynamicDataImpl
     * @see sh.isaac.api.component.sememe.version.dynamicSememe.DynamicSememeData#getDynamicSememeDataType()
     */
    @Override
-   public DynamicDataType getDynamicSememeDataType() {
+   public DynamicDataType getDynamicDataType() {
       return DynamicDataType.classToType(this.getClass());
    }
 

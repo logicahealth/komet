@@ -231,7 +231,7 @@ public class ConceptSuite {
                .writeConcept((ConceptChronology) obj);
          } else if (obj instanceof SemanticChronologyImpl) {
             Get.assemblageService()
-               .writeSemantic((SemanticChronology) obj);
+               .writeSemanticChronology((SemanticChronology) obj);
          } else {
             throw new UnsupportedOperationException("ag Can't handle: " + obj);
          }

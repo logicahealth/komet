@@ -178,7 +178,7 @@ public enum DynamicValidatorType {
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new dynamic sememe validator type.
+    * Instantiates a new dynamic validator type.
     *
     * @param displayName the display name
     */
@@ -193,7 +193,7 @@ public enum DynamicValidatorType {
     *
     * @param nameOrEnumId the name or enum id
     * @param exceptionOnParseFail the exception on parse fail
-    * @return the dynamic sememe validator type
+    * @return the dynamic validator type
     */
    public static DynamicValidatorType parse(String nameOrEnumId, boolean exceptionOnParseFail) {
       if (nameOrEnumId == null) {
@@ -233,7 +233,7 @@ public enum DynamicValidatorType {
     *
     * @param nameOrEnumId the name or enum id
     * @param exceptionOnParseFail the exception on parse fail
-    * @return the dynamic sememe validator type[]
+    * @return the dynamic validator type[]
     */
    public static DynamicValidatorType[] parse(String[] nameOrEnumId, boolean exceptionOnParseFail) {
       if (nameOrEnumId == null) {
@@ -413,14 +413,14 @@ public enum DynamicValidatorType {
             }
 
             if ((expectedCT == ObjectChronologyType.SEMANTIC) && (valData.length == 2)) {
-               // they specified a specific sememe type.  Verify.
+               // they specified a specific type.  Verify.
                final VersionType st = VersionType.parse(valData[1].getDataString(), false);
-               final SemanticChronology sememe = Get.assemblageService()
-                                                                              .getSememe(nid);
+               final SemanticChronology semanticChronology = Get.assemblageService()
+                                                                              .getSemanticChronology(nid);
 
-               if (sememe.getVersionType() != st) {
+               if (semanticChronology.getVersionType() != st) {
                   throw new RuntimeException("The specified component must be of type " + st.toString() + ", not " +
-                                             sememe.getVersionType().toString());
+                                             semanticChronology.getVersionType().toString());
                }
             }
 

@@ -96,7 +96,7 @@ public class DynamicSememeDoubleTest {
       assertEquals(value, (Double) l.getDataObject(), 0);
       assertEquals(value, (Double) l.getDataObjectProperty()
                                     .get(), 0);
-      assertEquals(l.getDynamicSememeDataType(), DynamicDataType.DOUBLE);
+      assertEquals(l.getDynamicDataType(), DynamicDataType.DOUBLE);
    }
 }
 

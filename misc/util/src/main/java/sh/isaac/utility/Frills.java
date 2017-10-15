@@ -318,7 +318,7 @@ public class Frills
 
          {
 
-            // Set up the dynamic sememe 'special' definition
+            // Set up the dynamic 'special' definition
             definitionBuilder = descriptionBuilderService.getDescriptionBuilder(
                 sememeDescription,
                 builder,
@@ -346,7 +346,7 @@ public class Frills
 
             for (final DynamicColumnInfo ci: sortedColumns) {
                final DynamicData[] data = LookupService.getService(DynamicUtility.class)
-                                                             .configureDynamicSememeDefinitionDataForColumn(ci);
+                                                             .configureDynamicDefinitionDataForColumn(ci);
 
                Get.semanticBuilderService()
                   .getDynamicBuilder(newCon.getNid(),
@@ -359,7 +359,7 @@ public class Frills
          }
 
          final DynamicData[] data = LookupService.getService(DynamicUtility.class)
-                                                       .configureDynamicSememeRestrictionData(
+                                                       .configureDynamicRestrictionData(
                                                              referencedComponentRestriction,
                                                                    referencedComponentSubRestriction);
 
@@ -375,7 +375,7 @@ public class Frills
 
          return newCon;
       } catch (final IllegalStateException e) {
-         throw new RuntimeException("Creation of Dynamic Sememe Failed!", e);
+         throw new RuntimeException("Creation of dynamic Failed!", e);
       }
    }
 
@@ -417,7 +417,7 @@ public class Frills
 
       try {
          Get.commitService()
-            .commit(Get.configurationService().getDefaultEditCoordinate(), "creating new dynamic sememe column: " + columnName)
+            .commit(Get.configurationService().getDefaultEditCoordinate(), "creating new dynamic column: " + columnName)
             .get();
          return newCon;
       } catch (InterruptedException | ExecutionException e) {
@@ -432,7 +432,7 @@ public class Frills
    /**
     * See {@link DynamicUsageDescription} for the full details on what this builds.
     *
-    * Does all the work to create a new concept that is suitable for use as an Assemblage Concept for a new style Dynamic Sememe.
+    * Does all the work to create a new concept that is suitable for use as an Assemblage Concept for a new style dynamic element.
     *
     * The concept will be created under the concept {@link DynamicConstants#DYNAMIC_ASSEMBLAGES} if a parent is not specified
     *
@@ -471,12 +471,12 @@ public class Frills
 
       try {
          Get.commitService()
-            .commit(Get.configurationService().getDefaultEditCoordinate(), "creating new dynamic sememe assemblage (DynamicSememeUsageDescription): NID=" +
+            .commit(Get.configurationService().getDefaultEditCoordinate(), "creating new dynamic assemblage (DynamicSememeUsageDescription): NID=" +
                 newDynamicSememeUsageDescriptionConcept.getNid() + ", FQN=" + sememeFQN + ", PT=" +
                 sememePreferredTerm + ", DESC=" + sememeDescription)
             .get();
       } catch (InterruptedException | ExecutionException e) {
-         throw new RuntimeException("Commit of Dynamic Sememe Failed!", e);
+         throw new RuntimeException("Commit of dynamic Failed!", e);
       }
 
       return new DynamicUsageDescriptionImpl(newDynamicSememeUsageDescriptionConcept.getNid());
@@ -496,7 +496,7 @@ public class Frills
       final boolean temp = Get.assemblageService()
                               .getSemanticChronologyForComponentFromAssemblage(Get.identifierService()
                                      .getConceptNid(conceptSequence),
-                                  DynamicConstants.get().DYNAMIC_ASSOCIATION_SEMEME
+                                  DynamicConstants.get().DYNAMIC_ASSOCIATION
                                         .getConceptSequence())
                               .anyMatch(sememe -> true);
 
@@ -505,7 +505,7 @@ public class Frills
    }
 
    /**
-    * Defines dynamic sememe.
+    * Defines dynamic element.
     *
     * @param conceptSequence the concept sequence
     * @return true, if successful
@@ -599,7 +599,7 @@ public class Frills
    }
 
    /**
-    * Read dynamic sememe column name description.
+    * Read dynamic column name description.
     *
     * @param columnDescriptionConcept the column description concept
     * @return the string[]
@@ -871,7 +871,7 @@ public class Frills
 
                       if (data.length > 0) {
                          LOG.warn(
-                             "Found multiple (" + data.length + ") dynamic sememe data fields in sememe " +
+                             "Found multiple (" + data.length + ") dynamic data fields in sememe " +
                              latestSememe.get().getNid() + " of assemblage type " + assemblageConceptUuid +
                              " on component " + Get.identifierService().getUuidPrimordialForNid(
                                  componentNid));
@@ -1422,7 +1422,7 @@ public class Frills
 
          if (result.size() > 0) {
             return Optional.of(Get.assemblageService()
-                                  .getSememe(result.get(0)
+                                  .getSemanticChronology(result.get(0)
                                         .getNid())
                                   .getReferencedComponentNid());
          }
@@ -1454,7 +1454,7 @@ public class Frills
 
          if (result.size() > 0) {
             return Optional.of(Get.assemblageService()
-                                  .getSememe(result.get(0)
+                                  .getSemanticChronology(result.get(0)
                                         .getNid())
                                   .getReferencedComponentNid());
          }

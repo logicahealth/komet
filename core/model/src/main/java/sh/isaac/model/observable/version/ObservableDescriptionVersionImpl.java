@@ -69,7 +69,7 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
  * @author kec
  */
 public class ObservableDescriptionVersionImpl
-        extends ObservableSememeVersionImpl
+        extends ObservableSemanticVersionImpl
          implements ObservableDescriptionVersion {
    /**
     * The case significance concept sequence property.

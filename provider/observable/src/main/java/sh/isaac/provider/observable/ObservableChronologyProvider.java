@@ -66,7 +66,7 @@ import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.observable.ObservableConceptChronologyImpl;
-import sh.isaac.model.observable.ObservableSememeChronologyImpl;
+import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
 import sh.isaac.model.observable.ObservableSememeChronologyWeakRefImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
@@ -200,7 +200,7 @@ public class ObservableChronologyProvider
       commitRecord.getSemanticSequencesInCommit().stream().forEach((sememeSequence) -> {
          int nid = identifierService.getSemanticNid(sememeSequence);
          if (this.observableSememeMap.containsKey(nid)) {
-            handleChange(Get.assemblageService().getSememe(nid));
+            handleChange(Get.assemblageService().getSemanticChronology(nid));
          }
       });
       LOG.info("ObservableChronologyProvider handled commit");
@@ -334,8 +334,8 @@ public class ObservableChronologyProvider
             return observableSememeChronology;
          }
 
-         SemanticChronology sememeChronology = Get.assemblageService().getSememe(id);
-         observableSememeChronology = new ObservableSememeChronologyImpl(sememeChronology);
+         SemanticChronology sememeChronology = Get.assemblageService().getSemanticChronology(id);
+         observableSememeChronology = new ObservableSemanticChronologyImpl(sememeChronology);
          return observableSememeMap.putIfAbsentReturnCurrentValue(id, observableSememeChronology);
       }
 

@@ -436,7 +436,7 @@ public abstract class BadgedVersionPanel
 
                   case SEMANTIC:
                      SemanticChronology sc = Get.assemblageService()
-                             .getSememe(nid);
+                             .getSemanticChronology(nid);
 
                      componentText.setText(
                              getManifold().getPreferredDescriptionText(

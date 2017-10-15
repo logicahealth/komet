@@ -206,7 +206,7 @@ public class TreeTableGeneralCell
 
                case SEMANTIC:
                   SemanticChronology sememe = Get.assemblageService()
-                          .getSememe(componentNidVersion.getComponentNid());
+                          .getSemanticChronology(componentNidVersion.getComponentNid());
                   LatestVersion<SemanticVersion> latest = sememe.getLatestVersion(manifold);
 
                   if (latest.isPresent()) {

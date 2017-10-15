@@ -595,7 +595,7 @@ public class CommitProvider
             this.uncommittedSemanticsWithChecksSequenceSet.remove(sememeChronology.getSemanticSequence());
             this.uncommittedSemanticsNoChecksSequenceSet.remove(sememeChronology.getSemanticSequence());
             Get.assemblageService()
-                    .writeSemantic(sememeChronology);
+                    .writeSemanticChronology(sememeChronology);
          }
 
          commitRecord = new CommitRecord(Instant.ofEpochMilli(commitTime),
@@ -646,7 +646,7 @@ public class CommitProvider
             final SemanticChronology sememeChronology = (SemanticChronology) ochreExternalizable;
 
             Get.assemblageService()
-                    .writeSemantic(sememeChronology);
+                    .writeSemanticChronology(sememeChronology);
 
             if (sememeChronology.getVersionType() == VersionType.LOGIC_GRAPH) {
                deferNidAction(sememeChronology.getNid());
@@ -696,7 +696,7 @@ public class CommitProvider
             if (ObjectChronologyType.SEMANTIC.equals(Get.identifierService()
                     .getChronologyTypeForNid(nid))) {
                final SemanticChronology sc = Get.assemblageService()
-                       .getSememe(nid);
+                       .getSemanticChronology(nid);
 
                if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
                   Get.taxonomyService()

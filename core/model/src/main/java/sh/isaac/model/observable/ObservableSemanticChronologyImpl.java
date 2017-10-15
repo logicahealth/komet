@@ -63,7 +63,7 @@ import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
 import sh.isaac.model.observable.version.ObservableLongVersionImpl;
-import sh.isaac.model.observable.version.ObservableSememeVersionImpl;
+import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
 import sh.isaac.model.observable.version.ObservableStringVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
@@ -72,20 +72,20 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 /**
- * The Class ObservableSememeChronologyImpl.
+ * The Class ObservableSemanticChronologyImpl.
  *
  * @author kec
  */
-public class ObservableSememeChronologyImpl
+public class ObservableSemanticChronologyImpl
         extends ObservableChronologyImpl
         implements ObservableSemanticChronology {
 
    private static final Logger LOG = LogManager.getLogger();
 
    /**
-    * The sememe sequence property.
+    * The sequence property.
     */
-   private IntegerProperty sememeSequenceProperty;
+   private IntegerProperty semanticSequenceProperty;
 
    /**
     * The assemblage sequence property.
@@ -103,11 +103,11 @@ public class ObservableSememeChronologyImpl
     *
     * @param chronicledObjectLocal the chronicled object local
     */
-   public ObservableSememeChronologyImpl(SemanticChronology chronicledObjectLocal) {
+   public ObservableSemanticChronologyImpl(SemanticChronology chronicledObjectLocal) {
       super(chronicledObjectLocal);
    }
 
-   protected SemanticChronology getSememeChronology() {
+   protected SemanticChronology getSemanticChronology() {
       return (SemanticChronology) this.chronicledObjectLocal;
    }
    //~--- methods -------------------------------------------------------------
@@ -136,7 +136,7 @@ public class ObservableSememeChronologyImpl
     */
    @Override
    public <V extends Version> V createMutableVersion(int stampSequence) {
-      return (V) wrapInObservable(getSememeChronology().createMutableVersion(stampSequence));
+      return (V) wrapInObservable(getSemanticChronology().createMutableVersion(stampSequence));
    }
 
    /**
@@ -148,7 +148,7 @@ public class ObservableSememeChronologyImpl
     */
    @Override
    public <V extends Version> V createMutableVersion(State status, EditCoordinate ec) {
-      return (V) wrapInObservable(getSememeChronology().createMutableVersion(status, ec));
+      return (V) wrapInObservable(getSemanticChronology().createMutableVersion(status, ec));
    }
 
    /**
@@ -173,14 +173,14 @@ public class ObservableSememeChronologyImpl
     * @return the integer property
     */
    @Override
-   public IntegerProperty sememeSequenceProperty() {
-      if (this.sememeSequenceProperty == null) {
-         this.sememeSequenceProperty = new CommitAwareIntegerProperty(this,
+   public IntegerProperty semanticSequenceProperty() {
+      if (this.semanticSequenceProperty == null) {
+         this.semanticSequenceProperty = new CommitAwareIntegerProperty(this,
                  ObservableFields.SEMEME_SEQUENCE_FOR_CHRONICLE.toExternalString(),
                  getSemanticSequence());
       }
 
-      return this.sememeSequenceProperty;
+      return this.semanticSequenceProperty;
    }
 
    @Override
@@ -195,7 +195,7 @@ public class ObservableSememeChronologyImpl
             return (OV) new ObservableComponentNidVersionImpl((ComponentNidVersion) sememeVersion,
                     (ObservableSemanticChronology) this);
          case MEMBER:
-            return (OV) new ObservableSememeVersionImpl(sememeVersion,
+            return (OV) new ObservableSemanticVersionImpl(sememeVersion,
                     (ObservableSemanticChronology) this);
          case LONG:
             return (OV) new ObservableLongVersionImpl((LongVersion) sememeVersion,
@@ -207,9 +207,9 @@ public class ObservableSememeChronologyImpl
             return (OV) new ObservableLogicGraphVersionImpl((LogicGraphVersion) sememeVersion,
                     (ObservableSemanticChronology) this);
          case DYNAMIC:
-            LOG.warn("Incomplete implementation of dynamic sememe: " + 
+            LOG.warn("Incomplete implementation of sememe: " + 
                     sememeVersion.getClass().getSimpleName() + " " + sememeVersion);
-            return (OV) new ObservableSememeVersionImpl(sememeVersion,
+            return (OV) new ObservableSemanticVersionImpl(sememeVersion,
                     (ObservableSemanticChronology) this);
             
            // fall through to default...
@@ -234,7 +234,7 @@ public class ObservableSememeChronologyImpl
          return this.assemblageSequenceProperty.get();
       }
 
-      return getSememeChronology().getAssemblageSequence();
+      return getSemanticChronology().getAssemblageSequence();
    }
 
    /**
@@ -266,21 +266,21 @@ public class ObservableSememeChronologyImpl
          return this.referencedComponentNidProperty.get();
       }
 
-      return getSememeChronology().getReferencedComponentNid();
+      return getSemanticChronology().getReferencedComponentNid();
    }
 
    /**
-    * Gets the sememe sequence.
+    * Gets the sequence.
     *
-    * @return the sememe sequence
+    * @return the sequence
     */
    @Override
    public int getSemanticSequence() {
-      if (this.sememeSequenceProperty != null) {
-         return this.sememeSequenceProperty.get();
+      if (this.semanticSequenceProperty != null) {
+         return this.semanticSequenceProperty.get();
       }
 
-      return getSememeChronology().getSemanticSequence();
+      return getSemanticChronology().getSemanticSequence();
    }
 
    /**
@@ -290,7 +290,7 @@ public class ObservableSememeChronologyImpl
     */
    @Override
    public VersionType getVersionType() {
-      return getSememeChronology().getVersionType();
+      return getSemanticChronology().getVersionType();
    }
 
    /**
@@ -312,26 +312,26 @@ public class ObservableSememeChronologyImpl
 
    @Override
    public <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
-      return getSememeChronology().getLatestVersion(coordinate);
+      return getSemanticChronology().getLatestVersion(coordinate);
    }
 
    @Override
    public boolean isLatestVersionActive(StampCoordinate coordinate) {
-      return getSememeChronology().isLatestVersionActive(coordinate);
+      return getSemanticChronology().isLatestVersionActive(coordinate);
    }
 
    @Override
    public void putExternal(ByteArrayDataBuffer out) {
-      getSememeChronology().putExternal(out);
+      getSemanticChronology().putExternal(out);
    }
 
    @Override
    public IsaacObjectType getIsaacObjectType() {
-      return getSememeChronology().getIsaacObjectType();
+      return getSemanticChronology().getIsaacObjectType();
    }
 
    @Override
    public String toString() {
-      return "ObservableSememeChronologyImpl{" + getSememeChronology().toUserString() + '}';
+      return "ObservableSememeChronologyImpl{" + getSemanticChronology().toUserString() + '}';
    }
 }

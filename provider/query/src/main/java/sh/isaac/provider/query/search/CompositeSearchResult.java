@@ -333,7 +333,7 @@ public class CompositeSearchResult {
                return Optional.ofNullable(Get.defaultConceptSnapshotService().getConceptSnapshot(componentNid));
             case SEMANTIC:
                return locateContainingConcept(Get.assemblageService()
-                       .getSememe(componentNid)
+                       .getSemanticChronology(componentNid)
                        .getReferencedComponentNid());
             default:
                throw new RuntimeException("oops");

@@ -88,8 +88,8 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSemantic
    }
 
    @Override
-   public IntegerProperty sememeSequenceProperty() {
-      return getChronology().sememeSequenceProperty();
+   public IntegerProperty semanticSequenceProperty() {
+      return getChronology().semanticSequenceProperty();
    }
 
    @Override

@@ -97,33 +97,33 @@ public interface DynamicUtility {
     * Returns null, if no columns need indexing.
     *
     * @param columns the columns
-    * @return the dynamic sememe array
+    * @return the dynamic array
     */
    public DynamicArray<DynamicData> configureColumnIndexInfo(DynamicColumnInfo[] columns);
 
    /**
-    * Configure dynamic sememe definition data for column.
+    * Configure dynamic definition data for column.
     *
     * @param ci the ci
-    * @return the dynamic sememe data[]
+    * @return the dynamic data[]
     */
-   public DynamicData[] configureDynamicSememeDefinitionDataForColumn(DynamicColumnInfo ci);
+   public DynamicData[] configureDynamicDefinitionDataForColumn(DynamicColumnInfo ci);
 
    /**
-    * Configure dynamic sememe restriction data.
+    * Configure dynamic restriction data.
     *
     * @param referencedComponentRestriction the referenced component restriction
     * @param referencedComponentSubRestriction the referenced component sub restriction
-    * @return the dynamic sememe data[]
+    * @return the dynamic data[]
     */
-   public DynamicData[] configureDynamicSememeRestrictionData(ObjectChronologyType referencedComponentRestriction,
+   public DynamicData[] configureDynamicRestrictionData(ObjectChronologyType referencedComponentRestriction,
          VersionType referencedComponentSubRestriction);
 
    /**
     * Creates the dynamic string data.
     *
     * @param value the value
-    * @return the dynamic sememe string
+    * @return the dynamic string
     */
    public DynamicString createDynamicStringData(String value);
 
@@ -131,20 +131,20 @@ public interface DynamicUtility {
     * Creates the dynamic UUID data.
     *
     * @param value the value
-    * @return the dynamic sememe UUID
+    * @return the dynamic UUID
     */
    public DynamicUUID createDynamicUUIDData(UUID value);
 
    /**
-    * Convenience method to read all of the extended details of a DynamicSememeAssemblage.
+    * Convenience method to read all of the extended details of a DynamicAssemblage.
     *
     * @param assemblageNidOrSequence the assemblage nid or sequence
-    * @return the dynamic sememe usage description
+    * @return the dynamic usage description
     */
-   public DynamicUsageDescription readDynamicSememeUsageDescription(int assemblageNidOrSequence);
+   public DynamicUsageDescription readDynamicUsageDescription(int assemblageNidOrSequence);
 
    /**
-    * validate that the proposed dynamicSememeData aligns with the definition.  This also fills in default values,
+    * validate that the proposed dynamicData aligns with the definition.  This also fills in default values,
     * as necessary, if the data[] contains 'nulls' and the column is specified with a default value.
     *
     * @param dsud the dsud
@@ -176,14 +176,14 @@ public interface DynamicUtility {
          if ((requiredType == ObjectChronologyType.SEMANTIC) &&
                (dsud.getReferencedComponentTypeSubRestriction() != null) &&
                (dsud.getReferencedComponentTypeSubRestriction() != VersionType.UNKNOWN)) {
-            final VersionType requiredSememeType = dsud.getReferencedComponentTypeSubRestriction();
-            final VersionType foundSememeType    = Get.assemblageService()
-                                                     .getSememe(referencedComponentNid)
+            final VersionType requiredSemanticType = dsud.getReferencedComponentTypeSubRestriction();
+            final VersionType foundSemanticType    = Get.assemblageService()
+                                                     .getSemanticChronology(referencedComponentNid)
                                                      .getVersionType();
 
-            if (requiredSememeType != foundSememeType) {
-               throw new IllegalArgumentException("The referenced component must be a sememe of type " +
-                                                  requiredSememeType + ", but a " + foundSememeType + " was passed");
+            if (requiredSemanticType != foundSemanticType) {
+               throw new IllegalArgumentException("The referenced component must be of type " +
+                                                  requiredSemanticType + ", but a " + foundSemanticType + " was passed");
             }
          }
       }
@@ -197,7 +197,7 @@ public interface DynamicUtility {
          throw new IllegalArgumentException(
              "The Assemblage concept: " + dsud.getDynamicName() + " specifies " + dsud.getColumnInfo().length +
              " columns of data, while the provided data contains " + data.length +
-             " columns.  The data size array must not exeed the sememe definition." +
+             " columns.  The data size array must not exeed the definition." +
              " (the data column count may be less, if the missing columns are defined as optional)");
       }
 
@@ -247,9 +247,9 @@ public interface DynamicUtility {
 
             if ((data[dataColumn] != null) &&
                   (allowedDT != DynamicDataType.POLYMORPHIC) &&
-                  (data[dataColumn].getDynamicSememeDataType() != allowedDT)) {
+                  (data[dataColumn].getDynamicDataType() != allowedDT)) {
                throw new IllegalArgumentException("The supplied data for column " + dataColumn + " is of type " +
-                                                  data[dataColumn].getDynamicSememeDataType() +
+                                                  data[dataColumn].getDynamicDataType() +
                                                   " but the assemblage concept declares that it must be " + allowedDT);
             }
 
@@ -267,7 +267,7 @@ public interface DynamicUtility {
                            rethrow = true;
                            throw new IllegalArgumentException(
                                "The supplied data for column " + dataColumn +
-                               " does not pass the assigned validator(s) for this dynamic sememe.  Data: " +
+                               " does not pass the assigned validator(s) for this dynamic field.  Data: " +
                                data[dataColumn].dataToString() + " Validator: " + dsci.getValidator()[i].name() +
                                " Validator Data: " + dsci.getValidatorData()[i].dataToString());
                         }

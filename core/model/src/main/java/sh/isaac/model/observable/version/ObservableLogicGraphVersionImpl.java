@@ -68,7 +68,7 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
  * @author kec
  */
 public class ObservableLogicGraphVersionImpl
-        extends ObservableSememeVersionImpl
+        extends ObservableSemanticVersionImpl
          implements ObservableLogicGraphVersion {
    /** The graph property. */
    ObjectProperty<byte[][]> graphProperty;

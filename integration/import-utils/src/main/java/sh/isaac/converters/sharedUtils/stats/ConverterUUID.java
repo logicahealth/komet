@@ -99,7 +99,7 @@ public class ConverterUUID {
       DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION,
       DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION,
       DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION,
-      DynamicConstants.get().DYNAMIC_ASSOCIATION_SEMEME
+      DynamicConstants.get().DYNAMIC_ASSOCIATION
    };
 
    //~--- enums ---------------------------------------------------------------

@@ -93,7 +93,7 @@ public class DynamicSememeBooleanTest {
       assertEquals(value, i.getDataObject());
       assertEquals(value, i.getDataObjectProperty()
                            .get());
-      assertEquals(i.getDynamicSememeDataType(), DynamicDataType.BOOLEAN);
+      assertEquals(i.getDynamicDataType(), DynamicDataType.BOOLEAN);
    }
 }
 

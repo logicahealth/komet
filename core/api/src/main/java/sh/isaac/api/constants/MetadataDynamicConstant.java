@@ -56,10 +56,10 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
  */
 public class MetadataDynamicConstant
         extends MetadataConceptConstant {
-   /** The dynamic sememe description. */
+   /** The dynamic description. */
    private final String dynamicSememeDescription;
 
-   /** The dynamic sememe columns. */
+   /** The dynamic columns. */
    private final DynamicColumnInfo[] dynamicSememeColumns;
 
    /** The referenced component restriction. */
@@ -71,84 +71,84 @@ public class MetadataDynamicConstant
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new metadata dynamic sememe constant.
+    * Instantiates a new metadata dynamic constant.
     *
     * @param fqn the fully qualified name
     * @param uuid - optional - the UUID to assign to this sememe
-    * @param sememeDescription - describe the purpose of the use of this dynamic sememe
-    * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
+    * @param description - describe the purpose of the use of this dynamic element
+    * @param columns - The definitions of the attached data columns that are allowed  (may be empty)
     */
    public MetadataDynamicConstant(String fqn,
          UUID uuid,
-         String sememeDescription,
+         String description,
          DynamicColumnInfo[] columns) {
-      this(fqn, uuid, sememeDescription, columns, null, null, null, null);
+      this(fqn, uuid, description, columns, null, null, null, null);
    }
 
    /**
-    * Instantiates a new metadata dynamic sememe constant.
+    * Instantiates a new metadata dynamic constant.
     *
     * @param fqn the fully qualified name
     * @param uuid - optional - the UUID to assign to this sememe
-    * @param sememeDescription - describe the purpose of the use of this dynamic sememe
-    * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
+    * @param description - describe the purpose of the use of this dynamic element
+    * @param columns - The definitions of the attached data columns that are allowed (may be empty)
     * @param synonyms - optional - extra synonyms
     */
    public MetadataDynamicConstant(String fqn,
          UUID uuid,
-         String sememeDescription,
+         String description,
          DynamicColumnInfo[] columns,
          String[] synonyms) {
-      this(fqn, uuid, sememeDescription, columns, synonyms, null, null, null);
+      this(fqn, uuid, description, columns, synonyms, null, null, null);
    }
 
    /**
-    * Instantiates a new metadata dynamic sememe constant.
+    * Instantiates a new metadata dynamic constant.
     *
     * @param fqn the fully qualified name
     * @param uuid - optional - the UUID to assign to this sememe
     * @param alternateName - optional - the non-preferred synonym to add to this concept
-    * @param sememeDescription - describe the purpose of the use of this dynamic sememe
-    * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
+    * @param description - describe the purpose of the use of this dynamic element
+    * @param columns - The definitions of the attached data columns that are allowed on this dynamic (may be empty)
     */
    public MetadataDynamicConstant(String fqn,
          UUID uuid,
          String alternateName,
-         String sememeDescription,
+         String description,
          DynamicColumnInfo[] columns) {
-      this(fqn, uuid, sememeDescription, columns, new String[] { alternateName }, null, null, null);
+      this(fqn, uuid, description, columns, new String[] { alternateName }, null, null, null);
    }
 
    /**
-    * Instantiates a new metadata dynamic sememe constant.
+    * Instantiates a new metadata dynamic constant.
     *
     * @param fqn the Fully qualified name
     * @param uuid - optional - the UUID to assign to this sememe
-    * @param sememeDescription - describe the purpose of the use of this dynamic sememe
-    * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
+    * @param description - describe the purpose of the use of this dynamic element
+    * @param columns - The definitions of the attached data columns that are allowed on this dynamic (may be empty)
     * @param synonyms - optional - extra synonyms
     * @param definitions - optional - extra definitions
-    * @param requiresIndex - optional - used to specify that this particular DynamicSememe should always be indexed.  If null or empty - no indexing will
+    * @param requiresIndex - optional - used to specify that this particular DynamicDynamic should always be indexed.  If null or empty - no indexing will
     * be performed.  The Integer array should be something like "new Integer[]{0, 2, 3}" - where the 0 indexed values correspond to the columns that
     * should also be indexed.
     */
    public MetadataDynamicConstant(String fqn,
          UUID uuid,
-         String sememeDescription,
+         String description,
          DynamicColumnInfo[] columns,
          String[] synonyms,
          String[] definitions,
          Integer[] requiresIndex) {
-      this(fqn, uuid, sememeDescription, columns, synonyms, definitions, null, null);
+      this(fqn, uuid, description, columns, synonyms, definitions, null, null);
    }
 
    /**
-    * Instantiates a new metadata dynamic sememe constant.
+    * Instantiates a new metadata dynamic constant.
     *
     * @param fqn the fully qualified name
     * @param uuid - optional - the UUID to assign to this sememe
-    * @param sememeDescription - describe the purpose of the use of this dynamic sememe
-    * @param columns - The definitions of the attached data columns that are allowed on this sememe (may be empty)
+    * @param description - describe the purpose of the use of this dynamic element
+    * @param columns - The definitions of the attached data columns that are allowed on this dynamic (may be empty)
     * @param synonyms - optional - extra synonyms
     * @param definitions - optional - extra definitions
     * @param referencedComponentRestriction - optional - used to limit the type of nid that can be used as the referenced component in an instance
@@ -157,7 +157,7 @@ public class MetadataDynamicConstant
     */
    public MetadataDynamicConstant(String fqn,
          UUID uuid,
-         String sememeDescription,
+         String description,
          DynamicColumnInfo[] columns,
          String[] synonyms,
          String[] definitions,
@@ -177,7 +177,7 @@ public class MetadataDynamicConstant
          }
       }
 
-      this.dynamicSememeDescription          = sememeDescription;
+      this.dynamicSememeDescription          = description;
       this.dynamicSememeColumns              = columns;
       this.referencedComponentRestriction    = referencedComponentRestriction;
       this.referencedComponentSubRestriction = refererenceComponentSubRestriction;
@@ -186,7 +186,7 @@ public class MetadataDynamicConstant
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the dynamic sememe columns.
+    * Gets the dynamic columns.
     *
     * @return the sememeColumns
     */
@@ -197,7 +197,7 @@ public class MetadataDynamicConstant
    /**
     * Gets the referenced component sub type restriction.
     *
-    * @return The limit (if any) on which {@link VersionType} this dynamic sememe is restricted to.
+    * @return The limit (if any) on which {@link VersionType} this dynamic is restricted to.
     */
    public VersionType getReferencedComponentSubTypeRestriction() {
       return this.referencedComponentSubRestriction;
@@ -206,14 +206,14 @@ public class MetadataDynamicConstant
    /**
     * Gets the referenced component type restriction.
     *
-    * @return The limit (if any) on which {@link ObjectChronologyType} this DynamicSememe is restricted to.
+    * @return The limit (if any) on which {@link ObjectChronologyType} this DynamicDynamic is restricted to.
     */
    public ObjectChronologyType getReferencedComponentTypeRestriction() {
       return this.referencedComponentRestriction;
    }
 
    /**
-    * Gets the sememe assemblage description.
+    * Gets the dynamic assemblage description.
     *
     * @return the dynamicSememeDescription_
     */

@@ -97,9 +97,9 @@ public class DynamicSememeArrayTest {
       assertEquals(Integer.MAX_VALUE,
                    ((DynamicIntegerImpl[]) testOne.getDataObjectProperty()
                          .get())[2].getDataInteger());
-      assertEquals(testOne.getDynamicSememeDataType(), DynamicDataType.ARRAY);
+      assertEquals(testOne.getDynamicDataType(), DynamicDataType.ARRAY);
       assertEquals(testOne.getDataArray()[0]
-                          .getDynamicSememeDataType(), DynamicDataType.INTEGER);
+                          .getDynamicDataType(), DynamicDataType.INTEGER);
    }
 
    /**
@@ -128,9 +128,9 @@ public class DynamicSememeArrayTest {
             .get())[0].getDataString());
       assertEquals("bye", ((DynamicStringImpl[]) testTwo.getDataObjectProperty()
             .get())[1].getDataString());
-      assertEquals(testTwo.getDynamicSememeDataType(), DynamicDataType.ARRAY);
+      assertEquals(testTwo.getDynamicDataType(), DynamicDataType.ARRAY);
       assertEquals(testTwo.getDataArray()[0]
-                          .getDynamicSememeDataType(), DynamicDataType.STRING);
+                          .getDynamicDataType(), DynamicDataType.STRING);
    }
 }
 

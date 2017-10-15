@@ -311,7 +311,7 @@ public abstract class LuceneIndexer
 
                commitRecord.getSemanticSequencesInCommit().stream().forEach(sememeId -> {
                                        final SemanticChronology sc = Get.assemblageService()
-                                                                         .getSememe(sememeId);
+                                                                         .getSemanticChronology(sememeId);
 
                                        index(sc);
                                     });

@@ -66,7 +66,7 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
  * @author kec
  */
 public class ObservableLongVersionImpl
-        extends ObservableSememeVersionImpl
+        extends ObservableSemanticVersionImpl
          implements ObservableLongVersion {
    /** The long property. */
    LongProperty longProperty;

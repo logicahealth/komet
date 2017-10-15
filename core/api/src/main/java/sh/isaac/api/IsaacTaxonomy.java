@@ -216,7 +216,7 @@ public class IsaacTaxonomy {
             if (dsc.getDynamicSememeColumns() != null) {
                for (final DynamicColumnInfo col : dsc.getDynamicSememeColumns()) {
                   final DynamicData[] colData = LookupService.getService(DynamicUtility.class)
-                          .configureDynamicSememeDefinitionDataForColumn(col);
+                          .configureDynamicDefinitionDataForColumn(col);
 
                   sb = Get.semanticBuilderService()
                           .getDynamicBuilder(cb,
@@ -228,7 +228,7 @@ public class IsaacTaxonomy {
             }
 
             final DynamicData[] data = LookupService.getService(DynamicUtility.class)
-                    .configureDynamicSememeRestrictionData(
+                    .configureDynamicRestrictionData(
                             dsc.getReferencedComponentTypeRestriction(),
                             dsc.getReferencedComponentSubTypeRestriction());
 
@@ -597,7 +597,7 @@ public class IsaacTaxonomy {
             conceptService.writeConcept(
                     (ConceptChronology) builtObject);
          } else if (builtObject instanceof SemanticChronology) {
-            assemblageService.writeSemantic((SemanticChronology) builtObject);
+            assemblageService.writeSemanticChronology((SemanticChronology) builtObject);
          } else {
             throw new UnsupportedOperationException("b Can't handle: " + builtObject);
          }

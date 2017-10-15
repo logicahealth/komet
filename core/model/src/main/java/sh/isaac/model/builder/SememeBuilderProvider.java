@@ -153,11 +153,11 @@ public class SememeBuilderProvider<C extends SemanticChronology>
    }
 
    /**
-    * Gets the dynamic sememe builder.
+    * Gets the dynamic builder.
     *
     * @param referencedComponent the referenced component
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the dynamic sememe builder
+    * @return the dynamic builder
     */
    @Override
    public SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(
@@ -167,11 +167,11 @@ public class SememeBuilderProvider<C extends SemanticChronology>
    }
 
    /**
-    * Gets the dynamic sememe builder.
+    * Gets the dynamic builder.
     *
     * @param referencedComponentNid the referenced component nid
     * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the dynamic sememe builder
+    * @return the dynamic builder
     */
    @Override
    public SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(
@@ -181,12 +181,12 @@ public class SememeBuilderProvider<C extends SemanticChronology>
    }
 
    /**
-    * Gets the dynamic sememe builder.
+    * Gets the dynamic builder.
     *
     * @param referencedComponent the referenced component
     * @param assemblageConceptSequence the assemblage concept sequence
     * @param data the data
-    * @return the dynamic sememe builder
+    * @return the dynamic builder
     */
    @Override
    public SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(
@@ -203,12 +203,12 @@ public class SememeBuilderProvider<C extends SemanticChronology>
    }
 
    /**
-    * Gets the dynamic sememe builder.
+    * Gets the dynamic builder.
     *
     * @param referencedComponentNid the referenced component nid
     * @param assemblageConceptSequence the assemblage concept sequence
     * @param data the data
-    * @return the dynamic sememe builder
+    * @return the dynamic builder
     */
    @Override
    public SemanticBuilder<? extends SemanticChronology> getDynamicBuilder(

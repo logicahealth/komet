@@ -283,7 +283,7 @@ public class LoadTermstore
                                           .forEach(
                                               (sememeSequence) -> listToMerge.add(
                                                   getLatestLogicalExpression(Get.assemblageService()
-                                                        .getSememe(sememeSequence))));
+                                                        .getSemanticChronology(sememeSequence))));
                                  getLog().info("Duplicates: " + listToMerge);
 
                                  if (listToMerge.size() > 2) {
@@ -298,7 +298,7 @@ public class LoadTermstore
                                  getLog().info("Isomorphic results: " + isomorphicResults);
 
                                  final SemanticChronology existingChronology = Get.assemblageService()
-                                                                                .getSememe(sequences.findFirst()
+                                                                                .getSemanticChronology(sequences.findFirst()
                                                                                       .getAsInt());
                                  final ConceptProxy moduleProxy = new ConceptProxy("SOLOR overlay module",
                                                                                    "9ecc154c-e490-5cf8-805d-d2865d62aef3");
@@ -332,7 +332,7 @@ public class LoadTermstore
                                  (!this.activeOnly ||
                                   (isActive(sc) &&!this.skippedItems.contains(sc.getReferencedComponentNid())))) {
                               Get.assemblageService()
-                                 .writeSemantic(sc);
+                                 .writeSemanticChronology(sc);
 
                               if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
                                  deferredActionNids.add(sc.getNid());
@@ -421,7 +421,7 @@ public class LoadTermstore
             if (ObjectChronologyType.SEMANTIC.equals(Get.identifierService()
                   .getChronologyTypeForNid(nid))) {
                final SemanticChronology sc = Get.assemblageService()
-                                              .getSememe(nid);
+                                              .getSemanticChronology(nid);
 
                if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
                   Get.taxonomyService()

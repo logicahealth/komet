@@ -117,7 +117,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  * 
  * TODO much of this functionality has been replaced by the single assemblage indexer. 
- * Need to see what aspects of the dynamic sememe data types need to be migrated. 
+ * Need to see what aspects of the Dynamic data types need to be migrated. 
  */
 //@Service(name = "sememe indexer")
 //@RunLevel(value = 2)
@@ -570,7 +570,7 @@ public class SemanticIndexer
                                     Store.NO));
          }
 
-         incrementIndexedItemCount("Dynamic Sememe Boolean");
+         incrementIndexedItemCount("Dynamic Boolean");
       } else if (dataCol instanceof DynamicByteArray) {
          LOG.warn("Sememe Indexer configured to index a field that isn''t indexable (byte array)");
       } else if (dataCol instanceof DynamicDouble) {
@@ -581,7 +581,7 @@ public class SemanticIndexer
                                     ((DynamicDouble) dataCol).getDataDouble()));
          }
 
-         incrementIndexedItemCount("Dynamic Sememe Double");
+         incrementIndexedItemCount("Dynamic Double");
       } else if (dataCol instanceof DynamicFloat) {
          doc.add(new FloatPoint(COLUMN_FIELD_DATA, ((DynamicFloat) dataCol).getDataFloat()));
 
@@ -590,7 +590,7 @@ public class SemanticIndexer
                                    ((DynamicFloat) dataCol).getDataFloat()));
          }
 
-         incrementIndexedItemCount("Dynamic Sememe Float");
+         incrementIndexedItemCount("Dynamic Float");
       } else if (dataCol instanceof DynamicInteger) {
          doc.add(new IntPoint(COLUMN_FIELD_DATA, ((DynamicInteger) dataCol).getDataInteger()));
 
@@ -599,7 +599,7 @@ public class SemanticIndexer
                                  ((DynamicInteger) dataCol).getDataInteger()));
          }
 
-         incrementIndexedItemCount("Dynamic Sememe Integer");
+         incrementIndexedItemCount("Dynamic Integer");
       } else if (dataCol instanceof DynamicSequence) {
          doc.add(new IntPoint(COLUMN_FIELD_DATA, ((DynamicSequence) dataCol).getDataSequence()));
 
@@ -608,7 +608,7 @@ public class SemanticIndexer
                                  ((DynamicSequence) dataCol).getDataSequence()));
          }
 
-         incrementIndexedItemCount("Dynamic Sememe Sequence");
+         incrementIndexedItemCount("Dynamic Sequence");
       } else if (dataCol instanceof DynamicLong) {
          doc.add(new LongPoint(COLUMN_FIELD_DATA, ((DynamicLong) dataCol).getDataLong()));
 
@@ -617,7 +617,7 @@ public class SemanticIndexer
                                   ((DynamicLong) dataCol).getDataLong()));
          }
 
-         incrementIndexedItemCount("Dynamic Sememe Long");
+         incrementIndexedItemCount("Dynamic Long");
       } else if (dataCol instanceof DynamicNid) {
          // No need for ranges on a nid, no need for tokenization (so textField, instead of string field).
          doc.add(new StringField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
@@ -630,7 +630,7 @@ public class SemanticIndexer
                                     Store.NO));
          }
 
-         incrementIndexedItemCount("Dynamic Sememe Nid");
+         incrementIndexedItemCount("Dynamic Nid");
       } else if (dataCol instanceof DynamicPolymorphic) {
          LOG.error("This should have been impossible (polymorphic?)");
       } else if (dataCol instanceof DynamicString) {
@@ -653,7 +653,7 @@ public class SemanticIndexer
                                   Store.NO));
          }
 
-         incrementIndexedItemCount("Dynamic Sememe String");
+         incrementIndexedItemCount("Dynamic String");
       } else if (dataCol instanceof DynamicUUID) {
          // Use the whitespace analyzer on UUIDs
          doc.add(new StringField(COLUMN_FIELD_DATA + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER,
@@ -666,7 +666,7 @@ public class SemanticIndexer
                                     Store.NO));
          }
 
-         incrementIndexedItemCount("Dynamic Sememe UUID");
+         incrementIndexedItemCount("Dynamic UUID");
       } else if (dataCol instanceof DynamicArray) {
          for (final DynamicData nestedData: ((DynamicArray) dataCol).getDataArray()) {
             handleType(doc, nestedData, colNumber);
@@ -716,7 +716,7 @@ public class SemanticIndexer
                (sememeIndexedColumns == null) ||
                (sememeIndexedColumns.length < 2)) {
             return buildQuery(COLUMN_FIELD_DATA);
-         } else  // If they passed a specific column to search AND the dynamic sememe type has more than 1 indexed column, then do a column specific search.
+         } else  // If they passed a specific column to search AND the Dynamic type has more than 1 indexed column, then do a column specific search.
          {
             final BooleanQuery.Builder group = new BooleanQuery.Builder();
 

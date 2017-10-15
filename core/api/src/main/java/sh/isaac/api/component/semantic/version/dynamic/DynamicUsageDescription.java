@@ -64,7 +64,7 @@ import sh.isaac.api.constants.DynamicConstants;
  * <li>The int value is used to align the column order with the data array here.  The column number should be 0 indexed.
  * <li>The UUID is a concept reference where the concept should have a preferred semantic name / FQN that is
  *       suitable for the name of the DynamicSememe data column, and a description suitable for use as the description of the
- *       Dynamic Sememe data column.  Note, while any concept can be used here, and there are no specific requirements for this
+ *       Dynamic data column.  Note, while any concept can be used here, and there are no specific requirements for this
  *       concept - there is a convenience method for creating one of these concepts in
  *       {@link DynamicColumnInfo#createNewDynamicSememeColumnInfoConcept(String, String, org.ihtsdo.otf.tcc.api.coordinate.EditCoordinate, org.ihtsdo.otf.tcc.api.coordinate.ViewCoordinate)}
  * <li>A string column which can be parsed as a member of the {@link DynamicSememeDataType} class, which represents
@@ -118,7 +118,7 @@ public interface DynamicUsageDescription {
    /**
     * Gets the dynamic usage description.
     *
-    * @return A user-friendly description of the overall purpose of this Dynamic Sememe.
+    * @return A user-friendly description of the overall purpose of this Dynamic use.
     */
    public String getDynamicUsageDescription();
 

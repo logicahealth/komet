@@ -95,7 +95,7 @@ public class DynamicSememeNidTest {
       assertEquals(value, ((Integer) i.getDataObject()).intValue());
       assertEquals(value, ((Integer) i.getDataObjectProperty()
                                       .get()).intValue());
-      assertEquals(i.getDynamicSememeDataType(), DynamicDataType.NID);
+      assertEquals(i.getDynamicDataType(), DynamicDataType.NID);
    }
 }
 

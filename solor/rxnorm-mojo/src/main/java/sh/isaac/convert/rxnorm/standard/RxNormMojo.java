@@ -1903,7 +1903,7 @@ public class RxNormMojo
          .forEach(sememe -> {
                 @SuppressWarnings({ "unchecked", "rawtypes" })
                 final LatestVersion<StringVersion> lv = ((SemanticChronology) Get.assemblageService()
-                                                                              .getSememe(
+                                                                              .getSemanticChronology(
                                                                                     sememe)).getLatestVersion(StampCoordinates.getDevelopmentLatest());
                 final StringVersion ss    = lv.get();
                 final Long         sctId = Long.parseLong(ss.getString());

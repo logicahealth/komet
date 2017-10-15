@@ -302,7 +302,7 @@ public class SemanticIndexerConfiguration {
    }
 
    /**
-    * Read the indexing configuration for the specified dynamic sememe.
+    * Read the indexing configuration for the specified dynamic element.
     *
     * Returns null, if the assemblage is not indexed at all.  Returns an empty array, if the assemblage is indexed (but no columns are indexed)
     * Returns an integer array of the column positions of the refex that are indexed, if any.
@@ -344,7 +344,7 @@ public class SemanticIndexerConfiguration {
     * Find current index config refex.
     *
     * @param indexedSememeId the indexed id
-    * @return the dynamic sememe<? extends dynamic sememe>
+    * @return the dynamic element<? extends dynamic element>
     * @throws RuntimeException the runtime exception
     */
    private static DynamicVersion<? extends DynamicVersion> findCurrentIndexConfigRefex(int indexedSememeId)
@@ -380,7 +380,7 @@ public class SemanticIndexerConfiguration {
             this.readNeededBlock.acquireUninterruptibly();
 
             if (this.readNeeded.get() > 0) {
-               LOG.debug("Reading Dynamic Sememe Index Configuration");
+               LOG.debug("Reading dynamic element Index Configuration");
 
                try {
                   final HashMap<Integer, Integer[]> updatedWhatToIndex = new HashMap<>();
@@ -426,7 +426,7 @@ public class SemanticIndexerConfiguration {
                   this.readNeeded.decrementAndGet();
                } catch (final Exception e) {
                   LOG.error(
-                      "Unexpected error reading Dynamic Sememe Index Configuration - generated index will be incomplete!",
+                      "Unexpected error reading dynamic element Index Configuration - generated index will be incomplete!",
                       e);
                }
             }

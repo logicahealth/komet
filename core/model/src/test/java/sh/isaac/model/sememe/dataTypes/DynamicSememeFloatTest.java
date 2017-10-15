@@ -96,7 +96,7 @@ public class DynamicSememeFloatTest {
       assertEquals(value, (Float) l.getDataObject(), 0);
       assertEquals(value, (Float) l.getDataObjectProperty()
                                    .get(), 0);
-      assertEquals(l.getDynamicSememeDataType(), DynamicDataType.FLOAT);
+      assertEquals(l.getDynamicDataType(), DynamicDataType.FLOAT);
    }
 }
 

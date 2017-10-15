@@ -95,7 +95,7 @@ public class DynamicSememeIntegerTest {
       assertEquals(value, ((Integer) i.getDataObject()).intValue());
       assertEquals(value, ((Integer) i.getDataObjectProperty()
                                       .get()).intValue());
-      assertEquals(i.getDynamicSememeDataType(), DynamicDataType.INTEGER);
+      assertEquals(i.getDynamicDataType(), DynamicDataType.INTEGER);
    }
 }
 

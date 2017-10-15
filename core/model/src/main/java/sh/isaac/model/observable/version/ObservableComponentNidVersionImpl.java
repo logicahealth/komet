@@ -35,7 +35,7 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
  * @author kec
  */
 public class ObservableComponentNidVersionImpl 
-        extends ObservableSememeVersionImpl 
+        extends ObservableSemanticVersionImpl 
         implements ObservableComponentNidVersion {
    /** The component nid property. */
    IntegerProperty componentNidProperty;

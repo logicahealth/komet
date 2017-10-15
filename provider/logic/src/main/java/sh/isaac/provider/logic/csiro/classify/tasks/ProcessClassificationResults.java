@@ -227,7 +227,7 @@ public class ProcessClassificationResults
                     .append("\n");
             statedSememeSequences.stream().forEach((sememeSequence) -> {
                builder.append("Found stated definition: ")
-                       .append(sememeService.getSememe(sememeSequence))
+                       .append(sememeService.getSemanticChronology(sememeSequence))
                        .append("\n");
             });
          }
@@ -271,9 +271,9 @@ public class ProcessClassificationResults
                     statedSememeSequences,
                     sememeService);
 
-            // SemanticChronology<LogicGraphSememe> statedChronology = (SemanticChronology<LogicGraphSememe>) assemblageService.getSememe(statedSememeSequences.stream().findFirst().getAsInt());
+            // SemanticChronology<LogicGraphSememe> statedChronology = (SemanticChronology<LogicGraphSememe>) assemblageService.getSemanticChronology(statedSememeSequences.stream().findFirst().getAsInt());
             final SemanticChronology rawStatedChronology
-                    = sememeService.getSememe(statedSememeSequences.stream()
+                    = sememeService.getSemanticChronology(statedSememeSequences.stream()
                             .findFirst()
                             .getAsInt());
             final LatestVersion<LogicGraphVersion> latestStatedDefinitionOptional
@@ -334,7 +334,7 @@ public class ProcessClassificationResults
                              ChangeCheckerMode.INACTIVE);
                   } else {
                      final SemanticChronology inferredChronology
-                             = sememeService.getSememe(inferredSememeSequences.stream()
+                             = sememeService.getSemanticChronology(inferredSememeSequences.stream()
                                      .findFirst()
                                      .getAsInt());
 

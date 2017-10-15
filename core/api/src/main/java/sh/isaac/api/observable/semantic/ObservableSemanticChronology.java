@@ -70,11 +70,11 @@ public interface ObservableSemanticChronology
    IntegerProperty referencedComponentNidProperty();
 
    /**
-    * Sememe sequence property.
+    * Semantic sequence property.
     *
     * @return the integer property
     */
-   IntegerProperty sememeSequenceProperty();
+   IntegerProperty semanticSequenceProperty();
 
    
 }

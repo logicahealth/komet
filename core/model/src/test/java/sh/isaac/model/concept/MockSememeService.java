@@ -111,7 +111,7 @@ public class MockSememeService
     * @param sememeChronicle the sememe chronicle
     */
    @Override
-   public void writeSemantic(SemanticChronology sememeChronicle) {
+   public void writeSemanticChronology(SemanticChronology sememeChronicle) {
       if (this.componentSememeMap.containsKey(sememeChronicle.getReferencedComponentNid())) {
          this.componentSememeMap.get(sememeChronicle.getReferencedComponentNid())
                                 .add(sememeChronicle.getSemanticSequence());
@@ -189,7 +189,7 @@ public class MockSememeService
     */
    @Override
    public Optional<? extends SemanticChronology> getOptionalSemanticChronology(int sememeId) {
-      return Optional.ofNullable(getSememe(sememeId));
+      return Optional.ofNullable(getSemanticChronology(sememeId));
    }
 
    /**
@@ -210,7 +210,7 @@ public class MockSememeService
     * @return the sememe
     */
    @Override
-   public SemanticChronology getSememe(int sememeId) {
+   public SemanticChronology getSemanticChronology(int sememeId) {
       return this.sememeMap.get(Get.identifierService()
                                    .getSemanticSequence(sememeId));
    }
@@ -233,7 +233,7 @@ public class MockSememeService
     * @return the sememe chronology stream
     */
    @Override
-   public Stream<SemanticChronology> getSememeChronologyStream() {
+   public Stream<SemanticChronology> getSemanticChronologyStream() {
       return this.sememeMap.values()
                            .stream();
    }
@@ -244,7 +244,7 @@ public class MockSememeService
     * @return the sememe count
     */
    @Override
-   public int getSememeCount() {
+   public int getSemanticChronologyCount() {
       return this.sememeMap.size();
    }
 
@@ -266,7 +266,7 @@ public class MockSememeService
     * @return the sememe key stream
     */
    @Override
-   public IntStream getSememeKeyStream() {
+   public IntStream getSemanticChronologyKeyStream() {
       return this.sememeMap.keySet()
                            .stream()
                            .mapToInt(i -> i);

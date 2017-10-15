@@ -95,7 +95,7 @@ public class DynamicSememeUUIDTest {
       assertEquals(value, uuid.getDataObject());
       assertEquals(value, uuid.getDataObjectProperty()
                               .get());
-      assertEquals(uuid.getDynamicSememeDataType(), DynamicDataType.UUID);
+      assertEquals(uuid.getDynamicDataType(), DynamicDataType.UUID);
    }
 }
 

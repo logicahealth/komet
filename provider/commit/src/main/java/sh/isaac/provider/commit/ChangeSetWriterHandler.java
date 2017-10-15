@@ -276,7 +276,7 @@ public class ChangeSetWriterHandler
    private void sequenceSetChange(SemanticSequenceSet sememeSequenceSet) {
       sememeSequenceSet.stream().forEach((sememeSequence) -> {
                                    final SemanticChronology sememe = Get.assemblageService()
-                                                                                                  .getSememe(
+                                                                                                  .getSemanticChronology(
                                                                                                      sememeSequence);
 
                                    try {

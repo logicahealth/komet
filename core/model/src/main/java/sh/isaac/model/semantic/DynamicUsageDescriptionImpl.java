@@ -112,7 +112,7 @@ public class DynamicUsageDescriptionImpl
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new dynamic sememe usage description impl.
+    * Instantiates a new dynamic element usage description impl.
     */
    private DynamicUsageDescriptionImpl() {
       // For use by the mock static method
@@ -221,7 +221,7 @@ public class DynamicUsageDescriptionImpl
 
                                  if ((defaultData != null) &&
                                      (type.getDynamicSememeMemberClass() !=
-                                     refexDefinitionData[3].getDynamicSememeDataType().getDynamicSememeMemberClass())) {
+                                     refexDefinitionData[3].getDynamicDataType().getDynamicSememeMemberClass())) {
                                     throw new IOException("The Assemblage concept: " + assemblageConcept +
                                     " is not correctly assembled for use as an Assemblage for " +
                                        "a DynamicSememeData Refex Type.  The type of the column (column 3) must match the type of the defaultData (column 4)");
@@ -416,7 +416,7 @@ public class DynamicUsageDescriptionImpl
     * sememe.
     *
     * @param sememe the sememe in question
-    * @return the dynamic sememe usage description
+    * @return the dynamic element usage description
     */
    public static DynamicUsageDescription mockOrRead(SemanticChronology sememe) {
       final DynamicUsageDescriptionImpl dsud = new DynamicUsageDescriptionImpl();
@@ -491,11 +491,11 @@ public class DynamicUsageDescriptionImpl
     * Read.
     *
     * @param assemblageNidOrSequence the assemblage nid or sequence
-    * @return the dynamic sememe usage description
+    * @return the dynamic element usage description
     */
    public static DynamicUsageDescription read(int assemblageNidOrSequence) {
       // TODO (artf231860) [REFEX] maybe? implement a mechanism to allow the cache to be updated... for now
-      // cache is uneditable, and may be wrong, if the user changes the definition of a dynamic sememe.  Perhaps
+      // cache is uneditable, and may be wrong, if the user changes the definition of a dynamic element.  Perhaps
       // implement a callback to clear the cache when we know a change of  a certain type happened instead?
       final int                         sequence = Get.identifierService()
                                                       .getConceptSequence(assemblageNidOrSequence);
@@ -534,7 +534,7 @@ public class DynamicUsageDescriptionImpl
     * Test if dyn sememe.
     *
     * @param assemblageNidOrSequence the assemblage nid or sequence
-    * @return true, if dynamic sememe
+    * @return true, if dynamic element
     */
    public static boolean isDynamicSememe(int assemblageNidOrSequence) {
       if ((assemblageNidOrSequence >= 0) ||
@@ -552,9 +552,9 @@ public class DynamicUsageDescriptionImpl
    }
 
    /**
-    * Gets the dynamic sememe name.
+    * Gets the dynamic element name.
     *
-    * @return the dynamic sememe name
+    * @return the dynamic element name
     */
 
    /*
@@ -566,9 +566,9 @@ public class DynamicUsageDescriptionImpl
    }
 
    /**
-    * Gets the dynamic sememe usage description.
+    * Gets the dynamic element usage description.
     *
-    * @return the dynamic sememe usage description
+    * @return the dynamic element usage description
     */
 
    /*
@@ -580,9 +580,9 @@ public class DynamicUsageDescriptionImpl
    }
 
    /**
-    * Gets the dynamic sememe usage descriptor sequence.
+    * Gets the dynamic element usage descriptor sequence.
     *
-    * @return the dynamic sememe usage descriptor sequence
+    * @return the dynamic element usage descriptor sequence
     */
 
    /*

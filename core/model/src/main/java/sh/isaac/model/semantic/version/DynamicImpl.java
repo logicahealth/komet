@@ -89,7 +89,7 @@ public class DynamicImpl
    //~--- constructors --------------------------------------------------------
 
    /**
-    * Instantiates a new dynamic sememe impl.
+    * Instantiates a new dynamic element impl.
     *
     * @param container the container
     * @param stampSequence the stamp sequence
@@ -100,7 +100,7 @@ public class DynamicImpl
    }
 
    /**
-    * Instantiates a new dynamic sememe impl.
+    * Instantiates a new dynamic element impl.
     *
     * @param container the container
     * @param stampSequence the stamp sequence
@@ -221,10 +221,10 @@ public class DynamicImpl
             if (column == null) {
                data.putInt(DynamicDataType.UNKNOWN.getTypeToken());
             } else {
-               data.putInt(column.getDynamicSememeDataType()
+               data.putInt(column.getDynamicDataType()
                                  .getTypeToken());
 
-               if (data.isExternalData() && (column.getDynamicSememeDataType() == DynamicDataType.NID)) {
+               if (data.isExternalData() && (column.getDynamicDataType() == DynamicDataType.NID)) {
                   final DynamicUUIDImpl temp = new DynamicUUIDImpl(
                                                         Get.identifierService().getUuidPrimordialForNid(((DynamicNidImpl) column).getDataNid()).get());
 
@@ -316,9 +316,9 @@ public class DynamicImpl
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the dynamic sememe usage description.
+    * Gets the dynamic element usage description.
     *
-    * @return the dynamic sememe usage description
+    * @return the dynamic element usage description
     */
    @Override
    public DynamicUsageDescription getDynamicUsageDescription() {

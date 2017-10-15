@@ -69,13 +69,13 @@ import sh.isaac.api.constants.ModuleProvidedConstants;
  *
  * The 100' view of the mapset / map item setup in the system is:
  *
- * A Dynamic Sememe is created to represent the Mapset.  This dynamic sememe will (probably) be a child of DYNAMIC_SEMEME_MAPPING_SEMEME_TYPE.
+ * A Dynamic element is created to represent the Mapset.  This dynamic element will (probably) be a child of DYNAMIC_MAPPING_TYPE.
  * The data columns on this sememe will at a minimum, carry a 'target concept' column in position 0, (making it a valid association) and carry a 'mapping equivalence types'
  * column in position 1.  (Note, this sememe is describing the mapping items, not the map set) There will optionally be additional fields, which carry any other
  * types / values that the user specified at the creation of the map set.
  *
- * A Dynamic Sememe that represents a mapset will carry at least 2, and possibly more sememe annotations.
- *  - {@link DynamicConstants#DYNAMIC_ASSOCIATION_SEMEME}
+ * A Dynamic element that represents a mapset will carry at least 2, and possibly more sememe annotations.
+ *  - {@link DynamicConstants#DYNAMIC_ASSOCIATION}
  *  - {@link #DYNAMIC_SEMEME_MAPPING_SEMEME_TYPE}
  *
  * Map Items are instances of the map set sememe, with the columns populated as necessary.
@@ -133,56 +133,56 @@ public class IsaacMappingConstants
                                                                                         "A concept used to hold the UUID used as the namespace ID generation when creating mappings") {}
    ;
 
-   /** The dynamic sememe column mapping display fields. */
-   public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_MAPPING_DISPLAY_FIELDS =
+   /** The dynamic element column mapping display fields. */
+   public final MetadataConceptConstant DYNAMIC_COLUMN_MAPPING_DISPLAY_FIELDS =
       new MetadataConceptConstant("Display Fields",
                                   UUID.fromString("4e627b9c-cecb-5563-82fc-cb0ee25113b1"),
                                   "Stores the mapping field ids in an array corresponding to an ordered displayable row",
                                   DynamicConstants.get().DYNAMIC_COLUMNS) {}
    ;
 
-   /** The dynamic sememe column mapping purpose. */
-   public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_MAPPING_PURPOSE = new MetadataConceptConstant("Purpose",
+   /** The dynamic element column mapping purpose. */
+   public final MetadataConceptConstant DYNAMIC_COLUMN_MAPPING_PURPOSE = new MetadataConceptConstant("Purpose",
                                                                                                             UUID.fromString(
                                                                                                                "e5de9548-35b9-5e3b-9968-fd9c0a665b51"),
                                                                                                             "Stores the editor stated purpose of the mapping set",
                                                                                                             DynamicConstants.get().DYNAMIC_COLUMNS) {}
    ;
 
-   /** The dynamic sememe column mapping equivalence type. */
-   public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_MAPPING_EQUIVALENCE_TYPE =
+   /** The dynamic element column mapping equivalence type. */
+   public final MetadataConceptConstant DYNAMIC_COLUMN_MAPPING_EQUIVALENCE_TYPE =
       new MetadataConceptConstant("Equivalence Type",
                                   UUID.fromString("8e84c657-5f47-51b8-8ebf-89a9d025a9ef"),
                                   "Stores the editor selected mapping equivalence type",
                                   DynamicConstants.get().DYNAMIC_COLUMNS) {}
    ;
 
-   /** The dynamic sememe column mapping sequence. */
-   public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_MAPPING_SEQUENCE = new MetadataConceptConstant("Mapping sequence",
+   /** The dynamic element column mapping sequence. */
+   public final MetadataConceptConstant DYNAMIC_COLUMN_MAPPING_SEQUENCE = new MetadataConceptConstant("Mapping sequence",
                                                                                                              UUID.fromString(
                                                                                                                 "83e8e74e-596e-5622-b945-17dbe8e9c05c"),
                                                                                                              "The sequence value attached to the mapping",
                                                                                                              DynamicConstants.get().DYNAMIC_COLUMNS) {}
    ;
 
-   /** The dynamic sememe column mapping grouping. */
-   public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_MAPPING_GROUPING = new MetadataConceptConstant("Grouping",
+   /** The dynamic element column mapping grouping. */
+   public final MetadataConceptConstant DYNAMIC_COLUMN_MAPPING_GROUPING = new MetadataConceptConstant("Grouping",
                                                                                                              UUID.fromString(
                                                                                                                 "8d76ead7-6c75-5d25-84d4-ca76d928f8a6"),
                                                                                                              "The grouping attached to the mapping",
                                                                                                              DynamicConstants.get().DYNAMIC_COLUMNS) {}
    ;
 
-   /** The dynamic sememe column mapping effective date. */
-   public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_MAPPING_EFFECTIVE_DATE =
+   /** The dynamic element column mapping effective date. */
+   public final MetadataConceptConstant DYNAMIC_COLUMN_MAPPING_EFFECTIVE_DATE =
       new MetadataConceptConstant("Effective Date",
                                   UUID.fromString("a332f7bc-f7c1-58cd-a834-cd2660b984da"),
                                   "The effective date attached to the mapping",
                                   DynamicConstants.get().DYNAMIC_COLUMNS) {}
    ;
 
-   /** The dynamic sememe column mapping gem flags. */
-   public final MetadataConceptConstant DYNAMIC_SEMEME_COLUMN_MAPPING_GEM_FLAGS =
+   /** The dynamic element column mapping gem flags. */
+   public final MetadataConceptConstant DYNAMIC_COLUMN_MAPPING_GEM_FLAGS =
       new MetadataConceptConstant("GEM Flags",
                                   UUID.fromString("21bab5a4-18a5-5848-905d-2d99305090d9"),
                                   "The General Equivalence Mappings value",
@@ -278,13 +278,13 @@ public class IsaacMappingConstants
       }
    };
 
-   /** *  see {@link DynamicConstants#DYNAMIC_SEMEME_MAPPING_DISPLAY_FIELDS} see {@link #DYNAMIC_SEMEME_COLUMN_MAPPING_DISPLAY_FIELDS}. */
+   /** *  see {@link DynamicConstants#DYNAMIC_SEMEME_MAPPING_DISPLAY_FIELDS} see {@link #DYNAMIC_COLUMN_MAPPING_DISPLAY_FIELDS}. */
    public final MetadataDynamicConstant DYNAMIC_SEMEME_MAPPING_DISPLAY_FIELDS =
       new MetadataDynamicConstant("Mapping Display Fields",
                                         UUID.fromString("8d6463c2-b0ec-5e34-a882-1208d52703ea"),
                                         "A Sememe used to annotate Mapping Set concepts. This sememe carries field identifiers for organizing an ordered columnar display row.",
                                         new DynamicColumnInfo[] { new DynamicColumnInfo(0,
-                                              this.DYNAMIC_SEMEME_COLUMN_MAPPING_DISPLAY_FIELDS.getUUID(),
+                                              this.DYNAMIC_COLUMN_MAPPING_DISPLAY_FIELDS.getUUID(),
                                               DynamicDataType.ARRAY,
                                               null,
                                               true,
@@ -322,7 +322,7 @@ public class IsaacMappingConstants
                                         "A Sememe used annotate sememe definition concepts that represent a mapping definition.  Mapping sememes will contain a data column named 'target concept', " +
                                         "another named 'mapping equivalence type', and may contain additional extended columns.  This sememe carries additional information about the sememe definition.",
                                         new DynamicColumnInfo[] { new DynamicColumnInfo(0,
-                                              this.DYNAMIC_SEMEME_COLUMN_MAPPING_PURPOSE.getUUID(),
+                                              this.DYNAMIC_COLUMN_MAPPING_PURPOSE.getUUID(),
                                               DynamicDataType.STRING,
                                               null,
                                               false,
@@ -333,7 +333,7 @@ public class IsaacMappingConstants
       }
    };
 
-   /** The dynamic sememe mapping string extension. */
+   /** The dynamic element mapping string extension. */
    public final MetadataDynamicConstant DYNAMIC_SEMEME_MAPPING_STRING_EXTENSION =
       new MetadataDynamicConstant("Mapping String Extension",
                                         UUID.fromString("095f1fae-1fc0-5e5d-8d87-675d712522d5"),
@@ -357,7 +357,7 @@ public class IsaacMappingConstants
       }
    };
 
-   /** The dynamic sememe mapping nid extension. */
+   /** The dynamic element mapping nid extension. */
    public final MetadataDynamicConstant DYNAMIC_SEMEME_MAPPING_NID_EXTENSION =
       new MetadataDynamicConstant("Mapping NID Extension",
                                         UUID.fromString("276bf07c-4aa7-5176-9853-5f4bd294f163"),
@@ -400,12 +400,12 @@ public class IsaacMappingConstants
    @Override
    public MetadataConceptConstant[] getConstantsToCreate() {
       return new MetadataConceptConstant[] {
-         this.DYNAMIC_SEMEME_COLUMN_MAPPING_DISPLAY_FIELDS, this.DYNAMIC_SEMEME_MAPPING_DISPLAY_FIELDS,
-         this.DYNAMIC_SEMEME_COLUMN_MAPPING_PURPOSE, this.DYNAMIC_SEMEME_MAPPING_STRING_EXTENSION,
+         this.DYNAMIC_COLUMN_MAPPING_DISPLAY_FIELDS, this.DYNAMIC_SEMEME_MAPPING_DISPLAY_FIELDS,
+         this.DYNAMIC_COLUMN_MAPPING_PURPOSE, this.DYNAMIC_SEMEME_MAPPING_STRING_EXTENSION,
          this.DYNAMIC_SEMEME_MAPPING_NID_EXTENSION, this.MAPPING_METADATA, this.DYNAMIC_SEMEME_MAPPING_SEMEME_TYPE,
-         this.DYNAMIC_SEMEME_COLUMN_MAPPING_EQUIVALENCE_TYPE, this.DYNAMIC_SEMEME_COLUMN_MAPPING_SEQUENCE,
-         this.DYNAMIC_SEMEME_COLUMN_MAPPING_GROUPING, this.DYNAMIC_SEMEME_COLUMN_MAPPING_EFFECTIVE_DATE,
-         this.DYNAMIC_SEMEME_COLUMN_MAPPING_GEM_FLAGS, this.MAPPING_CODE_DESCRIPTION, this.MAPPING_NAME
+         this.DYNAMIC_COLUMN_MAPPING_EQUIVALENCE_TYPE, this.DYNAMIC_COLUMN_MAPPING_SEQUENCE,
+         this.DYNAMIC_COLUMN_MAPPING_GROUPING, this.DYNAMIC_COLUMN_MAPPING_EFFECTIVE_DATE,
+         this.DYNAMIC_COLUMN_MAPPING_GEM_FLAGS, this.MAPPING_CODE_DESCRIPTION, this.MAPPING_NAME
       };
    }
 

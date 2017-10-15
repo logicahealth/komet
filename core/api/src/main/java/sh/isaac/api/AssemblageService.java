@@ -87,7 +87,7 @@ public interface AssemblageService
     *
     * @param semanticChronicle the SemanticChronology 
     */
-   void writeSemantic(SemanticChronology semanticChronicle);
+   void writeSemanticChronology(SemanticChronology semanticChronicle);
 
    //~--- get methods ---------------------------------------------------------
 
@@ -127,7 +127,7 @@ public interface AssemblageService
     * @param semanticId sequence or nid for a SemanticChronology
     * @return the identified {@code SemanticChronology}
     */
-   SemanticChronology getSememe(int semanticId);
+   SemanticChronology getSemanticChronology(int semanticId);
 
    /**
     * Use in circumstances when not all SemanticChronologys may have been loaded to find out if a SemanticChronology is present,
@@ -142,14 +142,14 @@ public interface AssemblageService
     *
     * @return the SemanticChronology stream
     */
-   Stream<SemanticChronology> getSememeChronologyStream();
+   Stream<SemanticChronology> getSemanticChronologyStream();
 
    /**
     * Gets the SemanticChronology count.
     *
     * @return the SemanticChronology count
     */
-   int getSememeCount();
+   int getSemanticChronologyCount();
 
    /**
     * Gets the SemanticChronology key parallel stream.
@@ -163,7 +163,7 @@ public interface AssemblageService
     *
     * @return the SemanticChronology key stream
     */
-   IntStream getSememeKeyStream();
+   IntStream getSemanticChronologyKeyStream();
 
    /**
     * Gets the SemanticChronology sequences for component.

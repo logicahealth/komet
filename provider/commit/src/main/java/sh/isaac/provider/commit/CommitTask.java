@@ -203,7 +203,7 @@ public class CommitTask
                                .forEach(
                                    (sememeSequence) -> {
                                       final SemanticChronology sc = Get.assemblageService()
-                                                                       .getSememe(sememeSequence);
+                                                                       .getSemanticChronology(sememeSequence);
 
                                       if (this.semanticsToCheck.contains(sememeSequence)) {
                                          this.checkers.stream()

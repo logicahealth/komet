@@ -259,7 +259,7 @@ public class SemanticChronologyImpl extends ChronologyImpl
             
          case SEMANTIC:
             SemanticChronology sememeChronicle = Get.assemblageService()
-                    .getSememe(this.referencedComponentNid);
+                    .getSemanticChronology(this.referencedComponentNid);
             builder.append("SEMEME: ")
                     .append(sememeChronicle.getVersionType()).append(" <")
                     .append(sememeChronicle.getSemanticSequence())

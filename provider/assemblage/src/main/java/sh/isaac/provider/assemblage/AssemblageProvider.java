@@ -184,7 +184,7 @@ public class AssemblageProvider
     * @param sememeChronicle the sememe chronicle
     */
    @Override
-   public void writeSemantic(SemanticChronology sememeChronicle) {
+   public void writeSemanticChronology(SemanticChronology sememeChronicle) {
       this.inUseAssemblages.add(sememeChronicle.getAssemblageSequence());
       this.sememeMap.put(sememeChronicle.getSemanticSequence(), (SemanticChronologyImpl) sememeChronicle);
    }
@@ -259,7 +259,7 @@ public class AssemblageProvider
    public Stream<SemanticChronology> getDescriptionsForComponent(int componentNid) {
       
       final SemanticSequenceSet sequences = getSemanticChronologySequencesForComponentFromAssemblage(componentNid, TermAux.ENGLISH_DESCRIPTION_ASSEMBLAGE.getConceptSequence());
-      final IntFunction<SemanticChronology> mapper = (int sememeSequence) -> (SemanticChronology) getSememe(sememeSequence);
+      final IntFunction<SemanticChronology> mapper = (int sememeSequence) -> (SemanticChronology) getSemanticChronology(sememeSequence);
 
       return sequences.stream()
               .filter((int sememeSequence) -> {
@@ -303,7 +303,7 @@ public class AssemblageProvider
     * @return the sememe
     */
    @Override
-   public SemanticChronology getSememe(int sememeId) {
+   public SemanticChronology getSemanticChronology(int sememeId) {
       sememeId = Get.identifierService()
               .getSemanticSequence(sememeId);
       return this.sememeMap.getQuick(sememeId);
@@ -331,7 +331,7 @@ public class AssemblageProvider
     * @return the sememe chronology stream
     */
    @Override
-   public Stream<SemanticChronology> getSememeChronologyStream() {
+   public Stream<SemanticChronology> getSemanticChronologyStream() {
       return this.sememeMap.getStream()
               .map((s) -> {
                          return (SemanticChronology) s;
@@ -344,7 +344,7 @@ public class AssemblageProvider
     * @return the sememe count
     */
    @Override
-   public int getSememeCount() {
+   public int getSemanticChronologyCount() {
       return this.sememeMap.getSize();
    }
 
@@ -364,7 +364,7 @@ public class AssemblageProvider
     * @return the sememe key stream
     */
    @Override
-   public IntStream getSememeKeyStream() {
+   public IntStream getSemanticChronologyKeyStream() {
       return this.sememeMap.getKeyStream();
    }
 
@@ -424,7 +424,7 @@ public class AssemblageProvider
     */
    @Override
    public <C extends SemanticChronology> Stream<C> getSemanticChronologyForComponent(int componentNid) {
-      return getSemanticChronologySequencesForComponent(componentNid).stream().mapToObj((int sememeSequence) -> (C) getSememe(sememeSequence));
+      return getSemanticChronologySequencesForComponent(componentNid).stream().mapToObj((int sememeSequence) -> (C) getSemanticChronology(sememeSequence));
    }
 
    /**
@@ -452,7 +452,7 @@ public class AssemblageProvider
               assemblageConceptSequence);
 
       return sememeSequences.stream()
-              .mapToObj((int sememeSequence) -> (C) getSememe(sememeSequence));
+              .mapToObj((int sememeSequence) -> (C) getSemanticChronology(sememeSequence));
    }
 
 
@@ -467,7 +467,7 @@ public class AssemblageProvider
       final SemanticSequenceSet sememeSequences = getSemanticChronologySequencesFromAssemblage(assemblageConceptSequence);
 
       return sememeSequences.stream()
-              .mapToObj((int sememeSequence) -> (C) getSememe(sememeSequence));
+              .mapToObj((int sememeSequence) -> (C) getSemanticChronology(sememeSequence));
    }
 
    /**

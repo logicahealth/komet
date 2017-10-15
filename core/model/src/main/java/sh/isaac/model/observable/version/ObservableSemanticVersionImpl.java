@@ -56,11 +56,11 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class ObservableSememeVersionImpl.
+ * The Class ObservableSemanticVersionImpl.
  *
  * @author kec
  */
-public class ObservableSememeVersionImpl
+public class ObservableSemanticVersionImpl
         extends ObservableVersionImpl
          implements ObservableSemanticVersion {
 
@@ -76,7 +76,7 @@ public class ObservableSememeVersionImpl
     * @param stampedVersion the stamped version
     * @param chronology the chronology
     */
-   public ObservableSememeVersionImpl(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
+   public ObservableSemanticVersionImpl(SemanticVersion stampedVersion, ObservableSemanticChronology chronology) {
       super(stampedVersion, 
               chronology);
    }
@@ -84,8 +84,8 @@ public class ObservableSememeVersionImpl
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       SemanticVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      ObservableSememeVersionImpl newObservableVersion = 
-              new ObservableSememeVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+      ObservableSemanticVersionImpl newObservableVersion = 
+              new ObservableSemanticVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
       ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
    }

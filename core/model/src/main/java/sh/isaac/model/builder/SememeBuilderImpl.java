@@ -159,7 +159,7 @@ public class SememeBuilderImpl<C extends SemanticChronology>
       if (Get.assemblageService()
              .hasSemanticChronology(sememeNid)) {
          sememeChronicle = (SemanticChronologyImpl) Get.assemblageService()
-               .getSememe(sememeNid);
+               .getSemanticChronology(sememeNid);
 
          if ((sememeChronicle.getVersionType() != this.sememeType) ||
                !sememeChronicle.isIdentifiedBy(getPrimordialUuid()) ||
@@ -267,7 +267,7 @@ public class SememeBuilderImpl<C extends SemanticChronology>
       if (Get.assemblageService()
              .hasSemanticChronology(sememeNid)) {
          sememeChronicle = (SemanticChronologyImpl) Get.assemblageService()
-               .getSememe(sememeNid);
+               .getSemanticChronology(sememeNid);
 
          if ((sememeChronicle.getVersionType() != this.sememeType) ||
                !sememeChronicle.isIdentifiedBy(getPrimordialUuid()) ||

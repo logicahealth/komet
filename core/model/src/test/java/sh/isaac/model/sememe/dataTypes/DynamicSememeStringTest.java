@@ -93,7 +93,7 @@ public class DynamicSememeStringTest {
       assertEquals(value, i.getDataObject());
       assertEquals(value, i.getDataObjectProperty()
                            .get());
-      assertEquals(i.getDynamicSememeDataType(), DynamicDataType.STRING);
+      assertEquals(i.getDynamicDataType(), DynamicDataType.STRING);
    }
 }
 

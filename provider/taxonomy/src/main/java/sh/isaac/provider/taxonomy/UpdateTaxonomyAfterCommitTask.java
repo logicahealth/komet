@@ -137,7 +137,7 @@ public class UpdateTaxonomyAfterCommitTask
                                     .contains(sememeSequence)) {
                                  this.updateMessage("Updating taxonomy for: " + sememeSequence);
                                  this.taxonomyService.updateTaxonomy((SemanticChronology) Get.assemblageService()
-                                           .getSememe(sememeSequence));
+                                           .getSemanticChronology(sememeSequence));
                                  this.sememeSequencesForUnhandledChanges.remove(sememeSequence);
                               }
                            } catch (final Exception e) {

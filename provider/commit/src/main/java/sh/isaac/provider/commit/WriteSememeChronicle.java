@@ -120,8 +120,8 @@ public class WriteSememeChronicle
             throws Exception {
       try {
          Get.assemblageService()
-            .writeSemantic(this.sc);
-         this.sc = Get.assemblageService().getSememe(this.sc.getSemanticSequence());
+            .writeSemanticChronology(this.sc);
+         this.sc = Get.assemblageService().getSemanticChronology(this.sc.getSemanticSequence());
          this.uncommittedTracking.accept(this.sc, false);
          updateProgress(1, 2);
          updateMessage("notifying: " + this.sc.getAssemblageSequence());

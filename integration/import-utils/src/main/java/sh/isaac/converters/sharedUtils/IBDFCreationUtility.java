@@ -227,9 +227,9 @@ public class IBDFCreationUtility {
                                 .getUUID(),
           DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION
                                 .getDynamicSememeColumns());
-      registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_ASSOCIATION_SEMEME
+      registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_ASSOCIATION
                                 .getUUID(),
-          DynamicConstants.get().DYNAMIC_ASSOCIATION_SEMEME
+          DynamicConstants.get().DYNAMIC_ASSOCIATION
                                 .getDynamicSememeColumns());
       registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME
                                 .getUUID(),
@@ -402,7 +402,7 @@ public class IBDFCreationUtility {
     * @param uuidForCreatedAnnotation  - the UUID to use for the created annotation.  If null, generated from uuidForCreatedAnnotation, value, refexDynamicTypeUuid
     * @param value - the value to attach (may be null if the annotation only serves to mark 'membership') - columns must align with values specified in the definition
     * of the sememe represented by refexDynamicTypeUuid
-    * @param refexDynamicTypeUuid - the uuid of the dynamic sememe type -
+    * @param refexDynamicTypeUuid - the uuid of the dynamic element type -
     * @param state -  state or null (for active)
     * @param time - if null, uses the component time
     * @return the sememe chronology
@@ -424,7 +424,7 @@ public class IBDFCreationUtility {
     * @param uuidForCreatedAnnotation  - the UUID to use for the created annotation.  If null, generated from uuidForCreatedAnnotation, value, refexDynamicTypeUuid
     * @param values - the values to attach (may be null if the annotation only serves to mark 'membership') - columns must align with values specified in the definition
     * of the sememe represented by refexDynamicTypeUuid
-    * @param refexDynamicTypeUuid - the uuid of the dynamic sememe type -
+    * @param refexDynamicTypeUuid - the uuid of the dynamic element type -
     * @param state -  state or null (for active)
     * @param time - if null, uses the component time
     * @param module the module
@@ -459,7 +459,7 @@ public class IBDFCreationUtility {
                if (d == null) {
                   temp.append("null");
                } else {
-                  temp.append(d.getDynamicSememeDataType()
+                  temp.append(d.getDynamicDataType()
                                .getDisplayName());
                   temp.append(ChecksumGenerator.calculateChecksum("SHA1", d.getData()));
                }
@@ -1243,7 +1243,7 @@ public class IBDFCreationUtility {
           null,
           null);
       addRefsetMembership(ComponentReference.fromConcept(associationTypeConcept),
-          DynamicConstants.get().DYNAMIC_ASSOCIATION_SEMEME
+          DynamicConstants.get().DYNAMIC_ASSOCIATION
                                 .getUUID(),
           State.ACTIVE,
           null);
@@ -1321,7 +1321,7 @@ public class IBDFCreationUtility {
       if ((columns != null) && (columns.length > 0)) {
          for (final DynamicColumnInfo col: columns) {
             final DynamicData[] data = LookupService.getService(DynamicUtility.class)
-                                                          .configureDynamicSememeDefinitionDataForColumn(col);
+                                                          .configureDynamicDefinitionDataForColumn(col);
 
             addAnnotation(concept,
                 null,
@@ -1352,7 +1352,7 @@ public class IBDFCreationUtility {
 
       // Add the restriction information (if any)
       final DynamicData[] data = LookupService.getService(DynamicUtility.class)
-                                                    .configureDynamicSememeRestrictionData(
+                                                    .configureDynamicRestrictionData(
                                                           referencedComponentTypeRestriction,
                                                                 referencedComponentTypeSubRestriction);
 
@@ -1586,7 +1586,7 @@ public class IBDFCreationUtility {
     *
     * @param sememeName the sememe name
     * @param columnNames - Create concepts to represent column names for each item here.  Supports a stupid hack, where if the
-    * first two characters of a string in this array are '[]' - it will create a dynamic sememe array type for strings, rather than a single string.
+    * first two characters of a string in this array are '[]' - it will create a dynamic element array type for strings, rather than a single string.
     * @param columnTypes - optional - if not provided, makes all columns strings.  If provided, must match size of columnNames
     * @return the property
     */
@@ -1734,7 +1734,7 @@ public class IBDFCreationUtility {
 
                   // Add this concept to the association sememe
                   addRefsetMembership(ComponentReference.fromConcept(concept),
-                      DynamicConstants.get().DYNAMIC_ASSOCIATION_SEMEME
+                      DynamicConstants.get().DYNAMIC_ASSOCIATION
                                             .getUUID(),
                       State.ACTIVE,
                       null);
@@ -1828,7 +1828,7 @@ public class IBDFCreationUtility {
    }
 
    /**
-    * Register dynamic sememe column info.
+    * Register dynamic element column info.
     *
     * @param sememeUUID the sememe UUID
     * @param columnInfo the column info
@@ -1919,7 +1919,7 @@ public class IBDFCreationUtility {
       // TODO this should be a much better validator - checking all of the various things in RefexDynamicCAB.validateData - or in
       // generateMetadataEConcepts - need to enforce the restrictions defined in the columns in the validators
       if (!this.refexAllowedColumnTypes.containsKey(refexDynamicTypeUuid)) {
-         throw new RuntimeException("Attempted to store data on a concept not configured as a dynamic sememe");
+         throw new RuntimeException("Attempted to store data on a concept not configured as a dynamic element");
       }
 
       final DynamicColumnInfo[] colInfo = this.refexAllowedColumnTypes.get(refexDynamicTypeUuid);
@@ -1942,16 +1942,16 @@ public class IBDFCreationUtility {
                   if ((values[i] == null) && column.isColumnRequired()) {
                      throw new RuntimeException("Missing column data for column " + column.getColumnName());
                   } else if ((values[i] != null) &&
-                             (column.getColumnDataType() != values[i].getDynamicSememeDataType()) &&
+                             (column.getColumnDataType() != values[i].getDynamicDataType()) &&
                              (column.getColumnDataType() != DynamicDataType.POLYMORPHIC)) {
                      throw new RuntimeException(
                          "Datatype mismatch - " + column.getColumnDataType() + " - " +
-                         values[i].getDynamicSememeDataType());
+                         values[i].getDynamicDataType());
                   }
                }
             }
          } else if (values.length > 0) {
-            throw new RuntimeException("Column count mismatch - this dynamic sememe doesn't allow columns!");
+            throw new RuntimeException("Column count mismatch - this dynamic element doesn't allow columns!");
          }
       } else if (colInfo != null) {
          for (final DynamicColumnInfo ci: colInfo) {
@@ -1965,10 +1965,10 @@ public class IBDFCreationUtility {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Checks if configured as dynamic sememe.
+    * Checks if configured as dynamic element.
     *
     * @param refexDynamicTypeUuid the refex dynamic type uuid
-    * @return true, if configured as dynamic sememe
+    * @return true, if configured as dynamic element
     */
    private boolean isConfiguredAsDynamicSememe(UUID refexDynamicTypeUuid) {
       return this.refexAllowedColumnTypes.containsKey(refexDynamicTypeUuid);

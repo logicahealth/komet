@@ -401,7 +401,7 @@ public class WorkflowUpdater {
             } else if (Get.identifierService()
                           .getChronologyTypeForNid(compNid) == ObjectChronologyType.SEMANTIC) {
                final SemanticChronology semChron = Get.assemblageService()
-                                                       .getSememe(compNid);
+                                                       .getSemanticChronology(compNid);
 
                if (version != null) {
                   MutableSemanticVersion createdVersion = semChron.createMutableVersion(((SemanticVersion) version).getState(),

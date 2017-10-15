@@ -91,7 +91,7 @@ public abstract class PropertyType {
 
    /** The default data column. */
 
-   // will be handled in the same way - relationships are not dynamic sememes, assoications are, for example.
+   // will be handled in the same way - relationships are not dynamic, assoications are, for example.
    private final DynamicDataType defaultDataColumn;  // If the property is specified without further column instructions, and createAsDynamicRefex is true,
 
    // use this information to configure the (single) data column.

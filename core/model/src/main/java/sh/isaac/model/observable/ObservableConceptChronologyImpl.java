@@ -253,7 +253,7 @@ public class ObservableConceptChronologyImpl
       if (description.isPresent()) {
          final int specifiedStampSequence = ((DescriptionVersion) description.get()).getStampSequence();
          final ObservableSemanticChronology observableSpecified =
-            new ObservableSememeChronologyImpl(((DescriptionVersion) description.get()).getChronology());
+            new ObservableSemanticChronologyImpl(((DescriptionVersion) description.get()).getChronology());
 
          
 

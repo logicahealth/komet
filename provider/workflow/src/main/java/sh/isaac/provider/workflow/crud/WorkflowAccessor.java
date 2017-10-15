@@ -288,7 +288,7 @@ public class WorkflowAccessor {
 
          case SEMANTIC:
             final SemanticChronology sememe = Get.assemblageService()
-                                               .getSememe(nid);
+                                               .getSemanticChronology(nid);
 
             switch (sememe.getVersionType()) {
             case DESCRIPTION:
@@ -577,7 +577,7 @@ public class WorkflowAccessor {
 
          case SEMANTIC:
             objChron = Get.assemblageService()
-                          .getSememe(compNid);
+                          .getSemanticChronology(compNid);
             break;
 
          default:

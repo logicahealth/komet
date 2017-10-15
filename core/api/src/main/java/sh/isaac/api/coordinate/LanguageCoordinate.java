@@ -188,7 +188,7 @@ public interface LanguageCoordinate extends Coordinate {
                // returned below
                break;
             case SEMANTIC:
-               return Get.assemblageService().getSememe(conceptId).getVersionType().toString();
+               return Get.assemblageService().getSemanticChronology(conceptId).getVersionType().toString();
             case UNKNOWN_NID:
                return "unknown for nid: " + conceptId;
             default:

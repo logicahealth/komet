@@ -103,7 +103,7 @@ public class DynamicUtilityImpl
     * Configure column index info.
     *
     * @param columns the columns
-    * @return the dynamic sememe array
+    * @return the dynamic element array
     */
    @Override
    public DynamicArray<DynamicData> configureColumnIndexInfo(DynamicColumnInfo[] columns) {
@@ -128,13 +128,13 @@ public class DynamicUtilityImpl
    }
 
    /**
-    * Configure dynamic sememe definition data for column.
+    * Configure dynamic element definition data for column.
     *
     * @param ci the ci
-    * @return the dynamic sememe data[]
+    * @return the dynamic element data[]
     */
    @Override
-   public DynamicData[] configureDynamicSememeDefinitionDataForColumn(DynamicColumnInfo ci) {
+   public DynamicData[] configureDynamicDefinitionDataForColumn(DynamicColumnInfo ci) {
       final DynamicData[] data = new DynamicData[7];
 
       data[0] = new DynamicIntegerImpl(ci.getColumnOrder());
@@ -166,7 +166,7 @@ public class DynamicUtilityImpl
          for (int i = 0; i < validatorData.length; i++) {
             validatorData[i] = convertPolymorphicDataColumn(ci.getValidatorData()[i],
                   ci.getValidatorData()[i]
-                    .getDynamicSememeDataType());
+                    .getDynamicDataType());
          }
 
          data[6] = new DynamicArrayImpl<>(validatorData);
@@ -178,14 +178,14 @@ public class DynamicUtilityImpl
    }
 
    /**
-    * Configure dynamic sememe restriction data.
+    * Configure dynamic element restriction data.
     *
     * @param referencedComponentRestriction the referenced component restriction
     * @param referencedComponentSubRestriction the referenced component sub restriction
-    * @return the dynamic sememe data[]
+    * @return the dynamic element data[]
     */
    @Override
-   public DynamicData[] configureDynamicSememeRestrictionData(ObjectChronologyType referencedComponentRestriction,
+   public DynamicData[] configureDynamicRestrictionData(ObjectChronologyType referencedComponentRestriction,
          VersionType referencedComponentSubRestriction) {
       if ((referencedComponentRestriction != null) &&
             (ObjectChronologyType.UNKNOWN_NID != referencedComponentRestriction)) {
@@ -213,7 +213,7 @@ public class DynamicUtilityImpl
     * Creates the dynamic string data.
     *
     * @param value the value
-    * @return the dynamic sememe string
+    * @return the dynamic element string
     */
    @Override
    public DynamicString createDynamicStringData(String value) {
@@ -224,7 +224,7 @@ public class DynamicUtilityImpl
     * Creates the dynamic UUID data.
     *
     * @param value the value
-    * @return the dynamic sememe UUID
+    * @return the dynamic element UUID
     */
    @Override
    public DynamicUUID createDynamicUUIDData(UUID value) {
@@ -235,10 +235,10 @@ public class DynamicUtilityImpl
     * Read the {@link DynamicUsageDescription} for the specified assemblage concept.
     *
     * @param assemblageNidOrSequence the assemblage nid or sequence
-    * @return the dynamic sememe usage description
+    * @return the dynamic element usage description
     */
    @Override
-   public DynamicUsageDescription readDynamicSememeUsageDescription(int assemblageNidOrSequence) {
+   public DynamicUsageDescription readDynamicUsageDescription(int assemblageNidOrSequence) {
       return DynamicUsageDescriptionImpl.read(assemblageNidOrSequence);
    }
 
@@ -276,7 +276,7 @@ public class DynamicUtilityImpl
     *
     * @param defaultValue the default value
     * @param columnType the column type
-    * @return the dynamic sememe data
+    * @return the dynamic element data
     */
    private static DynamicData convertPolymorphicDataColumn(DynamicData defaultValue,
          DynamicDataType columnType) {
