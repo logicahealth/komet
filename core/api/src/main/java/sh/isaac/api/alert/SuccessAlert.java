@@ -16,19 +16,13 @@
  */
 package sh.isaac.api.alert;
 
-import javafx.concurrent.Task;
-
 /**
  *
  * @author kec
  */
-
-public interface Resolver {
-   String getTitle();
+public class SuccessAlert extends AlertObject {
    
-   String getDescription();
-   
-   Task<Void> resolve();
-   
-   ResolutionPersistence getPersistence();
+   public SuccessAlert(String alertTitle, String alertDescription, AlertCategory alertCategory) {
+      super(alertTitle, alertDescription, AlertType.SUCCESS, alertCategory, null);
+   }
 }

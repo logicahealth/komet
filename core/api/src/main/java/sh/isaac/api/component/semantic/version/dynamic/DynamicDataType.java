@@ -339,7 +339,7 @@ public enum DynamicDataType {
     *
     * @return the dynamic member class
     */
-   public Class<? extends DynamicData> getDynamicSememeMemberClass() {
+   public Class<? extends DynamicData> getDynamicMemberClass() {
       return this.dataClass;
    }
 

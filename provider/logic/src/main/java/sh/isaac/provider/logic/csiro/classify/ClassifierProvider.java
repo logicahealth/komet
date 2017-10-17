@@ -150,7 +150,7 @@ public class ClassifierProvider
       final HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(() -> new HashTreeBuilder(manifoldCoordinate),
                                                                              collector,
                                                                              collector);
-      final HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraphGraph();
+      final HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraph();
 
       return resultGraph;
    }
@@ -172,7 +172,7 @@ public class ClassifierProvider
       final HashTreeBuilder     graphBuilder = conceptSequenceStream.collect(() -> new HashTreeBuilder(manifoldCoordinate),
                                                                              collector,
                                                                              collector);
-      final HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraphGraph();
+      final HashTreeWithBitSets resultGraph  = graphBuilder.getSimpleDirectedGraph();
 
       return resultGraph;
    }

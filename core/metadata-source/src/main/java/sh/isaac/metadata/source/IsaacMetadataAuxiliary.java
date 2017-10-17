@@ -189,7 +189,7 @@ public class IsaacMetadataAuxiliary
 
          masterPath.addUuids(UUID.fromString("2faa9260-8fb2-11db-b606-0800200c9a66"));  // UUID from WB_AUX_PATH
          popParent();
-         createConcept("SNOMED DL concept operator");
+         createConcept("Sufficient concept definition operator");
          pushParent(current());
          createConcept(TermAux.SUFFICIENT_CONCEPT_DEFINITION);
          createConcept(TermAux.NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION);

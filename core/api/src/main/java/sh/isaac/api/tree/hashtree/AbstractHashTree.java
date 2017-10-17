@@ -49,7 +49,6 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 import sh.isaac.api.Get;
 
 import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.Tree;
@@ -428,5 +427,19 @@ public abstract class AbstractHashTree
       }
 
       return new int[0];
+   }
+   
+   public void removeParent(int childSequence, int parentSequence) {
+      int[] parents = childSequence_ParentSequenceArray_Map.get(childSequence);
+      
+      int[] newParents = new int[parents.length - 1];
+      
+      int j = 0;
+      for (int i = 0; i < parents.length; i++) {
+         if (parents[i] != parentSequence) {
+            newParents[j++] = parents[i];
+         }
+      }
+      childSequence_ParentSequenceArray_Map.put(childSequence, newParents);
    }
 }

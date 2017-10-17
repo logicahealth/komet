@@ -50,7 +50,10 @@ import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.map.OpenIntObjectHashMap;
 import org.apache.mahout.math.set.OpenIntHashSet;
 import sh.isaac.api.Get;
+import sh.isaac.api.alert.Alert;
+import sh.isaac.api.alert.AlertType;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.tree.TreeCycleError;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import static sh.isaac.api.tree.hashtree.AbstractHashTree.MULTI_PARENT_SETS;
 
@@ -199,7 +202,7 @@ public class HashTreeBuilder {
     *
     * @return the simple directed graph graph
     */
-   public HashTreeWithBitSets getSimpleDirectedGraphGraph() {
+   public HashTreeWithBitSets getSimpleDirectedGraph() {
       OpenIntHashSet roots = (OpenIntHashSet) conceptSequences.clone();
       removeFromOne(roots, conceptSequencesWithParents);
       if (roots.size() == 1) {
@@ -229,6 +232,14 @@ public class HashTreeBuilder {
             }
          });
 
+         for (int[] cycle: visitData.getCycleSet()) {
+            StringBuilder cycleDescription = new StringBuilder("Members: \n");
+            for (int conceptSequence: cycle) {
+               cycleDescription.append("   ").append(manifoldCoordinate.getPreferredDescriptionText(conceptSequence)).append("\n");
+            }
+            Alert.publishAddition(new TreeCycleError(cycle, visitData, graph, "Cycle found", cycleDescription.toString(), AlertType.ERROR));
+         }
+         
          System.out.println("Nodes visited: " + visitData.getNodesVisited());
          for (int sequence: watchSequences.toList()) {
             OpenIntHashSet multiParents = visitData.getUserNodeSet(MULTI_PARENT_SETS, sequence);
@@ -243,10 +254,6 @@ public class HashTreeBuilder {
             printWatch(sequence, "root: ");
          }
          // try again
-         
-      OpenIntHashSet roots2 = (OpenIntHashSet) conceptSequences.clone();
-      removeFromOne(roots2, conceptSequencesWithParents);
-          builder.append(" second try: ").append(roots2);
          throw new UnsupportedOperationException(builder.toString());
       }
 

@@ -76,6 +76,11 @@ public enum AlertType {
    /** A confirmation alert. Not sure about this one...
     confirmation alerts would need some type of time out perhaps...
     */
-   CONFIRMATION;
+   CONFIRMATION, 
+   
+   /**
+    * Indicate success of an activity such as a commit or another automated process. 
+    */
+   SUCCESS;
 }
 

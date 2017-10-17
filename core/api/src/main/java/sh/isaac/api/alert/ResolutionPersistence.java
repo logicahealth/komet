@@ -20,6 +20,6 @@ package sh.isaac.api.alert;
  *
  * @author kec
  */
-public interface AlertConsumer {
-   
+public enum ResolutionPersistence {
+   TEMPORARY, PERMANENT
 }

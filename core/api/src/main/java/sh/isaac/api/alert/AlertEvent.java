@@ -41,8 +41,6 @@ package sh.isaac.api.alert;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
@@ -64,15 +62,24 @@ public class AlertEvent {
 
    //~--- fields --------------------------------------------------------------
 
-   private final List<Resolver> resolvers = new ArrayList();
-   private AlertObject          alertObject;
+   private AlertAction alertAction;
+   private AlertObject alertObject;
 
    //~--- methods -------------------------------------------------------------
 
+   @Override
+   public String toString() {
+      return "AlertEvent{alertObject=" + alertObject + "}";
+   }
+
    Optional<Future<Boolean>> testResolution() {
       if (alertObject != null) {
-         return Optional.of(Get.executor()
-                               .submit(alertObject.getTester()));
+         if (alertObject.getResolutionTester()
+                        .isPresent()) {
+            return Optional.of(Get.executor()
+                                  .submit(alertObject.getResolutionTester()
+                                        .get()));
+         }
       }
 
       return Optional.empty();
@@ -80,21 +87,21 @@ public class AlertEvent {
 
    //~--- get methods ---------------------------------------------------------
 
+   //~--- get methods ---------------------------------------------------------
+
    public AlertObject getAlertObject() {
       return alertObject;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
-   public void setAlertObject(AlertObject alertObject) {
-      this.alertObject = alertObject;
-      this.resolvers.clear();
+   public AlertAction getAlertAction() {
+      return alertAction;
    }
 
-   //~--- get methods ---------------------------------------------------------
+   //~--- set methods ---------------------------------------------------------
 
-   public List<Resolver> getResolvers() {
-      return resolvers;
+   public void setAlertObject(AlertObject alertObject, AlertAction alertAction) {
+      this.alertObject = alertObject;
+      this.alertAction = alertAction;
    }
 }
 

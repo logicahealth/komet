@@ -138,19 +138,19 @@ public class DynamicConstants
    ;
 
    /** The dynamic dt polymorphic. */
-   public final MetadataConceptConstant DYNAMIC_DT_POLYMORPHIC = new MetadataConceptConstant("polymorphic",
+   public final MetadataConceptConstant DYNAMIC_DT_POLYMORPHIC = new MetadataConceptConstant("Polymorphic",
                                                                                                     UUID.fromString(
                                                                                                        "3d634fd6-1498-5e8b-b914-e75b42018397")) {}
    ;
 
    /** The dynamic dt array. */
-   public final MetadataConceptConstant DYNAMIC_DT_ARRAY = new MetadataConceptConstant("array",
+   public final MetadataConceptConstant DYNAMIC_DT_ARRAY = new MetadataConceptConstant("Array",
                                                                                               UUID.fromString(
                                                                                                  "318622e6-dd7a-5651-851d-2d5c2af85767")) {}
    ;
 
    /** The dynamic dt sequence. */
-   public final MetadataConceptConstant DYNAMIC_DT_SEQUENCE = new MetadataConceptConstant("sequence",
+   public final MetadataConceptConstant DYNAMIC_DT_SEQUENCE = new MetadataConceptConstant("Sequence",
                                                                                                  UUID.fromString(
                                                                                                     "5bfd7cfb-ca7e-584d-8672-e089dbb4e912")) {}
    ;
@@ -177,7 +177,7 @@ public class DynamicConstants
 
    /** The dynamic column data types. */
    public final MetadataConceptConstantGroup DYNAMIC_COLUMN_DATA_TYPES =
-      new MetadataConceptConstantGroup("dynamic column data types",
+      new MetadataConceptConstantGroup("Dynamic column data types",
                                        UUID.fromString("61da7e50-f606-5ba0-a0df-83fd524951e7")) {
       {
          addChild(DynamicConstants.this.DYNAMIC_DT_NID);
@@ -200,28 +200,28 @@ public class DynamicConstants
    /** The dynamic namespace. */
    // used as salt for generating other UUIDs.
    public final MetadataConceptConstant DYNAMIC_NAMESPACE =
-      new MetadataConceptConstant("dynamic namespace",
+      new MetadataConceptConstant("Dynamic namespace",
                                   UUID.fromString("eb0c13ff-74fd-5987-88a0-6f5d75269e9d")) {}
    ;
 
    /** The dynamic column order. */
 
    // The seven column types we need for describing column types
-   public final MetadataConceptConstant DYNAMIC_COLUMN_ORDER = new MetadataConceptConstant("column order",
+   public final MetadataConceptConstant DYNAMIC_COLUMN_ORDER = new MetadataConceptConstant("Column order",
                                                                                                   UUID.fromString(
                                                                                                      "8c501747-846a-5cea-8fd6-c9dd3dfc674f"),
                                                                                                   "Stores the column order of this column within a Dynamic Definition") {}
    ;
 
    /** The dynamic column name. */
-   public final MetadataConceptConstant DYNAMIC_COLUMN_NAME = new MetadataConceptConstant("column name",
+   public final MetadataConceptConstant DYNAMIC_COLUMN_NAME = new MetadataConceptConstant("Column name",
                                                                                                  UUID.fromString(
                                                                                                     "89c0ded2-fd69-5654-a386-ded850d258a1"),
                                                                                                  "Stores the concept reference to the concept that defines the name of this column within a Dynamic Definition") {}
    ;
 
    /** The dynamic column type. */
-   public final MetadataConceptConstant DYNAMIC_COLUMN_TYPE = new MetadataConceptConstant("column type",
+   public final MetadataConceptConstant DYNAMIC_COLUMN_TYPE = new MetadataConceptConstant("Column type",
                                                                                                  UUID.fromString(
                                                                                                     "dbfd9bd2-b84f-574a-ab9e-64ba3bb94793"),
                                                                                                  "Stores the data type of this column within a Dynamic Definition") {}
@@ -229,13 +229,13 @@ public class DynamicConstants
 
    /** The dynamic column default value. */
    public final MetadataConceptConstant DYNAMIC_COLUMN_DEFAULT_VALUE =
-      new MetadataConceptConstant("column default value",
+      new MetadataConceptConstant("Column default value",
                                   UUID.fromString("4d3e79aa-ab74-5858-beb3-15e0888986cb"),
                                   "Stores the (optional) default value of this column within a Dynamic Definition") {}
    ;
 
    /** The dynamic column required. */
-   public final MetadataConceptConstant DYNAMIC_COLUMN_REQUIRED = new MetadataConceptConstant("column required",
+   public final MetadataConceptConstant DYNAMIC_COLUMN_REQUIRED = new MetadataConceptConstant("Column required",
                                                                                                      UUID.fromString(
                                                                                                         "8a89ef19-bd5a-5e25-aa57-1172fbb437b6"),
                                                                                                      "Stores the (optional) flag to specify that this column is manditory within a Dynamic Definition") {}
@@ -243,14 +243,14 @@ public class DynamicConstants
 
    /** The dynamic column validator. */
    public final MetadataConceptConstant DYNAMIC_COLUMN_VALIDATOR =
-      new MetadataConceptConstant("column validator",
+      new MetadataConceptConstant("Column validator",
                                   UUID.fromString("f295c3ba-d416-563d-8427-8b5d3e324192"),
                                   "Stores the (optional) validator type which will be applied to user supplied data of this column within a Dynamic Definition") {}
    ;
 
    /** The dynamic column validator data. */
    public final MetadataConceptConstant DYNAMIC_COLUMN_VALIDATOR_DATA =
-      new MetadataConceptConstant("column validator data",
+      new MetadataConceptConstant("Column validator data",
                                   UUID.fromString("50ea8378-8355-5a5d-bae2-ce7c10e92636"),
                                   "Stores the (optional) validator data which will be used by the validator to check the user input of this column within a Dynamic Definition") {}
    ;
@@ -259,7 +259,7 @@ public class DynamicConstants
 
    // used for index config
    public final MetadataConceptConstant DYNAMIC_COLUMN_COLUMNS_TO_INDEX =
-      new MetadataConceptConstant("columns to index",
+      new MetadataConceptConstant("Columns to index",
                                   UUID.fromString("cede7677-3759-5dce-b28b-20a40fddf5d6"),
                                   "Contains an array of integers that denote the column positions within the referenced assemblage which should have their values indexed.") {}
    ;
@@ -268,7 +268,7 @@ public class DynamicConstants
 
    // Used for referenced component type restrictions
    public final MetadataConceptConstant DYNAMIC_COLUMN_REFERENCED_COMPONENT_TYPE =
-      new MetadataConceptConstant("referenced component type restriction",
+      new MetadataConceptConstant("Referenced component type restriction",
                                   UUID.fromString("902f97b6-2ef4-59d7-b6f9-01278a00061c"),
                                   "Stores the (optional) referenced component type restriction selection which will be used by the validator to check the user input for the " +
                                   "referenced component when creating an instance of a dynamic field") {}
@@ -278,7 +278,7 @@ public class DynamicConstants
 
    // Used for referenced component sub-type restrictions
    public final MetadataConceptConstant DYNAMIC_COLUMN_REFERENCED_COMPONENT_SUBTYPE =
-      new MetadataConceptConstant("referenced component subtype restriction",
+      new MetadataConceptConstant("Referenced component subtype restriction",
                                   UUID.fromString("8af1045e-1122-5072-9f29-ce7da9337915"),
                                   "Stores the (optional) referenced component type sub restriction selection which will be used by the validator to check the user input for the " +
                                   "referenced component when creating an instance of a dynamic field.") {}
@@ -289,7 +289,7 @@ public class DynamicConstants
 
    /** The dynamic column value. */
    // the column represents the value, while the type of the attribute is represented by the refex type itself - so the column name isn't really necessary)
-   public final MetadataConceptConstant DYNAMIC_COLUMN_VALUE = new MetadataConceptConstant("value",
+   public final MetadataConceptConstant DYNAMIC_COLUMN_VALUE = new MetadataConceptConstant("Value",
                                                                                                   UUID.fromString(
                                                                                                      "d94e271f-0e9b-5159-8691-6c29c7689ffb"),
                                                                                                   "The attached value of the sememe") {}
@@ -299,14 +299,14 @@ public class DynamicConstants
 
    // 2 columns for a comments sememe
    public final MetadataConceptConstant DYNAMIC_COLUMN_EDITOR_COMMENT =
-      new MetadataConceptConstant("editor comment",
+      new MetadataConceptConstant("Editor comment",
                                   UUID.fromString("2b38b1a9-ce6e-5be2-8885-65cd76f40929"),
                                   "Stores the comment created by the editor") {}
    ;
 
    /** The dynamic column editor comment context. */
    public final MetadataConceptConstant DYNAMIC_COLUMN_EDITOR_COMMENT_CONTEXT =
-      new MetadataConceptConstant("editor comment context",
+      new MetadataConceptConstant("Editor comment context",
                                   UUID.fromString("2e4187ca-ba45-5a87-8484-1f86801a331a"),
                                   "Stores an optional value that may be used to group comments, such as 'mapping comment' or 'assertion comment' which" +
                                   " then would allow programmatic filtering of comments to be context specific.") {}
@@ -323,7 +323,7 @@ public class DynamicConstants
 
    /** The dynamic column business rules. */
    public final MetadataConceptConstant DYNAMIC_COLUMN_BUSINESS_RULES =
-      new MetadataConceptConstant("business rules",
+      new MetadataConceptConstant("Business rules",
                                   UUID.fromString("7ebc6742-8586-58c3-b49d-765fb5a93f35"),
                                   "Stores the business rules stored on a definition - specifically a map set definition, but can be used elsewhere") {}
    ;
@@ -334,7 +334,7 @@ public class DynamicConstants
    /** The dynamic columns. */
    // within the system.
    public final MetadataConceptConstantGroup DYNAMIC_COLUMNS =
-      new MetadataConceptConstantGroup("dynamic columns",
+      new MetadataConceptConstantGroup("Dynamic columns",
                                        UUID.fromString("46ddb9a2-0e10-586a-8b54-8e66333e9b77")) {
       {
          addChild(DynamicConstants.this.DYNAMIC_COLUMN_ORDER);
@@ -360,7 +360,7 @@ public class DynamicConstants
    /** The dynamic referenced component restriction. */
    // of the sememe
    public final MetadataDynamicConstant DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION =
-      new MetadataDynamicConstant("dynamic referenced component restriction",
+      new MetadataDynamicConstant("Dynamic referenced component restriction",
                                         UUID.fromString("0d94ceeb-e24f-5f1a-84b2-1ac35f671db5"),
                                         "This concept is used as an assemblage for defining new extensions.  It annotates other extensions to restrict the usage of a " +
                                         " semantic to a particular Component Type (Concept, Description, etc).  The attached data column specifies the allowed Component Type",
@@ -396,7 +396,7 @@ public class DynamicConstants
 
    // an organizational concept for all of the metadata concepts being added for dynamic field
    public final MetadataConceptConstantGroup DYNAMIC_METADATA =
-      new MetadataConceptConstantGroup("dynamic metadata",
+      new MetadataConceptConstantGroup("Dynamic metadata",
                                        UUID.fromString("9769773c-7b70-523d-8fc5-b16621ffa57c")) {
       {
          addChild(DynamicConstants.this.DYNAMIC_NAMESPACE);
@@ -417,7 +417,7 @@ public class DynamicConstants
    /** The dynamic extension definition. */
    // no data to attach.
    public final MetadataDynamicConstant DYNAMIC_EXTENSION_DEFINITION =
-      new MetadataDynamicConstant("dynamic extension definition",
+      new MetadataDynamicConstant("Dynamic extension definition",
                                         UUID.fromString("406e872b-2e19-5f5e-a71d-e4e4b2c68fe5"),
                                         "This concept is used as an assemblage for defining new extensions.  " +
                                         "The attached data columns describe what columns are required to define a new Sememe.",
@@ -483,7 +483,7 @@ public class DynamicConstants
    /** The dynamic definition description. */
    // using the concept containing the description as an assemblage concept.
    public final MetadataDynamicConstant DYNAMIC_DEFINITION_DESCRIPTION =
-      new MetadataDynamicConstant("dynamic definition description",
+      new MetadataDynamicConstant("Dynamic definition description",
                                         UUID.fromString("b0372953-4f20-58b8-ad04-20c2239c7d4e"),
                                         "This is the extended description type that must be attached to a description within a concept to make the concept valid for use as an " +
                                         "assemblage concept for a dynamic field.  The description annotated with this type describes the intent of " +
@@ -501,7 +501,7 @@ public class DynamicConstants
    /** The dynamic index configuration. */
    // dynamic fields should be indexed within the system.
    public final MetadataDynamicConstant DYNAMIC_INDEX_CONFIGURATION =
-      new MetadataDynamicConstant("dynamic index configuration",
+      new MetadataDynamicConstant("Dynamic index configuration",
                                         UUID.fromString("a5d187a7-3d95-5694-b2eb-a48d94cb0698"),
                                         "A Dynamic which contains the indexer configuration for dynamic fields within ISAAC.  " +
                                         "The referenced component ID will be the assemblage being configured for indexing.",
@@ -535,7 +535,7 @@ public class DynamicConstants
 
    /** *  see {@link #DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT}. */
    public final MetadataDynamicConstant DYNAMIC_ASSOCIATION =
-      new MetadataDynamicConstant("represents association",
+      new MetadataDynamicConstant("Represents association",
                                         UUID.fromString("5252bafb-1ba7-5a35-b1a2-48d7a65fa477"),
                                         "A component used to annotate other components which define an association, which is defined as a which contains " +
                                         "a data column named 'target concept', among other criteria.",
@@ -545,7 +545,7 @@ public class DynamicConstants
 
    /** The dynamic association inverse name. */
    public final MetadataDynamicConstant DYNAMIC_ASSOCIATION_INVERSE_NAME =
-      new MetadataDynamicConstant("inverse name",
+      new MetadataDynamicConstant("Inverse name",
                                         UUID.fromString("c342d18a-ec1c-5583-bfe3-59e6324ae189"),
                                         "This is the extended description type that may be attached to a description within a concept that defines an Association Refex to signify that " +
                                         "the referenced description is the inverse of the association name.",
@@ -558,7 +558,7 @@ public class DynamicConstants
 
    /** The dynamic extended description type. */
    public final MetadataDynamicConstant DYNAMIC_EXTENDED_DESCRIPTION_TYPE =
-      new MetadataDynamicConstant("extended description type",
+      new MetadataDynamicConstant("Extended description type",
                                         UUID.fromString("5a2e7786-3e41-11dc-8314-0800200c9a66"),
                                         "Used to store non-snomed description types when other terminologies are imported",
                                         new DynamicColumnInfo[] { new DynamicColumnInfo(0,
@@ -574,7 +574,7 @@ public class DynamicConstants
 
    /** The dynamic extended relationship type. */
    public final MetadataDynamicConstant DYNAMIC_EXTENDED_RELATIONSHIP_TYPE =
-      new MetadataDynamicConstant("extended relationship type",
+      new MetadataDynamicConstant("Extended relationship type",
                                         UUID.fromString("d41d928f-8a97-55c1-aa6c-a289b413fbfd"),
                                         "Used to store non-snomed relationship types when other terminologies are imported - especially when a relationship is mapped onto a " +
                                         "snomed relationship type (such as isa)",
@@ -609,7 +609,7 @@ public class DynamicConstants
    /** The dynamic assemblages. */
    // (unless they choose to put them some where else, this isn't required, is only for convenience)
    public final MetadataConceptConstantGroup DYNAMIC_ASSEMBLAGES =
-      new MetadataConceptConstantGroup("dynamic assemblages",
+      new MetadataConceptConstantGroup("Dynamic assemblages",
                                        UUID.fromString("e18265b7-5406-52b6-baf0-4cfb867829b4")) {
       {
          addChild(DynamicConstants.this.DYNAMIC_EXTENSION_DEFINITION);

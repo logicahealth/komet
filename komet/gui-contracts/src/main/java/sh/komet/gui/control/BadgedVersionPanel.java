@@ -40,9 +40,6 @@ package sh.komet.gui.control;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -79,7 +76,6 @@ import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -88,8 +84,6 @@ import sh.isaac.api.component.semantic.version.LongVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
-import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.komet.iconography.Iconography;
 
 import sh.komet.gui.manifold.Manifold;
@@ -100,9 +94,7 @@ import sh.komet.gui.style.StyleClasses;
 import static sh.komet.gui.style.StyleClasses.ADD_ATTACHMENT;
 import sh.komet.gui.util.FxGet;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
 //~--- classes ----------------------------------------------------------------
 /**

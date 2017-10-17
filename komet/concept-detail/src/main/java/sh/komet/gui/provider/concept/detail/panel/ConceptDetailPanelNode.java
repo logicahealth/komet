@@ -212,7 +212,7 @@ public class ConceptDetailPanelNode
       if (conceptDetailManifold.getFocusedConcept() != null) {
          ConceptSpecification focusedConceptSpec = conceptDetailManifold.getFocusedConcept();
          ConceptChronology    focusedConcept     = Get.concept(focusedConceptSpec);
-         SemanticSequenceSet    recursiveSememes   = focusedConcept.getRecursiveSemanticSequences();
+         SemanticSequenceSet    recursiveSemantics   = focusedConcept.getRecursiveSemanticSequences();
 
          if (commitRecord.getConceptsInCommit()
                          .contains(conceptDetailManifold.getFocusedConcept()
@@ -225,7 +225,7 @@ public class ConceptDetailPanelNode
                        conceptDetailManifold.focusedConceptProperty()
                                             .get());
                 });
-         } else if (!recursiveSememes.and(commitRecord.getSemanticSequencesInCommit())
+         } else if (!recursiveSemantics.and(commitRecord.getSemanticSequencesInCommit())
                                      .isEmpty()) {
             Platform.runLater(
                 () -> {
@@ -531,6 +531,9 @@ public class ConceptDetailPanelNode
    }
 
    private void updateStampControls(Chronology chronology) {
+      if (chronology == null) {
+         return;
+      }
       for (int stampSequence: chronology.getVersionStampSequences()) {
          if (historySwitch.isSelected()) {
             stampOrderHashMap.put(stampSequence, 0);

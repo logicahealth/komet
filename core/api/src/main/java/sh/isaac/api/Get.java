@@ -125,11 +125,10 @@ public class Get
          implements OchreCache {
    /** The LOG. */
    private static final Logger LOG = LogManager.getLogger();
-   private static Disruptor<AlertEvent> alertDisruptor = new Disruptor<>(
+   private static final Disruptor<AlertEvent> alertDisruptor = new Disruptor<>(
                                                              AlertEvent::new,
                                                                    512,
                                                                    new NamedThreadFactory("alert-disruptor", true));
-
    /** The active task set. */
    private static ActiveTasks activeTaskSet;
 

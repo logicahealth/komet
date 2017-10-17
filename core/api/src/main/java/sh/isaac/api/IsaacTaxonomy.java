@@ -200,7 +200,7 @@ public class IsaacTaxonomy {
             // See {@link DynamicSememeUsageDescription} class for more details on this format.
             final MetadataDynamicConstant dsc = (MetadataDynamicConstant) cc;
             final DescriptionBuilder<? extends SemanticChronology, ? extends MutableDescriptionVersion> db
-                    = addDescription(dsc.getSememeAssemblageDescription(),
+                    = addDescription(dsc.getAssemblageDescription(),
                             cb,
                             TermAux.DEFINITION_DESCRIPTION_TYPE,
                             false);
@@ -213,8 +213,8 @@ public class IsaacTaxonomy {
 
             db.addSemantic(sb);
 
-            if (dsc.getDynamicSememeColumns() != null) {
-               for (final DynamicColumnInfo col : dsc.getDynamicSememeColumns()) {
+            if (dsc.getDynamicColumns() != null) {
+               for (final DynamicColumnInfo col : dsc.getDynamicColumns()) {
                   final DynamicData[] colData = LookupService.getService(DynamicUtility.class)
                           .configureDynamicDefinitionDataForColumn(col);
 
@@ -243,7 +243,7 @@ public class IsaacTaxonomy {
 
             final DynamicArray<DynamicData> indexConfig
                     = LookupService.getService(DynamicUtility.class)
-                            .configureColumnIndexInfo(dsc.getDynamicSememeColumns());
+                            .configureColumnIndexInfo(dsc.getDynamicColumns());
 
             if (indexConfig != null) {
                sb = Get.semanticBuilderService()

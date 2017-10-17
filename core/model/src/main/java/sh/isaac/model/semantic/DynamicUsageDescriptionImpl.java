@@ -220,8 +220,8 @@ public class DynamicUsageDescriptionImpl
                                  }
 
                                  if ((defaultData != null) &&
-                                     (type.getDynamicSememeMemberClass() !=
-                                     refexDefinitionData[3].getDynamicDataType().getDynamicSememeMemberClass())) {
+                                     (type.getDynamicMemberClass() !=
+                                     refexDefinitionData[3].getDynamicDataType().getDynamicMemberClass())) {
                                     throw new IOException("The Assemblage concept: " + assemblageConcept +
                                     " is not correctly assembled for use as an Assemblage for " +
                                        "a DynamicSememeData Refex Type.  The type of the column (column 3) must match the type of the defaultData (column 4)");

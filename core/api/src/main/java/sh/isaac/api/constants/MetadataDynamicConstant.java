@@ -57,10 +57,10 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 public class MetadataDynamicConstant
         extends MetadataConceptConstant {
    /** The dynamic description. */
-   private final String dynamicSememeDescription;
+   private final String dynamicDescription;
 
    /** The dynamic columns. */
-   private final DynamicColumnInfo[] dynamicSememeColumns;
+   private final DynamicColumnInfo[] dynamicColumns;
 
    /** The referenced component restriction. */
    private final ObjectChronologyType referencedComponentRestriction;
@@ -177,8 +177,8 @@ public class MetadataDynamicConstant
          }
       }
 
-      this.dynamicSememeDescription          = description;
-      this.dynamicSememeColumns              = columns;
+      this.dynamicDescription          = description;
+      this.dynamicColumns              = columns;
       this.referencedComponentRestriction    = referencedComponentRestriction;
       this.referencedComponentSubRestriction = refererenceComponentSubRestriction;
    }
@@ -190,8 +190,8 @@ public class MetadataDynamicConstant
     *
     * @return the sememeColumns
     */
-   public DynamicColumnInfo[] getDynamicSememeColumns() {
-      return this.dynamicSememeColumns;
+   public DynamicColumnInfo[] getDynamicColumns() {
+      return this.dynamicColumns;
    }
 
    /**
@@ -217,8 +217,8 @@ public class MetadataDynamicConstant
     *
     * @return the dynamicSememeDescription_
     */
-   public String getSememeAssemblageDescription() {
-      return this.dynamicSememeDescription;
+   public String getAssemblageDescription() {
+      return this.dynamicDescription;
    }
 }
 

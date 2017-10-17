@@ -226,39 +226,39 @@ public class IBDFCreationUtility {
       registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION
                                 .getUUID(),
           DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION
-                                .getDynamicSememeColumns());
+                                .getDynamicColumns());
       registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_ASSOCIATION
                                 .getUUID(),
           DynamicConstants.get().DYNAMIC_ASSOCIATION
-                                .getDynamicSememeColumns());
+                                .getDynamicColumns());
       registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME
                                 .getUUID(),
           DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME
-                                .getDynamicSememeColumns());
+                                .getDynamicColumns());
       registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
                                 .getUUID(),
           DynamicConstants.get().DYNAMIC_SEMEME_REFERENCED_COMPONENT_RESTRICTION
-                                .getDynamicSememeColumns());
+                                .getDynamicColumns());
       registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION
                                 .getUUID(),
           DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION
-                                .getDynamicSememeColumns());
+                                .getDynamicColumns());
       registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
                                 .getUUID(),
           DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
-                                .getDynamicSememeColumns());
+                                .getDynamicColumns());
       registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_COMMENT_ATTRIBUTE
                                 .getUUID(),
           DynamicConstants.get().DYNAMIC_COMMENT_ATTRIBUTE
-                                .getDynamicSememeColumns());
+                                .getDynamicColumns());
       registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE
                                 .getUUID(),
           DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE
-                                .getDynamicSememeColumns());
+                                .getDynamicColumns());
       registerDynamicSememeColumnInfo(DynamicConstants.get().DYNAMIC_EXTENDED_RELATIONSHIP_TYPE
                                 .getUUID(),
           DynamicConstants.get().DYNAMIC_EXTENDED_RELATIONSHIP_TYPE
-                                .getDynamicSememeColumns());
+                                .getDynamicColumns());
 
       // TODO figure out how to get rid of this copy/paste mess too
       registerDynamicSememeColumnInfo(MetaData.LOINC_NUM____SOLOR.getPrimordialUuid(),

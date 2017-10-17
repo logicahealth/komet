@@ -20,6 +20,10 @@ package sh.isaac.api.alert;
  *
  * @author kec
  */
-public enum AlertLists {
-   TAXONOMY, CLASSIFIER, COMMIT
+public class InfoAlert extends AlertObject {
+   
+   public InfoAlert(String alertTitle, String alertDescription, AlertCategory alertCategory) {
+      super(alertTitle, alertDescription, AlertType.INFORMATION, alertCategory, null);
+   }
+   
 }

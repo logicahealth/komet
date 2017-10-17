@@ -55,11 +55,11 @@ public abstract class KometTreeTableCell<C> extends TreeTableCell<ObservableCate
          pseudoClassStateChanged(LOGICAL_DEFINITION_PSEUDO_CLASS, false);
          pseudoClassStateChanged(DESCRIPTION_PSEUDO_CLASS, false);
          pseudoClassStateChanged(CONCEPT_PSEUDO_CLASS, false);
-         pseudoClassStateChanged(OTHER_PSEUDO_CLASS, false);
+         pseudoClassStateChanged(OTHER_VERSION_PSEUDO_CLASS, false);
 
       } else {
          ObservableCategorizedVersion observableVersion = row.getItem();
-         pseudoClassStateChanged(OTHER_PSEUDO_CLASS, false);
+         pseudoClassStateChanged(OTHER_VERSION_PSEUDO_CLASS, false);
          pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, observableVersion.isUncommitted());
          pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !observableVersion.getState().isActive());
          // TODO: check for superceded. 
@@ -99,7 +99,7 @@ public abstract class KometTreeTableCell<C> extends TreeTableCell<ObservableCate
                default:
                   pseudoClassStateChanged(LOGICAL_DEFINITION_PSEUDO_CLASS, false);
                   pseudoClassStateChanged(DESCRIPTION_PSEUDO_CLASS, false);
-                  pseudoClassStateChanged(OTHER_PSEUDO_CLASS, true);
+                  pseudoClassStateChanged(OTHER_VERSION_PSEUDO_CLASS, true);
             }
          }
 

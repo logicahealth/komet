@@ -306,7 +306,7 @@ public abstract class LuceneIndexer
                   LOG.info("submitting sememes " + commitRecord.getSemanticSequencesInCommit().toString() + " to indexer " +
                            getIndexerName() + " due to commit");
                } else {
-                  LOG.info("submitting " + size + " sememes to indexer " + getIndexerName() + " due to commit");
+                  LOG.info("submitting " + size + " semantic elements to indexer " + getIndexerName() + " due to commit");
                }
 
                commitRecord.getSemanticSequencesInCommit().stream().forEach(sememeId -> {

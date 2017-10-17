@@ -17,17 +17,13 @@
 package sh.isaac.api.alert;
 
 import com.lmax.disruptor.EventHandler;
-
+import org.jvnet.hk2.annotations.Contract;
 
 /**
  *
  * @author kec
  */
-public class ResolutionFactory implements EventHandler<AlertEvent> {
-
-   @Override
-   public void onEvent(AlertEvent event, long sequence, boolean endOfBatch) throws Exception {
-      // noop for now...
-   }
+@Contract
+public interface ResolverService extends EventHandler<AlertEvent> {
    
 }

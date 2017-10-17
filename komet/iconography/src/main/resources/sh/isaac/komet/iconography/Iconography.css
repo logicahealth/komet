@@ -715,3 +715,59 @@ limitations under the License.
    -glyph-size: 24;
    -icons-color: red;
 }
+
+
+.alert-confirm {
+   -fx-graphic: url("/org/controlsfx/dialog/dialog-confirm.png");
+   -my-height: 20;
+   -my-width: 20;
+}
+
+.alert-warn {
+   -fx-graphic: url("/org/controlsfx/dialog/dialog-warning.png");
+   -my-height: 20;
+   -my-width: 20;
+}
+
+.alert-error {
+   -fx-graphic: url("/org/controlsfx/dialog/dialog-error.png");
+   -my-height: 20;
+   -my-width: 20;  
+}
+
+.alert-info {
+   -fx-graphic: url("/org/controlsfx/dialog/dialog-information.png");
+   -my-height: 20;
+   -my-width: 20;
+}
+
+.alert-confirm-2 {
+   -glyph-name: "QUESTION_CIRCLE";
+   -glyph-size: 20;
+}
+
+.alert-warn-2 {
+   -glyph-name: "ALERT_CIRCLE_OUTLINE";
+   -glyph-size: 20;
+}
+
+.alert-error-2 {
+   -glyph-name: "ALERT_OCTAGON";
+   -glyph-size: 24;
+}
+
+.alert-info-2 {
+   -glyph-name: "INFO_CIRCLE";
+   -glyph-size: 18;
+}
+
+.temporary-fix {
+   -glyph-name: "HEALING";
+   -glyph-size: 18;
+}
+
+.check {
+   -glyph-name: "CHECK";
+   -glyph-size: 18;
+}
+

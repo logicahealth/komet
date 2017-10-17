@@ -16,19 +16,10 @@
  */
 package sh.isaac.api.alert;
 
-import javafx.concurrent.Task;
-
 /**
  *
  * @author kec
  */
-
-public interface Resolver {
-   String getTitle();
-   
-   String getDescription();
-   
-   Task<Void> resolve();
-   
-   ResolutionPersistence getPersistence();
+public enum AlertCategory {
+   TAXONOMY, CLASSIFIER, COMMIT
 }

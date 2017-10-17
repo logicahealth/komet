@@ -554,7 +554,10 @@ public class ConceptProvider
 
    @Override
    public ConceptChronology getConcept(ConceptSpecification conceptSpecification) {
-      return getConcept(conceptSpecification.getConceptSequence());
+      if (conceptSpecification != null) {
+         return getConcept(conceptSpecification.getConceptSequence());
+      }
+      return null;
    }
 
    //~--- inner classes -------------------------------------------------------
