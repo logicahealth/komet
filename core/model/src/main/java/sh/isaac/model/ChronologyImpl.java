@@ -1003,24 +1003,6 @@ public abstract class ChronologyImpl
    }
 
    /**
-    * Gets the sememe list from assemblage of type.
-    *
-    * @param assemblageSequence the assemblage sequence
-    * @param type the type
-    * @return the sememe list from assemblage of type
-    */
-   @Override
-   public <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblageOfType(int assemblageSequence,
-           VersionType type) {
-      final List<V> results = Get.assemblageService()
-              .ofType(type)
-              .<V>getSemanticChronologiesForComponentFromAssemblage(this.nid, assemblageSequence)
-              .collect(Collectors.toList());
-
-      return results;
-   }
-
-   /**
     * Gets the unwritten version list.
     *
     * @return a list of all unwritten versions contained in this chronicle.

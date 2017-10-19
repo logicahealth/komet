@@ -76,7 +76,6 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.SemanticServiceTyped;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
@@ -178,18 +177,6 @@ public class AssemblageProvider
    }
 
    /**
-    * Of type.
-    *
-    * @param <V> the value type
-    * @param versionType the version type
-    * @return the sememe service typed
-    */
-   @Override
-   public <V extends SemanticVersion> SemanticServiceTyped ofType(VersionType versionType) {
-      return new AssemblageOfTypeProvider(versionType, this);
-   }
-
-   /**
     * Write sememe.
     *
     * @param sememeChronicle the sememe chronicle
@@ -233,15 +220,6 @@ public class AssemblageProvider
 
    //~--- get methods ---------------------------------------------------------
 
-   /**
-    * Gets the assemblage types.
-    *
-    * @return the assemblage types
-    */
-   @Override
-   public Stream<Integer> getAssemblageTypes() {
-      return this.inUseAssemblages.stream();
-   }
 
    @Override
    public UUID getDataStoreId() {

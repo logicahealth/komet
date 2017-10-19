@@ -50,11 +50,9 @@ import java.util.stream.Stream;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.collections.SemanticSequenceSet;
-import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.SemanticServiceTyped;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 
@@ -68,14 +66,6 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 @Contract
 public interface AssemblageService
         extends DatabaseServices {
-   /**
-    * Of type.
-    *
-    * @param <V> the value type
-    * @param versionType the version type
-    * @return the assemblage service typed
-    */
-   <V extends SemanticVersion> SemanticServiceTyped ofType(VersionType versionType);
 
    /**
     * Write a SemanticChronology to the assemblage service. Will not overwrite a SemanticChronology if one already exists, rather it will
@@ -90,13 +80,6 @@ public interface AssemblageService
    void writeSemanticChronology(SemanticChronology semanticChronicle);
 
    //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the assemblage types.
-    *
-    * @return the sequence identifiers of all assemblage concepts that are actually in use by a semantic
-    */
-   Stream<Integer> getAssemblageTypes();
 
    /**
     * Gets the descriptions for component.

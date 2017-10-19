@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
@@ -40,6 +41,7 @@ import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.DatabaseServices;
+import sh.isaac.api.chronicle.Chronology;
 import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.ChronologyImpl;
@@ -138,6 +140,10 @@ public class BdbProvider implements DatabaseServices {
          myDbEnvironment.close();
       }
    }
+   
+   public static Stream<? extends Chronology> getStream() {
+      throw new UnsupportedOperationException();
+   }
 
    @Override
    public void clearDatabaseValidityValue() {
@@ -173,8 +179,6 @@ public class BdbProvider implements DatabaseServices {
    }
 
    public static Optional<ByteArrayDataBuffer> getChronologyData(Database database, int sequenceId) throws IllegalStateException {
-      ArrayList<byte[]> dataList = new ArrayList<>();
-      ByteArrayDataBuffer byteBuffer = null;
       try (Cursor cursor = database.openCursor(null, CursorConfig.READ_UNCOMMITTED)) {
          DatabaseEntry key = new DatabaseEntry();
          IntegerBinding.intToEntry(sequenceId, key);
@@ -187,37 +191,41 @@ public class BdbProvider implements DatabaseServices {
                return Optional.empty();
                
             case SUCCESS:
-               int size = 0;
-               byte[] data = value.getData();
-               size = data.length;
-               dataList.add(data);
-               
-               while (cursor.getNextDup(key, value, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-                  data = value.getData();
-                  size = size + data.length;
-                  if (data[0] == 0 &&
-                          data[1] == 0 &&
-                          data[2] == 0 &&
-                          data[3] == 0) {
-                     dataList.add(0, data);
-                  } else {
-                     dataList.add(value.getData());
-                  }
-               }
-               
-               byteBuffer = new ByteArrayDataBuffer(size + 4); // room for 0 int value at end to indicate last version
-               for (byte[] dataEntry: dataList) {
-                  byteBuffer.put(dataEntry);
-               }
-               byteBuffer.putInt(0);
-               byteBuffer.rewind();
-               if (byteBuffer.getInt() != 0) {
-                  throw new IllegalStateException("Record does not start with zero...");
-               }
+               return Optional.of(collectByteRecords(key, value, cursor));
          }
       }
       
-      return Optional.of(byteBuffer);
+      return Optional.empty();
+   }
+
+   protected static ByteArrayDataBuffer collectByteRecords(DatabaseEntry key, DatabaseEntry value, final Cursor cursor) throws IllegalStateException {
+      ArrayList<byte[]> dataList = new ArrayList<>();
+      int size = 0;
+      byte[] data = value.getData();
+      size = data.length;
+      dataList.add(data);
+      while (cursor.getNextDup(key, value, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+         data = value.getData();
+         size = size + data.length;
+         if (data[0] == 0 &&
+                 data[1] == 0 &&
+                 data[2] == 0 &&
+                 data[3] == 0) {
+            dataList.add(0, data);
+         } else {
+            dataList.add(value.getData());
+         }
+      }
+      ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(size + 4); // room for 0 int value at end to indicate last version
+      for (byte[] dataEntry: dataList) {
+         byteBuffer.put(dataEntry);
+      }
+      byteBuffer.putInt(0);
+      byteBuffer.rewind();
+      if (byteBuffer.getInt() != 0) {
+         throw new IllegalStateException("Record does not start with zero...");
+      }
+      return byteBuffer;
    }
    
 }

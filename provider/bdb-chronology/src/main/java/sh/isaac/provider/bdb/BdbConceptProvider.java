@@ -42,6 +42,7 @@ package sh.isaac.provider.bdb;
 //~--- JDK imports ------------------------------------------------------------
 
 
+import com.sleepycat.je.Database;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
@@ -58,22 +59,30 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
+import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.model.concept.ConceptSnapshotImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -88,6 +97,7 @@ public class BdbConceptProvider
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
    private BdbProvider bdb;
+   private Database database;
 
    @Override
    public void clearDatabaseValidityValue() {
@@ -110,6 +120,7 @@ public class BdbConceptProvider
    private void startMe() {
       LOG.info("Starting concept provider.");
       bdb = Get.service(BdbProvider.class);
+      database = bdb.getConceptDatabase();
    }
 
    /**
@@ -127,16 +138,16 @@ public class BdbConceptProvider
 
    @Override
    public void writeConcept(ConceptChronology concept) {
-      BdbProvider.writeChronologyData(bdb.getConceptDatabase(), (ChronologyImpl) concept);
+      BdbProvider.writeChronologyData(database, (ChronologyImpl) concept);
    }
 
    @Override
-   public ConceptChronology getConceptChronology(int conceptId) {
+   public ConceptChronologyImpl getConceptChronology(int conceptId) {
       if (conceptId < 0) {
          conceptId = Get.identifierService()
                         .getConceptSequence(conceptId);
       }
-      Optional<ByteArrayDataBuffer> optionalByteBuffer = BdbProvider.getChronologyData(bdb.getConceptDatabase(), conceptId);
+      Optional<ByteArrayDataBuffer> optionalByteBuffer = BdbProvider.getChronologyData(database, conceptId);
       if (optionalByteBuffer.isPresent()) {
          ByteArrayDataBuffer byteBuffer = optionalByteBuffer.get();
          IsaacObjectType.CONCEPT.readAndValidateHeader(byteBuffer);
@@ -153,43 +164,41 @@ public class BdbConceptProvider
 
    @Override
    public boolean hasConcept(int conceptId) {
-     return BdbProvider.hasKey(bdb.getConceptDatabase(), conceptId);
+     return BdbProvider.hasKey(database, conceptId);
    }
 
    @Override
    public boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate) {
-      throw new UnsupportedOperationException(
-          "4. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      return Get.conceptActiveService().isConceptActive(conceptSequence, stampCoordinate);
    }
 
    @Override
    public Stream<ConceptChronology> getConceptChronologyStream() {
-      throw new UnsupportedOperationException(
-          "5. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-   }
+      return StreamSupport.stream(new CursorChronologyStream(database, 
+              Get.identifierService().getMaxConceptSequence()), false)
+              .map((byteBuffer) -> ConceptChronologyImpl.make(byteBuffer));
+    }
 
    @Override
    public Stream<ConceptChronology> getConceptChronologyStream(ConceptSequenceSet conceptSequences) {
-      throw new UnsupportedOperationException(
-          "6. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      return conceptSequences.stream().mapToObj((sequence) -> getConceptChronology(sequence));
    }
 
    @Override
    public int getConceptCount() {
-      throw new UnsupportedOperationException(
-          "7. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      return (int) getConceptKeyParallelStream().count(); 
    }
 
    @Override
    public IntStream getConceptKeyParallelStream() {
-      throw new UnsupportedOperationException(
-          "8. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      return StreamSupport.intStream(new CursorSequenceStream(database, Get.identifierService().getMaxConceptSequence()),
+              true);
    }
 
    @Override
    public IntStream getConceptKeyStream() {
-      throw new UnsupportedOperationException(
-          "9. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      return StreamSupport.intStream(new CursorSequenceStream(database, Get.identifierService().getMaxConceptSequence()),
+              false);
    }
 
    @Override
@@ -199,32 +208,172 @@ public class BdbConceptProvider
 
    @Override
    public Optional<? extends ConceptChronology> getOptionalConcept(int conceptId) {
-      throw new UnsupportedOperationException(
-          "13. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (hasConcept(conceptId)) {
+         return Optional.of(getConceptChronology(conceptId));
+      }
+      return Optional.empty();
    }
 
    @Override
    public Optional<? extends ConceptChronology> getOptionalConcept(UUID... conceptUuids) {
-      throw new UnsupportedOperationException(
-          "14. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      if (hasConcept(Get.identifierService().getConceptSequenceForUuids(conceptUuids))) {
+         return Optional.of(getConceptChronology(conceptUuids));
+      }
+      return Optional.empty();
    }
 
    @Override
    public Stream<ConceptChronology> getParallelConceptChronologyStream() {
-      throw new UnsupportedOperationException(
-          "15. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-   }
+     return StreamSupport.stream(new CursorChronologyStream(database, 
+              Get.identifierService().getMaxConceptSequence()), true)
+              .map((byteBuffer) -> ConceptChronologyImpl.make(byteBuffer));
+    }
 
    @Override
    public Stream<ConceptChronology> getParallelConceptChronologyStream(ConceptSequenceSet conceptSequences) {
-      throw new UnsupportedOperationException(
-          "16. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      return conceptSequences.stream().mapToObj((sequence) -> getConceptChronology(sequence));
    }
 
    @Override
    public ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate) {
-      throw new UnsupportedOperationException(
-          "17. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      return new ConceptSnapshotProvider(manifoldCoordinate);
    }
+
+   /**
+    * The Class ConceptSnapshotProvider.
+    */
+   public class ConceptSnapshotProvider
+            implements ConceptSnapshotService {
+      /** The manifold coordinate. */
+      ManifoldCoordinate manifoldCoordinate;
+
+      //~--- constructors -----------------------------------------------------
+
+      /**
+       * Instantiates a new concept snapshot provider.
+       *
+       * @param manifoldCoordinate
+       */
+      public ConceptSnapshotProvider(ManifoldCoordinate manifoldCoordinate) {
+         this.manifoldCoordinate    = manifoldCoordinate;
+      }
+
+      //~--- methods ----------------------------------------------------------
+
+      /**
+       * Concept description text.
+       *
+       * @param conceptId the concept id
+       * @return the string
+       */
+      @Override
+      public String conceptDescriptionText(int conceptId) {
+         final LatestVersion<DescriptionVersion> descriptionOptional = getDescriptionOptional(conceptId);
+
+         if (descriptionOptional.isPresent()) {
+            return descriptionOptional.get()
+                                      .getText();
+         }
+
+         return "No desc for: " + conceptId;
+      }
+
+      /**
+       * To string.
+       *
+       * @return the string
+       */
+      @Override
+      public String toString() {
+         return "ConceptSnapshotProvider{" + "manifoldCoordinate=" + this.manifoldCoordinate + '}';
+      }
+
+      //~--- get methods ------------------------------------------------------
+
+      /**
+       * Checks if concept active.
+       *
+       * @param conceptSequence the concept sequence
+       * @return true, if concept active
+       */
+      @Override
+      public boolean isConceptActive(int conceptSequence) {
+         return BdbConceptProvider.this.isConceptActive(conceptSequence, this.manifoldCoordinate);
+      }
+
+      /**
+       * Gets the concept snapshot.
+       *
+       * @param conceptSequence the concept sequence
+       * @return the concept snapshot
+       */
+      @Override
+      public ConceptSnapshot getConceptSnapshot(int conceptSequence) {
+         return new ConceptSnapshotImpl(getConceptChronology(conceptSequence), this.manifoldCoordinate);
+      }
+
+      /**
+       * Gets the description list.
+       *
+       * @param conceptId the concept id
+       * @return the description list
+       */
+      private List<SemanticChronology> getDescriptionList(int conceptId) {
+         final int conceptNid = Get.identifierService()
+                                   .getConceptNid(conceptId);
+
+         return Get.assemblageService()
+                   .getDescriptionsForComponent(conceptNid)
+                   .collect(Collectors.toList());
+      }
+
+      /**
+       * Gets the description optional.
+       *
+       * @param conceptId the concept id
+       * @return the description optional
+       */
+      @Override
+      public LatestVersion<DescriptionVersion> getDescriptionOptional(int conceptId) {
+         return this.manifoldCoordinate.getDescription(getDescriptionList(conceptId));
+      }
+
+      /**
+       * Gets the fully specified description.
+       *
+       * @param conceptId the concept id
+       * @return the fully specified description
+       */
+      @Override
+      public LatestVersion<DescriptionVersion> getFullySpecifiedDescription(int conceptId) {
+         return this.manifoldCoordinate.getFullySpecifiedDescription(getDescriptionList(conceptId));
+      }
+
+      /**
+       * Gets the preferred description.
+       *
+       * @param conceptId the concept id
+       * @return the preferred description
+       */
+      @Override
+      public LatestVersion<DescriptionVersion> getPreferredDescription(int conceptId) {
+         return this.manifoldCoordinate.getPreferredDescription(getDescriptionList(conceptId));
+      }
+
+      /**
+       * Gets the stamp coordinate.
+       *
+       * @return the stamp coordinate
+       */
+      @Override
+      public ManifoldCoordinate getManifoldCoordinate() {
+         return this.manifoldCoordinate;
+      }
+
+      @Override
+      public ConceptSnapshot getConceptSnapshot(ConceptSpecification conceptSpecification) {
+         return getConceptSnapshot(conceptSpecification.getConceptSequence());
+      }
+   }   
 }
 

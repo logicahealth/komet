@@ -155,18 +155,6 @@ public interface Chronology
    <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblage(int assemblageSequence);
 
    /**
-    * Gets the SemanticChronology list from assemblage of type.
-    *
-    * @param <V>
-    * @param assemblageSequence the assemblage sequence
-    * @param type the type
-    * @return the SemanticChronology list from assemblage of type
-    */
-   <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblageOfType(
-           int assemblageSequence,
-           VersionType type);
-
-   /**
     * Gets the unwritten version list.
     *
     * @param <V>

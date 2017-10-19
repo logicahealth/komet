@@ -629,12 +629,6 @@ public abstract class ObservableChronologyImpl
       return getSemanticChronologyListFromAssemblage(assemblageSequence);
    }
 
-   @Override
-   public ObservableList<ObservableSemanticChronology> getObservableSememeListFromAssemblageOfType(int assemblageSequence,
-         VersionType type) {
-      return getSemanticChronologyListFromAssemblageOfType(assemblageSequence, type);
-   }
-
    /**
     * Gets the observable version list.
     *
@@ -681,22 +675,6 @@ public abstract class ObservableChronologyImpl
           });
    }
 
-   /**
-    * Gets the sememe list from assemblage of type.
-    *
-    * @param assemblageSequence the assemblage sequence
-    * @param type the type
-    * @return the sememe list from assemblage of type
-    */
-   @Override
-   public ObservableList<ObservableSemanticChronology> getSemanticChronologyListFromAssemblageOfType(int assemblageSequence,
-         VersionType type) {
-      return getSemanticChronologyList().filtered(
-          (observableSememeChronology) -> {
-             return (observableSememeChronology.getAssemblageSequence() == assemblageSequence) &&
-                    (observableSememeChronology.getVersionType() == type);
-          });
-   }
 
    @Override
    public <V extends Version> List<V> getUnwrittenVersionList() {

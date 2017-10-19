@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.provider.assemblage;
+package sh.isaac.provider.bdb;
 
 //~--- JDK imports ------------------------------------------------------------
 

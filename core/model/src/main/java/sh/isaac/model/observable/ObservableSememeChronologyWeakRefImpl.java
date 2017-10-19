@@ -133,11 +133,6 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSemantic
    }
 
    @Override
-   public ObservableList<ObservableSemanticChronology> getObservableSememeListFromAssemblageOfType(int assemblageSequence, VersionType type) {
-      return getChronology().getObservableSememeListFromAssemblageOfType(assemblageSequence, type);
-   }
-
-   @Override
    public LatestVersion<? extends ObservableVersion> getLatestVersion(Class<? extends StampedVersion> type, StampCoordinate coordinate) {
       return getChronology().getLatestVersion(type, coordinate);
    }
@@ -182,10 +177,6 @@ public class ObservableSememeChronologyWeakRefImpl implements ObservableSemantic
       return getChronology().getSemanticChronologyListFromAssemblage(assemblageSequence);
    }
 
-   @Override
-   public <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblageOfType(int assemblageSequence, VersionType type) {
-      return getChronology().getSemanticChronologyListFromAssemblageOfType(assemblageSequence, type);
-   }
 
    @Override
    public <V extends Version> List<V> getUnwrittenVersionList() {
