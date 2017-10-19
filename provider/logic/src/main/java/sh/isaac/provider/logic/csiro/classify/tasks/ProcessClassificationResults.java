@@ -200,7 +200,7 @@ public class ProcessClassificationResults
       if (inferredSememeSequences.size() > 1) {
          classificationDuplicateCount++;
          if (classificationDuplicateCount < classificationCountDuplicatesToNote) {
-            log.error("Processing concept: " + Get.conceptService().getConcept(conceptSequence).toUserString());
+            log.error("Processing concept: " + Get.conceptService().getConceptChronology(conceptSequence).toUserString());
             throw new IllegalStateException("Cannot have more than one inferred definition per concept. Found: "
                     + inferredSememeSequences);
          }
@@ -216,13 +216,13 @@ public class ProcessClassificationResults
          if (statedSememeSequences.isEmpty()) {
             builder.append("No stated definition for concept: ")
                     .append(Get.conceptService()
-                            .getConcept(conceptSequence)
+                            .getConceptChronology(conceptSequence)
                             .toUserString())
                     .append("\n");
          } else {
             builder.append("Processing concept: ")
                     .append(Get.conceptService()
-                            .getConcept(conceptSequence)
+                            .getConceptChronology(conceptSequence)
                             .toUserString())
                     .append("\n");
             statedSememeSequences.stream().forEach((sememeSequence) -> {

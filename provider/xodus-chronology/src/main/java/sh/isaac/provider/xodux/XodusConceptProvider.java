@@ -113,17 +113,17 @@ public class XodusConceptProvider
    }
 
    @Override
-   public ConceptChronology getConcept(int conceptId) {
+   public ConceptChronology getConceptChronology(int conceptId) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public ConceptChronology getConcept(UUID... conceptUuids) {
+   public ConceptChronology getConceptChronology(UUID... conceptUuids) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public ConceptChronology getConcept(ConceptSpecification conceptSpecification) {
+   public ConceptChronology getConceptChronology(ConceptSpecification conceptSpecification) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

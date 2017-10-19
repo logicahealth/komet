@@ -92,6 +92,13 @@ public class AssemblageIndexer extends LuceneIndexer
       /** The desc extended type sequence. */
    private int descExtendedTypeSequence;
 
+   // TODO persist dataStoreId.
+   private final UUID dataStoreId = UUID.randomUUID();
+
+   @Override
+   public UUID getDataStoreId() {
+      return dataStoreId;
+   }
 
    public AssemblageIndexer() throws IOException {
       super("assemblage-index");

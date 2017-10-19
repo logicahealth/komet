@@ -137,7 +137,7 @@ public class OchreExternalizableStatsTestFilter
          this.concepts.incrementAndGet();
          break;
 
-      case SEMEME:
+      case SEMANTIC:
          this.sememes.incrementAndGet();
          break;
 

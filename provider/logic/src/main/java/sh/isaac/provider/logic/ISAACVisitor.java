@@ -208,7 +208,7 @@ public class ISAACVisitor
       }
 
       return Get.conceptService()
-                .getConcept(nid.get());
+                .getConceptChronology(nid.get());
    }
 
    /**

@@ -572,7 +572,7 @@ public class TypeStampTaxonomyRecords {
 
          sb.append("«");
          sb.append(Get.conceptService()
-                      .getConcept(this.typeSequence)
+                      .getConceptChronology(this.typeSequence)
                       .toUserString());
          sb.append(" <");
          sb.append(this.typeSequence);

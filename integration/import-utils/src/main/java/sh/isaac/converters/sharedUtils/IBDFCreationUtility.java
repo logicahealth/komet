@@ -1188,7 +1188,7 @@ public class IBDFCreationUtility {
     */
    public void addUUID(UUID existingUUID, UUID newUUID) {
       final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
-                                                                                 .getConcept(existingUUID);
+                                                                                 .getConceptChronology(existingUUID);
 
       conceptChronology.addAdditionalUuids(newUUID);
       this.writer.put(conceptChronology);
@@ -1436,7 +1436,7 @@ public class IBDFCreationUtility {
          State status,
          UUID module) {
       final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
-                                                                                 .getConcept(conceptPrimordialUuid);
+                                                                                 .getConceptChronology(conceptPrimordialUuid);
 
       conceptChronology.createMutableVersion(createStamp(status, time, module));
       this.writer.put(conceptChronology);

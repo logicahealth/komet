@@ -19,8 +19,6 @@ package sh.isaac.provider.query.lucene.indexers;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DocValues;

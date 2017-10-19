@@ -181,7 +181,7 @@ public class ConceptNodeWithUuids
    @Override
    public String toString(String nodeIdSuffix) {
       return "ConceptNode[" + getNodeIndex() + nodeIdSuffix + "] \"" +
-             Get.conceptService().getConcept(this.conceptUuid).toUserString() + "\"" + super.toString(nodeIdSuffix);
+             Get.conceptService().getConceptChronology(this.conceptUuid).toUserString() + "\"" + super.toString(nodeIdSuffix);
    }
    @Override
    public String toSimpleString() {

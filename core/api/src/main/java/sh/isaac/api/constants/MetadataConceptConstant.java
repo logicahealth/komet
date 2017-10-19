@@ -166,7 +166,7 @@ public abstract class MetadataConceptConstant
    @Override
    public int getNid() {
       return Get.conceptService()
-                .getConcept(getUUID())
+                .getConceptChronology(getUUID())
                 .getNid();
    }
 
@@ -219,7 +219,7 @@ public abstract class MetadataConceptConstant
     */
    public int getSequence() {
       return Get.conceptService()
-                .getConcept(getUUID())
+                .getConceptChronology(getUUID())
                 .getConceptSequence();
    }
 

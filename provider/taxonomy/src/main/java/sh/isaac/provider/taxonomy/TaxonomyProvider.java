@@ -145,6 +145,14 @@ public class TaxonomyProvider
     * The Constant ORIGIN_DESTINATION_MAP.
     */
    private static final String ORIGIN_DESTINATION_MAP = "origin-destination.map";
+   // TODO persist dataStoreId.
+   private final UUID dataStoreId = UUID.randomUUID();
+
+   @Override
+   public UUID getDataStoreId() {
+      return dataStoreId;
+   }
+
 
    //~--- fields --------------------------------------------------------------
 

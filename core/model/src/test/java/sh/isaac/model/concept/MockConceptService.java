@@ -105,7 +105,7 @@ public class MockConceptService
     * @return the concept
     */
    @Override
-   public ConceptChronology getConcept(int conceptId) {
+   public ConceptChronology getConceptChronology(int conceptId) {
       return this.conceptsMap.get(Get.identifierService()
                                      .getConceptSequence(conceptId));
    }
@@ -117,7 +117,7 @@ public class MockConceptService
     * @return the concept
     */
    @Override
-   public ConceptChronology getConcept(UUID... conceptUuids) {
+   public ConceptChronology getConceptChronology(UUID... conceptUuids) {
       final int conceptNid      = Get.identifierService()
                                      .getNidForUuids(conceptUuids);
       final int conceptSequence = Get.identifierService()
@@ -257,7 +257,7 @@ public class MockConceptService
     */
    @Override
    public Optional<? extends ConceptChronology> getOptionalConcept(int conceptId) {
-      return Optional.ofNullable(getConcept(conceptId));
+      return Optional.ofNullable(getConceptChronology(conceptId));
    }
 
    /**
@@ -268,7 +268,7 @@ public class MockConceptService
     */
    @Override
    public Optional<? extends ConceptChronology> getOptionalConcept(UUID... conceptUuids) {
-      return Optional.ofNullable(getConcept(conceptUuids));
+      return Optional.ofNullable(getConceptChronology(conceptUuids));
    }
 
    /**
@@ -306,8 +306,8 @@ public class MockConceptService
    }
 
    @Override
-   public ConceptChronology getConcept(ConceptSpecification conceptSpecification) {
-      return getConcept(conceptSpecification.getConceptSequence());
+   public ConceptChronology getConceptChronology(ConceptSpecification conceptSpecification) {
+      return getConceptChronology(conceptSpecification.getConceptSequence());
    }
 }
 

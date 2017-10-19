@@ -85,7 +85,7 @@ public interface ConceptService
     * @param conceptId either a concept sequence or a concept nid.
     * @return the concept chronology associated with the identifier.
     */
-   ConceptChronology getConcept(int conceptId);
+   ConceptChronology getConceptChronology(int conceptId);
    
    /**
     * Gets the list of descriptions for a concept.
@@ -94,7 +94,7 @@ public interface ConceptService
     * @return the list of descriptions.
     */
    default List<SemanticChronology> getConceptDescriptions(int conceptId) {
-      return getConcept(conceptId).getConceptDescriptionList();
+      return getConceptChronology(conceptId).getConceptDescriptionList();
    }
 
    /**
@@ -103,7 +103,7 @@ public interface ConceptService
     * @param conceptUuids a UUID that identifies a concept.
     * @return the concept chronology associated with the identifier.
     */
-   ConceptChronology getConcept(UUID... conceptUuids);
+   ConceptChronology getConceptChronology(UUID... conceptUuids);
 
 
    /**
@@ -112,7 +112,7 @@ public interface ConceptService
     * @param conceptSpecification a specification of a concept.
     * @return the concept chronology associated with the identifier.
     */
-   ConceptChronology getConcept(ConceptSpecification conceptSpecification);
+   ConceptChronology getConceptChronology(ConceptSpecification conceptSpecification);
 
    /**
     * Use in circumstances when not all concepts may have been loaded to find out if a concept is present,
@@ -167,13 +167,6 @@ public interface ConceptService
     * @return the concept key stream
     */
    IntStream getConceptKeyStream();
-
-   /**
-    * Return the UUID that was generated for this datastore when the concept store was first created.
-    *
-    * @return the data store id
-    */
-   public UUID getDataStoreId();
 
    /**
     * Use in circumstances when not all concepts may have been loaded.

@@ -85,7 +85,7 @@ public class ConceptProxy
     */
    public ConceptProxy(int conceptSequenceOrNid) {
       final ConceptChronology cc = Get.conceptService()
-              .getConcept(conceptSequenceOrNid);
+              .getConceptChronology(conceptSequenceOrNid);
 
       this.uuids = cc.getUuidList()
               .toArray(new UUID[0]);

@@ -84,7 +84,7 @@ public class MultiParentTreeItem extends TreeItem<ConceptChronology>
    }
 
    MultiParentTreeItem(int conceptSequence, MultiParentTreeView treeView) {
-      this(Get.conceptService().getConcept(conceptSequence), treeView, null);
+      this(Get.conceptService().getConceptChronology(conceptSequence), treeView, null);
    }
 
    MultiParentTreeItem(ConceptChronology conceptChronology, MultiParentTreeView treeView, Node graphic) {

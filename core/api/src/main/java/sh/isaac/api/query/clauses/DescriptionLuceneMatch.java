@@ -128,7 +128,7 @@ public class DescriptionLuceneMatch
 
       for (final IndexService li: indexers) {
          if (li.getIndexerName()
-               .equals("descriptions")) {
+               .equals("assemblage-index")) {
             descriptionIndexer = li;
          }
       }

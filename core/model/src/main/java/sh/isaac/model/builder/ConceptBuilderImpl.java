@@ -258,7 +258,7 @@ public class ConceptBuilderImpl
            List<Chronology> builtObjects)
            throws IllegalStateException {
       final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
-              .getConcept(getUuids());
+              .getConceptChronology(getUuids());
 
       conceptChronology.createMutableVersion(stampCoordinate);
       builtObjects.add(conceptChronology);
@@ -314,7 +314,7 @@ public class ConceptBuilderImpl
            throws IllegalStateException {
       final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
       final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) Get.conceptService()
-              .getConcept(getUuids());
+              .getConceptChronology(getUuids());
 
       conceptChronology.createMutableVersion(this.state, editCoordinate);
       builtObjects.add(conceptChronology);

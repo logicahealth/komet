@@ -124,8 +124,8 @@ public class LoadTermstore
    @Parameter(required = false)
    private int duplicatesToPrint = 20;
 
-   /** The sememe types to skip. */
-   private final HashSet<VersionType> sememeTypesToSkip = new HashSet<>();
+   /** The semantic types to skip. */
+   private final HashSet<VersionType> semanticTypesToSkip = new HashSet<>();
 
    /** The skipped items. */
    private final HashSet<Integer> skippedItems = new HashSet<>();
@@ -147,7 +147,7 @@ public class LoadTermstore
    private File[] ibdfFiles;
 
    /** The item failure. */
-   private int conceptCount, sememeCount, stampAliasCount, stampCommentCount, itemCount, itemFailure;
+   private int conceptCount, semanticCount, stampAliasCount, stampCommentCount, itemCount, itemFailure;
 
    //~--- methods -------------------------------------------------------------
 
@@ -264,7 +264,7 @@ public class LoadTermstore
 
                            break;
 
-                        case SEMEME:
+                        case SEMANTIC:
                            SemanticChronology sc = (SemanticChronology) object;
 
                            if (sc.getAssemblageSequence() == statedSequence) {
@@ -281,9 +281,9 @@ public class LoadTermstore
                                  getLog().info("\nDuplicate: " + sc);
                                  sequences.stream()
                                           .forEach(
-                                              (sememeSequence) -> listToMerge.add(
+                                              (semanticSequence) -> listToMerge.add(
                                                   getLatestLogicalExpression(Get.assemblageService()
-                                                        .getSemanticChronology(sememeSequence))));
+                                                        .getSemanticChronology(semanticSequence))));
                                  getLog().info("Duplicates: " + listToMerge);
 
                                  if (listToMerge.size() > 2) {
@@ -328,7 +328,7 @@ public class LoadTermstore
                               }
                            }
 
-                           if (!this.sememeTypesToSkip.contains(sc.getVersionType()) &&
+                           if (!this.semanticTypesToSkip.contains(sc.getVersionType()) &&
                                  (!this.activeOnly ||
                                   (isActive(sc) &&!this.skippedItems.contains(sc.getReferencedComponentNid())))) {
                               Get.assemblageService()
@@ -338,7 +338,7 @@ public class LoadTermstore
                                  deferredActionNids.add(sc.getNid());
                               }
 
-                              this.sememeCount++;
+                              this.semanticCount++;
                            } else {
                               this.skippedItems.add(sc.getNid());
                            }
@@ -366,8 +366,8 @@ public class LoadTermstore
                      }
                   } catch (final UnsupportedOperationException e) {
                      this.itemFailure++;
-                     getLog().error("Failure at " + this.conceptCount + " concepts, " + this.sememeCount +
-                                    " sememes, " + this.stampAliasCount + " stampAlias, " + this.stampCommentCount +
+                     getLog().error("Failure at " + this.conceptCount + " concepts, " + this.semanticCount +
+                                    " semantics, " + this.stampAliasCount + " stampAlias, " + this.stampCommentCount +
                                     " stampComments",
                                     e);
 
@@ -391,7 +391,7 @@ public class LoadTermstore
 
                   if (this.itemCount % 50000 == 0) {
                      getLog().info("Read " + this.itemCount + " entries, " + "Loaded " + this.conceptCount +
-                                   " concepts, " + this.sememeCount + " sememes, " + this.stampAliasCount +
+                                   " concepts, " + this.semanticCount + " semantics, " + this.stampAliasCount +
                                    " stampAlias, " + this.stampCommentCount + " stampComment");
                   }
                }
@@ -402,14 +402,14 @@ public class LoadTermstore
                this.skippedAny = true;
             }
 
-            getLog().info("Loaded " + this.conceptCount + " concepts, " + this.sememeCount + " sememes, " +
+            getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
                           this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComment" +
                           ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
                   : "") + ((duplicateCount > 0) ? " Duplicates " + duplicateCount
                   : "") + ((this.itemFailure > 0) ? " Failures " + this.itemFailure
                   : "") + " from file " + f.getName());
             this.conceptCount      = 0;
-            this.sememeCount       = 0;
+            this.semanticCount       = 0;
             this.stampAliasCount   = 0;
             this.stampCommentCount = 0;
             this.skippedItems.clear();
@@ -435,12 +435,12 @@ public class LoadTermstore
          }
 
          if (this.skippedAny) {
-            // Loading with activeOnly set to true causes a number of gaps in the concept / sememe providers
+            // Loading with activeOnly set to true causes a number of gaps in the concept / semantic providers
             Get.identifierService()
                .clearUnusedIds();
          }
       } catch (final ExecutionException | IOException | InterruptedException | UnsupportedOperationException ex) {
-         getLog().info("Loaded " + this.conceptCount + " concepts, " + this.sememeCount + " sememes, " +
+         getLog().info("Loaded " + this.conceptCount + " concepts, " + this.semanticCount + " semantics, " +
                        this.stampAliasCount + " stampAlias, " + this.stampCommentCount + " stampComments" +
                        ((this.skippedItems.size() > 0) ? ", skipped for inactive " + this.skippedItems.size()
                : ""));
@@ -458,12 +458,12 @@ public class LoadTermstore
    }
 
    /**
-    * Skip sememe types.
+    * Skip semantic types.
     *
     * @param types the types
     */
    public void skipSememeTypes(Collection<VersionType> types) {
-      this.sememeTypesToSkip.addAll(types);
+      this.semanticTypesToSkip.addAll(types);
    }
 
    //~--- get methods ---------------------------------------------------------

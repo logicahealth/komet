@@ -299,7 +299,7 @@ public class ConceptProvider
     * @return the concept
     */
    @Override
-   public ConceptChronologyImpl getConcept(int conceptId) {
+   public ConceptChronologyImpl getConceptChronology(int conceptId) {
       if (conceptId < 0) {
          conceptId = Get.identifierService()
                         .getConceptSequence(conceptId);
@@ -315,7 +315,7 @@ public class ConceptProvider
     * @return the concept
     */
    @Override
-   public ConceptChronologyImpl getConcept(UUID... conceptUuids) {
+   public ConceptChronologyImpl getConceptChronology(UUID... conceptUuids) {
       final int                             conceptNid      = Get.identifierService()
                                                                  .getNidForUuids(conceptUuids);
       final int                             conceptSequence = Get.identifierService()
@@ -553,9 +553,9 @@ public class ConceptProvider
    }
 
    @Override
-   public ConceptChronology getConcept(ConceptSpecification conceptSpecification) {
+   public ConceptChronology getConceptChronology(ConceptSpecification conceptSpecification) {
       if (conceptSpecification != null) {
-         return getConcept(conceptSpecification.getConceptSequence());
+         return getConceptChronology(conceptSpecification.getConceptSequence());
       }
       return null;
    }
@@ -632,7 +632,7 @@ public class ConceptProvider
        */
       @Override
       public ConceptSnapshot getConceptSnapshot(int conceptSequence) {
-         return new ConceptSnapshotImpl(getConcept(conceptSequence), this.manifoldCoordinate);
+         return new ConceptSnapshotImpl(getConceptChronology(conceptSequence), this.manifoldCoordinate);
       }
 
       /**

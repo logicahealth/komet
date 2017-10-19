@@ -188,7 +188,7 @@ public class LogicProvider
       if (latestVersions.isEmpty()) {
          LOG.warn("No logical expression for: " + Get.conceptDescriptionText(conceptId) + " in: " + 
                  Get.conceptDescriptionText(logicAssemblageId) + "\n\n" + 
-                 Get.conceptService().getConcept(conceptId).toString());
+                 Get.conceptService().getConceptChronology(conceptId).toString());
          return new LatestVersion<>();
       } else if (latestVersions.size() > 1) {
          throw new IllegalStateException("More than one LogicGraphSememeImpl for concept in assemblage: " +

@@ -187,7 +187,7 @@ public class CommitTask
                               .forEach(
                                   (conceptSequence) -> {
                                      final ConceptChronology c = Get.conceptService()
-                                                                    .getConcept(conceptSequence);
+                                                                    .getConceptChronology(conceptSequence);
 
                                      if (this.conceptsToCheck.contains(conceptSequence)) {
                                         this.checkers.stream()

@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 
@@ -133,6 +134,14 @@ public class SemanticIndexer
    private static final String COLUMN_FIELD_DATA = "colData";
 
    //~--- fields --------------------------------------------------------------
+   // TODO persist dataStoreId.
+   private final UUID dataStoreId = UUID.randomUUID();
+
+   @Override
+   public UUID getDataStoreId() {
+      return dataStoreId;
+   }
+
 
    /** The lric. */
    @Inject

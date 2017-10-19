@@ -123,7 +123,7 @@ public class WriteConceptChronicle
          Get.conceptService()
                  .writeConcept(this.cc);
          // get any updates that may have occured during merge write...
-         this.cc = Get.conceptService().getConcept(this.cc.getConceptSequence());
+         this.cc = Get.conceptService().getConceptChronology(this.cc.getConceptSequence());
          this.uncommittedTracking.accept(this.cc, false);
          updateProgress(1, 2);
          updateMessage("notifying: " + Get.conceptDescriptionText(this.cc.getConceptSequence()));

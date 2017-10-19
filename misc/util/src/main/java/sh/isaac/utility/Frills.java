@@ -218,7 +218,7 @@ public class Frills
                                                                .getLogicalExpressionBuilder();
 
       NecessarySet(And(ConceptAssertion(Get.conceptService()
-                     .getConcept(DynamicConstants.get().DYNAMIC_COLUMNS
+                     .getConceptChronology(DynamicConstants.get().DYNAMIC_COLUMNS
                            .getNid()),
                   defBuilder)));
 
@@ -294,7 +294,7 @@ public class Frills
          final LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class)
                                                                   .getLogicalExpressionBuilder();
          final ConceptChronology parentConcept = Get.conceptService()
-                                                    .getConcept((parentConceptNidOrSequence == null)
+                                                    .getConceptChronology((parentConceptNidOrSequence == null)
                                                           ? DynamicConstants.get().DYNAMIC_ASSEMBLAGES
                                                                 .getNid()
                : parentConceptNidOrSequence);
@@ -494,7 +494,7 @@ public class Frills
       }
 
       final boolean temp = Get.assemblageService()
-                              .getSemanticChronologyForComponentFromAssemblage(Get.identifierService()
+                              .getSemanticChronologyStreamForComponentFromAssemblage(Get.identifierService()
                                      .getConceptNid(conceptSequence),
                                   DynamicConstants.get().DYNAMIC_ASSOCIATION
                                         .getConceptSequence())
@@ -526,7 +526,7 @@ public class Frills
       }
 
       final boolean temp = Get.assemblageService()
-                              .getSemanticChronologyForComponentFromAssemblage(
+                              .getSemanticChronologyStreamForComponentFromAssemblage(
                                   Get.identifierService()
                                      .getConceptNid(conceptSequence),
                                   IsaacMappingConstants.get().DYNAMIC_SEMEME_MAPPING_SEMEME_TYPE
@@ -615,7 +615,7 @@ public class Frills
 
       try {
          final ConceptChronology cc = Get.conceptService()
-                                         .getConcept(columnDescriptionConcept);
+                                         .getConceptChronology(columnDescriptionConcept);
 
          for (final SemanticChronology dc: cc.getConceptDescriptionList()) {
             if ((columnName != null) && (columnDescription != null)) {
@@ -733,7 +733,7 @@ public class Frills
       final Map<Integer, Integer> dialectSequenceToAcceptabilityNidMap = new ConcurrentHashMap<>();
 
       Get.assemblageService()
-         .getSemanticChronologyForComponent(descriptionSememeNid)
+         .getSemanticChronologyStreamForComponent(descriptionSememeNid)
          .forEach(nestedSememe -> {
                 if (nestedSememe.getVersionType() == VersionType.COMPONENT_NID) {
                    final int dialectSequence = nestedSememe.getAssemblageSequence();
@@ -934,7 +934,7 @@ public class Frills
     */
    public static Optional<Boolean> isConceptFullyDefined(int conceptNid, boolean stated) {
       final Optional<SemanticChronology> sememe = Get.assemblageService()
-                                                                            .getSemanticChronologyForComponentFromAssemblage(
+                                                                            .getSemanticChronologyStreamForComponentFromAssemblage(
                                                                                   conceptNid,
                                                                                         (stated
                                                                                          ? LogicCoordinates.getStandardElProfile()
@@ -1019,7 +1019,7 @@ public class Frills
 
       // Ignore the language annotation... treat preferred in any language as good enough for our purpose here...
       Get.assemblageService()
-         .getSemanticChronologyForComponent(descriptionSememeNid)
+         .getSemanticChronologyStreamForComponent(descriptionSememeNid)
          .forEach(nestedSememe -> {
                 if (nestedSememe.getVersionType() == VersionType.COMPONENT_NID) {
                    @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -1078,7 +1078,7 @@ public class Frills
       final ArrayList<DescriptionVersion> results = new ArrayList<>();
 
       Get.assemblageService()
-         .getSemanticChronologyForComponent(conceptNid)
+         .getSemanticChronologyStreamForComponent(conceptNid)
          .forEach(descriptionC -> {
                 if (descriptionC.getVersionType() == VersionType.DESCRIPTION) {
                    @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -1273,7 +1273,7 @@ public class Frills
       conceptId = Get.identifierService()
                      .getConceptNid(conceptId);
       return Get.assemblageService()
-                .getSemanticChronologyForComponentFromAssemblage(conceptId, logicCoordinate.getInferredAssemblageSequence())
+                .getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getInferredAssemblageSequence())
                 .findAny();
    }
 
@@ -1615,7 +1615,7 @@ public class Frills
       conceptId = Get.identifierService()
                      .getConceptNid(conceptId);
       return Get.assemblageService()
-                .getSemanticChronologyForComponentFromAssemblage(conceptId, logicCoordinate.getStatedAssemblageSequence())
+                .getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getStatedAssemblageSequence())
                 .findAny();
    }
 
@@ -1627,7 +1627,7 @@ public class Frills
     */
    public static Class<? extends StampedVersion> getVersionType(Chronology obj) {
       switch (obj.getIsaacObjectType()) {
-      case SEMEME: {
+      case SEMANTIC: {
          @SuppressWarnings({ "rawtypes", "unchecked" })
          final SemanticChronology sememeChronology =
             (SemanticChronology) obj;

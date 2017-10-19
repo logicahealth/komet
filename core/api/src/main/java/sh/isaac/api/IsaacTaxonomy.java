@@ -301,7 +301,7 @@ public class IsaacTaxonomy {
       commitService.addAlias(stampSequence, stampAliasForPromotion, "promoted by maven");
 
       try (DataWriterService writer = new MultipleDataWriterService(jsonPath, ibdfPath)) {
-         Get.ochreExternalizableStream()
+         Get.isaacExternalizableStream()
                  .forEach((ochreExternalizable) -> writer.put(ochreExternalizable));
       }
    }

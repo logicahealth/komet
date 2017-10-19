@@ -102,6 +102,9 @@ public class IdentifierProvider
          implements IdentifierService, IdentifiedObjectService {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
+   
+   // TODO persist dataStoreId. 
+   private final UUID dataStoreId = UUID.randomUUID();
 
    /**
     * For debugging...
@@ -218,7 +221,7 @@ public class IdentifierProvider
                             .forEach(
                                 (sememeSequence) -> {
                                    if (!Get.assemblageService()
-                                           .hasSemanticChronology(sememeSequence)) {
+                                           .hasSemantic(sememeSequence)) {
                                       final int nid = this.sememeSequenceMap.getNid(sememeSequence)
                                                                             .getAsInt();
 
@@ -307,6 +310,11 @@ public class IdentifierProvider
    }
 
    //~--- get methods ---------------------------------------------------------
+   
+   @Override
+   public UUID getDataStoreId() {
+      return dataStoreId;
+   }
 
    /**
     * Gets the chronology type for nid.

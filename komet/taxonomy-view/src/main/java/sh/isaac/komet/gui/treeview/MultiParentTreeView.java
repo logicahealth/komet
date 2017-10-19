@@ -197,7 +197,7 @@ public class MultiParentTreeView
                .add(taxonomyTreeFetchProgress);
 
       ConceptChronology rootConceptCV = Get.conceptService()
-                                           .getConcept(rootSpec);
+                                           .getConceptChronology(rootSpec);
 
       rootTreeItem = new MultiParentTreeItem(
           rootConceptCV,

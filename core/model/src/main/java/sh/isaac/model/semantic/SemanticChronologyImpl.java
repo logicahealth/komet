@@ -212,7 +212,7 @@ public class SemanticChronologyImpl extends ChronologyImpl
     * @return the sememe chronology impl
     */
    public static SemanticChronologyImpl make(ByteArrayDataBuffer data) {
-      if (IsaacObjectType.SEMEME.getDataFormatVersion() != data.getObjectDataFormatVersion()) {
+      if (IsaacObjectType.SEMANTIC.getDataFormatVersion() != data.getObjectDataFormatVersion()) {
          throw new UnsupportedOperationException("Data format version not supported: " + data.getObjectDataFormatVersion());
       }
       final SemanticChronologyImpl sememeChronology = new SemanticChronologyImpl();
@@ -405,7 +405,7 @@ public class SemanticChronologyImpl extends ChronologyImpl
     */
    @Override
    public IsaacObjectType getIsaacObjectType() {
-      return IsaacObjectType.SEMEME;
+      return IsaacObjectType.SEMANTIC;
    }
 
    /**

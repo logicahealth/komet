@@ -385,7 +385,7 @@ public class WorkflowUpdater {
             if (Get.identifierService()
                    .getChronologyTypeForNid(compNid) == ObjectChronologyType.CONCEPT) {
                final ConceptChronology conceptChron = Get.conceptService()
-                                                            .getConcept(compNid);
+                                                            .getConceptChronology(compNid);
 
                if (version != null) {
                   // conceptChron = ((ConceptVersion) version).getChronology();

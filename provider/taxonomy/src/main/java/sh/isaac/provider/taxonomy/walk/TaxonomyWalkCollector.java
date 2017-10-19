@@ -120,7 +120,7 @@ public class TaxonomyWalkCollector
    public void accept(TaxonomyWalkAccumulator accumulator, int conceptSequence) {
       if (this.watchSequences.contains(conceptSequence)) {
          accumulator.watchConcept = Get.conceptService()
-                                       .getConcept(conceptSequence);
+                                       .getConceptChronology(conceptSequence);
       } else {
          accumulator.watchConcept = null;
       }
@@ -133,7 +133,7 @@ public class TaxonomyWalkCollector
 
          if (parentCount == 0) {
             final ConceptChronology c = Get.conceptService()
-                                              .getConcept(conceptSequence);
+                                              .getConceptChronology(conceptSequence);
 
             if (this.printCount < MAX_PRINT_COUNT) {
                this.printCount++;

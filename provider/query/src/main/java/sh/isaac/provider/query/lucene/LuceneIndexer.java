@@ -471,7 +471,7 @@ public abstract class LuceneIndexer
          } else {
             switch (c.get()
                      .getIsaacObjectType()) {
-            case SEMEME:
+            case SEMANTIC:
                return findConcept(((SemanticChronology) c.get()).getReferencedComponentNid());
 
             case CONCEPT:

@@ -324,15 +324,15 @@ public class Get
    }
 
    public static ConceptChronology concept(ConceptSpecification spec) {
-      return conceptService().getConcept(spec);
+      return conceptService().getConceptChronology(spec);
    }
 
    public static ConceptChronology concept(int id) {
-      return conceptService().getConcept(id);
+      return conceptService().getConceptChronology(id);
    }
 
    public static ConceptChronology concept(UUID uuid) {
-      return conceptService().getConcept(uuid);
+      return conceptService().getConceptChronology(uuid);
    }
 
    /**
@@ -548,7 +548,7 @@ public class Get
     */
    public static Optional<SemanticChronology> inferredDefinitionChronology(int conceptId) {
       conceptId = identifierService().getConceptNid(conceptId);
-      return assemblageService().getSemanticChronologyForComponentFromAssemblage(
+      return assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
           conceptId,
           configurationService().getDefaultLogicCoordinate()
                                 .getInferredAssemblageSequence())
@@ -620,11 +620,11 @@ public class Get
    }
 
    /**
-    * Ochre externalizable stream.
+    * IsaacExternalizable stream.
     *
     * @return the stream
     */
-   public static Stream<IsaacExternalizable> ochreExternalizableStream() {
+   public static Stream<IsaacExternalizable> isaacExternalizableStream() {
       return StreamSupport.stream(new IsaacExternalizableSpliterator(), false);
    }
 
@@ -770,7 +770,7 @@ public class Get
     */
    public static Optional<SemanticChronology> statedDefinitionChronology(int conceptId) {
       conceptId = identifierService().getConceptNid(conceptId);
-      return assemblageService().getSemanticChronologyForComponentFromAssemblage(
+      return assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
           conceptId,
           configurationService().getDefaultLogicCoordinate()
                                 .getStatedAssemblageSequence())

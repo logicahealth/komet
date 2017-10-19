@@ -93,11 +93,11 @@ public class ChangeSetWriterHandler
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
-   /** The Constant jsonFileSuffix. */
-   private static final String jsonFileSuffix = "json";
+   /** The Constant JSON_FILE_SUFFIX. */
+   private static final String JSON_FILE_SUFFIX = "json";
 
-   /** The Constant ibdfFileSuffix. */
-   private static final String ibdfFileSuffix = "ibdf";
+   /** The Constant IBDF_FILE_SUFFIX. */
+   private static final String IBDF_FILE_SUFFIX = "ibdf";
 
    /** The Constant CHANGESETS. */
    private static final String CHANGESETS = "changesets";
@@ -146,8 +146,8 @@ public class ChangeSetWriterHandler
 
       this.writer = new MultipleDataWriterService(this.changeSetFolder,
             "ChangeSet-",
-            Optional.of(jsonFileSuffix),
-            Optional.of(ibdfFileSuffix));
+            Optional.of(JSON_FILE_SUFFIX),
+            Optional.of(IBDF_FILE_SUFFIX));
    }
 
    //~--- methods -------------------------------------------------------------
@@ -254,7 +254,7 @@ public class ChangeSetWriterHandler
    private void sequenceSetChange(ConceptSequenceSet conceptSequenceSet) {
       conceptSequenceSet.stream().forEach((conceptSequence) -> {
                                     final ConceptChronology concept = Get.conceptService()
-                                                                                                      .getConcept(
+                                                                                                      .getConceptChronology(
                                                                                                          conceptSequence);
 
                                     try {

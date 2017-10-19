@@ -52,7 +52,7 @@ import java.io.IOException;
 //~--- enums ------------------------------------------------------------------
 
 /**
- * The Enum IsaacObjectType.
+ * The Enum IsaacObjectType. all enumns must have a token > 0 and a version > 0;
  *
  * @author kec
  */
@@ -64,9 +64,9 @@ public enum IsaacObjectType {
    CONCEPT((byte) 1, (byte) 1),
 
    /**
-    * A semantic unit of meaning, associated with a concept or another SEMEME.
+    * A semantic unit of meaning, associated with a concept or another SEMANTIC.
     */
-   SEMEME((byte) 2, (byte) 1),
+   SEMANTIC((byte) 2, (byte) 1),
 
    /**
     * A stamp comment.
@@ -133,7 +133,7 @@ public enum IsaacObjectType {
          return CONCEPT;
 
       case 2:
-         return SEMEME;
+         return SEMANTIC;
 
       case 3:
          throw new UnsupportedOperationException("Commit record deprecated: " + token);

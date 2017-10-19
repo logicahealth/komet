@@ -44,7 +44,7 @@ package sh.isaac.model.concept;
 import java.nio.file.Path;
 
 import java.util.Optional;
-import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -56,12 +56,9 @@ import org.glassfish.hk2.api.Rank;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.SemanticSequenceSet;
-import sh.isaac.api.component.semantic.SemanticConstraints;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticServiceTyped;
@@ -222,7 +219,7 @@ public class MockSememeService
     * @return true, if successful
     */
    @Override
-   public boolean hasSemanticChronology(int sememeId) {
+   public boolean hasSemantic(int sememeId) {
       return this.sememeMap.containsKey(Get.identifierService()
             .getSemanticSequence(sememeId));
    }
@@ -315,7 +312,7 @@ public class MockSememeService
     * @return the sememes for component
     */
    @Override
-   public Stream<SemanticChronology> getSemanticChronologyForComponent(int componentNid) {
+   public Stream<SemanticChronology> getSemanticChronologyStreamForComponent(int componentNid) {
       throw new UnsupportedOperationException();
    }
 
@@ -327,7 +324,7 @@ public class MockSememeService
     * @return the sememes for component from assemblage
     */
    @Override
-   public <C extends SemanticChronology> Stream<C> getSemanticChronologyForComponentFromAssemblage(int componentNid,
+   public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence) {
       throw new UnsupportedOperationException();
    }
@@ -339,7 +336,7 @@ public class MockSememeService
     * @return the sememes from assemblage
     */
    @Override
-   public Stream<SemanticChronology> getSemanticChronologyFromAssemblage(int assemblageConceptSequence) {
+   public Stream<SemanticChronology> getSemanticChronologyStreamFromAssemblage(int assemblageConceptSequence) {
       throw new UnsupportedOperationException();
    }
 
@@ -355,6 +352,11 @@ public class MockSememeService
    public <V extends SemanticVersion> SemanticSnapshotService<V> getSnapshot(Class<V> versionType,
          StampCoordinate stampCoordinate) {
       throw new UnsupportedOperationException();
+   }
+
+   @Override
+   public UUID getDataStoreId() {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 }
 

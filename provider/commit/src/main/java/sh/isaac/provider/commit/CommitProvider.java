@@ -67,7 +67,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -76,7 +75,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
-import javafx.animation.Animation.Status;
 
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.collections.ObservableList;
@@ -126,7 +124,6 @@ import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.commit.CheckResult;
-import sh.isaac.api.commit.Stamp;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -168,6 +165,14 @@ public class CommitProvider
     * The Constant WRITE_POOL_SIZE.
     */
    private static final int WRITE_POOL_SIZE = 40;
+   // TODO persist dataStoreId.
+   private final UUID dataStoreId = UUID.randomUUID();
+
+   @Override
+   public UUID getDataStoreId() {
+      return dataStoreId;
+   }
+
 
    //~--- fields --------------------------------------------------------------
    /**
@@ -642,7 +647,7 @@ public class CommitProvider
                     .writeConcept(conceptChronology);
             break;
 
-         case SEMEME:
+         case SEMANTIC:
             final SemanticChronology sememeChronology = (SemanticChronology) ochreExternalizable;
 
             Get.assemblageService()
@@ -891,7 +896,7 @@ public class CommitProvider
                break;
             }
 
-            case SEMEME: {
+            case SEMANTIC: {
                final int sequence = Get.identifierService()
                        .getSemanticSequence(sememeOrConceptChronicle.getNid());
                final SemanticSequenceSet set = changeCheckerActive ? this.uncommittedSemanticsWithChecksSequenceSet

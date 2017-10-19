@@ -626,7 +626,7 @@ public class QueryController
                         if (newSelection != null) {
                            manifold.setFocusedConceptChronology(
                                Get.conceptService()
-                                  .getConcept(newSelection.getReferencedComponentNid()));
+                                  .getConceptChronology(newSelection.getReferencedComponentNid()));
                         }
                      });
 

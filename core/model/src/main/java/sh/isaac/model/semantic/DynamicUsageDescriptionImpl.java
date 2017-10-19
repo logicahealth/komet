@@ -129,7 +129,7 @@ public class DynamicUsageDescriptionImpl
    @SuppressWarnings("unchecked")
    public DynamicUsageDescriptionImpl(int refexUsageDescriptorId) {
       final ConceptChronology assemblageConcept = Get.conceptService()
-                                                        .getConcept(refexUsageDescriptorId);
+                                                        .getConceptChronology(refexUsageDescriptorId);
 
       this.refexUsageDescriptorSequence = assemblageConcept.getConceptSequence();
 
@@ -147,7 +147,7 @@ public class DynamicUsageDescriptionImpl
 
             if (ds.getDescriptionTypeConceptSequence() == TermAux.DEFINITION_DESCRIPTION_TYPE.getConceptSequence()) {
                final Optional<SemanticChronology> nestesdSememe = Get.assemblageService()
-                                                                                               .getSemanticChronologyForComponentFromAssemblage(ds.getNid(),
+                                                                                               .getSemanticChronologyStreamForComponentFromAssemblage(ds.getNid(),
                                                                                                         DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION
                                                                                                               .getSequence())
                                                                                                .findAny();
@@ -178,7 +178,7 @@ public class DynamicUsageDescriptionImpl
       }
 
       Get.assemblageService()
-         .getSemanticChronologyForComponent(assemblageConcept.getNid())
+         .getSemanticChronologyStreamForComponent(assemblageConcept.getNid())
          .forEach(sememe -> {
                      if (sememe.getVersionType() == VersionType.DYNAMIC) {
                         @SuppressWarnings("rawtypes")

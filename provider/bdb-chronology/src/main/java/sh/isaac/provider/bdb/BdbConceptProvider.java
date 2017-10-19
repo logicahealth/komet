@@ -41,18 +41,12 @@ package sh.isaac.provider.bdb;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import com.sleepycat.bind.tuple.IntegerBinding;
-import java.io.File;
-
-import java.nio.file.Path;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -63,15 +57,12 @@ import org.glassfish.hk2.runlevel.RunLevel;
 
 import org.jvnet.hk2.annotations.Service;
 
-import com.sleepycat.je.Database;
-import com.sleepycat.je.DatabaseConfig;
-import com.sleepycat.je.DatabaseEntry;
-import com.sleepycat.je.DatabaseException;
-import com.sleepycat.je.Environment;
-import com.sleepycat.je.EnvironmentConfig;
+import java.nio.file.Path;
+import java.util.NoSuchElementException;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
-import sh.isaac.api.ConceptActiveService;
-import sh.isaac.api.LookupService;
+import sh.isaac.api.Get;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
@@ -79,6 +70,9 @@ import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -93,54 +87,29 @@ public class BdbConceptProvider
          implements ConceptService {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
-
-   //~--- fields --------------------------------------------------------------
-
-   private Environment myDbEnvironment;
-   private Database conceptDatabase;
-
-   //~--- methods -------------------------------------------------------------
+   private BdbProvider bdb;
 
    @Override
    public void clearDatabaseValidityValue() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      bdb.clearDatabaseValidityValue();
    }
 
    @Override
-   public void writeConcept(ConceptChronology concept) {
-      DatabaseEntry key = new DatabaseEntry();
-      IntegerBinding.intToEntry(concept.getConceptSequence(), key);
-      DatabaseEntry value = new DatabaseEntry(((ConceptChronologyImpl)concept).getDataToWrite());
-      // Put it as normal
-      // Need to check for swap and write...
-      conceptDatabase.put(null, key, value); 
+   public Path getDatabaseFolder() {
+      return bdb.getDatabaseFolder();
    }
 
+   @Override
+   public DatabaseValidity getDatabaseValidityStatus() {
+      return bdb.getDatabaseValidityStatus();
+   }
    /**
     * Start me.
     */
    @PostConstruct
    private void startMe() {
-      LOG.info("Starting BDB ConceptProvider post-construct");
-
-      try {
-         EnvironmentConfig envConfig = new EnvironmentConfig();
-
-         envConfig.setAllowCreate(true);
-         myDbEnvironment = new Environment(new File("dbEnv"), envConfig);
-
-         // Open the database. Create it if it does not already exist.
-         DatabaseConfig dbConfig = new DatabaseConfig();
-
-         dbConfig.setAllowCreate(true);
-         dbConfig.setDeferredWrite(true);
-         dbConfig.setSortedDuplicates(true);
-
-         conceptDatabase = myDbEnvironment.openDatabase(null, "concepts", dbConfig);
-      } catch (DatabaseException dbe) {
-         throw new RuntimeException(dbe);
-      }
+      LOG.info("Starting concept provider.");
+      bdb = Get.service(BdbProvider.class);
    }
 
    /**
@@ -148,123 +117,114 @@ public class BdbConceptProvider
     */
    @PreDestroy
    private void stopMe() {
-      LOG.info("Stopping BDB ConceptProvider.");
+      LOG.info("Stopping concept provider.");
+   }
 
-      if (myDbEnvironment != null) {
-         conceptDatabase.sync();
-         conceptDatabase.close();
-         myDbEnvironment.close();
+   @Override
+   public ConceptChronology getConceptChronology(ConceptSpecification conceptSpecification) {
+      return getConceptChronology(conceptSpecification.getConceptSequence());
+   }
+
+   @Override
+   public void writeConcept(ConceptChronology concept) {
+      BdbProvider.writeChronologyData(bdb.getConceptDatabase(), (ChronologyImpl) concept);
+   }
+
+   @Override
+   public ConceptChronology getConceptChronology(int conceptId) {
+      if (conceptId < 0) {
+         conceptId = Get.identifierService()
+                        .getConceptSequence(conceptId);
       }
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   @Override
-   public ConceptChronology getConcept(ConceptSpecification conceptSpecification) {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public ConceptChronology getConcept(int conceptId) {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+      Optional<ByteArrayDataBuffer> optionalByteBuffer = BdbProvider.getChronologyData(bdb.getConceptDatabase(), conceptId);
+      if (optionalByteBuffer.isPresent()) {
+         ByteArrayDataBuffer byteBuffer = optionalByteBuffer.get();
+         IsaacObjectType.CONCEPT.readAndValidateHeader(byteBuffer);
+         return ConceptChronologyImpl.make(byteBuffer);
+      }
+      throw new NoSuchElementException("No element for: " + conceptId);
    }
 
    @Override
-   public ConceptChronology getConcept(UUID... conceptUuids) {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+   public ConceptChronology getConceptChronology(UUID... conceptUuids) {
+      int conceptSequence = Get.identifierService().getConceptSequenceForUuids(conceptUuids);
+      return BdbConceptProvider.this.getConceptChronology(conceptSequence);
    }
 
    @Override
    public boolean hasConcept(int conceptId) {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+     return BdbProvider.hasKey(bdb.getConceptDatabase(), conceptId);
    }
 
    @Override
    public boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate) {
       throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+          "4. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
    public Stream<ConceptChronology> getConceptChronologyStream() {
       throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+          "5. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
    public Stream<ConceptChronology> getConceptChronologyStream(ConceptSequenceSet conceptSequences) {
       throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+          "6. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
    public int getConceptCount() {
       throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+          "7. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
    public IntStream getConceptKeyParallelStream() {
       throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+          "8. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
    public IntStream getConceptKeyStream() {
       throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+          "9. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
    public UUID getDataStoreId() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public Path getDatabaseFolder() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public DatabaseValidity getDatabaseValidityStatus() {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+     return bdb.getDataStoreId();
    }
 
    @Override
    public Optional<? extends ConceptChronology> getOptionalConcept(int conceptId) {
       throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+          "13. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
    public Optional<? extends ConceptChronology> getOptionalConcept(UUID... conceptUuids) {
       throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+          "14. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
    public Stream<ConceptChronology> getParallelConceptChronologyStream() {
       throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+          "15. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
    public Stream<ConceptChronology> getParallelConceptChronologyStream(ConceptSequenceSet conceptSequences) {
       throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+          "16. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
    public ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate) {
       throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
+          "17. Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 }
 

@@ -116,7 +116,7 @@ public class Search {
                            final ArrayList<CompositeSearchResult> keep          = new ArrayList<>();
                            final HashSet<Integer>                 refsetMembers = new HashSet<>();
 
-                           Get.assemblageService().getSemanticChronologyFromAssemblage(Get.identifierService()
+                           Get.assemblageService().getSemanticChronologyStreamFromAssemblage(Get.identifierService()
                                  .getSemanticSequence(memberOfRefsetNid)).forEach(sememeC -> {
                                           refsetMembers.add(sememeC.getReferencedComponentNid());
                                        });

@@ -157,7 +157,7 @@ public class UpdateInferredFormsTask
                                               updateProgress(this.processedCount.get(), this.conceptsToProcess);
 
                                               final ConceptChronology concept = Get.conceptService()
-                                                                                   .getConcept(conceptSequence);
+                                                                                   .getConceptChronology(conceptSequence);
 
                                               updateMessage("Updating concept: " + concept.toUserString());
                                               updateValue(this.processedCount.get());

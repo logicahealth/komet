@@ -134,7 +134,7 @@ public class PathProvider
          try {
             this.pathMap = new ConcurrentHashMap<>();
             Get.assemblageService()
-               .getSemanticChronologyFromAssemblage(TermAux.PATH_ASSEMBLAGE.getConceptSequence())
+               .getSemanticChronologyStreamFromAssemblage(TermAux.PATH_ASSEMBLAGE.getConceptSequence())
                .forEach((pathSememe) -> {
                            final int pathSequence = Get.identifierService()
                                                        .getConceptSequence(pathSememe.getReferencedComponentNid());
@@ -175,7 +175,7 @@ public class PathProvider
     * @return the from disk
     */
    private Optional<StampPath> getFromDisk(int stampPathSequence) {
-      return Get.assemblageService().getSemanticChronologyForComponentFromAssemblage(stampPathSequence, TermAux.PATH_ASSEMBLAGE.getConceptSequence()).map((sememeChronicle) -> {
+      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(stampPathSequence, TermAux.PATH_ASSEMBLAGE.getConceptSequence()).map((sememeChronicle) -> {
                         int pathId = sememeChronicle.getReferencedComponentNid();
 
                         pathId = Get.identifierService()
@@ -216,7 +216,7 @@ public class PathProvider
     */
    private List<StampPosition> getPathOriginsFromDb(int nid) {
       return Get.assemblageService()
-                .getSemanticChronologyForComponentFromAssemblage(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getConceptSequence())
+                .getSemanticChronologyStreamForComponentFromAssemblage(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getConceptSequence())
                 .map((pathOrigin) -> {
                         final long time = ((LongVersion) pathOrigin.getVersionList()
                                                                   .get(0)).getLongValue();
@@ -233,7 +233,7 @@ public class PathProvider
     */
    @Override
    public Collection<? extends StampPath> getPaths() {
-      return Get.assemblageService().getSemanticChronologyFromAssemblage(TermAux.PATH_ASSEMBLAGE.getConceptSequence()).map((sememeChronicle) -> {
+      return Get.assemblageService().getSemanticChronologyStreamFromAssemblage(TermAux.PATH_ASSEMBLAGE.getConceptSequence()).map((sememeChronicle) -> {
                         int pathId = sememeChronicle.getReferencedComponentNid();
 
                         pathId = Get.identifierService()
@@ -312,7 +312,7 @@ public class PathProvider
       }
 
       throw new IllegalStateException("No path for: " + stampPathSequence + " " +
-                                      Get.conceptService().getConcept(stampPathSequence).toString());
+                                      Get.conceptService().getConceptChronology(stampPathSequence).toString());
    }
 }
 

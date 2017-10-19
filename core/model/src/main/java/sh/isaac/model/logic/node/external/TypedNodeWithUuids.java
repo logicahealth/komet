@@ -180,12 +180,12 @@ public abstract class TypedNodeWithUuids
     */
    @Override
    public String toString(String nodeIdSuffix) {
-      return " " + Get.conceptService().getConcept(this.typeConceptUuid).toUserString();
+      return " " + Get.conceptService().getConceptChronology(this.typeConceptUuid).toUserString();
    }
 
    @Override
    public String toSimpleString() {
-      return " " + Get.conceptService().getConcept(this.typeConceptUuid).toUserString();
+      return " " + Get.conceptService().getConceptChronology(this.typeConceptUuid).toUserString();
    }
 
    /**

@@ -67,7 +67,7 @@ public class AssemblageSerializer
     */
    @Override
    public SemanticChronologyImpl deserialize(ByteArrayDataBuffer db) {
-      IsaacObjectType.SEMEME.readAndValidateHeader(db);
+      IsaacObjectType.SEMANTIC.readAndValidateHeader(db);
       return SemanticChronologyImpl.make(db);
    }
 
@@ -85,7 +85,7 @@ public class AssemblageSerializer
          int writeSequence) {
       final byte[]              dataBytes = a.mergeData(writeSequence, b.getDataToWrite(writeSequence));
       final ByteArrayDataBuffer db        = new ByteArrayDataBuffer(dataBytes);
-      IsaacObjectType.SEMEME.readAndValidateHeader(db);
+      IsaacObjectType.SEMANTIC.readAndValidateHeader(db);
       return SemanticChronologyImpl.make(db);
    }
 

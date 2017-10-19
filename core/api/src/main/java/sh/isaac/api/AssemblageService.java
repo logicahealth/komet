@@ -135,7 +135,7 @@ public interface AssemblageService
     * @param semanticId Either a nid or SemanticChronology sequence
     * @return true if present, false otherwise
     */
-   boolean hasSemanticChronology(int semanticId);
+   boolean hasSemantic(int semanticId);
 
    /**
     * Gets the SemanticChronology stream.
@@ -197,7 +197,7 @@ public interface AssemblageService
     * @param componentNid the component nid
     * @return the SemanticChronology for component
     */
-   <C extends SemanticChronology> Stream<C> getSemanticChronologyForComponent(int componentNid);
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid);
 
    /**
     * Gets the SemanticChronology for component from assemblage.
@@ -207,7 +207,7 @@ public interface AssemblageService
     * @param assemblageConceptSequence the assemblage concept sequence
     * @return the SemanticChronologies for component from assemblage
     */
-   <C extends SemanticChronology> Stream<C> getSemanticChronologyForComponentFromAssemblage(int componentNid,
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid,
          int assemblageConceptSequence);
 
    /**
@@ -217,7 +217,7 @@ public interface AssemblageService
     * @param assemblageConceptSequence the assemblage concept sequence
     * @return the SemanticChronologies from assemblage
     */
-   <C extends SemanticChronology> Stream<C> getSemanticChronologyFromAssemblage(int assemblageConceptSequence);
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamFromAssemblage(int assemblageConceptSequence);
 
    /**
     * Gets the referenced component nids from assemblage.
@@ -236,7 +236,7 @@ public interface AssemblageService
     * @return the referenced component nids as an IntStream
     */
    default IntStream getReferencedComponentNidStreamFromAssemblage(int assemblageConceptSequence) {
-      return getSemanticChronologyFromAssemblage(assemblageConceptSequence).mapToInt((semantic) -> semantic.getReferencedComponentNid());
+      return getSemanticChronologyStreamFromAssemblage(assemblageConceptSequence).mapToInt((semantic) -> semantic.getReferencedComponentNid());
    }
    
    

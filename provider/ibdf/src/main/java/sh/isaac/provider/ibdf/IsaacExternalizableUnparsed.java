@@ -95,7 +95,7 @@ public class IsaacExternalizableUnparsed {
       case CONCEPT:
          return ConceptChronologyImpl.make(this.data);
 
-      case SEMEME:
+      case SEMANTIC:
          return SemanticChronologyImpl.make(this.data);
 
       case STAMP_ALIAS:

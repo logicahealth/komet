@@ -143,7 +143,7 @@ public class SemanticIndexerConfiguration {
       });
 
       final ConceptChronology referencedAssemblageConceptC = Get.conceptService()
-                                                                                             .getConcept(
+                                                                                             .getConceptChronology(
                                                                                                 assemblageNidOrSequence);
 
       LOG.info("Configuring index for dynamic assemblage '" + referencedAssemblageConceptC.toUserString() +
@@ -217,7 +217,7 @@ public class SemanticIndexerConfiguration {
       }
 
       final ConceptChronology referencedAssemblageConceptC = Get.conceptService()
-                                                                                             .getConcept(
+                                                                                             .getConceptChronology(
                                                                                                 assemblageNidOrSequence);
 
       LOG.info("Configuring index for assemblage '" + referencedAssemblageConceptC.toUserString() +
@@ -385,7 +385,7 @@ public class SemanticIndexerConfiguration {
                try {
                   final HashMap<Integer, Integer[]> updatedWhatToIndex = new HashMap<>();
                   final Stream<SemanticChronology> sememeCs = Get.assemblageService()
-                                                                                           .getSemanticChronologyFromAssemblage(DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
+                                                                                           .getSemanticChronologyStreamFromAssemblage(DynamicConstants.get().DYNAMIC_INDEX_CONFIGURATION
                                                                                                     .getSequence());
 
                   sememeCs.forEach(sememeC -> {

@@ -34,9 +34,13 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
+
+
+
 package sh.isaac.provider.assemblage;
 
 //~--- JDK imports ------------------------------------------------------------
+
 import java.io.IOException;
 
 import java.nio.file.Files;
@@ -44,6 +48,7 @@ import java.nio.file.Path;
 
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
@@ -53,6 +58,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 //~--- non-JDK imports --------------------------------------------------------
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -67,19 +73,19 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.index.AssemblageIndexService;
-import sh.isaac.model.ChronologyImpl;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.model.waitfree.CasSequenceObjectMap;
+import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticServiceTyped;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.index.AssemblageIndexService;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.waitfree.CasSequenceObjectMap;
 
 //~--- classes ----------------------------------------------------------------
+
 /**
  * The Class AssemblageProvider.
  *
@@ -89,14 +95,16 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 @RunLevel(value = 0)
 @Rank(value = 10)
 public class AssemblageProvider
-        implements AssemblageService {
-
+         implements AssemblageService {
    /**
     * The Constant LOG.
     */
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
+
+   // TODO persist dataStoreId.
+   private final UUID dataStoreId = UUID.randomUUID();
 
    /**
     * The in use assemblages.
@@ -124,18 +132,20 @@ public class AssemblageProvider
    final Path sememePath;
 
    //~--- constructors --------------------------------------------------------
+
    /**
     * Instantiates a new sememe provider.
     *
     * @throws IOException Signals that an I/O exception has occurred.
     */
+
    // For HK2
    private AssemblageProvider()
-           throws IOException {
+            throws IOException {
       try {
          this.sememePath = LookupService.getService(ConfigurationService.class)
-                 .getChronicleFolderPath()
-                 .resolve("sememe");
+                                        .getChronicleFolderPath()
+                                        .resolve("sememe");
 
          if (!Files.exists(this.sememePath)) {
             this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
@@ -145,18 +155,19 @@ public class AssemblageProvider
          Files.createDirectories(this.sememePath);
          LOG.info("Setting up sememe provider at " + this.sememePath.toAbsolutePath().toString());
          this.sememeMap = new CasSequenceObjectMap<>(
-                 new AssemblageSerializer(),
-                 this.sememePath,
-                 "seg.",
-                 ".sememe.map");
+             new AssemblageSerializer(),
+             this.sememePath,
+             "seg.",
+             ".sememe.map");
       } catch (final IOException e) {
          LookupService.getService(SystemStatusService.class)
-                 .notifyServiceConfigurationFailure("Cradle Commit Manager", e);
+                      .notifyServiceConfigurationFailure("Cradle Commit Manager", e);
          throw e;
       }
    }
 
    //~--- methods -------------------------------------------------------------
+
    /**
     * Clear database validity value.
     */
@@ -195,15 +206,17 @@ public class AssemblageProvider
    @PostConstruct
    private void startMe() {
       LOG.info("Loading sememeMap.");
+
       if (!this.loadRequired.get()) {
          LOG.info("Reading existing sememeMap.");
-         
+
          final boolean isPopulated = this.sememeMap.initialize();
-         
+
          if (isPopulated) {
             this.databaseValidity = DatabaseValidity.POPULATED_DIRECTORY;
          }
       }
+
       LOG.info("Finished SememeProvider load.");
    }
 
@@ -219,6 +232,7 @@ public class AssemblageProvider
    }
 
    //~--- get methods ---------------------------------------------------------
+
    /**
     * Gets the assemblage types.
     *
@@ -227,6 +241,11 @@ public class AssemblageProvider
    @Override
    public Stream<Integer> getAssemblageTypes() {
       return this.inUseAssemblages.stream();
+   }
+
+   @Override
+   public UUID getDataStoreId() {
+      return dataStoreId;
    }
 
    /**
@@ -257,17 +276,21 @@ public class AssemblageProvider
     */
    @Override
    public Stream<SemanticChronology> getDescriptionsForComponent(int componentNid) {
-      
-      final SemanticSequenceSet sequences = getSemanticChronologySequencesForComponentFromAssemblage(componentNid, TermAux.ENGLISH_DESCRIPTION_ASSEMBLAGE.getConceptSequence());
-      final IntFunction<SemanticChronology> mapper = (int sememeSequence) -> (SemanticChronology) getSemanticChronology(sememeSequence);
+      final SemanticSequenceSet sequences = getSemanticChronologySequencesForComponentFromAssemblage(
+                                                componentNid,
+                                                      TermAux.ENGLISH_DESCRIPTION_ASSEMBLAGE.getConceptSequence());
+      final IntFunction<SemanticChronology> mapper = (int sememeSequence) -> (SemanticChronology) getSemanticChronology(
+                                                         sememeSequence);
 
       return sequences.stream()
-              .filter((int sememeSequence) -> {
-                         final Optional<? extends SemanticChronology> sememe = getOptionalSemanticChronology(sememeSequence);
+                      .filter(
+                          (int sememeSequence) -> {
+                             final Optional<? extends SemanticChronology> sememe = getOptionalSemanticChronology(
+                                                                                       sememeSequence);
 
-                         return sememe.isPresent() && (sememe.get().getVersionType() == VersionType.DESCRIPTION);
-                      })
-              .mapToObj(mapper);
+                             return sememe.isPresent() && (sememe.get().getVersionType() == VersionType.DESCRIPTION);
+                          })
+                      .mapToObj(mapper);
    }
 
    /**
@@ -279,7 +302,7 @@ public class AssemblageProvider
    @Override
    public Optional<? extends SemanticChronology> getOptionalSemanticChronology(int sememeSequence) {
       sememeSequence = Get.identifierService()
-              .getSemanticSequence(sememeSequence);
+                          .getSemanticSequence(sememeSequence);
       return this.sememeMap.get(sememeSequence);
    }
 
@@ -291,9 +314,10 @@ public class AssemblageProvider
    @Override
    public Stream<SemanticChronology> getParallelSemanticChronologyStream() {
       return this.sememeMap.getParallelStream()
-              .map((s) -> {
-                         return (SemanticChronology) s;
-                      });
+                           .map(
+                               (s) -> {
+                                  return (SemanticChronology) s;
+                               });
    }
 
    /**
@@ -305,7 +329,7 @@ public class AssemblageProvider
    @Override
    public SemanticChronology getSemanticChronology(int sememeId) {
       sememeId = Get.identifierService()
-              .getSemanticSequence(sememeId);
+                    .getSemanticSequence(sememeId);
       return this.sememeMap.getQuick(sememeId);
    }
 
@@ -316,26 +340,13 @@ public class AssemblageProvider
     * @return true, if successful
     */
    @Override
-   public boolean hasSemanticChronology(int sememeId) {
+   public boolean hasSemantic(int sememeId) {
       if (sememeId < 0) {
          sememeId = Get.identifierService()
-                 .getSemanticSequence(sememeId);
+                       .getSemanticSequence(sememeId);
       }
 
       return this.sememeMap.containsKey(sememeId);
-   }
-
-   /**
-    * Gets the sememe chronology stream.
-    *
-    * @return the sememe chronology stream
-    */
-   @Override
-   public Stream<SemanticChronology> getSemanticChronologyStream() {
-      return this.sememeMap.getStream()
-              .map((s) -> {
-                         return (SemanticChronology) s;
-                      });
    }
 
    /**
@@ -346,6 +357,61 @@ public class AssemblageProvider
    @Override
    public int getSemanticChronologyCount() {
       return this.sememeMap.getSize();
+   }
+
+   /**
+    * Gets the sememes for component.
+    *
+    * @param componentNid the component nid
+    * @return the sememes for component
+    */
+   @Override
+   public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid) {
+      return getSemanticChronologySequencesForComponent(componentNid).stream()
+            .mapToObj((int sememeSequence) -> (C) getSemanticChronology(sememeSequence));
+   }
+
+   /**
+    * Gets the sememes for component from assemblage.
+    *
+    * @param componentNid the component nid
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the sememes for component from assemblage
+    */
+   @Override
+   public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid,
+         int assemblageConceptSequence) {
+      if (componentNid >= 0) {
+         componentNid = Get.identifierService()
+                           .getConceptNid(componentNid);
+      }
+
+      if (assemblageConceptSequence < 0) {
+         assemblageConceptSequence = Get.identifierService()
+                                        .getConceptSequence(assemblageConceptSequence);
+      }
+
+      final SemanticSequenceSet sememeSequences = getSemanticChronologySequencesForComponentFromAssemblage(
+                                                      componentNid,
+                                                            assemblageConceptSequence);
+
+      return sememeSequences.stream()
+                            .mapToObj((int sememeSequence) -> (C) getSemanticChronology(sememeSequence));
+   }
+
+   /**
+    * Gets the sememes from assemblage.
+    *
+    * @param assemblageConceptSequence the assemblage concept sequence
+    * @return the sememes from assemblage
+    */
+   @Override
+   public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamFromAssemblage(int assemblageConceptSequence) {
+      final SemanticSequenceSet sememeSequences = getSemanticChronologySequencesFromAssemblage(
+                                                      assemblageConceptSequence);
+
+      return sememeSequences.stream()
+                            .mapToObj((int sememeSequence) -> (C) getSemanticChronology(sememeSequence));
    }
 
    /**
@@ -376,8 +442,8 @@ public class AssemblageProvider
     */
    @Override
    public SemanticSequenceSet getSemanticChronologySequencesForComponent(int componentNid) {
-      
       AssemblageIndexService indexService = Get.service(AssemblageIndexService.class);
+
       return SemanticSequenceSet.of(indexService.getAttachmentNidsForComponent(componentNid));
    }
 
@@ -390,16 +456,18 @@ public class AssemblageProvider
     */
    @Override
    public SemanticSequenceSet getSemanticChronologySequencesForComponentFromAssemblage(int componentNid,
-           int assemblageConceptSequence) {
+         int assemblageConceptSequence) {
       if (componentNid >= 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
       }
 
       assemblageConceptSequence = Get.identifierService()
-              .getConceptSequence(assemblageConceptSequence);
+                                     .getConceptSequence(assemblageConceptSequence);
 
       AssemblageIndexService indexService = Get.service(AssemblageIndexService.class);
-      return SemanticSequenceSet.of(indexService.getAttachmentsForComponentInAssemblage(componentNid, assemblageConceptSequence));
+
+      return SemanticSequenceSet.of(
+          indexService.getAttachmentsForComponentInAssemblage(componentNid, assemblageConceptSequence));
    }
 
    /**
@@ -411,63 +479,25 @@ public class AssemblageProvider
    @Override
    public SemanticSequenceSet getSemanticChronologySequencesFromAssemblage(int assemblageConceptSequence) {
       assemblageConceptSequence = Get.identifierService()
-              .getConceptSequence(assemblageConceptSequence);
+                                     .getConceptSequence(assemblageConceptSequence);
+
       AssemblageIndexService indexService = Get.service(AssemblageIndexService.class);
+
       return SemanticSequenceSet.of(indexService.getAttachmentNidsInAssemblage(assemblageConceptSequence));
    }
 
    /**
-    * Gets the sememes for component.
+    * Gets the sememe chronology stream.
     *
-    * @param componentNid the component nid
-    * @return the sememes for component
+    * @return the sememe chronology stream
     */
    @Override
-   public <C extends SemanticChronology> Stream<C> getSemanticChronologyForComponent(int componentNid) {
-      return getSemanticChronologySequencesForComponent(componentNid).stream().mapToObj((int sememeSequence) -> (C) getSemanticChronology(sememeSequence));
-   }
-
-   /**
-    * Gets the sememes for component from assemblage.
-    *
-    * @param componentNid the component nid
-    * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the sememes for component from assemblage
-    */
-   @Override
-   public <C extends SemanticChronology> Stream<C> getSemanticChronologyForComponentFromAssemblage(int componentNid,
-           int assemblageConceptSequence) {
-      if (componentNid >= 0) {
-         componentNid = Get.identifierService()
-                 .getConceptNid(componentNid);
-      }
-
-      if (assemblageConceptSequence < 0) {
-         assemblageConceptSequence = Get.identifierService()
-                 .getConceptSequence(assemblageConceptSequence);
-      }
-
-      final SemanticSequenceSet sememeSequences = getSemanticChronologySequencesForComponentFromAssemblage(
-              componentNid,
-              assemblageConceptSequence);
-
-      return sememeSequences.stream()
-              .mapToObj((int sememeSequence) -> (C) getSemanticChronology(sememeSequence));
-   }
-
-
-   /**
-    * Gets the sememes from assemblage.
-    *
-    * @param assemblageConceptSequence the assemblage concept sequence
-    * @return the sememes from assemblage
-    */
-   @Override
-   public <C extends SemanticChronology> Stream<C> getSemanticChronologyFromAssemblage(int assemblageConceptSequence) {
-      final SemanticSequenceSet sememeSequences = getSemanticChronologySequencesFromAssemblage(assemblageConceptSequence);
-
-      return sememeSequences.stream()
-              .mapToObj((int sememeSequence) -> (C) getSemanticChronology(sememeSequence));
+   public Stream<SemanticChronology> getSemanticChronologyStream() {
+      return this.sememeMap.getStream()
+                           .map(
+                               (s) -> {
+                                  return (SemanticChronology) s;
+                               });
    }
 
    /**
@@ -480,7 +510,8 @@ public class AssemblageProvider
     */
    @Override
    public <V extends SemanticVersion> SemanticSnapshotService<V> getSnapshot(Class<V> versionType,
-           StampCoordinate stampCoordinate) {
+         StampCoordinate stampCoordinate) {
       return new AssemblageSnapshotProvider<>(versionType, stampCoordinate, this);
    }
 }
+

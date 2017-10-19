@@ -49,7 +49,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -80,7 +79,6 @@ import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.MetaData;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.TaxonomySnapshotService;
 import sh.isaac.model.logic.LogicByteArrayConverterService;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderOchreProvider;
@@ -187,7 +185,7 @@ public class ImportExportTest {
                                                                          "data",
                                                                          "IsaacMetadataAuxiliary.export.ibdf"));
 
-         Get.ochreExternalizableStream()
+         Get.isaacExternalizableStream()
             .filter(exportStats)
             .forEach((ochreExternalizable) -> {
                         writer.put(ochreExternalizable);
@@ -237,7 +235,7 @@ public class ImportExportTest {
                                                                          "data",
                                                                          "IsaacMetadataAuxiliary.export.ibdf"));
 
-         Get.ochreExternalizableStream()
+         Get.isaacExternalizableStream()
             .filter(exportStats)
             .forEach((ochreExternalizable) -> {
                         writer.put(ochreExternalizable);

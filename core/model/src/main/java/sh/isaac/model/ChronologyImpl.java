@@ -40,6 +40,7 @@ package sh.isaac.model;
 import java.lang.ref.SoftReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -349,7 +350,7 @@ public abstract class ChronologyImpl
       if (addAttachments) {
          builder.append("\n[[\n");
          AtomicInteger attachmentCount = new AtomicInteger(0);
-         Get.assemblageService().getSemanticChronologyForComponent(this.getNid()).forEach((sememe) -> {
+         Get.assemblageService().getSemanticChronologyStreamForComponent(this.getNid()).forEach((sememe) -> {
             builder.append("ATTACHMENT ").append(attachmentCount.incrementAndGet())
                     .append(":\n  ");
             ((SemanticChronologyImpl)sememe).toString(builder, false);
@@ -780,6 +781,52 @@ public abstract class ChronologyImpl
    }
 
    /**
+    * Get the data as a list of immutable byte arrays. With an append only data model,
+    * these records are safe for concurrent writes without destroying data per the duplicate data
+    * model in Berkley DB and Xodus. 
+    * 
+    * The chronology record starts with an integer of 0 to differentiate from version records, and then
+    * is followed by a byte for the object type, and a byte for the data format version... The object
+    * type byte is always > 0, and the version byte is always > 0...
+    * 
+    * Each byte[] for a version starts with an integer length of the version data. The minimum size
+    * of a version is 4 bytes (an integer stamp sequence).
+    * 
+    * @return 
+    */
+   public List<byte[]> getDataList() {
+      
+      List<byte[]> dataArray = new ArrayList();
+      
+      byte[] dataToSplit = getDataToWrite();
+      if (versionStartPosition < 0) {
+         throw new IllegalStateException("versionStartPosition is not set");
+      }
+      byte[] chronicleBytes = new byte[versionStartPosition+4]; // +4 for the zero integer to start.
+      for (int i = 0; i < chronicleBytes.length; i++) {
+         if (i < 4) {
+            chronicleBytes[i] = 0;
+         } else {
+            chronicleBytes[i] = dataToSplit[i-4];
+         }
+      }
+      dataArray.add(chronicleBytes);
+      
+      int versionStart = versionStartPosition;
+      int versionSize = (((dataToSplit[versionStart]) << 24) | ((dataToSplit[versionStart + 1] & 0xff) << 16)
+                    | ((dataToSplit[versionStart + 2] & 0xff) << 8) | ((dataToSplit[versionStart + 3] & 0xff)));
+
+      while (versionSize != 0) {
+         dataArray.add(Arrays.copyOfRange(dataToSplit, versionStart, versionStart + versionSize));
+         versionStart = versionStart + versionSize;
+         versionSize = (((dataToSplit[versionStart]) << 24) | ((dataToSplit[versionStart + 1] & 0xff) << 16)
+                    | ((dataToSplit[versionStart + 2] & 0xff) << 8) | ((dataToSplit[versionStart + 3] & 0xff)));
+      }
+      
+      
+      return dataArray;
+   }
+   /**
     * Get data to write to datastore. Set the write sequence to the specified value
     *
     * @param writeSequence the write sequence to prepend to the data
@@ -806,6 +853,7 @@ public abstract class ChronologyImpl
       final ByteArrayDataBuffer db = new ByteArrayDataBuffer(512);
       writeChronicleData(db);
 
+      this.versionStartPosition = db.getPosition();
       if (this.writtenData != null) {
          db.put(
                  this.writtenData,
@@ -937,7 +985,7 @@ public abstract class ChronologyImpl
    @Override
    public <V extends SemanticChronology> List<V> getSemanticChronologyList() {
       return Get.assemblageService()
-              .<V>getSemanticChronologyForComponent(this.nid)
+              .<V>getSemanticChronologyStreamForComponent(this.nid)
               .collect(Collectors.toList());
    }
 
@@ -950,7 +998,7 @@ public abstract class ChronologyImpl
    @Override
    public <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblage(int assemblageSequence) {
       return Get.assemblageService()
-              .<V>getSemanticChronologyForComponentFromAssemblage(this.nid, assemblageSequence)
+              .<V>getSemanticChronologyStreamForComponentFromAssemblage(this.nid, assemblageSequence)
               .collect(Collectors.toList());
    }
 

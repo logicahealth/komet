@@ -81,7 +81,6 @@ import sh.isaac.api.util.metainf.MetaInfReader;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -199,7 +198,7 @@ public class ChangeSetLoadProvider
 
       if (optionalService.isPresent()) {
          Optional<SemanticChronology> sdic = optionalService.get()
-                                                          .getSemanticChronologyForComponentFromAssemblage(
+                                                          .getSemanticChronologyStreamForComponentFromAssemblage(
                                                                 TermAux.SOLOR_ROOT.getNid(),
                                                                       TermAux.DATABASE_UUID.getConceptSequence())
                                                           .findFirst();

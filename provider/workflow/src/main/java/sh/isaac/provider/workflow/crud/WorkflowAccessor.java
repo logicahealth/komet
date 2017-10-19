@@ -303,7 +303,7 @@ public class WorkflowAccessor {
                                                                         .getAssemblageSequence();
 
                Get.conceptService()
-                  .getConcept(assemblageSeq);
+                  .getConceptChronology(assemblageSeq);
 
                String                              target           = null;
                String                              value            = null;
@@ -572,7 +572,7 @@ public class WorkflowAccessor {
                     .getChronologyTypeForNid(compNid)) {
          case CONCEPT:
             objChron = Get.conceptService()
-                          .getConcept(compNid);
+                          .getConceptChronology(compNid);
             break;
 
          case SEMANTIC:

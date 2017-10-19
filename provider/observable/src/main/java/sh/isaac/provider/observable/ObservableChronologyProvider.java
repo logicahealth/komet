@@ -255,7 +255,7 @@ public class ObservableChronologyProvider
          return observableConceptChronology;
       }
 
-      ConceptChronology conceptChronology = Get.conceptService().getConcept(id);
+      ConceptChronology conceptChronology = Get.conceptService().getConceptChronology(id);
       observableConceptChronology = new ObservableConceptChronologyImpl(conceptChronology);
 
       return observableConceptMap.putIfAbsentReturnCurrentValue(id, observableConceptChronology);
@@ -315,7 +315,7 @@ public class ObservableChronologyProvider
             return observableConceptChronology;
          }
 
-         ConceptChronology conceptChronology = Get.conceptService().getConcept(id);
+         ConceptChronology conceptChronology = Get.conceptService().getConceptChronology(id);
          observableConceptChronology = new ObservableConceptChronologyImpl(conceptChronology);
 
          return observableConceptMap.putIfAbsentReturnCurrentValue(id, observableConceptChronology);
