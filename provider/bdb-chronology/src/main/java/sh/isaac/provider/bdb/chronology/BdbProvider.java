@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.provider.bdb;
+package sh.isaac.provider.bdb.chronology;
 
 import com.sleepycat.bind.tuple.IntegerBinding;
 import com.sleepycat.je.Cursor;
@@ -22,7 +22,6 @@ import com.sleepycat.je.CursorConfig;
 import com.sleepycat.je.Database;
 import com.sleepycat.je.DatabaseConfig;
 import com.sleepycat.je.DatabaseEntry;
-import com.sleepycat.je.DatabaseException;
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
 import com.sleepycat.je.LockMode;
@@ -40,9 +39,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.DatabaseServices;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Chronology;
-import static sh.isaac.api.constants.Constants.DATA_STORE_ROOT_LOCATION_PROPERTY;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.ChronologyImpl;
 
@@ -104,13 +104,17 @@ public class BdbProvider implements DatabaseServices {
 
       try {
          EnvironmentConfig envConfig = new EnvironmentConfig();
+         final Path folderPath = LookupService.getService(ConfigurationService.class)
+                                              .getChronicleFolderPath()
+                                              .resolve("bdb");
 
          envConfig.setAllowCreate(true);
-         File dbEnv = new File(System.getProperty(DATA_STORE_ROOT_LOCATION_PROPERTY));
+         File dbEnv = folderPath.toFile();
          if (!dbEnv.exists()) {
             this.databaseValidity = DatabaseValidity.MISSING_DIRECTORY;
          }
-         myDbEnvironment = new Environment(dbEnv, envConfig);
+        dbEnv.mkdirs();
+          myDbEnvironment = new Environment(dbEnv, envConfig);
 
          // Open the database. Create it if it does not already exist.
          DatabaseConfig dbConfig = new DatabaseConfig();
@@ -120,7 +124,8 @@ public class BdbProvider implements DatabaseServices {
          dbConfig.setSortedDuplicates(true);
          conceptDatabase = myDbEnvironment.openDatabase(null, "concepts", dbConfig);
          semanticDatabase = myDbEnvironment.openDatabase(null, "semantics", dbConfig);
-      } catch (DatabaseException dbe) {
+      } catch (Throwable dbe) {
+         dbe.printStackTrace();
          throw new RuntimeException(dbe);
       }
    }

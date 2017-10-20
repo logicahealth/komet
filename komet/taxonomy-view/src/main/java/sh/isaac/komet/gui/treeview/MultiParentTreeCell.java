@@ -227,10 +227,6 @@ final public class MultiParentTreeCell
              int conceptNid = ((MultiParentTreeItem) getTreeItem()).getConceptNid();
              Manifold manifold = ((MultiParentTreeItem) getTreeItem()).getTreeView().getManifold();
              treeItem.getValue();
-             Get.taxonomyService().getAllRelationshipDestinationSequences(conceptNid)
-                     .forEach((conceptSequence)->System.out.println("Parent: " + menuManifold.getPreferredDescriptionText(conceptSequence)));
-             Get.taxonomyService().getAllRelationshipOriginSequences(conceptNid)
-                     .forEach((conceptSequence)->System.out.println("Child: " + menuManifold.getPreferredDescriptionText(conceptSequence)));
           });
 
       MenuItem item2 = new MenuItem("Preferences");

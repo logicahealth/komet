@@ -65,7 +65,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * A {@code TaxonomyRecordUnpacked} is the value for a map where the key is the
+ * A {@code TaxonomyRecord} is the value for a map where the key is the
  * concept sequence for a concept in the taxonomy, and the value is a map to
  * other concept sequences, and the associated stamps and taxonomy flags for
  * these other concept sequences. From the stamp value and the taxonomy flags,
@@ -79,7 +79,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  * <p>
  * Created by kec on 11/8/14.
  */
-public class TaxonomyRecordUnpacked {
+public class TaxonomyRecord {
    /** key = origin concept sequence; value = TypeStampTaxonomyRecords. */
    private final OpenIntObjectHashMap<TypeStampTaxonomyRecords> conceptSequenceRecordMap =
       new OpenIntObjectHashMap<>(11);
@@ -89,14 +89,14 @@ public class TaxonomyRecordUnpacked {
    /**
     * Instantiates a new taxonomy record unpacked.
     */
-   public TaxonomyRecordUnpacked() {}
+   public TaxonomyRecord() {}
 
    /**
     * Instantiates a new taxonomy record unpacked.
     *
     * @param recordArray the record array
     */
-   public TaxonomyRecordUnpacked(int[] recordArray) {
+   public TaxonomyRecord(int[] recordArray) {
       if (recordArray != null) {
          int index = 0;
 
@@ -172,7 +172,7 @@ public class TaxonomyRecordUnpacked {
 
       if (this.conceptSequenceRecordMap.containsKey(conceptSequence)) {
          return this.conceptSequenceRecordMap.get(conceptSequence)
-               .containsConceptSequenceViaType(Integer.MAX_VALUE, TaxonomyFlags.CONCEPT_STATUS.bits, computer);
+               .containsConceptSequenceViaType(Integer.MAX_VALUE, TaxonomyFlag.CONCEPT_STATUS.bits, computer);
       }
 
       return false;
@@ -323,7 +323,7 @@ public class TaxonomyRecordUnpacked {
          return false;
       }
 
-      final TaxonomyRecordUnpacked other = (TaxonomyRecordUnpacked) obj;
+      final TaxonomyRecord other = (TaxonomyRecord) obj;
 
       return Objects.equals(this.conceptSequenceRecordMap, other.conceptSequenceRecordMap);
    }
@@ -358,7 +358,7 @@ public class TaxonomyRecordUnpacked {
     *
     * @param newRecord the new record
     */
-   public void merge(TaxonomyRecordUnpacked newRecord) {
+   public void merge(TaxonomyRecord newRecord) {
       newRecord.conceptSequenceRecordMap.forEachPair((int key,
             TypeStampTaxonomyRecords value) -> {
                if (this.conceptSequenceRecordMap.containsKey(key)) {
@@ -479,7 +479,7 @@ public class TaxonomyRecordUnpacked {
     * @return active concepts identified by their sequence value.
     */
    public int[] getConceptSequencesForType(int typeSequence, ManifoldCoordinate tc) {
-      final int                        flags                    = TaxonomyFlags.getFlagsFromManifoldCoordinate(tc);
+      final int                        flags                    = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc);
       final OpenIntHashSet          conceptSequencesForTypeSet = new OpenIntHashSet();
 
@@ -536,7 +536,7 @@ public class TaxonomyRecordUnpacked {
     * @return the destination concept sequences not of type
     */
    public int[] getDestinationConceptSequencesNotOfType(ConceptSequenceSet typeSet, ManifoldCoordinate tc) {
-      final int                        flags                    = TaxonomyFlags.getFlagsFromManifoldCoordinate(tc);
+      final int                        flags                    = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
       final OpenIntHashSet          conceptSequenceIntSet = new OpenIntHashSet();
 
@@ -602,7 +602,7 @@ public class TaxonomyRecordUnpacked {
     * @return the destination concept sequences of type
     */
    public int[] getDestinationConceptSequencesOfType(ConceptSequenceSet typeSet, ManifoldCoordinate tc) {
-      final int                        flags                    = TaxonomyFlags.getFlagsFromManifoldCoordinate(tc);
+      final int                        flags                    = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
       final OpenIntHashSet          conceptSequenceIntSet = new OpenIntHashSet();
 
@@ -667,7 +667,7 @@ public class TaxonomyRecordUnpacked {
     * @return the types for relationship
     */
    int[] getTypesForRelationship(int destinationId, ManifoldCoordinate tc) {
-      final int                        flags                 = TaxonomyFlags.getFlagsFromManifoldCoordinate(tc);
+      final int                        flags                 = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
       final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(tc.getStampCoordinate());
       final OpenIntHashSet          typeSequenceIntSet = new OpenIntHashSet();
 

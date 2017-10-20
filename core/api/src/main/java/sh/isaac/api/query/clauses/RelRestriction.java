@@ -42,6 +42,7 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
+import java.util.concurrent.ExecutionException;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -168,16 +169,24 @@ public class RelRestriction
       this.relTypeSet.add(relType.getConceptSequence());
 
       if (relTypeSubsumption) {
-         this.relTypeSet.or(Get.taxonomyService()
-                               .getKindOfSequenceSet(relType.getConceptSequence(), manifoldCoordinate));
+         try {
+            this.relTypeSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
+                    .getKindOfSequenceSet(relType.getConceptSequence()));
+         } catch (InterruptedException | ExecutionException ex) {
+            throw new RuntimeException(ex);
+         }
       }
 
       this.destinationSet = new ConceptSequenceSet();
       this.destinationSet.add(destinationSpec.getConceptSequence());
 
       if (destinationSubsumption) {
-         this.destinationSet.or(Get.taxonomyService()
-                                   .getKindOfSequenceSet(destinationSpec.getConceptSequence(), manifoldCoordinate));
+         try {
+            this.destinationSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
+                    .getKindOfSequenceSet(destinationSpec.getConceptSequence()));
+         } catch (InterruptedException | ExecutionException ex) {
+            throw new RuntimeException(ex);
+         }
       }
 
       return incomingPossibleComponents;
@@ -205,17 +214,17 @@ public class RelRestriction
       final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
                                                                                             .get(this.viewCoordinateKey);
 
-      
-      for (int destinationSequence: Get.taxonomyService()
-         .getAllRelationshipDestinationSequencesOfType(conceptVersion.getChronology()
-               .getConceptSequence(),
-               this.relTypeSet,
-               manifoldCoordinate)) {
-                     if (this.destinationSet.contains(destinationSequence)) {
-                        getResultsCache().add(conceptVersion.getChronology()
-                              .getNid());
-                     }
-      }
+      throw new UnsupportedOperationException("Reimplement with new taxonomy service. ");
+//      for (int destinationSequence: Get.taxonomyService()
+//         .getAllRelationshipDestinationSequencesOfType(conceptVersion.getChronology()
+//               .getConceptSequence(),
+//               this.relTypeSet,
+//               manifoldCoordinate)) {
+//                     if (this.destinationSet.contains(destinationSequence)) {
+//                        getResultsCache().add(conceptVersion.getChronology()
+//                              .getNid());
+//                     }
+//      }
    }
 
    /**

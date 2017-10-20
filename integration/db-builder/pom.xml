@@ -53,7 +53,7 @@
                             <artifactId>identifier</artifactId>
                             <version>${project.parent.version}</version>
                         </dependency>
-                        <dependency>
+<!--                        <dependency>
                             <groupId>sh.isaac.provider</groupId>
                             <artifactId>concept</artifactId>
                             <version>${project.parent.version}</version>
@@ -61,6 +61,11 @@
                         <dependency>
                             <groupId>sh.isaac.provider</groupId>
                             <artifactId>assemblage</artifactId>
+                            <version>${project.parent.version}</version>
+                        </dependency>-->
+                       <dependency>
+                            <groupId>sh.isaac.provider</groupId>
+                            <artifactId>bdb-chronology</artifactId>
                             <version>${project.parent.version}</version>
                         </dependency>
                         <dependency>

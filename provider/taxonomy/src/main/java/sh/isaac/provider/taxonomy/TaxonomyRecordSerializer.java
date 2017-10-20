@@ -82,8 +82,8 @@ public class TaxonomyRecordSerializer
     */
    @Override
    public TaxonomyRecordPrimitive merge(TaxonomyRecordPrimitive a, TaxonomyRecordPrimitive b, int writeSequence) {
-      final TaxonomyRecordUnpacked aRecords = a.getTaxonomyRecordUnpacked();
-      final TaxonomyRecordUnpacked bRecords = b.getTaxonomyRecordUnpacked();
+      final TaxonomyRecord aRecords = a.getTaxonomyRecordUnpacked();
+      final TaxonomyRecord bRecords = b.getTaxonomyRecordUnpacked();
 
       aRecords.merge(bRecords);
       return new TaxonomyRecordPrimitive(aRecords.pack(), writeSequence);

@@ -43,13 +43,10 @@ package sh.isaac.api.tree.hashtree;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.util.Arrays;
-import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.mahout.math.set.OpenIntHashSet;
 
-import sh.isaac.api.collections.ConceptSequenceSet;
-import sh.isaac.api.collections.SequenceSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------

@@ -35,14 +35,7 @@
  *
  */
 
-
-
-/*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
- */
-package sh.isaac.provider.taxonomy;
+package sh.isaac.provider.bdb.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -52,9 +45,8 @@ import java.util.stream.IntStream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.ConceptSequenceSet;
+import sh.isaac.api.collections.SpinedIntObjectMap;
 import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.model.WaitFreeComparable;
-import sh.isaac.model.waitfree.CasSequenceObjectMap;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
@@ -64,8 +56,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * @author kec
  */
-public class TaxonomyRecordPrimitive
-         implements WaitFreeComparable {
+public class TaxonomyRecordPrimitive {
    /** The Constant SEQUENCE_BIT_MASK. */
    public static final int SEQUENCE_BIT_MASK = 0x00FFFFFF;
 
@@ -83,9 +74,6 @@ public class TaxonomyRecordPrimitive
    /** The unpacked. */
    transient TaxonomyRecord unpacked = null;
 
-   /** The write sequence. */
-   int writeSequence;
-
    /** The taxonomy data. */
    int[] taxonomyData;
 
@@ -102,11 +90,9 @@ public class TaxonomyRecordPrimitive
     * Instantiates a new taxonomy record primitive.
     *
     * @param taxonomyData the taxonomy data
-    * @param writeSequence the write sequence
     */
-   public TaxonomyRecordPrimitive(int[] taxonomyData, int writeSequence) {
+   public TaxonomyRecordPrimitive(int[] taxonomyData) {
       this.taxonomyData  = taxonomyData;
-      this.writeSequence = writeSequence;
    }
 
    //~--- methods -------------------------------------------------------------
@@ -294,14 +280,12 @@ public class TaxonomyRecordPrimitive
     * @return true, if concept active
     */
    public static boolean isConceptActive(int conceptSequence,
-         CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap,
+         SpinedIntObjectMap<int[]> taxonomyMap,
          StampCoordinate sc) {
-      final Optional<TaxonomyRecordPrimitive> optionalRecord = taxonomyMap.get(conceptSequence);
+      final int[] taxonomyData = taxonomyMap.get(conceptSequence);
 
-      if (optionalRecord.isPresent()) {
-         final TaxonomyRecordPrimitive record = optionalRecord.get();
-
-         if (record.isConceptActive(conceptSequence, sc)) {
+      if (taxonomyData != null) {
+         if (new TaxonomyRecordPrimitive(taxonomyData).isConceptActive(conceptSequence, sc)) {
             return true;
          }
       }
@@ -398,16 +382,15 @@ public class TaxonomyRecordPrimitive
     */
    public static Optional<TaxonomyRecordPrimitive> getIfActiveViaType(int conceptSequence,
          int typeSequence,
-         CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap,
+         SpinedIntObjectMap<int[]> taxonomyMap,
          ManifoldCoordinate vp,
          int flags) {
-      final Optional<TaxonomyRecordPrimitive> optionalRecord = taxonomyMap.get(conceptSequence);
+      final int[] taxonomyData = taxonomyMap.get(conceptSequence);
 
-      if (optionalRecord.isPresent()) {
-         final TaxonomyRecordPrimitive record = optionalRecord.get();
-
+      if (taxonomyData != null) {
+         TaxonomyRecordPrimitive record = new TaxonomyRecordPrimitive(taxonomyData);
          if (record.containsSequenceViaType(conceptSequence, typeSequence, vp, flags)) {
-            return optionalRecord;
+            return Optional.of(record);
          }
       }
 
@@ -423,15 +406,14 @@ public class TaxonomyRecordPrimitive
     * @return the if concept active
     */
    public static Optional<TaxonomyRecordPrimitive> getIfConceptActive(int conceptSequence,
-         CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap,
+         SpinedIntObjectMap<int[]> taxonomyMap,
          ManifoldCoordinate vp) {
-      final Optional<TaxonomyRecordPrimitive> optionalRecord = taxonomyMap.get(conceptSequence);
+      final int[] taxonomyData = taxonomyMap.get(conceptSequence);
 
-      if (optionalRecord.isPresent()) {
-         final TaxonomyRecordPrimitive record = optionalRecord.get();
-
+      if (taxonomyData != null) {
+         TaxonomyRecordPrimitive record = new TaxonomyRecordPrimitive(taxonomyData);
          if (record.containsSequenceViaType(conceptSequence, conceptSequence, vp, TaxonomyFlag.CONCEPT_STATUS.bits)) {
-            return optionalRecord;
+            return Optional.of(record);
          }
       }
 
@@ -533,28 +515,6 @@ public class TaxonomyRecordPrimitive
     */
    public int[] getTypesForRelationship(int destinationId, ManifoldCoordinate tc) {
       return getTaxonomyRecordUnpacked().getTypesForRelationship(destinationId, tc);
-   }
-
-   /**
-    * Gets the write sequence.
-    *
-    * @return the write sequence
-    */
-   @Override
-   public int getWriteSequence() {
-      return this.writeSequence;
-   }
-
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the write sequence.
-    *
-    * @param sequence the new write sequence
-    */
-   @Override
-   public void setWriteSequence(int sequence) {
-      this.writeSequence = sequence;
    }
 }
 

@@ -23,6 +23,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import sh.isaac.api.TaxonomySnapshotService;
 
 /**
  *
@@ -154,16 +156,21 @@ public class LetPropertySheet {
     }
 
     private PropertyEditor<?> createCustomChoiceEditor(ConceptSpecification conceptSpecification, PropertySheet.Item prop){
-        Collection<ConceptForControlWrapper> collection = new ArrayList<>();
-        ConceptChronology concept = Get.concept(conceptSpecification.getConceptSequence());
-
-        Get.taxonomyService().getAllRelationshipOriginSequences(concept.getNid()).forEach(i -> {
-            ConceptForControlWrapper propertySheetItemConceptWrapper = 
-                    new ConceptForControlWrapper(this.manifoldForDisplay, i);
-            collection.add(propertySheetItemConceptWrapper);
-        });
-
-        return Editors.createChoiceEditor(prop, collection);
+       try {
+          Collection<ConceptForControlWrapper> collection = new ArrayList<>();
+          ConceptChronology concept = Get.concept(conceptSpecification.getConceptSequence());
+          
+          TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay).get();
+          for (int i: taxonomySnapshot.getTaxonomyChildSequences(concept.getNid())) {
+             ConceptForControlWrapper propertySheetItemConceptWrapper =
+                     new ConceptForControlWrapper(this.manifoldForDisplay, i);
+             collection.add(propertySheetItemConceptWrapper);
+          }
+          
+          return Editors.createChoiceEditor(prop, collection);
+       } catch (InterruptedException | ExecutionException ex) {
+          throw new RuntimeException(ex);
+       }
     }
 
     /**
@@ -216,17 +223,22 @@ public class LetPropertySheet {
     private void buildAndSetModulesForMultiSelect(){
 
         if(this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().get().size() == 0) {
-            ArrayList<Integer> moduleNIDs = new ArrayList<>();
-            ObservableIntegerArray moduleIntegerArray = FXCollections.observableIntegerArray();
-            Get.taxonomyService().getAllRelationshipOriginSequences(MetaData.MODULE____SOLOR.getNid()).forEach(i -> {
-                moduleNIDs.add(i);
-            });
-            int[] iArray = new int[moduleNIDs.size()];
-            for (int i = 0; i < iArray.length; i++) {
-                iArray[i] = moduleNIDs.get(i);
-            }
-            moduleIntegerArray.addAll(iArray, 0, moduleNIDs.size());
-            this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().set(moduleIntegerArray);
+           try {
+              ArrayList<Integer> moduleNIDs = new ArrayList<>();
+              ObservableIntegerArray moduleIntegerArray = FXCollections.observableIntegerArray();
+              TaxonomySnapshotService taxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldForDisplay).get();
+              for (int i: taxonomySnapshot.getTaxonomyChildSequences(MetaData.MODULE____SOLOR.getNid())) {
+                 moduleNIDs.add(i);
+              }
+              int[] iArray = new int[moduleNIDs.size()];
+              for (int i = 0; i < iArray.length; i++) {
+                 iArray[i] = moduleNIDs.get(i);
+              }
+              moduleIntegerArray.addAll(iArray, 0, moduleNIDs.size());
+              this.manifoldForModification.getStampCoordinate().moduleSequencesProperty().set(moduleIntegerArray);
+           } catch (InterruptedException | ExecutionException ex) {
+              throw new RuntimeException(ex);
+           }
         }
 
     }

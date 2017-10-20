@@ -35,7 +35,7 @@
  *
  */
 
-package sh.isaac.provider.taxonomy;
+package sh.isaac.provider.bdb.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 

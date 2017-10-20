@@ -64,8 +64,8 @@ public class BdbConceptProviderTest {
                      case CONCEPT:
                         Get.conceptService()
                                 .writeConcept(((ConceptChronology) object));
-
                         break;
+
                      case SEMANTIC:
                         SemanticChronology sc = (SemanticChronology) object;
                         Get.assemblageService()

@@ -47,6 +47,7 @@ package sh.isaac.provider.taxonomy.walk;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.function.ObjIntConsumer;
 
@@ -57,7 +58,7 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.provider.taxonomy.TaxonomyFlags;
+import sh.isaac.provider.taxonomy.TaxonomyFlag;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
@@ -99,7 +100,7 @@ public class TaxonomyWalkCollector
     */
    public TaxonomyWalkCollector(ManifoldCoordinate manifoldCoordinate) {
       this.manifoldCoordinate = manifoldCoordinate;
-      this.taxonomyFlags      = TaxonomyFlags.getFlagsFromManifoldCoordinate(manifoldCoordinate);
+      this.taxonomyFlags      = TaxonomyFlag.getFlagsFromManifoldCoordinate(manifoldCoordinate);
 
       final int watchNid = Get.identifierService()
                               .getNidForUuids(UUID.fromString("df79ab93-4436-35b8-be3f-2a8e5849d732"));
@@ -127,22 +128,27 @@ public class TaxonomyWalkCollector
 
       if (Get.conceptService()
              .isConceptActive(conceptSequence, this.manifoldCoordinate.getStampCoordinate())) {
-         final int[] parentSequences = Get.taxonomyService()
-                                              .getTaxonomyParentSequences(conceptSequence, this.manifoldCoordinate);
-         final int parentCount = parentSequences.length;
-
-         if (parentCount == 0) {
-            final ConceptChronology c = Get.conceptService()
-                                              .getConceptChronology(conceptSequence);
-
-            if (this.printCount < MAX_PRINT_COUNT) {
-               this.printCount++;
-               LogManager.getLogger()
-                         .warn("No parents for: " + c.toUserString());
+         try {
+            final int[] parentSequences = Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
+                    
+                    .getTaxonomyParentSequences(conceptSequence);
+            final int parentCount = parentSequences.length;
+            
+            if (parentCount == 0) {
+               final ConceptChronology c = Get.conceptService()
+                       .getConceptChronology(conceptSequence);
+               
+               if (this.printCount < MAX_PRINT_COUNT) {
+                  this.printCount++;
+                  LogManager.getLogger()
+                          .warn("No parents for: " + c.toUserString());
+               }
             }
+            
+            accumulator.parentConnections += parentCount;
+         } catch (InterruptedException | ExecutionException ex) {
+            throw new RuntimeException();
          }
-
-         accumulator.parentConnections += parentCount;
       }
    }
 

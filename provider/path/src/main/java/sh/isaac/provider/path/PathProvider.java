@@ -216,7 +216,7 @@ public class PathProvider
     */
    private List<StampPosition> getPathOriginsFromDb(int nid) {
       return Get.assemblageService()
-                .getSemanticChronologyStreamForComponentFromAssemblage(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getConceptSequence())
+                .getSemanticChronologyStreamForComponentFromAssemblage(Get.identifierService().getConceptNid(nid), TermAux.PATH_ORIGIN_ASSEMBLAGE.getConceptSequence())
                 .map((pathOrigin) -> {
                         final long time = ((LongVersion) pathOrigin.getVersionList()
                                                                   .get(0)).getLongValue();

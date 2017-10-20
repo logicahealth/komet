@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.provider.bdb;
+package sh.isaac.provider.bdb.chronology;
 
 import com.sleepycat.je.Database;
 import java.nio.file.Path;
@@ -126,15 +126,19 @@ public class BdbSemanticProvider implements AssemblageService {
    @Override
    public Stream<SemanticChronology> getParallelSemanticChronologyStream() {
       return StreamSupport.stream(new CursorChronologyStream(database, 
-              Get.identifierService().getMaxConceptSequence()), true)
-              .map((byteBuffer) -> SemanticChronologyImpl.make(byteBuffer));
+              Get.identifierService().getMaxSemanticSequence()), true)
+              .map((byteBuffer) -> { 
+                 IsaacObjectType.SEMANTIC.readAndValidateHeader(byteBuffer);
+                 return SemanticChronologyImpl.make(byteBuffer); 
+              }
+              );
    }
 
    @Override
    public SemanticChronology getSemanticChronology(int semanticId) {
       if (semanticId < 0) {
          semanticId = Get.identifierService()
-                        .getConceptSequence(semanticId);
+                        .getSemanticSequence(semanticId);
       }
       Optional<ByteArrayDataBuffer> optionalByteBuffer = BdbProvider.getChronologyData(this.database, semanticId);
       if (optionalByteBuffer.isPresent()) {
@@ -153,9 +157,12 @@ public class BdbSemanticProvider implements AssemblageService {
    @Override
    public Stream<SemanticChronology> getSemanticChronologyStream() {
       return StreamSupport.stream(new CursorChronologyStream(database, 
-              Get.identifierService().getMaxConceptSequence()), false)
-              .map((byteBuffer) -> SemanticChronologyImpl.make(byteBuffer));
-   }
+              Get.identifierService().getMaxSemanticSequence()), false)
+               .map((byteBuffer) -> { 
+                 IsaacObjectType.SEMANTIC.readAndValidateHeader(byteBuffer);
+                 return SemanticChronologyImpl.make(byteBuffer); 
+              });
+  }
 
    @Override
    public int getSemanticChronologyCount() {
@@ -164,13 +171,13 @@ public class BdbSemanticProvider implements AssemblageService {
 
    @Override
    public IntStream getSemanticChronologyKeyParallelStream() {
-       return StreamSupport.intStream(new CursorSequenceStream(database, Get.identifierService().getMaxConceptSequence()),
+       return StreamSupport.intStream(new CursorSequenceStream(database, Get.identifierService().getMaxSemanticSequence()),
               true);
   }
 
    @Override
    public IntStream getSemanticChronologyKeyStream() {
-      return StreamSupport.intStream(new CursorSequenceStream(database, Get.identifierService().getMaxConceptSequence()),
+      return StreamSupport.intStream(new CursorSequenceStream(database, Get.identifierService().getMaxSemanticSequence()),
               false);
    }
 
@@ -214,9 +221,8 @@ public class BdbSemanticProvider implements AssemblageService {
 
    @Override
    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid, int assemblageConceptSequence) {
-   if (componentNid >= 0) {
-         componentNid = Get.identifierService()
-                           .getConceptNid(componentNid);
+      if (componentNid >= 0) {
+         throw new UnsupportedOperationException("Can't substitute a sequence for a nid: " + componentNid);
       }
 
       if (assemblageConceptSequence < 0) {

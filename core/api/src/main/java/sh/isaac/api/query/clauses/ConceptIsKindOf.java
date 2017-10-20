@@ -42,6 +42,9 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -114,16 +117,20 @@ public class ConceptIsKindOf
     */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      final ManifoldCoordinate tc = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                            .get(this.viewCoordinateKey);
-      final ConceptSpecification kindOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-                                                                                        .get(this.kindOfSpecKey);
-      final int                parentNid         = kindOfSpec.getNid();
-      final ConceptSequenceSet kindOfSequenceSet = Get.taxonomyService()
-                                                      .getKindOfSequenceSet(parentNid, tc);
-
-      getResultsCache().or(NidSet.of(kindOfSequenceSet));
-      return getResultsCache();
+      try {
+         final ManifoldCoordinate tc = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
+                 .get(this.viewCoordinateKey);
+         final ConceptSpecification kindOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+                 .get(this.kindOfSpecKey);
+         final int                parentNid         = kindOfSpec.getNid();
+         final ConceptSequenceSet kindOfSequenceSet = Get.taxonomyService().getSnapshot(tc).get()
+                 .getKindOfSequenceSet(parentNid);
+         
+         getResultsCache().or(NidSet.of(kindOfSequenceSet));
+         return getResultsCache();
+      } catch (InterruptedException | ExecutionException ex) {
+         throw new RuntimeException(ex);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -142,7 +149,6 @@ public class ConceptIsKindOf
     * Gets the query matches.
     *
     * @param conceptVersion the concept version
-    * @return the query matches
     */
    @Override
    public void getQueryMatches(ConceptVersion conceptVersion) {

@@ -246,6 +246,15 @@ public abstract class AbstractHashTree
       return false;
    }
 
+   @Override
+   public boolean isChildOf(int childSequence, int parentSequence) {
+      int[] parentSequences = getParentSequences(childSequence);
+      if (Arrays.binarySearch(parentSequences, parentSequence) >= 0) {
+         return true;
+      }
+      return false;
+   }
+
    private boolean isDescendentOf(int childSequence, int parentSequenceToFind, TreeNodeVisitData nodeVisitData) {
       return isDescendentOfWithDepth(childSequence, parentSequenceToFind, 0, childSequence, nodeVisitData);
    }

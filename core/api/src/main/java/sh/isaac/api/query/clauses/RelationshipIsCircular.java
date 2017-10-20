@@ -42,6 +42,9 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -142,8 +145,12 @@ public class RelationshipIsCircular
       this.relTypeSet.add(relType.getConceptSequence());
 
       if (relTypeSubsumption) {
-         this.relTypeSet.or(Get.taxonomyService()
-                               .getKindOfSequenceSet(relType.getConceptSequence(), manifoldCoordinate));
+         try {
+            this.relTypeSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
+                    .getKindOfSequenceSet(relType.getConceptSequence()));
+         } catch (InterruptedException | ExecutionException ex) {
+            throw new RuntimeException(ex);
+         }
       }
 
       return incomingPossibleComponents;

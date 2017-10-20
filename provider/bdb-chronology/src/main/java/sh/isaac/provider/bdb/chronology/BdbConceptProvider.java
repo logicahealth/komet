@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.provider.bdb;
+package sh.isaac.provider.bdb.chronology;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -176,7 +176,10 @@ public class BdbConceptProvider
    public Stream<ConceptChronology> getConceptChronologyStream() {
       return StreamSupport.stream(new CursorChronologyStream(database, 
               Get.identifierService().getMaxConceptSequence()), false)
-              .map((byteBuffer) -> ConceptChronologyImpl.make(byteBuffer));
+              .map((byteBuffer) -> { 
+                 IsaacObjectType.CONCEPT.readAndValidateHeader(byteBuffer);
+                 return ConceptChronologyImpl.make(byteBuffer); 
+              });
     }
 
    @Override
@@ -226,7 +229,10 @@ public class BdbConceptProvider
    public Stream<ConceptChronology> getParallelConceptChronologyStream() {
      return StreamSupport.stream(new CursorChronologyStream(database, 
               Get.identifierService().getMaxConceptSequence()), true)
-              .map((byteBuffer) -> ConceptChronologyImpl.make(byteBuffer));
+              .map((byteBuffer) -> { 
+                 IsaacObjectType.CONCEPT.readAndValidateHeader(byteBuffer);
+                 return ConceptChronologyImpl.make(byteBuffer); 
+              });
     }
 
    @Override

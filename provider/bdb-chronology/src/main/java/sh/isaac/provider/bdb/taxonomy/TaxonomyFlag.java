@@ -34,19 +34,10 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
-/*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
- */
-package sh.isaac.provider.taxonomy;
+package sh.isaac.provider.bdb.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Arrays;
 import java.util.EnumSet;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -64,36 +55,36 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  *
  * @author kec
  */
-public enum TaxonomyFlags {
-   /** The stated. */
+public enum TaxonomyFlag {
+   /** The stated flag. */
    STATED(0x10000000),
 
-   /** The inferred. */
+   /** The inferred flag. */
 
    // 0001 0000
    INFERRED(0x20000000),
 
-   /** The sememe. */
+   /** A semantic flag. */
 
    // 0010 0000
-   SEMEME(0x40000000),
+   SEMANTIC(0x40000000),
 
-   /** The non dl rel. */
+   /** A non dl rel flag. */
 
    // 0100 0000
    NON_DL_REL(0x08000000),
 
-   /** The concept status. */
+   /** The concept status flag. */
 
    // 0000 1000
    CONCEPT_STATUS(0x04000000),
 
-   /** The reserved future use 1. */
+   /** Reserved for future use 1. */
 
    // 0000 0100
    RESERVED_FUTURE_USE_1(0x02000000),
 
-   /** The reserved future use 2. */
+   /** Reserved for future use 2. */
 
    // 0000 0010
    RESERVED_FUTURE_USE_2(0x01000000);  // 0000 0001
@@ -113,7 +104,7 @@ public enum TaxonomyFlags {
     *
     * @param bits the bits
     */
-   TaxonomyFlags(int bits) {
+   TaxonomyFlag(int bits) {
       this.bits = bits;
    }
 
@@ -125,14 +116,14 @@ public enum TaxonomyFlags {
     * @param justFlags the just flags
     * @return the flags
     */
-   private static EnumSet<TaxonomyFlags> getFlags(int justFlags) {
-      final EnumSet<TaxonomyFlags> flagSet = EnumSet.noneOf(TaxonomyFlags.class);
+   private static EnumSet<TaxonomyFlag> getFlags(int justFlags) {
+      final EnumSet<TaxonomyFlag> flagSet = EnumSet.noneOf(TaxonomyFlag.class);
 
-      Arrays.stream(TaxonomyFlags.values()).forEach((flag) -> {
+      for (TaxonomyFlag flag: TaxonomyFlag.values()) {
                         if ((justFlags & flag.bits) == flag.bits) {
                            flagSet.add(flag);
                         }
-                     });
+      }
       return flagSet;
    }
 
@@ -145,10 +136,10 @@ public enum TaxonomyFlags {
    public static int getFlagsFromManifoldCoordinate(ManifoldCoordinate viewCoordinate) {
       switch (viewCoordinate.getTaxonomyType()) {
       case INFERRED:
-         return TaxonomyFlags.INFERRED.bits;
+         return TaxonomyFlag.INFERRED.bits;
 
       case STATED:
-         return TaxonomyFlags.STATED.bits;
+         return TaxonomyFlag.STATED.bits;
 
       default:
          throw new UnsupportedOperationException("no support for: " + viewCoordinate.getTaxonomyType());
@@ -161,7 +152,7 @@ public enum TaxonomyFlags {
     * @param stampWithFlags the stamp with flags
     * @return the taxonomy flags
     */
-   public static EnumSet<TaxonomyFlags> getTaxonomyFlags(int stampWithFlags) {
+   public static EnumSet<TaxonomyFlag> getTaxonomyFlags(int stampWithFlags) {
       if (stampWithFlags < 512) {
          stampWithFlags = stampWithFlags << 24;
       }
@@ -175,10 +166,10 @@ public enum TaxonomyFlags {
     * @param flagSet the flag set
     * @return the taxonomy flags as int
     */
-   public static int getTaxonomyFlagsAsInt(EnumSet<TaxonomyFlags> flagSet) {
+   public static int getTaxonomyFlagsAsInt(EnumSet<TaxonomyFlag> flagSet) {
       int flags = 0;
 
-      for (final TaxonomyFlags flag: flagSet) {
+      for (final TaxonomyFlag flag: flagSet) {
          flags += flag.bits;
       }
 

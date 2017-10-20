@@ -42,6 +42,9 @@ package sh.isaac.api.query.clauses;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.EnumSet;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -116,17 +119,19 @@ public class ConceptIsDescendentOf
     */
    @Override
    public NidSet computePossibleComponents(NidSet incomingPossibleComponents) {
-      final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
-                                                                                            .get(this.viewCoordinateKey);
-      final ConceptSpecification descendentOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
-                                                                                              .get(this.descendentOfSpecKey);
-      final int parentNid = descendentOfSpec.getNid();
-      final ConceptSequenceSet descendentOfSequenceSet = Get.taxonomyService()
-                                                            .getChildOfSequenceSet(parentNid, manifoldCoordinate);
-
-      descendentOfSequenceSet.remove(parentNid);
-      getResultsCache().or(NidSet.of(descendentOfSequenceSet));
-      return getResultsCache();
+      try {
+         final ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations()
+                 .get(this.viewCoordinateKey);
+         final ConceptSpecification descendentOfSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations()
+                 .get(this.descendentOfSpecKey);
+         final int parentNid = descendentOfSpec.getNid();
+         final int[] descendentOfSequenceSet = Get.taxonomyService().getSnapshot(manifoldCoordinate).get()
+                 .getTaxonomyChildSequences(parentNid);
+         getResultsCache().or(NidSet.of(descendentOfSequenceSet));
+         return getResultsCache();
+      } catch (InterruptedException | ExecutionException ex) {
+         throw new RuntimeException(ex);
+      }
    }
 
    //~--- get methods ---------------------------------------------------------

@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.provider.bdb;
+package sh.isaac.provider.bdb.chronology;
 
 //~--- JDK imports ------------------------------------------------------------
 

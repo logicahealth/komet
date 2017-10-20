@@ -92,112 +92,6 @@ public interface TaxonomyService
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the all circular relationship origin sequences.
-    *
-    * @param tc the taxonomy coordinate used to compute the taxonomic
-    * relationships
-    * @return concept sequences for concepts that define circular
-    * relationships, or {@code IntStream.empty()} if there are no such
-    * relationships.
-    */
-   @Deprecated
-   IntStream getAllCircularRelationshipOriginSequences(ManifoldCoordinate tc);
-
-   /**
-    * Gets the all circular relationship type sequences.
-    *
-    * @param originId a concept nid or concept sequence to examine for circular
-    * relationships.
-    * @param tc the taxonomy coordinate used to compute the taxonomic
-    * relationships
-    * @return concept sequences for the types of relationships that are
-    * circular, or {@code IntStream.empty()} if there are no such
-    * relationships.
-    */
-   @Deprecated
-   IntStream getAllCircularRelationshipTypeSequences(int originId, ManifoldCoordinate tc);
-
-   /**
-    * Gets the all relationship destination sequences.
-    *
-    * @param originId a concept nid or concept sequence to retrieve
-    * relationship destination information from
-    * @return conceptSequences of all relationship destination concepts
-    * (including is-a relationships)
-    */
-   IntStream getAllRelationshipDestinationSequences(int originId);
-
-   /**
-    * Gets the all relationship destination sequences.
-    *
-    * @param originId the origin id
-    * @param tc the tc
-    * @return the all relationship destination sequences
-    */
-   @Deprecated
-   int[] getAllRelationshipDestinationSequences(int originId, ManifoldCoordinate tc);
-
-   /**
-    * Gets the all relationship destination sequences not of type.
-    *
-    * @param originId a concept nid or concept sequence to retrieve
-    * relationship destination information from
-    * @param typeSequenceSet set of relationship types to exclude from the
-    * results.
-    * @param tc the taxonomy coordinate used to compute the taxonomic
-    * relationships
-    * @return the all relationship destination sequences not of type
-    */
-   @Deprecated
-   int[] getAllRelationshipDestinationSequencesNotOfType(int originId,
-         ConceptSequenceSet typeSequenceSet,
-         ManifoldCoordinate tc);
-
-   /**
-    * Gets the all relationship destination sequences of type.
-    *
-    * @param originId the origin id
-    * @param typeSequenceSet the type sequence set
-    * @return the all relationship destination sequences of type
-    */
-   IntStream getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet);
-
-   /**
-    * Gets the all relationship destination sequences of type.
-    *
-    * @param originId a concept nid or concept sequence to retrieve
-    * relationship destination information from
-    * @param typeSequenceSet set of relationship types to include in the
-    * results.
-    * @param tc the taxonomy coordinate used to compute the taxonomic
-    * relationships
-    * @return conceptSequences of all relationship destination concepts
-    * (including is-a relationships)
-    */
-   @Deprecated
-   int[] getAllRelationshipDestinationSequencesOfType(int originId,
-         ConceptSequenceSet typeSequenceSet,
-         ManifoldCoordinate tc);
-
-   /**
-    * Gets the all relationship origin sequences.
-    *
-    * @param destinationId the destination id
-    * @return the all relationship origin sequences
-    */
-   IntStream getAllRelationshipOriginSequences(int destinationId);
-
-   /**
-    * Gets the all relationship origin sequences.
-    *
-    * @param destinationId the destination id
-    * @param tc the tc
-    * @return the all relationship origin sequences
-    */
-   @Deprecated
-   IntStream getAllRelationshipOriginSequences(int destinationId, ManifoldCoordinate tc);
-
-   /**
     * Gets the all relationship origin sequences of type.
     *
     * @param destinationId the destination id
@@ -205,87 +99,6 @@ public interface TaxonomyService
     * @return the all relationship origin sequences of type
     */
    IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet);
-
-   /**
-    * Gets the all relationship origin sequences of type.
-    *
-    * @param destinationId the destination id
-    * @param typeSequenceSet the type sequence set
-    * @param tc the tc
-    * @return the all relationship origin sequences of type
-    */
-   @Deprecated
-   IntStream getAllRelationshipOriginSequencesOfType(int destinationId,
-         ConceptSequenceSet typeSequenceSet,
-         ManifoldCoordinate tc);
-
-   /**
-    * Gets the all types for relationship.
-    *
-    * @param originId nid or sequence of the origin concept
-    * @param destinationId nid or sequence of the destination concept
-    * @param tc the taxonomy coordinate used to compute the taxonomic
-    * relationships
-    * @return concept sequences of all relationship types between the origin
-    * and destination that meet the taxonomy coordinate criterion.
-    */
-   @Deprecated
-   int[] getAllTypesForRelationship(int originId, int destinationId, ManifoldCoordinate tc);
-
-   /**
-    * Gets the ancestor of sequence set.
-    *
-    * @param childId a concept sequence or nid for the child concept
-    * @param tc coordinate used to compute the taxonomy
-    * @return the ancestor concept sequences for the childId concept.
-    */
-   @Deprecated
-   ConceptSequenceSet getAncestorOfSequenceSet(int childId, ManifoldCoordinate tc);
-
-   /**
-    * Checks if child of.
-    *
-    * @param childId a concept sequence or nid for the child concept
-    * @param parentId a concept sequence or nid for the parent concept
-    * @param tc coordinate used to compute the taxonomy
-    * @return true if the childId concept is a direct descendant of the
-    * parentId concept according to the constraints of the
-    * {@code ManifoldCoordinate}
-    */
-   @Deprecated
-   boolean isChildOf(int childId, int parentId, ManifoldCoordinate tc);
-
-   /**
-    * Gets the child of sequence set.
-    *
-    * @param parentId the parent id
-    * @param tc the tc
-    * @return the child of sequence set
-    */
-   @Deprecated
-   ConceptSequenceSet getChildOfSequenceSet(int parentId, ManifoldCoordinate tc);
-
-   /**
-    * Checks if kind of.
-    *
-    * @param childId a concept sequence or nid for the child concept
-    * @param ancestorId a concept sequence or nid for the ancestor concept
-    * @param tc coordinate used to compute the taxonomy
-    * @return true if the childId concept is a kind of the ancestorId concept
-    * according to the constraints of the {@code ManifoldCoordinate}
-    */
-   @Deprecated
-   boolean isKindOf(int childId, int ancestorId, ManifoldCoordinate tc);
-
-   /**
-    * Gets the kind of sequence set.
-    *
-    * @param rootId the root id
-    * @param tc the tc
-    * @return the kind of sequence set
-    */
-   @Deprecated
-   ConceptSequenceSet getKindOfSequenceSet(int rootId, ManifoldCoordinate tc);
 
    /**
     * Gets the snapshot.
@@ -304,40 +117,11 @@ public interface TaxonomyService
    IntStream getTaxonomyChildSequences(int parentId);
 
    /**
-    * Gets the taxonomy child sequences.
-    *
-    * @param parentId the parent id
-    * @param tc the tc
-    * @return the taxonomy child sequences
-    */
-   @Deprecated
-   IntStream getTaxonomyChildSequences(int parentId, ManifoldCoordinate tc);
-
-   /**
     * Gets the taxonomy parent sequences.
     *
     * @param childId the child id
     * @return the taxonomy parent sequences
     */
    IntStream getTaxonomyParentSequences(int childId);
-
-   /**
-    * Gets the taxonomy parent sequences.
-    *
-    * @param childId the child id
-    * @param tc the tc
-    * @return the taxonomy parent sequences
-    */
-   @Deprecated
-   int[] getTaxonomyParentSequences(int childId, ManifoldCoordinate tc);
-
-   /**
-    * Gets the taxonomy tree.
-    *
-    * @param tc the tc
-    * @return the taxonomy tree
-    */
-   @Deprecated
-   Task<Tree> getTaxonomyTree(ManifoldCoordinate tc);
 }
 

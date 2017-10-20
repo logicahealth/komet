@@ -58,9 +58,9 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.tree.hashtree.HashTreeBuilder;
 import sh.isaac.model.waitfree.CasSequenceObjectMap;
-import sh.isaac.provider.taxonomy.TaxonomyFlags;
+import sh.isaac.provider.taxonomy.TaxonomyFlag;
 import sh.isaac.provider.taxonomy.TaxonomyRecordPrimitive;
-import sh.isaac.provider.taxonomy.TaxonomyRecordUnpacked;
+import sh.isaac.provider.taxonomy.TaxonomyRecord;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- classes ----------------------------------------------------------------
@@ -102,7 +102,7 @@ public class GraphCollector
    public GraphCollector(CasSequenceObjectMap<TaxonomyRecordPrimitive> taxonomyMap, ManifoldCoordinate manifoldCoordinate) {
       this.taxonomyMap        = taxonomyMap;
       this.manifoldCoordinate = manifoldCoordinate;
-      this.taxonomyFlags      = TaxonomyFlags.getFlagsFromManifoldCoordinate(manifoldCoordinate);
+      this.taxonomyFlags      = TaxonomyFlag.getFlagsFromManifoldCoordinate(manifoldCoordinate);
 
 //    addToWatchList("779ece66-7e95-323e-a261-214caf48c408");
 //    addToWatchList("778a75c9-8264-36aa-9ad6-b9c6e5ee9187");
@@ -140,7 +140,7 @@ public class GraphCollector
             System.out.println("Found watch: " + isaacPrimitiveTaxonomyRecord);
          }
 
-         final TaxonomyRecordUnpacked taxonomyRecordUnpacked = isaacPrimitiveTaxonomyRecord.get()
+         final TaxonomyRecord taxonomyRecordUnpacked = isaacPrimitiveTaxonomyRecord.get()
                                                                                            .getTaxonomyRecordUnpacked();
          final int[] destinationStream =
             taxonomyRecordUnpacked.getConceptSequencesForType(this.ISA_CONCEPT_SEQUENCE,
@@ -176,7 +176,7 @@ public class GraphCollector
       final StringBuilder buff = new StringBuilder();
 
       buff.append("GraphCollector{");
-      buff.append(TaxonomyFlags.getTaxonomyFlags(this.taxonomyFlags));
+      buff.append(TaxonomyFlag.getTaxonomyFlags(this.taxonomyFlags));
 
       if (this.originSequenceBeingProcessed != -1) {
          buff.append("} processing: ");

@@ -61,12 +61,7 @@ import sh.isaac.api.util.Interval;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicDouble;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicFloat;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
-import sh.isaac.api.component.semantic.version.dynamic.types.DynamicLong;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicSequence;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
@@ -358,15 +353,15 @@ public enum DynamicValidatorType {
                   throw new IllegalArgumentException("A taxonomy coordinate must be provided to evaluate IS_CHILD_OF");
                }
 
-               return Get.taxonomyService()
-                         .isChildOf(childId, parentId, tc);
+               return Get.taxonomyService().getSnapshot(tc).get()
+                         .isChildOf(childId, parentId);
             } else {
                if (tc == null) {
                   return Get.taxonomyService()
                             .wasEverKindOf(childId, parentId);
                } else {
-                  return Get.taxonomyService()
-                            .isKindOf(childId, parentId, tc);
+                  return Get.taxonomyService().getSnapshot(tc).get()
+                            .isKindOf(childId, parentId);
                }
             }
          } catch (final IllegalArgumentException e) {

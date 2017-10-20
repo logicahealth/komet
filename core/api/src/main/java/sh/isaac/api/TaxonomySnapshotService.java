@@ -41,7 +41,6 @@ package sh.isaac.api;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -57,39 +56,6 @@ import sh.isaac.api.tree.Tree;
  * @author kec
  */
 public interface TaxonomySnapshotService {
-   /**
-    * Gets the all relationship destination sequences.
-    *
-    * @param originId the origin id
-    * @return the all relationship destination sequences
-    */
-   int[] getAllRelationshipDestinationSequences(int originId);
-
-   /**
-    * Gets the all relationship destination sequences of type.
-    *
-    * @param originId the origin id
-    * @param typeSequenceSet the type sequence set
-    * @return the all relationship destination sequences of type
-    */
-   int[] getAllRelationshipDestinationSequencesOfType(int originId, ConceptSequenceSet typeSequenceSet);
-
-   /**
-    * Gets the all relationship origin sequences.
-    *
-    * @param destination the destination
-    * @return the all relationship origin sequences
-    */
-   IntStream getAllRelationshipOriginSequences(int destination);
-
-   /**
-    * Gets the all relationship origin sequences of type.
-    *
-    * @param destinationId the destination id
-    * @param typeSequenceSet the type sequence set
-    * @return the all relationship origin sequences of type
-    */
-   IntStream getAllRelationshipOriginSequencesOfType(int destinationId, ConceptSequenceSet typeSequenceSet);
 
    /**
     * Checks if child of.
@@ -130,7 +96,7 @@ public interface TaxonomySnapshotService {
     * @param parentId the parent id
     * @return the taxonomy child sequences
     */
-   IntStream getTaxonomyChildSequences(int parentId);
+   int[] getTaxonomyChildSequences(int parentId);
 
    /**
     * Gets the taxonomy parent sequences.

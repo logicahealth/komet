@@ -67,6 +67,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import com.cedarsoftware.util.io.JsonWriter;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 
 import sh.isaac.api.ConceptProxy;
@@ -232,7 +233,7 @@ public class LoadTermstore
 
       getLog().info("Identified " + temp.length + " ibdf files");
 
-      final Set<Integer> deferredActionNids = new HashSet<>();
+      final Set<Integer> deferredActionNids = new ConcurrentSkipListSet<>();
 
       try {
          for (final File f: temp) {
@@ -333,7 +334,6 @@ public class LoadTermstore
                                   (isActive(sc) &&!this.skippedItems.contains(sc.getReferencedComponentNid())))) {
                               Get.assemblageService()
                                  .writeSemanticChronology(sc);
-
                               if (sc.getVersionType() == VersionType.LOGIC_GRAPH) {
                                  deferredActionNids.add(sc.getNid());
                               }
@@ -427,10 +427,10 @@ public class LoadTermstore
                   Get.taxonomyService()
                      .updateTaxonomy(sc);
                } else {
-                  throw new UnsupportedOperationException("Unexpected nid in deferred set: " + nid);
+                  throw new UnsupportedOperationException("1 Unexpected nid in deferred set: " + nid + " " + sc);
                }
             } else {
-               throw new UnsupportedOperationException("Unexpected nid in deferred set: " + nid);
+               throw new UnsupportedOperationException("2 Unexpected nid in deferred set: " + nid);
             }
          }
 

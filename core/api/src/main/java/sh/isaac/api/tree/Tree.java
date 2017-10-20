@@ -150,11 +150,19 @@ public interface Tree {
    int[] getRootSequences();
    
    /**
-    * Determine if the childSequence is a descendent of the parentSequence. 
+    * Determine if the childSequence is a taxonomic descendent of the parentSequence. 
     * @param childSequence
     * @param parentSequence
     * @return true if the childSequence is a descendent of the parentSequence by any route. 
     */
    boolean isDescendentOf(int childSequence, int parentSequence);
+   
+   /**
+    * Determine if the childSequence is a taxonomic child of the parentSequence. 
+    * @param childSequence
+    * @param parentSequence
+    * @return true if the childSequence is a descendent of the parentSequence by any route. 
+    */
+   boolean isChildOf(int childSequence, int parentSequence);
 }
 
