@@ -138,6 +138,7 @@ public class BdbConceptProvider
 
    @Override
    public void writeConcept(ConceptChronology concept) {
+      Get.conceptActiveService().updateStatus(concept);
       BdbProvider.writeChronologyData(database, (ChronologyImpl) concept);
    }
 
@@ -174,7 +175,7 @@ public class BdbConceptProvider
 
    @Override
    public Stream<ConceptChronology> getConceptChronologyStream() {
-      return StreamSupport.stream(new CursorChronologyStream(database, 
+      return StreamSupport.stream(new CursorChronologySpliterator(database, 
               Get.identifierService().getMaxConceptSequence()), false)
               .map((byteBuffer) -> { 
                  IsaacObjectType.CONCEPT.readAndValidateHeader(byteBuffer);
@@ -194,13 +195,13 @@ public class BdbConceptProvider
 
    @Override
    public IntStream getConceptKeyParallelStream() {
-      return StreamSupport.intStream(new CursorSequenceStream(database, Get.identifierService().getMaxConceptSequence()),
+      return StreamSupport.intStream(new CursorSequenceSpliterator(database, Get.identifierService().getMaxConceptSequence()),
               true);
    }
 
    @Override
    public IntStream getConceptKeyStream() {
-      return StreamSupport.intStream(new CursorSequenceStream(database, Get.identifierService().getMaxConceptSequence()),
+      return StreamSupport.intStream(new CursorSequenceSpliterator(database, Get.identifierService().getMaxConceptSequence()),
               false);
    }
 
@@ -227,7 +228,7 @@ public class BdbConceptProvider
 
    @Override
    public Stream<ConceptChronology> getParallelConceptChronologyStream() {
-     return StreamSupport.stream(new CursorChronologyStream(database, 
+     return StreamSupport.stream(new CursorChronologySpliterator(database, 
               Get.identifierService().getMaxConceptSequence()), true)
               .map((byteBuffer) -> { 
                  IsaacObjectType.CONCEPT.readAndValidateHeader(byteBuffer);

@@ -25,7 +25,7 @@ import java.util.concurrent.Callable;
  *
  * @author kec
  */
-public abstract class AlertObject {
+public class AlertObject {
    final String alertTitle;
    final String alertDescription;
    final AlertType alertType;
@@ -39,6 +39,11 @@ public abstract class AlertObject {
       this.alertType = alertType;
       this.alertCategory = alertCategory;
       this.resolutionTester = resolutionTester;
+   }
+
+
+   public AlertObject(String alertTitle, String alertDescription, AlertType alertType, AlertCategory alertCategory) {
+      this(alertTitle, alertDescription, alertType, alertCategory, null);
    }
 
    public String getAlertTitle() {

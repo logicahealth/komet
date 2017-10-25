@@ -568,9 +568,7 @@ public class TypeStampTaxonomyRecords {
          final StringBuilder sb = new StringBuilder();
 
          sb.append("«");
-         sb.append(Get.conceptService()
-                      .getConceptChronology(this.typeSequence)
-                      .toUserString());
+         sb.append(Get.conceptDescriptionText(this.typeSequence));
          sb.append(" <");
          sb.append(this.typeSequence);
          sb.append(">");

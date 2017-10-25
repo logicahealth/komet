@@ -34,10 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-
-
-
-/*
+ /*
 * To change this license header, choose License Headers in Project Properties.
 * To change this template file, choose Tools | Templates
 * and open the template in the editor.
@@ -45,7 +42,6 @@
 package sh.isaac.api.index;
 
 //~--- JDK imports ------------------------------------------------------------
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +49,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 //~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -61,10 +56,8 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------
-
 /**
  * The Class GenerateIndexes.
  *
@@ -72,22 +65,29 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
  */
 public class GenerateIndexes
         extends TimedTask<Void> {
-   /** The Constant log. */
-   private static final Logger log = LogManager.getLogger();
+
+   /**
+    * The Constant LOG.
+    */
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
-
-   /** The processed. */
+   /**
+    * The processed.
+    */
    AtomicLong processed = new AtomicLong(0);
 
-   /** The indexers. */
+   /**
+    * The indexers.
+    */
    List<IndexService> indexers;
 
-   /** The component count. */
+   /**
+    * The component count.
+    */
    long componentCount;
 
    //~--- constructors --------------------------------------------------------
-
    /**
     * Instantiates a new generate indexes.
     *
@@ -99,18 +99,18 @@ public class GenerateIndexes
 
       if ((indexersToReindex == null) || (indexersToReindex.length == 0)) {
          this.indexers = LookupService.get()
-                                      .getAllServices(IndexService.class);
+                 .getAllServices(IndexService.class);
       } else {
          this.indexers = new ArrayList<>();
 
-         for (final Class<?> clazz: indexersToReindex) {
+         for (final Class<?> clazz : indexersToReindex) {
             if (!IndexService.class.isAssignableFrom(clazz)) {
                throw new RuntimeException(
-                   "Invalid Class passed in to the index generator.  Classes must implement IndexService ");
+                       "Invalid Class passed in to the index generator.  Classes must implement IndexService ");
             }
 
             final IndexService temp = (IndexService) LookupService.get()
-                                                                      .getService(clazz);
+                    .getService(clazz);
 
             if (temp != null) {
                this.indexers.add(temp);
@@ -119,23 +119,22 @@ public class GenerateIndexes
       }
 
       final List<IndexStatusListener> islList = LookupService.get()
-                                                               .getAllServices(IndexStatusListener.class);
+              .getAllServices(IndexStatusListener.class);
 
-      for (final IndexService i: this.indexers) {
+      for (final IndexService i : this.indexers) {
          if (islList != null) {
-            for (final IndexStatusListener isl: islList) {
+            for (final IndexStatusListener isl : islList) {
                isl.reindexBegan(i);
             }
          }
 
-         log.info("Clearing index for: " + i.getIndexerName());
+         LOG.info("Clearing index for: " + i.getIndexerName());
          i.clearIndex();
          i.clearIndexedStatistics();
       }
    }
 
    //~--- methods -------------------------------------------------------------
-
    /**
     * Call.
     *
@@ -144,9 +143,9 @@ public class GenerateIndexes
     */
    @Override
    protected Void call()
-            throws Exception {
+           throws Exception {
       Get.activeTasks()
-         .add(this);
+              .add(this);
 
       try {
          // We only need to indexes sememes now
@@ -154,48 +153,47 @@ public class GenerateIndexes
          // by user, or by some other attribute that is attached to the concept.  But there simply isn't much on the concept at present, and I have
          // no use case for indexing the concepts.  The IndexService APIs would need enhancement if we allowed indexing things other than sememes.
          final long semanticCount = (int) Get.identifierService()
-                                           .getSemanticSequenceStream()
-                                           .count();
+                 .getSemanticSequenceStream()
+                 .count();
 
-         log.info("Semantic elements to index: " + semanticCount);
+         LOG.info("Semantic elements to index: " + semanticCount);
          this.componentCount = semanticCount;
 
-         for (final SemanticChronology sememe:
-               (Iterable<SemanticChronology>) Get.assemblageService()
-                     .getParallelSemanticChronologyStream()::iterator) {
-            for (final IndexService i: this.indexers) {
-               try {
-                  if (sememe == null) {
-                     // noop - this error is already logged elsewhere.  Just skip.
-                  } else {
-                     i.index(sememe)
-                      .get();
-                  }
-               } catch (final InterruptedException | ExecutionException e) {
-                  throw new RuntimeException(e);
-               }
-            }
+         Get.assemblageService()
+                 .getParallelSemanticChronologyStream().forEach((SemanticChronology semantic) -> {
+                    for (final IndexService i : this.indexers) {
+                       try {
+                          if (semantic == null) {
+                             // noop - this error is already logged elsewhere.  Just skip.
+                          } else {
+                             i.index(semantic)
+                                     .get();
+                          }
+                       } catch (final InterruptedException | ExecutionException e) {
+                          throw new RuntimeException(e);
+                       }
+                    }
 
-            updateProcessedCount();
-         }
+                    updateProcessedCount();
+                 });
 
          final List<IndexStatusListener> islList = LookupService.get()
-                                                                  .getAllServices(IndexStatusListener.class);
+                 .getAllServices(IndexStatusListener.class);
 
-         for (final IndexService i: this.indexers) {
+         for (final IndexService i : this.indexers) {
             if (islList != null) {
-               for (final IndexStatusListener isl: islList) {
+               for (final IndexStatusListener isl : islList) {
                   isl.reindexCompleted(i);
                }
             }
 
             i.commitWriter();
             i.forceMerge();
-            log.info(i.getIndexerName() + " indexing complete.  Statistics follow:");
+            LOG.info(i.getIndexerName() + " indexing complete.  Statistics follow:");
 
-            for (final Map.Entry<String, Integer> entry: i.reportIndexedItems()
-                  .entrySet()) {
-               log.info(entry.getKey() + ": " + entry.getValue());
+            for (final Map.Entry<String, Integer> entry : i.reportIndexedItems()
+                    .entrySet()) {
+               LOG.info(entry.getKey() + ": " + entry.getValue());
             }
 
             i.clearIndexedStatistics();
@@ -204,7 +202,7 @@ public class GenerateIndexes
          return null;
       } finally {
          Get.activeTasks()
-            .remove(this);
+                 .remove(this);
       }
    }
 
@@ -220,11 +218,10 @@ public class GenerateIndexes
 
          // We were committing too often every 1000 components, it was bad for performance.
          if (processedCount % 100000 == 0) {
-            for (final IndexService i: this.indexers) {
+            for (final IndexService i : this.indexers) {
                i.commitWriter();
             }
          }
       }
    }
 }
-

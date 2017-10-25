@@ -87,6 +87,12 @@
                             <groupId>sh.isaac.provider</groupId>
                             <artifactId>logic</artifactId>
                             <version>${project.parent.version}</version>
+                            <exclusions>
+                               <exclusion>
+                                 <groupId>sh.isaac.provider</groupId>
+                                 <artifactId>taxonomy</artifactId>
+                               </exclusion>
+                           </exclusions>
                         </dependency>
                         <dependency>
                             <groupId>sh.isaac.provider</groupId>

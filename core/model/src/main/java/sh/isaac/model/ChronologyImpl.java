@@ -65,7 +65,6 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.SemanticSequenceSet;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.coordinate.StampPath;
@@ -135,7 +134,7 @@ public abstract class ChronologyImpl
    private int nid;
 
    /**
-    * Concept sequence if a concept. Sememe sequence otherwise.
+    * Concept sequence if a concept. Semantic sequence otherwise.
     */
    private int containerSequence;
 
@@ -169,7 +168,7 @@ public abstract class ChronologyImpl
     *
     * @param primordialUuid A unique external identifier for this chronicle
     * @param nid A unique internal identifier, that is only valid within this database
-    * @param containerSequence Either a concept sequence or a sememe sequence depending on the ofType of the underlying
+    * @param containerSequence Either a concept sequence or a semantic sequence depending on the ofType of the underlying
     * object.
     */
    protected ChronologyImpl(UUID primordialUuid, int nid, int containerSequence) {

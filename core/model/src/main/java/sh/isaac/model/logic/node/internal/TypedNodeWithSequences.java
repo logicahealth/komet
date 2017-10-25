@@ -49,7 +49,6 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.model.logic.LogicalExpressionImpl;

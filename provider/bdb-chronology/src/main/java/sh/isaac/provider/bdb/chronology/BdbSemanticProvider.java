@@ -125,7 +125,7 @@ public class BdbSemanticProvider implements AssemblageService {
 
    @Override
    public Stream<SemanticChronology> getParallelSemanticChronologyStream() {
-      return StreamSupport.stream(new CursorChronologyStream(database, 
+      return StreamSupport.stream(new CursorChronologySpliterator(database, 
               Get.identifierService().getMaxSemanticSequence()), true)
               .map((byteBuffer) -> { 
                  IsaacObjectType.SEMANTIC.readAndValidateHeader(byteBuffer);
@@ -156,7 +156,7 @@ public class BdbSemanticProvider implements AssemblageService {
 
    @Override
    public Stream<SemanticChronology> getSemanticChronologyStream() {
-      return StreamSupport.stream(new CursorChronologyStream(database, 
+      return StreamSupport.stream(new CursorChronologySpliterator(database, 
               Get.identifierService().getMaxSemanticSequence()), false)
                .map((byteBuffer) -> { 
                  IsaacObjectType.SEMANTIC.readAndValidateHeader(byteBuffer);
@@ -171,13 +171,13 @@ public class BdbSemanticProvider implements AssemblageService {
 
    @Override
    public IntStream getSemanticChronologyKeyParallelStream() {
-       return StreamSupport.intStream(new CursorSequenceStream(database, Get.identifierService().getMaxSemanticSequence()),
+       return StreamSupport.intStream(new CursorSequenceSpliterator(database, Get.identifierService().getMaxSemanticSequence()),
               true);
   }
 
    @Override
    public IntStream getSemanticChronologyKeyStream() {
-      return StreamSupport.intStream(new CursorSequenceStream(database, Get.identifierService().getMaxSemanticSequence()),
+      return StreamSupport.intStream(new CursorSequenceSpliterator(database, Get.identifierService().getMaxSemanticSequence()),
               false);
    }
 

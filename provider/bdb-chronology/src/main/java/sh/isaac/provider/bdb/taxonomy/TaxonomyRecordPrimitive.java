@@ -484,15 +484,6 @@ public class TaxonomyRecordPrimitive {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the taxonomy data.
-    *
-    * @return the taxonomy data
-    */
-   public int[] getTaxonomyData() {
-      return this.taxonomyData;
-   }
-
-   /**
     * Gets the taxonomy record unpacked.
     *
     * @return the taxonomy record unpacked

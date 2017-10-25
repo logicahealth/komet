@@ -16,10 +16,20 @@
  */
 package sh.isaac.api.alert;
 
+import java.util.concurrent.Callable;
+
 /**
  *
  * @author kec
  */
-public enum AlertCategory {
-   TAXONOMY, CLASSIFIER, COMMIT, ENVIRONMENT
+public class EnvironmentalAlert extends AlertObject {
+   
+   public EnvironmentalAlert(String alertTitle, String alertDescription, AlertType alertType, Callable<Boolean> resolutionTester) {
+      super(alertTitle, alertDescription, alertType, AlertCategory.ENVIRONMENT, resolutionTester);
+   }
+
+   public EnvironmentalAlert(String alertTitle, String alertDescription, AlertType alertType) {
+      super(alertTitle, alertDescription, alertType, AlertCategory.ENVIRONMENT);
+   }
+   
 }

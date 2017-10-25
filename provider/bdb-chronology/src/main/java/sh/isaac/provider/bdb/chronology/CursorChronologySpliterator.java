@@ -24,54 +24,65 @@ import com.sleepycat.je.DatabaseEntry;
 import com.sleepycat.je.LockMode;
 import com.sleepycat.je.OperationStatus;
 import java.util.Spliterator;
-import java.util.function.IntConsumer;
+import java.util.function.Consumer;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 
 /**
  *
  * @author kec
  */
-public class CursorSequenceStream implements Spliterator.OfInt {
+public class CursorChronologySpliterator implements Spliterator<ByteArrayDataBuffer>, AutoCloseable {
+
    final Cursor cursor;
-   final Database    database;
+   final Database database;
    final DatabaseEntry key = new DatabaseEntry();
+   final DatabaseEntry value = new DatabaseEntry();
+   private boolean closed = false;
    int currentId;
    int maxId;
 
-   public CursorSequenceStream(Database database, int maxId) {
+   public CursorChronologySpliterator(Database database, int maxId) {
       this.cursor = database.openCursor(null, CursorConfig.DEFAULT);
       this.database = database;
+      this.currentId = 0;
       this.maxId = maxId;
    }
 
    @Override
-   public OfInt trySplit() {
-      CursorSequenceStream splitStream = new CursorSequenceStream(database, maxId);
-      int split = maxId - currentId;
-      int half = split/2;
-      this.maxId = currentId + half;
-      splitStream.currentId = currentId + half + 1;
-      return splitStream;
+   public boolean tryAdvance(Consumer<? super ByteArrayDataBuffer> action) {
+      if (!closed) {
+         OperationStatus status = cursor.getNext(key, value, LockMode.DEFAULT);
+         if (status == OperationStatus.SUCCESS) {
+            int currentKey = IntegerBinding.entryToInt(key);
+            if (currentKey < currentId) {
+               IntegerBinding.intToEntry(currentId, key);
+               status = cursor.getSearchKeyRange(key, value, LockMode.DEFAULT);
+               if (status != OperationStatus.SUCCESS) {
+                  close();
+                  return false;
+               }
+            }
+            currentId = currentKey;
+            if (currentId <= maxId) {
+               action.accept(BdbProvider.collectByteRecords(key, value, cursor));
+               return true;
+            }
+         }
+         close();
+         return false;
+      } else {
+         throw new RuntimeException("Trying advance after close... ");
+      }
    }
 
    @Override
-   public boolean tryAdvance(IntConsumer action) {
-      OperationStatus status = cursor.getNext(key, null, LockMode.DEFAULT);
-      if (status == OperationStatus.SUCCESS) {
-         int currentKey = IntegerBinding.entryToInt(key);
-         if (currentKey < currentId) {
-            IntegerBinding.intToEntry(currentId, key);
-            status = cursor.getSearchKeyRange(key, null, LockMode.DEFAULT);
-            if (status != OperationStatus.SUCCESS) {
-               return false;
-            }
-         }
-         currentId = currentKey;
-         if (currentId <= maxId) {
-            action.accept(currentId);
-            return true;
-         }
-      }
-     return false;
+   public Spliterator<ByteArrayDataBuffer> trySplit() {
+      CursorChronologySpliterator splitStream = new CursorChronologySpliterator(database, maxId);
+      int split = maxId - currentId;
+      int half = split / 2;
+      this.maxId = currentId + half;
+      splitStream.currentId = currentId + half + 1;
+      return splitStream;
    }
 
    @Override
@@ -83,5 +94,11 @@ public class CursorSequenceStream implements Spliterator.OfInt {
    public int characteristics() {
       return Spliterator.DISTINCT + DISTINCT + NONNULL + ORDERED;
    }
-   
+
+   @Override
+   public void close() {
+      cursor.close();
+      this.closed = true;
+   }
+
 }

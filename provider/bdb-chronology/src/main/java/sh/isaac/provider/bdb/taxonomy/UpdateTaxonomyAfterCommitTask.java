@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.provider.taxonomy;
+package sh.isaac.provider.bdb.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -65,8 +65,8 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  */
 public class UpdateTaxonomyAfterCommitTask
         extends TimedTask<Void> {
-   /** The Constant log. */
-   private static final Logger log = LogManager.getLogger();
+   /** The Constant LOG. */
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- fields --------------------------------------------------------------
 
@@ -140,7 +140,7 @@ public class UpdateTaxonomyAfterCommitTask
                                  this.sememeSequencesForUnhandledChanges.remove(sememeSequence);
                               }
                            } catch (final Exception e) {
-                              log.error("Error handling update taxonomy after commit on sememe " + sememeSequence, e);
+                              LOG.error("Error handling update taxonomy after commit on sememe " + sememeSequence, e);
                               atLeastOneFailed.set(true);
                            }
                         });

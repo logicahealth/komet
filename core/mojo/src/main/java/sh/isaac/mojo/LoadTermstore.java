@@ -396,7 +396,6 @@ public class LoadTermstore
                   }
                }
             }
-            ;
 
             if (this.skippedItems.size() > 0) {
                this.skippedAny = true;

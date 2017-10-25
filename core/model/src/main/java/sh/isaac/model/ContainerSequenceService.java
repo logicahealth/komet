@@ -14,12 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.alert;
+package sh.isaac.model;
+
+import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.IdentifierService2;
 
 /**
  *
  * @author kec
  */
-public enum AlertCategory {
-   TAXONOMY, CLASSIFIER, COMMIT, ENVIRONMENT
+@Contract
+public interface ContainerSequenceService extends IdentifierService2 {
+   
+   long getContainerSequenceForNid(int nid, int assemblageNid);
+   
+   int getNidForContainerSequence(long containerSequence);
+   
 }

@@ -71,6 +71,11 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.SystemStatusService;
+import sh.isaac.api.alert.Alert;
+import sh.isaac.api.alert.AlertCategory;
+import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.alert.AlertType;
+import sh.isaac.api.alert.EnvironmentalAlert;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChangeCheckerMode;
@@ -279,13 +284,16 @@ public class ChangeSetLoadProvider
                ((changesetsDbId != null) &&!changesetsDbId.equals(chronicleDbId))) {
             final StringBuilder msg = new StringBuilder();
 
-            msg.append("Database identity mismatch!  ChronicleDbId: ")
+            msg.append("Database identity mismatch!  Concept DbId: ")
                .append(chronicleDbId);
-            msg.append(" SememeDbId: ")
+            msg.append(" Semantic DbId: ")
                .append(sememeDbId);
             msg.append(" Changsets DbId: ")
                .append(changesetsDbId);
-            throw new RuntimeException(msg.toString());
+            String message = msg.toString();
+            LOG.error(message);
+            AlertObject alertObject = new EnvironmentalAlert("Database identity mismatch", message, AlertType.ERROR);
+            Alert.publishAddition(alertObject);
          }
 
          if (changesetsDbId == null) {

@@ -14,12 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.alert;
+package sh.isaac.provider.bdb.disruptor;
 
 /**
  *
  * @author kec
  */
-public enum AlertCategory {
-   TAXONOMY, CLASSIFIER, COMMIT, ENVIRONMENT
+public enum UpdateAction {
+   UPDATE_CONCEPT_STATUS, UPDATE_TAXONOMY
 }

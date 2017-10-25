@@ -41,9 +41,6 @@ package sh.isaac.model.logic.node.internal;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.IOException;
 
 import java.util.UUID;
 import org.apache.mahout.math.set.OpenIntHashSet;
@@ -52,7 +49,6 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
@@ -242,10 +238,7 @@ public final class ConceptNodeWithSequences
    @Override
    protected UUID initNodeUuid() {
       return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                                 Get.identifierService()
-                                    .getUuidPrimordialFromConceptId(this.conceptSequence)
-                                    .get()
-                                    .toString());
+                                 Integer.toString(this.conceptSequence));
    }
 
    //~--- get methods ---------------------------------------------------------

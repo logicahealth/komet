@@ -120,7 +120,6 @@ public abstract class LiteralNode
     *
     * @param dataOutput the data output
     * @param dataTarget the data target
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
    protected void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {

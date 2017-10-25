@@ -225,7 +225,6 @@ public final class TemplateNodeWithSequences
     *
     * @param dataOutput the data output
     * @param dataTarget the data target
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
    public void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
@@ -272,11 +271,8 @@ public final class TemplateNodeWithSequences
    @Override
    protected UUID initNodeUuid() {
       return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                                 Get.identifierService()
-                                    .getUuidPrimordialFromConceptId(this.assemblageConceptSequence)
-                                    .get()
-                                    .toString() + Get.identifierService().getUuidPrimordialFromConceptId(
-                                        this.templateConceptSequence).get().toString());
+                                 Integer.toString(this.assemblageConceptSequence) +
+                                    Integer.toString(templateConceptSequence));
    }
 
    //~--- get methods ---------------------------------------------------------

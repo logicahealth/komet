@@ -89,7 +89,7 @@
          <artifactId>bdb-chronology</artifactId>
          <version>${project.parent.version}</version>
       </dependency>
-<!--      <dependency>
+      <!--      <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>concept</artifactId>
          <version>${project.parent.version}</version>
@@ -99,15 +99,21 @@
          <artifactId>assemblage</artifactId>
          <version>${project.parent.version}</version>
       </dependency>-->
-      <dependency>
+      <!--      <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>taxonomy</artifactId>
          <version>${project.parent.version}</version>
-      </dependency>
+      </dependency>-->
       <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>logic</artifactId>
          <version>${project.parent.version}</version>
+         <exclusions>
+            <exclusion>
+               <groupId>sh.isaac.provider</groupId>
+               <artifactId>taxonomy</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
@@ -302,7 +308,7 @@
    <profiles>
       <profile>
          <id>build-mac-binary</id>
-<!--         <activation>
+         <!--         <activation>
             <os>
                <name>Mac OS X</name>
             </os>

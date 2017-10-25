@@ -51,7 +51,10 @@ import org.apache.mahout.math.map.OpenIntObjectHashMap;
 import org.apache.mahout.math.set.OpenIntHashSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.alert.Alert;
+import sh.isaac.api.alert.AlertCategory;
+import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.alert.AlertType;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.TreeCycleError;
 import sh.isaac.api.tree.TreeNodeVisitData;
@@ -65,7 +68,6 @@ import static sh.isaac.api.tree.hashtree.AbstractHashTree.MULTI_PARENT_SETS;
  */
 public class HashTreeBuilder {
 
-   
    /**
     * The Constant builderCount.
     */
@@ -120,7 +122,7 @@ public class HashTreeBuilder {
       for (String uuidStr : watchUuids) {
          watchSequences.add(Get.identifierService().getConceptSequenceForUuids(UUID.fromString(uuidStr)));
       }
-    }
+   }
 
    //~--- methods -------------------------------------------------------------
    /**
@@ -130,6 +132,11 @@ public class HashTreeBuilder {
     * @param child the child
     */
    public void add(int parent, int child) {
+       boolean testing = true;
+      if (testing && parent == TermAux.SOLOR_ROOT.getConceptSequence()) {
+         System.out.println("SOLOR root sequence added to tree: " + TermAux.SOLOR_ROOT.getConceptSequence());
+      }
+     
       conceptSequences.add(parent);
       conceptSequences.add(child);
       conceptSequencesWithParents.add(child);
@@ -182,13 +189,14 @@ public class HashTreeBuilder {
          return true;
       });
    }
-   
+
    private void addToOne(OpenIntHashSet one, OpenIntHashSet another) {
       another.forEachKey((sequence) -> {
          one.add(sequence);
          return true;
       });
    }
+
    private void removeFromOne(OpenIntHashSet one, OpenIntHashSet another) {
       another.forEachKey((sequence) -> {
          one.remove(sequence);
@@ -203,68 +211,82 @@ public class HashTreeBuilder {
     * @return the simple directed graph graph
     */
    public HashTreeWithBitSets getSimpleDirectedGraph() {
+      boolean testing = true;
+      if (testing) {
+         System.out.println("SOLOR root sequence: " + TermAux.SOLOR_ROOT.getConceptSequence());
+         System.out.println("SOLOR root in concepts: " + conceptSequences.contains(TermAux.SOLOR_ROOT.getConceptSequence()));
+         System.out.println("SOLOR root in concepts with parents: " + conceptSequencesWithParents.contains(TermAux.SOLOR_ROOT.getConceptSequence()));
+      }
       OpenIntHashSet roots = (OpenIntHashSet) conceptSequences.clone();
       removeFromOne(roots, conceptSequencesWithParents);
-      if (roots.size() == 1) {
-         int rootSequence = roots.keys().get(0);
- 
-         final HashTreeWithBitSets graph = new HashTreeWithBitSets(this.childSequence_ParentSequenceSet_Map.size(),
-                 manifoldCoordinate);
-
-         this.childSequence_ParentSequenceSet_Map.forEachPair((int childSequence,
-                 OpenIntHashSet parentSequenceSet) -> {
-            if (!parentSequenceSet.isEmpty()) {
-               graph.addParents(childSequence, setToSortedArray(parentSequenceSet));
-            }
-            return true;
-         });
-         this.parentSequence_ChildSequenceSet_Map.forEachPair((int parentSequence,
-                 OpenIntHashSet childSequenceSet) -> {
-            if (!childSequenceSet.isEmpty()) {
-               graph.addChildren(parentSequence, setToSortedArray(childSequenceSet));
-            }
-            return true;
-         });
-
-         TreeNodeVisitData visitData = graph.depthFirstProcess(rootSequence, (TreeNodeVisitData t, int thisSequence) -> {
-            if (watchSequences.contains(thisSequence)) {
-               printWatch(thisSequence, "dfs: ");
-            }
-         });
-
-         for (int[] cycle: visitData.getCycleSet()) {
-            StringBuilder cycleDescription = new StringBuilder("Members: \n");
-            for (int conceptSequence: cycle) {
-               cycleDescription.append("   ").append(manifoldCoordinate.getPreferredDescriptionText(conceptSequence)).append("\n");
-            }
-            Alert.publishAddition(new TreeCycleError(cycle, visitData, graph, "Cycle found", cycleDescription.toString(), AlertType.ERROR));
-         }
-         
-         System.out.println("Nodes visited: " + visitData.getNodesVisited());
-         for (int sequence: watchSequences.toList()) {
-            OpenIntHashSet multiParents = visitData.getUserNodeSet(MULTI_PARENT_SETS, sequence);
-            System.out.println(Get.conceptDescriptionText(sequence) + " multiParentSet: " + multiParents);
-         }
-         
-         return graph;
-      } else {
-         final StringBuilder builder = new StringBuilder("Too many roots: \n");
-         for (int sequence: roots.keys().elements()) {
+      if (roots.size() != 1) {
+         final StringBuilder builder = new StringBuilder("Roots: \n");
+         for (int sequence : roots.keys().elements()) {
             builder.append(sequence).append(": ").append(Get.conceptDescriptionText(sequence)).append("\n");
             printWatch(sequence, "root: ");
          }
-         // try again
-         throw new UnsupportedOperationException(builder.toString());
+         String title = "To many taxonomy roots";
+         if (roots.isEmpty()) {
+            title = "No taxonomy roots";
+         }
+         
+         AlertObject alert = new AlertObject(title, builder.toString(), AlertType.ERROR, AlertCategory.TAXONOMY);
+         Alert.publishAddition(alert);
+
       }
 
+      int rootSequence = TermAux.SOLOR_ROOT.getConceptSequence();
+      if (!roots.keys().isEmpty()) {
+         rootSequence = roots.keys().get(0);
+      } 
+
+      final HashTreeWithBitSets graph = new HashTreeWithBitSets(this.childSequence_ParentSequenceSet_Map.size(),
+              manifoldCoordinate);
+
+      this.childSequence_ParentSequenceSet_Map.forEachPair((int childSequence,
+              OpenIntHashSet parentSequenceSet) -> {
+         if (!parentSequenceSet.isEmpty()) {
+            graph.addParents(childSequence, setToSortedArray(parentSequenceSet));
+         }
+         return true;
+      });
+      this.parentSequence_ChildSequenceSet_Map.forEachPair((int parentSequence,
+              OpenIntHashSet childSequenceSet) -> {
+         if (!childSequenceSet.isEmpty()) {
+            graph.addChildren(parentSequence, setToSortedArray(childSequenceSet));
+         }
+         return true;
+      });
+
+      TreeNodeVisitData visitData = graph.depthFirstProcess(rootSequence, (TreeNodeVisitData t, int thisSequence) -> {
+         if (watchSequences.contains(thisSequence)) {
+            printWatch(thisSequence, "dfs: ");
+         }
+      });
+
+      for (int[] cycle : visitData.getCycleSet()) {
+         StringBuilder cycleDescription = new StringBuilder("Members: \n");
+         for (int conceptSequence : cycle) {
+            cycleDescription.append("   ").append(manifoldCoordinate.getPreferredDescriptionText(conceptSequence)).append("\n");
+         }
+         Alert.publishAddition(new TreeCycleError(cycle, visitData, graph, "Cycle found", cycleDescription.toString(), AlertType.ERROR));
+      }
+
+      System.out.println("Nodes visited: " + visitData.getNodesVisited());
+      for (int sequence : watchSequences.toList()) {
+         OpenIntHashSet multiParents = visitData.getUserNodeSet(MULTI_PARENT_SETS, sequence);
+         System.out.println(Get.conceptDescriptionText(sequence) + " multiParentSet: " + multiParents);
+      }
+
+      return graph;
+
    }
-   
+
    private int[] setToSortedArray(OpenIntHashSet set) {
       IntArrayList list = set.keys();
       list.sort();
       return list.elements();
    }
-
 
    private void printWatch(int thisSequence, String prefix) {
       System.out.println("\n" + prefix + " watch: " + Get.conceptDescriptionText(thisSequence));

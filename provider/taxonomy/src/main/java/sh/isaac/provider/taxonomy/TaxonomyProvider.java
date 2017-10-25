@@ -1010,7 +1010,7 @@ public class TaxonomyProvider
     *
     * @return the destination origin record set
     */
-   public ConcurrentSkipListSet<DestinationOriginRecord> getDestinationOriginRecordSet() {
+   private ConcurrentSkipListSet<DestinationOriginRecord> getDestinationOriginRecordSet() {
       return this.destinationOriginRecordSet;
    }
 

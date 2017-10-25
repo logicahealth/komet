@@ -169,10 +169,7 @@ public final class RoleNodeSomeWithSequences
    @Override
    protected UUID initNodeUuid() {
       return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                                 Get.identifierService()
-                                    .getUuidPrimordialFromConceptId(this.typeConceptSequence)
-                                    .get()
-                                    .toString());
+                                 Integer.toString(typeConceptSequence));
    }
 
    //~--- get methods ---------------------------------------------------------

@@ -49,7 +49,6 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
@@ -264,13 +263,8 @@ public final class FeatureNodeWithSequences
    @Override
    protected UUID initNodeUuid() {
       return UuidT5Generator.get(getNodeSemantic().getSemanticUuid(),
-                                 Get.identifierService()
-                                    .getUuidPrimordialFromConceptId(this.typeConceptSequence)
-                                    .get()
-                                    .toString() + this.operator
-
-      // + Get.identifierService().getUuidPrimordialForNid(unitsConceptSequence)
-      .toString());
+                                 Integer.toString(typeConceptSequence) +
+                                  this.operator.toString());
    }
 
    //~--- get methods ---------------------------------------------------------

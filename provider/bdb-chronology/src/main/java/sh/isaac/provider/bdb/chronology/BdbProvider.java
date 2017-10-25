@@ -68,6 +68,9 @@ public class BdbProvider implements DatabaseServices {
 
    private Environment myDbEnvironment;
    private Database    conceptDatabase;
+   private Database    semanticDatabase;
+   private Database    taxonomyDatabase;
+   private Database    identifierDatabase;
    
    // TODO persist dataStoreId. 
    private final UUID dataStoreId = UUID.randomUUID();
@@ -79,7 +82,6 @@ public class BdbProvider implements DatabaseServices {
    public Database getSemanticDatabase() {
       return semanticDatabase;
    }
-   private Database    semanticDatabase;
    
    private static BdbProvider singleton;
    
@@ -124,7 +126,18 @@ public class BdbProvider implements DatabaseServices {
          dbConfig.setSortedDuplicates(true);
          conceptDatabase = myDbEnvironment.openDatabase(null, "concepts", dbConfig);
          semanticDatabase = myDbEnvironment.openDatabase(null, "semantics", dbConfig);
-      } catch (Throwable dbe) {
+         
+         DatabaseConfig noDupConfig = new DatabaseConfig();
+         noDupConfig.setSortedDuplicates(false);
+         noDupConfig.setAllowCreate(true);
+         noDupConfig.setDeferredWrite(true);
+         taxonomyDatabase = myDbEnvironment.openDatabase(null, "taxonomy", noDupConfig);
+         identifierDatabase = myDbEnvironment.openDatabase(null, "identifier", noDupConfig);
+         LOG.info("taxonomy count at open: " + taxonomyDatabase.count());
+         LOG.info("concept count at open: " + conceptDatabase.count());
+         LOG.info("semantic count at open: " + semanticDatabase.count());
+         LOG.info("identifier count at open: " + identifierDatabase.count());
+  } catch (Throwable dbe) {
          dbe.printStackTrace();
          throw new RuntimeException(dbe);
       }
@@ -137,12 +150,29 @@ public class BdbProvider implements DatabaseServices {
    private void stopMe() {
       LOG.info("Stopping BDB ConceptProvider.");
 
-      if (myDbEnvironment != null) {
-         conceptDatabase.sync();
-         conceptDatabase.close();
-         semanticDatabase.sync();
-         semanticDatabase.close();
-         myDbEnvironment.close();
+      try {
+         if (myDbEnvironment != null) {
+            taxonomyDatabase.sync();
+            LOG.info("taxonomy count at close: " + taxonomyDatabase.count());
+            conceptDatabase.sync();
+            LOG.info("concept count at close: " + conceptDatabase.count());
+            semanticDatabase.sync();
+            LOG.info("semantic count at close: " + semanticDatabase.count());
+            identifierDatabase.sync();
+            LOG.info("identifier count at close: " + identifierDatabase.count());
+            LOG.info("closing concept database.");
+            conceptDatabase.close();
+            LOG.info("semantic concept database. ");
+            semanticDatabase.close();
+            LOG.info("closing taxonomy database. ");
+            taxonomyDatabase.close();
+            LOG.info("closing identifier database. ");
+            identifierDatabase.close();
+            myDbEnvironment.close();
+         }
+      } catch (Throwable ex) {
+         LOG.error(ex);
+         throw ex;
       }
    }
    
@@ -231,6 +261,14 @@ public class BdbProvider implements DatabaseServices {
          throw new IllegalStateException("Record does not start with zero...");
       }
       return byteBuffer;
+   }
+
+   public Database getTaxonomyDatabase() {
+      return taxonomyDatabase;
+   }
+   
+   public Database getIdentifierDatabase() {
+      return identifierDatabase;
    }
    
 }

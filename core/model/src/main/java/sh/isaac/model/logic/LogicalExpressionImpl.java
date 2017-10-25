@@ -37,9 +37,6 @@
 package sh.isaac.model.logic;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
 
 import java.time.Instant;
 
@@ -59,7 +56,6 @@ import org.apache.mahout.math.set.OpenIntHashSet;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
-import sh.isaac.api.collections.ConceptSequenceSet;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicNode;
@@ -956,7 +952,7 @@ public class LogicalExpressionImpl
          if (this.logicNodes.size() != other.logicNodes.size()) {
             return false;
          }
-
+         
          final TreeNodeVisitData graphVisitData = new TreeNodeVisitData(this.logicNodes.size());
 
          depthFirstVisit(null, getRoot(), graphVisitData, 0);

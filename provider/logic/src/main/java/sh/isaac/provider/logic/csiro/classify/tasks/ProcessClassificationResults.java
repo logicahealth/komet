@@ -251,7 +251,8 @@ public class ProcessClassificationResults
       final SemanticBuilderService sememeBuilderService = Get.semanticBuilderService();
       final CommitService commitService = Get.commitService();
 
-      // TODO Dan notes, for reasons not yet understood, this parallelStream call isn't working.  JVisualVM tells me that all of this
+      // TODO Dan notes, for reasons not yet understood, this parallelStream call isn't working.  
+      // JVisualVM tells me that all of this
       // work is occurring on a single thread.  Need to figure out why...
       affectedConcepts.parallelStream().forEach((conceptSequence) -> {
          try {
@@ -271,7 +272,8 @@ public class ProcessClassificationResults
                     statedSememeSequences,
                     sememeService);
 
-            // SemanticChronology<LogicGraphSememe> statedChronology = (SemanticChronology<LogicGraphSememe>) assemblageService.getSemanticChronology(statedSememeSequences.stream().findFirst().getAsInt());
+            // SemanticChronology<LogicGraphSememe> statedChronology = (SemanticChronology<LogicGraphSememe>) 
+            // assemblageService.getSemanticChronology(statedSememeSequences.stream().findFirst().getAsInt());
             final SemanticChronology rawStatedChronology
                     = sememeService.getSemanticChronology(statedSememeSequences.stream()
                             .findFirst()
@@ -368,7 +370,8 @@ public class ProcessClassificationResults
          }
       });
 
-      final Task<Optional<CommitRecord>> commitTask = commitService.commit(Get.configurationService().getDefaultEditCoordinate(), "classifier run");
+      final Task<Optional<CommitRecord>> commitTask = commitService.commit(
+              Get.configurationService().getDefaultEditCoordinate(), "classifier run");
 
       try {
          final Optional<CommitRecord> commitRecord = commitTask.get();

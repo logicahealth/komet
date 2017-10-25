@@ -41,7 +41,6 @@ package sh.isaac.model.logic.node;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.DataOutput;
 import java.io.IOException;
 
 import java.util.UUID;
@@ -185,7 +184,6 @@ public class LiteralNodeBoolean
     *
     * @param dataOutput the data output
     * @param dataTarget the data target
-    * @throws IOException Signals that an I/O exception has occurred.
     */
    @Override
    protected void writeNodeData(ByteArrayDataBuffer dataOutput, DataTarget dataTarget) {
