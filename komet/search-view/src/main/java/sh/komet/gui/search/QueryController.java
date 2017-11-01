@@ -216,6 +216,8 @@ public class QueryController
    void executeQuery(ActionEvent event) {
       QueryBuilder queryBuilder = new QueryBuilder(this.letPropertySheet.getManifold());
 
+      System.out.println("\n" + this.letPropertySheet.getManifold() + "\n");
+
       if (allComponents.isSelected()) {
          queryBuilder.from(ComponentCollectionTypes.ALL_COMPONENTS);
       }

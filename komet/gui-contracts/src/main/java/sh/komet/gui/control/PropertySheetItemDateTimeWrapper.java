@@ -8,13 +8,13 @@ import org.controlsfx.control.PropertySheet;
 import java.time.*;
 import java.util.Optional;
 
-public class PropertySheetItemDateWrapper implements PropertySheet.Item {
+public class PropertySheetItemDateTimeWrapper implements PropertySheet.Item {
 
     private final String name;
     private final SimpleObjectProperty<LocalDateTime> dateObserver;
     private final LongProperty timeProperty;
 
-    public PropertySheetItemDateWrapper(String name, LongProperty timeProperty) {
+    public PropertySheetItemDateTimeWrapper(String name, LongProperty timeProperty) {
         this.name = name;
         this.timeProperty = timeProperty;
         Instant instant;
